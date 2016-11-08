@@ -658,7 +658,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 							bAction = true;
 							bDone = true;
 						}
-						else //cannot move
+						else //cannot move or no need to move
 						{
 							bDone = true;
 						}

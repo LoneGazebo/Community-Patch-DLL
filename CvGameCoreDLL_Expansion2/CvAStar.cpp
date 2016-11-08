@@ -939,6 +939,11 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	else
 		kToNodeCacheData.iPlotDanger = 0;
 
+	//special for approximate pathfinding - don't hang around on dangerous plots
+	if (DestinationReached(node->m_iX,node->m_iY,finder->GetData(),finder) && 
+		!bIsDestination && !bIsInitialNode && kToNodeCacheData.iPlotDanger>pUnit->GetCurrHitPoints())
+		kToNodeCacheData.bCanEnterTerrainPermanent = false;
+
 	//done!
 	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
 }
@@ -1166,7 +1171,12 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			else if (iPlotDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
 			else if (iPlotDanger > 0 )
-				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+			{
+				if (kToNodeCacheData.bIsNonNativeDomain) //embarked paths are often shorter, so add a penalty ...
+					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
+				else
+					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+			}
 		}
 		else //civilian
 		{
@@ -1174,7 +1184,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			if (iPlotDanger > pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
 			else if (iPlotDanger > 0)
-				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
 		}
 	}
 
@@ -1395,7 +1405,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 				return FALSE;
 
 			//don't move to dangerous water plots (unless the current plot is dangerous too)
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<10 )
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<kToNodeCacheData.iPlotDanger*2)
 				return FALSE;
 
 			//embark required and possible?
@@ -1929,7 +1939,10 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	if(!(pNewPlot->isRevealed(eTeam)))
+	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
+		return FALSE;
+
+	if(pNewPlot->getOwner()!=NO_PLAYER && !pNewPlot->IsFriendlyTerritory(ePlayer))
 		return FALSE;
 
 	CvCity* pCity = pNewPlot->getPlotCity();

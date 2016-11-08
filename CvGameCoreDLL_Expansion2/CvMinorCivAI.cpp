@@ -11666,7 +11666,7 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest)
+void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -11680,7 +11680,7 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 	if(GetBaseFriendshipWithMajor(ePlayer) < iMinimumFriendship)
 		m_aiFriendshipWithMajorTimes100[ePlayer] = iMinimumFriendship * 100;
 
-	int iNewEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 
 	// Has the friendship in effect changed?
 	if(iOldEffectiveFriendship != iNewEffectiveFriendship)

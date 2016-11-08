@@ -30,6 +30,10 @@
 #include "../CvReplayMessage.h"
 #include "../cvStopWatch.h"
 
+#if defined(MOD_BATTLE_ROYALE)
+#include "../CvLoggerCSV.h"
+#endif
+
 #define Method(func) RegisterMethod(L, l##func, #func);
 
 //------------------------------------------------------------------------------
@@ -505,6 +509,11 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetContractUnits);
 	Method(GetInactiveContractUnitList);
 	Method(GetActiveContractUnitList);
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+	Method(DeleteCSV);
+	Method(WriteCSV);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -3935,6 +3944,27 @@ int CvLuaGame::lGetActiveContractUnitList(lua_State* L)
 			}
 		}	
 	}
+	return 1;
+}
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+int CvLuaGame::lDeleteCSV(lua_State * L)
+{
+	const char* szCSVFilename = lua_tostring(L, 2);
+
+	CvLoggerCSV::DeleteCSV(szCSVFilename);
+
+	return 1;
+}
+
+int CvLuaGame::lWriteCSV(lua_State * L)
+{
+	const char* szCSVFilename = lua_tostring(L, 2);
+	const char* szCSVLine = lua_tostring(L, 3);
+
+	CvLoggerCSV::WriteCSVLog(szCSVFilename, szCSVLine);
+
 	return 1;
 }
 #endif

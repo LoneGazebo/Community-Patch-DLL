@@ -499,6 +499,12 @@ protected:
 	static int lGetInactiveContractUnitList(lua_State* L);
 	static int lGetActiveContractUnitList(lua_State* L);
 #endif
+
+#if defined(MOD_BATTLE_ROYALE)
+	// Lua CSV Logging Functions
+	static int lDeleteCSV(lua_State* L);
+	static int lWriteCSV(lua_State* L);
+#endif
 };
 
 #endif //CVLUAGAME_H

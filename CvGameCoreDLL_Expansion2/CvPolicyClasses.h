@@ -307,6 +307,7 @@ public:
 	int GetMaxCorps() const;
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
+	int GetExtraSupplyPerPopulation() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -640,6 +641,7 @@ private:
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;
+	int m_iExtraSupplyPerPopulation;
 	bool m_bNoPartisans;
 	bool m_bCorporationOfficesAsFranchises;
 	bool m_bCorporationFreeFranchiseAbovePopular;

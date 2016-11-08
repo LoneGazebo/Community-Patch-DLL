@@ -2845,7 +2845,7 @@ void CvDiplomacyAI::DoCounters()
 				}
 
 				// Has our Friendship expired?
-				if(IsDoFAccepted(eLoopPlayer) && GetDoFCounter(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
+				if (IsDoFAccepted(eLoopPlayer) && GetDoFCounter(eLoopPlayer) >= GC.getDOF_EXPIRATION_TIME())
 				{
 					SetDoFCounter(eLoopPlayer, -1);
 					SetDoFAccepted(eLoopPlayer, false);
@@ -7855,7 +7855,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 		int iRequestPeaceTurnThreshold = /*10*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		iRequestPeaceTurnThreshold -= m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-		int iWantPeace = 0;
+		int iWantPeace = (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 10);
 		
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
@@ -7903,7 +7903,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		iWantPeace += (iTheirDanger * -2);
 
 		//Num of turns since they captured a city?
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) > 1)
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 0 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) > 0)
 		{
 			//Longer lag time in war = bigger desire for peace.
 			iWantPeace += ((GetPlayerNumTurnsSinceCityCapture(ePlayer) + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID())) / 4);

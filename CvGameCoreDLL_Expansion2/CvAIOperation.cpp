@@ -1592,14 +1592,8 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (!pDeployPlot)
 		pDeployPlot = pTargetPlot;
 
-	if (IsNavalOperation() && !pDeployPlot->isWater())
-	{
-		if (GC.getLogging() && GC.getAILogging())
-			LogOperationSpecialMessage("Cannot set up operation - no path to target!");
-
-		SetToAbort( AI_ABORT_LOST_PATH );
-		return false;
-	}
+	//do not check whether the domain is correct, trust the caller
+	//IsNavalOperation() is not detailed enough to judge
 
 	pArmyAI->SetGoalPlot(pDeployPlot);
 	pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());

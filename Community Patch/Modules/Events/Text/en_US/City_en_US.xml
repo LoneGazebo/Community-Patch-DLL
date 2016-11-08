@@ -15,7 +15,7 @@
 			<Text>Rich Vein</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_HELP">
-			<Text>A rich vein of blue marble was discovered at the quarry near the city. Your miners and masons have come to you to ask you what you would like to do it.[NEWLINE][NEWLINE]Choose from the options below...</Text>
+			<Text>A rich vein of blue marble was discovered at the quarry near the city. Your miners and masons have come to you to ask you what you would like to do with it.[NEWLINE][NEWLINE]Choose from the options below...</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1">
 			<Text>Boast of this, and merchants will come to buy it from us.</Text>

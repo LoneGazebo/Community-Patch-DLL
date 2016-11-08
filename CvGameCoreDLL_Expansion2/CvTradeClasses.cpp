@@ -551,23 +551,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	int iTurnsPerCircuit = 1;
 	if (iRouteSpeed != 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
-		CUSTOMLOG("CvTradeClasse::MOD_CIV6_ROADS  : m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size()=%i , iEra=%i, iRouteSpeed=%i", 
-			m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(), iEra, iRouteSpeed);
-
-		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() + iEra) * 2) / iRouteSpeed;
-		if(iTurnsPerCircuit <= 1)
-		{
-			iTurnsPerCircuit = 1;
-		}
-#else
 		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - 1) * 2) / iRouteSpeed;
-#endif
 	}
 	
 #if defined(MOD_TRADE_ROUTE_SCALING)

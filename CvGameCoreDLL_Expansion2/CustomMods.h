@@ -40,6 +40,13 @@
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
 
+///////////////////////
+// BATTLE ROYALE CODE
+//////////////////////
+
+//If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
+#define MOD_BATTLE_ROYALE
+
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc

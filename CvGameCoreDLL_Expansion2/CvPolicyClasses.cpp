@@ -286,6 +286,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iExtraMoves(0),
 	m_iMaxCorporations(0),
 	m_iRazingSpeedBonus(0),
+	m_iExtraSupplyPerPopulation(0),
 	m_bNoPartisans(false),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
@@ -626,6 +627,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
 	m_iRazingSpeedBonus = kResults.GetInt("RazingSpeedBonus");
+	m_iExtraSupplyPerPopulation = kResults.GetInt("ExtraSupplyPerPopulation");
 	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
@@ -2718,6 +2720,11 @@ int CvPolicyEntry::GetMaxCorps() const
 int CvPolicyEntry::GetRazingSpeedBonus() const
 {
 	return m_iRazingSpeedBonus;
+}
+/// Does this Policy grant more military units?
+int CvPolicyEntry::GetExtraSupplyPerPopulation() const
+{
+	return m_iExtraSupplyPerPopulation;
 }
 /// Does this Policy grant faster razing?
 bool CvPolicyEntry::IsNoPartisans() const

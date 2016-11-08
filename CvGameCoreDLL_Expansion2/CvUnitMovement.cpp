@@ -147,9 +147,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//moving into unknown tiles ends the turn for humans (to prevent information leakage from the displayed path)
 		return INT_MAX;
 	}
-	else if (bFreeEmbarkStateChange)
+	else if (bFreeEmbarkStateChange) //a cover charge still applies :)
 	{
-		iRegularCost = 0;
+		iRegularCost = iMoveDenominator/10;
 	}
 	else if (bCheapEmbarkStateChange)
 	{
