@@ -13498,7 +13498,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			reachablePlotLookup[itUnit2->iUnitID] = reachablePlots;
 
 			set<int> rangeAttackPlots;
-			TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit2,reachablePlots,rangeAttackPlots, true, true);
+			TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit2,pStartPlot,rangeAttackPlots, true, true);
 			rangeAttackPlotLookup[itUnit2->iUnitID] = rangeAttackPlots;
 		}
 	}
@@ -13511,7 +13511,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		reachablePlotLookup[itUnit->iUnitID] = reachablePlots;
 
 		set<int> rangeAttackPlots;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,reachablePlots,rangeAttackPlots, true, true);
+		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pStartPlot,rangeAttackPlots, true, true);
 		rangeAttackPlotLookup[itUnit->iUnitID] = rangeAttackPlots;
 	}
 	else if (itUnit->iMovesLeft==0)

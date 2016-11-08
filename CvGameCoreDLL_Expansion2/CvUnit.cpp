@@ -26131,7 +26131,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 	}
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
-    if(!isNativeDomain(plot()))
+    if(!isNativeDomain(pSourcePlot))
     {
         return false;
     }

@@ -475,7 +475,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 			// At war with this unit's team?
 			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
-			if(eLoopUnitTeam == BARBARIAN_TEAM || kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot) )
+			if(kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot))
 			{
 				// Same Domain?
 				DomainTypes eLoopUnitDomain = pLoopUnit->getDomainType();
