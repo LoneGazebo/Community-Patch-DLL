@@ -374,7 +374,7 @@ private:
 	bool* m_pabNoTradeTech;
 	int* m_paiResearchProgress;  // Stored in hundredths
 #if defined(MOD_CIV6_EUREKA)
-	int* m_paiEurekaProgress;  // Stored in hundredths
+	int* m_paiEurekaCounter;
 #endif
 	int* m_paiTechCount;
 	CvTechXMLEntries* m_pTechs;

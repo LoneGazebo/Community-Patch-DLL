@@ -390,7 +390,7 @@
 #define MOD_CIV6_WORKER								gCustomMods.isCIV6_TYPE_WORKER()
 // Roads are created by trade routes.
 #define MOD_CIV6_ROADS								gCustomMods.isCIV6_ROADS()
-// activate eureka for taster techs
+// activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 
 #endif
