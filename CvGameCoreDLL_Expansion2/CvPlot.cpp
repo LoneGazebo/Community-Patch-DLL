@@ -4840,7 +4840,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit != NULL)
+		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
 		{
 			// Don't include an enemy unit, or else it won't let us attack it :)
 			if(!kUnitTeam.isAtWar(pLoopUnit->getTeam()))

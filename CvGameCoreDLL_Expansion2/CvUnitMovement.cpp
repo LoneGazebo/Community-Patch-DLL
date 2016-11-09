@@ -459,7 +459,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if(!pLoopUnit) 
+			if(!pLoopUnit || pLoopUnit->isDelayedDeath()) 
 				continue;
 
 			if(pLoopUnit->isInvisible(eUnitTeam,false))

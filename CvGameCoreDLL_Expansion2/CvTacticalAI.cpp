@@ -12262,7 +12262,7 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 
 int NumAttacksForUnit(int iMovesLeft, int iMaxAttacks)
 {
-	return min( (iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR(), iMaxAttacks );
+	return max(0, min( (iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR(), iMaxAttacks ));
 }
 
 void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fUnitNumberRatio, STacticalAssignment& result)
@@ -13388,7 +13388,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 
 	//i know what you did last summer!
 	itUnit->eLastAssignment = newAssignment.eType;
-
+	
+	//now for real
 	switch (newAssignment.eType)
 	{
 	case STacticalAssignment::A_MOVE:
@@ -13418,17 +13419,17 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		break;
 	case STacticalAssignment::A_RANGEATTACK:
 	case STacticalAssignment::A_MELEEATTACK:
+		if (itUnit->iAttacksLeft<=0)
+			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
 		newTactPlot.setDamage(newTactPlot.getDamage() + newAssignment.iDamage);
-		{
-			if (itUnit->iAttacksLeft<0)
-				OutputDebugString("inconsistent attacks\n");
-		}
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 		break;
 	case STacticalAssignment::A_RANGEKILL:
+		if (itUnit->iAttacksLeft<=0)
+			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
 		newTactPlot.update(*this, false, false, newTactPlot.isEnemyCity(),false);
@@ -13440,6 +13441,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
 		break;
 	case STacticalAssignment::A_MELEEKILL:
+		if (itUnit->iAttacksLeft<=0)
+			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
@@ -13914,6 +13917,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			continue; //skip this!
 			break;
 		case STacticalAssignment::A_MOVE:
+			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());

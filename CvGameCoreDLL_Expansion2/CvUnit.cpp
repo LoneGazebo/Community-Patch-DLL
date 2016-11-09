@@ -5288,7 +5288,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				{
 					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
-					if(loopUnit && GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+					if(loopUnit && !loopUnit->isDelayedDeath() && GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 					{
 						bEnemyUnitPresent = true;
 						if(!loopUnit->IsDead() && loopUnit->isInCombat())
@@ -14946,14 +14946,13 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 {
 	VALIDATE_OBJECT
 	if(NO_TEAM == eTeam)
-	{
 		return false;
-	}
+
+	if (isDelayedDeath())
+		return true;
 
 	if(isInvisible(eTeam, false))
-	{
 		return true;
-	}
 
 	return false;
 }
