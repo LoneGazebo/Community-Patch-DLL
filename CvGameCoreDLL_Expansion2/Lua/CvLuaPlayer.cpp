@@ -567,7 +567,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFreeExperience);
 	Method(GetFeatureProductionModifier);
 	Method(GetWorkerSpeedModifier);
-#if defined(MOD_CIV6_ROADS)
+#if defined(MOD_CIV6_WORKER)
 	Method(GetImprovementBuilderCost);
 #endif
 	Method(GetImprovementUpgradeRateModifier);

@@ -1178,7 +1178,7 @@ public:
 	int getWorkerSpeedModifier() const;
 	void changeWorkerSpeedModifier(int iChange);
 
-#if defined(MOD_CIV6_ROADS)
+#if defined(MOD_CIV6_WORKER)
 	int GetImprovementBuilderCost(BuildTypes iBuild) const;
 #endif
 

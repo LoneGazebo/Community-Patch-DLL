@@ -26512,7 +26512,7 @@ void CvPlayer::changeWorkerSpeedModifier(int iChange)
 	m_iWorkerSpeedModifier = (m_iWorkerSpeedModifier + iChange);
 }
 
-#if defined(MOD_CIV6_ROADS)
+#if defined(MOD_CIV6_WORKER)
 //	--------------------------------------------------------------------------------
 int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
 {
