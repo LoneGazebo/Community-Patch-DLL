@@ -636,7 +636,7 @@ bool CvTechEntry::IsCorporationsEnabled() const
 }
 #endif
 
-#if defined(MOD_CIV6_EUREKA)}
+#if defined(MOD_CIV6_EUREKA)
 int CvTechEntry::GetEurekaPerMillion() const
 {
 	return m_iEurekaPerMillion;
