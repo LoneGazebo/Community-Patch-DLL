@@ -903,7 +903,6 @@ void CvPlayer::init(PlayerTypes eID)
 		changeWonderProductionModifier(GetPlayerTraits()->GetWonderProductionModifier());
 		ChangeImprovementGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
 
-
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
 #if defined(MOD_BUGFIX_MINOR)
@@ -26521,7 +26520,6 @@ int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
 	if (iBuild >= 0 && iBuild < GC.getNumBuildInfos())
 	{
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iBuild);
-
 		int buildercost = pkBuildInfo->getBuilderCost();
 
 		//if road, use RouteBuilderCostMod
@@ -26531,12 +26529,8 @@ int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
 			buildercost /= 100;
 		}
 
-		CUSTOMLOG("CVPLAYER::GetImprovementBuilderCost  : pkBuildInfo->getBuilderCost()=%i , GetRouteBuilderCostMod()=%i, buildercost=%i",
-			pkBuildInfo->getBuilderCost(), GetRouteBuilderCostMod(), buildercost);
-
 		return buildercost;
 	}
-	CUSTOMLOG("CVPLAYER::GetImprovementBuilderCost wrong iBuild: %i", iBuild);
 	return 0;
 }
 #endif
@@ -26921,9 +26915,6 @@ int CvPlayer::GetRouteBuilderCostMod() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeRouteBuilderCostMod(int iChange)
 {
-	CUSTOMLOG("CVPLAYER::ChangeRouteBuilderCostMod  : m_iRouteBuilderCostMod=%i , iChange=%i",
-		m_iRouteBuilderCostMod, iChange);
-
 	if (iChange != 0)
 	{
 		m_iRouteBuilderCostMod = (m_iRouteBuilderCostMod + iChange);

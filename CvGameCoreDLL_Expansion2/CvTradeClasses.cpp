@@ -557,7 +557,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	
 	int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
 	if(iEra <= 0)
 	{
@@ -2341,7 +2340,6 @@ void CvPlayerTrade::MoveUnits (void)
 							// Note: These functions will filter out if this is actually possible, so don't worry about it here
 							GET_PLAYER(pOriginCity->getOwner()).GetCorporations()->BuildFranchiseInCity(pOriginCity, pDestCity);
 							GET_PLAYER(pDestCity->getOwner()).GetCorporations()->BuildFranchiseInCity(pDestCity, pOriginCity);
-
 
 							//Tourism Bonus from Buildings
 							if(!GET_PLAYER(pDestCity->getOwner()).isMinorCiv())
