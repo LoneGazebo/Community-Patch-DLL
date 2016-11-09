@@ -567,6 +567,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFreeExperience);
 	Method(GetFeatureProductionModifier);
 	Method(GetWorkerSpeedModifier);
+#if defined(MOD_CIV6_ROADS)
+	Method(GetImprovementBuilderCost);
+#endif
 	Method(GetImprovementUpgradeRateModifier);
 	Method(GetMilitaryProductionModifier);
 	Method(GetSpaceProductionModifier);
@@ -6836,6 +6839,19 @@ int CvLuaPlayer::lGetWorkerSpeedModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getWorkerSpeedModifier);
 }
+#if defined(MOD_CIV6_WORKER)
+//------------------------------------------------------------------------------
+//int GetImprovementBuilderCost(BuildTypes);
+int CvLuaPlayer::lGetImprovementBuilderCost(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const BuildTypes iBuild = (BuildTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetImprovementBuilderCost(iBuild);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getImprovementUpgradeRateModifier();
 int CvLuaPlayer::lGetImprovementUpgradeRateModifier(lua_State* L)

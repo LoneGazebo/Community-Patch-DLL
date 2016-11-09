@@ -78,6 +78,9 @@ CvTechEntry::CvTechEntry(void):
 	m_ppiTechYieldChanges(NULL),
 	m_bCorporationsEnabled(false),
 #endif
+#if defined(MOD_CIV6_EUREKA)
+	m_iEurekaPerMillion(0),
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageTradingAllowed(false),
 #endif
@@ -160,6 +163,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_BALANCE_CORE)
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_bCorporationsEnabled = kResults.GetBool("CorporationsEnabled");
+#endif
+#if defined(MOD_CIV6_EUREKA)
+	m_iEurekaPerMillion = kResults.GetInt("EurekaPerMillion");
 #endif
 
 	//References
@@ -629,6 +635,14 @@ bool CvTechEntry::IsCorporationsEnabled() const
 	return m_bCorporationsEnabled;
 }
 #endif
+
+#if defined(MOD_CIV6_EUREKA)
+int CvTechEntry::GetEurekaPerMillion() const
+{
+	return m_iEurekaPerMillion;
+}
+#endif
+
 //=====================================
 // CvTechXMLEntries
 //=====================================
@@ -1930,6 +1944,9 @@ CvTeamTechs::CvTeamTechs():
 	m_pabHasTech(NULL),
 	m_pabNoTradeTech(NULL),
 	m_paiResearchProgress(NULL),
+#if defined(MOD_CIV6_EUREKA)
+	m_paiEurekaCounter(NULL),
+#endif
 	m_paiTechCount(NULL)
 {
 }
@@ -1953,6 +1970,10 @@ void CvTeamTechs::Init(CvTechXMLEntries* pTechs, CvTeam* pTeam)
 	m_pabNoTradeTech = FNEW(bool[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_paiResearchProgress==NULL, "about to leak memory, CvTeamTechs::m_paiResearchProgress");
 	m_paiResearchProgress = FNEW(int [m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
+#if defined(MOD_CIV6_EUREKA)
+	CvAssertMsg(m_paiEurekaCounter == NULL, "about to leak memory, CvTeamTechs::m_paiEurekaCounter");
+	m_paiEurekaCounter = FNEW(int[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
+#endif
 	CvAssertMsg(m_paiTechCount==NULL, "about to leak memory, CvTeamTechs::m_paiTechCount");
 	m_paiTechCount = FNEW(int [m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
 
@@ -1965,6 +1986,9 @@ void CvTeamTechs::Uninit()
 	SAFE_DELETE_ARRAY(m_pabHasTech);
 	SAFE_DELETE_ARRAY(m_pabNoTradeTech);
 	SAFE_DELETE_ARRAY(m_paiResearchProgress);
+#if defined(MOD_CIV6_EUREKA)
+	SAFE_DELETE_ARRAY(m_paiEurekaCounter);
+#endif
 	SAFE_DELETE_ARRAY(m_paiTechCount);
 }
 
@@ -1980,6 +2004,9 @@ void CvTeamTechs::Reset()
 		m_pabHasTech[iI] = false;
 		m_pabNoTradeTech[iI] = false;
 		m_paiResearchProgress[iI] = 0;
+#if defined(MOD_CIV6_EUREKA)
+		m_paiEurekaCounter[iI] = 0;
+#endif
 		m_paiTechCount[iI] = 0;
 	}
 }
@@ -2011,6 +2038,9 @@ void CvTeamTechs::Read(FDataStream& kStream)
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTech, iNumActiveTechs, paTechIDs);
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabNoTradeTech, iNumActiveTechs, paTechIDs);
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiResearchProgress, iNumActiveTechs, paTechIDs);
+#if defined(MOD_CIV6_EUREKA)
+		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiEurekaCounter, iNumActiveTechs, paTechIDs);
+#endif
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiTechCount, iNumActiveTechs, paTechIDs);
 
 		_freea(paTechIDs);
@@ -2040,6 +2070,9 @@ void CvTeamTechs::Write(FDataStream& kStream)
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabHasTech);
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabNoTradeTech);
 		kStream << ArrayWrapper<int>(iNumTechs, m_paiResearchProgress);
+#if defined(MOD_CIV6_EUREKA)
+		kStream << ArrayWrapper<int>(iNumTechs, m_paiEurekaCounter);
+#endif
 		kStream << ArrayWrapper<int>(iNumTechs, m_paiTechCount);
 	}
 	else
@@ -2337,8 +2370,26 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iCost *= std::max(0, ((GC.getTECH_COST_EXTRA_TEAM_MEMBER_MODIFIER() * (m_pTeam->getNumMembers() - 1)) + 100));
 	iCost /= 100;
 
+#if defined(MOD_CIV6_EUREKA)
+	iCost *= std::max(0, (1000000 - pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / 10000);
+	iCost /= 100;
+#endif
+
 	return std::max(1, iCost);
 }
+
+#if defined(MOD_CIV6_EUREKA)
+int CvTeamTechs::GetEurekaDiscount(TechTypes eTech) const
+{
+	CvAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if (pkTechInfo == NULL)
+	{
+		return 0;
+	}
+	return std::max(0, (1000000 - pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / 10000);
+}
+#endif
 
 /// Accessor: how many beakers of research to go for this tech?
 int CvTeamTechs::GetResearchLeft(TechTypes eTech) const
@@ -2416,6 +2467,28 @@ int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) co
 
 	return iReturnValue;
 }
+
+
+#if defined(MOD_CIV6_EUREKA)
+int CvTeamTechs::GetEurekaCounter(TechTypes eTech) const
+{
+	if (eTech != NO_TECH)
+	{
+		return m_paiEurekaCounter[eTech];
+	}
+	else
+	{
+		return 0;
+	}
+}
+void CvTeamTechs::SetEurekaCounter(TechTypes eTech, int newEurakaCount)
+{
+	if (eTech != NO_TECH)
+	{
+		m_paiEurekaCounter[eTech] = newEurakaCount;
+	}
+}
+#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 /// Can you permit vassalage to be traded?

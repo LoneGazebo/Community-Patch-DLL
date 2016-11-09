@@ -2504,25 +2504,30 @@ void CvPlayerTrade::MoveUnits (void)
 					{
 						//build land routes
 
+						// i didn't go by plot->changeBuildProgress to not fire unwanted things, like "BuildFinished".
+						// so it's mostly a copy-paste from the road section of this method
+						RouteTypes autoBuildRoadType = ROUTE_ROAD;
+						// check if the rairoad is unlocked (by tech and by era).
+						int minEra = GD_INT_GET(TRADE_ROUTE_CREATE_RAILROADS_ERA);
+						int iTech = GD_INT_GET(TRADE_ROUTE_CREATE_RAILROADS_TECH_ID);
+						if ((GET_PLAYER(pTradeConnection->m_eOriginOwner).GetCurrentEra() >= minEra)
+							&& (iTech >= 0 && iTech < GC.getNumTechInfos() && GET_TEAM(GET_PLAYER(pTradeConnection->m_eOriginOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)iTech)))
+						{
+							autoBuildRoadType = ROUTE_RAILROAD;
+						}
+
 						//iterate on plots
-						uint nbPLotsInTradeRoute = pTradeConnection->m_aPlotList.size();
+						uint nbPLotsInTradeRoute = (uint)pTradeConnection->m_aPlotList.size();
 						for (uint ui = 0; ui < nbPLotsInTradeRoute; ui++){
 							CvPlot* pRoadToBuildPlot = GC.getMap().plot(pTradeConnection->m_aPlotList[ui].m_iX, pTradeConnection->m_aPlotList[ui].m_iY);
 
 							//don't build roads on sea
-							if (pRoadToBuildPlot->IsPlotLand())
+							if (!pRoadToBuildPlot->IsPlotOcean())
 							{
-
-								// i didn't go by plot->changeBuildProgress to not fire unwanted things, like "BuildFinished".
-								// so it's mostly a copy-paste from the road section of this method
-								RouteTypes autoBuildRoadType = ROUTE_ROAD;
-								//TODO: check if the rairoad is unlocked (by tech).
-								if (GET_PLAYER(pTradeConnection->m_eOriginOwner).GetCurrentEra() >= 4)
-								{
-									autoBuildRoadType = ROUTE_RAILROAD;
-								}
+								
 								//don't build road / change nationality (for the moment) of roads if already built.
-								if (pRoadToBuildPlot->getRouteType() != autoBuildRoadType){
+								if (pRoadToBuildPlot->getRouteType() != autoBuildRoadType)
+								{
 									CvRouteInfo* pkRouteInfo = GC.getRouteInfo(autoBuildRoadType);
 									if (pkRouteInfo)
 									{

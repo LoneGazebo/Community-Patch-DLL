@@ -53,6 +53,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWonderProductionModifier(0),
 	m_iPlunderModifier(0),
 	m_iImprovementMaintenanceModifier(0),
+#if defined(MOD_CIV6_WORKER)
+	m_iRouteBuilderCostModifier(0),
+#endif
 	m_iGoldenAgeDurationModifier(0),
 	m_iGoldenAgeMoveChange(0),
 	m_iGoldenAgeCombatModifier(0),
@@ -499,6 +502,14 @@ int CvTraitEntry::GetImprovementMaintenanceModifier() const
 {
 	return m_iImprovementMaintenanceModifier;
 }
+
+#if defined(MOD_CIV6_WORKER)
+/// Accessor:: percent change to builder cost of roads
+int CvTraitEntry::GetRouteBuilderCostModifier() const
+{
+	return m_iRouteBuilderCostModifier;
+}
+#endif
 
 /// Accessor:: extra length of each golden age
 int CvTraitEntry::GetGoldenAgeDurationModifier() const

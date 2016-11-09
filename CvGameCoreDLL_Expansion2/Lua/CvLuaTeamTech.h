@@ -55,6 +55,10 @@ protected:
 	static int lGetResearchLeft(lua_State* L);
 	static int lGetPlayerResearchCost(lua_State* L);
 	static int lGetPlayerResearchLeft(lua_State* L);
+#if defined(MOD_CIV6_EUREKA)
+	static int lGetEurekaCounter(lua_State* L);
+	static int lSetEurekaCounter(lua_State* L);
+#endif
 
 };
 
