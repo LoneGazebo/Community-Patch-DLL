@@ -232,6 +232,11 @@ INSERT INTO Improvement_ValidFeatures
 VALUES
 	('IMPROVEMENT_BRAZILWOOD_CAMP', 'FEATURE_FOREST');
 
+INSERT INTO Improvement_ResourceTypes
+	(ImprovementType, ResourceType, ResourceMakesValid, ResourceTrade, DiscoveryRand, QuantityRequirement)
+VALUES
+	('IMPROVEMENT_BRAZILWOOD_CAMP', 'RESOURCE_BRAZILWOOD', '1', '1', '0', '0');
+
 INSERT INTO Units
 	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, NoBadGoodies, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate)
 VALUES

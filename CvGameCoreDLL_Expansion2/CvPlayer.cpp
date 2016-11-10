@@ -27071,8 +27071,8 @@ void CvPlayer::changeNumMilitaryUnits(int iChange)
 		m_iNumMilitaryUnits = (m_iNumMilitaryUnits + iChange);
 		CvAssert(getNumMilitaryUnits() >= 0);
 
-#if defined(MOD_BATTYLE_ROYALE)
-		switch (Domain)
+#if defined(MOD_BATTLE_ROYALE)
+		switch (eDomain)
 		{
 		case NO_DOMAIN:
 			break;

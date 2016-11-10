@@ -259,9 +259,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 1250)
+	if(iTempWeight > 1500)
 	{
-		iTempWeight = 1250;
+		iTempWeight = 1500;
 	}
 
 	if (!pkUnitEntry)
@@ -551,7 +551,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iExplore = kPlayer.GetEconomicAI()->GetExplorersNeeded();
 			if(iExplore > 0)
 			{
-				iBonus += iExplore * 50;
+				iBonus += iExplore * 60;
 			}
 		}
 		//Need Sea Explorers?
@@ -560,7 +560,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iExplore = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded();
 			if(iExplore > 0)
 			{
-				iBonus += iExplore * 50;
+				iBonus += iExplore * 15;
 			}
 		}
 		//Naval Units Critically Needed?
@@ -642,7 +642,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iNumAA = kPlayer.GetMilitaryAI()->GetNumAAUnits();
 			int iNumCities = kPlayer.getNumCities();
 			
-			iBonus += ((iNumCities - iNumAA) * 15);
+			iBonus += ((iNumCities - iNumAA) * 10);
 		}
 	
 		/////////////
@@ -1078,7 +1078,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 		if(iNumBuilders == 0)
 		{
-			iBonus += 200;
+			iBonus += 150;
 		}
 		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
@@ -1105,7 +1105,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += (75 * iCurrentNumCities);
+			iBonus += (150 * iCurrentNumCities);
 		}
 	}
 	
@@ -1145,7 +1145,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 			{
 				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 50;
+				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 75;
 				if(iThreat > 0)
 				{
 					if(bCombat)
@@ -1250,11 +1250,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 	//Tiny army? Eek!
-	if(kPlayer.getNumMilitaryUnits() <= kPlayer.getNumCities())
+	if(kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
 	{
 		if(bCombat)
 		{
-			iBonus += 100;
+			iBonus += 1000;
 		}
 		//Fewer civilians til we rectify this!
 		else

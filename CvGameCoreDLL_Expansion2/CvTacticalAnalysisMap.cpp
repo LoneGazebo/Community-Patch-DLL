@@ -1349,24 +1349,28 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo)
 
 	int tmp;
 	loadFrom >> tmp;
+	writeTo.m_pCells.clear();
 	for (int i=0; i<tmp; i++)
 	{
 		CvTacticalAnalysisCell tmp2;
 		loadFrom >> tmp2; writeTo.m_pCells.push_back(tmp2);
 	}
 	loadFrom >> tmp;
+	writeTo.m_DominanceZones.clear();
 	for (int i=0; i<tmp; i++)
 	{
 		CvTacticalDominanceZone tmp2;
 		loadFrom >> tmp2; writeTo.m_DominanceZones.push_back(tmp2);
 	}
 	loadFrom >> tmp;
+	writeTo.m_EnemyUnits.clear();
 	for (int i=0; i<tmp; i++)
 	{
 		IDInfo tmp2;
 		loadFrom >> tmp2.eOwner; loadFrom >> tmp2.iID; writeTo.m_EnemyUnits.push_back(tmp2);
 	}
 	loadFrom >> tmp;
+	writeTo.m_EnemyCities.clear();
 	for (int i=0; i<tmp; i++)
 	{
 		IDInfo tmp2;

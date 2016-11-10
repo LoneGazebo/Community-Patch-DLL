@@ -1329,3 +1329,9 @@ UPDATE Features SET NoImprovement = 'true' WHERE Type = 'FEATURE_ICE';
 UPDATE ArtDefine_Landmarks
 SET Scale= '0.8'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
+
+
+	--Anti Air AI fix.
+
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_ANTI_AIRCRAFT_GUN' AND UnitAIType = 'UNITAI_CITY_SPECIAL';
+DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_MOBILE_SAM' AND UnitAIType = 'UNITAI_CITY_SPECIAL';

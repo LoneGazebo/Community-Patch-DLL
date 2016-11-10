@@ -5535,6 +5535,14 @@ int CvLeague::GetTourismMod()
 	}
 	return iMod;
 }
+void CvLeague::DoEnactResolutionPublic(CvEnactProposal* pProposal)
+{
+	DoEnactResolution(pProposal);
+}
+void CvLeague::DoRepealResolutionPublic(CvRepealProposal* pProposal)
+{
+	DoRepealResolution(pProposal);
+}
 #endif
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)
 {

@@ -4818,7 +4818,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD)
 	{
-		iFlatYield += (kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
+		iFlatYield += ((kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) / 100) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
 	}
 
 	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
@@ -4874,7 +4874,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				//If this is our first specialist, double the value.
 				if (iSpecialistSlots == 0)
 				{
-					iSpecialistYield *= 10;
+					iSpecialistYield *= 2;
 
 					iFlatYield += (iSpecialistYield * iNumNewSpecialists);
 				}
@@ -5052,8 +5052,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//If we are deficient in this yield, increase the flat yield's value to compensate.
 	if (pCity->GetCityStrategyAI()->GetFocusYield() == eYield || pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 	{
-		iFlatYield *= 10;
-		iModifier *= 3;
+		iFlatYield *= 2;
+		iModifier *= 2;
 	}
 
 	//Math time! Let's see how this affects our city.
@@ -5065,12 +5065,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (iDelta <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iDelta *= -10;
+			iDelta *= -5;
 		}
 
 		//And here's what the value represents.
-		iActualIncrease = (iDelta * 100);
-		iActualIncrease /= iYieldRate;
+		iActualIncrease = (iYieldRate * 100);
+		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
 
@@ -5088,8 +5088,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iDelta = max(10, (iInstant / iYieldRate));
 
 		//And here's what the value represents.
-		iActualIncrease = (iDelta * 100);
-		iActualIncrease /= iYieldRate;
+		iActualIncrease = (iYieldRate * 100);
+		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
 
@@ -5340,16 +5340,16 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		{
 			if (pCity->IsBastion())
 			{
-				iConquestValue += 50;
+				iConquestValue += 200;
 			}
 			else
 			{
-				iConquestValue += 25;
+				iConquestValue += 100;
 			}
 		}
 		else
 		{
-			iConquestValue += 25;
+			iConquestValue += 50;
 		}
 	}
 	if(pkBuildingInfo->GetFreeExperience() > 0)
@@ -5557,11 +5557,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
-		iValue += (-10 * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
+		iValue += 3 * (((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())) * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
 	}
 	if(pkBuildingInfo->GetPlotBuyCostModifier() < 0)
 	{
-		iValue += (-10 * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
+		iValue += 3 * (((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())) * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
 	}
 	if(pkBuildingInfo->GetNumTradeRouteBonus())
 	{

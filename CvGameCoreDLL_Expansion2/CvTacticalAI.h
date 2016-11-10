@@ -1141,6 +1141,7 @@ protected:
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
+	float fUnitNumberRatio;
 	CvPlot* pTargetPlot;
 	int iID;
 
@@ -1175,12 +1176,15 @@ public:
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
 	bool isComplete() const;
+	bool isOffensive() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	bool makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
+	float getUnitNumberRatio() const;
+	void updateUnitNumberRatio();
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
 	CvTacticalPlot& getTactPlot(int plotindex);

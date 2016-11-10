@@ -607,6 +607,9 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetTourismMod();
+	void DoEnactResolutionPublic(CvEnactProposal* pProposal);
+	void DoRepealResolutionPublic(CvRepealProposal* pProposal);
+
 #endif
 
 	// Text composition for UI
