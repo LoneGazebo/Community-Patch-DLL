@@ -1178,6 +1178,10 @@ public:
 	int getWorkerSpeedModifier() const;
 	void changeWorkerSpeedModifier(int iChange);
 
+#if defined(MOD_CIV6_WORKER)
+	int GetImprovementBuilderCost(BuildTypes iBuild) const;
+#endif
+
 	int getImprovementCostModifier() const;
 	void changeImprovementCostModifier(int iChange);
 
@@ -1245,8 +1249,8 @@ public:
 	void ChangeImprovementGoldMaintenanceMod(int iChange);
 
 #if defined(MOD_CIV6_WORKER)
-	int GetRouteCostMod() const;
-	void ChangeRouteCostMod(int iChange);
+	int GetRouteBuilderCostMod() const;
+	void ChangeRouteBuilderCostMod(int iChange);
 #endif
 
 	int GetBuildingGoldMaintenanceMod() const;
@@ -2973,7 +2977,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGoldPerMilitaryUnit;
 	FAutoVariable<int, CvPlayer> m_iImprovementGoldMaintenanceMod;
 #if defined(MOD_CIV6_WORKER)
-	FAutoVariable<int, CvPlayer> m_iRouteCostMod;
+	FAutoVariable<int, CvPlayer> m_iRouteBuilderCostMod;
 #endif
 	FAutoVariable<int, CvPlayer> m_iBuildingGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitGoldMaintenanceMod;

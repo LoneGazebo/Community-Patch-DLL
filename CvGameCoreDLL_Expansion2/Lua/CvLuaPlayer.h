@@ -632,6 +632,9 @@ protected:
 	static int lGetFeatureProductionModifier(lua_State* L);
 	static int lGetWorkerSpeedModifier(lua_State* L);
 	static int lGetImprovementUpgradeRateModifier(lua_State* L);
+#if defined(MOD_CIV6_WORKER)
+	LUAAPIEXTN(GetImprovementBuilderCost, int);
+#endif
 	static int lGetMilitaryProductionModifier(lua_State* L);
 	static int lGetSpaceProductionModifier(lua_State* L);
 	static int lGetSettlerProductionModifier(lua_State* L);

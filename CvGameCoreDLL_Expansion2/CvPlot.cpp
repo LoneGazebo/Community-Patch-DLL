@@ -2943,8 +2943,8 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 		}
 	}
 #if defined(MOD_CIV6_WORKER)
-	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteCostMod() != 0){
-		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteCostMod());
+	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteBuilderCostMod() != 0){
+		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteBuilderCostMod());
 		iTime /= 100;
 	}
 #endif
