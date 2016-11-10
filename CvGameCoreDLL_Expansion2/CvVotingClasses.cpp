@@ -4179,7 +4179,11 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources)
 {
 	int iVotes = 0;
+#if defined(MOD_BATTLE_ROYALE)
+	if (CanEverVote(ePlayer) && !GET_PLAYER(ePlayer).isHuman())
+#else
 	if (CanEverVote(ePlayer))
+#endif
 	{
 		LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 		if (GetCurrentSpecialSession() != NO_LEAGUE_SPECIAL_SESSION)
@@ -5530,6 +5534,14 @@ int CvLeague::GetTourismMod()
 		}
 	}
 	return iMod;
+}
+void CvLeague::DoEnactResolutionPublic(CvEnactProposal* pProposal)
+{
+	DoEnactResolution(pProposal);
+}
+void CvLeague::DoRepealResolutionPublic(CvRepealProposal* pProposal)
+{
+	DoRepealResolution(pProposal);
 }
 #endif
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)

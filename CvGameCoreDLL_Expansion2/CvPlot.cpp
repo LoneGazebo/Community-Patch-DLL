@@ -2942,6 +2942,12 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 			iTime += GET_TEAM(eTeam).getBuildTimeChange(eBuild);
 		}
 	}
+#if defined(MOD_CIV6_WORKER)
+	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteBuilderCostMod() != 0){
+		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteBuilderCostMod());
+		iTime /= 100;
+	}
+#endif
 
 	// Repair is either 3 turns or the original build time, whichever is shorter
 	if(GC.getBuildInfo(eBuild)->isRepair())
@@ -8172,6 +8178,28 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						}
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				//Resource from improvement - change ownership if needed.
+				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
+				int iQuantity = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceQuantityFromImprovement();
+				if (iQuantity <= 0)
+				{
+					iQuantity = 1;
+				}
+				if(eResourceFromImprovement != NO_RESOURCE)
+				{
+					if(getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
+					{
+						setResourceType(NO_RESOURCE, 0);
+						if (GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+							SetResourceLinkedCityActive(false);
+					}
+					else
+					{
+						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, -iQuantity, true);
+					}
+				}
+#endif
 			}
 		}
 
@@ -9939,6 +9967,12 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	{
 		iYield += pImprovement->GetHillsYieldChange(eYield);
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (getFeatureType() != NO_FEATURE)
+	{
+		iYield += pImprovement->GetFeatureYieldChanges(getFeatureType(), eYield);
+	}
+#endif
 
 	// Check to see if there's a bonus to apply before doing any looping
 	if(pImprovement->GetAdjacentCityYieldChange(eYield) > 0 ||
@@ -10486,6 +10520,16 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (getImprovementType() != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+				if (pImprovement)
+				{
+					iYield += pImprovement->GetFeatureYieldChanges(getFeatureType(), eYield);
+				}
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Extra yield for improvements

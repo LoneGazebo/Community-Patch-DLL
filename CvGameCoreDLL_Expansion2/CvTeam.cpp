@@ -9949,7 +9949,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE");
 						locString << getName().GetCString() << GET_TEAM(eTeam).getName().GetCString();
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID(), eTeam);
+						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID(), this->getLeaderID());
 					}
 				}
 			}

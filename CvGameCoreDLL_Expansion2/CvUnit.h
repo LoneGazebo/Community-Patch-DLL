@@ -441,6 +441,11 @@ public:
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true) const;
 	bool build(BuildTypes eBuild);
 
+#if defined(MOD_CIV6_WORKER)
+	int getBuilderStrength() const;
+	void setBuilderStrength(const int newPower);
+#endif
+
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
 
@@ -1923,6 +1928,10 @@ protected:
 
 	CvUnitPromotions  m_Promotions;
 	CvUnitReligion* m_pReligion;
+
+#if defined(MOD_CIV6_WORKER)
+	FAutoVariable<int, CvUnit> m_iBuilderStrength;
+#endif
 
 	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainDoubleMoveCount;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureDoubleMoveCount;

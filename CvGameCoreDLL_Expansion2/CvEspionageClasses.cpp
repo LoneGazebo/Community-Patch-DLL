@@ -3070,9 +3070,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
+				bool bCanDie = false;
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-				{
-					bool bCanDie = false;
+				{				
 					if (pCity->GetCityEspionage()->HasCounterSpy())
 					{
 						int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
@@ -3096,7 +3096,6 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					}
 					if (bCanDie)
 					{
-						strSpyAtCity += "[NEWLINE]";
 						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_ADVANCED_DEATH_POSSIBILITY");
 					}
 
@@ -3143,8 +3142,11 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					int iKillChance = (((iSpyTotal - 300) * 100) / 300);
 					int iIdentifyChance = (((iSpyTotal - 200) * 100) / 300);
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL", max(0, iKillChance));
+					if (bCanDie)
+					{
+						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL", max(0, iKillChance));
+					}
 					strSpyAtCity += "[NEWLINE]";
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
 				}
@@ -9185,6 +9187,40 @@ void CvEspionageAI::DoTurn()
 
 				pEspionage->MoveSpyTo(pCity, uiSpy, false);
 				iCorrectlyAssignedCityStateSpies++;
+				break;
+			}
+		}
+	}
+	// go through spy list again and put spies in locations where they are needed
+	for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
+	{
+		// dead spies are not processed
+#if defined(MOD_API_ESPIONAGE)
+		if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_DEAD || pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_TERMINATED)
+#else
+		if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_DEAD)
+#endif
+		{
+			continue;
+		}
+		//Unassigned spies remaining? Defend!
+		if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_UNASSIGNED)
+		{
+			CvCity* pPlayerCity;
+			int iCityLoop;
+			for (pPlayerCity = m_pPlayer->firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = m_pPlayer->nextCity(&iCityLoop))
+			{
+				if (pPlayerCity == NULL)
+					continue;
+
+				// if a spy is already in this city, skip it
+				if (pEspionage->GetSpyIndexInCity(pPlayerCity) != -1)
+				{
+					continue;
+				}
+
+				pEspionage->MoveSpyTo(pPlayerCity, uiSpy, false);
+				iCorrectlyAssignedDefenseSpies++;
 				break;
 			}
 		}

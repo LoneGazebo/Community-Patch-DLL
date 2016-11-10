@@ -206,7 +206,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_CULTURE] Culture from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_PRODUCTION] Production in all owned Cities.</Text>

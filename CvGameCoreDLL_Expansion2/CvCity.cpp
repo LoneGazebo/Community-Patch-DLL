@@ -3533,9 +3533,28 @@ void CvCity::DoEvents()
 		}
 	}
 
+	if (GetCityEventCooldown() > 0)
+	{
+		if (GC.getLogging())
+		{
+			CvString playerName;
+			FILogFile* pLog;
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "EventCityLogging.csv";
+			playerName = getName();
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("City Event: Global Cooldown Active. Cooldown: %d", GetCityEventCooldown());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
+		ChangeCityEventCooldown(-1);
+	}
+
 	//Let's loop through all events.
-	CvWeightedVector<CityEventTypes, 256, true> veValidEvents;
-	int iTotalWeight = 0;
+	CvWeightedVector<int> veValidEvents;
 
 	for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
@@ -3587,42 +3606,20 @@ void CvCity::DoEvents()
 				continue;
 			}
 
-			if(GetCityEventCooldown() > 0)
+			if (GetCityEventCooldown() > 0 && !pkEventInfo->IgnoresGlobalCooldown())
 			{
-				if(GC.getLogging())
-				{
-					CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-					if(pkEventInfo != NULL)
-					{
-						CvString playerName;
-						FILogFile* pLog;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventCityLogging.csv";
-						playerName = getName();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("City Event: %s. Global Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetCityEventCooldown());
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-				}
-				ChangeCityEventCooldown(-1);
-				if(!pkEventInfo->IgnoresGlobalCooldown())
-				{
-					return;
-				}
+				continue;
 			}
 
 			//most expensive check last
 			if (IsCityEventValid(eEvent))
 			{
 				veValidEvents.push_back(eEvent, pkEventInfo->getRandomChance() + GetEventIncrement(eEvent));
-				iTotalWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
 		}
 	}
+
+	CityEventTypes eChosenEvent = NO_EVENT_CITY;
 
 	if(veValidEvents.size() > 0)
 	{
@@ -3641,52 +3638,46 @@ void CvCity::DoEvents()
 			pLog->Msg(strBaseString);
 		}
 
-		int iRandIndex = GC.getGame().getJonRandNumVA(1000*veValidEvents.size(), "Picking random event for city %s.", getName().c_str());
+		int iRandIndex = GC.getGame().getJonRandNumVA(1000, "Picking random event for city %s.", getName().c_str());
 
-		//did we hit an event?
-		if (iRandIndex < iTotalWeight)
+		//which one is it?
+		int iWeight = 0;
+		for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 		{
-			CityEventTypes eChosenEvent = NO_EVENT_CITY;
+			CityEventTypes eEvent = (CityEventTypes)veValidEvents.GetElement(iLoop);
+			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+			if (!pkEventInfo)
+				continue;
 
-			//which one is it?
-			int iWeight = 0;
-			for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+			iWeight = veValidEvents.GetWeight(iLoop);
+			if (iRandIndex < iWeight)
 			{
-				CityEventTypes eEvent = veValidEvents.GetElement(iLoop);
-				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-				if (!pkEventInfo)
-					continue;
-
-				iWeight = veValidEvents.GetWeight(iLoop);
-				if (iRandIndex < iWeight)
-				{
-					eChosenEvent = eEvent;
-					break;
-				}
+				eChosenEvent = eEvent;
+				break;
 			}
+		}
 
-			if (eChosenEvent != NO_EVENT_CITY)
+		if (eChosenEvent != NO_EVENT_CITY)
+		{
+			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
+			if (pkEventInfo != NULL)
 			{
-				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
-				if (pkEventInfo != NULL)
-				{
-					DoStartEvent(eChosenEvent);
+				DoStartEvent(eChosenEvent);
 
-					//We did it! But reset our increment.
-					IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
-					if (GC.getLogging())
-					{
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventCityLogging.csv";
-						CvString playerName = getName();
-						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Resetting event chance: %s", pkEventInfo->GetDescription());
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
+				//We did it! But reset our increment.
+				IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
+				if (GC.getLogging())
+				{
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventCityLogging.csv";
+					CvString playerName = getName();
+					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Resetting event chance: %s", pkEventInfo->GetDescription());
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
 				}
 			}
 		}
@@ -3694,11 +3685,15 @@ void CvCity::DoEvents()
 
 	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
-		CityEventTypes eEvent = veValidEvents.GetElement(iLoop);
+		CityEventTypes eEvent = (CityEventTypes)veValidEvents.GetElement(iLoop);
 		if (eEvent != NO_EVENT)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (!pkEventInfo)
+				continue;
+
+			//But not for the one we just did!
+			if (eEvent == eChosenEvent)
 				continue;
 
 			//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
@@ -14565,6 +14560,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 		UpdateYieldPerXTerrainFromReligion(eYield, TERRAIN_MOUNTAIN);
 		UpdateYieldPerXTerrain(eYield, TERRAIN_MOUNTAIN);
 		UpdateYieldPerXFeature(eYield);
+		updateExtraSpecialistYield(eYield);
 	}
 	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCityCulture()->CalculateBaseTourism();

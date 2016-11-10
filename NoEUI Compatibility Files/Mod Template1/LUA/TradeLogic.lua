@@ -2880,37 +2880,41 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
 	
     if( TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE == itemType ) then
         --print( "Displaying Peace" );
-		
-        if( bFromUs ) then
-            --print( "    from us" );
-            g_OtherPlayersButtons[ iOtherPlayer ].UsTablePeace.Button:SetHide( false );
-        	Controls.UsTableMakePeaceStack:SetHide( false );
-        	Controls.UsTableMakePeaceStack:CalculateSize();
-        	Controls.UsTableMakePeaceStack:ReprocessAnchoring();
-        else
-            --print( "    from them" );
-            g_OtherPlayersButtons[ iOtherPlayer ].ThemTablePeace.Button:SetHide( false );
-        	Controls.ThemTableMakePeaceStack:SetHide( false );
-        	Controls.ThemTableMakePeaceStack:CalculateSize();
-        	Controls.ThemTableMakePeaceStack:ReprocessAnchoring();
-        end
+		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
+		if(otherPlayerButton ~= nil) then
+			if( bFromUs ) then
+				--print( "    from us" );
+				g_OtherPlayersButtons[ iOtherPlayer ].UsTablePeace.Button:SetHide( false );
+        		Controls.UsTableMakePeaceStack:SetHide( false );
+        		Controls.UsTableMakePeaceStack:CalculateSize();
+        		Controls.UsTableMakePeaceStack:ReprocessAnchoring();
+			else
+				--print( "    from them" );
+				g_OtherPlayersButtons[ iOtherPlayer ].ThemTablePeace.Button:SetHide( false );
+        		Controls.ThemTableMakePeaceStack:SetHide( false );
+        		Controls.ThemTableMakePeaceStack:CalculateSize();
+        		Controls.ThemTableMakePeaceStack:ReprocessAnchoring();
+			end
+		end
         
     elseif( TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR == itemType ) then
         --print( "Displaying War" );
-    
-        if( bFromUs ) then
-            --print( "    from us" );
-            g_OtherPlayersButtons[ iOtherPlayer ].UsTableWar.Button:SetHide( false );
-        	Controls.UsTableDeclareWarStack:SetHide( false );
-        	Controls.UsTableDeclareWarStack:CalculateSize();
-        	Controls.UsTableDeclareWarStack:ReprocessAnchoring();
-        else
-            --print( "    from them" );
-            g_OtherPlayersButtons[ iOtherPlayer ].ThemTableWar.Button:SetHide( false );
-        	Controls.ThemTableDeclareWarStack:SetHide( false );
-        	Controls.ThemTableDeclareWarStack:CalculateSize();
-        	Controls.ThemTableDeclareWarStack:ReprocessAnchoring();
-        end
+		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
+		if(otherPlayerButton ~= nil) then
+			if( bFromUs ) then
+				--print( "    from us" );
+				g_OtherPlayersButtons[ iOtherPlayer ].UsTableWar.Button:SetHide( false );
+        		Controls.UsTableDeclareWarStack:SetHide( false );
+        		Controls.UsTableDeclareWarStack:CalculateSize();
+        		Controls.UsTableDeclareWarStack:ReprocessAnchoring();
+			else
+				--print( "    from them" );
+				g_OtherPlayersButtons[ iOtherPlayer ].ThemTableWar.Button:SetHide( false );
+        		Controls.ThemTableDeclareWarStack:SetHide( false );
+        		Controls.ThemTableDeclareWarStack:CalculateSize();
+        		Controls.ThemTableDeclareWarStack:ReprocessAnchoring();
+			end
+		end
     end
 end
 

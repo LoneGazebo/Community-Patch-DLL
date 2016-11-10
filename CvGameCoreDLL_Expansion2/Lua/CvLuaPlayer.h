@@ -632,6 +632,9 @@ protected:
 	static int lGetFeatureProductionModifier(lua_State* L);
 	static int lGetWorkerSpeedModifier(lua_State* L);
 	static int lGetImprovementUpgradeRateModifier(lua_State* L);
+#if defined(MOD_CIV6_WORKER)
+	LUAAPIEXTN(GetImprovementBuilderCost, int);
+#endif
 	static int lGetMilitaryProductionModifier(lua_State* L);
 	static int lGetSpaceProductionModifier(lua_State* L);
 	static int lGetSettlerProductionModifier(lua_State* L);
@@ -1432,6 +1435,15 @@ protected:
 	static int lGetActiveCityEventChoices(lua_State* L);
 	static int lGetRecentPlayerEventChoices(lua_State* L);
 	static int lGetRecentCityEventChoices(lua_State* L);
+#endif
+#if defined(MOD_BATTLE_ROYALE)
+	static int lGetNumMilitarySeaUnits(lua_State* L); // Sea Units
+	static int lGetNumMilitaryAirUnits(lua_State* L); // Air Units
+	static int lGetNumMilitaryLandUnits(lua_State* L); // Land Units
+
+	static int lGetMilitarySeaMight(lua_State* L);
+	static int lGetMilitaryAirMight(lua_State* L);
+	static int lGetMilitaryLandMight(lua_State* L);
 #endif
 };
 

@@ -567,6 +567,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFreeExperience);
 	Method(GetFeatureProductionModifier);
 	Method(GetWorkerSpeedModifier);
+#if defined(MOD_CIV6_WORKER)
+	Method(GetImprovementBuilderCost);
+#endif
 	Method(GetImprovementUpgradeRateModifier);
 	Method(GetMilitaryProductionModifier);
 	Method(GetSpaceProductionModifier);
@@ -1434,6 +1437,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetActiveCityEventChoices);
 	Method(GetRecentPlayerEventChoices);
 	Method(GetRecentCityEventChoices);
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+	Method(GetNumMilitarySeaUnits);
+	Method(GetNumMilitaryAirUnits);
+	Method(GetNumMilitaryLandUnits);
+	Method(GetMilitarySeaMight);
+	Method(GetMilitaryAirMight);
+	Method(GetMilitaryLandMight);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -6827,6 +6839,19 @@ int CvLuaPlayer::lGetWorkerSpeedModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getWorkerSpeedModifier);
 }
+#if defined(MOD_CIV6_WORKER)
+//------------------------------------------------------------------------------
+//int GetImprovementBuilderCost(BuildTypes);
+int CvLuaPlayer::lGetImprovementBuilderCost(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const BuildTypes iBuild = (BuildTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetImprovementBuilderCost(iBuild);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getImprovementUpgradeRateModifier();
 int CvLuaPlayer::lGetImprovementUpgradeRateModifier(lua_State* L)
@@ -15049,5 +15074,45 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 	}
 
 	return 1;
+}
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+//------------------------------------------------------------------------------
+//int getNumMilitarySeaUnits();
+int CvLuaPlayer::lGetNumMilitarySeaUnits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getNumMilitarySeaUnits);
+}
+//------------------------------------------------------------------------------
+//int getNumMilitaryAirUnits();
+int CvLuaPlayer::lGetNumMilitaryAirUnits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getNumMilitaryAirUnits);
+}
+//------------------------------------------------------------------------------
+//int getNumMilitaryLandUnits();
+int CvLuaPlayer::lGetNumMilitaryLandUnits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getNumMilitaryLandUnits);
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//int GetMilitarySeaMight();
+int CvLuaPlayer::lGetMilitarySeaMight(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetMilitarySeaMight);
+}
+//------------------------------------------------------------------------------
+//int GetMilitaryAirMight();
+int CvLuaPlayer::lGetMilitaryAirMight(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetMilitaryAirMight);
+}
+//------------------------------------------------------------------------------
+//int GetMilitaryLandMight();
+int CvLuaPlayer::lGetMilitaryLandMight(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetMilitaryLandMight);
 }
 #endif

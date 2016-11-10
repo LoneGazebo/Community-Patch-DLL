@@ -259,6 +259,9 @@ CvPlayer::CvPlayer() :
 	, m_iGoldPerUnit("CvPlayer::m_iGoldPerUnit", m_syncArchive)
 	, m_iGoldPerMilitaryUnit("CvPlayer::m_iGoldPerMilitaryUnit", m_syncArchive)
 	, m_iImprovementGoldMaintenanceMod("CvPlayer::m_iImprovementGoldMaintenanceMod", m_syncArchive)
+#if defined(MOD_CIV6_WORKER)
+	, m_iRouteBuilderCostMod("CvPlayer::m_iRouteBuilderCostMod", m_syncArchive)
+#endif
 	, m_iBuildingGoldMaintenanceMod("CvPlayer::m_iBuildingGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitGoldMaintenanceMod("CvPlayer::m_iUnitGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitSupplyMod("CvPlayer::m_iUnitSupplyMod", m_syncArchive)
@@ -578,6 +581,7 @@ CvPlayer::CvPlayer() :
 	, m_iPlayerEventCooldown("CvPlayer::m_iPlayerEventCooldown", m_syncArchive)
 	, m_abNWOwned("CvPlayer::m_abNWOwned", m_syncArchive)
 	, m_paiUnitClassProductionModifiers("CvPlayer::m_paiUnitClassProductionModifiers", m_syncArchive)
+	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -679,6 +683,14 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl("CvPlayer::m_iFractionOriginalCapitalsUnderControl", m_syncArchive)
+#endif
+#if defined(MOD_BATTLE_ROYALE)
+	, m_iNumMilitarySeaUnits("CvPlayer::m_iNumMilitarySeaUnits", m_syncArchive)
+	, m_iNumMilitaryAirUnits("CvPlayer::m_iNumMilitaryAirUnits", m_syncArchive)
+	, m_iNumMilitaryLandUnits("CvPlayer::m_iNumMilitaryLandUnits", m_syncArchive)
+	, m_iMilitarySeaMight("CvPlayer::m_iMilitarySeaMight", m_syncArchive)
+	, m_iMilitaryAirMight("CvPlayer::m_iMilitaryAirMight", m_syncArchive)
+	, m_iMilitaryLandMight("CvPlayer::m_iMilitaryLandMight", m_syncArchive)
 #endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
@@ -1434,6 +1446,9 @@ void CvPlayer::uninit()
 	m_iGoldPerUnit = 0;
 	m_iGoldPerMilitaryUnit = 0;
 	m_iImprovementGoldMaintenanceMod = 0;
+#if defined(MOD_CIV6_WORKER)
+	m_iRouteBuilderCostMod = 0;
+#endif
 	m_iBuildingGoldMaintenanceMod = 0;
 	m_iUnitGoldMaintenanceMod = 0;
 	m_iUnitSupplyMod = 0;
@@ -1529,6 +1544,7 @@ void CvPlayer::uninit()
 	m_iNoUnhappfromXSpecialistsCapital = 0;
 	m_iWarWearinessModifier = 0;
 	m_iPlayerEventCooldown = 0;
+	m_iExtraSupplyPerPopulation = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = 0;
@@ -1662,6 +1678,14 @@ void CvPlayer::uninit()
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iVassalGoldMaintenanceMod = 0;
+#endif
+#if defined(MOD_BATTLE_ROYALE)
+	m_iNumMilitarySeaUnits = 0;
+	m_iNumMilitaryAirUnits = 0; 
+	m_iNumMilitaryLandUnits = 0;
+	m_iMilitarySeaMight = 0;
+	m_iMilitaryAirMight = 0;
+	m_iMilitaryLandMight = 0;
 #endif
 
 	m_eID = NO_PLAYER;
@@ -5353,9 +5377,28 @@ void CvPlayer::DoEvents()
 		}
 	}
 
+	if (GetPlayerEventCooldown() > 0)
+	{
+		if (GC.getLogging())
+		{
+			CvString playerName;
+			FILogFile* pLog;
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "EventLogging.csv";
+			playerName = getCivilizationShortDescription();
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("Player Event: Global Cooldown Active. Cooldown: %d", GetPlayerEventCooldown());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
+		ChangePlayerEventCooldown(-1);
+	}
+
 	//Let's loop through all events.
-	CvWeightedVector<EventTypes, 256, true> veValidEvents;
-	int iTotalWeight = 0;
+	CvWeightedVector<int> veValidEvents;
 
 	for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 	{
@@ -5406,42 +5449,20 @@ void CvPlayer::DoEvents()
 				continue;
 			}
 
-			if (GetPlayerEventCooldown() > 0)
+			if (GetPlayerEventCooldown() > 0 && !pkEventInfo->IgnoresGlobalCooldown())
 			{
-				if (GC.getLogging())
-				{
-					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-					if (pkEventInfo != NULL)
-					{
-						CvString playerName;
-						FILogFile* pLog;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
-						playerName = getCivilizationShortDescription();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Player Event: %s. Global Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetPlayerEventCooldown());
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-				}
-				ChangePlayerEventCooldown(-1);
-				if (!pkEventInfo->IgnoresGlobalCooldown())
-				{
-					return;
-				}
+				continue;
 			}
 
 			//most expensive check last
 			if (IsEventValid(eEvent))
 			{
 				veValidEvents.push_back(eEvent, (pkEventInfo->getRandomChance() + GetEventIncrement(eEvent)));
-				iTotalWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
 		}
 	}
+
+	EventTypes eChosenEvent = NO_EVENT;
 
 	if(veValidEvents.size() > 0)
 	{
@@ -5460,60 +5481,55 @@ void CvPlayer::DoEvents()
 			pLog->Msg(strBaseString);
 		}
 
-		int iRandIndex = GC.getGame().getJonRandNum(1000 * veValidEvents.size(), "Picking random event for player.");
-		//did we hit an event?
-		if (iRandIndex < iTotalWeight)
+		int iRandIndex = GC.getGame().getJonRandNum(1000, "Picking random event for player.");
+
+		//which one is it?
+		int iWeight = 0;
+		for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 		{
-			EventTypes eChosenEvent = NO_EVENT;
+			EventTypes eEvent = (EventTypes)veValidEvents.GetElement(iLoop);
+			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+			if (!pkEventInfo)
+				continue;
 
-			//which one is it?
-			int iWeight = 0;
-			for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+			iWeight = veValidEvents.GetWeight(iLoop);
+			if (iRandIndex < iWeight)
 			{
-				EventTypes eEvent = veValidEvents.GetElement(iLoop);
-				CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-				if (!pkEventInfo)
-					continue;
-
-				iWeight = veValidEvents.GetWeight(iLoop);
-				if (iRandIndex < iWeight)
-				{
-					eChosenEvent = eEvent;
-					break;
-				}
+				eChosenEvent = eEvent;
+				break;
 			}
+		}
 
-			if (eChosenEvent != NO_EVENT)
+		if (eChosenEvent != NO_EVENT)
+		{
+			CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
+			if (pkEventInfo != NULL)
 			{
-				CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
-				if (pkEventInfo != NULL)
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+					if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
 					{
-						PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-						if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+						//Not global?
+						if (!pkEventInfo->isGlobal() && ePlayer != GetID())
+							continue;
+
+						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+
+						//reset probability
+						IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
+						if (GC.getLogging())
 						{
-							//Not global?
-							if (!pkEventInfo->isGlobal() && ePlayer != GetID())
-								continue;
-
-							GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
-
-							//reset probability
-							IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
-							if (GC.getLogging())
-							{
-								CvString strBaseString;
-								CvString strOutBuf;
-								CvString strFileName = "EventLogging.csv";
-								CvString playerName = getCivilizationShortDescription();
-								FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-								strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-								strBaseString += playerName + ", ";
-								strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
-								strBaseString += strOutBuf;
-								pLog->Msg(strBaseString);
-							}
+							CvString strBaseString;
+							CvString strOutBuf;
+							CvString strFileName = "EventLogging.csv";
+							CvString playerName = getCivilizationShortDescription();
+							FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+							strBaseString += playerName + ", ";
+							strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+							strBaseString += strOutBuf;
+							pLog->Msg(strBaseString);
 						}
 					}
 				}
@@ -5523,11 +5539,15 @@ void CvPlayer::DoEvents()
 
 	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
-		EventTypes eEvent = veValidEvents.GetElement(iLoop);
+		EventTypes eEvent = (EventTypes)veValidEvents.GetElement(iLoop);
 		if (eEvent != NO_EVENT)
 		{
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
 			if (!pkEventInfo)
+				continue;
+
+			//But not for the one we just did!
+			if (eChosenEvent == eEvent)
 				continue;
 
 			//make it more likely
@@ -9408,7 +9428,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
 	{
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
+		{
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+		}
 	}
 #endif
 
@@ -16707,7 +16730,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation() const
 {
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
 	// Don't need a test here for MOD_TRAITS_EXTRA_SUPPLY being enabled, as if it isn't GetExtraSupply() will return 0
-	return getTotalPopulation() * (getHandicapInfo().getProductionFreeUnitsPopulationPercent() + m_pTraits->GetExtraSupplyPerPopulation()) / 100;
+	return getTotalPopulation() * (getHandicapInfo().getProductionFreeUnitsPopulationPercent() + m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation()) / 100;
 #else
 	rturn getTotalPopulation() * getHandicapInfo().getProductionFreeUnitsPopulationPercent() / 100;
 #endif
@@ -26489,6 +26512,28 @@ void CvPlayer::changeWorkerSpeedModifier(int iChange)
 	m_iWorkerSpeedModifier = (m_iWorkerSpeedModifier + iChange);
 }
 
+#if defined(MOD_CIV6_WORKER)
+//	--------------------------------------------------------------------------------
+int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
+{
+	//get the build
+	if (iBuild >= 0 && iBuild < GC.getNumBuildInfos())
+	{
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iBuild);
+		int buildercost = pkBuildInfo->getBuilderCost();
+
+		//if road, use RouteBuilderCostMod
+		if (pkBuildInfo->getRoute() != NO_ROUTE)
+		{
+			buildercost *= 100 + GetRouteBuilderCostMod();
+			buildercost /= 100;
+		}
+
+		return buildercost;
+	}
+	return 0;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getImprovementCostModifier() const
@@ -26860,6 +26905,23 @@ void CvPlayer::ChangeImprovementGoldMaintenanceMod(int iChange)
 	}
 }
 
+#if defined(MOD_CIV6_WORKER)
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetRouteBuilderCostMod() const
+{
+	return m_iRouteBuilderCostMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeRouteBuilderCostMod(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iRouteBuilderCostMod = (m_iRouteBuilderCostMod + iChange);
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetBuildingGoldMaintenanceMod() const
 {
@@ -26978,16 +27040,62 @@ int CvPlayer::getNumMilitaryUnits() const
 {
 	return m_iNumMilitaryUnits;
 }
+#if defined(MOD_BATTLE_ROYALE)
+//  ----------------------------------------------------------------------------------
+int CvPlayer::getNumMilitarySeaUnits() const
+{
+	return m_iNumMilitarySeaUnits;
+}
+
+int CvPlayer::getNumMilitaryAirUnits() const
+{
+	return m_iNumMilitaryAirUnits;
+}
+
+int CvPlayer::getNumMilitaryLandUnits() const
+{
+	return m_iNumMilitaryLandUnits;
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BATTLE_ROYALE)
+void CvPlayer::changeNumMilitaryUnits(int iChange, DomainTypes eDomain)
+#else
 void CvPlayer::changeNumMilitaryUnits(int iChange)
+#endif
 {
 	if(iChange != 0)
 	{
 		m_iNumMilitaryUnits = (m_iNumMilitaryUnits + iChange);
 		CvAssert(getNumMilitaryUnits() >= 0);
 
+#if defined(MOD_BATTLE_ROYALE)
+		switch (eDomain)
+		{
+		case NO_DOMAIN:
+			break;
+		case DOMAIN_SEA:
+			m_iNumMilitarySeaUnits = (m_iNumMilitarySeaUnits + iChange);
+			CvAssert(getNumMilitarySeaUnits() >= 0);
+			break;
+		case DOMAIN_AIR:
+			m_iNumMilitaryAirUnits = (m_iNumMilitaryAirUnits + iChange);
+			CvAssert(getNumMilitaryAirUnits() >= 0);
+			break;
+		case DOMAIN_LAND:
+			m_iNumMilitaryLandUnits = (m_iNumMilitaryLandUnits + iChange);
+			CvAssert(getNumMilitarySeaUnits() >= 0);
+			break;
+		case DOMAIN_IMMOBILE:
+			break;
+		case DOMAIN_HOVER:
+			break;
+		default:
+			break;
+		}
+#endif
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
@@ -29453,8 +29561,16 @@ void CvPlayer::updateMightStatistics()
 int CvPlayer::getPower() const
 {
 	// more lazy evaluation
-	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
+#if defined(MOD_BATTLE_ROYALE)
+		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
+		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+#endif
+	}
 
 	return m_iMilitaryMight + m_iEconomicMight;
 }
@@ -29463,19 +29579,80 @@ int CvPlayer::getPower() const
 int CvPlayer::GetMilitaryMight() const
 {
 	// more lazy evaluation
-	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
+#if defined(MOD_BATTLE_ROYALE)
+		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
+		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+#endif
+	}
 
 	return m_iMilitaryMight;
 }
-
+#if defined(MOD_BATTLE_ROYALE)
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMilitarySeaMight() const
+{
+	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	{
+		// more lazy evaluation
+		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
+		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
+		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
+	}
+	return m_iMilitarySeaMight;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMilitaryAirMight() const
+{
+	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	{
+		// more lazy evaluation
+		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
+		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
+		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
+	}
+	return m_iMilitaryAirMight;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMilitaryLandMight() const
+{
+	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	{
+		// more lazy evaluation
+		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
+		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
+		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
+	}
+	return m_iMilitaryLandMight;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetEconomicMight() const
 {
 	// more lazy evaluation
-	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+	{
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
-
+#if defined(MOD_BATTLE_ROYALE)
+		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight(NO_DOMAIN);
+		const_cast<CvPlayer*>(this)->m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
+		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
+		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
+#endif
+	}
 	return m_iEconomicMight;
 }
 
@@ -29490,7 +29667,11 @@ int CvPlayer::GetProductionMight() const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BATTLE_ROYALE)
+int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
+#else
 int CvPlayer::calculateMilitaryMight() const
+#endif
 {
 	int rtnValue = 0;
 	const CvUnit* pLoopUnit;
@@ -29502,7 +29683,18 @@ int CvPlayer::calculateMilitaryMight() const
 			continue;
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
+#if defined(MOD_BATTLE_ROYALE)
+		if (eDomain == NO_DOMAIN)
+		{
+			rtnValue += iPower;
+		}
+		else if (pLoopUnit->getDomainType() == eDomain)
+		{
+			rtnValue += iPower;
+		}
+#else
 		rtnValue += iPower;
+#endif
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -38522,6 +38714,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerTradeRoute(pPolicy->GetHappinessPerTradeRoute() * iChange);
 	ChangeHappinessPerXPopulation(pPolicy->GetHappinessPerXPopulation() * iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	ChangeExtraSupplyPerPopulation(pPolicy->GetExtraSupplyPerPopulation() * iChange);
 	ChangeCSAlliesLowersPolicyNeedWonders(pPolicy->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
@@ -38607,6 +38800,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeSettlerProductionModifier(pPolicy->GetSettlerProductionModifier() * iChange);
 	changeCapitalSettlerProductionModifier(pPolicy->GetCapitalSettlerProductionModifier() * iChange);
 	ChangeImprovementGoldMaintenanceMod(pPolicy->GetImprovementGoldMaintenanceMod() * iChange);
+#if defined(MOD_CIV6_WORKER)
+	ChangeRouteBuilderCostMod(pPolicy->GetRouteBuilderCostMod() * iChange);
+#endif
 	ChangeBuildingGoldMaintenanceMod(pPolicy->GetBuildingGoldMaintenanceMod() * iChange);
 	ChangeUnitGoldMaintenanceMod(pPolicy->GetUnitGoldMaintenanceMod() * iChange);
 	ChangeUnitSupplyMod(pPolicy->GetUnitSupplyMod() * iChange);
@@ -42324,6 +42520,21 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 
 	return m_iMaxEffectiveCities;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// How many Natural Wonders has this player found in its area?
+int CvPlayer::GetExtraSupplyPerPopulation() const
+{
+	return m_iExtraSupplyPerPopulation;
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes many Natural Wonders has this player found in its area
+void CvPlayer::ChangeExtraSupplyPerPopulation(int iChange)
+{
+	m_iExtraSupplyPerPopulation += iChange;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// How many Natural Wonders has this player found in its area?
 int CvPlayer::GetNumNaturalWondersDiscoveredInArea() const

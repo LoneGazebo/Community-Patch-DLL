@@ -142,6 +142,9 @@ public:
 	int GetNewCityExtraPopulation() const;
 	int GetFreeFoodBox() const;
 	int GetImprovementGoldMaintenanceMod() const;
+#if defined(MOD_CIV6_WORKER)
+	int GetRouteBuilderCostMod() const;
+#endif
 	int GetBuildingGoldMaintenanceMod() const;
 	int GetUnitGoldMaintenanceMod() const;
 	int GetUnitSupplyMod() const;
@@ -304,6 +307,7 @@ public:
 	int GetMaxCorps() const;
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
+	int GetExtraSupplyPerPopulation() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -469,6 +473,9 @@ private:
 	int m_iNewCityExtraPopulation;
 	int m_iFreeFoodBox;
 	int m_iImprovementGoldMaintenanceMod;
+#if defined(MOD_CIV6_WORKER)
+	int m_iRouteBuilderCostMod;
+#endif
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;
 	int m_iUnitSupplyMod;
@@ -634,6 +641,7 @@ private:
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;
+	int m_iExtraSupplyPerPopulation;
 	bool m_bNoPartisans;
 	bool m_bCorporationOfficesAsFranchises;
 	bool m_bCorporationFreeFranchiseAbovePopular;

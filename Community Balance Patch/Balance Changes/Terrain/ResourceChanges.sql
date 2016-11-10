@@ -537,3 +537,15 @@ VALUES
 	UPDATE Resources
 	Set StrategicHelp = 'TXT_KEY_RESOURCE_MONOPOLY_STRAT_URANIUM'
 	WHERE Type = 'RESOURCE_URANIUM';
+
+
+-- New Resource - Brazilwood
+INSERT INTO Resources
+(Type, TechCityTrade, Description, Civilopedia, Help, ResourceClassType, Happiness, AIObjective, AITradeModifier, IconString, PortraitIndex, IconAtlas, TechReveal, ArtDefineTag)
+Values
+('RESOURCE_BRAZILWOOD', 'TECH_CALENDAR', 'TXT_KEY_RESOURCE_BRAZILWOOD', 'TXT_KEY_RESOURCE_BRAZILWOOD_TEXT', 'TXT_KEY_RESOURCE_BRAZILWOOD_HELP', 'RESOURCECLASS_LUXURY', '1', '1', '0', '[ICON_RES_BRAZILWOOD]', '0', 'CBP_RESOURCE_ATLAS', 'TECH_CALENDAR', 'ART_DEF_RESOURCE_FUR');
+
+INSERT INTO Resource_Flavors
+(ResourceType, FlavorType, Flavor)
+Values
+('RESOURCE_BRAZILWOOD', 'FLAVOR_HAPPINESS', '10');

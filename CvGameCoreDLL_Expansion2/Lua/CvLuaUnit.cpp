@@ -197,6 +197,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanBuildRoute);
 	Method(GetBuildType);
 	Method(WorkRate);
+#if defined(MOD_CIV6_WORKER)
+	Method(GetBuilderStrength);
+#endif
 
 	Method(IsNoBadGoodies);
 	Method(IsOnlyDefensive);
@@ -2275,6 +2278,18 @@ int CvLuaUnit::lWorkRate(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_CIV6_WORKER)
+//------------------------------------------------------------------------------
+//int getBuilderStrength();
+int CvLuaUnit::lGetBuilderStrength(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->getBuilderStrength();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isNoBadGoodies();
 int CvLuaUnit::lIsNoBadGoodies(lua_State* L)

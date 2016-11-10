@@ -396,6 +396,10 @@ protected:
 	static int lGetNumLeaguesEverFounded(lua_State* L);
 	static int lGetLeague(lua_State* L);
 	static int lGetActiveLeague(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lDoEnactResolution(lua_State* L);
+	static int lDoRepealResolution(lua_State* L);
+#endif
 	
 	static int lIsProcessingMessages(lua_State* L);
 
@@ -498,6 +502,12 @@ protected:
 	static int lGetContractUnits(lua_State* L);
 	static int lGetInactiveContractUnitList(lua_State* L);
 	static int lGetActiveContractUnitList(lua_State* L);
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+	// Lua CSV Logging Functions
+	static int lDeleteCSV(lua_State* L);
+	static int lWriteCSV(lua_State* L);
 #endif
 };
 

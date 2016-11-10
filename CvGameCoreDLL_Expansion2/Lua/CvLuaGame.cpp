@@ -30,6 +30,10 @@
 #include "../CvReplayMessage.h"
 #include "../cvStopWatch.h"
 
+#if defined(MOD_BATTLE_ROYALE)
+#include "../CvLoggerCSV.h"
+#endif
+
 #define Method(func) RegisterMethod(L, l##func, #func);
 
 //------------------------------------------------------------------------------
@@ -399,6 +403,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumLeaguesEverFounded);
 	Method(GetLeague);
 	Method(GetActiveLeague);
+#if defined(MOD_BALANCE_CORE)
+	Method(DoEnactResolution);
+	Method(DoRepealResolution);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsAchievementUnlocked);
@@ -505,6 +513,11 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetContractUnits);
 	Method(GetInactiveContractUnitList);
 	Method(GetActiveContractUnitList);
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+	Method(DeleteCSV);
+	Method(WriteCSV);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -3049,6 +3062,39 @@ int CvLuaGame::lGetActiveLeague(lua_State* L)
 	}
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvLuaGame::lDoEnactResolution(lua_State* L)
+{
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL)
+	{
+		const ResolutionTypes iResolutionType = static_cast<ResolutionTypes>(luaL_checkint(L, 1));
+		const int iChoice = luaL_checkint(L, 2);
+		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+		CvEnactProposal fakeProposal(GC.getGame().GetGameLeagues()->GenerateResolutionUniqueID(), iResolutionType, pLeague->GetID(), ePlayer, iChoice);
+		
+		pLeague->DoEnactResolutionPublic(&fakeProposal);
+	}
+	return 1;
+}
+int CvLuaGame::lDoRepealResolution(lua_State* L)
+{
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL)
+	{
+		const ResolutionTypes iResolutionType = static_cast<ResolutionTypes>(luaL_checkint(L, 1));
+		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+		CvActiveResolution* pResolution = pLeague->GetActiveResolution(iResolutionType);
+		if (pResolution)
+		{
+			CvRepealProposal fakeProposal(pResolution, ePlayer);
+
+			pLeague->DoRepealResolutionPublic(&fakeProposal);
+		}
+	}
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsProcessingMessages(lua_State* L)
 {
@@ -3935,6 +3981,27 @@ int CvLuaGame::lGetActiveContractUnitList(lua_State* L)
 			}
 		}	
 	}
+	return 1;
+}
+#endif
+
+#if defined(MOD_BATTLE_ROYALE)
+int CvLuaGame::lDeleteCSV(lua_State * L)
+{
+	const char* szCSVFilename = lua_tostring(L, 2);
+
+	CvLoggerCSV::DeleteCSV(szCSVFilename);
+
+	return 1;
+}
+
+int CvLuaGame::lWriteCSV(lua_State * L)
+{
+	const char* szCSVFilename = lua_tostring(L, 2);
+	const char* szCSVLine = lua_tostring(L, 3);
+
+	CvLoggerCSV::WriteCSVLog(szCSVFilename, szCSVLine);
+
 	return 1;
 }
 #endif

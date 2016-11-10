@@ -711,6 +711,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Improvement: allows an improvement to boost the base yield of an adjacent improvement -->
+	<Table name="Improvement_FeatureYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<!-- Promotion: Unit gains a bonus from revealing tiles. Value is equal to the number of tiles explored this turn. -->
 	<Table name="UnitPromotions_YieldFromScouting">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>

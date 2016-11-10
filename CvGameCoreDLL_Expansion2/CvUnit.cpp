@@ -426,6 +426,9 @@ CvUnit::CvUnit() :
 	, m_iPrevPlotIdx1(0)
 	, m_iPrevPlotIdx2(0)
 #endif
+#if defined(MOD_CIV6_WORKER)
+	, m_iBuilderStrength("CvUnit::m_iBuilderStrength", m_syncArchive)
+#endif
 {
 	initPromotions();
 	OBJECT_ALLOCATED
@@ -582,6 +585,14 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	{
 		kPlayer.ChangeNumBuilders(1);
 	}
+#if defined(MOD_CIV6_WORKER)
+	//get builder strength
+	if (getUnitInfo().GetBuilderStrength() > 0)
+	{
+		// use speed modifier to increase the work count. *4 because a 25% increase = +1 work = +100 strength
+		setBuilderStrength(getUnitInfo().GetBuilderStrength() + kPlayer.getWorkerSpeedModifier() * 4 + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier() * 4);
+	}
+#endif
 
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
@@ -606,7 +617,11 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
+#if defined(MOD_BATTLE_ROYALE)
+		kPlayer.changeNumMilitaryUnits(1,(DomainTypes)getUnitInfo().GetDomainType());
+#else
 		kPlayer.changeNumMilitaryUnits(1);
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
@@ -970,6 +985,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	initPromotions();
 	m_pReligion->Init();
 
+
 	//--------------------------------
 	// Init saved data
 	reset(iID, eUnit, eOwner);
@@ -1154,6 +1170,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		kPlayer.ChangeNumBuilders(1);
 	}
+#if defined(MOD_CIV6_WORKER)
+	//get builder strength
+	if (getUnitInfo().GetBuilderStrength() > 0)
+	{
+		// use speed modifier to increase the work count. *4 because a 25% increase = +1 work = +100 strength
+		setBuilderStrength(getUnitInfo().GetBuilderStrength() + kPlayer.getWorkerSpeedModifier() * 4 + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier() * 4);
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
 	if(MOD_BALANCE_CORE_SETTLER_RESET_FOOD && getUnitInfo().IsFound())
 	{
@@ -1213,7 +1237,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
+#if defined(MOD_BATTLE_ROYALE)
+		kPlayer.changeNumMilitaryUnits(1, (DomainTypes)getUnitInfo().GetDomainType());
+#else
 		kPlayer.changeNumMilitaryUnits(1);
+#endif
 	}
 
 	// Free Promotions from Unit XML
@@ -2692,7 +2720,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
+#if defined(MOD_BATTLE_ROYALE)
+		GET_PLAYER(getOwner()).changeNumMilitaryUnits(-1, (DomainTypes)getUnitInfo().GetDomainType());
+#else
 		GET_PLAYER(getOwner()).changeNumMilitaryUnits(-1);
+#endif
 	}
 
 	// A unit dying reduces the Great General meter
@@ -5973,6 +6005,14 @@ int CvUnit::GetScrapGold() const
 	iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iNumGold /= 100;
 
+#if defined(MOD_CIV6_WORKER)
+	//if we are a builder (something with builderstrength), our value decrease with our build strength
+	if (getBuilderStrength() > 0)
+	{
+		iNumGold *= getUnitInfo().GetBuilderStrength() - getBuilderStrength();
+		iNumGold /= getUnitInfo().GetBuilderStrength();
+	}
+#endif
 
 	// Check to see if we are transporting other units and add in their scrap value as well.
 	CvPlot* pPlot = plot();
@@ -13135,7 +13175,12 @@ bool CvUnit::build(BuildTypes eBuild)
 		}
 	}
 
+	int iWorkRateWithMoves = workRate(false);
+
 	int iStartedYet = pPlot->getBuildProgress(eBuild);
+#if defined(MOD_CIV6_WORKER)
+	int iMaxTimetoBuild = pPlot->getBuildTime(eBuild, getOwner());
+#endif
 
 	// if we are starting something new wipe out the old thing immediately
 	if(iStartedYet == 0)
@@ -13161,11 +13206,11 @@ bool CvUnit::build(BuildTypes eBuild)
 
 		// wipe out all build progress also
 
-		bFinished = pPlot->changeBuildProgress(eBuild, workRate(false), getOwner());
+		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
 
 	}
 
-	bFinished = pPlot->changeBuildProgress(eBuild, workRate(false), getOwner());
+	bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
 
 #if defined(MOD_EVENTS_PLOT)
 	if (MOD_EVENTS_PLOT) {
@@ -13439,6 +13484,36 @@ bool CvUnit::build(BuildTypes eBuild)
 #endif
 			}
 
+#if defined(MOD_CIV6_WORKER)
+			//if we are a builder (something with builderstrength)
+			if (getBuilderStrength() > 0)
+			{
+				//check the amount of work done
+				int iTotalCost = pkBuildInfo->getBuilderCost();
+				int iTimeUsed = pPlot->getBuildProgress(eBuild) - iStartedYet;
+				if (bFinished)
+				{
+					iTimeUsed = iMaxTimetoBuild - iStartedYet;
+				}
+				int iCostThisTurn = iTotalCost * iTimeUsed;
+				iCostThisTurn /= iMaxTimetoBuild;
+				
+				//special mod for route construction (used by a policy)
+				if (pkBuildInfo->getRoute() != NO_ROUTE)
+				{
+					iCostThisTurn *= 100 + kPlayer.GetRouteBuilderCostMod();
+					iCostThisTurn /= 100;
+				}
+
+				// remove this amount (and kill me if it's too high)
+				setBuilderStrength(getBuilderStrength() - iCostThisTurn);
+				if (m_iBuilderStrength == 0){
+					//delete unit
+					kill(true);
+				}
+			}
+#endif
+
 			// Add to player's Improvement count, which will increase cost of future Improvements
 			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT || pkBuildInfo->getRoute() != NO_ROUTE)	// Prevents chopping Forest or Jungle from counting
 			{
@@ -13492,6 +13567,20 @@ bool CvUnit::build(BuildTypes eBuild)
 	}
 
 	return bFinished;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getBuilderStrength() const
+{
+	return m_iBuilderStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setBuilderStrength(const int newPower)
+{
+	m_iBuilderStrength = newPower;
+	if (m_iBuilderStrength < 0) m_iBuilderStrength = 0;
+
 }
 
 

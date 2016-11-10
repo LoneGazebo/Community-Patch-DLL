@@ -922,5 +922,19 @@
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S">
 			<Text>Patronage of the Daimyo</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD">
+			<Text>Brazilwood</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_HELP">
+			<Text>Luxury resource unique to Brazil. Can only be acquired through the creation of Brazilwood Camps.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_BRAZILWOOD">
+			<Text>Brazilwood</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_TEXT">
+			<Text>Brazilwood is a dense, compact dyewood from any of various tropical trees whose extracts yield bright crimson and deep purple colours. Brazilwood is also used in cabinetwork and the creation of musical instruments. In ancient and medieval times, the brazilwood imported to Europe from the Middle East was Caesalpinia braziliensis and other species of Caesalpinia. Caesalpinia echinata (called pau-brasil in Portuguese) is indigenous to the Brazilian coast and played a role in the naming of that country.</Text>
+		</Row>
+		
 	</Language_en_US>
 </GameData>
