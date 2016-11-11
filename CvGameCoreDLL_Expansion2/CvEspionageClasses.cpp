@@ -3070,9 +3070,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
+				bool bCanDie = false;
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-				{
-					bool bCanDie = false;
+				{				
 					if (pCity->GetCityEspionage()->HasCounterSpy())
 					{
 						int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
@@ -3096,7 +3096,6 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					}
 					if (bCanDie)
 					{
-						strSpyAtCity += "[NEWLINE]";
 						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_ADVANCED_DEATH_POSSIBILITY");
 					}
 
@@ -3143,8 +3142,11 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					int iKillChance = (((iSpyTotal - 300) * 100) / 300);
 					int iIdentifyChance = (((iSpyTotal - 200) * 100) / 300);
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL", max(0, iKillChance));
+					if (bCanDie)
+					{
+						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL", max(0, iKillChance));
+					}
 					strSpyAtCity += "[NEWLINE]";
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
 				}

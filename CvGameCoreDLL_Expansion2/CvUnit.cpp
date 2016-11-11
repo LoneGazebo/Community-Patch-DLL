@@ -5320,7 +5320,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				{
 					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
-					if(loopUnit && GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+					if(loopUnit && !loopUnit->isDelayedDeath() && GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 					{
 						bEnemyUnitPresent = true;
 						if(!loopUnit->IsDead() && loopUnit->isInCombat())
@@ -13501,13 +13501,8 @@ bool CvUnit::build(BuildTypes eBuild)
 				//special mod for route construction (used by a policy)
 				if (pkBuildInfo->getRoute() != NO_ROUTE)
 				{
-					iCostThisTurn *= 100 + kPlayer.GetRouteCostMod();
+					iCostThisTurn *= 100 + kPlayer.GetRouteBuilderCostMod();
 					iCostThisTurn /= 100;
-				}
-				//half cost for repair (todo: do not hardcode it)
-				if (pkBuildInfo->isRepair())
-				{
-					iCostThisTurn /= 2;
 				}
 
 				// remove this amount (and kill me if it's too high)
@@ -15040,14 +15035,13 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 {
 	VALIDATE_OBJECT
 	if(NO_TEAM == eTeam)
-	{
 		return false;
-	}
+
+	if (isDelayedDeath())
+		return true;
 
 	if(isInvisible(eTeam, false))
-	{
 		return true;
-	}
 
 	return false;
 }
@@ -20223,6 +20217,10 @@ void CvUnit::setGameTurnCreated(int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getDamage() const
 {
+	//for debugging - hook in here and mouse over a unit to get the current tactical zone info
+	if (0)
+		OutputDebugString( getTacticalZoneInfo().c_str() );
+
 	VALIDATE_OBJECT
 	return m_iDamage;
 }
@@ -26221,7 +26219,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 	}
 
 #if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
-    if(!isNativeDomain(plot()))
+    if(!isNativeDomain(pSourcePlot))
     {
         return false;
     }

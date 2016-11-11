@@ -2582,8 +2582,15 @@ int CvBuilderTaskingAI::ScorePlot()
 	//Some base value.
 	int iScore = 10;
 
-	if(m_bEvaluateAdjacent)
+	if (m_bEvaluateAdjacent && m_pTargetPlot->getOwner() != m_pPlayer->GetID())
 	{
+		if (!pImprovement->IsInAdjacentFriendly())
+		{
+			CvCity* pCity = m_pTargetPlot->getWorkingCity();
+			if (!pCity)
+				return -1;
+		}
+
 		CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
 		if(pCapitalCity)
 		{
@@ -2635,7 +2642,7 @@ int CvBuilderTaskingAI::ScorePlot()
 			}
 			
 			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
-			iScore /= 3;
+			iScore /= 5;
 		}
 	}
 #endif

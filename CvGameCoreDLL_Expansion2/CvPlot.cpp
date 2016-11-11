@@ -2943,8 +2943,8 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 		}
 	}
 #if defined(MOD_CIV6_WORKER)
-	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteCostMod() != 0){
-		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteCostMod());
+	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteBuilderCostMod() != 0){
+		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteBuilderCostMod());
 		iTime /= 100;
 	}
 #endif
@@ -4846,7 +4846,7 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit != NULL)
+		if(pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
 		{
 			// Don't include an enemy unit, or else it won't let us attack it :)
 			if(!kUnitTeam.isAtWar(pLoopUnit->getTeam()))
@@ -7975,7 +7975,16 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+					if(getResourceType() == NO_RESOURCE)
+					{
+						setResourceType(eResourceFromImprovement, iQuantity);
+						if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+							SetResourceLinkedCityActive(true);
+					}
+					else if(getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
+					{
+						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+					}
 				}
 #endif
 
@@ -8172,14 +8181,23 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
-				int iQuantity = GC.getImprovementInfo(eOldImprovement)->GetResourceQuantityFromImprovement();
+				int iQuantity = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceQuantityFromImprovement();
 				if (iQuantity <= 0)
 				{
 					iQuantity = 1;
 				}
-				if (eResourceFromImprovement != NO_RESOURCE)
+				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, -iQuantity, true);
+					if(getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
+					{
+						setResourceType(NO_RESOURCE, 0);
+						if (GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+							SetResourceLinkedCityActive(false);
+					}
+					else
+					{
+						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, -iQuantity, true);
+					}
 				}
 #endif
 			}

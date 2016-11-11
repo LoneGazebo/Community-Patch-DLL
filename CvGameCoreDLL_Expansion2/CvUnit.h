@@ -1650,6 +1650,7 @@ public:
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
 	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
+	void ClearPathCache();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
@@ -1660,7 +1661,6 @@ protected:
 
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
 	bool IsCachedPathValid();
-	void ClearPathCache();
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
 	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);
 

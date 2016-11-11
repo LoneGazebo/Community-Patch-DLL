@@ -227,8 +227,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		bool bSlowDown = false;
 		if(eToTeam != NO_TEAM && eUnitTeam != eToTeam)
 		{
-			CvTeam& kToPlotTeam = GET_TEAM(eToTeam);
-			if(!kToPlotTeam.IsAllowsOpenBordersToTeam(eUnitTeam))
+			if(!pToPlot->IsFriendlyTerritory(kPlayer.GetID()))
 			{
 				//unit itself may have a negative trait ...
 				bSlowDown = pUnit->isSlowInEnemyLand();
@@ -460,7 +459,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if(!pLoopUnit) 
+			if(!pLoopUnit || pLoopUnit->isDelayedDeath()) 
 				continue;
 
 			if(pLoopUnit->isInvisible(eUnitTeam,false))
@@ -476,7 +475,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 
 			// At war with this unit's team?
 			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
-			if(eLoopUnitTeam == BARBARIAN_TEAM || kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot) )
+			if(kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot))
 			{
 				// Same Domain?
 				DomainTypes eLoopUnitDomain = pLoopUnit->getDomainType();

@@ -1517,10 +1517,10 @@ void CvHomelandAI::PlotMobileReserveMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pReserve = GetBestUnitToReachTarget(pTarget, MAX_INT);
+				CvUnit *pReserve = GetBestUnitToReachTarget(pTarget, 15);
 				if(pReserve)
 				{
-					ExecuteMoveToTarget(pReserve, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
+					ExecuteMoveToTarget(pReserve, pTarget, 0);
 #if defined(MOD_BALANCE_CORE)
 					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pReserve);
 					pReserve->finishMoves();
@@ -3156,7 +3156,7 @@ void CvHomelandAI::PlotAirliftMoves()
 		{
 			CvPlot *pTarget = *plotIt;
 
-			CvUnit *pUnit = GetBestUnitToReachTarget(pTarget, MAX_INT);
+			CvUnit *pUnit = GetBestUnitToReachTarget(pTarget, 12);
 			if(pUnit)
 			{
 				ExecuteMoveToTarget(pUnit,pTarget,0, true);
@@ -4565,7 +4565,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							// No, then move there
 							else
 							{
-								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 								if(pEng)
 								{
 									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
@@ -4586,7 +4586,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 					}
 					else if(pUnit->IsCombatUnit())
 					{
-						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 						if(pEng)
 						{
 							ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
@@ -4656,7 +4656,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							// No, then move there
 							else
 							{
-								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 								if(pEng)
 								{
 									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
@@ -4676,7 +4676,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 						}
 						else if(pUnit->IsCombatUnit())
 						{
-							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 							if(pEng)
 							{
 								ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
@@ -7488,6 +7488,9 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 /// Get the closest 
 bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns)
 {
+	// Sort by raw distance
+	std::stable_sort(kMoveUnits.begin(), kMoveUnits.end());
+
 	CvUnit* pBestUnit = NULL;
 	int iMinTurns = iMaxTurns;
 	MoveUnitsArray::iterator it;
@@ -7636,10 +7639,6 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 			}
 		}
 	}
-
-	// Sort by raw distance
-	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
-	std::stable_sort(m_CurrentMoveHighPriorityUnits.begin(), m_CurrentMoveHighPriorityUnits.end());
 
 	// Find the one with the best true moves distance
 	CvUnit *pHighPrio=0,*pNormalPrio=0;

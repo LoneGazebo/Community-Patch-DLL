@@ -87,6 +87,9 @@ public:
 	int GetWonderProductionModifier() const;
 	int GetPlunderModifier() const;
 	int GetImprovementMaintenanceModifier() const;
+#if defined(MOD_CIV6_WORKER)
+	int GetRouteBuilderCostModifier() const;
+#endif
 	int GetGoldenAgeDurationModifier() const;
 	int GetGoldenAgeMoveChange() const;
 	int GetGoldenAgeCombatModifier() const;
@@ -381,6 +384,9 @@ protected:
 	int m_iWonderProductionModifier;
 	int m_iPlunderModifier;
 	int m_iImprovementMaintenanceModifier;
+#if defined(MOD_CIV6_WORKER)
+	int m_iRouteBuilderCostModifier;
+#endif
 	int m_iGoldenAgeDurationModifier;
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;
@@ -808,6 +814,12 @@ public:
 	{
 		return m_iImprovementMaintenanceModifier;
 	};
+#if defined(MOD_CIV6_WORKER)
+	int GetRouteBuilderCostModifier() const
+	{
+		return m_iRouteBuilderCostModifier;
+	};
+#endif
 	int GetGoldenAgeDurationModifier() const
 	{
 		return m_iGoldenAgeDurationModifier;
@@ -1639,6 +1651,9 @@ private:
 	int m_iWonderProductionModifier;
 	int m_iPlunderModifier;
 	int m_iImprovementMaintenanceModifier;
+#if defined(MOD_CIV6_WORKER)
+	int m_iRouteBuilderCostModifier;
+#endif
 	int m_iGoldenAgeDurationModifier;
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;

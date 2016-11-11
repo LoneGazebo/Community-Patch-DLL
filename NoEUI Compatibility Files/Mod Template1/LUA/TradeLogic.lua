@@ -2880,7 +2880,7 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
 	
     if( TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE == itemType ) then
         --print( "Displaying Peace" );
-		local otherPlayerButton = g_OtherPlayersButtons[iLoopPlayer];
+		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
 		if(otherPlayerButton ~= nil) then
 			if( bFromUs ) then
 				--print( "    from us" );
@@ -2899,7 +2899,7 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
         
     elseif( TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR == itemType ) then
         --print( "Displaying War" );
-		local otherPlayerButton = g_OtherPlayersButtons[iLoopPlayer];
+		local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
 		if(otherPlayerButton ~= nil) then
 			if( bFromUs ) then
 				--print( "    from us" );

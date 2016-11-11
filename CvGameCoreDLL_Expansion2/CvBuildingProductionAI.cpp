@@ -290,22 +290,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 1000)
+		if (iValue > 750)
 		{
-			iValue = 1000;
+			iValue = 750;
 		}
 		int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 		if (iNumCivsAlreadyBuilding > 0)
 		{
-			iValue -= (200 * iNumCivsAlreadyBuilding);
+			iValue -= (150 * iNumCivsAlreadyBuilding);
 		}
 	}
 	else
 	{
 		//Sanitize...
-		if (iValue > 500)
+		if (iValue > 350)
 		{
-			iValue = 500;
+			iValue = 350;
 		}
 	}
 
@@ -971,6 +971,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iBonus += (100 * iEraValue);
 				}
 			}
+		}
+	}
+	else
+	{
+		int iEraValue = ((kPlayer.GetCurrentEra() * 5));
+		if (iEraValue > 0)
+		{
+			iBonus += (100 * iEraValue);
 		}
 	}
 
