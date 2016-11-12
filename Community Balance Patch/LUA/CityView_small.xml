@@ -4,7 +4,7 @@
   <Image Anchor="L,C" Offset="0,0" Texture="assets\UI\Art\WorldView\1920_LeftSide.DDS" Size="100.1200"/>
   <Image Anchor="R,C" Offset="0,0" Texture="assets\UI\Art\WorldView\1920_RightSide.DDS" Size="100.1200"/>
   <!-- City Information -->
-  <Grid Size="240,394" Anchor="L,T" Offset="-16,-9" Style="Grid9DetailSix140" Hidden="0" ID="TopLeft" ConsumeMouse="1">
+  <Grid Size="240,413" Anchor="L,T" Offset="-16,-9" Style="Grid9DetailSix140" Hidden="0" ID="TopLeft" ConsumeMouse="1">
     <Stack Anchor="L,T" Offset="17,8" Size="0,0" StackGrowth="Bottom" Padding="0">
       <!-- Population Info -->
       <Box Offset="0,32" Anchor="L,T" Size="210,64" Color="255,255,255,0" ID="PopulationBox">

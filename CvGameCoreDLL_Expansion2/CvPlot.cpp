@@ -12129,28 +12129,38 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 					if(getResourceType() == NO_RESOURCE)
 					{
-						ResourceTypes newResource = NO_RESOURCE;
 						int iSpeed = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent() / 67;
-						if((GC.getGame().getJonRandNum(100, "Chance for ressource") / iSpeed) < 10)
+						if((GC.getGame().getJonRandNum(100, "Chance for resource") / iSpeed) < 10)
 						{
+							int iResourceNum = 0;
 							for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
 							{
 								CvResourceInfo* thisResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
 								if(thisResourceInfo)
 								{
-									if(thisResourceInfo->isFeature(getFeatureType()))
+									if(thisResourceInfo->isFeature(newImprovementEntry.GetCreatedFeature()) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
 									{
-										// Good we passed. Now let's add a resource.
-										ResourceTypes eResource = (ResourceTypes)GC.getGame().getJonRandNum(iI, "rolling for resources we can place");
-										newResource =  eResource;
-										break;
+										if(GC.getGame().getJonRandNum(20, "Grabbing a random resource for this Feature") == 10)
+										{
+											// Good we passed. Now let's add a resource.
+											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
+											setResourceType((ResourceTypes)iI, iResourceNum);
+											if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+												SetResourceLinkedCityActive(true);
+											if(getOwner() == GC.getGame().getActivePlayer())
+											{
+												pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
+												if(pCity != NULL)
+												{
+													strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", thisResourceInfo->GetTextKey(), pCity->getNameKey());
+													GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+												}
+											}
+											break;
+										}
 									}
 								}
 							}
-						}
-						if(newResource != NO_RESOURCE)
-						{
-							setResourceType(newResource, 1);
 						}
 					}
 				}

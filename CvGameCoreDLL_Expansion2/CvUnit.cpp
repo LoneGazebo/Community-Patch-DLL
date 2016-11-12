@@ -23023,7 +23023,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
 				if(kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits() > 0)
 				{
-					if(pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID())
+					if(pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID() && getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 					{
 						if(GC.getGame().getJonRandNum(100, "Chance for conversion") <= kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits())
 						{
