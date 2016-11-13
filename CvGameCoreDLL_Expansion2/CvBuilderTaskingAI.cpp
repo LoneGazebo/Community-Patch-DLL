@@ -1218,6 +1218,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 			// this is to deal with when the plot is already improved with another improvement that doesn't enable the resource
 			int iInvestedImprovementTime = 0;
+			bool bPrevImprovementConnects = false;
 			if(eExistingPlotImprovement != NO_IMPROVEMENT)
 			{
 				BuildTypes eExistingBuild = NO_BUILD;
@@ -1228,6 +1229,8 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 					CvBuildInfo* pkBuild2 = GC.getBuildInfo(eBuild2);
 					if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
 					{
+						CvImprovementEntry* pkExistingImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pkBuild2->getImprovement());
+						bPrevImprovementConnects = pkExistingImprovementInfo && pkExistingImprovementInfo->IsImprovementResourceTrade(eResource);
 						eExistingBuild = eBuild2;
 						break;
 					}
@@ -1242,11 +1245,11 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime);
 			iWeight += iBuildTimeWeight;
 
-			int iResourceWeight = GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
-			if (pkImprovementInfo->IsCreatedByGreatPerson())
-				iWeight += iResourceWeight / 4; //prefer to build this somewhere else
-			else
+			if (!bPrevImprovementConnects && !pkImprovementInfo->IsCreatedByGreatPerson())
+			{
+				int iResourceWeight = GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
 				iWeight += iResourceWeight;
+			}
 
 #if defined(MOD_BALANCE_CORE)
 			iWeight = min(iWeight,0x7FFF);

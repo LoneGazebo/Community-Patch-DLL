@@ -12435,6 +12435,10 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					result.iScore += 15; //a slight boost for attacking the "real" target
 				else
 					result.iScore += 5; //a bonus to make attacks more competive with moves - each frontline plot gets a +8
+
+				//combo bonus
+				if (result.eType==STacticalAssignment::A_MELEEKILL && currentPlot.isEnemyCivilian())
+					result.iScore += 5;
 			}
 		}
 	}
@@ -12560,7 +12564,11 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 		//bonus for capturing a civilian
 		if (currentPlot.isEnemyCivilian())
+		{
 			result.iScore += 10;
+			//define a special assignment for this because consecutive moves are not allowed
+			result.eType = STacticalAssignment::A_CAPTURE;
+		}
 
 		//does it make sense to pillage here?
 		if (result.eType == STacticalAssignment::A_ENDTURN && unit.iMovesLeft > 0 && 
@@ -13250,7 +13258,8 @@ bool CvTacticalPosition::isOffensive() const
 			it->eType==STacticalAssignment::A_MELEEKILL ||
 			it->eType==STacticalAssignment::A_RANGEATTACK ||
 			it->eType==STacticalAssignment::A_RANGEKILL ||
-			it->eType==STacticalAssignment::A_PILLAGE)
+			it->eType==STacticalAssignment::A_PILLAGE ||
+			it->eType==STacticalAssignment::A_CAPTURE)
 			return true;
 
 	return false;
@@ -13393,6 +13402,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	switch (newAssignment.eType)
 	{
 	case STacticalAssignment::A_MOVE:
+	case STacticalAssignment::A_CAPTURE:
 		{
 			int iUnitID;
 
@@ -13917,6 +13927,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			continue; //skip this!
 			break;
 		case STacticalAssignment::A_MOVE:
+		case STacticalAssignment::A_CAPTURE:
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
 			if (bPrecondition)
@@ -14035,5 +14046,6 @@ const char* assignmentTypeNames[] =
 	"RANGEKILL", 
 	"ENDTURN",
 	"BLOCKED",
-	"PILLAGE"
+	"PILLAGE",
+	"CAPTURE"
 };
