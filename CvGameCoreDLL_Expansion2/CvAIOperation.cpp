@@ -462,8 +462,8 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
-	int iDistance = GC.getAI_TACTICAL_RECRUIT_RANGE();
-	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iDistance, thisFormation))
+	int iTurnDistance = INT_MAX;
+	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iTurnDistance,thisFormation))
 	{
 		std::deque<OperationSlot>::iterator it;
 		for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
@@ -484,9 +484,9 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 							strMsg.Format("Recruited %s %d to fill in a new army at x=%d y=%d, target of x=%d y=%d", pUnit->getName().GetCString(), pUnit->GetID(), pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY());
 							LogOperationSpecialMessage(strMsg);
 						}
-						if (iDistance > GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT())
+						if (iTurnDistance > GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT())
 						{
-							strMsg.Format("Warning: %s recruited far-away unit %d turns from muster point for a new army", GetOperationName(), iDistance);
+							strMsg.Format("Warning: %s recruited far-away unit %d turns from muster point for a new army", GetOperationName(), iTurnDistance);
 							LogOperationSpecialMessage(strMsg);
 						}
 					}
@@ -544,14 +544,14 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 			int iLoop = 0;
 			for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 			{
-				int iDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + iTurns);
-				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance, thisFormation, pArmy))
+				int iTurnDistance = INT_MAX;
+				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iTurnDistance,thisFormation,pArmy))
 				{
 					// When in doubt prefer units in our own territory
 					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
-						iDistance++;
+						iTurnDistance++;
 
-					UnitChoices.push_back(pLoopUnit->GetID(), (10000 + pLoopUnit->GetPower()) - (iDistance * 30));
+					UnitChoices.push_back(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() - iTurnDistance*30);
 				}
 			}
 
@@ -608,21 +608,21 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	else //non-naval operation
 	{
 		ReachablePlots turnsFromMuster;
-		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,iTurns);
 		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 		WeightedUnitIdVector UnitChoices;
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 		{
-			int iDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + iTurns);
-			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,iDistance, thisFormation))
+			int iTurnDistance = INT_MAX;
+			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,iTurnDistance,thisFormation))
 			{
 				// When in doubt prefer units in our own territory
 				if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
-					iDistance++;
+					iTurnDistance++;
 
-				UnitChoices.push_back(pLoopUnit->GetID(), 1000 - iDistance*10 - pLoopUnit->GetPower());
+				UnitChoices.push_back(pLoopUnit->GetID(), 1000 - iTurnDistance*10 - pLoopUnit->GetPower());
 			}
 		}
 
@@ -3874,7 +3874,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 }
 
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
-														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
+														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iTurnDistance, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
 {
 	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->isTrade())
 		return false;
@@ -4016,11 +4016,11 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	// Special for paratroopers
 	if (pLoopUnit->getDropRange() > 0)
 	{
-		if (iDistance <= pLoopUnit->getDropRange())
+		if (iTurnDistance <= pLoopUnit->getDropRange()) //this is not really correct ...
 		{
 			if (pLoopUnit->canParadropAt(pMusterPlot, pMusterPlot->getX(), pMusterPlot->getY()))
 			{
-				iDistance = 0;
+				iTurnDistance = 0;
 			}
 			else
 			{
@@ -4032,7 +4032,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 					{
 						if (pLoopUnit->canParadropAt(pAdjacentPlot, pAdjacentPlot->getX(), pAdjacentPlot->getY()))
 						{
-							iDistance = 1;
+							iTurnDistance = 1;
 							break;
 						}
 					}
@@ -4059,9 +4059,9 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		}
 		else
 		{
-			if (it->iTurns > iDistance)
+			if (it->iTurns > iTurnDistance)
 			{
-				iDistance = MAX_INT;
+				iTurnDistance = MAX_INT;
 				return false;
 			}
 			if (bMustNaval)
@@ -4073,22 +4073,22 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 
 				if (pMusterPlot != NULL && pTargetPlot != NULL)
 				{
-					//naval units are fast and terrain is easy. if there's a trade path we assume we can attack it
+					//naval units are fast and terrain is easy. if there's a path we assume we can attack it
 					//we enforce the same area for naval ops, everything else leads to problems later
 					if (pMusterPlot->getArea() != pTargetPlot->getArea())
 					{
-						iDistance = INT_MAX;
+						iTurnDistance = INT_MAX;
 						return false;
 					}
 					else
 					{
-						iDistance = it->iTurns;
+						iTurnDistance = it->iTurns;
 					}
 				}
 			}
 			else
 			{
-				iDistance = it->iTurns;
+				iTurnDistance = it->iTurns;
 			}
 		}
 	}
