@@ -2371,7 +2371,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iCost /= 100;
 
 #if defined(MOD_CIV6_EUREKA)
-	iCost *= std::max(0, (1000000 - pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / 10000);
+	iCost *= std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000);
 	iCost /= 100;
 #endif
 

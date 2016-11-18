@@ -60,6 +60,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bRequiresRail(false),
 	m_bDummy(false),
 	m_iResourceQuantityToPlace(0),
+	m_iLandmarksTourismPercentGlobal(0),
+	m_iGreatWorksTourismModifierGlobal(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -335,6 +337,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pbBuildingClassNeededNowhere(NULL),
 	m_piNumSpecFreeUnits(NULL),
 	m_piNumResourceToPlace(NULL),
+	m_piYieldPerFriend(NULL),
+	m_piYieldPerAlly(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -443,6 +447,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 	SAFE_DELETE_ARRAY(m_piNumResourceToPlace);
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
+	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
+	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -741,6 +747,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
 	m_iResourceQuantityToPlace = kResults.GetInt("ResourceQuantityToPlace");
+	m_iLandmarksTourismPercentGlobal = kResults.GetInt("GlobalLandmarksTourismPercent");
+	m_iGreatWorksTourismModifierGlobal = kResults.GetInt("GlobalGreatWorksTourismModifier");
 #endif
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
@@ -884,6 +892,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
+
+	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
+
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
 	//ResourceYieldChanges
@@ -1454,6 +1466,14 @@ bool CvBuildingEntry::IsDummy() const
 int CvBuildingEntry::GetResourceQuantityToPlace() const
 {
 	return m_iResourceQuantityToPlace;
+}
+int CvBuildingEntry::GetLandmarksTourismPercentGlobal() const
+{
+	return m_iLandmarksTourismPercentGlobal;
+}
+int CvBuildingEntry::GetGreatWorksTourismModifierGlobal() const
+{
+	return m_iGreatWorksTourismModifierGlobal;
 }
 #endif
 
@@ -3001,6 +3021,19 @@ int CvBuildingEntry::GetNumResourcesToPlace(int i) const
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumResourceToPlace ? m_piNumResourceToPlace[i] : -1;
+}
+int CvBuildingEntry::GetYieldPerFriend(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerFriend ? m_piYieldPerFriend[i] : -1;
+}
+
+int CvBuildingEntry::GetYieldPerAlly(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
 }
 #endif
 /// Free units which appear near the capital

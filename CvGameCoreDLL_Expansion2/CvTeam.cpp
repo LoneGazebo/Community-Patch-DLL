@@ -7193,23 +7193,31 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			{
 				if(GC.getGame().countKnownTechNumTeams(eIndex) == 1)
 				{
-					if(pkTechInfo->GetFirstFreeUnitClass() != NO_UNITCLASS)
+					if (pkTechInfo->GetFirstFreeUnitClass() != NO_UNITCLASS)
 					{
 						bFirstResource = true;
 
-						eFreeUnit = ((UnitTypes)(GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
-
-						if(eFreeUnit != NULL)
+						for (int iI = 0; iI < MAX_PLAYERS; iI++)
 						{
-							pCapitalCity = GET_PLAYER(ePlayer).getCapitalCity();
-
-							if(pCapitalCity != NULL)
+							const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 							{
+								eFreeUnit = ((UnitTypes)(GET_PLAYER(eLoopPlayer).getCivilizationInfo().getCivilizationUnits(GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
+
+								if (eFreeUnit != NULL)
+								{
+									pCapitalCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
+
+									if (pCapitalCity != NULL)
+									{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
+										pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
 #else
-								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false);
+										pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false);
 #endif
+									}
+								}
 							}
 						}
 					}
@@ -7217,18 +7225,27 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					if(pkTechInfo->GetFirstFreeTechs() > 0)
 					{
 						bFirstResource = true;
-
-						if(!isHuman())
+						
+						for (int iI = 0; iI < MAX_PLAYERS; iI++)
 						{
-							for(int iI = 0; iI < pkTechInfo->GetFirstFreeTechs(); iI++)
+							const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 							{
-								GET_PLAYER(ePlayer).AI_chooseFreeTech();
+
+								if (!kPlayer.isHuman())
+								{
+									for (int iI = 0; iI < pkTechInfo->GetFirstFreeTechs(); iI++)
+									{
+										kPlayer.AI_chooseFreeTech();
+									}
+								}
+								else
+								{
+									strBuffer = GetLocalizedText("TXT_KEY_MISC_FIRST_TECH_CHOOSE_FREE", pkTechInfo->GetTextKey());
+									kPlayer.chooseTech(GC.getTechInfo(eIndex)->GetFirstFreeTechs(), strBuffer.GetCString());
+								}
 							}
-						}
-						else
-						{
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_FIRST_TECH_CHOOSE_FREE", pkTechInfo->GetTextKey());
-							GET_PLAYER(ePlayer).chooseTech(GC.getTechInfo(eIndex)->GetFirstFreeTechs(), strBuffer.GetCString());
 						}
 
 						for(int iI = 0; iI < MAX_PLAYERS; iI++)

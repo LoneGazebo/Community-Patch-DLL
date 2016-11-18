@@ -301,6 +301,7 @@ function UpdateWindow( city )
     Controls.Gold:SetText( "[ICON_GOLD]" .. city:GetYieldRate( YieldTypes.YIELD_GOLD ) );
     Controls.Culture:SetText( "[ICON_CULTURE]" .. city:GetJONSCulturePerTurn() );
 	Controls.Faith:SetText( "[ICON_PEACE]" .. city:GetFaithPerTurn() );
+	Controls.Happiness:SetText( "[ICON_HAPPINESS_1]" .. city:getHappinessDelta() );
     Controls.CityButton:SetVoids( city:GetX(), city:GetY() );
 
 	local cityGrowth = city:GetFoodTurnsLeft();			
@@ -331,6 +332,9 @@ function UpdateWindow( city )
 	
 	local strFaithToolTip = GetFaithTooltip(city);
 	Controls.Faith:SetToolTipString(strFaithToolTip);
+
+	local strHappinessToolTip = GetCityHappinessTooltip(city);
+	Controls.Happiness:SetToolTipString(strHappinessToolTip);
    
 	local ourCiv = player:GetCivilizationType();
     local ourCivCiv = GameInfo.Civilizations[ourCiv];

@@ -929,10 +929,16 @@ ALTER TABLE Traits ADD COLUMN 'ConquestOfTheWorldCityAttack' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'ConquestOfTheWorld' BOOLEAN DEFAULT 0;
 
 -- Start a GoldenAge when this unit is born or gained. GP's only.
-ALTER TABLE Units ADD GoldenAgeFromBirth BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD 'GoldenAgeFromBirth' BOOLEAN DEFAULT 0;
 
 -- Define a defense modifier to a building, like GlobalDefenseModifier (but only local).
-ALTER TABLE Buildings ADD BuildingDefenseModifier INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD 'BuildingDefenseModifier' INTEGER DEFAULT 0;
+
+-- Define a modifier for all tile/building based tourism in all cities.
+ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
+
+-- Define a modifier for all great work tourism in all cities.
+ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
 -- Promotion grants additional combat strength if on a pillaged improvement
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
@@ -941,13 +947,13 @@ ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAUL
 ALTER TABLE Traits ADD COLUMN 'FreeUpgrade' BOOLEAN DEFAULT 0;
 
 -- Gain a culture boost equal to 4X the culture per turn when this unit is born. GP's only
-ALTER TABLE Units ADD CultureBoost BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD 'CultureBoost' BOOLEAN DEFAULT 0;
 
 -- Unit gets extra attacks and partial health is restored upon killing an enemy unit.
-ALTER TABLE Units ADD ExtraAttackHealthOnKill BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD 'ExtraAttackHealthOnKill' BOOLEAN DEFAULT 0;
 
 -- Kills Improvement if set to 1 (use this to reveal a resource on the map, when build is finished etc.)
-ALTER TABLE Builds ADD KillImprovement BOOLEAN DEFAULT 0;
+ALTER TABLE Builds ADD 'KillImprovement' BOOLEAN DEFAULT 0;
 
 -- Trait allows player to have every unit upgraded once tech is reached.
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSFollowingYourReligion' INTEGER DEFAULT 0;

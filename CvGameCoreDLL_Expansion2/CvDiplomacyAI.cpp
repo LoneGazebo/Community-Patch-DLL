@@ -7899,14 +7899,14 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			}
 		}
 		
-		iWantPeace += iOurDanger * 2;
-		iWantPeace += (iTheirDanger * -2);
+		iWantPeace += (iOurDanger * 2);
+		iWantPeace += (iTheirDanger * -1);
 
 		//Num of turns since they captured a city?
 		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 0 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) > 0)
 		{
 			//Longer lag time in war = bigger desire for peace.
-			iWantPeace += ((GetPlayerNumTurnsSinceCityCapture(ePlayer) + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID())) / 4);
+			iWantPeace += ((GetPlayerNumTurnsSinceCityCapture(ePlayer) + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID())) / 2);
 		}
 		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
@@ -9690,26 +9690,42 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != ePlayer)
+				if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != ePlayer)
 				{
-					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 					{
 						iDPThem++;
 					}
-					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
 					{
 						iDPUs++;
 					}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+						{
+							iDPThem += 2;
+						}
+					}
+					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					{
+						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
+						{
+							iDPUs += 2;
+						}
+					}
+#endif
 				}
 			}
 			if(iDPThem > 0)
 			{
-				iOtherPlayerMilitary *= ((iDPThem * 10) + 100);
+				iOtherPlayerMilitary *= ((iDPThem * 25) + 100);
 				iOtherPlayerMilitary /= 100;
 			}
 			if(iDPUs > 0)
 			{
-				iMilitaryStrength *= ((iDPUs * 10) + 100);
+				iMilitaryStrength *= ((iDPUs * 25) + 100);
 				iMilitaryStrength /= 100;
 			}
 #endif

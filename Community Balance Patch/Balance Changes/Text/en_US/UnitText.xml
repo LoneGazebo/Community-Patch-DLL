@@ -154,6 +154,14 @@
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
 			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY">
+			<Text>Siege Inaccuracy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP">
+			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
 			<Text>Covering Fire I</Text>
 		</Row>

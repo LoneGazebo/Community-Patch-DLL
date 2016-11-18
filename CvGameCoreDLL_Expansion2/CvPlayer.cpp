@@ -446,6 +446,8 @@ CvPlayer::CvPlayer() :
 	, m_iChangeUnculturedUnhappinessGlobal("CvPlayer::m_iChangeUnculturedUnhappinessGlobal", m_syncArchive)
 	, m_iChangeIlliteracyUnhappinessGlobal("CvPlayer::m_iChangeIlliteracyUnhappinessGlobal", m_syncArchive)
 	, m_iChangeMinorityUnhappinessGlobal("CvPlayer::m_iChangeMinorityUnhappinessGlobal", m_syncArchive)
+	, m_iLandmarksTourismPercentGlobal("CvPlayer::m_iLandmarksTourismPercentGlobal", m_syncArchive)
+	, m_iGreatWorksTourismModifierGlobal("CvPlayer::m_iGreatWorksTourismModifierGlobal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iCenterOfMassX("CvPlayer::m_iCenterOfMassX", m_syncArchive)
@@ -1267,6 +1269,8 @@ void CvPlayer::uninit()
 	m_iChangeUnculturedUnhappinessGlobal = 0;
 	m_iChangeIlliteracyUnhappinessGlobal = 0;
 	m_iChangeMinorityUnhappinessGlobal = 0;
+	m_iLandmarksTourismPercentGlobal = 0;
+	m_iGreatWorksTourismModifierGlobal = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iCenterOfMassX = 0;
@@ -3719,7 +3723,21 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		pNewCity->SetNumTimesOwned(((PlayerTypes)iI), aiNumTimesOwned[iI]);
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+	{
+		ReligionTypes eReligion = (ReligionTypes)iI;
+		CvReligionEntry* pEntry = GC.getReligionInfo(eReligion);
+		if (!pEntry)
+		{
+			continue;
+		}
+		if (eReligion == RELIGION_PANTHEON)
+			continue;
 
+		pNewCity->SetPaidAdoptionBonus(eReligion, pabAdoptionBonus[eReligion]);
+	}
+#endif
 	//I've traded for this? I don't want to give away again
 	if (bGift)
 		pNewCity->SetTraded( GetID(), true);
@@ -4094,21 +4112,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		pNewCity->GetCityBuildings()->SetBuildingYieldChange((*it).eBuildingClass, (*it).eYield, (*it).iChange);
 	}
-#if defined(MOD_BALANCE_CORE)
-	for(iI = 0; iI < GC.getNumReligionInfos(); iI++)
-	{
-		ReligionTypes eReligion = (ReligionTypes)iI;
-		CvReligionEntry* pEntry = GC.getReligionInfo(eReligion);
-		if(!pEntry)
-		{
-			continue;
-		}
-		if(eReligion == RELIGION_PANTHEON)
-			continue;
-
-		 pNewCity->SetPaidAdoptionBonus(eReligion, pabAdoptionBonus[eReligion]);
-	}
-#endif
 
 	// Distribute any remaining Great Works to other buildings
 	for (unsigned int jJ=0; jJ < paGreatWorkData.size(); jJ++)
@@ -16081,6 +16084,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeMinorityUnhappinessGlobal(pBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() * iChange);
 	}
+	ChangeLandmarksTourismPercentGlobal(pBuildingInfo->GetLandmarksTourismPercentGlobal() * iChange);
+	ChangeGreatWorksTourismModifierGlobal(pBuildingInfo->GetGreatWorksTourismModifierGlobal() * iChange);
+
 #endif
 
 	if(pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
@@ -19646,6 +19652,35 @@ void CvPlayer::ChangeMinorityUnhappinessGlobal(int iChange)
 {
 	m_iChangeMinorityUnhappinessGlobal += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvPlayer::GetLandmarksTourismPercentGlobal() const
+{
+	return m_iLandmarksTourismPercentGlobal;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvPlayer::ChangeLandmarksTourismPercentGlobal(int iChange)
+{
+	m_iLandmarksTourismPercentGlobal += iChange;
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvPlayer::GetGreatWorksTourismModifierGlobal() const
+{
+	return m_iGreatWorksTourismModifierGlobal;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvPlayer::ChangeGreatWorksTourismModifierGlobal(int iChange)
+{
+	m_iGreatWorksTourismModifierGlobal += iChange;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -22147,7 +22182,7 @@ int CvPlayer::TestDoFToVotes(int iChange)
 	
 	if(iChange > 0)
 	{
-		iDoFToVotes = (GetDiplomacyAI()->GetNumDoF() * iChange);
+		iDoFToVotes = ((GetDiplomacyAI()->GetNumDoF() / 2) * iChange);
 	}
 	
 	return iDoFToVotes;

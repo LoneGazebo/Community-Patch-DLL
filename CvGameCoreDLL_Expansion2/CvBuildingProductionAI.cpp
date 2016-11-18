@@ -332,7 +332,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iBonus -= (iNumWar * 100);
 		}
-		if(m_pCity->IsBlockadedWaterAndLand() || m_pCity->IsBlockaded(true) || m_pCity->IsBlockaded(false))
+		if( m_pCity->IsBlockaded(true) || m_pCity->IsBlockaded(false))
 		{
 			iBonus -= (iNumWar * 150);
 		}
@@ -985,7 +985,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
-		iBonus *= 5;
+		iBonus *= 10;
 	}
 
 	/////

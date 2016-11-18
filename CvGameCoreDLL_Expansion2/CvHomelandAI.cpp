@@ -1670,8 +1670,6 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		return;
 	}
 
-	CvUnit* pLoopUnit;
-
 	if (m_pPlayer->GetHappiness() <= iMinHappiness) {
 		return;
 	}
@@ -1680,42 +1678,31 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		return;
 	}
 	
-	int iLoop;
-	for (pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop)) 
-	{
-		if ((!pLoopUnit->IsCombatUnit() && pLoopUnit->isFound()) || (pLoopUnit->IsCombatUnit() && pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE))
-		{
-			return;
-		}
-	}
-	
 	// Make a list of all combat units that can do this.
 	MoveUnitsArray PossibleSettlerUnits;
-	int iDistance = 0;
-	ReachablePlots turnsFromMuster;
+	int iTurnDistance = INT_MAX;
+
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit) {
-			if (pUnit->IsCombatUnit()) 
+		if (pUnit && pUnit->IsCombatUnit() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
+		{
+			//fake this, the distance check is irrelevant here
+			ReachablePlots turnsFromMuster;
+			turnsFromMuster.insert( SMovePlot(pUnit->plot()->GetPlotIndex(),0,0) );
+
+			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pUnit->plot(),turnsFromMuster,pUnit->plot(),false,false,iTurnDistance))
 			{
-				CvUnit* pTestUnit = pUnit;
-				if(pTestUnit)
+				CvHomelandUnit unit;
+				unit.SetID(pUnit->GetID());
+				unit.SetAuxIntData(plotDistance(pUnit->getX(), pUnit->getY(), iCapitalX, iCapitalY));
+				PossibleSettlerUnits.push_back(unit);
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pTestUnit,pTestUnit->plot(), turnsFromMuster, pTestUnit->plot(),false,false,iDistance))
-					{
-						CvHomelandUnit unit;
-						unit.SetID(pUnit->GetID());
-						unit.SetAuxIntData(plotDistance(pUnit->getX(), pUnit->getY(), iCapitalX, iCapitalY));
-						PossibleSettlerUnits.push_back(unit);
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							CvString strTemp;
-							strLogString.Format("%s (%d): found secondary settler, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-					}
+					CvString strLogString;
+					CvString strTemp;
+					strLogString.Format("%s (%d): found secondary settler, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 		}

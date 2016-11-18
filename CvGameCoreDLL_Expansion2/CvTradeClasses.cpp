@@ -125,13 +125,12 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	if (!pOriginCity || !pDestCity)
 		return false;
 
+	//important. see which trade paths are valid
+	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+	UpdateTradePathCache(eOriginPlayer);
+
 	//can't use const here, otherwise the [] operator does not work ...
 	TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
-
-	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
-
-	//important. see which trade paths are valid
-	UpdateTradePathCache(eOriginPlayer);
 
 	int iCityA = pOriginCity->GetID();
 	int iCityB = pDestCity->GetID();

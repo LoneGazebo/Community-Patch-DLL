@@ -3059,12 +3059,20 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (
 
 	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
 	int iApparentDistance = INT_MAX;
-	SPath path;
-	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath( false,pFromCity,pToCity,&path) )
+	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
+	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(false,pFromCity,pToCity,&path) )
 	{
 		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
-	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath( true,pFromCity,pToCity,&path) )
+	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(false,pToCity,pFromCity,&path) )
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
+	}
+	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(true,pFromCity,pToCity,&path) )
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
+	}
+	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(true,pToCity,pFromCity,&path) )
 	{
 		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
@@ -3075,6 +3083,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (
 	if(bWithinDistance || bConnectedWithTrade)
 	{
 		iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
+
+		//scale by relative faith output (the weaker city cannot influence the stronger city much)
+		float fFaithPowerMod = sqrt( float(pFromCity->getYieldRateTimes100(YIELD_FAITH,true)) / max(pToCity->getYieldRateTimes100(YIELD_FAITH,true),100) );
+		int iFaithPowerMod = int(100*fFaithPowerMod+0.5f);
+		if (iFaithPowerMod<100)
+		{
+			iPressure *= iFaithPowerMod;
+			iPressure /= 100;
+		}
 
 		if (bConnectedWithTrade)
 		{
@@ -9642,6 +9659,10 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 #if defined(MOD_BALANCE_CORE)
 	UnitClassTypes eUnitClassInquisitor = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_INQUISITOR");
 	if(eUnitClassInquisitor != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassInquisitor))
+	{
+		return true;
+	}
+	if (m_pPlayer->GetPlayerTraits()->IsReconquista() && m_pPlayer->GetPlayerTraits()->IsForeignReligionSpreadImmune())
 	{
 		return true;
 	}

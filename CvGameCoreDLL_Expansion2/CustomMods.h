@@ -45,7 +45,7 @@
 //////////////////////
 
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
-#define MOD_BATTLE_ROYALE
+//#define MOD_BATTLE_ROYALE
 
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
