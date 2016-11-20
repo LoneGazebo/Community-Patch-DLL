@@ -4015,10 +4015,6 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 		else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
-		if(bFinishMoves)
-		{
-			UnitProcessed(pUnit->GetID());
-		}
 #if defined(MOD_BALANCE_CORE)
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -4027,19 +4023,16 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 			LogHomelandMessage(strLogString);
 		}
 #endif
-		return;
 	}
 	else
 	{
 		// Best units have already had a full path check to the target, so just add the move
-		MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pTarget, iFlags);
-		if(bFinishMoves)
-		{
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
-		}
-		return;
+		MoveToTargetButDontEndTurn(pUnit, pTarget, iFlags);
 	}
+
+	//don't actually call finish moves, it will prevent healing
+	if(bFinishMoves)
+		UnitProcessed(pUnit->GetID());
 }
 
 /// Great writer moves
@@ -4761,7 +4754,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 				}
 				else if (pUnit->GetDanger()>0)
 				{
-					ExecuteMoveToTarget(pUnit, pTarget, CvUnit::MOVEFLAG_SAFE_EMBARK|CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
+					ExecuteMoveToTarget(pUnit, pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -5242,7 +5235,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				else
 				{
 					//continue moving to target
-					if (MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pTargetPlot, 0))
+					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, 0))
 					{
 						vPlotsToAvoid.push_back(pTargetPlot);
 						pUnit->finishMoves();
@@ -5567,7 +5560,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				// Move normally to this city
 				else if(pChosenCity)
 				{
-					MoveToUsingSafeEmbarkButDontEndTurn(pUnit,pChosenCity->plot(),0);
+					MoveToTargetButDontEndTurn(pUnit,pChosenCity->plot(),0);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -6765,7 +6758,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pBestPlot, 0);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0);
 			return true;
 		}
 	}
@@ -6918,7 +6911,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pBestPlot, 0);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0);
 			return true;
 		}
 	}
@@ -8209,12 +8202,11 @@ void CvHomelandAI::ClearCurrentMoveHighPriorityUnits()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 
-bool CvHomelandAI::MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
+bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
 {
-	int iMoveFlags = iFlags | CvUnit::MOVEFLAG_SAFE_EMBARK;
-	if(pUnit->GeneratePath(pTargetPlot,iMoveFlags))
+	if(pUnit->GeneratePath(pTargetPlot,iFlags))
 	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iMoveFlags);
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags);
 		return true;
 	}
 	else
@@ -8257,13 +8249,13 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return true;
 	}
 
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_SAFE_EMBARK;
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
 	if (eDomain == pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 
 	int iTurns = pUnit->TurnsToReachTarget(pTarget, iFlags, iMaxTurns);
 	if (iTurns <= iMaxTurns)
-		return MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pTarget, iFlags);
+		return MoveToTargetButDontEndTurn(pUnit, pTarget, iFlags);
 
 	return false;
 }

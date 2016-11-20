@@ -109,7 +109,9 @@ public:
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
-		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
+
+		//MOVEFLAG_SAFE_EMBARK					= 0x4000, //used by default, can be redefined
+
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
 		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
 		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile

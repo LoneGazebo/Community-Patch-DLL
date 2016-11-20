@@ -801,7 +801,6 @@ struct UnitPathCacheData
 	bool m_bCanAttack;
 	bool m_bDoDanger;
 
-	inline bool DoDanger() const { return m_bDoDanger; }
 	inline int baseMoves(DomainTypes eType) const { return m_aBaseMoves[eType]; }
 	inline PlayerTypes getOwner() const { return m_ePlayerID; }
 	inline TeamTypes getTeam() const { return m_eTeamID; }
@@ -812,6 +811,7 @@ struct UnitPathCacheData
 	inline bool CanEverEmbark() const { return m_bCanEverEmbark; }
 	inline bool isEmbarked() const { return m_bIsEmbarked; }
 	inline bool IsCanAttack() const { return m_bCanAttack; }
+	inline bool doDanger() const { return m_bDoDanger; }
 };
 
 //-------------------------------------------------------------------------------------
@@ -835,8 +835,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
 	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
-	//danger is relevant for AI controlled units, if we didn't explicitly disable it
-	pCacheData->m_bDoDanger = pCacheData->isAIControl() && (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER) || finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK));
+	pCacheData->m_bDoDanger = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER);
 }
 
 //	--------------------------------------------------------------------------------
@@ -848,7 +847,7 @@ void UnitPathUninitialize(const SPathFinderUserData&, CvAStar*)
 //-------------------------------------------------------------------------------------
 // get all information which depends on a particular node. 
 // this is versioned, so we don't need to recalculate during the same pathfinding operation
-void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger, const CvAStar* finder)
+void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* finder)
 {
 	if (!node || !pUnit)
 		return;
@@ -934,10 +933,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
-	if (bDoDanger)
-		kToNodeCacheData.iPlotDanger = GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit);
-	else
-		kToNodeCacheData.iPlotDanger = 0;
+	kToNodeCacheData.iPlotDanger = pCacheData->isAIControl() ? GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit) : 0;
 
 	//special for approximate pathfinding - don't hang around on dangerous plots
 	if (DestinationReached(node->m_iX,node->m_iY,finder->GetData(),finder) && 
@@ -1151,7 +1147,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		iCost += PATH_END_TURN_NO_ROUTE;
 
 	//danger check
-	if ( pUnitDataCache->DoDanger() )
+	if ( pUnitDataCache->doDanger() || kToNodeCacheData.bIsNonNativeDomain )
 	{
 		//invisible plots might be dangerous without us knowing
 		if (!pToPlot->isVisible(eUnitTeam))
@@ -1404,10 +1400,6 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && !kFromNodeCacheData.bIsNonNativeDomain)
 				return FALSE;
 
-			//don't move to dangerous water plots (unless the current plot is dangerous too)
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<kToNodeCacheData.iPlotDanger*2)
-				return FALSE;
-
 			//embark required and possible?
 			if(!kFromNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
 				return FALSE;
@@ -1450,7 +1442,7 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 		node->m_iMoves = finder->GetData().iStartMoves;
 		node->m_iTurns = 1;
 
-		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder);
+		UpdateNodeCacheData(node,pUnit,finder);
 	}
 	else
 	{
@@ -1464,13 +1456,13 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* neighbor = node->m_apNeighbors[i];
-		UpdateNodeCacheData(neighbor,pUnit,pCacheData->DoDanger(),finder);
+		UpdateNodeCacheData(neighbor,pUnit,finder);
 	}
 
 	for(int i = 0; i < finder->GetNumExtraChildren(node); i++)
 	{
 		CvAStarNode* neighbor = finder->GetExtraChild(node,i);
-		UpdateNodeCacheData(neighbor,pUnit,pCacheData->DoDanger(),finder);
+		UpdateNodeCacheData(neighbor,pUnit,finder);
 	}
 
 	return 1;

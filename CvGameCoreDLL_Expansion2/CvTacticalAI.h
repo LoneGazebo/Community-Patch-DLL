@@ -880,7 +880,7 @@ private:
 	void ExecuteBarbarianMoves(bool bAggressive);
 	void ExecuteBarbarianCivilianEscortMove();
 	void ExecuteMoveToPlotIgnoreDanger(CvPlot* pTarget, bool bSaveMoves=false);
-	void ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false);
+	bool ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags=0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves=false);
@@ -920,7 +920,6 @@ private:
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindBestBarbarianLandMove(CvUnit* pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(CvUnit* pUnit);
@@ -941,7 +940,7 @@ private:
 	// Blocking position functions
 	bool AssignFlankingUnits(int iNumUnitsRequiredToFlank);
 	bool AssignDeployingUnits(int iNumUnitsRequiredToDeploy);
-	void PerformChosenMoves(CvPlot* pFinalTarget=NULL);
+	void PerformChosenMoves();
 	void MoveGreatGeneral(CvArmyAI* pArmyAI = NULL);
 	bool HaveDuplicateUnit();
 	void RemoveChosenUnits(int iStartIndex = 0);
@@ -950,8 +949,8 @@ private:
 	bool ChooseRemainingAssignments(int iNumUnitsDesired, int iNumUnitsAcceptable);
 
 	int ScoreAssignments(bool bCanLeaveOpenings);
-	int ScoreCloseOnPlots(CvPlot* pTarget);
-	int ScoreHedgehogPlots(CvPlot* pTarget);
+	int ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,ReachablePlots>& unitMovePlots);
+	int ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,ReachablePlots>& unitMovePlots);
 	int ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pTarget);
 
 	// Logging functions
