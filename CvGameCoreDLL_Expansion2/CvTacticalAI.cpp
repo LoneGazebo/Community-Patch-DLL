@@ -12398,7 +12398,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			}
 		}
 	}
-	else //empty plot or friendly unit. the latter case will be handled by the isBlockedMove check
+	else //empty plot or friendly unit. the latter case will be handled by the isMoveBlockedByOtherUnit check
 	{
 		//check if this is actual movement or whether we simply end the turn
 		if (plot.iPlotIndex != unit.iPlotIndex)
@@ -12942,7 +12942,11 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmen
 		if (iNewBranches == iMaxBranches)
 			break;
 
-		if (isBlockedMove(*itMove))
+		//don't start with a blocked unit, if that's the best we can do we have a problem
+		if (itMove->eType==STacticalAssignment::A_BLOCKED)
+			continue;
+
+		if (isMoveBlockedByOtherUnit(*itMove))
 		{
 			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex);
 			if (iUnitID==0 || iUnitID==itMove->iUnitID)
@@ -12955,7 +12959,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmen
 			vector<STacticalAssignment> blockingUnitChoices = choicePerUnit[ iUnitID ];
 			for (vector<STacticalAssignment>::iterator itMove2 = blockingUnitChoices.begin(); itMove2 != blockingUnitChoices.end(); ++itMove2)
 			{
-				if (!isBlockedMove(*itMove2) && itMove2->eType==STacticalAssignment::A_MOVE)
+				if (!isMoveBlockedByOtherUnit(*itMove2) && itMove2->eType==STacticalAssignment::A_MOVE)
 				{
 					//add the move to make space, then add the original move
 					movesToAdd.push_back(*itMove2);
@@ -13119,7 +13123,7 @@ void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen
 {
 	for (vector<STacticalAssignment>::const_iterator itChoice = choice.begin(); itChoice != choice.end(); ++itChoice)
 	{
-		if (isBlockedMove(*itChoice))
+		if (isMoveBlockedByOtherUnit(*itChoice))
 		{
 			int iBlockingUnitID = findBlockingUnitAtPlot(itChoice->iToPlotIndex);
 			if (iBlockingUnitID==0 || iBlockingUnitID==itChoice->iUnitID)
@@ -13157,7 +13161,7 @@ void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen
 	}
 }
 
-bool CvTacticalPosition::isBlockedMove(const STacticalAssignment& move) const
+bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move) const
 {
 	//only movement can be blocked
 	if (move.eType != STacticalAssignment::A_MOVE)
