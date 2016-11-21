@@ -969,6 +969,12 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_WLTKD_TRAIT", iAmount);
 		end
+
+		local iYieldFromCorps = pCity:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_CULTURE);
+		if(iYieldFromCorps ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CORPORATIONS", iYieldFromCorps);
+		end
 		-- END
 
 		-- CBP
@@ -1101,6 +1107,11 @@ function GetFaithTooltip(pCity)
 		if (iFaithFromEvent ~= 0) then
 			
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EVENTS", iFaithFromEvent));
+		end
+
+		local iYieldFromCorps = pCity:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_FAITH);
+		if(iYieldFromCorps ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CORPORATIONS", iYieldFromCorps));
 		end
 		-- END 
 		-- CBP
@@ -1426,7 +1437,9 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 		end
 	end
-		-- CBP -- Yield Increase from CS Alliance (Germany)
+
+	-- CBP -- Yield Increase from CS Alliance (Germany)
+
 	local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(iYieldType);
 	if (iYieldFromCSAlliance ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CS_ALLIANCE", iYieldFromCSAlliance, strIconString);

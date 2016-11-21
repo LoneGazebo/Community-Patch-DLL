@@ -2205,6 +2205,8 @@ local function GetCultureTooltip( city )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_TRAITS", cultureFromTraits )
 	-- CP EVENT
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_CULTURE) )
+
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_CULTURE))
 	-- END
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
@@ -2572,6 +2574,8 @@ local function GetFaithTooltip( city )
 
 		--CP EVENTS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_FAITH) )
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_FAITH))
 		--END
 
 		-- Puppet modifier

@@ -645,6 +645,12 @@ public:
 
 	int GetMinorityUnhappinessGlobal() const;
 	void ChangeMinorityUnhappinessGlobal(int iChange);
+
+	void ChangeLandmarksTourismPercentGlobal(int iChange);
+	int GetLandmarksTourismPercentGlobal() const;
+
+	void ChangeGreatWorksTourismModifierGlobal(int iChange);
+	int GetGreatWorksTourismModifierGlobal() const;
 #endif
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -2743,6 +2749,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iChangeMinorityUnhappinessGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iLandmarksTourismPercentGlobal;
+	FAutoVariable<int, CvPlayer> m_iGreatWorksTourismModifierGlobal;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;

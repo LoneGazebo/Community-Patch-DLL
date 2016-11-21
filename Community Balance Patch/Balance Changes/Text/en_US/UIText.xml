@@ -612,7 +612,7 @@
 			<Text>{1_Num} [ICON_PEACE] from following the [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_PEACE] from City-State Alliances</Text>
+			<Text>{1_Num} [ICON_PEACE] from City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
 			<Text>{1_Num} [ICON_CULTURE] from following the [ICON_RELIGION] Majority Religion</Text>
@@ -632,10 +632,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_CULTURE] from Realpolitik</Text>
+			<Text>{1_Num} [ICON_CULTURE] from City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
-			<Text>{1_Num} {2_IconString} from Realpolitik</Text>
+			<Text>{1_Num} {2_IconString} from City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>

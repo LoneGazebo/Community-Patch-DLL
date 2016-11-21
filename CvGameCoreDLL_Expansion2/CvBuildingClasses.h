@@ -129,6 +129,8 @@ public:
 	bool IsRequiresRail() const;
 	bool IsDummy() const;
 	int GetResourceQuantityToPlace() const;
+	int GetLandmarksTourismPercentGlobal() const;
+	int GetGreatWorksTourismModifierGlobal() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -473,6 +475,8 @@ public:
 	bool IsBuildingClassNeededNowhere(int i) const;
 	int GetNumFreeSpecialUnits(int i) const;
 	int GetNumResourcesToPlace(int i) const;
+	int GetYieldPerFriend(int i) const;
+	int GetYieldPerAlly(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -553,6 +557,8 @@ private:
 	bool m_bRequiresRail;
 	bool m_bDummy;
 	int m_iResourceQuantityToPlace;
+	int m_iLandmarksTourismPercentGlobal;
+	int m_iGreatWorksTourismModifierGlobal;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
@@ -855,6 +861,8 @@ private:
 	bool* m_pbBuildingClassNeededNowhere;
 	int* m_piNumSpecFreeUnits;
 	int* m_piNumResourceToPlace;
+	int* m_piYieldPerFriend;
+	int* m_piYieldPerAlly;
 #endif
 	int* m_piNumFreeUnits;
 

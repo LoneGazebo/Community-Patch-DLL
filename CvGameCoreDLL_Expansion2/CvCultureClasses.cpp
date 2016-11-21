@@ -6284,7 +6284,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	int iBonus = (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() * iBase / 100);
+	int iBonus = ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iBase / 100);
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6312,7 +6312,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	}
 #endif
 
-	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
+	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
 	if (iPercent > 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
@@ -6462,7 +6462,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	int iBonus = (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() * iBase / 100);
+	int iBonus = ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iBase / 100);
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6488,7 +6488,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	}
 #endif
 
-	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
+	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
 	if (iPercent > 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
@@ -6804,7 +6804,6 @@ CvString CvCityCulture::GetTourismTooltip()
 {
 	CvString szRtnValue = "";
 	CvString szTemp;
-#if !defined(MOD_BALANCE_CORE)
  	CvString sharedReligionCivs = "";
 	CvString openBordersCivs = "";
 	CvString tradeRouteCivs = "";
@@ -6813,12 +6812,9 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvString sharedIdeologyCivs = "";
 	CvString differentIdeologyCivs = "";
 	TeamTypes eTeam = m_pCity->getTeam();
-#endif
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
-#if !defined(MOD_BALANCE_CORE)
 	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 	ReligionTypes ePlayerReligion = kCityPlayer.GetReligions()->GetReligionInMostCities();
-#endif
 	// Great Works
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	// Ignore those Great Works in storage, ie not generating a yield
@@ -6826,7 +6822,7 @@ CvString CvCityCulture::GetTourismTooltip()
 #else
 	int iGWTourism = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	iGWTourism += (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() * iGWTourism / 100);
+	iGWTourism += ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iGWTourism / 100);
 	szRtnValue = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS", iGWTourism, m_pCity->GetCityCulture()->GetNumGreatWorks());
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6850,7 +6846,7 @@ CvString CvCityCulture::GetTourismTooltip()
 
 	// Landmarks, Wonders, Natural Wonders, Improvements
 	int iTileTourism = 0;
-	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
+	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
 	if (iPercent > 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
@@ -7027,7 +7023,6 @@ CvString CvCityCulture::GetTourismTooltip()
 			}
 		}
 	}
-#if !defined(MOD_BALANCE_CORE)
 	// Get policy bonuses
 	int iLessHappyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
 	int iCommonFoeMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
@@ -7232,7 +7227,6 @@ CvString CvCityCulture::GetTourismTooltip()
 		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CARNIVAL_BONUS", kCityPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier());
 		szRtnValue += szTemp;
 	}
-#endif
 	return szRtnValue;
 }
 

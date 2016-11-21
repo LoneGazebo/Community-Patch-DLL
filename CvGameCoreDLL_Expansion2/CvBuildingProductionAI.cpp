@@ -985,7 +985,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
-		iBonus *= 5;
+		iBonus *= 10;
 	}
 
 	/////

@@ -9662,6 +9662,10 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	{
 		return true;
 	}
+	if (m_pPlayer->GetPlayerTraits()->IsReconquista() && m_pPlayer->GetPlayerTraits()->IsForeignReligionSpreadImmune())
+	{
+		return true;
+	}
 #endif
 	// Need one for every city in our realm that is of another religion, plus one for defense
 	int iNumNeeded = 1;

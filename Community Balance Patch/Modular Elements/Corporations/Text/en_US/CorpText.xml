@@ -361,6 +361,12 @@
 		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
 			<Text>+{1_Num}% [ICON_CULTURE] from Corporation</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATIONS">
+			<Text>+{1_Num} [ICON_CULTURE] from Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_CORPORATIONS">
+			<Text>+{1_Num} [ICON_PEACE] from Corporation</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
 			<Text>Corporation [ICON_RESEARCH] Science Bonus: +{1_Num}%</Text>

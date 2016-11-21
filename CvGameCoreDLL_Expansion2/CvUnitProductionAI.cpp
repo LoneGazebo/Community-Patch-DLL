@@ -284,15 +284,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	bool bAtWar = false;
 	if(kPlayer.isMinorCiv())
 	{
-		int iNumUnits = kPlayer.getNumMilitaryUnits();
-		int iEra = (kPlayer.GetCurrentEra() + 1) * 2;
-		if (iNumUnits >= iEra)
+		if (bCombat)
 		{
-			return 0;
-		}
-		else
-		{
-			iBonus += (iEra - iNumUnits) * 25;
+			int iNumUnits = kPlayer.getNumMilitaryUnits();
+			int iEra = (kPlayer.GetCurrentEra() + 1) * 2;
+			if (iNumUnits >= iEra)
+			{
+				return 0;
+			}
+			else
+			{
+				iBonus += (iEra - iNumUnits) * 25;
+			}
 		}
 	}
 	else
@@ -1080,32 +1083,35 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += 150;
 		}
-		int iFirstUnitID;
-		//There's a worker waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
+		if (!kPlayer.isMinorCiv())
 		{
-			return 0;
-		}
-		int iCurrentNumCities = kPlayer.getNumCities();
-		iCurrentNumCities -= iNumBuilders;
-		if(iCurrentNumCities <= 0)
-		{
-			return 0;
-		}
-		AICityStrategyTypes eNoWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");
-		if(eNoWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoWorkers))
-		{
-			return 0;
-		}
-		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
-		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
-		{
-			iBonus += (50 * iCurrentNumCities);
-		}
-		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
-		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
-		{
-			iBonus += (150 * iCurrentNumCities);
+			int iFirstUnitID;
+			//There's a worker waiting here? Abort!
+			if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
+			{
+				return 0;
+			}
+			int iCurrentNumCities = kPlayer.getNumCities();
+			iCurrentNumCities -= iNumBuilders;
+			if (iCurrentNumCities <= 0)
+			{
+				return 0;
+			}
+			AICityStrategyTypes eNoWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");
+			if (eNoWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoWorkers))
+			{
+				return 0;
+			}
+			AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
+			if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
+			{
+				iBonus += (50 * iCurrentNumCities);
+			}
+			AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
+			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
+			{
+				iBonus += (150 * iCurrentNumCities);
+			}
 		}
 	}
 	
@@ -1268,10 +1274,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -50 penalty.
+			//Every -1 GPT = -100 penalty.
 			if(!bAtWar)
 			{
-				iBonus += iGPT * 50;
+				iBonus += iGPT * 100;
 			}
 		}
 	}
@@ -1286,9 +1292,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (150 - iPercent);
+		int iRemainder = (140 - iPercent);
 
-		//Closer we get to cap over 50%, fewer units we should be making.
+		//Closer we get to cap over 40%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}

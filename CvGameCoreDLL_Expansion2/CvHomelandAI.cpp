@@ -1678,15 +1678,6 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		return;
 	}
 	
-	int iLoop;
-	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop)) 
-	{
-		if ((!pLoopUnit->IsCombatUnit() && pLoopUnit->isFound()) || (pLoopUnit->IsCombatUnit() && pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE))
-		{
-			return;
-		}
-	}
-	
 	// Make a list of all combat units that can do this.
 	MoveUnitsArray PossibleSettlerUnits;
 	int iTurnDistance = INT_MAX;
@@ -1694,7 +1685,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->IsCombatUnit()) 
+		if (pUnit && pUnit->IsCombatUnit() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
 		{
 			//fake this, the distance check is irrelevant here
 			ReachablePlots turnsFromMuster;

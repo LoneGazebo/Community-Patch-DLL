@@ -3888,6 +3888,10 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	if (!pkLoopUnitPlot || !pMusterPlot || !pTargetPlot)
 		return false;
 
+	//No naval units in non-naval operations!
+	if (bMustNaval && pLoopUnit->getDomainType() == DOMAIN_SEA)
+		return false;
+
 	//don't recruit if currently healing
 	if (GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->IsUnitHealing(pLoopUnit->GetID()))
 	{
@@ -3966,28 +3970,11 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 				return false;
 			}
 		}
-		else
-		{
-			bool bGood = false;
-			for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
-			{
-				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
-				{
-					bGood = true;
-					break;
-				}
-			}
-			if (!bGood)
-			{
-				return false;
-			}
-		}
 	}
 	
 
-	//check if the unit is engaged with the enemy ...
-	if (pLoopUnit->IsEnemyInMovementRange())
+	//check if the unit is engaged with the enemy outside of our lands...
+	if (pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() && pLoopUnit->IsEnemyInMovementRange())
 		return false;
 
 	//don't take explorers

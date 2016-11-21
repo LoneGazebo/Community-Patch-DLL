@@ -4361,8 +4361,8 @@ void CvMilitaryAI::DoSeaAttacks(PlayerTypes ePlayer)
 		}
 		int iOperationID;
 		bool bHasPureOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, ePlayer);
-		bool bHasMixedOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION, &iOperationID, ePlayer);
-		bool bHasMixedCSOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_CITY_STATE, &iOperationID, ePlayer);
+		bool bHasMixedOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION, &iOperationID);
+		bool bHasMixedCSOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION_CITY_STATE, &iOperationID);
 		if(eWarState >= WAR_STATE_STALEMATE)
 		{	
 			if(GET_PLAYER(ePlayer).isMinorCiv())

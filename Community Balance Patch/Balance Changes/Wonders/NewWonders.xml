@@ -202,6 +202,7 @@
 			<Help>TXT_KEY_BUILDING_CERN_HELP</Help>
 			<Quote>TXT_KEY_WONDER_CERN_QUOTE</Quote>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<FreeTechs>2</FreeTechs>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

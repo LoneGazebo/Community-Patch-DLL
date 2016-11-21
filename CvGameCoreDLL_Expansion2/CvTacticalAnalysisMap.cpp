@@ -1223,7 +1223,7 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 		{
 			if ((pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isCoastal()) || pZone->IsWater())
 			{
-				if (pZone->GetEnemyNavalUnitCount() <= 0 || pZone->GetEnemyNavalUnitCount() < pZone->GetFriendlyNavalUnitCount())
+				if (pZone->GetEnemyNavalUnitCount() <= pZone->GetFriendlyNavalUnitCount())
 				{
 					pZone->SetNavalInvasion(true);
 				}

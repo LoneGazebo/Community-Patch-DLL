@@ -1455,15 +1455,11 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	if(pkUnit && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
-		if(eFoundedReligion == NO_RELIGION)
-		{
-			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-		}
+		ReligionTypes eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
 		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
 		if(eTheirReligion == NO_RELIGION)
 		{
-			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 		} 
 		if(eFoundedReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
 		{

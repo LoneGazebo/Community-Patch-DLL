@@ -15486,15 +15486,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		{
 			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
-				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-				if(eFoundedReligion == NO_RELIGION)
-				{
-					eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-				}
-				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pOtherUnit->getOwner());
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(kPlayer.GetID());
+				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherUnit->getOwner());
 				if(eTheirReligion == NO_RELIGION)
 				{
-					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 				} 
 				if(eTheirReligion != NO_RELIGION)
 				{
@@ -23023,7 +23019,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
 				if(kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits() > 0)
 				{
-					if(pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID())
+					if(pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID() && getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 					{
 						if(GC.getGame().getJonRandNum(100, "Chance for conversion") <= kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits())
 						{
