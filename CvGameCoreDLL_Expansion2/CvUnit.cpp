@@ -27196,14 +27196,16 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 		//normally we would allow an attack at the destination
 		//since it was invisible we didn't even know that there's a unit there
 		//but we do allow attacks on cities
-		if (pkNextPlot!=pDestPlot || !pDestPlot->isEnemyCity(*this))
-			iModifiedFlags ^= CvUnit::MOVEFLAG_ATTACK;
-
-		if ( canMoveInto(*pkNextPlot,iModifiedFlags) )
-			//no problem, continue
-			bHaveValidPath = true;
+		if (pkNextPlot==pDestPlot && pDestPlot->isEnemyCity(*this))
+			iModifiedFlags |= CvUnit::MOVEFLAG_ATTACK;
 		else
-			//need to recompute
+			iModifiedFlags &= ~CvUnit::MOVEFLAG_ATTACK;
+
+		bHaveValidPath = canMoveInto(*pkNextPlot,iModifiedFlags);
+
+		//don't recompute for the destination plot because it's pointless and because it could succeed 
+		//(the pathfinder dynamically sets the attack flag for the destination)
+		if (!bHaveValidPath && pkNextPlot!=pDestPlot)
 			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
 	}
 	else
