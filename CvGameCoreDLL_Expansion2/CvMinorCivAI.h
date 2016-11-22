@@ -529,10 +529,17 @@ public:
 
 	void DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriendship, int iNewFriendship, bool bFromQuest = false, bool bIgnoreMinorDeath = false);
 
+#if defined(MOD_CITY_STATE_SCALE)
+	bool IsFriendshipAboveFriendsThreshold(PlayerTypes ePlayer, int iFriendship) const;
+	int GetFriendsThreshold(PlayerTypes ePlayer) const;
+	bool IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFriendship) const;
+	int GetAlliesThreshold(PlayerTypes ePlayer) const;
+#else
 	bool IsFriendshipAboveFriendsThreshold(int iFriendship) const;
 	int GetFriendsThreshold() const;
 	bool IsFriendshipAboveAlliesThreshold(int iFriendship) const;
 	int GetAlliesThreshold() const;
+#endif
 	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications = false, bool bPassedBySomeone = false, PlayerTypes eNewAlly = NO_PLAYER);
 
 	void DoIntrusion();

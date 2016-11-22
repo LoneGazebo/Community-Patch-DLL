@@ -19116,6 +19116,12 @@ void CvDiplomacyAI::DoContactMinorCivs()
 
 					iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
 
+#if defined(MOD_CITY_STATE_SCALE)
+					// Only care if we'll actually be Allies or better
+					bMediumGiftAllies = iFriendshipWithMinor + iMediumGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
+					bSmallGiftAllies = iFriendshipWithMinor + iSmallGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
+#endif
+
 					// Loop through other players to see if we can pass them
 					for(iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 					{
@@ -19135,9 +19141,11 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						if(iFriendshipWithMinor <= iOtherPlayerFriendshipWithMinor)
 							continue;
 
+#if !defined(MOD_CITY_STATE_SCALE)
 						// Only care if we'll actually be Allies or better
 						bMediumGiftAllies = iFriendshipWithMinor + iMediumGiftFriendship >= pMinorCivAI->GetAlliesThreshold();
 						bSmallGiftAllies = iFriendshipWithMinor + iSmallGiftFriendship >= pMinorCivAI->GetAlliesThreshold();
+#endif
 
 						// If we can pass them with a small gift, great
 						if(bSmallGiftAllies && iOtherPlayerFriendshipWithMinor - iFriendshipWithMinor < iSmallGiftFriendship)
