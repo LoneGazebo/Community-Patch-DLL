@@ -9525,18 +9525,44 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	if (!pUnit || !pTarget)
 		return false;
 
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+	//first try to move to an adjacent plot
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 	if (eDomain==pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-
 	int iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
+
+	//if not possible, try again with more leeway
+	if (iTurns==INT_MAX)
+	{
+		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+		if (eDomain==pTarget->getDomain())
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
+	}
+
 	if (iTurns <= iMaxTurns)
 	{
-		bool bResult = ExecuteMoveToPlotIgnoreDanger(pUnit, pTarget, false, iFlags);
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
+
+		//for inspection in GUI
+		pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTarget,NULL);
+
 		TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+		//don't call finish moves, otherwise we won't heal!
 		if (pUnit->canMove())
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		return bResult;
+		{
+			if( pUnit->canFortify(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
+			else
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		}
+
+		UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
+		return true;
 	}
 
 	return false;
@@ -9984,7 +10010,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 				continue;
 
 			int iValue = target.GetAuxIntData() / max(1,it->iTurns);
-			if( iValue > iBestValue)
+			if( iValue > iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3,*pPlot)==0) )
 			{
 				pBestMovePlot = pPlot;
 				iBestValue = iValue;
