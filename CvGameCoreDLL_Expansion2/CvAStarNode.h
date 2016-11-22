@@ -178,18 +178,24 @@ struct SPathNode
 		turns = p ? p->m_iTurns : 0;
 		moves = p ? p->m_iMoves : 0;
 	}
+
+	bool operator==(const SPathNode& other)
+	{
+		return x==other.x && y==other.y && turns==other.turns && moves==other.moves;
+	}
 };
 
 struct SPath
 {
 	std::vector<SPathNode> vPlots;
+	int iTotalCost;
 	int iNormalizedDistance;
 	int iTotalTurns;
 	int iTurnGenerated;
 	SPathFinderUserData sConfig;
 
 	//constructor
-	SPath() : iNormalizedDistance(-1),iTotalTurns(-1),iTurnGenerated(-1) {}
+	SPath() : iTotalCost(-1),iNormalizedDistance(-1),iTotalTurns(-1),iTurnGenerated(-1) {}
 
 	//not quite a safe-bool, but good enough
 	inline bool operator!() const { return vPlots.empty(); }
@@ -197,6 +203,12 @@ struct SPath
 	//convenience
 	inline int length() const { return vPlots.size(); }
 	inline CvPlot* get(int i) const;
+
+	bool operator==(const SPath& other)
+	{
+		return iTotalCost==other.iTotalCost && iNormalizedDistance==other.iNormalizedDistance && 
+				iTotalTurns==other.iTotalTurns && vPlots.size()==other.vPlots.size();
+	}
 };
 
 struct SMovePlot

@@ -160,24 +160,18 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
 		return;
 
+	//do not check whether we are at war here! the trade route cache is also used for military target selection
 	//OutputDebugString(CvString::format("updating trade path cache for player %d, turn %d\n", iPlayer1, GC.getGame().getGameTurn()).c_str());
 
-	//first move the previous connections for this player to an alternative container
-	//this relies on the fact that cities have unique global IDs
-	//note that the ID changes when a city is conquered, so there might be some stale entries in here ...
-	TradePathLookup previousPathsLand, previousPathsWater;
-	for (TradePathLookup::iterator it=m_aPotentialTradePathsLand.begin(); it!=m_aPotentialTradePathsLand.end(); ++it)
-		if ( kPlayer1.getCity(it->first) )
-			previousPathsLand.insert( *it );
-	for (TradePathLookup::iterator it=m_aPotentialTradePathsWater.begin(); it!=m_aPotentialTradePathsWater.end(); ++it)
-		if ( kPlayer1.getCity(it->first) )
-			previousPathsWater.insert( *it );
-	for (TradePathLookup::iterator it=previousPathsLand.begin(); it!=previousPathsLand.end(); ++it)
-		m_aPotentialTradePathsLand.erase(it->first);
-	for (TradePathLookup::iterator it=previousPathsWater.begin(); it!=previousPathsWater.end(); ++it)
-		m_aPotentialTradePathsWater.erase(it->first);
+	vector<CvPlot*> vDestPlots;
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		int iCity;
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
+			vDestPlots.push_back(pDestCity->plot());
+	}
 
-	//do not check whether we are at war here! the trade route cache is also used for military target selection
 	int iOriginCityLoop;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
@@ -186,6 +180,9 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
 		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data);
+
+		//new
+		//map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
 
 		for (ReachablePlots::iterator it=waterReach.begin(); it!=waterReach.end(); ++it)
 		{
@@ -196,32 +193,27 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			if (!pDestCity || pOriginCity == pDestCity)
 				continue;
 
-			//is the old path still good?
-			bool bReuse = false;
-			if (HaveTradePathInCache(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
+			//ok, we know the city is in reach but we need to get the concrete path
+			SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
+			if (!!path)
 			{
-				const SPath& previousPath = previousPathsWater[pOriginCity->GetID()][pDestCity->GetID()];
-				if (GC.GetStepFinder().VerifyPath(previousPath))
-				{
-					AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
-					bReuse = true;
-				}
-			}
+				AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 
-			if (!bReuse)
-			{
-				//ok, we know the city is in reach but we need to get the concrete path
-				SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
-				if (!!path)
-					AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
+				//if ( waterpaths.find(pDestCity->plot())!=waterpaths.end() && path == waterpaths[pDestCity->plot()] )
+				//	OutputDebugString("match\n");
+				//else
+				//	OutputDebugString("no match\n");
 			}
 		}
-					
+
 		//now for land routes
 		int iMaxNormDistLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 		data.iMaxNormalizedDistance = iMaxNormDistLand;
 		data.ePathType = PT_TRADE_LAND;
 		ReachablePlots landReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data);
+
+		//new
+		//map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
 			
 		for (ReachablePlots::iterator it=landReach.begin(); it!=landReach.end(); ++it)
 		{
@@ -232,24 +224,16 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			if (!pDestCity || pOriginCity == pDestCity)
 				continue;
 
-			//is the old path still good?
-			bool bReuse = false;
-			if (HaveTradePathInCache(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
+			//ok, we know the city is in reach but we need to get the concrete path
+			SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
+			if (!!path)
 			{
-				const SPath& previousPath = previousPathsLand[pOriginCity->GetID()][pDestCity->GetID()];
-				if (GC.GetStepFinder().VerifyPath(previousPath))
-				{
-					AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
-					bReuse = true;
-				}
-			}
+				AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 
-			if (!bReuse)
-			{
-				//ok, we know the city is in reach but we need to get the concrete path
-				SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
-				if (!!path)
-					AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
+				//if ( landpaths.find(pDestCity->plot())!=landpaths.end() && path == landpaths[pDestCity->plot()] )
+				//	OutputDebugString("match\n");
+				//else
+				//	OutputDebugString("no match\n");
 			}
 		}
 	}
