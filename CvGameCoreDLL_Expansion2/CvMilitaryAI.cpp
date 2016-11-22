@@ -1328,115 +1328,95 @@ CvCity* GetCityFromGlobalID(int iID)
 int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity)
 {
 	int iDistance = -1;
-	bool bFoundInCache = false;
-	CachedWaterDistancesMap::iterator itE = m_cachedWaterDistances.find(pCity);
-	if (itE != m_cachedWaterDistances.end())
+
+	CachedDistancesMap::iterator itO = m_cachedWaterDistances.find(pCity);
+	if (itO != m_cachedWaterDistances.end())
 	{
-		CachedWaterDistancesMap::value_type::second_type::iterator itOp = itE->second.find(pOtherCity);
-		if (itOp != itE->second.end())
+		CachedDistancesMap::value_type::second_type::iterator itD = itO->second.find(pOtherCity);
+		if (itD != itO->second.end())
 		{
-			// important - this must be a reference!
-			SCachedWaterDistance& cachedDistance = itOp->second;
-			
-			iDistance = cachedDistance.iWaterDistance;
+			iDistance = itD->second;
 			if (iDistance != -1 && iDistance != MAX_INT)
-			{
-				bFoundInCache = true;
-			}
+				return iDistance;
 		}
 	}
-	if (!bFoundInCache)
+
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner());
+	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
+	if (m_pPlayer->CanCrossOcean())
 	{
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner());
-		data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+		iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
+	}
+	else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
+	{
+		//now try without ocean for comparison
+		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
+		iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
+	}
 
-		if (m_pPlayer->CanCrossOcean())
-		{
-			iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
-		}
-		else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
-		{
-			//now try without ocean for comparison
-			data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
-			iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
-		}
+	//update the cache
+	m_cachedWaterDistances[pCity][pOtherCity] = iDistance;
 
-		SCachedWaterDistance memory;
-		memory.iWaterDistance = iDistance;
-
-		//update the cache
-		m_cachedWaterDistances[pCity][pOtherCity] = memory;
-
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf = CvString::format("%d, %s, updated WATER distance map between cities, %s, Muster: %s, Distance: %d",
-				GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
-				pCity->getName().c_str(), iDistance);
-			FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
-			if (pLog)
-				pLog->Msg(strOutBuf);
-		}
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf = CvString::format("%d, %s, updated WATER distance map between cities, %s, Muster: %s, Distance: %d",
+			GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
+			pCity->getName().c_str(), iDistance);
+		FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+		if (pLog)
+			pLog->Msg(strOutBuf);
 	}
 
 	return iDistance;
 }
+
 int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity)
 {
 	if (pCity->getArea() != pOtherCity->getArea())
-	{
 		return -1;
-	}
 
 	int iDistance = -1;
-	bool bFoundInCache = false;
-	CachedLandDistancesMap::iterator itE = m_cachedLandDistances.find(pCity);
-	if (itE != m_cachedLandDistances.end())
+	CachedDistancesMap::iterator itO = m_cachedLandDistances.find(pCity);
+	if (itO != m_cachedLandDistances.end())
 	{
-		CachedLandDistancesMap::value_type::second_type::iterator itOp = itE->second.find(pOtherCity);
-		if (itOp != itE->second.end())
+		CachedDistancesMap::value_type::second_type::iterator itD = itO->second.find(pOtherCity);
+		if (itD != itO->second.end())
 		{
-			// important - this must be a reference!
-			SCachedLandDistance& cachedDistance = itOp->second;
-
-			iDistance = cachedDistance.iLandDistance;
+			iDistance = itD->second;
 			if (iDistance != -1 && iDistance != MAX_INT)
-			{
-				bFoundInCache = true;
-			}
+				return iDistance;
 		}
 	}
-	if (!bFoundInCache)
+
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, pOtherCity->getOwner());
+	data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
+	iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
+
+	//update the cache
+	m_cachedLandDistances[pCity][pOtherCity] = iDistance;
+
+	if (GC.getLogging() && GC.getAILogging())
 	{
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, pOtherCity->getOwner());
-		data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
-		data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
-		iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
-
-		SCachedLandDistance memory;
-		memory.iLandDistance = iDistance;
-
-		//update the cache
-		m_cachedLandDistances[pCity][pOtherCity] = memory;
-
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf = CvString::format("%d, %s, updated LAND distance map between cities, %s, Muster: %s, Distance: %d",
-				GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
-				pCity->getName().c_str(), iDistance);
-			FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
-			if (pLog)
-				pLog->Msg(strOutBuf);
-		}
+		CvString strOutBuf = CvString::format("%d, %s, updated LAND distance map between cities, %s, Muster: %s, Distance: %d",
+			GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pOtherCity->getName().c_str(),
+			pCity->getName().c_str(), iDistance);
+		FILogFile* pLog = LOGFILEMGR.GetLog("CustomMods.csv", FILogFile::kDontTimeStamp);
+		if (pLog)
+			pLog->Msg(strOutBuf);
 	}
 
 	return iDistance;
 }
+
 void CvMilitaryAI::RefreshDistanceCaches()
 {
 	m_cachedLandDistances.clear();
 	m_cachedWaterDistances.clear();
 }
+
 bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
@@ -1456,6 +1436,7 @@ bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
 
 	return false;
 }
+
 bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType)
 {
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
@@ -1477,6 +1458,7 @@ bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes e
 	}
 	return false;
 }
+
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore, bool bCheckWar)
 {
 	int ciAgeLimit = 30;
