@@ -179,62 +179,34 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 		SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
-		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data);
 
-		//new
-		//map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-
-		for (ReachablePlots::iterator it=waterReach.begin(); it!=waterReach.end(); ++it)
+		//get all paths
+		map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (map<CvPlot*,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-			CvCity* pDestCity = pPlot->getPlotCity();
-
-			// if this is no city or the origin city, nothing to do
-			if (!pDestCity || pOriginCity == pDestCity)
+			// if this is the origin city, nothing to do
+			if (pOriginCity->plot() == it->first)
 				continue;
 
-			//ok, we know the city is in reach but we need to get the concrete path
-			SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
-			if (!!path)
-			{
-				AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
-
-				//if ( waterpaths.find(pDestCity->plot())!=waterpaths.end() && path == waterpaths[pDestCity->plot()] )
-				//	OutputDebugString("match\n");
-				//else
-				//	OutputDebugString("no match\n");
-			}
+			CvCity* pDestCity = it->first->getPlotCity();
+			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),it->second);
 		}
 
 		//now for land routes
 		int iMaxNormDistLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 		data.iMaxNormalizedDistance = iMaxNormDistLand;
 		data.ePathType = PT_TRADE_LAND;
-		ReachablePlots landReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data);
 
-		//new
-		//map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-			
-		for (ReachablePlots::iterator it=landReach.begin(); it!=landReach.end(); ++it)
+		//get all paths
+		map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (map<CvPlot*,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-			CvCity* pDestCity = pPlot->getPlotCity();
-
-			// if this is no city or the origin city, nothing to do
-			if (!pDestCity || pOriginCity == pDestCity)
+			// if this is the origin city, nothing to do
+			if (pOriginCity->plot() == it->first)
 				continue;
 
-			//ok, we know the city is in reach but we need to get the concrete path
-			SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
-			if (!!path)
-			{
-				AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
-
-				//if ( landpaths.find(pDestCity->plot())!=landpaths.end() && path == landpaths[pDestCity->plot()] )
-				//	OutputDebugString("match\n");
-				//else
-				//	OutputDebugString("no match\n");
-			}
+			CvCity* pDestCity = it->first->getPlotCity();
+			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),it->second);
 		}
 	}
 
