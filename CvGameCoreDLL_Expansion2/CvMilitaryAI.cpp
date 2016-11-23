@@ -2607,7 +2607,7 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 {
 	std::vector<std::pair<CvCity*,int>> vCities;
-	struct sort_pred {
+	struct PrSortByScore {
 		bool operator()(const std::pair<CvCity*,int> &left, const std::pair<CvCity*,int> &right) {
 			return left.second > right.second;
 		}
@@ -2695,11 +2695,17 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
 	}
 
-	std::stable_sort(vCities.begin(), vCities.end(), sort_pred());
+	std::stable_sort(vCities.begin(), vCities.end(), PrSortByScore());
 
 	vector<CvCity*> result;
 	for (size_t i=0; i<vCities.size(); i++)
+	{
+		//keep only the top half of the scores
+		if (vCities[i].second < vCities[0].second/2)
+			break;
+
 		result.push_back(vCities[i].first);
+	}
 
 	return result;
 }
@@ -4062,13 +4068,13 @@ void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
 	}
 }
 /// Abort or start operations as appropriate given the current threats and war states
-void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy)
+void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity)
 {
-	if(eEnemy == NO_PLAYER)
+	if(eEnemy == NO_PLAYER || !pThreatenedCity)
 		return;
 	
 	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eEnemy);
-	if(eWarState >= WAR_STATE_OFFENSIVE)
+	if(eWarState >= WAR_STATE_CALM)
 		return;
 
 	int iOperationID;
@@ -4076,58 +4082,23 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy)
 	int iFilledSlots;
 	int iNumUnitsWillingBuild = 2;
 
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank(); //filter by enemy?
-	if(pMostThreatenedCity == NULL)
-	{
-		m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eEnemy, AI_ABORT_WAR_STATE_CHANGE);
-		return;
-	}
-
 	//Let's make sure our base defenses are up.
-	if(pMostThreatenedCity != NULL)
+	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eEnemy);
+	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearPlot(m_pPlayer->GetID(),eEnemy,DOMAIN_LAND,true,pThreatenedCity->getArea(),pThreatenedCity->plot());
+	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getWorkingCity() != NULL)
 	{
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eEnemy);
-		CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearPlot(m_pPlayer->GetID(),eEnemy,DOMAIN_LAND,true,pMostThreatenedCity->getArea(),pMostThreatenedCity->plot());
-		if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getWorkingCity() != NULL)
+		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pStartPlot, pStartPlot, &iNumRequiredSlots);
+		if(iFilledSlots > 0)
 		{
-			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pStartPlot, pStartPlot, &iNumRequiredSlots);
-			if(iFilledSlots > 0)
-			{
-				m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eEnemy, pStartPlot->getArea(), pStartPlot->getWorkingCity(), pStartPlot->getWorkingCity());
-			}
+			m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eEnemy, pStartPlot->getArea(), pStartPlot->getWorkingCity(), pStartPlot->getWorkingCity());
 		}
 	}
 
-	switch(eWarState)
+	m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eEnemy, true, AI_ABORT_WAR_STATE_CHANGE);
+
+	// If we are really losing, let's pull back everywhere.	
+	if (eWarState == WAR_STATE_NEARLY_DEFEATED)
 	{
-		case WAR_STATE_DEFENSIVE:
-		m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eEnemy, true, AI_ABORT_WAR_STATE_CHANGE);
-		if(pMostThreatenedCity != NULL)
-		{
-			if(m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMostThreatenedCity->plot()))
-			{
-				bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pMostThreatenedCity->plot());
-				if (!bHasOperationUnderway)
-				{
-					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-					if(iFilledSlots > 0)
-					{
-						m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eEnemy, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
-					}
-				}
-			}
-			else if(!m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pMostThreatenedCity->plot()))
-			{
-				iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-				if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
-				{
-					m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eEnemy, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
-				}
-			}
-		}
-		break;
-		// If we are really losing, let's pull back everywhere.	
-		case WAR_STATE_NEARLY_DEFEATED:
 		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 		{
 			PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
@@ -4138,102 +4109,63 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy)
 				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer2, true, AI_ABORT_WAR_STATE_CHANGE);
 			}
 		}
-		if(pMostThreatenedCity != NULL)
+	}
+
+	bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
+	if(!m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pThreatenedCity->plot()))
+	{
+		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pThreatenedCity->plot(), pThreatenedCity->plot(), &iNumRequiredSlots);
+		if(iFilledSlots > 0 && (bIsEnemyZone || ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)))
 		{
-			if(m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMostThreatenedCity->plot()))
-			{
-				bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pMostThreatenedCity->plot());
-				if (!bHasOperationUnderway)
-				{
-					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-					if(iFilledSlots > 0)
-					{
-						m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eEnemy, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
-					}
-				}
-			}
-			else if(!m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pMostThreatenedCity->plot()))
-			{
-				iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-				if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
-				{
-					m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eEnemy, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
-				}
-			}
+			m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eEnemy, pThreatenedCity->getArea(), pThreatenedCity, pThreatenedCity);
 		}
-		break;
 	}
 }
 /// Abort or start operations as appropriate given the current threats and war states
-void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer)
+void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity)
 {
-	if(ePlayer == NO_PLAYER)
+	if(ePlayer == NO_PLAYER || !pThreatenedCity)
 		return;
 
 	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
-	if(eWarState >= WAR_STATE_OFFENSIVE)
+	if(eWarState >= WAR_STATE_CALM)
 		return;
 
-	int iNumCoastalCities = 0;
-	int iLoop;
-	CvCity* pCity;
-	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+	m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer, true, AI_ABORT_WAR_STATE_CHANGE);
+
+	//if we are losing badly, pull back everywhere
+	if(m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
 	{
-		if(pCity->isCoastal(-1))
+		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 		{
-			iNumCoastalCities++;
-			break;
+			PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+
+			// Is this a player we have relations with?
+			if(eLoopPlayer2 != m_pPlayer->GetID() && ePlayer != eLoopPlayer2 &&  m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer2))
+			{
+				m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer2, true, AI_ABORT_WAR_STATE_CHANGE);
+			}
 		}
 	}
-	if(iNumCoastalCities <= 0)
-		return;
 
 	int iOperationID;
 	int iNumRequiredSlots;
 	int iFilledSlots;
-	int iNumUnitsWillingBuild = 0;
+	int iNumUnitsWillingBuild = 0;	
 
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
-	if(pMostThreatenedCity == NULL)
-	{
-		m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(ePlayer, AI_ABORT_WAR_STATE_CHANGE);
+	if (!pThreatenedCity->isCoastal())
 		return;
-	}
-	else if(eWarState <= WAR_STATE_DEFENSIVE)
-	{
-		m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer, true, AI_ABORT_WAR_STATE_CHANGE);
-		
-		if(m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
-		{
-			for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
-			{
-				PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
 
-				// Is this a player we have relations with?
-				if(eLoopPlayer2 != m_pPlayer->GetID() && ePlayer != eLoopPlayer2 &&  m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer2))
-				{
-					m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer2, true, AI_ABORT_WAR_STATE_CHANGE);
-				}
-			}
-		}
-		for(int iThreat = 0; iThreat < (m_pPlayer->getNumCities() / 2); iThreat++)
+	CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatenedCity->plot());
+	if(pCoastalPlot != NULL)
+	{
+		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pThreatenedCity->plot());
+		if (!bHasOperationUnderway)
 		{
-			CvCity* pThreatCity = m_pPlayer->GetThreatenedCityByRank(iThreat);
-			if(pThreatCity != NULL && pThreatCity->isCoastal())
+			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, false, pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
+			if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
 			{
-				CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatCity->plot());
-				if(pCoastalPlot != NULL)
-				{
-					bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pThreatCity->plot());
-					if (!bHasOperationUnderway)
-					{
-						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, false, pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
-						if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
-						{
-							m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pCoastalPlot->getArea(), pThreatCity, pThreatCity, m_pPlayer->CanCrossOcean());
-						}
-					}
-				}
+				m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pCoastalPlot->getArea(), pThreatenedCity, pThreatenedCity, m_pPlayer->CanCrossOcean());
 			}
 		}
 	}
@@ -4497,6 +4429,10 @@ void CvMilitaryAI::UpdateOperations()
 	int iPlayerLoop;
 	PlayerTypes eLoopPlayer;
 
+	//check the two most threatened cities for defense
+	CvCity* pThreatenedCityA = m_pPlayer->GetThreatenedCityByRank(0);
+	CvCity* pThreatenedCityB = m_pPlayer->GetThreatenedCityByRank(1);
+
 	///////////////////////////////
 	//////////////////////
 	// Operation vs. Barbs
@@ -4510,9 +4446,8 @@ void CvMilitaryAI::UpdateOperations()
 	//////////////////////
 	//////////////////////////////
 
-	int iBest;
-
-	CvMilitaryTarget besttargetland = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBest, true);
+	int iBestValue;
+	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, true);
 
 	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
@@ -4538,7 +4473,7 @@ void CvMilitaryAI::UpdateOperations()
 				continue;
 			}
 
-			int iTargetValue = GetEnemyLandValue(eLoopPlayer, besttargetland);
+			int iTargetValue = GetEnemyLandValue(eLoopPlayer, bestTargetLand);
 
 			veLandThreatWeights.push_back(eLoopPlayer, iTargetValue);
 		}
@@ -4554,7 +4489,11 @@ void CvMilitaryAI::UpdateOperations()
 				//Defense check.
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					CheckLandDefenses(eLoopPlayer);
+					if(pThreatenedCityA == NULL)
+						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+
+					CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
+					CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
 				}
 				DoNuke(eLoopPlayer);
 				if(veLandThreatWeights.GetWeight(iThreatCivs) > 0)
@@ -4564,7 +4503,7 @@ void CvMilitaryAI::UpdateOperations()
 			}
 		}
 	}
-	CvMilitaryTarget besttargetsea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBest, true);
+	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, true);
 
 	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veSeaThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
@@ -4581,7 +4520,7 @@ void CvMilitaryAI::UpdateOperations()
 				continue;
 			}
 
-			int iTargetValue = GetEnemySeaValue(eLoopPlayer, besttargetsea);
+			int iTargetValue = GetEnemySeaValue(eLoopPlayer, bestTargetSea);
 
 			veSeaThreatWeights.push_back(eLoopPlayer, iTargetValue);
 		}
@@ -4597,7 +4536,11 @@ void CvMilitaryAI::UpdateOperations()
 				//Defense check.
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					CheckSeaDefenses(eLoopPlayer);
+					if(pThreatenedCityA == NULL)
+						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+
+					CheckSeaDefenses(eLoopPlayer,pThreatenedCityA);
+					CheckSeaDefenses(eLoopPlayer,pThreatenedCityB);
 				}
 				if(veSeaThreatWeights.GetWeight(iThreatCivs) > 0)
 				{

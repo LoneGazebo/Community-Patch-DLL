@@ -406,8 +406,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void DoNuke(PlayerTypes ePlayer);
 	void DoBarbs();
-	void CheckLandDefenses(PlayerTypes ePlayer);
-	void CheckSeaDefenses(PlayerTypes ePlayer);
+	void CheckLandDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
+	void CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void DoLandAttacks(PlayerTypes ePlayer);
 	void DoSeaAttacks(PlayerTypes ePlayer);
 	void DoMinorCivAttacks(PlayerTypes ePlayer);

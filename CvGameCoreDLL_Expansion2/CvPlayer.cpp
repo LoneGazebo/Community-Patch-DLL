@@ -5031,17 +5031,12 @@ void CvPlayer::UpdateCityThreatCriteria()
 
 CvCity* CvPlayer::GetThreatenedCityByRank(int iRank)
 {
-	CvCity* pLoopCity = NULL;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
+		if(pLoopCity->GetThreatRank() == iRank)
 		{
-			if(pLoopCity->GetThreatRank() == iRank)
-			{
-				return pLoopCity;
-			}
+			return pLoopCity;
 		}
 	}
 
