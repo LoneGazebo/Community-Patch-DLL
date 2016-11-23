@@ -434,7 +434,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		}
 
 		int iProfit = iGoldForRoute + iSideBenefits - (iPlotsNeeded*iMaintenancePerTile);
-		if (iProfit - iNetGoldTimes100 < 0)
+		if (iProfit < 0)
+			return;
+		else if (iNetGoldTimes100<0 && iProfit<-iNetGoldTimes100)
 			return;
 		else
 			sValue = min(iProfit, MAX_SHORT);
