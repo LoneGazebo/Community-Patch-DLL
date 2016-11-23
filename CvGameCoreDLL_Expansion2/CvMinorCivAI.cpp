@@ -12507,6 +12507,22 @@ int CvMinorCivAI::GetFriendsThreshold(PlayerTypes ePlayer) const
 	{
 		iThreshold *= 100 + max(1, m_pPlayer->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iThreshold /= 100;
+
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+
+		// Industrial era or Later
+		if (eCurrentEra >= eIndustrial)
+		{
+			iThreshold *= /*10*/ GC.getFRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL();
+		}
+		// Medieval era or later
+		else if (eCurrentEra >= eMedieval)
+		{
+			iThreshold *= /*6*/ GC.getFRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL();
+		}
+		iThreshold /= 100;
 	}
 	return iThreshold ;
 #else
