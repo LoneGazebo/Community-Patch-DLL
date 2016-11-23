@@ -1148,10 +1148,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(bAtWar)
 		{
-			if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
+			if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 			{
 				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 75;
+				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 75;
 				if(iThreat > 0)
 				{
 					if(bCombat)

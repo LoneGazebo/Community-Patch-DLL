@@ -1937,10 +1937,10 @@ void CvTacticalAI::FindTacticalTargets()
 						}
 
 
-						if (GET_PLAYER(pWorkingCity->getOwner()).getNumCities() > 1 && pWorkingCity->GetThreatCriteria() != -1)
+						if (GET_PLAYER(pWorkingCity->getOwner()).getNumCities() > 1 && pWorkingCity->GetThreatRank() != -1)
 						{
 							//More cities = more threat.
-							int iThreat = (GET_PLAYER(pWorkingCity->getOwner()).getNumCities() - pWorkingCity->GetThreatCriteria()) * 10;
+							int iThreat = (GET_PLAYER(pWorkingCity->getOwner()).getNumCities() - pWorkingCity->GetThreatRank()) * 10;
 							if (iThreat > 0)
 							{
 								iWeight += iThreat;

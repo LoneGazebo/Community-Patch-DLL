@@ -909,10 +909,10 @@ void CvHomelandAI::FindHomelandTargets()
 						}
 
 
-						if (m_pPlayer->getNumCities() > 1 && pWorkingCity->GetThreatCriteria() != -1)
+						if (m_pPlayer->getNumCities() > 1 && pWorkingCity->GetThreatRank() != -1)
 						{
 							//More cities = more threat.
-							int iThreat = (m_pPlayer->getNumCities() - pWorkingCity->GetThreatCriteria()) * 10;
+							int iThreat = (m_pPlayer->getNumCities() - pWorkingCity->GetThreatRank()) * 10;
 							if (iThreat > 0)
 							{
 								iWeight += iThreat;
@@ -8498,7 +8498,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
 		}
 
-		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatCriteria()) * 100;
+		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatRank()) * 100;
 
 		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
 		for (size_t i=0; i<vNeighborZones.size(); i++)
@@ -8517,7 +8517,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 			CvCity* pOtherZoneCity = pOtherZone->GetZoneCity();
 			if (pOtherZoneCity)
 			{
-				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatCriteria()) * 100;
+				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatRank()) * 100;
 			}
 
 			if(bWater)
@@ -8576,7 +8576,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		if(bWater)
 			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
 
-		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatCriteria()) * 100;
+		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatRank()) * 100;
 
 		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
 		for (size_t i=0; i<vNeighborZones.size(); i++)
@@ -8596,7 +8596,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 
 			CvCity* pOtherZoneCity = pOtherZone->GetZoneCity();
 			if (pOtherZoneCity)
-				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatCriteria()) * 100;
+				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatRank()) * 100;
 
 			if(bWater)
 				iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;

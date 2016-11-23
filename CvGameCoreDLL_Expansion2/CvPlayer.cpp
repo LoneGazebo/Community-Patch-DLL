@@ -5022,14 +5022,14 @@ void CvPlayer::UpdateCityThreatCriteria()
 	//Reset the critera.
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		pLoopCity->SetThreatCritera(-1);
+		pLoopCity->SetThreatRank(-1);
 
 	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(true);
 	for(int i = 0; i < (int)threatenedCities.size(); i++)
-		threatenedCities[i]->SetThreatCritera(i);
+		threatenedCities[i]->SetThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityRank(int iValue)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank)
 {
 	CvCity* pLoopCity = NULL;
 	int iLoop;
@@ -5038,7 +5038,7 @@ CvCity* CvPlayer::GetThreatenedCityRank(int iValue)
 	{
 		if(pLoopCity != NULL)
 		{
-			if(pLoopCity->GetThreatCriteria() == iValue)
+			if(pLoopCity->GetThreatRank() == iRank)
 			{
 				return pLoopCity;
 			}

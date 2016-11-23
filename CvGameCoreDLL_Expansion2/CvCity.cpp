@@ -319,7 +319,7 @@ CvCity::CvCity() :
 	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
 	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
 	, m_iNearbySettlerValue("CvCity::m_iNearbySettlerValue", m_syncArchive)
-	, m_iThreatCriteria("CvCity::m_iThreatCriteria", m_syncArchive)
+	, m_iThreatRank("CvCity::m_iThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
@@ -1433,7 +1433,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradePrioritySea = 0;
 	m_iNearbySettlerValue = 0;
-	m_iThreatCriteria = 0;
+	m_iThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
@@ -3107,17 +3107,17 @@ int CvCity::GetStaticYield(YieldTypes eYield) const
 	return m_aiStaticCityYield[eYield];
 }
 
-void CvCity::SetThreatCritera(int iValue)
+void CvCity::SetThreatRank(int iValue)
 {
-	if(iValue != m_iThreatCriteria)
+	if(iValue != m_iThreatRank)
 	{
-		m_iThreatCriteria = iValue;
+		m_iThreatRank = iValue;
 	}
 }
-int CvCity::GetThreatCriteria() const
+int CvCity::GetThreatRank() const
 {
 	VALIDATE_OBJECT
-	return m_iThreatCriteria;
+	return m_iThreatRank;
 }
 
 void CvCity::SetTradePriorityLand(int iValue)
