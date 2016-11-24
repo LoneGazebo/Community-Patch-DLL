@@ -2683,8 +2683,8 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 			iThreatValue += (iBad * 10);
 			iThreatValue += (iSuperBad * 25);
 
-			//scale it a bit with city value and remaining hitpoints
-			fScale = 1000 * sqrt((float)pLoopCity->getPopulation() + iNeutral + iBad + iSuperBad) / MAX(1,pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
+			//scale it a bit with city value (use pop as proxy)
+			fScale = 100 * sqrt((float)pLoopCity->getPopulation());
 		}
 
 		//tolerate some danger
