@@ -15444,7 +15444,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += iTempModifier;
 
 			// Bonus against city states?
-			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
+			if(pBattlePlot->isCity() && pBattlePlot->getOwner()!=NO_PLAYER && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
 			{
 				iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
 #if defined(MOD_BALANCE_CORE)
@@ -15453,7 +15453,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 #if defined(MOD_BALANCE_CORE)
 			// Bonus against Major Civ Cities
-			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMajorCiv())
+			if(pBattlePlot->isCity() && pBattlePlot->getOwner()!=NO_PLAYER && GET_PLAYER(pBattlePlot->getOwner()).isMajorCiv())
 			{
 				if(kPlayer.isGoldenAge())
 				{
