@@ -434,7 +434,6 @@ void CvTacticalAI::Write(FDataStream& kStream)
 void CvTacticalAI::CommandeerUnits()
 {
 	int iLoop;
-
 	m_CurrentTurnUnits.clear();
 
 	// Loop through our units
@@ -478,7 +477,8 @@ void CvTacticalAI::CommandeerUnits()
 
 		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
 		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || 
-			pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN ||  pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->isHuman())
+			pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
+			pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA || pLoopUnit->isHuman())
 		{
 			continue;
 		}
@@ -6394,9 +6394,81 @@ void CvTacticalAI::ExecuteParadropPillage(CvPlot* pTargetPlot)
 	}
 }
 
+void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
+{
+	if (!pTargetPlot)
+		return;
+
+	//this won't change
+	CvCity *pCity = pTargetPlot->getPlotCity();
+
+	// Do air raids, ignore all other units
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+
+		if (pUnit && pUnit->getDomainType()==DOMAIN_AIR)
+		{
+			int iCount = 0; //failsafe
+			while (pUnit->canMove() && !pUnit->isDelayedDeath() && iCount<3)
+			{
+				//this is a bit ugly ... oh well
+				CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+				bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
+				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage()<pCity->GetMaxHitPoints());
+
+				if (!bHaveUnitTarget && !bHaveCityTarget)
+					break;
+
+				//it's a ranged attack but it uses the move mission ... air units are strange
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+				iCount++;
+			}
+
+			UnitProcessed(m_CurrentMoveUnits[iI].GetID(), false /*bMarkTacticalMap*/);
+		}
+	}
+}
+
+void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
+{
+	if (!pTargetPlot)
+		return;
+
+#if defined(MOD_AI_SMART_AIR_TACTICS)
+	if (MOD_AI_SMART_AIR_TACTICS) {
+		// Start by sending possible air sweeps
+		for(unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
+
+			if(pUnit && pUnit->canMove())
+			{
+				if(pUnit->canAirSweep())
+				{
+					pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
+					UnitProcessed(m_CurrentAirSweepUnits[iI].GetID(), false /*bMarkTacticalMap*/);
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Sending %s to air sweep prior to attack to Target X: %d, Y: %d", pUnit->getName().GetCString(), pTargetPlot->getX(), pTargetPlot->getY());
+						LogTacticalMessage(strMsg);
+					}
+				}
+			}
+		}
+	}
+#endif
+}
+
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 void CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
 {
+	//first handle air units
+	ExecuteAirSweep(pTargetPlot);
+	ExecuteAirAttack(pTargetPlot);
+
 	//evaluate many possible unit assignments around the target plot and choose the best one
 	//will not necessarily attack only the target plot when other targets are present!
 
@@ -6547,34 +6619,8 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 /// Attack a defended space
 void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot, bool bPreserveMeleeUnits)
 {
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-	if (MOD_AI_SMART_AIR_TACTICS) {
-		// Start by sending possible air sweeps
-		for(unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
-		{
-			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
-
-			if(pUnit && pUnit->canMove())
-			{
-				if(pUnit->canAirSweep())
-				{
-					if (pTarget)
-					{
-						pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
-						UnitProcessed(m_CurrentAirSweepUnits[iI].GetID(), false /*bMarkTacticalMap*/);
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Sending %s to air sweep prior to attack to Target X: %d, Y: %d", pUnit->getName().GetCString(), pTargetPlot->getX(), pTargetPlot->getY());
-							LogTacticalMessage(strMsg);
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
+	//depending on the target we might have sweepers ready
+	ExecuteAirSweep(pTargetPlot);
 
 	// Start by applying damage from city bombards
 	for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
@@ -6587,7 +6633,6 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 				return;
 		}
 	}
-
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// Make a list of plots adjacent to the target, which are suitable for melee attacks
@@ -8866,7 +8911,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (plotDistance(*pLoopUnit->plot(),*pTarget) > pLoopUnit->baseMoves()*4)
 			continue;
 
-		//if it's a fighter plane, don't use it here, we need it for interceptions etc
+		//if it's a fighter plane, don't use it here, we need it for interceptions / sweeps
 		if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
 			continue;
 
@@ -8939,6 +8984,12 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 			rtnValue = true;
 		}
 	}
+
+	// As we have air units on the attack targets we should also check possible air sweeps
+	if (bAirUnitsAdded)
+		FindAirUnitsToAirSweep(pTarget);
+	else
+		m_CurrentAirSweepUnits.clear();
 
 	// Now sort them in the order we'd like them to attack
 	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
@@ -13569,7 +13620,7 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot)
 
 bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 {
-	if (!pUnit)
+	if (!pUnit || !pUnit->canMove())
 		return false;
 
 	SUnitStats::eMovementStrategy eStrategy = SUnitStats::MS_NONE;
@@ -13612,7 +13663,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 			eStrategy = SUnitStats::MS_SUPPORT;
 			break;
 
-		//air units. ignore here, rebasing is handled elsewhere
+		//air units. ignore here, attack / rebase is handled elsewhere
 		case UNITAI_ATTACK_AIR:
 		case UNITAI_DEFENSE_AIR:
 		case UNITAI_MISSILE_AIR:

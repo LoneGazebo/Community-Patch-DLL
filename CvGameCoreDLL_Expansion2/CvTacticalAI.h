@@ -873,6 +873,8 @@ private:
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 	void ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
+	void ExecuteAirSweep(CvPlot* pTargetPlot);
+	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
