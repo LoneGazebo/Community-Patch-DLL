@@ -342,12 +342,8 @@ bool IsTestStrategy_EnoughRecon(CvPlayer* pPlayer);
 bool IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer);
-bool IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer);
-#if defined(MOD_BALANCE_CORE)
-bool IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer);
-#else
+bool IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-#endif
 bool IsTestStrategy_NeedHappiness(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_NeedHappinessCritical(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_CitiesNeedNavalGrowth(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
@@ -364,8 +360,8 @@ bool IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStrategy, CvPlayer* pPl
 bool IsTestStrategy_HaltGrowthBuildings(CvPlayer* pPlayer);
 bool IsTestStrategy_TooManyUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
-bool IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer);
-bool IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer *pPlayer);
+bool IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
+bool IsTestStrategy_ReallyExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer *pPlayer);
 bool IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer);
 bool IsTestStrategy_NavalMap(CvPlayer* pPlayer);
 bool IsTestStrategy_OffshoreExpansionMap(CvPlayer* pPlayer);
@@ -392,6 +388,8 @@ bool IsTestStrategy_GS_Diplomacy(CvPlayer* pPlayer);
 bool IsTestStrategy_GS_Spaceship(CvPlayer* pPlayer);
 
 bool IsTestStrategy_GS_SpaceshipHomestretch(CvPlayer* pPlayer);
+
+bool CanMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes strategy);
 }
 
 #endif //CIV5_ECONOMIC_AI_H
