@@ -2344,8 +2344,8 @@ public:
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
 	void UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell=true);
-	const std::vector<int>& GetAreaEffectPositiveUnits() const;
-	const std::vector<int>& GetAreaEffectNegativeUnits() const;
+	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
+	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
@@ -3430,8 +3430,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	FAutoVariable<int, CvPlayer> m_iFractionOriginalCapitalsUnderControl;
-	std::vector<int> m_unitsAreaEffectPositive;
-	std::vector<int> m_unitsAreaEffectNegative;
+	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
+	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;

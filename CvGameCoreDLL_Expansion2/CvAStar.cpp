@@ -934,12 +934,14 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
-	kToNodeCacheData.iPlotDanger = pCacheData->isAIControl() ? GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit) : 0;
-
 	//special for approximate pathfinding - don't hang around on dangerous plots
-	if (DestinationReached(node->m_iX,node->m_iY,finder->GetData(),finder) && 
-		!bIsDestination && !bIsInitialNode && kToNodeCacheData.iPlotDanger>pUnit->GetCurrHitPoints())
-		kToNodeCacheData.bCanEnterTerrainPermanent = false;
+	if (DestinationReached(node->m_iX,node->m_iY,finder->GetData(),finder) && !bIsDestination && !bIsInitialNode)
+	{
+		int iPlotDanger = pCacheData->isAIControl() && pCacheData->doDanger() ? GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit) : 0;
+	
+		if (iPlotDanger>pUnit->GetCurrHitPoints())
+			kToNodeCacheData.bCanEnterTerrainPermanent = false;
+	}
 
 	//done!
 	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
@@ -1154,8 +1156,10 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		if (!pToPlot->isVisible(eUnitTeam))
 			iCost += PATH_END_TURN_INVISIBLE_WEIGHT;
 
-		//note: this includes an overkill factor because usually not all enemy units will attack this one unit
-		int iPlotDanger = kToNodeCacheData.iPlotDanger;
+		//calculcate danger. this is expensive but the last result is cached for each plot
+		//note: it includes an overkill factor because usually not all enemy units will attack this one unit
+		int iPlotDanger = pUnit->GetDanger(pToPlot);
+
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
 		int iFutureFactor = std::max(1,4-iTurnsInFuture);
 

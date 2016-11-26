@@ -2474,7 +2474,6 @@ void CvTacticalAI::AssignBarbarianMoves()
 			PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, true/*bFirstPass*/);
 			break;
 		case AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN:
-			PlotPillageMoves(AI_TACTICAL_TARGET_CITADEL, false/*bFirstPass*/);
 			PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, false/*bFirstPass*/);
 			break;
 		case AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE:
@@ -5911,6 +5910,9 @@ void CvTacticalAI::IdentifyPriorityTargets()
 	int iExpectedDamage;
 	int iExpectedTotalDamage;
 
+	//calculate this only once
+	std::map<int,ReachablePlots> unitMovePlots;
+
 	// Loop through each of our cities
 	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
@@ -5932,28 +5934,38 @@ void CvTacticalAI::IdentifyPriorityTargets()
 			{
 				iExpectedDamage = 0;
 
-				if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) > pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL))
+				if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->canEverRangeStrikeAt(pLoopCity->getX(), pLoopCity->getY()))
 				{
-					if(plotDistance(pEnemyUnit->getX(), pEnemyUnit->getY(), pLoopCity->getX(), pLoopCity->getY()) <= pEnemyUnit->GetRange())
+					//maybe take into account that ranged units can move? but should be okay
+					iExpectedDamage = pEnemyUnit->GetRangeCombatDamage(NULL, pLoopCity, false);
+				}
+				else
+				{
+					ReachablePlots plots;
+					std::map<int,ReachablePlots>::iterator it = unitMovePlots.find(pEnemyUnit->GetID());
+					if (it==unitMovePlots.end())
 					{
-						if(pEnemyUnit->canEverRangeStrikeAt(pLoopCity->getX(), pLoopCity->getY()))
-						{
-							iExpectedDamage = pEnemyUnit->GetRangeCombatDamage(NULL, pLoopCity, false);
-						}
+						TacticalAIHelpers::GetAllPlotsInReachThisTurn(pEnemyUnit,pEnemyUnit->plot(),plots,true,true,false);
+						unitMovePlots[pEnemyUnit->GetID()] = plots;
+					}
+					else
+						plots = it->second;
+
+					ReachablePlots::iterator plot = plots.find( SMovePlot(pLoopCity->plot()->GetPlotIndex()) );
+					if ( plot != plots.end() )
+					{
+						int iAttackerStrength = pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL);
+						int iDefenderStrength = pLoopCity->getStrengthValue();
+
+						int iDefenderFireSupportCombatDamage = 0;
+						CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pLoopCity->getOwner(), pLoopCity->getX(), pLoopCity->getY(), pEnemyUnit->getX(), pEnemyUnit->getY());
+						if(pFireSupportUnit != NULL)
+							iDefenderFireSupportCombatDamage = pFireSupportUnit->GetRangeCombatDamage(pEnemyUnit, NULL, false);
+
+						iExpectedDamage = pEnemyUnit->getCombatDamage(iAttackerStrength, iDefenderStrength, pEnemyUnit->getDamage() + iDefenderFireSupportCombatDamage, /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
 					}
 				}
-				else if(pEnemyUnit->CanReachInXTurns(pLoopCity->plot(), 1))
-				{
-					int iAttackerStrength = pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL);
-					int iDefenderStrength = pLoopCity->getStrengthValue();
-					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pLoopCity->getOwner(), pLoopCity->getX(), pLoopCity->getY(), pEnemyUnit->getX(), pEnemyUnit->getY());
-					int iDefenderFireSupportCombatDamage = 0;
-					if(pFireSupportUnit != NULL)
-					{
-						iDefenderFireSupportCombatDamage = pFireSupportUnit->GetRangeCombatDamage(pEnemyUnit, NULL, false);
-					}
-					iExpectedDamage = pEnemyUnit->getCombatDamage(iAttackerStrength, iDefenderStrength, pEnemyUnit->getDamage() + iDefenderFireSupportCombatDamage, /*bIncludeRand*/ false, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
-				}
+
 				if(iExpectedDamage > 0)
 				{
 					iExpectedTotalDamage += iExpectedDamage;
@@ -9114,7 +9126,11 @@ bool CvTacticalAI::FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int i
 			if(iMaxHitpoints>0 && pLoopUnit->GetCurrHitPoints()>iMaxHitpoints)
 				continue;
 
-			int iTurnsCalculated = -1;	// If CanReachInXTurns does an actual pathfind, save the result so we don't just do the same one again.
+			//performance optimization
+			if (plotDistance(*pTarget,*pLoopUnit->plot())>iNumTurnsAway*3)
+				continue;
+
+			int iTurnsCalculated = -1;
 			if (pLoopUnit->CanReachInXTurns(pTarget, iNumTurnsAway, false /*bIgnoreUnits*/, &iTurnsCalculated))
 			{
 				CvTacticalUnit unit;
@@ -9123,6 +9139,10 @@ bool CvTacticalAI::FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int i
 				unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
 				m_CurrentMoveUnits.push_back(unit);
 				rtnValue = true;
+
+				//won't get any better
+				if (iTurnsCalculated==0)
+					break;
 			}
 		}
 	}
@@ -12264,12 +12284,11 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 {
 	if (pUnit && pUnit->IsCombatUnit() && !pUnit->isRanged() && !pUnit->isNoCapture())
 	{
-		ReachablePlots reachablePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
-
-		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+		//don't really check all reachable plots, just the neighbors
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pUnit->plot());
+		for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+			CvPlot* pPlot = aPlotsToCheck[iI];
 
 			CvCity* pNeighboringCity = pPlot->getPlotCity();
 			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())

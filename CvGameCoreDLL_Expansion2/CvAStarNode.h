@@ -90,7 +90,6 @@ struct CvPathNodeCacheData
 	bool bIsValidRoute:1;
 
 	int iMoveFlags;
-	int iPlotDanger;
 
 	//tells when to update the cache ...
 	unsigned short iGenerationID;
