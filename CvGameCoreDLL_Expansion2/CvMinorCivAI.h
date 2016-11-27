@@ -521,6 +521,10 @@ public:
 	bool IsEverFriends(PlayerTypes ePlayer);
 	void SetEverFriends(PlayerTypes ePlayer, bool bValue);
 
+#if defined(MOD_CITY_STATE_SCALE)
+	void SetFriends(PlayerTypes ePlayer, bool bValue);
+#endif
+
 	bool IsCloseToNotBeingAllies(PlayerTypes ePlayer);
 	bool IsCloseToNotBeingFriends(PlayerTypes ePlayer);
 
@@ -848,6 +852,9 @@ private:
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
 	bool m_abMajorIntruding[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
+#if defined(MOD_CITY_STATE_SCALE)
+	bool m_abFriends[MAX_MAJOR_CIVS];
+#endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];
 	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];
