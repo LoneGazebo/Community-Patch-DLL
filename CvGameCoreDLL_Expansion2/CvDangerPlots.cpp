@@ -938,7 +938,14 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 					else if (pBestDefender==NULL)
 					{
 						//Civilian could be captured on this tile
-						return MAX_INT; //todo: attack same domain?
+						if (pAttacker->isNativeDomain(m_pPlot))
+							return MAX_INT;
+						else
+						{
+							int iAttackerDamage = 0; //ignore this
+							if (pAttacker->plot() != m_pPlot)
+								iPlotDamage += TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit,pAttacker,m_pPlot,pAttacker->plot(),iAttackerDamage);
+						}
 					}
 				}
 			}
@@ -989,8 +996,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		}
 	}
 
-	CvPlot* pAttackerPlot = NULL;
-	CvUnit* pInterceptor = NULL;
 	// Damage from units
 	// EXTREMELY IMPORTANT THAT NO RNG IS USED FOR PREDICTION!
 	// Otherwise a tooltip or similar can change the game state
@@ -1000,42 +1005,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		if (!pAttacker || pAttacker->isDelayedDeath() || pAttacker->IsDead())
 			continue;
 
-		pAttackerPlot = NULL;
+		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)
-		{				
-			if (pAttacker->IsCanAttackRanged())
-			{
-				if (pAttacker->getDomainType() == DOMAIN_AIR)
-				{
-					pInterceptor = pAttacker->GetBestInterceptor(*m_pPlot, pUnit);
-					int iInterceptDamage = 0;
-					if (pInterceptor)
-					{
-						// Always assume interception is successful
-						iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false);
-					}
-					iPlotDamage += pAttacker->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage, m_pPlot);
-				}
-				else
-				{
-					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot);
-				}
-			}
-			else
-			{
-				if (plotDistance(m_iX, m_iY, pUnit->getX(), pUnit->getY()) == 1)
-				{
-					pAttackerPlot = pAttacker->plot();
-				}
-				iPlotDamage += pAttacker->getCombatDamage(
-					pAttacker->GetMaxAttackStrength(pAttackerPlot, m_pPlot, pUnit),
-					pUnit->GetMaxDefenseStrength(m_pPlot, pAttacker), pAttacker->getDamage(), false, false, false);
-				if (pAttacker->isRangedSupportFire())
-				{
-					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot, pAttackerPlot);
-				}
-			}
-		}
+			iPlotDamage += TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit,pAttacker,m_pPlot,pAttacker->plot(),iAttackerDamage);
 	}
 
 	// Damage from cities

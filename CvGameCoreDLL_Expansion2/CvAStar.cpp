@@ -866,15 +866,22 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
 	kToNodeCacheData.bIsNonNativeDomain = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
+	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
-	CvCity* pCity = pPlot->getPlotCity();
-	if (pCity)
+	kToNodeCacheData.bContainsEnemyCity = false;
+	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
-		if (pUnit->getOwner() != pCity->getOwner() && !kUnitTeam.isAtWar(pCity->getTeam()))
-			kToNodeCacheData.bContainsOtherFriendlyTeamCity = true;
+		CvCity* pCity = pPlot->getPlotCity();
+		if (pCity  && pUnit->getOwner() != pCity->getOwner())
+		{
+			if (kUnitTeam.isAtWar(pCity->getTeam()))
+				kToNodeCacheData.bContainsEnemyCity = true;
+			else
+				kToNodeCacheData.bContainsOtherFriendlyTeamCity = true;
+		}
 	}
-	kToNodeCacheData.bContainsEnemyCity = pPlot->isEnemyCity(*pUnit);
+
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
 		bool bIgnore = false;
@@ -900,7 +907,10 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
 	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
 	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
-	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
+
+	//small hack to prevent civilians from stacking although they could
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL) && pPlot->isNeutralUnit(pUnit->getOwner(),true,true))
+		kToNodeCacheData.bFriendlyUnitLimitReached = true;
 
 	//do not use DestinationReached() here, approximate destination won't do
 	bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
