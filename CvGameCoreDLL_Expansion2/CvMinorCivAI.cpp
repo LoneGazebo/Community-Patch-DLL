@@ -4840,6 +4840,9 @@ void CvMinorCivAI::Reset()
 		m_abUnitSpawningDisabled[iI] = false;
 		m_abMajorIntruding[iI] = false;
 		m_abEverFriends[iI] = false;
+#if defined(MOD_CITY_STATE_SCALE)
+		m_abFriends[iI] = false;
+#endif
 		m_abPledgeToProtect[iI] = false;
 		m_aiMajorScratchPad[iI] = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
@@ -4950,6 +4953,9 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abUnitSpawningDisabled;
 	kStream >> m_abMajorIntruding;
 	kStream >> m_abEverFriends;
+#if defined(MOD_CITY_STATE_SCALE)
+	kStream >> m_abFriends;
+#endif
 
 	kStream >> m_abPledgeToProtect;
 
@@ -5050,6 +5056,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abUnitSpawningDisabled;
 	kStream << m_abMajorIntruding;
 	kStream << m_abEverFriends;
+#if defined(MOD_CITY_STATE_SCALE)
+	kStream << m_abFriends;
+#endif
 	kStream << m_abPledgeToProtect;
 	kStream << m_abPermanentWar;
 	kStream << m_abWaryOfTeam; // Version 12
@@ -5461,11 +5470,19 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
 			int iOldInfluence = GetBaseFriendshipWithMajor(e);
 			int iNewInfluence = iOldInfluence;
+#if defined(MOD_CITY_STATE_SCALE)
+			if (IsFriendshipAboveAlliesThreshold(e, iOldInfluence))
+#else
 			if (IsFriendshipAboveAlliesThreshold(iOldInfluence))
+#endif
 			{
 				iNewInfluence = GC.getFRIENDSHIP_ALLIES_ON_DEATH();
 			}
+#if defined(MOD_CITY_STATE_SCALE)
+			else if (IsFriendshipAboveFriendsThreshold(e, iOldInfluence))
+#else
 			else if (IsFriendshipAboveFriendsThreshold(iOldInfluence))
+#endif
 			{
 				iNewInfluence = GC.getFRIENDSHIP_FRIENDS_ON_DEATH();
 			}
@@ -5508,7 +5525,11 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 		bool bFriends = false;
 		bool bAllies = false;
-		if(IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer)))
+#if defined(MOD_CITY_STATE_SCALE)
+		if (IsFriendshipAboveFriendsThreshold(ePlayer, GetEffectiveFriendshipWithMajor(ePlayer)))
+#else
+		if (IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer)))
+#endif
 		{
 			bFriends = true;
 		}
@@ -11454,8 +11475,13 @@ void CvMinorCivAI::DoFriendship()
 			if(GetPlayer()->isAlive() && IsHasMetPlayer(ePlayer))
 			{
 				const int iTurnsWarning = 2;
+#if defined(MOD_CITY_STATE_SCALE)
+				const int iAlliesThreshold = GetAlliesThreshold(ePlayer) * 100;
+				const int iFriendsThreshold = GetFriendsThreshold(ePlayer) * 100;
+#else
 				const int iAlliesThreshold = GetAlliesThreshold() * 100;
 				const int iFriendsThreshold = GetFriendsThreshold() * 100;
+#endif
 				int iEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 #if defined(MOD_BALANCE_CORE)
 				if(IsAllies(ePlayer) && GetPermanentAlly() != ePlayer)
@@ -12167,10 +12193,19 @@ bool CvMinorCivAI::IsAllies(PlayerTypes ePlayer) const
 /// Is ePlayer Friends with this minor?
 bool CvMinorCivAI::IsFriends(PlayerTypes ePlayer)
 {
+
+#if defined(MOD_CITY_STATE_SCALE)
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+
+	return m_abFriends[ePlayer];
+#else
 #if defined(MOD_BALANCE_CORE)
 	return (IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer)) || (MOD_DIPLOMACY_CITYSTATES && (GetPermanentAlly() == ePlayer)));
 #else
 	return IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer));
+#endif
 #endif
 }
 
@@ -12194,11 +12229,27 @@ void CvMinorCivAI::SetEverFriends(PlayerTypes ePlayer, bool bValue)
 	m_abEverFriends[ePlayer] = bValue;
 }
 
+#if defined(MOD_CITY_STATE_SCALE)
+/// Is ePlayer Friends with this minor?
+void CvMinorCivAI::SetFriends(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+
+	m_abFriends[ePlayer] = bValue;
+}
+#endif
+
 
 /// Are we about to lose our status? (used in Diplo AI)
 bool CvMinorCivAI::IsCloseToNotBeingAllies(PlayerTypes ePlayer)
 {
+#if defined(MOD_CITY_STATE_SCALE)
+	int iBuffer = GetEffectiveFriendshipWithMajor(ePlayer) - GetAlliesThreshold(ePlayer);
+#else
 	int iBuffer = GetEffectiveFriendshipWithMajor(ePlayer) - GetAlliesThreshold();
+#endif
 
 	if(iBuffer >= 0 && iBuffer < /*8*/ GC.getMINOR_FRIENDSHIP_CLOSE_AMOUNT())
 		return true;
@@ -12209,7 +12260,11 @@ bool CvMinorCivAI::IsCloseToNotBeingAllies(PlayerTypes ePlayer)
 /// Are we about to lose our status? (used in Diplo AI)
 bool CvMinorCivAI::IsCloseToNotBeingFriends(PlayerTypes ePlayer)
 {
+#if defined(MOD_CITY_STATE_SCALE)
+	int iBuffer = GetEffectiveFriendshipWithMajor(ePlayer) - GetFriendsThreshold(ePlayer);
+#else
 	int iBuffer = GetEffectiveFriendshipWithMajor(ePlayer) - GetFriendsThreshold();
+#endif
 
 	if(iBuffer >= 0 && iBuffer < /*8*/ GC.getMINOR_FRIENDSHIP_CLOSE_AMOUNT())
 		return true;
@@ -12238,11 +12293,19 @@ int CvMinorCivAI::GetFriendshipNeededForNextLevel(PlayerTypes ePlayer)
 {
 	if(!IsFriends(ePlayer))
 	{
+#if defined(MOD_CITY_STATE_SCALE)
+		return GetFriendsThreshold(ePlayer);
+#else
 		return GetFriendsThreshold();
+#endif
 	}
 	else if(!IsAllies(ePlayer))
 	{
+#if defined(MOD_CITY_STATE_SCALE)
+		return GetAlliesThreshold(ePlayer);
+#else
 		return GetAlliesThreshold();
+#endif
 	}
 
 	return 0;
@@ -12262,17 +12325,29 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	bool bFriends = false;
 	bool bAllies = false;
 
+#if defined(MOD_CITY_STATE_SCALE)
+	//bool bWasAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(ePlayer, iOldFriendship);
+	bool bNowAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(ePlayer, iNewFriendship);
+#else
 	bool bWasAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(iOldFriendship);
 	bool bNowAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(iNewFriendship);
+#endif
 
 	// If we are Friends now, mark that we've been Friends at least once this game
 	if(bNowAboveFriendsThreshold)
 		SetEverFriends(ePlayer, true);
 	// Add Friends Bonus
+#if defined(MOD_CITY_STATE_SCALE)
+	if (!IsFriends(ePlayer) && bNowAboveFriendsThreshold)
+#else
 	if(!bWasAboveFriendsThreshold && bNowAboveFriendsThreshold)
+#endif
 	{
 		bAdd = true;
 		bFriends = true;
+#if defined(MOD_CITY_STATE_SCALE)
+		SetFriends(ePlayer, true);
+#endif
 
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
@@ -12297,10 +12372,17 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #endif
 	}
 	// Remove Friends bonus
+#if defined(MOD_CITY_STATE_SCALE)
+	else if(IsFriends(ePlayer) && !bNowAboveFriendsThreshold)
+#else
 	else if(bWasAboveFriendsThreshold && !bNowAboveFriendsThreshold)
+#endif
 	{
 		bAdd = false;
 		bFriends = true;
+#if defined(MOD_CITY_STATE_SCALE)
+		SetFriends(ePlayer, false);
+#endif
 
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
@@ -12326,8 +12408,13 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	}
 
 	// Resolve Allies status
+#if defined(MOD_CITY_STATE_SCALE)
+	//bool bWasAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(ePlayer, iOldFriendship);
+	bool bNowAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(ePlayer, iNewFriendship);
+#else
 	bool bWasAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(iOldFriendship);
 	bool bNowAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(iNewFriendship);
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool bOverride = false;
 	if(MOD_DIPLOMACY_CITYSTATES)
@@ -12382,7 +12469,11 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	}
 	// Remove Allies bonus
 #if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_CITY_STATE_SCALE)
+	else if(eOldAlly == ePlayer && !bNowAboveAlliesThreshold && !bOverride)
+#else
 	else if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold && !bOverride)
+#endif
 #else
 	else if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
 #endif
@@ -12432,9 +12523,15 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 
 
 /// Is the player above the "Friends" threshold?
+#if defined(MOD_CITY_STATE_SCALE)
+bool CvMinorCivAI::IsFriendshipAboveFriendsThreshold(PlayerTypes ePlayer, int iFriendship) const
+{
+	int iFriendshipThresholdFriends = GetFriendsThreshold(ePlayer);
+#else
 bool CvMinorCivAI::IsFriendshipAboveFriendsThreshold(int iFriendship) const
 {
 	int iFriendshipThresholdFriends = GetFriendsThreshold();
+#endif
 
 	if(iFriendship >= iFriendshipThresholdFriends)
 	{
@@ -12446,16 +12543,50 @@ bool CvMinorCivAI::IsFriendshipAboveFriendsThreshold(int iFriendship) const
 
 
 /// What is the friends threshold?
+#if defined(MOD_CITY_STATE_SCALE)
+int CvMinorCivAI::GetFriendsThreshold(PlayerTypes ePlayer) const
+{
+	int iThreshold = /*30*/ GC.getFRIENDSHIP_THRESHOLD_FRIENDS();
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iThreshold *= 100 + max(0, m_pPlayer->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iThreshold /= 100;
+
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+
+		// Industrial era or Later
+		if (eCurrentEra >= eIndustrial)
+		{
+			iThreshold *= /*10*/ GC.getFRIENDSHIP_THRESHOLD_MOD_INDUSTRIAL();
+			iThreshold /= 100;
+		}
+		// Medieval era or later
+		else if (eCurrentEra >= eMedieval)
+		{
+			iThreshold *= /*6*/ GC.getFRIENDSHIP_THRESHOLD_MOD_MEDIEVAL();
+			iThreshold /= 100;
+		}
+	}
+	return iThreshold ;
+#else
 int CvMinorCivAI::GetFriendsThreshold() const
 {
 	return /*30*/ GC.getFRIENDSHIP_THRESHOLD_FRIENDS();
+#endif
 }
 
 /// Is the player above the treshold to get the Allies bonus?
+#if defined(MOD_CITY_STATE_SCALE)
+bool CvMinorCivAI::IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFriendship) const
+{
+	int iFriendshipThresholdAllies = GetAlliesThreshold(ePlayer);
+#else
 bool CvMinorCivAI::IsFriendshipAboveAlliesThreshold(int iFriendship) const
 {
 	int iFriendshipThresholdAllies = GetAlliesThreshold();
-
+#endif
 	if(iFriendship >= iFriendshipThresholdAllies)
 	{
 		return true;
@@ -12465,9 +12596,38 @@ bool CvMinorCivAI::IsFriendshipAboveAlliesThreshold(int iFriendship) const
 }
 
 /// What is the allies threshold?
+#if defined(MOD_CITY_STATE_SCALE)
+int CvMinorCivAI::GetAlliesThreshold(PlayerTypes ePlayer) const
+{
+	int iThreshold = /*60*/ GC.getFRIENDSHIP_THRESHOLD_ALLIES();
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iThreshold *= 100 + max(0, m_pPlayer->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iThreshold /= 100;
+
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+
+		// Industrial era or Later
+		if (eCurrentEra >= eIndustrial)
+		{
+			iThreshold *= /*10*/ GC.getFRIENDSHIP_THRESHOLD_MOD_INDUSTRIAL();
+			iThreshold /= 100;
+		}
+		// Medieval era or later
+		else if (eCurrentEra >= eMedieval)
+		{
+			iThreshold *= /*6*/ GC.getFRIENDSHIP_THRESHOLD_MOD_MEDIEVAL();
+			iThreshold /= 100;
+		}
+	}
+	return iThreshold;
+#else
 int CvMinorCivAI::GetAlliesThreshold() const
 {
 	return /*60*/ GC.getFRIENDSHIP_THRESHOLD_ALLIES();
+#endif
 }
 
 /// Sets a major to get a Bonus (or not) - set both bFriends and bAllies to be true if you're adding/removing both states at once
@@ -12832,7 +12992,11 @@ void CvMinorCivAI::DoDefection()
 
 		if((GET_PLAYER(eMajorLoop).GetPlayerPolicies()->GetLateGamePolicyTree() == ePreferredIdeology) && (ePreferredIdeology != NO_POLICY_BRANCH_TYPE))
 		{
+#if defined(MOD_CITY_STATE_SCALE)
+			GetPlayer()->GetMinorCivAI()->ChangeFriendshipWithMajor(eMajorLoop, (GetPlayer()->GetMinorCivAI()->GetAlliesThreshold(eMajorLoop) + 5), true);
+#else
 			GetPlayer()->GetMinorCivAI()->ChangeFriendshipWithMajor(eMajorLoop, (GetPlayer()->GetMinorCivAI()->GetAlliesThreshold() + 5), true);
+#endif
 		}
 	}
 	CvCity* pCity = GetPlayer()->getCapitalCity();
@@ -12970,13 +13134,21 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	int iNewInfluence = 0;
 	if(MOD_DIPLOMACY_CITYSTATES && (IsNoAlly() || GetPermanentAlly() != NO_PLAYER))
 	{
+ #if defined(MOD_CITY_STATE_SCALE)
+		iNewInfluence = (GetFriendsThreshold(eLiberator) + 10); // Must be at least enough to make us allies
+ #else
 		iNewInfluence = (GetFriendsThreshold() + 10); // Must be at least enough to make us allies
+ #endif
 	}
 	else
 	{
 #endif
 	iNewInfluence = max(iHighestOtherMajorInfluence + GC.getMINOR_LIBERATION_FRIENDSHIP(), GetBaseFriendshipWithMajor(eLiberator) + GC.getMINOR_LIBERATION_FRIENDSHIP());
+#if defined(MOD_CITY_STATE_SCALE)
+	iNewInfluence = max(GetAlliesThreshold(eLiberator), iNewInfluence); // Must be at least enough to make us allies
+#else
 	iNewInfluence = max(GetAlliesThreshold(), iNewInfluence); // Must be at least enough to make us allies
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	}
 	//Was this liberated from a barbarian? Less influence for you!
@@ -13636,6 +13808,14 @@ int CvMinorCivAI::GetCurrentCultureFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max( 1, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
+	}
+#endif
+
 	return iAmount;
 }
 
@@ -13767,6 +13947,14 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 		iAmount += GetHappinessFlatAlliesBonus(ePlayer);
 	if(IsFriends(ePlayer))
 		iAmount += GetHappinessFlatFriendshipBonus(ePlayer);
+
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
+	}
+#endif
 	return iAmount;
 }
 
@@ -14004,6 +14192,14 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
+	}
+#endif
+
 	return iAmount;
 }
 
@@ -14138,6 +14334,14 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
+	}
+#endif
+
 	return iAmount;
 }
 
@@ -14271,6 +14475,14 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
+	}
+#endif
+
 	return iAmount;
 }
 
@@ -14311,6 +14523,14 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 		iBonus /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus /= 100;
+	}
+#endif
+
 	return iBonus;
 }
 
@@ -14341,6 +14561,14 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 		iBonus /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus /= 100;
+	}
+#endif
+
 	return iBonus;
 }
 
@@ -14357,6 +14585,14 @@ int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 		iBonus /= 100;
 	}
 
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus /= 100;
+	}
+#endif
+
 	return iBonus;
 }
 
@@ -14372,6 +14608,14 @@ int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
 		iBonus *= (iModifier + 100);
 		iBonus /= 100;
 	}
+
+#if defined(MOD_CITY_STATE_SCALE)
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus /= 100;
+	}
+#endif
 
 	return iBonus;
 }
