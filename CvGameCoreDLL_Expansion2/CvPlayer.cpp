@@ -42256,30 +42256,45 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
-std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const
+std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
 
-bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker) const
+bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	if (pAttacker)
 		return m_pDangerPlots->IsKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
 
@@ -42288,6 +42303,9 @@ bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker) const
 
 void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	if (pAttacker)
 		m_pDangerPlots->AddKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
 }
@@ -42835,7 +42853,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		if (bLogging)
 		{
-			iDanger = GetPlotDanger(*pPlot);
+			iDanger = pUnit->GetDanger(pPlot);
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 

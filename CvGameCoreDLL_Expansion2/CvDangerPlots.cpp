@@ -95,8 +95,11 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 		iMinMovesLeft = pLoopUnit->getMoves();
 
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
+	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
+	//(when the pathfinder does a lazy danger update)
 	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft,-1,set<int>());
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,iFlags,iMinMovesLeft,-1,set<int>());
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
@@ -888,7 +891,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		{
 			CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
 
-			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead())
+			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead() )
 			{
 				// If in a city and the city can be captured, we are in highest danger
 				if (pFriendlyCity)
@@ -935,7 +938,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 					else if (pBestDefender==NULL)
 					{
 						//Civilian could be captured on this tile
-						return MAX_INT;
+						return MAX_INT; //todo: attack same domain?
 					}
 				}
 			}

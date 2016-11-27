@@ -807,7 +807,8 @@ private:
 	bool PlotDamageCityMoves();
 	bool PlotNavalDamageCityMoves();
 	void PlotBarbarianCampMoves();
-	void PlotDestroyUnitMoves(AITacticalTargetType movePriorit, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
+	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
+	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
@@ -900,7 +901,7 @@ private:
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false);
-	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain);
+	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
@@ -1215,10 +1216,9 @@ namespace TacticalAIHelpers
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
 	int GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
-									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark);
+									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft=0);
 	int GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
-									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, 
-									int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC);
+									int iFlags,	int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC);
 
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
