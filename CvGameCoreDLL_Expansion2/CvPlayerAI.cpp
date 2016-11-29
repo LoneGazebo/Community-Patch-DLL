@@ -2465,7 +2465,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	else
 	{
 		// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
+#if defined(MOD_CITY_STATE_SCALE)
+		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold(GetID()))
+#else
 		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+#endif
 		{
 			iScore *= 4;
 		}
