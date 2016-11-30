@@ -251,6 +251,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 #if defined(MOD_BALANCE_CORE)
 int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes)
 {
+	
 	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
@@ -884,7 +885,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Settlers? Let's see...
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
-		if(kPlayer.isMinorCiv())
+		if(!kPlayer.GetEconomicAI()->isCanSettle())
 		{
 			return 0;
 		}

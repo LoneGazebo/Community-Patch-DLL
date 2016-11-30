@@ -247,6 +247,14 @@ public:
 
 	void LogEconomyMessage(const CvString& strMsg);
 
+	// fucntion to store state of strategies
+	void SetCanRecon(bool canI);
+	bool isCanRecon();
+	void SetCanNavalRecon(bool canI);
+	bool isCanNavalRecon();
+	void SetCanSettle(bool canSettle);
+	bool isCanSettle();
+
 private:
 
 	CvString GetLogFileName(CvString& playerName) const;
@@ -296,6 +304,12 @@ private:
 	int m_iVisibleAntiquitySitesOwn;
 	int m_iVisibleAntiquitySitesNeutral;
 #endif
+	// if true, we can settle new land , set up to false if some strategies are disabled for minor civs
+	//TODO: change it by 	EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
+	//thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategy)
+	bool m_bCanSettle;
+	bool m_bCanRecon;
+	bool m_bCanNavalRecon;
 
 	// Cached AI parameters
 	int m_iMinimumSettleFertility;
@@ -337,10 +351,10 @@ namespace EconomicAIHelpers
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued
-bool IsTestStrategy_NeedRecon(CvPlayer* pPlayer);
+bool IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughRecon(CvPlayer* pPlayer);
 bool IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer);
-bool IsTestStrategy_NeedReconSea(CvPlayer* pPlayer);
+bool IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
@@ -389,7 +403,7 @@ bool IsTestStrategy_GS_Spaceship(CvPlayer* pPlayer);
 
 bool IsTestStrategy_GS_SpaceshipHomestretch(CvPlayer* pPlayer);
 
-bool CanMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes strategy);
+bool CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes strategy);
 }
 
 #endif //CIV5_ECONOMIC_AI_H

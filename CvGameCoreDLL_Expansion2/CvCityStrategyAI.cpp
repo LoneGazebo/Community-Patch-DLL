@@ -999,7 +999,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	m_BuildablesPrecheck.SortItems();
 
 	LogPossibleBuilds();
-
+	//CUSTOMLOG("%s possible build", kPlayer.getName());
 	if(m_BuildablesPrecheck.size() > 0)
 	{
 		int iGPT = kPlayer.GetTreasury()->CalculateBaseNetGold();
@@ -1024,11 +1024,16 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 		{
 			selection = m_BuildablesPrecheck.GetElement(iI);
+			//CUSTOMLOG("%s check build %i", kPlayer.getName(), selection.m_eBuildableType);
+			if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT)
+				//CUSTOMLOG("%s unitfor op %s", kPlayer.getName(), GC.GetGameUnits()->GetEntry(selection.m_iIndex)->GetDescription());
+
 			switch(selection.m_eBuildableType)
 			{
 				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+					//CUSTOMLOG("%s CITY_BUILDABLE_UNIT_FOR_OPERATION", kPlayer.getName());
+					UnitTypes eUnitType = (UnitTypes)selection.m_iIndex;
 					bool bCitySameAsMuster = false;
 					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
 					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
@@ -1064,6 +1069,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				}
 				case CITY_BUILDABLE_UNIT_FOR_ARMY:
 				{
+					//CUSTOMLOG("%s CITY_BUILDABLE_UNIT_FOR_ARMY", kPlayer.getName());
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 					if(iNewWeight > 0)
@@ -1075,7 +1081,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes);
+					//CUSTOMLOG("%s CITY_BUILDABLE_UNIT, sanity=%i", kPlayer.getName(), iNewWeight);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1545,7 +1552,7 @@ void CvCityStrategyAI::DoTurn()
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_NEW_CONTINENT_FEEDER")
-					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(GetCity());
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(eCityStrategy, GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_POCKET_CITY")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(GetCity());
 #endif
@@ -2983,6 +2990,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	{
 		if(iNumWorkers >= iCurrentNumCities)
 			return false;
+		// if we lost our worker, rebuild-it asap. (>50 turn in normal speed)
+		if (iNumWorkers == 0 && GC.getGame().getElapsedGameTurns()
+			> GC.getGame().getGameSpeedInfo().getTrainPercent() / 2)
+			return true;
 	}
 	else
 	{
@@ -3351,6 +3362,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	{
 		if(iNumBuilders >= kPlayer.getNumCities())
 			return true;
+		// if we lost our worker, rebuild-it asap. (>50 turn in normal speed)
+		if (iNumBuilders == 0 && GC.getGame().getElapsedGameTurns()
+			> GC.getGame().getGameSpeedInfo().getTrainPercent() / 2)
+			return false;
 	}
 
 	CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
@@ -3548,7 +3563,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
-	if(!kPlayer.isMinorCiv())
+	if(pCity->GetPlayer()->GetEconomicAI()->isCanSettle())
 	{
 		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
 		//Too many settlers? Stop building them!
@@ -3569,7 +3584,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 	return false;
 }
 // We a new city on a bigger continent? Let's spread our legs!
-bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
+bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
@@ -3581,7 +3596,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 	{
 		return false;
 	}
-	if(!kPlayer.isMinorCiv() && kPlayer.getCapitalCity() != NULL)
+	if (!( kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs() )
+		&& kPlayer.getCapitalCity() != NULL)
 	{
 		CvArea* pArea2 = GC.getMap().getArea(kPlayer.getCapitalCity()->getArea());
 		if(pArea != NULL && pArea->GetID() != pArea2->GetID())
@@ -3654,12 +3670,17 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_HaveTrainingFacility(CvCity* pCit
 /// "Capital Need Settler" City Strategy: have capital build a settler ASAP
 bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes eStrategy, CvCity* pCity)
 {
+	//CUSTOMLOG(" %s", GET_PLAYER(pCity->getOwner()).getName());
+
 	if(pCity->isCapital())
 	{
+		//CUSTOMLOG(" %s is capital", GET_PLAYER(pCity->getOwner()).getName());
 		CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
-		if(!kPlayer.isMinorCiv())
+		if (! (kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs()))
 		{
+			//CUSTOMLOG(" %s minor ok", GET_PLAYER(pCity->getOwner()).getName());
+
 			int iNumCities = kPlayer.getNumCities();
 			int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 			int iCitiesPlusSettlers = iNumCities + iSettlersOnMapOrBuild;
@@ -3721,6 +3742,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 #endif
 					)
 				{
+					//CUSTOMLOG(" %s true!", GET_PLAYER(pCity->getOwner()).getName());
 					return true;
 				}
 			}

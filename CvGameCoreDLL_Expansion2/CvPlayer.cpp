@@ -14202,12 +14202,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 		// Settlers
 		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 		{
+			CUSTOMLOG("%s can train a settler? ", getName())
 			if(IsEmpireVeryUnhappy() && GC.getVERY_UNHAPPY_CANT_TRAIN_SETTLERS() == 1)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_VERY_UNHAPPY_SETTLERS");
 				if(toolTipSink == NULL)
 					return false;
 			}
+			CUSTOMLOG("%s can train a settler !!", getName())
 		}
 
 		// Project required?
@@ -45246,7 +45248,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 
 	//don't need to update if never going to settle again
 	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
-	if (isMinorCiv() || bVenice)
+	if (!GetEconomicAI()->isCanSettle() || bVenice)
 	{
 		if (GetNumCitiesFounded()>0)
 			return;
