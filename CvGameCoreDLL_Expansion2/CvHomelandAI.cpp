@@ -292,8 +292,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves()) )
 			continue;
 
-		SMovePlot test(pEvalPlot->GetPlotIndex());
-		ReachablePlots::iterator it = reachablePlots.find(test);
+		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());
 		if (it==reachablePlots.end())
 			continue;
 
@@ -1689,7 +1688,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		{
 			//fake this, the distance check is irrelevant here
 			ReachablePlots turnsFromMuster;
-			turnsFromMuster.insert( SMovePlot(pUnit->plot()->GetPlotIndex(),0,0) );
+			turnsFromMuster.insert( SMovePlot(pUnit->plot()->GetPlotIndex()) );
 
 			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pUnit->plot(),turnsFromMuster,pUnit->plot(),false,false,iTurnDistance))
 			{
@@ -2047,8 +2046,7 @@ void CvHomelandAI::ExecuteAggressivePatrolMoves()
 		CvPlot* pBestTarget = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
-			SMovePlot dummy(pUnit->plot()->GetPlotIndex(),0,0);
-			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(dummy);
+			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(pUnit->plot()->GetPlotIndex());
 			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
 			{
 				//try not to create a unit carpet without any space to move
@@ -2165,8 +2163,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		CvPlot* pBestTarget = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
-			SMovePlot dummy(pUnit->plot()->GetPlotIndex(),0,0);
-			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(dummy);
+			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(pUnit->plot()->GetPlotIndex());
 			if (itPlot!=mapReachablePlots[vTargets[i]].end())
 			{
 				//try not to create a unit carpet without any space to move

@@ -4023,8 +4023,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	else
 	{ 
 		// finally, if the unit is too far away, no deal
-		SMovePlot dummy(pLoopUnit->plot()->GetPlotIndex(),0,0);
-		ReachablePlots::const_iterator it = turnsFromMuster.find(dummy);
+		ReachablePlots::const_iterator it = turnsFromMuster.find(pLoopUnit->plot()->GetPlotIndex());
 		if (it==turnsFromMuster.end())
 		{
 			/*/

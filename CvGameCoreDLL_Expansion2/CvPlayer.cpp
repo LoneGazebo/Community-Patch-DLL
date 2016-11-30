@@ -43099,8 +43099,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
 			//if the muster plot is more than 6 turns away it's unsafe by definition
-			SMovePlot test(pTestPlot->GetPlotIndex());
-			ReachablePlots::iterator it = reachablePlots.find(test);
+			ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
 			if (it==reachablePlots.end() || it->iTurns>=6)
 				isDangerous = true;
 		}

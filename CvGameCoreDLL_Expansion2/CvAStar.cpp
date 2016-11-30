@@ -3033,3 +3033,27 @@ inline CvPlot * SPath::get(int i) const
 
 	return NULL;
 }
+
+ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
+{
+	std::tr1::unordered_map<int,size_t>::iterator it = lookup.find(iPlotIndex);
+	if (it!=lookup.end())
+		return storage.begin() + it->second;
+
+	return storage.end();
+}
+
+ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
+{
+	std::tr1::unordered_map<int,size_t>::const_iterator it = lookup.find(iPlotIndex);
+	if (it!=lookup.end())
+		return storage.begin() + it->second;
+
+	return storage.end();
+}
+
+void ReachablePlots::insert(const SMovePlot& plot)
+{
+	lookup[plot.iPlotIndex] = storage.size();
+	storage.push_back(plot);
+}

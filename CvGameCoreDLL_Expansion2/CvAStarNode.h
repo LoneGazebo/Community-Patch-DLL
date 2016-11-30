@@ -19,6 +19,8 @@
 #define		CVASTARNODE_H
 #pragma		once
 
+#include <unordered_map>
+
 #define ASNL_ADDOPEN		0
 #define ASNL_STARTOPEN		1
 #define ASNL_DELETEOPEN		2
@@ -224,7 +226,31 @@ struct SMovePlot
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
 };
 
-typedef std::set<SMovePlot> ReachablePlots;
+class ReachablePlots
+{
+public:
+	typedef std::vector<SMovePlot>::iterator iterator;
+	typedef std::vector<SMovePlot>::const_iterator const_iterator;
+	
+	ReachablePlots() {}
+	
+	iterator begin() { return storage.begin(); }
+	const_iterator begin() const { return storage.begin(); }
+	iterator end() { return storage.end(); }
+	const_iterator end() const { return storage.end(); }
+
+	size_t size() const { return storage.size(); }
+	bool empty() const { return storage.empty(); }
+	void clear() { storage.clear(); lookup.clear(); }
+
+	iterator find(int iPlotIndex);
+	const_iterator find(int iPlotIndex) const;
+	void insert(const SMovePlot& plot);
+
+protected:
+	std::tr1::unordered_map<int,size_t> lookup;
+	std::vector<SMovePlot> storage;
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //

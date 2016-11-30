@@ -6009,7 +6009,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 					else
 						plots = it->second;
 
-					ReachablePlots::iterator plot = plots.find( SMovePlot(pLoopCity->plot()->GetPlotIndex()) );
+					ReachablePlots::iterator plot = plots.find( pLoopCity->plot()->GetPlotIndex() );
 					if ( plot != plots.end() )
 					{
 						int iAttackerStrength = pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL);
@@ -9004,10 +9004,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 					TacticalAIHelpers::GetPlotsForRangedAttack(pTarget,pLoopUnit,pLoopUnit->GetRange(),false,vPlots);
 
 					for (std::vector<CvPlot*>::iterator it=vPlots.begin(); it!=vPlots.end() && !bCanReach; ++it)
-					{
-						SMovePlot test( (*it)->GetPlotIndex() );
-						bCanReach = (reachablePlots.find( test ) != reachablePlots.end());
-					}
+						bCanReach = (reachablePlots.find( (*it)->GetPlotIndex() ) != reachablePlots.end());
 				}
 			}
 		}
@@ -9376,11 +9373,10 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 		if (bOffensiveCombatExpected && !pLoopUnit->isNativeDomain(pTarget))
 			continue;
 
-		SMovePlot dummy(pTarget->GetPlotIndex(),0,0);
 		std::map<int,ReachablePlots>::const_iterator itUnit = movePlots.find(pLoopUnit->GetID());
 		if (itUnit!=movePlots.end())
 		{
-			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(dummy);
+			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 			if (itPlot!=itUnit->second.end())
 			{
 				int iTurns = itPlot->iTurns;
@@ -9422,11 +9418,10 @@ bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, const std::map
 		if(!bEscortedUnits && (pLoopUnit->getDomainType() != DOMAIN_SEA || pLoopUnit->IsGreatAdmiral()))
 			continue;
 
-		SMovePlot dummy(pTarget->GetPlotIndex(),0,0);
 		std::map<int,ReachablePlots>::const_iterator itUnit = movePlots.find(pLoopUnit->GetID());
 		if (itUnit!=movePlots.end())
 		{
-			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(dummy);
+			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 			if (itPlot!=itUnit->second.end())
 			{
 				int iTurns = itPlot->iTurns;
@@ -9772,8 +9767,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		SMovePlot dummy(pPlot->GetPlotIndex(), 0, 0);
-		ReachablePlots::const_iterator itPlot = movePlots.find(dummy);
+		ReachablePlots::const_iterator itPlot = movePlots.find(pPlot->GetPlotIndex());
 		if (itPlot != movePlots.end() && itPlot->iTurns < iBestValue)
 		{
 			iBestValue = itPlot->iTurns;
@@ -10133,8 +10127,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 			}
 
 			//how long would it take to go to the target
-			SMovePlot test(pPlot->GetPlotIndex());
-			ReachablePlots::iterator it = reachablePlots.find(test);
+			ReachablePlots::iterator it = reachablePlots.find(pPlot->GetPlotIndex());
 			if (it==reachablePlots.end())
 				continue;
 
@@ -11068,10 +11061,9 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 
 				//see how far it is
 				int iTurnsAway = INT_MAX;
-				SMovePlot dummy(pPlot->GetPlotIndex(),0,0);
 				for ( std::map<int,ReachablePlots>::const_iterator itUnit = unitMovePlots.begin(); itUnit!=unitMovePlots.end(); ++itUnit)
 				{
-					std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(dummy);
+					std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pPlot->GetPlotIndex());
 					if (itPlot!=itUnit->second.end())
 						iTurnsAway = min(iTurnsAway,itPlot->iTurns);
 				}
@@ -11160,10 +11152,9 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,Reachab
 
 				//see how far it is
 				int iTurnsAway = INT_MAX;
-				SMovePlot dummy(pPlot->GetPlotIndex(),0,0);
 				for ( std::map<int,ReachablePlots>::const_iterator itUnit = unitMovePlots.begin(); itUnit!=unitMovePlots.end(); ++itUnit)
 				{
-					std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(dummy);
+					std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pPlot->GetPlotIndex());
 					if (itPlot!=itUnit->second.end())
 						iTurnsAway = min(iTurnsAway,itPlot->iTurns);
 				}
@@ -13905,10 +13896,6 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	*/
 
 	result.clear();
-
-	vector<CvTacticalPosition*> openPositionsHeap;
-	vector<CvTacticalPosition*> closedPositions;
-
 	if (vUnits.size()==0)
 		return false;
 
@@ -13962,11 +13949,15 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	if (0)
 		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
 
+	vector<CvTacticalPosition*> openPositionsHeap;
+	vector<CvTacticalPosition*> closedPositions;
+	vector<CvTacticalPosition*> discardedPositions;
+
 	//don't need to call make_heap for a single element
 	openPositionsHeap.push_back(initialPosition);
 	struct PrPositionIsBetterHeap
 	{
-		//sort by score of last move - avoid bias for "deeper" positions
+		//sort by score of the last round of assignments - avoid bias for "deeper" positions
 		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const 
 		{ 
 			int a = lhs->getAssignments().empty() ? 0 : lhs->getScore() - (lhs->getParent() ? lhs->getParent()->getScore() : 0);
@@ -13999,11 +13990,14 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		//is this a completed position or did we run into a dead end?
 		else if (current->isComplete() && current->isOffensive())
 			closedPositions.push_back(current);
+		else
+			discardedPositions.push_back(current);
 
-		if (openPositionsHeap.size()>4000)
+		if (openPositionsHeap.size()>4000 || discardedPositions.size()>4000)
 		{
 			OutputDebugString( "warning: terminating because of endless loop!\n" );
-			closedPositions.push_back(current);
+			if (closedPositions.empty())
+				closedPositions = discardedPositions;
 			break;
 		}
 	}
