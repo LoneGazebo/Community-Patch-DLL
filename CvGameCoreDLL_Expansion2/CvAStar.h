@@ -245,6 +245,7 @@ protected:
 
 	bool m_bWrapX;
 	bool m_bWrapY;
+	bool m_bHeapDirty;
 
 	//vector performance is better than lists!
 	std::vector<CvAStarNode*> m_openNodes;

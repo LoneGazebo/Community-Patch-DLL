@@ -235,7 +235,7 @@ public:
 	}
 	__forceinline CvPlot* plotCheckInvalid(int iX, int iY) const
 	{
-		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
+		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD) || iX==-1 || iY==-1)
 		{
 			return NULL;
 		}

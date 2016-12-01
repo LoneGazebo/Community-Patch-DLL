@@ -9885,7 +9885,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 		if (iValue == 0)
 			iValue = plotDistance(pUnit->getX(), pUnit->getY(), pConsiderPlot->getX(), pConsiderPlot->getY());
 
-		if (iValue > iBestValue)
+		if (iValue > iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3,*pConsiderPlot)==0))
 		{
 			pBestMovePlot = pConsiderPlot;
 			iBestValue = iValue;

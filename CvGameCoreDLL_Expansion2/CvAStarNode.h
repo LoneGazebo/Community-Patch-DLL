@@ -217,9 +217,11 @@ struct SMovePlot
 	int iPlotIndex;
 	int iTurns;
 	int iMovesLeft;
+	int iNormalizedDistance;
 
-	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0) {}
-	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_) : iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_) {}
+	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0), iNormalizedDistance(0) {}
+	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_, int iNormalizedDistance_) : 
+		iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_), iNormalizedDistance(iNormalizedDistance_) {}
 
 	//this ignores the turns/moves so std::find with just a plot index should work
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }

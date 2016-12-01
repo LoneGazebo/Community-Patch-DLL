@@ -120,6 +120,7 @@ CvAStar::CvAStar()
 
 	m_bWrapX = false;
 	m_bWrapY = false;
+	m_bHeapDirty = false;
 
 	udIsPathDest = NULL;
 	udDestValid = NULL;
@@ -204,6 +205,7 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
+	m_bHeapDirty = false;
 
 	m_pBest = NULL;
 
@@ -445,7 +447,11 @@ CvAStarNode* CvAStar::GetBest()
 		return NULL;
 
 	//make sure heap order is valid after all the updates in the previous round
-	std::make_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
+	if (m_bHeapDirty)
+	{
+		std::make_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
+		m_bHeapDirty = false;
+	}
 
 	std::pop_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
 	CvAStarNode* temp = m_openNodes.back();	m_openNodes.pop_back();
@@ -611,6 +617,8 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		if(iKnownCost < check->m_iKnownCost)
 		{
 			//heap order will be restored when calling getBest
+			m_bHeapDirty = true;
+
 			check->m_pParent = node;
 			check->m_iKnownCost = iKnownCost;
 			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
@@ -681,6 +689,9 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 			if(iKnownCost < kid->m_iKnownCost)
 			{
 				//heap order will be restored when calling getBest()
+				if (kid->m_eCvAStarListType == CVASTARLIST_OPEN)
+					m_bHeapDirty = true;
+
 				kid->m_iKnownCost = iKnownCost;
 				kid->m_iTotalCost = kid->m_iKnownCost + kid->m_iHeuristicCost;
 				FAssert(parent->m_pParent != kid);
@@ -996,7 +1007,6 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
 {
 	CvPlot* pToPlot = GC.getMap().plotCheckInvalid(iToX, iToY);
-	FAssert(pToPlot != NULL);
 
 	//do not use the node data cache here - it is not set up yet - only the unit data cache is available
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
@@ -1450,6 +1460,7 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 {
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	const CvUnit* pUnit = pCacheData->pUnit;
+	bool bUpdateCacheForNeighbors = false;
 
 	if(operation == ASNC_INITIALADD)
 	{
@@ -1464,20 +1475,25 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 		node->m_iMoves = finder->GetCachedMoveCount();
 		node->m_iTurns = finder->GetCachedTurnCount();
 
-		//don't need to update the cache, it has already been done in a previous call
+		//otherwise we don't need to update the cache, it has already been done in a previous call
+		if (operation == ASNC_NEWADD)
+			bUpdateCacheForNeighbors = true;
 	}
 
-	//update cache for all possible children
-	for(int i = 0; i < 6; i++)
+	if (bUpdateCacheForNeighbors)
 	{
-		CvAStarNode* neighbor = node->m_apNeighbors[i];
-		UpdateNodeCacheData(neighbor,pUnit,finder);
-	}
+		//update cache for also all possible children
+		for(int i = 0; i < 6; i++)
+		{
+			CvAStarNode* neighbor = node->m_apNeighbors[i];
+			UpdateNodeCacheData(neighbor,pUnit,finder);
+		}
 
-	for(int i = 0; i < finder->GetNumExtraChildren(node); i++)
-	{
-		CvAStarNode* neighbor = finder->GetExtraChild(node,i);
-		UpdateNodeCacheData(neighbor,pUnit,finder);
+		for(int i = 0; i < finder->GetNumExtraChildren(node); i++)
+		{
+			CvAStarNode* neighbor = finder->GetExtraChild(node,i);
+			UpdateNodeCacheData(neighbor,pUnit,finder);
+		}
 	}
 
 	return 1;
@@ -1487,12 +1503,12 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 /// Step path finder - is this end point for the path valid?
 int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
 {
-	CvPlot* pFromPlot;
-	CvPlot* pToPlot;
-
 	CvMap& kMap = GC.getMap();
-	pFromPlot = kMap.plotUnchecked(finder->GetStartX(), finder->GetStartY());
-	pToPlot = kMap.plotUnchecked(iToX, iToY);
+	CvPlot* pFromPlot = kMap.plotCheckInvalid(finder->GetStartX(), finder->GetStartY());
+	CvPlot* pToPlot = kMap.plotCheckInvalid(iToX, iToY);
+
+	if (!pFromPlot || !pToPlot)
+		return FALSE;
 
 	if(pFromPlot->getArea() != pToPlot->getArea())
 	{
@@ -1704,9 +1720,16 @@ int StepAddWithTurnsFromCost(CvAStarNode*, CvAStarNode* node, int /*operation*/,
 /// Influence path finder - is this end point for the path valid?
 int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder)
 {
+	//allow undefined destination plots
+	if (iToX==-1 && iToY==-1)
+		return TRUE;
+
 	CvMap& kMap = GC.getMap();
-	CvPlot* pFromPlot = kMap.plotUnchecked(finder->GetStartX(), finder->GetStartY());
-	CvPlot* pToPlot = kMap.plotUnchecked(iToX, iToY);
+	CvPlot* pFromPlot = kMap.plotCheckInvalid(finder->GetStartX(), finder->GetStartY());
+	CvPlot* pToPlot = kMap.plotCheckInvalid(iToX, iToY);
+
+	if (!pFromPlot || !pToPlot)
+		return FALSE;
 
 	if(plotDistance(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY()) > data.iTypeParameter)
 		return FALSE;
@@ -1763,18 +1786,17 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, int, const
 
 //	--------------------------------------------------------------------------------
 /// Influence path finder - check validity of a coordinate
-int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar*)
+int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder)
 {
 	if(parent == NULL)
 		return TRUE;
 
-	CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+	CvPlot* pOrigin = GC.getMap().plotUnchecked(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-
-	if (!pFromPlot || !pToPlot)
+	if (!pOrigin || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY()) > data.iTypeParameter)
+	if(plotDistance(*pOrigin,*pToPlot) > data.iTypeParameter)
 		return FALSE;
 
 	return TRUE;
@@ -2452,7 +2474,10 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 		bValid = bValid && CanEndTurnAtNode(temp);
 
 		if (bValid)
-			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves) );
+		{
+			int iEffectiveDistance = temp->m_iKnownCost / m_iBasicPlotCost + 1;
+			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves,iEffectiveDistance) );
+		}
 	}
 
 	return plots;
