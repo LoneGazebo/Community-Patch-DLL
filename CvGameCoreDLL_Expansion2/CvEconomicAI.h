@@ -247,14 +247,6 @@ public:
 
 	void LogEconomyMessage(const CvString& strMsg);
 
-	// fucntion to store state of strategies
-	void SetCanRecon(bool canI);
-	bool isCanRecon();
-	void SetCanNavalRecon(bool canI);
-	bool isCanNavalRecon();
-	void SetCanSettle(bool canSettle);
-	bool isCanSettle();
-
 private:
 
 	CvString GetLogFileName(CvString& playerName) const;
@@ -304,12 +296,6 @@ private:
 	int m_iVisibleAntiquitySitesOwn;
 	int m_iVisibleAntiquitySitesNeutral;
 #endif
-	// if true, we can settle new land , set up to false if some strategies are disabled for minor civs
-	//TODO: change it by 	EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
-	//thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategy)
-	bool m_bCanSettle;
-	bool m_bCanRecon;
-	bool m_bCanNavalRecon;
 
 	// Cached AI parameters
 	int m_iMinimumSettleFertility;

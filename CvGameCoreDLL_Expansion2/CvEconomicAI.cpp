@@ -346,11 +346,6 @@ void CvEconomicAI::Reset()
 	m_iNavalExplorersNeeded = 0;
 #endif
 
-	//can settle more 1 city by default, some strategies can set it to false
-	m_bCanSettle = true;
-	m_bCanRecon = true;
-	m_bCanNavalRecon = true;
-
 	// Cached AI defines
 	m_iMinimumSettleFertility = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 
@@ -393,9 +388,6 @@ void CvEconomicAI::Read(FDataStream& kStream)
 	}
 
 	kStream >> m_bExplorationPlotsDirty;
-	kStream >> m_bCanSettle;
-	kStream >> m_bCanRecon;
-	kStream >> m_bCanNavalRecon;
 
 	kStream >> iEntriesToRead;
 
@@ -502,9 +494,6 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	}
 
 	kStream << m_bExplorationPlotsDirty;
-	kStream << m_bCanSettle;
-	kStream << m_bCanRecon;
-	kStream << m_bCanNavalRecon;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	kStream << m_vPlotsToExploreLand.size();
@@ -644,34 +633,6 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 		strOutBuf = strBaseString + strMsg;
 		pLog->Msg(strOutBuf);
 	}
-}
-
-/// set to false if we cannot have more cities.
-void CvEconomicAI::SetCanSettle(bool canSettle)
-{
-	m_bCanSettle = canSettle;
-}
-/// return true if we can have more than 1 city
-bool CvEconomicAI::isCanSettle()
-{
-	return m_bCanSettle;
-}
-
-void CvEconomicAI::SetCanRecon(bool canI)
-{
-	m_bCanRecon = canI;
-}
-bool CvEconomicAI::isCanRecon()
-{
-	return m_bCanRecon;
-}
-void CvEconomicAI::SetCanNavalRecon(bool canI)
-{
-	m_bCanNavalRecon = canI;
-}
-bool CvEconomicAI::isCanNavalRecon()
-{
-	return m_bCanNavalRecon;
 }
 
 // Do Turn & Strategy Trigger Functions beneath this line
@@ -2502,7 +2463,10 @@ void CvEconomicAI::DoReconState()
 	m_eReconState = RECON_STATE_NEUTRAL;
 	m_eNavalReconState = RECON_STATE_NEUTRAL;
 
-	if (!isCanRecon() && !isCanNavalRecon())
+	bool isCannotRecon = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
+	bool isCannotReconSea = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
+
+	if (isCannotRecon && isCannotReconSea)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 		m_eNavalReconState = RECON_STATE_ENOUGH;
@@ -2698,11 +2662,11 @@ void CvEconomicAI::DoReconState()
 		}
 	}
 
-	if (!isCanRecon())
+	if (isCannotRecon)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 	}
-	if(!isCanNavalRecon())
+	if (isCannotReconSea)
 	{
 		m_eNavalReconState = RECON_STATE_ENOUGH;
 	}
@@ -3448,22 +3412,19 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrate
 {
 	if (CannotMinorCiv(pPlayer,eStrategy))
 	{
-		pPlayer->GetEconomicAI()->SetCanRecon(false);
 		return false;
 	}
 
-	//CUSTOMLOG("%s ? ", pPlayer->getName());
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{
 		if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 		{
-			//CUSTOMLOG("%s true strat ", pPlayer->getName());
 			return false;
 		}
 	}
-	//CUSTOMLOG("%s get state ", pPlayer->getName(), pPlayer->GetEconomicAI()->GetReconState());
+
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 
@@ -3571,7 +3532,6 @@ bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStr
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
 	{
-		pPlayer->GetEconomicAI()->SetCanNavalRecon(false);
 		return false;
 	}
 
@@ -3731,7 +3691,6 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 /// "Early Expansion" Player Strategy: An early Strategy simply designed to get player up to 3 Cities quickly.
 bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	//CUSTOMLOG("%s begin", pPlayer->getName());
 	if (CannotMinorCiv(pPlayer, eStrategy))
 		return false;
 
@@ -3742,14 +3701,10 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if(pPlayer->IsEmpireUnhappy())
 		return false;
 
-	//CUSTOMLOG("%s pass cs and happy", pPlayer->getName());
-
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
 		return false;
-
-	//CUSTOMLOG("%s not cramped", pPlayer->getName());
 
 	int iLoopCity = 0;
 	bool bCoastal = false;
@@ -3764,7 +3719,6 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	}
 	if(!bCoastal && pPlayer->getNumCities()<5)
 	{
-		//CUSTOMLOG("%s not enough!", pPlayer->getName());
 		return true;
 	}
 	// Over 75% of territory on our landmass full? Time to look elsewhere.
@@ -3778,48 +3732,40 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 		int iOwnageRatio = iNumOwnedTiles * 100 / iNumTiles;
 		if(iOwnageRatio >= GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
 		{
-			//CUSTOMLOG("%s erf", pPlayer->getName());
 			return false;
 		}
 		int iBestArea, iSecondBestArea;
 		pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 		if(iBestArea == pArea->GetID())
 		{
-			//CUSTOMLOG("%s find good area", pPlayer->getName());
 			return true;
 		}
 	}
 
-	//CUSTOMLOG("%s default false", pPlayer->getName());
 	return false;
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
 bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	//CUSTOMLOG("%s begin , no anexing=%i", pPlayer->getName(), pPlayer->GetPlayerTraits()->IsNoAnnexing());
 	bool bCannotExpand = pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy) || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
-		//CUSTOMLOG("%s true1 ", pPlayer->getName());
 		return true;
 	}
 	
 	if(pPlayer->getNumCities() <= 1)
 	{
-		//CUSTOMLOG("%s false1 ", pPlayer->getName());
 		return false;
 	}
 
 	if(pPlayer->IsEmpireVeryUnhappy())
 	{
-		//CUSTOMLOG("%s true 2", pPlayer->getName());
 		return true;
 	}
 
 	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) > 1)
 	{
-		//CUSTOMLOG("%s true3 ", pPlayer->getName());
 		return true;
 	}
 
@@ -3827,18 +3773,15 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
 	{
-		//CUSTOMLOG("%s true4 ", pPlayer->getName());
 		return true;
 	}
 
 	if(pPlayer->IsEmpireUnhappy() && (pPlayer->GetNumCitiesFounded() > (pPlayer->GetDiplomacyAI()->GetBoldness())))
 	{
-		//CUSTOMLOG("%s true5 ", pPlayer->getName());
 		return true;
 	}
 	if(pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && (pPlayer->GetNumCitiesFounded() > (pPlayer->GetDiplomacyAI()->GetBoldness())))
 	{
-		//CUSTOMLOG("%s true6 ", pPlayer->getName());
 		return true;
 	}
 
@@ -3848,7 +3791,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOther))
 		{
-			//CUSTOMLOG("%s false2 ", pPlayer->getName());
 			return false;
 		}
 	}
@@ -3859,7 +3801,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 		{
-			//CUSTOMLOG("%s false3 ", pPlayer->getName());
 			return false;
 		}
 	}
@@ -3870,7 +3811,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 		{
-			//CUSTOMLOG("%s false4 ", pPlayer->getName());
 			return false;
 		}
 	}
@@ -3878,11 +3818,9 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	//do this check last, it can be expensive
 	if (!pPlayer->HaveGoodSettlePlot(-1) )
 	{
-		//CUSTOMLOG("%s true7 ", pPlayer->getName());
 		return true;
 	}
 
-	//CUSTOMLOG("%s false defult ", pPlayer->getName());
 	return false;
 }
 
@@ -4041,16 +3979,12 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 //   upgrade if that assumption is no longer true
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	//CUSTOMLOG("%s begin", pPlayer->getName());
 
 	// Never run this strategy for OCC, barbarians or minor civs
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
 	{
-		pPlayer->GetEconomicAI()->SetCanSettle(false);
 		return false;
 	}
-
-	//CUSTOMLOG("%s passed minor cut", pPlayer->getName());
 
 	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
 		return false;
@@ -4058,8 +3992,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 	// Never run this strategy for a human player
 	if(pPlayer->isHuman())
 		return false;
-
-	//CUSTOMLOG("%s passed city cut", pPlayer->getName());
 
 	// Look at map for loose settlers
 	std::vector<CvUnit*> vSettlers;
@@ -4069,8 +4001,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 		if(pLoopUnit && pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE && pLoopUnit->getArmyID() == -1)
 			vSettlers.push_back(pLoopUnit);
 	}
-
-	//CUSTOMLOG("%s, vSettlers size: %i",	pPlayer->getName(), vSettlers.size());
 
 	if (vSettlers.empty())
 		return false;
@@ -4082,8 +4012,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 	bool bIsSafe = false;
 	int iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 
-	//CUSTOMLOG("%s, nb settle era: %i", pPlayer->getName(), iNumAreas);
-	
 	if(iNumAreas == 0)
 	{
 		return false;
@@ -4124,7 +4052,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 						strLogString.Format("We have settlers, but no good areas to settle!");
 						pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
-					//CUSTOMLOG("%s, return false but shitty land!", pPlayer->getName());
 					return false;
 				}
 				else
@@ -4172,7 +4099,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 					strLogString.Format("We have settlers, but no good areas to settle!");
 					pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
-				//CUSTOMLOG("%s, return false because ebark!", pPlayer->getName());
 				return false;
 			}
 			else
@@ -4192,9 +4118,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 			}
 		}
 	}
-
-
-	//CUSTOMLOG("%s, return false anyway!", pPlayer->getName());
 
 	return false;
 }
@@ -4796,14 +4719,12 @@ bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)
 
 bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes eStrategy)
 {
+	if (!pPlayer->isMinorCiv())
+	{
+		return false;
+	}
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	//CUSTOMLOG("EconomicAIHelpers::CannotMinorCiv : %s.ismonrCiv=%i, can do %s : %i",
-	//	pPlayer->getName(), pPlayer->isMinorCiv(), pStrategy->GetText(), pStrategy->IsNoMinorCivs());
-	bool result =  (pPlayer->isMinorCiv() && pStrategy->IsNoMinorCivs() != 0);
-
-	//CUSTOMLOG("EconomicAIHelpers::CannotMinorCiv : %s.ismonrCiv=%i, can do %s : %i => result=%i",
-	//	pPlayer->getName(), pPlayer->isMinorCiv(), pStrategy->GetDescription(), pStrategy->IsNoMinorCivs(), result);
-	return result;
+	return (pStrategy->IsNoMinorCivs() != 0);
 }
 
 bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)

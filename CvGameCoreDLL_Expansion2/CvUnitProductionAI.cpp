@@ -886,7 +886,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Settlers? Let's see...
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
-		if(!kPlayer.GetEconomicAI()->isCanSettle())
+		EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
+		if (EconomicAIHelpers::CannotMinorCiv(m_pCity->GetPlayer(), eCanSettle))
 		{
 			return 0;
 		}
