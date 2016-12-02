@@ -47,6 +47,9 @@
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
 //#define MOD_BATTLE_ROYALE
 
+//If you enable this, the CS AI can settle more cities.
+//#define MOD_MINOR_CAN_SETTLE
+
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc

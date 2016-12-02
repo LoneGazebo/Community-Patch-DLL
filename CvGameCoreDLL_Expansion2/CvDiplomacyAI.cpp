@@ -30081,6 +30081,9 @@ int CvDiplomacyAI::GetNumFriendsDenouncedBy()
 
 bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 {
+	if (ePlayer == BARBARIAN_PLAYER)
+		return false;
+
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabFriendDenouncedUs[ePlayer];
@@ -30118,6 +30121,9 @@ int CvDiplomacyAI::GetWeDenouncedFriendCount()
 
 bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 {
+	if (ePlayer == BARBARIAN_PLAYER)
+		return false;
+
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabFriendDeclaredWarOnUs[ePlayer];

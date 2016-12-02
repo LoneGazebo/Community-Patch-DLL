@@ -487,14 +487,6 @@ void CvTacticalAI::CommandeerUnits()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
-		//Don't poach garrisons.
-		if(pLoopUnit->getArmyID() == -1)
-		{
-			if(pLoopUnit->getHomelandMove() == AI_HOMELAND_MOVE_GARRISON || pLoopUnit->getHomelandMove() == AI_HOMELAND_MOVE_GARRISON_CITY_STATE || pLoopUnit->IsGarrisoned())
-				continue;
-		}
-#endif
 
 		// We want ALL the barbarians and air units (that are combat ready)
 		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit)))
@@ -4783,13 +4775,16 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						{
 							//strange, escort seems to be faster than the civilian, let's hope it's better the other way around
 							CvPlot* pAltPlot = pCivilian->GetPathEndFirstTurnPlot();
-							if (pEscort->canMoveInto(*pAltPlot,CvUnit::MOVEFLAG_DESTINATION))
-								pCommonPlot = pAltPlot;
-							else
+							if (pAltPlot != NULL)
 							{
-								pAltPlot = pCivilian->GetPathNodeArray().GetFirstPlot();
 								if (pEscort->canMoveInto(*pAltPlot, CvUnit::MOVEFLAG_DESTINATION))
 									pCommonPlot = pAltPlot;
+								else
+								{
+									pAltPlot = pCivilian->GetPathNodeArray().GetFirstPlot();
+									if (pEscort->canMoveInto(*pAltPlot, CvUnit::MOVEFLAG_DESTINATION))
+										pCommonPlot = pAltPlot;
+								}
 							}
 						}
 
@@ -12346,6 +12341,9 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 		for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 		{
 			CvPlot* pPlot = aPlotsToCheck[iI];
+
+			if (pPlot == NULL)
+				continue;
 
 			CvCity* pNeighboringCity = pPlot->getPlotCity();
 			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())

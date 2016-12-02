@@ -258,9 +258,10 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		if (eConnectionType == TRADE_CONNECTION_FOOD)
 		{
 			bool bAllowsFoodConnection = false;
-			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			const std::vector<BuildingTypes>& vBuildings = pOriginCity->GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t i = 0; i<vBuildings.size(); i++)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
+				BuildingTypes eBuilding = vBuildings[i];
 				if(eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
@@ -271,10 +272,7 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 
 					if (pBuildingEntry && pBuildingEntry->AllowsFoodTradeRoutes())
 					{
-						if (pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()) > 0)
-						{
-							bAllowsFoodConnection = true;
-						}
+						bAllowsFoodConnection = true;
 					}
 				}
 			}
@@ -287,23 +285,20 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		else if (eConnectionType == TRADE_CONNECTION_PRODUCTION)
 		{
 			bool bAllowsProductionConnection = false;
-			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			const std::vector<BuildingTypes>& vBuildings = pOriginCity->GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t i = 0; i<vBuildings.size(); i++)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
-				if(eBuilding != NO_BUILDING)
+				BuildingTypes eBuilding = vBuildings[i];
+				if (eBuilding != NO_BUILDING)
 				{
 					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
 					if (!pBuildingEntry)
 					{
 						continue;
 					}
-
 					if (pBuildingEntry && pBuildingEntry->AllowsProductionTradeRoutes())
 					{
-						if (pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()) > 0)
-						{
-							bAllowsProductionConnection = true;
-						}
+						bAllowsProductionConnection = true;
 					}
 				}
 			}

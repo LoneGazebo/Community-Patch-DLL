@@ -9852,6 +9852,19 @@ bool CvUnit::sellExoticGoods()
 					{
 						pBestPlot->setImprovementType(NO_IMPROVEMENT);
 						pBestPlot->setImprovementType(eFeitoria, getOwner());
+						
+						IDInfo* pUnitNode;
+						CvUnit* pLoopUnit;
+						pUnitNode = pBestPlot->headUnitNode();
+						while (pUnitNode != NULL)
+						{
+							pLoopUnit = ::getUnit(*pUnitNode);
+							pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
+							if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
+							{
+								pLoopUnit->ClearMissionQueue();
+							}
+						}
 					}
 				}
 			}

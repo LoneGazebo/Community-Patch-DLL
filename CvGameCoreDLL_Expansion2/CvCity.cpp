@@ -15244,7 +15244,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner());
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 #if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() || GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer()))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 					iReligionGrowthMod += (iFollowers * GC.getMOD_BALANCE_FOLLOWER_GROWTH_BONUS());

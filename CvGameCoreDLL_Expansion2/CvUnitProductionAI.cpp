@@ -287,14 +287,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (bCombat)
 		{
 			int iNumUnits = kPlayer.getNumMilitaryUnits();
-			int iEra = (kPlayer.GetCurrentEra() + 1) * 2;
+			int iNumCities = kPlayer.getNumCities();
+			int iEra = (kPlayer.GetCurrentEra() + 1) * iNumCities;
 			if (iNumUnits >= iEra)
 			{
 				return 0;
 			}
 			else
 			{
-				iBonus += (iEra - iNumUnits) * 25;
+				iBonus += (iEra - iNumUnits) * 50;
 			}
 		}
 	}

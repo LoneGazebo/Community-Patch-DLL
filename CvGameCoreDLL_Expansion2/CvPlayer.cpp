@@ -9428,6 +9428,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	{
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 		{
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), - 1);
 			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 		}
 	}

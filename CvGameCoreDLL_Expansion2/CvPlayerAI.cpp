@@ -1685,7 +1685,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
@@ -1727,10 +1727,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
 	// CASE 2: I have a religion that hasn't yet been enhanced
 	else if (pMyReligion)
 	{
-#if defined(MOD_BALANCE_CORE)
 		//always enhance
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-#else
 		// Spread religion if there is a city that needs it CRITICALLY
 		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
 		{
@@ -1740,7 +1738,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
-#endif
 	}
 
 	// CASE 3: No religion for me yet
@@ -1761,6 +1758,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
+	}
+
+	if ((GC.getGame().getGameTurn() - pUnit->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 	}
 
 	return eDirective;

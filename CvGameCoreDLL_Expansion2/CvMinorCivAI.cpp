@@ -2445,6 +2445,22 @@ bool CvMinorCivQuest::IsRevoked()
 			return true;
 		if(m_eType == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
 			return true;
+		if (m_eType == MINOR_CIV_QUEST_ARCHAEOLOGY)
+			return true;
+		if (m_eType == MINOR_CIV_QUEST_LIBERATION)
+			return true;
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if (m_eType == MINOR_CIV_QUEST_BUILD_X_BUILDINGS)
+			return true;
+		if (m_eType == MINOR_CIV_QUEST_DISCOVER_PLOT)
+			return true;
+		if (m_eType == MINOR_CIV_QUEST_UNIT_COUP_CITY)
+			return true;
+		if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
+			return true;
+		if (m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
+			return true;
 #endif
 	}
 
