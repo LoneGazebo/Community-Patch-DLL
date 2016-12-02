@@ -7352,37 +7352,43 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 				else
 				{
 					int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, 0);
-					CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
-					CvString szEraString = GC.getEraInfo(work.m_eEra)->getShortDesc();
-					CvString szCivAdj = GET_PLAYER(m_pCity->getOwner()).getCivilizationAdjectiveKey();
-					switch (iIndex)
+					if (iGreatWork != -1)
 					{
-					case 0:
-					case 2:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
-						break;
-					case 1:
-					case 3:
-						szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
-						break;
-					case 4:
-					case 5:
-					case 7:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString);
-						break;
-					case 6:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj, szEraString);
-						break;
-					case 8:
-					case 10:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
-						break;
-					case 9:
-					case 11:
-						szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
-						break;
+						CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
+						if (work.m_ePlayer > -1 && work.m_eEra > -1)
+						{
+							CvString szEraString = GC.getEraInfo(work.m_eEra)->getShortDesc();
+							CvString szCivAdj = GET_PLAYER(m_pCity->getOwner()).getCivilizationAdjectiveKey();
+							switch (iIndex)
+							{
+							case 0:
+							case 2:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
+								break;
+							case 1:
+							case 3:
+								szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
+								break;
+							case 4:
+							case 5:
+							case 7:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString);
+								break;
+							case 6:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj, szEraString);
+								break;
+							case 8:
+							case 10:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
+								break;
+							case 9:
+							case 11:
+								szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
+								break;
+							}
+						}
 					}
 				}
 				szRtnValue = szBonusString + szThemeDescription;

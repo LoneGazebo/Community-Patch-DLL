@@ -191,7 +191,7 @@ CvCity::CvCity() :
 	, m_iResistanceTurns("CvCity::m_iResistanceTurns", m_syncArchive)
 	, m_iRazingTurns("CvCity::m_iRazingTurns", m_syncArchive)
 	, m_iCountExtraLuxuries("CvCity::m_iCountExtraLuxuries", m_syncArchive)
-	, m_iCheapestPlotInfluence("CvCity::m_iCheapestPlotInfluence", m_syncArchive)
+	, m_iCheapestPlotInfluenceDistance("CvCity::m_iCheapestPlotInfluenceDistance", m_syncArchive)
 	, m_iEspionageModifier("CvCity::m_iEspionageModifier", m_syncArchive)
 	, m_iTradeRouteRecipientBonus("CvCity::m_iTradeRouteRecipientBonus", m_syncArchive)
 	, m_iTradeRouteSeaGoldBonus("CvCity::m_iTradeRouteSeaGoldBonus", m_syncArchive)
@@ -319,7 +319,7 @@ CvCity::CvCity() :
 	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
 	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
 	, m_iNearbySettlerValue("CvCity::m_iNearbySettlerValue", m_syncArchive)
-	, m_iThreatCriteria("CvCity::m_iThreatCriteria", m_syncArchive)
+	, m_iThreatRank("CvCity::m_iThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
@@ -1371,7 +1371,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResistanceTurns = 0;
 	m_iRazingTurns = 0;
 	m_iCountExtraLuxuries = 0;
-	m_iCheapestPlotInfluence = 0;
+	m_iCheapestPlotInfluenceDistance = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
 	m_hGarrisonOverride = -1;
 
@@ -1433,7 +1433,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradePrioritySea = 0;
 	m_iNearbySettlerValue = 0;
-	m_iThreatCriteria = 0;
+	m_iThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
@@ -3107,17 +3107,17 @@ int CvCity::GetStaticYield(YieldTypes eYield) const
 	return m_aiStaticCityYield[eYield];
 }
 
-void CvCity::SetThreatCritera(int iValue)
+void CvCity::SetThreatRank(int iValue)
 {
-	if(iValue != m_iThreatCriteria)
+	if(iValue != m_iThreatRank)
 	{
-		m_iThreatCriteria = iValue;
+		m_iThreatRank = iValue;
 	}
 }
-int CvCity::GetThreatCriteria() const
+int CvCity::GetThreatRank() const
 {
 	VALIDATE_OBJECT
-	return m_iThreatCriteria;
+	return m_iThreatRank;
 }
 
 void CvCity::SetTradePriorityLand(int iValue)
@@ -15244,7 +15244,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner());
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 #if defined(MOD_BALANCE_CORE)
-				if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() || GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer()))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 					iReligionGrowthMod += (iFollowers * GC.getMOD_BALANCE_FOLLOWER_GROWTH_BONUS());
@@ -24644,12 +24644,6 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 bool CvCity::CanBuyAnyPlot(void)
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot = NULL;
-	CvPlot* pThisPlot = plot();
-
-	const int iMaxRange = getBuyPlotDistance();
-	CvMap& thisMap = GC.getMap();
-
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -24681,123 +24675,59 @@ bool CvCity::CanBuyAnyPlot(void)
 		}
 	}
 
-	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
-	{
-		for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->getOwner() != NO_PLAYER)
-				{
-					continue;
-				}
-
-				// we can use the faster, but slightly inaccurate pathfinder here - after all we just need the existence of a path
-				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange);
-
-				if(iInfluenceCost > 0)
-				{
-					return true;
-				}
-			}
-		}
-	}
-
-	return false;
+	vector<int> plots;
+	GetBuyablePlotList( plots, true );
+	return !plots.empty();
 }
 
 
 //	--------------------------------------------------------------------------------
 /// Which plot will we buy next
-#if defined(MOD_BALANCE_CORE)
 CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
-#else
-CvPlot* CvCity::GetNextBuyablePlot(void)
-#endif
 {
 	VALIDATE_OBJECT
 	std::vector<int> aiPlotList;
-	aiPlotList.resize(20, -1);
-#if defined(MOD_BALANCE_CORE)
 	GetBuyablePlotList(aiPlotList, bForPurchase);
-#else
-	GetBuyablePlotList(aiPlotList);
-#endif
 
-	int iListLength = 0;
-	for(uint ui = 0; ui < aiPlotList.size(); ui++)
-	{
-		if(aiPlotList[ui] >= 0)
-		{
-			iListLength++;
-		}
-		else
-		{
-			break;
-		}
-	}
+	if (aiPlotList.empty())
+		return NULL;
 
-	CvPlot* pPickedPlot = NULL;
-	if(iListLength > 0)
-	{
-		if (isBarbarian())
-		{
-			int iPickedIndex = 0;
-			pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
-		}
-		else
-		{
-			int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
-			pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
-		}
-	}
-
-	return pPickedPlot;
+	int iPickedIndex = GC.getGame().getSmallFakeRandNum( aiPlotList.size(), *plot());
+	return GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase)
-#else
-void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
-#endif
+void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices)
 {
-	VALIDATE_OBJECT
-	aiPlotList.resize(20, -1);
-	int iResultListIndex = 0;
+	aiPlotList.clear();
+	std::vector< pair<int,int> > resultList;
 
-	int iLowestCost = INT_MAX;
 	CvPlot* pLoopPlot = NULL;
 	CvPlot* pThisPlot = plot();
 	const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
-	CvMap& thisMap = GC.getMap();
 	TeamTypes thisTeam = getTeam();
 
 	int iPLOT_INFLUENCE_DISTANCE_MULTIPLIER =	/*100*/ GC.getPLOT_INFLUENCE_DISTANCE_MULTIPLIER();
 	int iPLOT_INFLUENCE_RING_COST =				/*100*/ GC.getPLOT_INFLUENCE_RING_COST();
-	int iPLOT_INFLUENCE_WATER_COST =			/* 25*/ GC.getPLOT_INFLUENCE_WATER_COST();
-	int iPLOT_INFLUENCE_IMPROVEMENT_COST =		/* -5*/ GC.getPLOT_INFLUENCE_IMPROVEMENT_COST();
-	int iPLOT_INFLUENCE_ROUTE_COST =			/*0*/	GC.getPLOT_INFLUENCE_ROUTE_COST();
-	int iPLOT_INFLUENCE_RESOURCE_COST =			/*-105*/ GC.getPLOT_INFLUENCE_RESOURCE_COST();
-	int iPLOT_INFLUENCE_NW_COST =				/*-105*/ GC.getPLOT_INFLUENCE_NW_COST();
-	int iPLOT_INFLUENCE_YIELD_POINT_COST =		/*-1*/	GC.getPLOT_INFLUENCE_YIELD_POINT_COST();
-
+	int iPLOT_INFLUENCE_RESOURCE_COST =			/*-150*/ GC.getPLOT_INFLUENCE_RESOURCE_COST();
+	int iPLOT_INFLUENCE_NW_COST =				/*-500*/ GC.getPLOT_INFLUENCE_NW_COST();
+	int iPLOT_INFLUENCE_WATER_COST =			/* 20*/ GC.getPLOT_INFLUENCE_WATER_COST();
+	int iPLOT_INFLUENCE_YIELD_POINT_COST =		/*-10*/	GC.getPLOT_INFLUENCE_YIELD_POINT_COST();
 	int iPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST = /*1000*/ GC.getPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST();
 
 	int iYieldLoop;
-
 	int iDirectionLoop;
 	bool bFoundAdjacentOwnedByCity;
 
-	int iDX, iDY;
-	int iWorkPlotDistance = getWorkPlotDistance();
+	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
+	ReachablePlots influencePlots = GC.GetStepFinder().GetPlotsInReach( pThisPlot, data );
 
+	int iWorkPlotDistance = getWorkPlotDistance();
 	ImprovementTypes eBarbCamptype = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
-	for (iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	for (int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{
-		for (iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
+		for (int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
 		{
 			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
 			if (pLoopPlot != NULL)
@@ -24830,7 +24760,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 
 					if (pAdjacentPlot != NULL)
 					{
-						if(pAdjacentPlot->getOwner() == getOwner())
+						if(pAdjacentPlot->getOwner() == getOwner() && pAdjacentPlot->getWorkingCityID()==GetID())
 						{
 							bNoNeighbor = false;
 							break;
@@ -24881,21 +24811,14 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 				}
 #if defined(MOD_EVENTS_CITY_BORDERS)
 				}
-#endif				
+#endif			
 
-				// we can use the faster, but slightly inaccurate pathfinder here - after all we are using a rand in the equation
-				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange) * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
+				ReachablePlots::iterator it = influencePlots.find( pLoopPlot->GetPlotIndex() );
+				int iInfluenceCost = ( it != influencePlots.end() ) ? it->iNormalizedDistance : -1;
 
-#if defined(MOD_BALANCE_CORE)
-				//Bump to one to control for pathfinder
-				if(iInfluenceCost == 0)
+				if (iInfluenceCost >= 0)
 				{
-					iInfluenceCost = 1;
-				}
-#endif
-				if (iInfluenceCost > 0)
-				{
-					// Modifications for tie-breakers in a ring
+					iInfluenceCost *= iPLOT_INFLUENCE_DISTANCE_MULTIPLIER;
 
 					// Resource Plots claimed first
 					ResourceTypes eResource = pLoopPlot->getResourceType(thisTeam);
@@ -24930,10 +24853,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 
 						// Water Plots claimed later
 #if defined(MOD_BALANCE_CORE)
-						if(pLoopPlot->isLake())
-						{
-							iInfluenceCost += iPLOT_INFLUENCE_IMPROVEMENT_COST;
-						}
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
 #else
 						if (pLoopPlot->isWater())
@@ -24950,24 +24869,11 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 
 					}
 
-					// improved tiles get a slight priority (unless they are barbarian camps!)
+					// avoid barbarian camps
 					ImprovementTypes thisImprovement = pLoopPlot->getImprovementType();
-					if (thisImprovement != NO_IMPROVEMENT)
+					if (thisImprovement == eBarbCamptype)
 					{
-						if (thisImprovement == eBarbCamptype)
-						{
-							iInfluenceCost += iPLOT_INFLUENCE_RING_COST;
-						}
-						else
-						{
-							iInfluenceCost += iPLOT_INFLUENCE_IMPROVEMENT_COST;
-						}
-					}
-
-					// roaded tiles get a priority - [not any more: weight above is 0 by default]
-					if (pLoopPlot->getRouteType() != NO_ROUTE)
-					{
-						iInfluenceCost += iPLOT_INFLUENCE_ROUTE_COST;
+						iInfluenceCost += iPLOT_INFLUENCE_RING_COST;
 					}
 
 					// while we're at it grab Natural Wonders quickly also
@@ -25052,29 +24958,20 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					iInfluenceCost /= iDivisor;
 					iInfluenceCost *= iDivisor;
 #endif
-					// Are we cheap enough to get picked next?
-					if (iInfluenceCost < iLowestCost)
-					{
-						// clear reset list
-						for(uint ui = 0; ui < aiPlotList.size(); ui++)
-						{
-							aiPlotList[ui] = -1;
-						}
-						iResultListIndex = 0;
-						iLowestCost = iInfluenceCost;
-						// this will "fall through" to the next conditional
-					}
-
-					if (iInfluenceCost == iLowestCost)
-					{
-						aiPlotList[iResultListIndex] = pLoopPlot->GetPlotIndex();
-						iResultListIndex++;
-					}
+					resultList.push_back( std::make_pair(iInfluenceCost,pLoopPlot->GetPlotIndex()) );
 				}
 			}
 		}
 	}
 
+	//return the best 12
+	std::sort( resultList.begin(), resultList.end() );
+	if (resultList.size()>(size_t)nChoices)
+		resultList.erase( resultList.begin()+nChoices, resultList.end() );
+
+	//throw away the cost, return the plot index only
+	for (size_t i=0; i<resultList.size(); i++)
+		aiPlotList.push_back( resultList[i].second );
 }
 
 //	--------------------------------------------------------------------------------
@@ -25108,11 +25005,14 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	int iPLOT_INFLUENCE_DISTANCE_MULTIPLIER = /*100*/ GC.getPLOT_INFLUENCE_DISTANCE_MULTIPLIER();
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GC.getPLOT_INFLUENCE_DISTANCE_DIVISOR();
 	int iPLOT_BUY_RESOURCE_COST = /*-100*/ GC.getPLOT_BUY_RESOURCE_COST();
+
 	int iDistance = thisMap.calculateInfluenceDistance(pThisPlot, pPlot, iMaxRange);
-	iDistance -= GetCheapestPlotInfluence(); // Reduce distance by the cheapest available (so that the costs don't ramp up ridiculously fast)
+	int iRefDistance = GetCheapestPlotInfluenceDistance();
+	if (iRefDistance==INT_MAX)
+		iRefDistance = 0;
 
 	int iInfluenceCostFactor = iPLOT_INFLUENCE_BASE_MULTIPLIER;
-	iInfluenceCostFactor += (iDistance * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER) / iPLOT_INFLUENCE_DISTANCE_DIVISOR;
+	iInfluenceCostFactor += (iDistance-iRefDistance) * iPLOT_INFLUENCE_DISTANCE_MULTIPLIER / iPLOT_INFLUENCE_DISTANCE_DIVISOR;
 	if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 		iInfluenceCostFactor += iPLOT_BUY_RESOURCE_COST;
 
@@ -25398,7 +25298,7 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 #endif
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 
-	DoUpdateCheapestPlotInfluence();
+	DoUpdateCheapestPlotInfluenceDistance();
 }
 
 //	--------------------------------------------------------------------------------
@@ -25601,84 +25501,37 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 //	--------------------------------------------------------------------------------
 /// What is the cheapest plot we can get
-int CvCity::GetCheapestPlotInfluence() const
+int CvCity::GetCheapestPlotInfluenceDistance() const
 {
-	return m_iCheapestPlotInfluence;
+	return m_iCheapestPlotInfluenceDistance;
 }
 
 //	--------------------------------------------------------------------------------
 /// What is the cheapest plot we can get
-void CvCity::SetCheapestPlotInfluence(int iValue)
+void CvCity::SetCheapestPlotInfluenceDistance(int iValue)
 {
-	if(m_iCheapestPlotInfluence != iValue)
-		m_iCheapestPlotInfluence = iValue;
+	if(m_iCheapestPlotInfluenceDistance != iValue)
+		m_iCheapestPlotInfluenceDistance = iValue;
 
-	CvAssertMsg(m_iCheapestPlotInfluence > 0, "Cheapest plot influence should never be 0 or less.");
+	CvAssertMsg(m_iCheapestPlotInfluenceDistance > 0, "Cheapest plot influence should never be 0 or less.");
 }
 
 //	--------------------------------------------------------------------------------
 /// What is the cheapest plot we can get
-void CvCity::DoUpdateCheapestPlotInfluence()
+void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 {
-	int iLowestCost = INT_MAX;
+	vector<int> plots;
+	GetBuyablePlotList( plots, false );
 
-	CvPlot* pLoopPlot = NULL;
-	CvPlot* pThisPlot = plot();
-	const int iMaxRange = /*5*/ GC.getMAXIMUM_ACQUIRE_PLOT_DISTANCE();
-	CvMap& thisMap = GC.getMap();
-
-	int iDX, iDY;
-
-	for(iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	if (!plots.empty())
 	{
-		for(iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
-			if(pLoopPlot != NULL)
-			{
-#if defined(MOD_BUGFIX_MINOR)
-				// If the plot's owned by anyone, we can't acquire it, so it doesn't matter
-#else
-				// If the plot's not owned by us, it doesn't matter
-#endif
-#if defined(MOD_BALANCE_CORE)
-				if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pLoopPlot->getOwner() != NO_PLAYER)
-				{
-#else
-				if(pLoopPlot->getOwner() != NO_PLAYER)
-#endif
-					continue;
-#if defined(MOD_BALANCE_CORE)
-				}
-				else if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pLoopPlot->isCity())
-				{
-					continue;
-				}
-#endif
-					
-#if defined(MOD_EVENTS_CITY_BORDERS)
-				// If we can't acquire it, it also doesn't matter
-				if (MOD_EVENTS_CITY_BORDERS) {
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityCanAcquirePlot, getOwner(), GetID(), pLoopPlot->getX(), pLoopPlot->getY()) == GAMEEVENTRETURN_FALSE) {
-						continue;
-					}
-				}
-#endif				
+		int iRefDistance = GC.getMap().calculateInfluenceDistance( 
+			plot(), GC.getMap().plotByIndex(plots.front()), getBuyPlotDistance() );
 
-				// we can use the faster, but slightly inaccurate pathfinder here - after all we are using a rand in the equation
-				int iInfluenceCost = thisMap.calculateInfluenceDistance(pThisPlot, pLoopPlot, iMaxRange);
-
-				if(iInfluenceCost > 0)
-				{
-					// Are we the cheapest yet?
-					if(iInfluenceCost < iLowestCost)
-						iLowestCost = iInfluenceCost;
-				}
-			}
-		}
+		SetCheapestPlotInfluenceDistance( iRefDistance);
 	}
-
-	SetCheapestPlotInfluence(iLowestCost);
+	else
+		SetCheapestPlotInfluenceDistance(INT_MAX);
 }
 
 //	--------------------------------------------------------------------------------

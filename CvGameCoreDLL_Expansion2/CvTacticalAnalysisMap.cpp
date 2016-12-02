@@ -424,7 +424,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
 		//therefore we later do a dilation filter on the cells
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft,-1,set<int>());
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft);
 
 		for (ReachablePlots::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{

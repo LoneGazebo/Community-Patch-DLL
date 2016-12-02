@@ -1863,7 +1863,7 @@ void CvEconomicAI::DoHurry()
 		return;
 
 	// Which city needs hurrying most?
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityRank();
+	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
 
 	// Look at each of our cities
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
@@ -3966,8 +3966,14 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStrategy*/, CvPlayer* pPlayer)
 {
 	// Never run this strategy for OCC, barbarians or minor civs
-	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian())
 		return false;
+
+#if defined(MOD_MINOR_CAN_SETTLE)
+#else
+	if (pPlayer->isMinorCiv())
+		return false;
+#endif
 
 	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
 		return false;

@@ -85,8 +85,8 @@ public:
 	void SetStaticYield(YieldTypes eYield, int iValue);
 	int GetStaticYield(YieldTypes eYield) const;
 
-	void SetThreatCritera(int iValue);
-	int GetThreatCriteria() const;
+	void SetThreatRank(int iValue);
+	int GetThreatRank() const;
 
 	void SetTradePriorityLand(int iValue);
 	int GetTradePriorityLand(void) const;
@@ -1326,25 +1326,17 @@ public:
 
 	bool CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost = false);
 	bool CanBuyAnyPlot(void);
-#if defined(MOD_BALANCE_CORE)
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);
-#else
-	CvPlot* GetNextBuyablePlot();
-#endif
-#if defined(MOD_BALANCE_CORE)
-	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase);
-#else
-	void GetBuyablePlotList(std::vector<int>& aiPlotList);
-#endif
+	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices=3);
 	int GetBuyPlotCost(int iPlotX, int iPlotY) const;
 	void BuyPlot(int iPlotX, int iPlotY);
 	void DoAcquirePlot(int iPlotX, int iPlotY);
 	int GetBuyPlotScore(int& iBestX, int& iBestY);
 	int GetIndividualPlotScore(const CvPlot* pPlot) const;
 
-	int GetCheapestPlotInfluence() const;
-	void SetCheapestPlotInfluence(int iValue);
-	void DoUpdateCheapestPlotInfluence();
+	int GetCheapestPlotInfluenceDistance() const;
+	void SetCheapestPlotInfluenceDistance(int iValue);
+	void DoUpdateCheapestPlotInfluenceDistance();
 
 	// End plot acquisition
 
@@ -1610,7 +1602,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iResistanceTurns;
 	FAutoVariable<int, CvCity> m_iRazingTurns;
 	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
-	FAutoVariable<int, CvCity> m_iCheapestPlotInfluence;
+	FAutoVariable<int, CvCity> m_iCheapestPlotInfluenceDistance;
 	FAutoVariable<int, CvCity> m_iEspionageModifier;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	FAutoVariable<int, CvCity> m_iConversionModifier;
@@ -1672,7 +1664,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
-	FAutoVariable<int, CvCity> m_iThreatCriteria;
+	FAutoVariable<int, CvCity> m_iThreatRank;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
 	FAutoVariable<int, CvCity> m_iNearbySettlerValue;

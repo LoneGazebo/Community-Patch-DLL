@@ -807,7 +807,8 @@ private:
 	bool PlotDamageCityMoves();
 	bool PlotNavalDamageCityMoves();
 	void PlotBarbarianCampMoves();
-	void PlotDestroyUnitMoves(AITacticalTargetType movePriorit, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
+	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
+	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
@@ -873,6 +874,8 @@ private:
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 	void ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
+	void ExecuteAirSweep(CvPlot* pTargetPlot);
+	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
@@ -880,7 +883,7 @@ private:
 	void ExecuteBarbarianMoves(bool bAggressive);
 	void ExecuteBarbarianCivilianEscortMove();
 	void ExecuteMoveToPlotIgnoreDanger(CvPlot* pTarget, bool bSaveMoves=false);
-	void ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false);
+	bool ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags=0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves=false);
@@ -898,7 +901,7 @@ private:
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false);
-	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain);
+	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
@@ -920,7 +923,6 @@ private:
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindBestBarbarianLandMove(CvUnit* pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(CvUnit* pUnit);
@@ -941,7 +943,7 @@ private:
 	// Blocking position functions
 	bool AssignFlankingUnits(int iNumUnitsRequiredToFlank);
 	bool AssignDeployingUnits(int iNumUnitsRequiredToDeploy);
-	void PerformChosenMoves(CvPlot* pFinalTarget=NULL);
+	void PerformChosenMoves();
 	void MoveGreatGeneral(CvArmyAI* pArmyAI = NULL);
 	bool HaveDuplicateUnit();
 	void RemoveChosenUnits(int iStartIndex = 0);
@@ -950,8 +952,8 @@ private:
 	bool ChooseRemainingAssignments(int iNumUnitsDesired, int iNumUnitsAcceptable);
 
 	int ScoreAssignments(bool bCanLeaveOpenings);
-	int ScoreCloseOnPlots(CvPlot* pTarget);
-	int ScoreHedgehogPlots(CvPlot* pTarget);
+	int ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,ReachablePlots>& unitMovePlots);
+	int ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,ReachablePlots>& unitMovePlots);
 	int ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pTarget);
 
 	// Logging functions
@@ -1155,7 +1157,7 @@ protected:
 	CvTacticalPosition* addChild();
 	bool removeChild(CvTacticalPosition* pChild);
 	bool addAssignment(STacticalAssignment newAssignment);
-	bool isBlockedMove(const STacticalAssignment& move) const;
+	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const;
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
@@ -1214,10 +1216,9 @@ namespace TacticalAIHelpers
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
 	int GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
-									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark);
+									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft=0);
 	int GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
-									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, 
-									int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC);
+									int iFlags,	int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC);
 
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
@@ -1229,7 +1230,7 @@ namespace TacticalAIHelpers
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
-	int GetSimulatedDamageFromAttackOnUnit(CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreAdjacencyBonus=false, int iExtraDefenderDamage=0);
+	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreAdjacencyBonus=false, int iExtraDefenderDamage=0);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreAdjacencyBonus=false, int iExtraDefenderDamage=0);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	bool HaveAtLastXMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvPlot* pTarget, int iRange, int nMinUnits);

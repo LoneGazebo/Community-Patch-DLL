@@ -330,7 +330,7 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 	return pPlot->calculateNatureYield(eYield, NO_PLAYER);
 }
 
-void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute)
+void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	bool bMajorMinorConnection = false;
 	if(pTargetCity->getOwner() != pPlayerCapital->getOwner())
@@ -365,7 +365,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
 	SPath path = GC.GetStepFinder().GetPath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
 
-	//  if no path, then bail!
+	// if no path, then bail!
 	if(!path)
 	{
 		return;
@@ -399,6 +399,11 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if (3*iWildPlots > 2*(iRoadLength+1) || iWildPlots>10)
 		return;
 
+	//maybe a lighthouse is just as good?
+	if (pPlayerCapital->isCoastal() && pTargetCity->isCoastal() && pPlayerCapital->isMatchingArea(pTargetCity->plot()))
+		if (iNetGoldTimes100<0)
+			return;
+
 	//see if the new route makes sense economically
 	short sValue = -1;
 	if(bMajorMinorConnection)
@@ -429,12 +434,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		}
 
 		int iProfit = iGoldForRoute + iSideBenefits - (iPlotsNeeded*iMaintenancePerTile);
-
-		//alternatively, we could build a harbor - 300 is just an offhand estimate for amortized investment plus maintenance
-		if ( pTargetCity->isCoastal() )
-			iProfit -= 300;
-
-		if (iProfit<0)
+		if (iProfit < 0)
+			return;
+		else if (iNetGoldTimes100<0 && iProfit<-iNetGoldTimes100)
 			return;
 		else
 			sValue = min(iProfit, MAX_SHORT);
@@ -672,6 +674,9 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		}
 #endif
 
+		//cache this
+		int iNetGoldTimes100 = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100();
+
 		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
 		{
 			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
@@ -709,7 +714,8 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 						pPlayerCapitalCity = pSecondCity;
 						pTargetCity = pFirstCity;
 					}
-					ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute);
+
+					ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
 				}
 				else
 				{

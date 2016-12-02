@@ -9852,6 +9852,19 @@ bool CvUnit::sellExoticGoods()
 					{
 						pBestPlot->setImprovementType(NO_IMPROVEMENT);
 						pBestPlot->setImprovementType(eFeitoria, getOwner());
+						
+						IDInfo* pUnitNode;
+						CvUnit* pLoopUnit;
+						pUnitNode = pBestPlot->headUnitNode();
+						while (pUnitNode != NULL)
+						{
+							pLoopUnit = ::getUnit(*pUnitNode);
+							pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
+							if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
+							{
+								pLoopUnit->ClearMissionQueue();
+							}
+						}
 					}
 				}
 			}
@@ -15444,7 +15457,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += iTempModifier;
 
 			// Bonus against city states?
-			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
+			if(pBattlePlot->isCity() && pBattlePlot->getOwner()!=NO_PLAYER && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
 			{
 				iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
 #if defined(MOD_BALANCE_CORE)
@@ -15453,7 +15466,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 #if defined(MOD_BALANCE_CORE)
 			// Bonus against Major Civ Cities
-			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMajorCiv())
+			if(pBattlePlot->isCity() && pBattlePlot->getOwner()!=NO_PLAYER && GET_PLAYER(pBattlePlot->getOwner()).isMajorCiv())
 			{
 				if(kPlayer.isGoldenAge())
 				{
@@ -22191,11 +22204,15 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 			return false;
 	}
 
-	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	const std::vector<std::pair<int,int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 	{
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
+			continue;
 
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
 		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackSupport())
 		{
 			// Same domain
@@ -22236,11 +22253,15 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 			return false;
 	}
 
-	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	const std::vector<std::pair<int,int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 	{
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
+			continue;
 
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
 		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackSupport())
 		{
 			// Same domain
@@ -22386,18 +22407,19 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 	}
 	
 	int iMaxMod = 0;
-
 	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
-
 	for(std::vector<PlayerTypes>::const_iterator it=vEnemies.begin(); it!=vEnemies.end(); ++it)
 	{
 		CvPlayer& kLoopPlayer = GET_PLAYER(*it);
-		const std::vector<int>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
-
-		for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+		const std::vector<std::pair<int,int>>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
+		for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 		{
-			CvUnit* pUnit = kLoopPlayer.getUnit(*it);
+			//first quick check with a large, fixed distance
+			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
+				continue;
 
+			CvUnit* pUnit = kLoopPlayer.getUnit(it->first);
 			if (pUnit)
 			{
 				// Unit with a combat modifier against the enemy
@@ -27196,14 +27218,16 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 		//normally we would allow an attack at the destination
 		//since it was invisible we didn't even know that there's a unit there
 		//but we do allow attacks on cities
-		if (pkNextPlot!=pDestPlot || !pDestPlot->isEnemyCity(*this))
-			iModifiedFlags ^= CvUnit::MOVEFLAG_ATTACK;
-
-		if ( canMoveInto(*pkNextPlot,iModifiedFlags) )
-			//no problem, continue
-			bHaveValidPath = true;
+		if (pkNextPlot==pDestPlot && pDestPlot->isEnemyCity(*this))
+			iModifiedFlags |= CvUnit::MOVEFLAG_ATTACK;
 		else
-			//need to recompute
+			iModifiedFlags &= ~CvUnit::MOVEFLAG_ATTACK;
+
+		bHaveValidPath = canMoveInto(*pkNextPlot,iModifiedFlags);
+
+		//don't recompute for the destination plot because it's pointless and because it could succeed 
+		//(the pathfinder dynamically sets the attack flag for the destination)
+		if (!bHaveValidPath && pkNextPlot!=pDestPlot)
 			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
 	}
 	else

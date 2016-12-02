@@ -660,6 +660,7 @@ public:
 
 	void setPlotCity(CvCity* pNewValue);
 
+	int getWorkingCityID() const;
 	CvCity* getWorkingCity() const;
 	void updateWorkingCity();
 

@@ -19,6 +19,8 @@
 #define		CVASTARNODE_H
 #pragma		once
 
+#include <unordered_map>
+
 #define ASNL_ADDOPEN		0
 #define ASNL_STARTOPEN		1
 #define ASNL_DELETEOPEN		2
@@ -90,7 +92,6 @@ struct CvPathNodeCacheData
 	bool bIsValidRoute:1;
 
 	int iMoveFlags;
-	int iPlotDanger;
 
 	//tells when to update the cache ...
 	unsigned short iGenerationID;
@@ -178,18 +179,24 @@ struct SPathNode
 		turns = p ? p->m_iTurns : 0;
 		moves = p ? p->m_iMoves : 0;
 	}
+
+	bool operator==(const SPathNode& other)
+	{
+		return x==other.x && y==other.y && turns==other.turns && moves==other.moves;
+	}
 };
 
 struct SPath
 {
 	std::vector<SPathNode> vPlots;
+	int iTotalCost;
 	int iNormalizedDistance;
 	int iTotalTurns;
 	int iTurnGenerated;
 	SPathFinderUserData sConfig;
 
 	//constructor
-	SPath() : iNormalizedDistance(-1),iTotalTurns(-1),iTurnGenerated(-1) {}
+	SPath() : iTotalCost(-1),iNormalizedDistance(-1),iTotalTurns(-1),iTurnGenerated(-1) {}
 
 	//not quite a safe-bool, but good enough
 	inline bool operator!() const { return vPlots.empty(); }
@@ -197,6 +204,12 @@ struct SPath
 	//convenience
 	inline int length() const { return vPlots.size(); }
 	inline CvPlot* get(int i) const;
+
+	bool operator==(const SPath& other)
+	{
+		return iTotalCost==other.iTotalCost && iNormalizedDistance==other.iNormalizedDistance && 
+				iTotalTurns==other.iTotalTurns && vPlots.size()==other.vPlots.size();
+	}
 };
 
 struct SMovePlot
@@ -204,16 +217,42 @@ struct SMovePlot
 	int iPlotIndex;
 	int iTurns;
 	int iMovesLeft;
+	int iNormalizedDistance;
 
-	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0) {}
-	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_) : iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_) {}
+	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0), iNormalizedDistance(0) {}
+	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_, int iNormalizedDistance_) : 
+		iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_), iNormalizedDistance(iNormalizedDistance_) {}
 
 	//this ignores the turns/moves so std::find with just a plot index should work
 	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
 };
 
-typedef std::set<SMovePlot> ReachablePlots;
+class ReachablePlots
+{
+public:
+	typedef std::vector<SMovePlot>::iterator iterator;
+	typedef std::vector<SMovePlot>::const_iterator const_iterator;
+	
+	ReachablePlots() {}
+	
+	iterator begin() { return storage.begin(); }
+	const_iterator begin() const { return storage.begin(); }
+	iterator end() { return storage.end(); }
+	const_iterator end() const { return storage.end(); }
+
+	size_t size() const { return storage.size(); }
+	bool empty() const { return storage.empty(); }
+	void clear() { storage.clear(); lookup.clear(); }
+
+	iterator find(int iPlotIndex);
+	const_iterator find(int iPlotIndex) const;
+	void insert(const SMovePlot& plot);
+
+protected:
+	std::tr1::unordered_map<int,size_t> lookup;
+	std::vector<SMovePlot> storage;
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //

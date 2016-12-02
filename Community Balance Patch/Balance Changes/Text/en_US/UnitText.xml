@@ -71,6 +71,21 @@
 			<Text>Flank attack bonus increased, and receives bonuses when embarked or attacking over rivers.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_DESC_FIELD_GUN">
+			<Text>Field Gun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_PEDIA">
+			<Text>A field gun is an artillery piece. The term was first used to describe smaller guns that could be taken with an army while marching. In battle the field gun could be quickly moved about the battlefield as needed. Guns installed in a fort, siege cannon and mortars were too large to be moved quickly, and would be used only in a long siege.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_STRATEGY">
+			<Text>Field Guns have greater range and combat power than Cannons, albeit they lack the ability to see very far on their own. Use Field Guns to support your Industrial Era armies, but be careful about letting the enemy get near them!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_HELP">
+			<Text>Powerful Industrial Era Siege Unit capable of firing up to 3 tiles away.</Text>
+		</Row>
+
+		
+
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
 			<Text>Conscription</Text>
 		</Row>

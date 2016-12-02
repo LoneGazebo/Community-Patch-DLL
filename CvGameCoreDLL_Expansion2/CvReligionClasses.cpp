@@ -6917,7 +6917,11 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 		// If this is the holy city and it has been converted, want to go there no matter what
 		if (pLoopCity == pHolyCity && eMajorityReligion != eReligion)
 		{
+#if defined(MOD_BALANCE_CORE)
+			vCandidates.push_back(SPlotWithScore(pLoopCity->plot(), 100000));
+#else
 			return pHolyCity;
+#endif
 		}
 
 		CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
