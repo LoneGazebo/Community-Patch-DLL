@@ -245,6 +245,7 @@ protected:
 
 	bool m_bWrapX;
 	bool m_bWrapY;
+	bool m_bHeapDirty;
 
 	//vector performance is better than lists!
 	std::vector<CvAStarNode*> m_openNodes;
@@ -368,6 +369,7 @@ public:
 	virtual int GetPathLengthInTurns(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 	virtual ReachablePlots GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data);
 	virtual ReachablePlots GetPlotsInReach(const CvPlot* pStartPlot, const SPathFinderUserData& data);
+	virtual map<CvPlot*,SPath> GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data);
 };
 
 //-------------------------------------------------------------------------------------------------

@@ -2061,7 +2061,11 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 				PlayerTypes eAlly = NO_PLAYER;
 				GET_PLAYER(ePlayer).GetMinorCivAI()->SetNoAlly(false);
 				GET_PLAYER(ePlayer).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(/*Passed by address*/ eAlly);
+#if defined(MOD_CITY_STATE_SCALE)
+				if (eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold(eAlly))
+#else
 				if(eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold())
+#endif
 				{
 					GET_PLAYER(ePlayer).GetMinorCivAI()->SetAlly(eAlly);
 				}
@@ -2074,7 +2078,11 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 				GET_PLAYER(ePlayer).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
 				PlayerTypes eAlly = NO_PLAYER;
 				GET_PLAYER(ePlayer).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(/*Passed by address*/ eAlly);
+#if defined(MOD_CITY_STATE_SCALE)
+				if(eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold(eAlly))
+#else
 				if(eAlly != NO_PLAYER && GET_PLAYER(ePlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlliesThreshold())
+#endif
 				{
 					GET_PLAYER(ePlayer).GetMinorCivAI()->SetAlly(eAlly);
 				}

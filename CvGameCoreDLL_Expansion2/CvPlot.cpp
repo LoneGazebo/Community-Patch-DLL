@@ -9185,6 +9185,11 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 }
 
 //	-----------------------------------------------------------------------------------------------
+int CvPlot::getWorkingCityID() const
+{
+	return m_workingCity.iID;
+}
+
 CvCity* CvPlot::getWorkingCity() const
 {
 	return getCity(m_workingCity);

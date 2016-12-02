@@ -5022,26 +5022,21 @@ void CvPlayer::UpdateCityThreatCriteria()
 	//Reset the critera.
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		pLoopCity->SetThreatCritera(-1);
+		pLoopCity->SetThreatRank(-1);
 
-	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(true);
+	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(false);
 	for(int i = 0; i < (int)threatenedCities.size(); i++)
-		threatenedCities[i]->SetThreatCritera(i);
+		threatenedCities[i]->SetThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityRank(int iValue)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank)
 {
-	CvCity* pLoopCity = NULL;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
+		if(pLoopCity->GetThreatRank() == iRank)
 		{
-			if(pLoopCity->GetThreatCriteria() == iValue)
-			{
-				return pLoopCity;
-			}
+			return pLoopCity;
 		}
 	}
 
@@ -9433,6 +9428,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	{
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 		{
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), - 1);
 			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 		}
 	}
@@ -13820,11 +13817,7 @@ void CvPlayer::found(int iX, int iY)
 	int iExtraTerritoryClaim = GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRange();
 	for (int i = 0; i < iExtraTerritoryClaim; i++)
 	{
-#if defined(MOD_BALANCE_CORE)
 		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
-#else
-		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
-#endif
 
 		// maybe the player owns ALL of the plots or there are none available?
 		if(pPlotToAcquire)
@@ -13993,11 +13986,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 		//And a little territory to boot
 		for (int i = 0; i < iExtraPlots; i++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
-#else
-			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
-#endif
 
 			// maybe the player owns ALL of the plots or there are none available?
 			if(pPlotToAcquire)
@@ -33792,7 +33781,11 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 				else
 				{
 					// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
+#if defined(MOD_CITY_STATE_SCALE)
+					if ((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold(GetID()))
+#else
 					if ((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+#endif
 					{
 						iScore *= 4;
 					}
@@ -42263,30 +42256,45 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer) const
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
-std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const
+std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	return m_pDangerPlots->GetPossibleAttackers(Plot);
 }
 
-bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker) const
+bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	if (pAttacker)
 		return m_pDangerPlots->IsKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
 
@@ -42295,6 +42303,9 @@ bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker) const
 
 void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 {
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
 	if (pAttacker)
 		m_pDangerPlots->AddKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
 }
@@ -42415,10 +42426,10 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 			continue;
 		
 		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport())
-			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
+			m_unitsAreaEffectPositive.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
-			m_unitsAreaEffectNegative.push_back( pLoopUnit->GetID() );
+			m_unitsAreaEffectNegative.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
 	}
 
 	// Loop through our plots
@@ -42448,12 +42459,12 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 	}
 }
 
-const std::vector<int>& CvPlayer::GetAreaEffectPositiveUnits() const
+const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectPositiveUnits() const
 {
 	return m_unitsAreaEffectPositive;
 }
 
-const std::vector<int>& CvPlayer::GetAreaEffectNegativeUnits() const
+const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectNegativeUnits() const
 {
 	return m_unitsAreaEffectNegative;
 }
@@ -42842,7 +42853,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		if (bLogging)
 		{
-			iDanger = GetPlotDanger(*pPlot);
+			iDanger = pUnit->GetDanger(pPlot);
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
@@ -43084,8 +43095,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
 			//if the muster plot is more than 6 turns away it's unsafe by definition
-			SMovePlot test(pTestPlot->GetPlotIndex());
-			ReachablePlots::iterator it = reachablePlots.find(test);
+			ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
 			if (it==reachablePlots.end() || it->iTurns>=6)
 				isDangerous = true;
 		}

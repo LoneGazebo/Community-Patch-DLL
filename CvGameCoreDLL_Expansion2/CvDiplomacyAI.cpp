@@ -19116,6 +19116,10 @@ void CvDiplomacyAI::DoContactMinorCivs()
 
 					iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
 
+					// Only care if we'll actually be Allies or better
+					bMediumGiftAllies = iFriendshipWithMinor + iMediumGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
+					bSmallGiftAllies = iFriendshipWithMinor + iSmallGiftFriendship >= pMinorCivAI->GetAlliesThreshold(eID);
+
 					// Loop through other players to see if we can pass them
 					for(iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 					{
@@ -19134,10 +19138,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						// They must have more friendship with this guy than us
 						if(iFriendshipWithMinor <= iOtherPlayerFriendshipWithMinor)
 							continue;
-
-						// Only care if we'll actually be Allies or better
-						bMediumGiftAllies = iFriendshipWithMinor + iMediumGiftFriendship >= pMinorCivAI->GetAlliesThreshold();
-						bSmallGiftAllies = iFriendshipWithMinor + iSmallGiftFriendship >= pMinorCivAI->GetAlliesThreshold();
 
 						// If we can pass them with a small gift, great
 						if(bSmallGiftAllies && iOtherPlayerFriendshipWithMinor - iFriendshipWithMinor < iSmallGiftFriendship)
@@ -30081,6 +30081,9 @@ int CvDiplomacyAI::GetNumFriendsDenouncedBy()
 
 bool CvDiplomacyAI::IsFriendDenouncedUs(PlayerTypes ePlayer) const
 {
+	if (ePlayer == BARBARIAN_PLAYER)
+		return false;
+
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabFriendDenouncedUs[ePlayer];
@@ -30118,6 +30121,9 @@ int CvDiplomacyAI::GetWeDenouncedFriendCount()
 
 bool CvDiplomacyAI::IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const
 {
+	if (ePlayer == BARBARIAN_PLAYER)
+		return false;
+
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_pabFriendDeclaredWarOnUs[ePlayer];

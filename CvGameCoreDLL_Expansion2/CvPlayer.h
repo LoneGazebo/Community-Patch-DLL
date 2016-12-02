@@ -133,7 +133,7 @@ public:
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
-	CvCity* GetThreatenedCityRank(int iValue = 0);
+	CvCity* GetThreatenedCityByRank(int iRank = 0);
 
 	void UpdateBestMilitaryCities();
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
@@ -2324,12 +2324,12 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK) const;
-	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL) const;
-	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
-	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
 
-	bool IsKnownAttacker(const CvUnit* pAttacker) const;
+	bool IsKnownAttacker(const CvUnit* pAttacker);
 	void AddKnownAttacker(const CvUnit* pAttacker);
 
 	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
@@ -2344,8 +2344,8 @@ public:
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
 	void UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell=true);
-	const std::vector<int>& GetAreaEffectPositiveUnits() const;
-	const std::vector<int>& GetAreaEffectNegativeUnits() const;
+	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
+	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
@@ -3430,8 +3430,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	FAutoVariable<int, CvPlayer> m_iFractionOriginalCapitalsUnderControl;
-	std::vector<int> m_unitsAreaEffectPositive;
-	std::vector<int> m_unitsAreaEffectNegative;
+	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
+	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;

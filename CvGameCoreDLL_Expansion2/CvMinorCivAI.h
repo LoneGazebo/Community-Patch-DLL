@@ -521,6 +521,10 @@ public:
 	bool IsEverFriends(PlayerTypes ePlayer);
 	void SetEverFriends(PlayerTypes ePlayer, bool bValue);
 
+#if defined(MOD_CITY_STATE_SCALE)
+	void SetFriends(PlayerTypes ePlayer, bool bValue);
+#endif
+
 	bool IsCloseToNotBeingAllies(PlayerTypes ePlayer);
 	bool IsCloseToNotBeingFriends(PlayerTypes ePlayer);
 
@@ -529,10 +533,17 @@ public:
 
 	void DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriendship, int iNewFriendship, bool bFromQuest = false, bool bIgnoreMinorDeath = false);
 
+#if defined(MOD_CITY_STATE_SCALE)
+	bool IsFriendshipAboveFriendsThreshold(PlayerTypes ePlayer, int iFriendship) const;
+	int GetFriendsThreshold(PlayerTypes ePlayer) const;
+	bool IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFriendship) const;
+	int GetAlliesThreshold(PlayerTypes ePlayer) const;
+#else
 	bool IsFriendshipAboveFriendsThreshold(int iFriendship) const;
 	int GetFriendsThreshold() const;
 	bool IsFriendshipAboveAlliesThreshold(int iFriendship) const;
 	int GetAlliesThreshold() const;
+#endif
 	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications = false, bool bPassedBySomeone = false, PlayerTypes eNewAlly = NO_PLAYER);
 
 	void DoIntrusion();
@@ -841,6 +852,9 @@ private:
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
 	bool m_abMajorIntruding[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
+#if defined(MOD_CITY_STATE_SCALE)
+	bool m_abFriends[MAX_MAJOR_CIVS];
+#endif
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[REALLY_MAX_TEAMS];
 	bool m_abWaryOfTeam[REALLY_MAX_TEAMS];

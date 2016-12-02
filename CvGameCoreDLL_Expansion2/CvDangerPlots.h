@@ -43,6 +43,7 @@ struct SUnitInfo
 	int m_damage;
 };
 
+#define DANGER_MAX_CACHE_SIZE 5
 struct CvDangerPlotContents
 {
 	CvDangerPlotContents()
@@ -68,8 +69,7 @@ struct CvDangerPlotContents
 		m_apCities.clear();
 
 		//reset cache
-		m_lastUnit = SUnitInfo(NULL);
-		m_lastResult = 0;
+		m_lastResults.clear();
 	};
 
 	int GetDanger(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
@@ -93,8 +93,7 @@ struct CvDangerPlotContents
 	DangerCityVector m_apCities;
 
 	//caching ...
-	SUnitInfo m_lastUnit;
-	int m_lastResult;
+	std::vector< std::pair<SUnitInfo,int> > m_lastResults;
 };
 
 inline FDataStream & operator >> (FDataStream & kStream, CvDangerPlotContents & kStruct)

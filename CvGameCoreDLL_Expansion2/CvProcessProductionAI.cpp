@@ -160,10 +160,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if (iNumWar > 0)
 		{
 			iBonus -= (iNumWar * 50);
-			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
+			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 			{
 				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
+				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 25;
 				if (iThreat > 0)
 				{
 					iBonus -= iThreat;

@@ -1898,7 +1898,7 @@ void CvEconomicAI::DoHurry()
 		return;
 
 	// Which city needs hurrying most?
-	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityRank();
+	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
 
 	// Look at each of our cities
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))

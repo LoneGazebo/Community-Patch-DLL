@@ -47,6 +47,9 @@
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
 //#define MOD_BATTLE_ROYALE
 
+//If you enable this, the CS AI can settle more cities.
+//#define MOD_MINOR_CAN_SETTLE
+
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc
@@ -385,15 +388,15 @@
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 #define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
-
+#endif
+// activate eureka for tech cost bonus 'quest'
+#define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
 #define MOD_CIV6_WORKER								gCustomMods.isCIV6_TYPE_WORKER()
 // Roads are created by trade routes.
 #define MOD_CIV6_ROADS								gCustomMods.isCIV6_ROADS()
-// activate eureka for tech cost bonus 'quest'
-#define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
-
-#endif
+// scale city-state yield per city owned
+#define MOD_CITY_STATE_SCALE						gCustomMods.isCITY_STATE_SCALE()
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 #define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
@@ -1458,6 +1461,7 @@ public:
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);
 	MOD_OPT_DECL(CIV6_EUREKAS);
+	MOD_OPT_DECL(CITY_STATE_SCALE);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);

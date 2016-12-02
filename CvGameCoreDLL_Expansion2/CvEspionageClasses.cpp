@@ -2854,6 +2854,10 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		CvString strIntrigue = "";
 		for (int i = m_aIntrigueNotificationMessages.size(); i > 0; i--)
 		{
+			if (m_aIntrigueNotificationMessages[i - 1].m_iTurnNum < (GC.getGame().getGameTurn() - 10))  // todo: make 5 an xml global
+			{
+				continue;
+			}
 			if (m_aIntrigueNotificationMessages[i - 1].iSpyID == uiSpyIndex)
 			{
 				if (strIntrigue != "")

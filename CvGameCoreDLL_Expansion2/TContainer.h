@@ -10,8 +10,8 @@
 #define		TCONTAINER_H
 #pragma		once
 
-#include <map>
-#include <list>
+#include <unordered_map>
+#include <vector>
 
 //helper function to generate unique IDs
 int GetNextGlobalID();
@@ -62,7 +62,7 @@ private:
 	const TContainer& operator=(const TContainer& rhs) {}
 
 protected:
-	std::map<int,T*> m_items;
+	std::tr1::unordered_map<int,T*> m_items;
 	std::vector<int> m_order;
 };
 
@@ -75,14 +75,14 @@ template <class T>
 TContainer<T>::~TContainer()
 {
 	//free all items
-	for (std::map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
+	for (std::tr1::unordered_map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
 		delete it->second;
 }
 
 template <class T>
 T* TContainer<T>::Get(int iID) const
 {
-	std::map<int,T*>::const_iterator it=m_items.find(iID);
+	std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
 
 	if (it!=m_items.end())
 		return it->second;
@@ -95,7 +95,7 @@ T* TContainer<T>::GetAt(int iIndex) const
 {
 	if (iIndex >= 0 && iIndex < (int)m_order.size())
 	{
-		std::map<int, T*>::const_iterator it = m_items.find(m_order[iIndex]);
+		std::tr1::unordered_map<int, T*>::const_iterator it = m_items.find(m_order[iIndex]);
 
 		if (it != m_items.end())
 			return it->second;
@@ -138,7 +138,7 @@ template <class T>
 void TContainer<T>::RemoveAll()
 {
 	//free all items
-	for (std::map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
+	for (std::tr1::unordered_map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
 		delete it->second;
 
 	m_items.clear();

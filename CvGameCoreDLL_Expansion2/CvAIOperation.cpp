@@ -2780,7 +2780,7 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
 	CvPlot* pRefPlot = GetTargetPlot();
 	if (pRefPlot)
 	{
-		CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner, m_eEnemy, DOMAIN_SEA, false, pRefPlot->getArea(), pRefPlot);
+		CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearPlot(m_eOwner, m_eEnemy, DOMAIN_SEA, false, pRefPlot->getArea(), pRefPlot);
 		if (ppMuster)
 			*ppMuster = pTarget;
 		return pTarget;
@@ -2851,7 +2851,7 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 	int iLoop;
 
 	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityRank();
+	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
 
 	// If no city is threatened just defend whichever of our cities is closest to the enemy capital
 	if (pTargetCity == NULL || !pTargetCity->isCoastal())
@@ -2960,7 +2960,7 @@ CvPlot* CvAIOperationDefendCityPeace::FindBestTarget(CvPlot** ppMuster) const
 	CvPlot* pPlot = NULL;
 
 	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityRank();
+	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
 
 	if(pTargetCity != NULL)
 	{
@@ -3032,7 +3032,7 @@ CvPlot* CvAIOperationDefendCity::FindBestTarget(CvPlot** ppMuster) const
 	int iLoop;
 
 	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityRank();
+	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityByRank();
 
 	// If no city is threatened just defend whichever of our cities is closest to the enemy capital
 	if (pTargetCity == NULL)
@@ -3125,7 +3125,7 @@ CvPlot* CvAIOperationDefenseRapidResponse::FindBestTarget(CvPlot** ppMuster) con
 	if (pRefPlot)
 		iRefArea = pRefPlot->getArea();
 
-	CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner,m_eEnemy,DOMAIN_LAND,true,iRefArea,pRefPlot);
+	CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearPlot(m_eOwner,m_eEnemy,DOMAIN_LAND,true,iRefArea,pRefPlot);
 	if (ppMuster)
 		*ppMuster = pTarget;
 	return pTarget;
@@ -3748,7 +3748,7 @@ CvPlot* OperationalAIHelpers::FindBestCoastalBombardmentTarget(PlayerTypes ePlay
 				//they should all be water, but doesn't hurt to check
 				if (GC.getMap().getArea(vAreas[i])->isWater())
 				{
-					CvPlot* pBestTargetHere = OperationalAIHelpers::FindEnemies(ePlayer,eEnemy,DOMAIN_LAND,false,vAreas[i],pLoopCity->plot());
+					CvPlot* pBestTargetHere = OperationalAIHelpers::FindEnemiesNearPlot(ePlayer,eEnemy,DOMAIN_LAND,false,vAreas[i],pLoopCity->plot());
 					if (pBestTargetHere)
 					{
 						int iDistance = plotDistance(*pBestTargetHere,*pLoopCity->plot());
@@ -3883,13 +3883,8 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	if (pLoopUnit->getArmyID() != -1)
 		return false;
 
-	// Get raw distance to the muster point (pathfinder is too expensive)
 	CvPlot* pkLoopUnitPlot = pLoopUnit->plot();
 	if (!pkLoopUnitPlot || !pMusterPlot || !pTargetPlot)
-		return false;
-
-	//No naval units in non-naval operations!
-	if (bMustNaval && pLoopUnit->getDomainType() == DOMAIN_SEA)
 		return false;
 
 	//don't recruit if currently healing
@@ -3971,14 +3966,12 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 			}
 		}
 	}
-	
 
 	//check if the unit is engaged with the enemy outside of our lands...
 	if (pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() && pLoopUnit->IsEnemyInMovementRange())
 		return false;
 
 	//don't take explorers
-
 	if (unitInfo == NULL || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 	{
 		return false;
@@ -4030,8 +4023,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	else
 	{ 
 		// finally, if the unit is too far away, no deal
-		SMovePlot dummy(pLoopUnit->plot()->GetPlotIndex(),0,0);
-		ReachablePlots::const_iterator it = turnsFromMuster.find(dummy);
+		ReachablePlots::const_iterator it = turnsFromMuster.find(pLoopUnit->plot()->GetPlotIndex());
 		if (it==turnsFromMuster.end())
 		{
 			/*/
@@ -4083,7 +4075,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	return true;
 }
 
-CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot)
+CvPlot* OperationalAIHelpers::FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot)
 {
 	CvPlot* pBestPlot = NULL;
 	int iMaxEnemyPower = 0;
@@ -4097,10 +4089,13 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 		if(eDomain!=NO_DOMAIN && pLoopUnit->getDomainType()!=eDomain)
 			continue;
 
+		if (!pLoopPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
+			continue;
+
 		if (pLoopUnit->isInvisible(GET_PLAYER(ePlayer).getTeam(),false))
 			continue;
 
-		if (bHomelandOnly && pLoopPlot->getOwner()!=ePlayer)
+		if (bHomelandOnly && pLoopPlot->getOwner()!=ePlayer && GET_PLAYER(ePlayer).GetCityDistanceInPlots(pLoopPlot)>4) 
 			continue;
 
 		if (!bHomelandOnly && pLoopPlot->getOwner() == ePlayer)
@@ -4124,13 +4119,7 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 	}
 
 	if(pBestPlot == NULL)
-	{
-		CvCity* pCity = GET_PLAYER(ePlayer).GetThreatenedCityRank();
-		if(pCity != NULL)
-		{
-			pBestPlot = pCity->plot();
-		}
-	}
+		return pRefPlot;
 
 	return pBestPlot;	
 }

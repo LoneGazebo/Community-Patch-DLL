@@ -301,7 +301,7 @@ function UpdateWindow( city )
     Controls.Gold:SetText( "[ICON_GOLD]" .. city:GetYieldRate( YieldTypes.YIELD_GOLD ) );
     Controls.Culture:SetText( "[ICON_CULTURE]" .. city:GetJONSCulturePerTurn() );
 	Controls.Faith:SetText( "[ICON_PEACE]" .. city:GetFaithPerTurn() );
-	Controls.Happiness:SetText( "[ICON_HAPPINESS_1]" .. city:getHappinessDelta() );
+	Controls.Happiness:SetText( "[ICON_HAPPINESS_1]" .. city:GetLocalHappiness() );
     Controls.CityButton:SetVoids( city:GetX(), city:GetY() );
 
 	local cityGrowth = city:GetFoodTurnsLeft();			

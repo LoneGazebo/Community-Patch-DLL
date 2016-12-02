@@ -61,7 +61,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_LIBERATE_CITY");
 		local strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", Players[iLiberatedPlayer]:GetNameKey());
 		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
-		strToolTip = strToolTip .. activePlayer:GetLiberationPreviewString(iLiberatedPlayer, newcity, newCity:IsCapital(), Game.GetActivePlayer());
+		strToolTip = strToolTip .. activePlayer:GetLiberationPreviewString(iLiberatedPlayer, newCity, newCity:IsCapital(), Game.GetActivePlayer());
 		AddButton(buttonText, OnLiberateClicked, strToolTip);
 	end
 	
@@ -76,7 +76,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		local strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX");
 		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
-			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newcity, newCity:IsCapital(), Game.GetActivePlayer());
+			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, newCity:IsCapital(), Game.GetActivePlayer());
 		end
 		AddButton(buttonText, OnCaptureClicked, strToolTip);
 	end
@@ -90,7 +90,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET");
 	if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
 		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
-		strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newcity, newCity:IsCapital(), Game.GetActivePlayer());
+		strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, newCity:IsCapital(), Game.GetActivePlayer());
 	end
 	AddButton(buttonText, OnPuppetClicked, strToolTip);
 	
@@ -105,7 +105,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE");
 		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
-			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newcity, newCity:IsCapital(), Game.GetActivePlayer());
+			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, newCity:IsCapital(), Game.GetActivePlayer());
 		end
 		AddButton(buttonText, OnRazeClicked, strToolTip);
 	end
