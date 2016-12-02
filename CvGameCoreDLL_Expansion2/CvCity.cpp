@@ -24966,7 +24966,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 	//return the best 12
 	std::sort( resultList.begin(), resultList.end() );
-	if (resultList.size()>nChoices)
+	if (resultList.size()>(size_t)nChoices)
 		resultList.erase( resultList.begin()+nChoices, resultList.end() );
 
 	//throw away the cost, return the plot index only
