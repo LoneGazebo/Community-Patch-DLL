@@ -7623,7 +7623,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		if(thisUnitInfo.IsFound() || thisUnitInfo.IsFoundAbroad())
 		{
 			int iSizeRequirement = /*2*/ GC.getCITY_MIN_SIZE_FOR_SETTLERS();
-			if (getPopulation() < iSizeRequirement)
+			if(getPopulation() < iSizeRequirement)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_SETTLER_SIZE_LIMIT", "", "", iSizeRequirement);
 				if(toolTipSink == NULL)
@@ -26476,7 +26476,11 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 #endif
 
 	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
-	else if(!pUnit->isHuman() /*&& !thisPlayer.isMinorCiv()*/)
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	else if (!pUnit->isHuman() && EconomicAIHelpers::CannotMinorCiv(&thisPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON")))
+#else
+	else if(!pUnit->isHuman() && !thisPlayer.isMinorCiv())
+#endif
 	{
 		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		if(thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategy))

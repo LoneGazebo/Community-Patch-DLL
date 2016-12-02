@@ -9,7 +9,6 @@
 // For the default value of 22, just comment the line out
 // #define MOD_GLOBAL_MAX_MAJOR_CIVS (34)
 // #define MOD_GLOBAL_MAX_MAJOR_CIVS (43)
-#define MOD_GLOBAL_MAX_MAJOR_CIVS (51)
 // #define MOD_GLOBAL_MAX_MAJOR_CIVS (62)
 
 #endif

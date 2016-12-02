@@ -739,19 +739,39 @@ void CvEconomicAI::DoTurn()
 			{
 				// Check all of the Strategy Triggers
 				if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedRecon(eStrategy, m_pPlayer);
+#else
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedRecon(m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughRecon(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON_SEA")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedReconSea(eStrategy, m_pPlayer);
+#else
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedReconSea(m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughReconSea(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EARLY_EXPANSION")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EarlyExpansion(eStrategy, m_pPlayer);
+#else
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EarlyExpansion(m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_EXPANSION")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
+#else
+#if defined(MOD_BALANCE_CORE)
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(m_pPlayer);
+#else
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
+#endif
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedHappiness(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL")
@@ -783,9 +803,17 @@ void CvEconomicAI::DoTurn()
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_IslandStart(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(eStrategy, m_pPlayer);
+#else
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(eStrategy, m_pPlayer);
+#else
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_MOSTLY_ON_THE_COAST")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY")
@@ -2463,10 +2491,14 @@ void CvEconomicAI::DoReconState()
 	m_eReconState = RECON_STATE_NEUTRAL;
 	m_eNavalReconState = RECON_STATE_NEUTRAL;
 
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	bool isCannotRecon = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
 	bool isCannotReconSea = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
 
 	if (isCannotRecon && isCannotReconSea)
+#else
+	if(GetPlayer()->isMinorCiv())
+#endif
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 		m_eNavalReconState = RECON_STATE_ENOUGH;
@@ -2662,6 +2694,7 @@ void CvEconomicAI::DoReconState()
 		}
 	}
 
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	if (isCannotRecon)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
@@ -2670,6 +2703,7 @@ void CvEconomicAI::DoReconState()
 	{
 		m_eNavalReconState = RECON_STATE_ENOUGH;
 	}
+#endif
 
 }
 
@@ -3408,13 +3442,17 @@ int EconomicAIHelpers::GetWeightThresholdModifier(EconomicAIStrategyTypes eStrat
 }
 
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer,eStrategy))
 	{
 		return false;
 	}
-
+#else
+bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
+{
+#endif
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -3424,7 +3462,6 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrate
 			return false;
 		}
 	}
-
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 
@@ -3528,13 +3565,17 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 }
 
 /// "Need Recon Sea" Player Strategy: chosen by the DoRecon() function
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
 	{
 		return false;
 	}
-
+#else
+bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(CvPlayer* pPlayer)
+{
+#endif
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -3689,9 +3730,15 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 }
 
 /// "Early Expansion" Player Strategy: An early Strategy simply designed to get player up to 3 Cities quickly.
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
+#else
+bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
+{
+	if (pPlayer->isMinorCiv())
+#endif
 		return false;
 
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
@@ -3746,9 +3793,18 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
-bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
-{
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer){
 	bool bCannotExpand = pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy) || pPlayer->GetPlayerTraits()->IsNoAnnexing();
+#else
+#if defined(MOD_BALANCE_CORE)
+bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
+#else
+bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
+#endif
+{
+	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
+#endif
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
 		return true;
@@ -3833,7 +3889,11 @@ bool EconomicAIHelpers::IsTestStrategy_NeedHappiness(EconomicAIStrategyTypes eSt
 	}
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if (CannotMinorCiv(pPlayer, eStrategy) || pPlayer->isBarbarian())
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	if(CannotMinorCiv(pPlayer, eStrategy) || pPlayer->isBarbarian())
+#else
+	if(pPlayer->isMinorCiv() || pPlayer->isBarbarian())
+#endif
 	{
 		return false;
 	}
@@ -3977,14 +4037,18 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 /// "Found City" Player Strategy: If there is a settler who isn't in an operation?  If so, find him a city site
 // Very dependent on the fact that the player probably won't have more than 2 settlers available at a time; needs an
 //   upgrade if that assumption is no longer true
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-
 	// Never run this strategy for OCC, barbarians or minor civs
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
-	{
 		return false;
-	}
+#else
+bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStrategy*/, CvPlayer* pPlayer)
+{
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
+		return false;
+#endif
 
 	if(pPlayer->getNumCities() < 1) //in this case homeland (first settler moves) should apply
 		return false;
@@ -4005,13 +4069,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 	if (vSettlers.empty())
 		return false;
 
-
 	//only now look at the available plots for settling - this avoids a costly update if we don't have any settlers!
 	int iBestArea = -1;
 	int iSecondBestArea = -1;
 	bool bIsSafe = false;
 	int iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-
 	if(iNumAreas == 0)
 	{
 		return false;
@@ -4539,14 +4601,22 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 }
 
 /// Are we running out of room on our current landmass?
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
+#else
+bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer)
+#endif
 {
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
 
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy))
+#else
+	if(pPlayer->IsEmpireUnhappy() || pPlayer->isMinorCiv())
+#endif
 	{
 		return false;
 	}
@@ -4627,7 +4697,11 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 
 
 /// Is there a lot more room on a known island other than our current landmass?
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
+#else
+bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* pPlayer)
+#endif
 {
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
@@ -4639,7 +4713,11 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(EconomicAIS
 	{
 		return false;
 	}
-	if (!pPlayer->CanCrossOcean() || CannotMinorCiv(pPlayer, eStrategy))
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	if(!pPlayer->CanCrossOcean() || CannotMinorCiv(pPlayer, eStrategy))
+#else
+	if(!pPlayer->CanCrossOcean() || pPlayer->isMinorCiv())
+#endif
 	{
 		return false;
 	}
@@ -4717,16 +4795,6 @@ bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)
 	return (iCoastalPop > 0 && iCoastalPop >= iInlandPop);
 }
 
-bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes eStrategy)
-{
-	if (!pPlayer->isMinorCiv())
-	{
-		return false;
-	}
-	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	return (pStrategy->IsNoMinorCivs() != 0);
-}
-
 bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
@@ -4734,8 +4802,12 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 		return false;
 	}
 
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	// Minor Civs can't run some Strategies
 	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy))
+#else
+	if (pPlayer->IsEmpireUnhappy() || pPlayer->isMinorCiv())
+#endif
 	{
 		return false;
 	}
@@ -5333,3 +5405,16 @@ bool EconomicAIHelpers::IsTestStrategy_StartedPiety(CvPlayer* pPlayer)
 
 	return bRtnValue;
 }
+
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes eStrategy)
+{
+	if(!pPlayer->isMinorCiv())
+	{
+		return false;
+	}
+	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
+	return (pStrategy->IsNoMinorCivs() != 0);
+}
+#endif
+
