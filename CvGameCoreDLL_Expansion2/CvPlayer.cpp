@@ -13815,11 +13815,7 @@ void CvPlayer::found(int iX, int iY)
 	int iExtraTerritoryClaim = GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRange();
 	for (int i = 0; i < iExtraTerritoryClaim; i++)
 	{
-#if defined(MOD_BALANCE_CORE)
 		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
-#else
-		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
-#endif
 
 		// maybe the player owns ALL of the plots or there are none available?
 		if(pPlotToAcquire)
@@ -13988,11 +13984,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 		//And a little territory to boot
 		for (int i = 0; i < iExtraPlots; i++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
-#else
-			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
-#endif
 
 			// maybe the player owns ALL of the plots or there are none available?
 			if(pPlotToAcquire)

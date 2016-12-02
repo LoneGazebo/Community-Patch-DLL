@@ -24687,42 +24687,17 @@ CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
 {
 	VALIDATE_OBJECT
 	std::vector<int> aiPlotList;
-	aiPlotList.resize(20, -1);
 	GetBuyablePlotList(aiPlotList, bForPurchase);
 
-	int iListLength = 0;
-	for(uint ui = 0; ui < aiPlotList.size(); ui++)
-	{
-		if(aiPlotList[ui] >= 0)
-		{
-			iListLength++;
-		}
-		else
-		{
-			break;
-		}
-	}
+	if (aiPlotList.empty())
+		return NULL;
 
-	CvPlot* pPickedPlot = NULL;
-	if(iListLength > 0)
-	{
-		if (isBarbarian())
-		{
-			int iPickedIndex = 0;
-			pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
-		}
-		else
-		{
-			int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
-			pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
-		}
-	}
-
-	return pPickedPlot;
+	int iPickedIndex = GC.getGame().getSmallFakeRandNum( aiPlotList.size(), *plot());
+	return GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase)
+void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices)
 {
 	aiPlotList.clear();
 	std::vector< pair<int,int> > resultList;
@@ -24991,8 +24966,8 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase)
 
 	//return the best 12
 	std::sort( resultList.begin(), resultList.end() );
-	if (resultList.size()>12)
-		resultList.erase( resultList.begin()+12, resultList.end() );
+	if (resultList.size()>nChoices)
+		resultList.erase( resultList.begin()+nChoices, resultList.end() );
 
 	//throw away the cost, return the plot index only
 	for (size_t i=0; i<resultList.size(); i++)

@@ -1327,7 +1327,7 @@ public:
 	bool CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost = false);
 	bool CanBuyAnyPlot(void);
 	CvPlot* GetNextBuyablePlot(bool bForPurchase);
-	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase);
+	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices=3);
 	int GetBuyPlotCost(int iPlotX, int iPlotY) const;
 	void BuyPlot(int iPlotX, int iPlotY);
 	void DoAcquirePlot(int iPlotX, int iPlotY);
