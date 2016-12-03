@@ -26476,7 +26476,11 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 #endif
 
 	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	else if (!pUnit->isHuman() && EconomicAIHelpers::CannotMinorCiv(&thisPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON")))
+#else
 	else if(!pUnit->isHuman() && !thisPlayer.isMinorCiv())
+#endif
 	{
 		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		if(thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategy))
