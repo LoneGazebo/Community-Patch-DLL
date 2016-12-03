@@ -11377,7 +11377,8 @@ void CvPlayer::EndTurnsForReadyUnits()
 	{
 		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
-			pLoopUnit->finishMoves();
+			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pLoopUnit->SetTurnProcessed(true);
 #if defined(MOD_BALANCE_CORE)
 			if(GC.getLogging() && GC.getAILogging())
 			{

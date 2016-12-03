@@ -2985,7 +2985,7 @@ void CvHomelandAI::PlotAircraftMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-			if(pUnit->getDomainType() == DOMAIN_AIR && pUnit->getDamage() < 50)
+			if(pUnit->getDomainType() == DOMAIN_AIR)
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
