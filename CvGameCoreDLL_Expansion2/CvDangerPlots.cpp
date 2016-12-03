@@ -505,7 +505,7 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 /// Should this unit be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 {
-	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER)
+	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit)
 		return true;
 
 	if(!pUnit->IsCanAttack())
