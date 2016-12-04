@@ -33,7 +33,7 @@
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(20)	//accept four plots detour to save on maintenance
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided (land units only)
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*90)		//embarkation should be avoided (land units only)
 #define PATH_END_TURN_INVISIBLE_WEIGHT							(PATH_BASE_COST*10)		//when in doubt, prefer routes through visible areas
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
@@ -1157,14 +1157,20 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	// If we are a land unit and we are ending the turn on water, make the cost a little higher 
 	// so that we favor staying on land or getting back to land as quickly as possible
 	if(eUnitDomain == DOMAIN_LAND && kToNodeCacheData.bIsNonNativeDomain)
-		iCost += PATH_END_TURN_WATER;
+	{
+		if ( pToPlot->getTeam() != eUnitTeam )
+			iCost += PATH_END_TURN_WATER;
+		else
+			iCost += PATH_END_TURN_WATER / 2;
+	}
 
 	// when in doubt we prefer to end our turn on a route
 	if (!kToNodeCacheData.bIsValidRoute)
 		iCost += PATH_END_TURN_NO_ROUTE;
 
-	//danger check
-	if ( pUnitDataCache->doDanger() || kToNodeCacheData.bIsNonNativeDomain )
+	//danger check (potentially recursive because of GetDanger uses the pathfinder!)
+	//careful with additional conditions here ...
+	if ( pUnitDataCache->doDanger() )
 	{
 		//invisible plots might be dangerous without us knowing
 		if (!pToPlot->isVisible(eUnitTeam))
