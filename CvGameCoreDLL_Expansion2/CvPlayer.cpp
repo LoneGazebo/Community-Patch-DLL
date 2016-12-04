@@ -45257,7 +45257,12 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 
 	//don't need to update if never going to settle again
 	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
+	if (EconomicAIHelpers::CannotMinorCiv(this, eCanSettle) || bVenice)
+#else
 	if (isMinorCiv() || bVenice)
+#endif
 	{
 		if (GetNumCitiesFounded()>0)
 			return;

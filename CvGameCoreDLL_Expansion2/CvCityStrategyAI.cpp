@@ -1545,7 +1545,11 @@ void CvCityStrategyAI::DoTurn()
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_NEW_CONTINENT_FEEDER")
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(eCityStrategy, GetCity());
+#else
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(GetCity());
+#endif
 				else if(strStrategyName == "AICITYSTRATEGY_POCKET_CITY")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(GetCity());
 #endif
@@ -2983,6 +2987,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	{
 		if(iNumWorkers >= iCurrentNumCities)
 			return false;
+#if defined(MOD_MINOR_CIV_EXTENDED)
+		// if we lost our worker, rebuild-it asap. (>50 turn in normal speed)
+		if (iNumWorkers == 0 && GC.getGame().getElapsedGameTurns()
+			> GC.getGame().getGameSpeedInfo().getTrainPercent() / 2)
+			return true;
+#endif
 	}
 	else
 	{
@@ -3351,6 +3361,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	{
 		if(iNumBuilders >= kPlayer.getNumCities())
 			return true;
+#if defined(MOD_MINOR_CIV_EXTENDED)
+		// if we lost our worker, rebuild-it asap. (>50 turn in normal speed)
+		if (iNumBuilders == 0 && GC.getGame().getElapsedGameTurns()
+			> GC.getGame().getGameSpeedInfo().getTrainPercent() / 2)
+			return false;
+#endif
 	}
 
 	CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
@@ -3548,7 +3564,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
+	if (!EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
+#else
 	if(!kPlayer.isMinorCiv())
+#endif
 	{
 		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
 		//Too many settlers? Stop building them!
@@ -3569,7 +3590,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 	return false;
 }
 // We a new city on a bigger continent? Let's spread our legs!
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity)
+#else
 bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
+#endif
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
@@ -3581,7 +3606,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 	{
 		return false;
 	}
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+	if (!( kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs() )
+		&& kPlayer.getCapitalCity() != NULL)
+#else
 	if(!kPlayer.isMinorCiv() && kPlayer.getCapitalCity() != NULL)
+#endif
 	{
 		CvArea* pArea2 = GC.getMap().getArea(kPlayer.getCapitalCity()->getArea());
 		if(pArea != NULL && pArea->GetID() != pArea2->GetID())
@@ -3658,7 +3688,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 	{
 		CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
+#if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
+		if (! (kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs()))
+#else
 		if(!kPlayer.isMinorCiv())
+#endif
 		{
 			int iNumCities = kPlayer.getNumCities();
 			int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);

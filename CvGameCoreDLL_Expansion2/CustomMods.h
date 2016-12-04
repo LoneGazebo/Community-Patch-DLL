@@ -933,6 +933,8 @@
 #define MOD_BUGFIX_UNIT_PREREQ_PROJECT              gCustomMods.isBUGFIX_UNIT_PREREQ_PROJECT()
 // Fixes a bug where hovering units can be chosen as rebels! (v39)
 #define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
+// Fixes some bugs/regressions that disable the effect of IsNoMinorCivs of some strategies
+#define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1636,6 +1638,7 @@ public:
 	MOD_OPT_DECL(BUGFIX_NO_HOVERING_REBELS);
 	MOD_OPT_DECL(BUGFIX_HOVERING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
+	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
 
 protected:
 	bool m_bInit;
