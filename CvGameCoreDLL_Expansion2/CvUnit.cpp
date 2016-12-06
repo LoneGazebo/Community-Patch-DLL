@@ -11978,7 +11978,7 @@ bool CvUnit::trade()
 
 	CvPlot* pPlot = plot();
 
-	if(!canTrade(pPlot))
+	if(!pPlot || !canTrade(pPlot))
 		return false;
 
 	int iTradeGold = getTradeGold(pPlot);
@@ -12078,7 +12078,8 @@ bool CvUnit::trade()
 		DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MERCHANT_RESULT", iTradeGold, iFriendship));
 	}
 
-	if(pPlot->isActiveVisible(false))
+	//there was a strange crash here where the unit suddenly was at an invalid plot
+	if(pPlot->isActiveVisible(false) && plot()==pPlot)
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());

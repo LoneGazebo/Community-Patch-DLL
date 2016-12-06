@@ -1,6 +1,6 @@
 -- Adjusted for Religion Spread Rework
 UPDATE Defines
-SET Value = '13'
+SET Value = '12'
 WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 
 -- For CBO
