@@ -907,8 +907,11 @@
     <Row Class="1" Name="BUGFIX_NO_HOVERING_REBELS" Value="1"/>
     <!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->  
     <Row Class="1" Name="BUGFIX_HOVERING_PATHFINDER" Value="1"/>
-		
-		<!-- Changes for the Community Patch  -->	
+	 
+	<!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->
+	<Row Class="1" Name="BUGFIX_MINOR_CIV_STRATEGIES" Value="1"/>
+
+	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>
 	<!-- The core sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE" Value="0"/>

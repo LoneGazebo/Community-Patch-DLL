@@ -532,6 +532,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Carriers? Only if we need them.
 		if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
 		{
+			if (kPlayer.isMinorCiv())
+				return 0;
+
 			int iSlots = kPlayer.GetMilitaryAI()->GetNumFreeCarrier();
 			//No planes, or a surplus of carriers? No carriers
 			if (iSlots == -1 || (iSlots > 0))
@@ -1278,12 +1281,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Debt is worth considering.
 	if(bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
 	{
-		if(iGPT < 0)
+		if (iGPT < 0)
 		{
 			//Every -1 GPT = -100 penalty.
-			if(!bAtWar)
+			if (!bAtWar)
 			{
 				iBonus += iGPT * 100;
+				//At zero? Even more negative!
+				if (kPlayer.GetTreasury()->GetGold() <= 0)
+				{
+					iBonus += -500;
+				}
 			}
 		}
 	}
