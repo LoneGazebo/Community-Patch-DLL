@@ -24825,16 +24825,19 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					if (eResource != NO_RESOURCE)
 					{
 #if defined(MOD_BALANCE_CORE)
-						//prefer resources we don't have already
-						if (GetPlayer()->getNumResourceTotal(eResource)==0)
-							iInfluenceCost += 2*iPLOT_INFLUENCE_RESOURCE_COST;
-						else
-							iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
+						CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
+						if (pkResource)
+						{
+							if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
+							else if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) <= iWorkPlotDistance)
+								//bonus resources are meh, even if they are in range
+								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST/2;
+						}
 #else
 						iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
 						bool bBonusResource = GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS;
 						if (bBonusResource)
-#endif
 						{
 							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
 							{
@@ -24847,6 +24850,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 								++iInfluenceCost;
 							}
 						}
+#endif
 					}
 					else 
 					{
@@ -24947,24 +24951,19 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 							}
 						}
 					}
+
 					if (!bFoundAdjacentOwnedByCity)
 					{
 						iInfluenceCost += iPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST;
 					}
 
-#if defined(MOD_UI_CITY_EXPANSION)
-					// Group very similiar "cost" tiles - ie 683 and 684 cost tiles will appear to be the same value
-					int iDivisor = /*5*/ GC.getPLOT_INFLUENCE_COST_VISIBLE_DIVISOR();
-					iInfluenceCost /= iDivisor;
-					iInfluenceCost *= iDivisor;
-#endif
 					resultList.push_back( std::make_pair(iInfluenceCost,pLoopPlot->GetPlotIndex()) );
 				}
 			}
 		}
 	}
 
-	//return the best 12
+	//we want only the best
 	std::sort( resultList.begin(), resultList.end() );
 	if (resultList.size()>(size_t)nChoices)
 		resultList.erase( resultList.begin()+nChoices, resultList.end() );

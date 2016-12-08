@@ -2781,6 +2781,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding);
 #endif
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
+		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 		SetClosestCityMapDirty();
