@@ -25041,6 +25041,18 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	}
 #endif
 
+	// Discount for adjacent plots owned by us
+	int iAdjacentOwnedCount = 0;
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor && pNeighbor->getOwner()==getOwner())
+			iAdjacentOwnedCount++;
+	}
+	iCost = iCost * (100 - iAdjacentOwnedCount*5);
+	iCost /= 100;
+
 	// Game Speed Mod
 	iCost *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iCost /= 100;
@@ -25049,8 +25061,8 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	iCost /= 100;
 
 	// Now round so the number looks neat
-	int iDivisor = /*5*/ GC.getPLOT_COST_APPEARANCE_DIVISOR();
-	iCost /= iDivisor;
+	int iDivisor = /*5*/ max(1,GC.getPLOT_COST_APPEARANCE_DIVISOR());
+	iCost = (iCost+iDivisor/2) / iDivisor;
 	iCost *= iDivisor;
 
 	return iCost;
