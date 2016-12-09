@@ -1759,7 +1759,7 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 	int iExtraCost = 0;
 	if (pToPlot->isHills())
 		iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
-	if (pToPlot->isMountain())
+	if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
 		iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
 
 	CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());

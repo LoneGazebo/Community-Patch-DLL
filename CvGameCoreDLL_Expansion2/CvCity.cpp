@@ -25050,7 +25050,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 		if (pNeighbor && pNeighbor->getOwner()==getOwner())
 			iAdjacentOwnedCount++;
 	}
-	iCost = iCost * (100 - iAdjacentOwnedCount*5);
+	iCost = iCost * (105 - iAdjacentOwnedCount*5); //we know that one is always owned
 	iCost /= 100;
 
 	// Game Speed Mod
