@@ -1740,36 +1740,42 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		return 0;
 
 	int iCost = 1;
+	int iExtraCost = 0;
 
 	CvMap& kMap = GC.getMap();
-	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pSourcePlot = kMap.plotUnchecked(finder->GetStartX(), finder->GetStartY());
-	bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
 
-	//rivers are natural borders
-	if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)) && !bIsRoute)
-		iCost += GC.getINFLUENCE_RIVER_COST();
+	if (pToPlot->getOwner() != pSourcePlot->getOwner())
+	{
+		bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
 
-	//going through foreign territory is expensive
-	if(pToPlot->getOwner() != NO_PLAYER && pSourcePlot->getOwner() != NO_PLAYER && pToPlot->getOwner() != pSourcePlot->getOwner())
-		iCost += 15;
+		//rivers are natural borders
+		if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)) && !bIsRoute)
+			iCost += GC.getINFLUENCE_RIVER_COST();
 
-	//plot type dependent cost. should really be handled via terrain, but ok for now
-	int iExtraCost = 0;
-	if (pToPlot->isHills())
-		iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
-	if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
-		iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
+		//going through foreign territory is expensive (we already check that we don't own it)
+		if(pToPlot->getOwner() != NO_PLAYER)
+			iCost += 15;
 
-	CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
-	CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
-	iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
-	iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+		//plot type dependent cost. should really be handled via terrain, but ok for now
+		if (pToPlot->isHills())
+			iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
+		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
+			iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
 
-	//going along routes is cheaper
-	if (bIsRoute)
-		iExtraCost /= 2;
+		CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
+		CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
+		iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
+		iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+
+		//going along routes is cheaper
+		if (bIsRoute)
+			iExtraCost /= 2;
+	}
+	else if (pToPlot->isImpassable(pSourcePlot->getTeam()))
+		iCost += GC.getINFLUENCE_MOUNTAIN_COST();
 
 	return max(1,iCost+iExtraCost)*PATH_BASE_COST;
 }

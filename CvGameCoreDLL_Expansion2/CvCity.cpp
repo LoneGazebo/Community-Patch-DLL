@@ -24971,7 +24971,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	//throw away the cost, return the plot index only
 	for (size_t i=0; i<resultList.size(); i++)
 		//if there's a clear favorite, don't bother with the rest
-		if (resultList[i].first - resultList[0].first <= 200) 
+		if (resultList[i].first - resultList[0].first <= 100) 
 			aiPlotList.push_back( resultList[i].second );
 }
 
