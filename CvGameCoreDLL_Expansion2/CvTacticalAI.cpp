@@ -13894,7 +13894,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	*/
 
 	result.clear();
-	if (vUnits.size()==0)
+	if (vUnits.empty() || vUnits.front()==NULL)
 		return false;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
