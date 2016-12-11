@@ -352,7 +352,6 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_CachedInfoTypes[eMUPOSITION_FRONT_LINE] = GC.getInfoTypeForString("MUPOSITION_FRONT_LINE");
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	m_CurrentMoveHighPriorityUnits.setPlayer(pPlayer);
 	m_CurrentMoveUnits.setPlayer(pPlayer);
 #endif
 }
@@ -2202,7 +2201,6 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	m_CurrentMoveUnits.setCurrentTacticalMove(move);
-	m_CurrentMoveHighPriorityUnits.setCurrentTacticalMove(move);
 #endif
 
 	//the order in which the moves are listed here is not at all the order in which they are executed!
@@ -3664,7 +3662,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 			// Grab units that make sense for this move type
 			FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE], pPlot, iNumTurnsAway, bMustAllowRangedAttack);
 
-			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+			if(m_CurrentMoveUnits.size() > 0)
 			{
 				ExecuteMoveToTarget(pPlot);
 
@@ -3705,7 +3703,7 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE], pPlot, iNumTurnsAway);
 
-		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+		if(m_CurrentMoveUnits.size() > 0)
 		{
 			ExecuteMoveToTarget(pPlot);
 			if(GC.getLogging() && GC.getAILogging())
@@ -3730,7 +3728,7 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE], pPlot, iNumTurnsAway);
 
-		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+		if(m_CurrentMoveUnits.size() > 0)
 		{
 			ExecuteMoveToTarget(pPlot);
 			if(GC.getLogging() && GC.getAILogging())
@@ -3755,7 +3753,7 @@ void CvTacticalAI::PlotAncientRuinMoves(int iNumTurnsAway)
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_ANCIENT_RUINS], pPlot, iNumTurnsAway);
 
-		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+		if(m_CurrentMoveUnits.size() > 0)
 		{
 			ExecuteMoveToTarget(pPlot);
 
@@ -6547,9 +6545,6 @@ void CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 
 	vector<STacticalAssignment> vAssignments;
 	vector<CvUnit*> vUnits;
-
-	for (size_t i=0; i<m_CurrentMoveHighPriorityUnits.size(); i++)
-		vUnits.push_back( m_CurrentMoveHighPriorityUnits.getUnit(i) );
 	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 		vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
 
@@ -7930,25 +7925,7 @@ bool CvTacticalAI::ExecuteMoveOfBlockingUnit(CvUnit* pBlockingUnit, CvPlot* pPre
 void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 {
 	// Move first one to target
-
-	CvUnit* pUnit = NULL;
-
-	if (m_CurrentMoveHighPriorityUnits.size() > 0 && m_CurrentMoveUnits.size() > 0)
-	{
-		if (m_CurrentMoveUnits.begin()->GetMovesToTarget() < m_CurrentMoveHighPriorityUnits.begin()->GetMovesToTarget())
-			pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
-		else
-			pUnit = m_pPlayer->getUnit(m_CurrentMoveHighPriorityUnits.begin()->GetID());
-	}
-	else if (m_CurrentMoveHighPriorityUnits.size() > 0)
-	{
-		pUnit = m_pPlayer->getUnit(m_CurrentMoveHighPriorityUnits.begin()->GetID());
-	}
-	else if (m_CurrentMoveUnits.size() > 0)
-	{
-		pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
-	}
-
+	CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 	if (pUnit)
 	{
 		if (pUnit->IsCanAttackRanged())
@@ -8006,23 +7983,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 /// Find one unit to move to target, starting with high priority list
 void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves)
 {
-	CvUnit* pUnit = NULL;
-
-	if (m_CurrentMoveHighPriorityUnits.size() > 0 && m_CurrentMoveUnits.size() > 0)
-	{
-		if (m_CurrentMoveUnits.begin()->GetMovesToTarget() < m_CurrentMoveHighPriorityUnits.begin()->GetMovesToTarget())
-			pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
-		else
-			pUnit = m_pPlayer->getUnit(m_CurrentMoveHighPriorityUnits.begin()->GetID());
-	}
-	else if (m_CurrentMoveHighPriorityUnits.size() > 0)
-	{
-		pUnit = m_pPlayer->getUnit(m_CurrentMoveHighPriorityUnits.begin()->GetID());
-	}
-	else if (m_CurrentMoveUnits.size() > 0)
-	{
-		pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
-	}
+	CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
 	if (pUnit)
 		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget,bSaveMoves);
@@ -8801,7 +8762,6 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 
 	list<int>::iterator it;
 	m_CurrentMoveUnits.clear();
-	m_CurrentMoveHighPriorityUnits.clear();
 
 	// Loop through all units available to tactical AI this turn
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -8897,22 +8857,15 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 					unit.SetID(pLoopUnit->GetID());
 					unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
 					unit.SetMovesToTarget(iMoves);
-
-					if(bHighPriority)
-					{
-						m_CurrentMoveHighPriorityUnits.push_back(unit);
-					}
-					else
-					{
-						m_CurrentMoveUnits.push_back(unit);
-					}
-
+					unit.SetAttackStrength( bHighPriority ? 40-iMoves : 20-iMoves ); //high prio units should come first after sorting
+					m_CurrentMoveUnits.push_back(unit);
 					rtnValue = true;
 				}
 			}
 		}
 	}
 
+	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
 	return rtnValue;
 }
 
