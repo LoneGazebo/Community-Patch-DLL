@@ -19935,19 +19935,6 @@ if (!bDoEvade)
 		}
 	}
 
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(getOwner());
-		args->Push(GetID());
-		args->Push(getX());
-		args->Push(getY());
-
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "UnitSetXY", args.get(), bResult);
-	}
-
 	if (bOwnerIsActivePlayer)
 		DLLUI->SetDontShowPopups(false);
 
@@ -19984,6 +19971,19 @@ if (!bDoEvade)
 			//normally re-setting the garrison in pkPrevGarrisonedCity should have set this already, but better be safe
 			SetGarrisonedCity(-1);
 		}
+	}
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(GetID());
+		args->Push(getX());
+		args->Push(getY());
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "UnitSetXY", args.get(), bResult);
 	}
 
 #if !defined(NO_ACHIEVEMENTS)

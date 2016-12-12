@@ -576,6 +576,9 @@ void CvTacticalAI::Update()
 
 	FindTacticalTargets();
 
+	//do this after updating the target list!
+	CommandeerUnits();
+
 	// Loop through each dominance zone assigning moves
 	ProcessDominanceZones();
 }
@@ -6466,6 +6469,7 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 	CvCity *pCity = pTargetPlot->getPlotCity();
 
 	// Do air raids, ignore all other units
+	bool bDone = false;
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
@@ -6473,7 +6477,7 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 		if (pUnit && pUnit->getDomainType()==DOMAIN_AIR)
 		{
 			int iCount = 0; //failsafe
-			while (pUnit->canMove() && !pUnit->isDelayedDeath() && iCount<3)
+			while (pUnit->canMove() && pUnit->GetCurrHitPoints()>30 && iCount<3)
 			{
 				//this is a bit ugly ... oh well
 				CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
@@ -6481,14 +6485,21 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage()<pCity->GetMaxHitPoints());
 
 				if (!bHaveUnitTarget && !bHaveCityTarget)
+				{
+					bDone = true;
 					break;
+				}
 
 				//it's a ranged attack but it uses the move mission ... air units are strange
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 				iCount++;
 			}
 
-			UnitProcessed(m_CurrentMoveUnits[iI].GetID(), false /*bMarkTacticalMap*/);
+			if (pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn() == 0)
+				UnitProcessed(m_CurrentMoveUnits[iI].GetID(), false /*bMarkTacticalMap*/);
+
+			if (bDone)
+				break;
 		}
 	}
 }

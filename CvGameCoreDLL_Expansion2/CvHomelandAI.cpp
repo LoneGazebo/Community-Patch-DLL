@@ -187,6 +187,8 @@ void CvHomelandAI::DoTurn()
 void CvHomelandAI::Update()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("Homeland AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()));
+	
+	RecruitUnits();
 
 	// Make sure we have a unit to handle
 	if(!m_CurrentTurnUnits.empty())

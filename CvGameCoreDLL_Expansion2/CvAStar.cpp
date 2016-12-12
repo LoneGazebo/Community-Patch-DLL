@@ -1765,10 +1765,14 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
 			iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
 
-		CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
-		CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
-		iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
-		iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+		//ignore this if there's a resource here
+		if (pToPlot->getResourceType(pSourcePlot->getTeam())==NO_RESOURCE)
+		{
+			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
+			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
+			iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
+			iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+		}
 
 		//going along routes is cheaper
 		if (bIsRoute)
