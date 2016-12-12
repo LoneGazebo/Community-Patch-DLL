@@ -2458,6 +2458,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 			break;
 		case AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY:
 			PlotMovesToSafety(true /*bCombatUnits*/);
+			PlotMovesToSafety(false /*bCombatUnits*/);
 			break;
 		case AI_TACTICAL_BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT:
 			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
@@ -7551,18 +7552,17 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 				pCurrent = pCivilian->plot();
 				if(pCurrent == pTarget)
 				{
-					pCivilian->finishMoves();
 					UnitProcessed(pCivilian->GetID());
 				}
 				else
 				{
 #if defined(MOD_BALANCE_CORE)
 					int iLoop;
-					int iBestDistance = MAX_INT;
+					int iBestDistance = 4;
 					ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 					for(pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 					{
-						if(!pLoopUnit || pLoopUnit->IsCivilianUnit())
+						if(!pLoopUnit || pLoopUnit->IsCivilianUnit() || pLoopUnit->plot()->getArea()!=pCivilian->plot()->getArea())
 							continue;
 
 						if(pLoopUnit->getDomainType() == pCivilian->getDomainType() || pLoopUnit->getArea() != pCivilian->getArea())
@@ -7613,26 +7613,14 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 					// Handle case of no path found at all for civilian
 					if(!pCivilian->GeneratePath(pTarget, iFlags))
 					{
-#if defined(MOD_BALANCE_CORE)
-						UnitProcessed(pCivilian->GetID());
-#endif
-						pCivilian->finishMoves();
-						if(pEscort)
-						{
-#if defined(MOD_BALANCE_CORE)
-							ExecuteMoveToPlotIgnoreDanger(pEscort, pCivilian->plot());
-							UnitProcessed(pEscort->GetID());
-#endif
-							pEscort->finishMoves();
-						}
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
 							strLogString.Format("Civilian cannot reach target, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 							LogTacticalMessage(strLogString);
 						}
+						return;
 					}
-
 					else
 					{
 						pCivilianMove = pCivilian->GetPathEndFirstTurnPlot();
@@ -7732,14 +7720,13 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 								{
 									if(!pEscort->GeneratePath(pTarget))
 									{
-										pCivilian->finishMoves();
-										pEscort->finishMoves();
 										if(GC.getLogging() && GC.getAILogging())
 										{
 											CvString strLogString;
 											strLogString.Format("Escort cannot move with civilian, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 											LogTacticalMessage(strLogString);
 										}
+										return;
 									}
 									else
 									{
@@ -7764,14 +7751,13 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 										}
 										else
 										{
-											pCivilian->finishMoves();
-											pEscort->finishMoves();
 											if(GC.getLogging() && GC.getAILogging())
 											{
 												CvString strLogString;
 												strLogString.Format("Civilian cannot move with escort. Too many blocking units.");
 												LogTacticalMessage(strLogString);
 											}
+											return;
 										}
 									}
 								}
@@ -7797,14 +7783,13 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 									}
 									else
 									{
-										pCivilian->finishMoves();
-										pEscort->finishMoves();
 										if(GC.getLogging() && GC.getAILogging())
 										{
 											CvString strLogString;
 											strLogString.Format("Could not move blocking unit for escorted civilian.");
 											LogTacticalMessage(strLogString);
 										}
+										return;
 									}
 								}
 							}
