@@ -187,8 +187,15 @@ void CvHomelandAI::DoTurn()
 void CvHomelandAI::Update()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("Homeland AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()));
-	
-	RecruitUnits();
+
+	//no homeland for barbarians
+	if(m_pPlayer->GetID() == BARBARIAN_PLAYER)
+		return;
+
+	if (m_pPlayer->isHuman())
+		FindAutomatedUnits();
+	else
+		RecruitUnits();
 
 	// Make sure we have a unit to handle
 	if(!m_CurrentTurnUnits.empty())

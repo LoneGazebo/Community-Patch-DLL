@@ -571,9 +571,6 @@ void CvTacticalAI::Update()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("Tactical AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	//do this after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
-	m_tacticalMap.Refresh();
-
 	FindTacticalTargets();
 
 	//do this after updating the target list!
