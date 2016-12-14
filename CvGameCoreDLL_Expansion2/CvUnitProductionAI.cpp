@@ -249,7 +249,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 }
 
 #if defined(MOD_BALANCE_CORE)
-int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes)
+int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes, bool bForPurchase)
 {
 	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
@@ -258,21 +258,36 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if(iTempWeight <= 0)
 		return 0;
 
+	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	//Sanitize...
-	if(iTempWeight > 1500)
+	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
 	{
-		iTempWeight = 1500;
+		if (iTempWeight > 2000)
+		{
+			iTempWeight = 2000;
+		}
+	}
+	else
+	{
+		if (iTempWeight > 1600)
+		{
+			iTempWeight = 1600;
+		}
 	}
 
 	if (!pkUnitEntry)
 		return 0;
 
-	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
-
-	if(m_pCity->IsPuppet())
+	if (bForPurchase && !m_pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 	{
 		return 0;
 	}
+
+	if (!bForPurchase && m_pCity->IsPuppet())
+	{
+		return 0;
+	}
+
 	if ((m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling()) && !bCombat)
 	{
 		return 0;

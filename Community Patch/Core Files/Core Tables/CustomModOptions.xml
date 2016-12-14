@@ -1062,6 +1062,7 @@
 	<!--   GameEvents.GreatWorkCreated.Add(function(iPlayer, iUnit, iGreatWork) end) -->
 	<!--   GameEvents.CityInvestedBuilding.Add(function(iPlayer, iCity, iBuildingClass, bValue) end) -->
 	<!--   GameEvents.CityInvestedUnit.Add(function(iPlayer, iCity, iUnitClass, bValue) end) -->
+	<!--   GameEvents.CityPuppeted.Add(function(playerID, cityID) end) -->
 	
 	<!-- Events System -->
 	<!-- GameEvents.EventActivated(iPlayer, iEvent, iChoice)-->

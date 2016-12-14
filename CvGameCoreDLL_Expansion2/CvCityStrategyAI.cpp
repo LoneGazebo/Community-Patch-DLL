@@ -1331,7 +1331,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 						if(pThisArmy)
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1339,7 +1339,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 						}
 						else
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1348,7 +1348,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 					}
 					else
 					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
 						if(iNewWeight > 0)
 						{
 							m_Buildables.push_back(selection, iNewWeight);
@@ -1359,7 +1359,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_UNIT_FOR_ARMY:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, true);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1369,7 +1369,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes, true);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -2613,7 +2613,7 @@ void CvCityStrategyAI::LogHurryMessage(CvString& strMsg)
 
 		// Open the log file
 		FILogFile* pLog;
-		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+		pLog = LOGFILEMGR.GetLog(GetHurryLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

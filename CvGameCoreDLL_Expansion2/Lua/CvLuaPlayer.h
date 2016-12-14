@@ -769,6 +769,7 @@ protected:
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
 	static int lIsMinorCivActiveQuestForPlayer(lua_State* L);
+	static int lSetMinorCivActiveQuestForPlayer(lua_State* L);
 	static int lGetMinorCivNumActiveQuestsForPlayer(lua_State* L);
 	static int lIsMinorCivDisplayedQuestForPlayer(lua_State* L);
 	static int lGetMinorCivNumDisplayedQuestsForPlayer(lua_State* L);

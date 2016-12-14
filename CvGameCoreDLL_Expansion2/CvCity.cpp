@@ -14922,24 +14922,12 @@ void CvCity::CheckForOperationUnits()
 				if(eBestUnit != NO_UNIT)
 				{
 					int iTempWeight = 100;
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight, iGPT);
-					if(iTempWeight <= 0)
-					{
-						eBestUnit = NO_UNIT;
-					}
-				}
-
-				if(eBestUnit != NO_UNIT)
-				{
-					if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
-					{
-						return;
-					}
-					else
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1, true);
+					if(iTempWeight > 0)
 					{
 						int iGoldCost = GetPurchaseCost(eBestUnit);
 						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-						if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+						if (pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 						{
 							//Log it
 							CvString strLogString;
@@ -14966,7 +14954,16 @@ void CvCity::CheckForOperationUnits()
 								return;
 							}
 						}
-						else
+					}
+					else
+					{
+						if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
+						{
+							return;
+						}
+						iTempWeight = 100;
+						iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1);
+						if (iTempWeight > 0)
 						{
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(!bAppend)

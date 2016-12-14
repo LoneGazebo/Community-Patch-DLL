@@ -120,7 +120,7 @@
 
 	UPDATE Units SET IconAtlas = 'COMMUNITY_2_ATLAS' WHERE Type = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost) SELECT 'UNIT_ANTI_TANK_GUN', 'RESOURCE_OIL', '1' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost) SELECT 'UNIT_ANTI_TANK_GUN', 'RESOURCE_ALUMINUM', '1' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Remove free promotions from helicopter and anit-tank (As they've moved functions)
 	DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND PromotionType = 'PROMOTION_ANTI_TANK';

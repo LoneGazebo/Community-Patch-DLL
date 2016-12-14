@@ -1024,12 +1024,16 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			}				
 #endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
+			
+			if (thisSlot.m_iOperationID == -1)
+				continue;
+
 			if (thisSlot.IsValid() && OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
 			{
 				bestSlot = thisSlot;
 			}
 
-			if (pCity == pMusterPlot->getWorkingCity())
+			if (pCity == pMusterPlot->getWorkingCity() && bestSlot == thisSlot)
 			{
 				bCitySameAsMuster = true;
 				break;

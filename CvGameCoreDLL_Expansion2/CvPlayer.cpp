@@ -22239,6 +22239,12 @@ int CvPlayer::TestDefensePactsToVotes(int iChange)
 	if(iChange > 0)
 	{
 		iDefensePactsToVotes = (GetDiplomacyAI()->GetNumDefensePacts() * iChange);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			iDefensePactsToVotes += GET_TEAM(getTeam()).GetNumVassals();
+		}
+#endif
 	}
 	
 	return iDefensePactsToVotes;

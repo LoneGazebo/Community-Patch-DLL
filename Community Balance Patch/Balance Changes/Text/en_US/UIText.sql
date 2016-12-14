@@ -176,6 +176,10 @@ UPDATE Language_en_US
 SET Text = '+{1_Num}% Bonus from Diplomat[NEWLINE]'
 WHERE Tag = 'TXT_KEY_CO_PLAYER_TOURISM_PROPAGANDA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'Do you want this spy to be a diplomat? A spy can be a diplomat if they are placed in the capital of another civilization you are not at war with. (If war is declared, your spy will escape the city.) A diplomat will not attempt to steal technology from the other player but will still provide intrigue. Once the World Congress convenes, you will be able to determine their opinion on proposals and trade for their support if needed. Diplomats automatically provide a boost to [ICON_TOURISM] Tourism output to the target civilization.'
+WHERE Tag = 'TXT_KEY_SPY_BE_DIPLOMAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
 -- Update text for tooltips based on what you changed above.
 INSERT INTO Language_en_US (
 Text, Tag)

@@ -1671,7 +1671,7 @@
 			<Description>TXT_KEY_PROMOTION_EVASION_II</Description>
 			<Help>TXT_KEY_PROMOTION_EVASION_II</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<EvasionChange>100</EvasionChange>
+			<EvasionChange>80</EvasionChange>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>

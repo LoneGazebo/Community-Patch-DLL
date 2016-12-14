@@ -2659,7 +2659,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	//Great improvements are great!
 	if (pImprovement->IsCreatedByGreatPerson() && pImprovement->GetCultureBombRadius() <= 0)
 	{
-		if (!m_bEvaluateAdjacent && !pCity)
+		if (!m_bEvaluateAdjacent || !pCity)
 			return 0;
 	}
 	if(pCity)
