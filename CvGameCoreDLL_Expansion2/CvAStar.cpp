@@ -460,7 +460,6 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 {
 	int range = 6;
 	int x, y;
-
 	static int s_CvAStarChildHexX[6] = { 0, 1,  1,  0, -1, -1, };
 	static int s_CvAStarChildHexY[6] = { 1, 0, -1, -1,  0,  1, };
 
@@ -636,7 +635,8 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	{
 		check->m_pParent = node;
 		check->m_iKnownCost = iKnownCost;
-		check->m_iHeuristicCost = udHeuristic ? udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest) : 0;
+		check->m_iHeuristicCost = (udHeuristic && isValid(m_iXdest, m_iYdest)) ? 
+			udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest) : 0;
 		check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 
 		NodeAdded(node, check, ASNC_NEWADD);
@@ -1739,42 +1739,49 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 	if (!parent || !node)
 		return 0;
 
-	//are we in the first ring?
-	if (parent->m_pParent==NULL && !GC.getUSE_FIRST_RING_INFLUENCE_TERRAIN_COST())
-		return 0;
-
 	int iCost = 1;
+	int iExtraCost = 0;
 
 	CvMap& kMap = GC.getMap();
-	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pSourcePlot = kMap.plotUnchecked(finder->GetStartX(), finder->GetStartY());
 
-	//going through foreign territory is expensive
-	if(pToPlot->getOwner() != NO_PLAYER && pSourcePlot->getOwner() != NO_PLAYER && pToPlot->getOwner() != pSourcePlot->getOwner())
-		iCost += 15;
+	if (pToPlot->getOwner() != pSourcePlot->getOwner())
+	{
+		bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
 
-	if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
-		iCost += GC.getINFLUENCE_RIVER_COST();
+		//rivers are natural borders
+		if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)) && !bIsRoute)
+			iCost += GC.getINFLUENCE_RIVER_COST();
 
-	//plot type dependent cost. should really be handled via terrain, but ok for now
-	if (pToPlot->isHills())
-		iCost += GC.getINFLUENCE_HILL_COST();
-	if (pToPlot->isMountain())
+		//going through foreign territory is expensive (we already check that we don't own it)
+		if(pToPlot->getOwner() != NO_PLAYER)
+			iCost += 15;
+
+		//plot type dependent cost. should really be handled via terrain, but ok for now
+		if (pToPlot->isHills())
+			iExtraCost = max(iExtraCost,GC.getINFLUENCE_HILL_COST());
+		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder())
+			iExtraCost = max(iExtraCost,GC.getINFLUENCE_MOUNTAIN_COST());
+
+		//ignore this if there's a resource here
+		if (pToPlot->getResourceType(pSourcePlot->getTeam())==NO_RESOURCE)
+		{
+			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
+			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
+			iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
+			iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+		}
+
+		//going along routes is cheaper
+		if (bIsRoute)
+			iExtraCost /= 2;
+	}
+	else if (pToPlot->isImpassable(pSourcePlot->getTeam()))
 		iCost += GC.getINFLUENCE_MOUNTAIN_COST();
 
-	CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
-	CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
-
-	iCost += pTerrain ? pTerrain->getInfluenceCost() : 0;
-	iCost += pFeature ? pFeature->getInfluenceCost() : 0;
-
-	//going along routes is cheaper
-	bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
-	if (bIsRoute)
-		iCost /= 2;
-
-	return max(1,iCost)*PATH_BASE_COST;
+	return max(1,iCost+iExtraCost)*PATH_BASE_COST;
 }
 
 
@@ -3044,6 +3051,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMaxTurns = _iMaxTurns;
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
+	iStartMoves = 0;
 }
 
 inline CvPlot * SPath::get(int i) const

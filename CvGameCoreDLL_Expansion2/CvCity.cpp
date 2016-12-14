@@ -14922,24 +14922,12 @@ void CvCity::CheckForOperationUnits()
 				if(eBestUnit != NO_UNIT)
 				{
 					int iTempWeight = 100;
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight, iGPT);
-					if(iTempWeight <= 0)
-					{
-						eBestUnit = NO_UNIT;
-					}
-				}
-
-				if(eBestUnit != NO_UNIT)
-				{
-					if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
-					{
-						return;
-					}
-					else
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1, true);
+					if(iTempWeight > 0)
 					{
 						int iGoldCost = GetPurchaseCost(eBestUnit);
 						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-						if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+						if (pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 						{
 							//Log it
 							CvString strLogString;
@@ -14966,7 +14954,16 @@ void CvCity::CheckForOperationUnits()
 								return;
 							}
 						}
-						else
+					}
+					else
+					{
+						if(getProductionTurnsLeft(eBestUnit, 0) >= 10)
+						{
+							return;
+						}
+						iTempWeight = 100;
+						iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, iGPT, -1, -1);
+						if (iTempWeight > 0)
 						{
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(!bAppend)
@@ -24825,16 +24822,19 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					if (eResource != NO_RESOURCE)
 					{
 #if defined(MOD_BALANCE_CORE)
-						//prefer resources we don't have already
-						if (GetPlayer()->getNumResourceTotal(eResource)==0)
-							iInfluenceCost += 2*iPLOT_INFLUENCE_RESOURCE_COST;
-						else
-							iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
+						CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
+						if (pkResource)
+						{
+							if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
+							else if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) <= iWorkPlotDistance)
+								//bonus resources are meh, even if they are in range
+								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST/2;
+						}
 #else
 						iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
 						bool bBonusResource = GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS;
 						if (bBonusResource)
-#endif
 						{
 							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
 							{
@@ -24847,6 +24847,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 								++iInfluenceCost;
 							}
 						}
+#endif
 					}
 					else 
 					{
@@ -24947,31 +24948,28 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 							}
 						}
 					}
+
 					if (!bFoundAdjacentOwnedByCity)
 					{
 						iInfluenceCost += iPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST;
 					}
 
-#if defined(MOD_UI_CITY_EXPANSION)
-					// Group very similiar "cost" tiles - ie 683 and 684 cost tiles will appear to be the same value
-					int iDivisor = /*5*/ GC.getPLOT_INFLUENCE_COST_VISIBLE_DIVISOR();
-					iInfluenceCost /= iDivisor;
-					iInfluenceCost *= iDivisor;
-#endif
 					resultList.push_back( std::make_pair(iInfluenceCost,pLoopPlot->GetPlotIndex()) );
 				}
 			}
 		}
 	}
 
-	//return the best 12
+	//we want only the best
 	std::sort( resultList.begin(), resultList.end() );
 	if (resultList.size()>(size_t)nChoices)
 		resultList.erase( resultList.begin()+nChoices, resultList.end() );
 
 	//throw away the cost, return the plot index only
 	for (size_t i=0; i<resultList.size(); i++)
-		aiPlotList.push_back( resultList[i].second );
+		//if there's a clear favorite, don't bother with the rest
+		if (resultList[i].first - resultList[0].first <= 100) 
+			aiPlotList.push_back( resultList[i].second );
 }
 
 //	--------------------------------------------------------------------------------
@@ -25042,6 +25040,18 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	}
 #endif
 
+	// Discount for adjacent plots owned by us
+	int iAdjacentOwnedCount = 0;
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor && pNeighbor->getOwner()==getOwner())
+			iAdjacentOwnedCount++;
+	}
+	iCost = iCost * (105 - iAdjacentOwnedCount*5); //we know that one is always owned
+	iCost /= 100;
+
 	// Game Speed Mod
 	iCost *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iCost /= 100;
@@ -25050,8 +25060,8 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	iCost /= 100;
 
 	// Now round so the number looks neat
-	int iDivisor = /*5*/ GC.getPLOT_COST_APPEARANCE_DIVISOR();
-	iCost /= iDivisor;
+	int iDivisor = /*5*/ max(1,GC.getPLOT_COST_APPEARANCE_DIVISOR());
+	iCost = (iCost+iDivisor/2) / iDivisor;
 	iCost *= iDivisor;
 
 	return iCost;

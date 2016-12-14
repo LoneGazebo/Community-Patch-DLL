@@ -7459,11 +7459,14 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 				{
 					eMajority = pWorkingCity->GetCityReligions()->GetReligiousMajority();
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
-					if (pReligion && pReligion->m_Beliefs.GetResourceQuantityModifier(eResource, pWorkingCity->getOwner()) > 0)
+					if (pReligion)
 					{
-						int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eResource);
-						iRtnValue *= 100 + iQuantityMod;
-						iRtnValue /= 100;
+						int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eResource, pWorkingCity->getOwner());
+						if( iQuantityMod != 0)
+						{
+							iRtnValue *= 100 + iQuantityMod;
+							iRtnValue /= 100;
+						}
 					}
 				}
 #endif
@@ -11678,35 +11681,28 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 		if(bNewValue)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
+			if (pUnit && (pUnit->IsGainsXPFromScouting() || pUnit->IsGainsYieldFromScouting()) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 			{
-#if defined(MOD_UNITS_XP_TIMES_100)
-				if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+				if(IsNaturalWonder(true))
 #else
-				if((pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM()) || pUnit->IsGainsYieldFromScouting())
+				if(IsNaturalWonder())
 #endif
 				{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-					if(IsNaturalWonder(true))
-#else
-					if(IsNaturalWonder())
-#endif
-					{
-						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
-					}
-					else if(isGoody())
-					{
-						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
-					}
-					else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
-					{
-						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
-					}
-					else
-					{
-						pUnit->ChangeNumTilesRevealedThisTurn(1);
-					}	
+					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
 				}
+				else if(isGoody())
+				{
+					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
+				}
+				else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
+				{
+					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
+				}
+				else
+				{
+					pUnit->ChangeNumTilesRevealedThisTurn(1);
+				}	
 			}
 #endif
 

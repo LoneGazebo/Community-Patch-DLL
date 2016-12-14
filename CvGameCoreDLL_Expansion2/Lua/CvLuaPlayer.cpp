@@ -670,6 +670,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivFriendshipLevelWithMajor);
 	Method(GetActiveQuestForPlayer);
 	Method(IsMinorCivActiveQuestForPlayer);
+	Method(SetMinorCivActiveQuestForPlayer);
 	Method(GetMinorCivNumActiveQuestsForPlayer);
 	Method(IsMinorCivDisplayedQuestForPlayer);
 	Method(GetMinorCivNumDisplayedQuestsForPlayer);
@@ -7490,6 +7491,20 @@ int CvLuaPlayer::lIsMinorCivActiveQuestForPlayer(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetMinorCivActiveQuestForPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes)lua_tointeger(L, 3);
+	const int iTurn = lua_tointeger(L, 4);
+	const PlayerTypes eCallingPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+
+	pkPlayer->GetMinorCivAI()->AddQuestForPlayer(ePlayer, eType, iTurn, eCallingPlayer);
+	return 0;
+}
+
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetMinorCivNumActiveQuestsForPlayer(lua_State* L)
 {

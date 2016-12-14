@@ -820,6 +820,11 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 
 	int iDealDuration = GC.getGame().GetDealDuration();
 #if defined(MOD_BALANCE_CORE)
+	if (pDeal->GetNumItems() <= 0)
+	{
+		return false;
+	}
+
 	GetPlayer()->GetDiplomacyAI()->SetCantMatchDeal(eOtherPlayer, false);
 #else
 	bCantMatchOffer = false;
@@ -980,6 +985,11 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 	// Outline the boundaries for an acceptable deal
 	/////////////////////////////
 #if defined(MOD_BALANCE_CORE_DEALS)
+	if (pDeal->GetNumItems() <= 0)
+	{
+		return false;
+	}
+
 	int iPercentOverWeWillRequest = GetDealPercentLeewayWithAI(eOtherPlayer);
 	int iPercentUnderWeWillOffer = -GetDealPercentLeewayWithAI(eOtherPlayer);
 #else

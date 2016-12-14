@@ -970,15 +970,9 @@ private:
 	std::vector<CvTacticalUnit> m_CurrentAirSweepUnits;
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	std::set<int> m_HealingUnits; //persistent!
 
 	CTacticalUnitArray m_CurrentMoveUnits;
-	CTacticalUnitArray m_CurrentMoveHighPriorityUnits;
-#else
-	std::vector<CvTacticalUnit> m_CurrentMoveUnits;
-	std::vector<CvTacticalUnit> m_CurrentMoveHighPriorityUnits;
-#endif
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL > m_MovePriorityList;
 

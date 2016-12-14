@@ -276,34 +276,24 @@ void CvPlayerAI::AI_unitUpdate()
 		return;
 	}
 
+	//do this only after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
+	//despite the name, the tactical map is used by homeland AI as well.
+	GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+
 	if(isHuman())
 	{
-		//useful for debugging
-		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
-
 		CvUnit::dispatchingNetMessage(true);
-		// The homeland AI goes first.
-		GetHomelandAI()->FindAutomatedUnits();
+		//no tactical AI for human
 		GetHomelandAI()->Update();
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else
 	{
-		// Update tactical AI
-		GetTacticalAI()->CommandeerUnits();
-
 		// Now let the tactical AI run.  Putting it after the operations update allows units who have
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
-		// AI subsystems
+		// AI subsystems. Tactical map has already been refreshed above.
 		GetTacticalAI()->Update();
-
-		// Skip homeland AI processing if a barbarian
-		if(m_eID != BARBARIAN_PLAYER)
-		{
-			// Now its the homeland AI's turn.
-			GetHomelandAI()->RecruitUnits();
-			GetHomelandAI()->Update();
-		}
+		GetHomelandAI()->Update();
 	}
 }
 
@@ -1034,12 +1024,16 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			}				
 #endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
+			
+			if (thisSlot.m_iOperationID == -1)
+				continue;
+
 			if (thisSlot.IsValid() && OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
 			{
 				bestSlot = thisSlot;
 			}
 
-			if (pCity == pMusterPlot->getWorkingCity())
+			if (pCity == pMusterPlot->getWorkingCity() && bestSlot == thisSlot)
 			{
 				bCitySameAsMuster = true;
 				break;

@@ -68,7 +68,7 @@
 	-- Guided Missile range bump
 
 	UPDATE Units
-	SET Range = '6'
+	SET Range = '12'
 	WHERE Type = 'UNIT_GUIDED_MISSILE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Unit_Flavors
