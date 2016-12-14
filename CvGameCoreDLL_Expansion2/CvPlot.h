@@ -948,7 +948,7 @@ public:
 	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
 #endif
 
-	bool canPlaceUnit(PlayerTypes ePlayer) const;
+	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
 
 protected:
 	class PlotBoolField

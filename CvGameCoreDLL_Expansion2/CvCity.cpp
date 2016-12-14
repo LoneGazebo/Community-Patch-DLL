@@ -26422,9 +26422,12 @@ bool CvCity::CleanUpQueue(void)
 int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation)
 {
 	VALIDATE_OBJECT
+	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
+	if (!pUnitPlot)
+		return -1;
+
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), eAIType);
-	CvAssertMsg(pUnit, "");
+	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType);
 	if(!pUnit)
 	{
 		CvAssertMsg(false, "CreateUnit failed");
@@ -26440,14 +26443,8 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	addProductionExperience(pUnit);
 
 #if defined(MOD_BALANCE_CORE)
-	if(pUnit)
-	{
-		pUnit->setMoves(pUnit->maxMoves());
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	if(pUnit && pUnit->isTrade())
+	pUnit->setMoves(pUnit->maxMoves());
+	if(pUnit->isTrade())
 	{
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -26701,55 +26698,59 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	return true;
 }
 
-//	--------------------------------------------------------------------------------
-bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType)
+CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 {
 	VALIDATE_OBJECT
-	bool bCombat = false;
-
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 	if(pkUnitInfo == NULL)
-		return false;
+		return NULL;
 
-	// slewis - modifying 1upt
-	if (pkUnitInfo->IsTrade())
+	// slewis - modifying 1upt for civilian
+	if (pkUnitInfo->IsTrade() || (pkUnitInfo->GetCombat() == 0 && pkUnitInfo->GetRange() == 0))
+		return plot();
+
+	//don't be too predictable with the chosen plot - but zero always maps to zero
+	int aiShuffle[3][7] = {
+		{ 0, 5, 4, 2, 1, 3, 6 },
+		{ 0, 3, 6, 4, 1, 2, 5 },
+		{ 0, 1, 2, 4, 5, 6, 3 } };
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *plot());
+
+	//check city plot and adjacent plots
+	for (int i=0; i<RING1_PLOTS; i++)
 	{
-		return true;
-	}
+		bool bCanPlace = true;
+		CvPlot* pPlot = iterateRingPlots( plot(), aiShuffle[iShuffleType][i] );
 
-	if(pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRange() > 0)
-	{
-		bCombat = true;
-	}
+		//must be able to go there
+		if (!pPlot->isValidMovePlot(m_eOwner) || pPlot->getDomain()!=pkUnitInfo->GetDomainType())
+			continue;
 
-	CvPlot* pPlot = plot();
-
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-
-	pUnitNode = pPlot->headUnitNode();
-
-	while(pUnitNode != NULL)
-	{
-		pLoopUnit = ::getUnit(*pUnitNode);
-		pUnitNode = pPlot->nextUnitNode(pUnitNode);
-
-		if(pLoopUnit != NULL)
+		const IDInfo* pUnitNode = pPlot->headUnitNode();
+		while(pUnitNode != NULL)
 		{
-			// if a trade unit is here, ignore
-			if (pLoopUnit->isTrade())
+			const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			if(pLoopUnit != NULL)
 			{
-				continue;
+				// check stacking
+				if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
+					bCanPlace = false;
 			}
 
-			// Units of the same type OR Units belonging to different civs
-			if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
-			{
-				return false;
-			}
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 		}
+
+		if (bCanPlace)
+			return pPlot;
 	}
-	return true;
+
+	return NULL;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType) const
+{
+	return GetPlotForNewUnit(eUnitType)!=NULL;
 }
 
 //	--------------------------------------------------------------------------------

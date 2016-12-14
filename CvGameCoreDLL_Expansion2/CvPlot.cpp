@@ -14582,7 +14582,7 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 
 //----------------------------------------------------------
 //conservative estimate whether we can put a combat unit here. does not check different domains etc
-bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
+bool CvPlot::canPlaceCombatUnit(PlayerTypes ePlayer) const
 {
 	if (!isValidMovePlot(ePlayer))
 		return false;
