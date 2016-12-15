@@ -323,6 +323,12 @@
 		<Row Tag="TXT_KEY_BUILD_GAP_STRING">
 			<Text>{1_Num}[ENDCOLOR] [ICON_GOLDEN_AGE] Golden Age Points</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILD_GGP_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_GAP2_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_ADMIRAL] Great Admiral Points</Text>
+		</Row>
 
 		<!-- Assyria UA Text -->
 		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST">
