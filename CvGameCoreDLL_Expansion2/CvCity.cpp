@@ -26423,8 +26423,9 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 {
 	VALIDATE_OBJECT
 	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
+	//if there's no free plot around, then stack it in the city
 	if (!pUnitPlot)
-		return -1;
+		pUnitPlot = plot(); 
 
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
 	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType);
