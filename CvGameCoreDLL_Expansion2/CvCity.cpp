@@ -26717,6 +26717,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *plot());
 
 	//check city plot and adjacent plots
+	vector<CvPlot*> validChoices;
 	for (int i=0; i<RING1_PLOTS; i++)
 	{
 		bool bCanPlace = true;
@@ -26741,8 +26742,22 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 		}
 
 		if (bCanPlace)
-			return pPlot;
+			validChoices.push_back(pPlot);
 	}
+
+	//now check for plots with route
+	for (size_t i=0; i<validChoices.size(); i++)
+		if (validChoices[i]->isValidRoute(NULL))
+			return validChoices[i];
+
+	//now try to find one without enemies around
+	for (size_t i=0; i<validChoices.size(); i++)
+		if (validChoices[i]->GetNumEnemyUnitsAdjacent( getTeam(), (DomainTypes)pkUnitInfo->GetDomainType() ) == 0)
+			return validChoices[i];
+
+	//ok, let's just take the first one
+	if (!validChoices.empty())
+		return validChoices.front();
 
 	return NULL;
 }

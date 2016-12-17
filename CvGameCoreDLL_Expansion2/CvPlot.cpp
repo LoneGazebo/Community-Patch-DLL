@@ -5043,7 +5043,7 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 {
 	if((RouteTypes)m_eRouteType != NO_ROUTE && !m_bRoutePillaged)
 	{
-		if(!pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
+		if(!pUnit || !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
 		{
 			return true;
 		}
