@@ -7509,13 +7509,10 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 	}
 }
 
-/// Need some special rules for humans so that the AI isn't exploited
 bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 {
-
-	bool bWillMakePeace = IsWantsPeaceWithPlayer(ePlayer);
-
-	return bWillMakePeace;
+	//no special rules ...
+	return IsWantsPeaceWithPlayer(ePlayer);
 }
 
 // What are we willing to give up to ePlayer to make peace?
@@ -7855,7 +7852,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 		int iRequestPeaceTurnThreshold = /*10*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		iRequestPeaceTurnThreshold -= m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-		int iWantPeace = (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 10);
+
+		//negative warscore means we're losing - so peace desire is higher!
+		int iWantPeace = -(m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 10);
 		
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
@@ -7866,6 +7865,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			if(pLoopCity == NULL)
 				continue;
 
+			//we should probably be looking at the posture per zone
+			// m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(...)
+
 			if(pLoopCity->isUnderSiege())
 			{
 				iOurDanger++;
@@ -7874,7 +7876,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			{
 				iOurDanger++;
 			}
-			if (pLoopCity->IsBlockaded(false) || pLoopCity->IsBlockaded(true))
+			if (pLoopCity->IsBlockadedWaterAndLand())
 			{
 				iOurDanger++;
 			}
@@ -7893,7 +7895,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			{
 				iTheirDanger++;
 			}
-			if (pLoopCity->IsBlockaded(false) || pLoopCity->IsBlockaded(true))
+			if (pLoopCity->IsBlockadedWaterAndLand())
 			{
 				iTheirDanger++;
 			}
@@ -24737,17 +24739,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if(IsWillingToMakePeaceWithHuman(eFromPlayer) &&
 			        ePeaceTreatyImWillingToOffer >= PEACE_TREATY_WHITE_PEACE && ePeaceTreatyImWillingToAccept >= PEACE_TREATY_WHITE_PEACE)
 			{
-				//if (IsWantsPeaceWithPlayer(eFromPlayer))
-				//{
-				//	gDLL->sendChangeWar(GetTeam(), /*bWar*/ false);
-
-				// Now add peace items to the UI deal so that it's ready for us to make an offer
-				//pUIDeal->ClearItems();
-				//pUIDeal->SetPlayer1(eFromPlayer);	// The order of these is very important!
-				//pUIDeal->SetPlayer2(eMyPlayer);	// The order of these is very important!
-				//pUIDeal->AddPeaceTreaty(eMyPlayer, GC.getPEACE_TREATY_LENGTH());
-				//pUIDeal->AddPeaceTreaty(eFromPlayer, GC.getPEACE_TREATY_LENGTH());
-
 				// This is essentially the same as the human opening the trade screen
 				GetPlayer()->GetDealAI()->DoTradeScreenOpened();
 
