@@ -950,7 +950,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	{
 		int iPlotDanger = pCacheData->isAIControl() && pCacheData->doDanger() ? GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit) : 0;
 	
-		if (iPlotDanger>pUnit->GetCurrHitPoints())
+		if (iPlotDanger>pUnit->GetCurrHitPoints()*2) //always include some headroom!
 			kToNodeCacheData.bCanEnterTerrainPermanent = false;
 	}
 

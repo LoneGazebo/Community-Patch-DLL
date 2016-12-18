@@ -12321,7 +12321,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 	//the damage calculation doesn't know about hypothetical flanking units, so we ignore it here and add it ourselves 
 	int iPrevDamage = tactPlot.getDamage();
-	int iOriginalHitPoints = 0;
+	int iPrevHitPoints = 0;
 
 	CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(assumedPlot.getPlotIndex());
 	CvPlot* pTestPlot = GC.getMap().plotByIndexUnchecked(tactPlot.getPlotIndex());
@@ -12333,7 +12333,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	{
 		CvCity* pEnemy = pTestPlot->getPlotCity();
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage);
-		iOriginalHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage();
+		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
 
 		//city blockaded? not 100% accurate, but anyway
 		if (tactPlot.getNumAdjacentFriendlies()==pTestPlot->countPassableNeighbors(NO_DOMAIN))
@@ -12353,7 +12353,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			return;
 		}
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage);
-		iOriginalHitPoints = pEnemy->GetCurrHitPoints();
+		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		bFlankModifierDefensive = pEnemy->GetFlankAttackModifier() > 0;
 		bFlankModifierOffensive = pUnit->GetFlankAttackModifier() > 0;
@@ -12380,24 +12380,33 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		iDamageReceived += iDamageReceived/10;
 	}
 
-	//don't hand out points for over-killing
-	//todo: check if this is necessary. maybe iDamageDealt cannot be higher than what's left?
-	iDamageDealt = min(iDamageDealt, iOriginalHitPoints + 10);
-
 	//bonus for a kill
 	int iExtraDamage = 0;
-	if (iDamageDealt + iPrevDamage > iOriginalHitPoints)
+	if (iDamageDealt > iPrevHitPoints)
 	{
-		//ranged units can't capture, so discourage the attack
-		if (tactPlot.isEnemyCity() && pUnit->isRanged())
+		if (tactPlot.isEnemyCity()) //city capture
 		{
-			iExtraDamage = (iPrevDamage > iOriginalHitPoints) ? -iDamageDealt : 0;
-			result.eType = STacticalAssignment::A_RANGEATTACK;
+			//ranged units can't capture, so discourage the attack
+			if (pUnit->isRanged())
+			{
+				result.eType = STacticalAssignment::A_RANGEATTACK; //not a kill!
+				//don't continue flogging a dead horse
+				if ( iPrevHitPoints < 2 )
+					iDamageDealt = 0;
+			}
+			else
+			{
+				iDamageDealt = 108; //more than any unit except if it's a perfect kill
+				iExtraDamage = 50;
+				result.eType = STacticalAssignment::A_MELEEKILL;
+			}
 		}
-		else
+		else //enemy unit killed
 		{
+			//don't hand out points for over-killing (but make an allowance for randomness)
+			iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
 			iExtraDamage = 50;
-			result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEKILL : STacticalAssignment::A_MELEEKILL;
+			result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEATTACK : STacticalAssignment::A_MELEEATTACK;
 		}
 	}
 	else
@@ -12484,6 +12493,10 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				if (result.iScore<0)
 					return result;
 
+				//don't break formation if there are many enemies around
+				if (result.eType == STacticalAssignment::A_MELEEKILL && currentPlot.getNumAdjacentEnemies()>3)
+					return result;
+
 				if ( pCurrentPlot==assumedPosition.getTarget() )
 					result.iScore += 15; //a slight boost for attacking the "real" target
 				else
@@ -12535,7 +12548,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		for (int iRange=1; iRange<iMaxRange+1; iRange++)
 		{
 			//performance optimization
-			if (iRange==1 && currentPlot.getNumAdjacentEnemies()==0)
+			if (iRange==1 && currentPlot.getType()!=CvTacticalPlot::TP_FRONTLINE)
 				continue;
 
 			pCurrentPlot->GetPlotsAtRangeX(iRange,true,!pUnit->IsRangeAttackIgnoreLOS(),vAttackPlots);
@@ -12556,7 +12569,13 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					STacticalAssignment temp; 
 					ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getUnitNumberRatio(), temp);
 					if (temp.iScore>0)
+					{
+						//don't break formation if there are many enemies around
+						if (temp.eType == STacticalAssignment::A_MELEEKILL && enemyPlot.getNumAdjacentEnemies()>3)
+							continue;
+
 						vDamageRatios.push_back(temp.iScore);
+					}
 					else 
 						//for melee units the attack might be cancelled because of bad damage ratio. 
 						//nevertheless we need to cover our ranged units. so add a token amount.
@@ -12652,14 +12671,14 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	
 	//extra penalty for high danger plots
 	//todo: take into account self damage from previous attacks
-	if (iDanger > pUnit->GetCurrHitPoints())
+	if (iDanger > pUnit->GetCurrHitPoints()*2)
 		iDanger += 20;
 
 	//todo: take into account mobility at the proposed plot
 	//todo: take into account ZOC when ending the turn
 
 	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker 
-	result.iScore = result.iScore*10 - iDanger*2;
+	result.iScore = result.iScore*10 - iDanger/4;
 
 	return result;
 }
@@ -12987,6 +13006,10 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	if (possibleMoves.size()>(size_t)nMaxCount)
 		possibleMoves.erase( possibleMoves.begin()+nMaxCount, possibleMoves.end() );
 	
+	//don't return moves which are known to be suboptimal
+	while (!possibleMoves.empty() && possibleMoves.back().iScore < possibleMoves.front().iScore/3)
+		possibleMoves.pop_back();
+
 	return possibleMoves;
 }
 
@@ -13940,12 +13963,13 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		if (openPositionsHeap.size()>4000 || discardedPositions.size()>4000)
 		{
 			OutputDebugString( "warning: terminating because of endless loop!\n" );
-			if (closedPositions.empty())
-				closedPositions = discardedPositions;
 			break;
 		}
 	}
-	
+
+	if (closedPositions.empty())
+		closedPositions = discardedPositions;
+
 	if (!closedPositions.empty())
 	{
 		sort(closedPositions.begin(), closedPositions.end(), PrPositionIsBetter());
