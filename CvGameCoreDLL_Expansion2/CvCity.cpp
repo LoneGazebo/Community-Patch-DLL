@@ -26725,7 +26725,27 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 		CvPlot* pPlot = iterateRingPlots( plot(), aiShuffle[iShuffleType][i] );
 
 		//must be able to go there
-		if (!pPlot->isValidMovePlot(m_eOwner) || pPlot->getDomain()!=pkUnitInfo->GetDomainType())
+		if (!pPlot->isValidMovePlot(m_eOwner))
+			continue;
+
+		bool bAccept = false;
+		switch (pkUnitInfo->GetDomainType())
+		{
+		case DOMAIN_AIR:
+			bAccept = pPlot->isCity();
+			break;
+		case DOMAIN_LAND:
+			bAccept = !pPlot->isWater();
+			break;
+		case DOMAIN_SEA:
+			bAccept = pPlot->isWater() || pPlot->isFriendlyCityOrPassableImprovement(getOwner());
+			break;
+		case DOMAIN_HOVER:
+			bAccept = true;
+			break;
+		}
+
+		if (!bAccept)
 			continue;
 
 		const IDInfo* pUnitNode = pPlot->headUnitNode();

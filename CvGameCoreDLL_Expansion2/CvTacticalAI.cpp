@@ -471,11 +471,16 @@ void CvTacticalAI::CommandeerUnits()
 		else if (bCanHeal && !bHasTarget)
 		{
 			//does it need healing? unless barbarian or japanese!
-			if ((pLoopUnit->getDamage()>80 || pLoopUnit->isProjectedToDieNextTurn()) && !m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged())
+			if ((pLoopUnit->getDamage()>80 || pLoopUnit->isProjectedToDieNextTurn()) && 
+				!m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged())
 			{
-				//need to start healing
-				m_HealingUnits.insert( pLoopUnit->GetID() );
-				continue;
+				CvPlot* pHealPlot = TacticalAIHelpers::FindSafestPlotInReach(pLoopUnit, true, true);
+				if (pHealPlot)
+				{
+					//need to start healing
+					m_HealingUnits.insert( pLoopUnit->GetID() );
+					continue;
+				}
 			}
 		}
 
@@ -11878,7 +11883,7 @@ bool TacticalAIHelpers::CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTar
 	return true;
 }
 
-CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark)
+CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly)
 {
 	CvWeightedVector<CvPlot*, 8, true> aCityList;
 	CvWeightedVector<CvPlot*, 8, true> aZeroDangerList;
@@ -11905,7 +11910,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot);
 		//when in doubt, prefer to move - being stuck looks stupid
-		if (pUnit->atPlot(*pPlot))
+		if (pUnit->atPlot(*pPlot) && iDanger>GC.getENEMY_HEAL_RATE())
 			iCityDistance++;
 
 		bool bIsZeroDanger = (iDanger <= 0);
@@ -11920,7 +11925,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (iDanger == INT_MAX)
 			iDanger = 10000;
 
-		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus
+		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
 		if (pPlot != pUnit->plot() && pUnit->canHeal(pUnit->plot()))
 			iDanger++;
 
@@ -11956,7 +11961,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		{
 			aCoverList.push_back(pPlot, iDanger - iCityDistance);
 		}
-		else if(!bWouldEmbark || bAllowEmbark)
+		else if( (!bLowDangerOnly || iDanger<pUnit->GetCurrHitPoints()) && (!bWouldEmbark || bAllowEmbark) )
 		{
 			aDangerList.push_back(pPlot, iDanger);
 		}
