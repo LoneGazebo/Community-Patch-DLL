@@ -7865,21 +7865,22 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			if(pLoopCity == NULL)
 				continue;
 
-			//we should probably be looking at the posture per zone
-			// m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(...)
+			//look at the tactical map (is it up to date?)
+			CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+			CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+				iOurDanger++;
+			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+				iOurDanger++;
 
 			if(pLoopCity->isUnderSiege())
-			{
 				iOurDanger++;
-			}
+
 			if(pLoopCity->isInDangerOfFalling())
-			{
 				iOurDanger++;
-			}
+
 			if (pLoopCity->IsBlockadedWaterAndLand())
-			{
 				iOurDanger++;
-			}
 		}
 
 		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
@@ -7887,33 +7888,39 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			if(pLoopCity == NULL)
 				continue;
 
+			//look at the tactical map (is it up to date?)
+			CvTacticalDominanceZone* pLandZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+			CvTacticalDominanceZone* pWaterZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_FRIENDLY)
+				iTheirDanger++;
+			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_FRIENDLY)
+				iTheirDanger++;
+
 			if(pLoopCity->isUnderSiege())
-			{
 				iTheirDanger++;
-			}
+
 			if(pLoopCity->isInDangerOfFalling())
-			{
 				iTheirDanger++;
-			}
+
 			if (pLoopCity->IsBlockadedWaterAndLand())
-			{
 				iTheirDanger++;
-			}
 		}
 		
 		iWantPeace += (iOurDanger * 2);
 		iWantPeace += (iTheirDanger * -1);
 
+		//Lack of progress in war increases desire for peace.
+		iWantPeace += max( 0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 10 ); 
+
 		//Num of turns since they captured a city?
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 0 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) > 0)
-		{
-			//Longer lag time in war = bigger desire for peace.
-			iWantPeace += ((GetPlayerNumTurnsSinceCityCapture(ePlayer) + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID())) / 2);
-		}
+		if ( GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
+			iWantPeace--;
+
 		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
 			iWantPeace += (m_pPlayer->GetCulture()->GetWarWeariness() / 5);
 		}
+
 		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
 		{
 			iWantPeace--;
@@ -7922,6 +7929,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		{
 			iWantPeace++;
 		}
+
 		if(GetWarState(ePlayer) <= WAR_STATE_STALEMATE)
 		{
 			iWantPeace++;
@@ -7930,7 +7938,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		{
 			iWantPeace--;
 		}
+
 		iWantPeace += GetWantPeaceCounter(ePlayer);
+
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strOutBuf;
@@ -7966,14 +7976,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-		if(iWantPeace > iRequestPeaceTurnThreshold)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+
+		return (iWantPeace > iRequestPeaceTurnThreshold);
 	}
 #else
 
