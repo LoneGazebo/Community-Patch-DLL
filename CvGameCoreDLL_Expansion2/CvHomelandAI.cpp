@@ -1304,7 +1304,6 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
 #if defined(MOD_BALANCE_CORE)
 						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pGarrison);
-						pGarrison->finishMoves();
 						UnitProcessed(pGarrison->GetID());
 #endif
 						if(GC.getLogging() && GC.getAILogging())
@@ -8271,6 +8270,7 @@ const char* homelandMoveNames[] =
 	"H_MOVE_TO_SAFETY",
 	"H_MOVE_MOBILE_RESERVE",
 	"H_MOVE_SENTRY",
+	"H_MOVE_SENTRY_NAVAL",
 	"H_MOVE_WORKER",
 	"H_MOVE_WORKER_SEA",
 	"H_MOVE_PATROL",
@@ -8297,6 +8297,8 @@ const char* homelandMoveNames[] =
 	"H_MOVE_AIRLIFT",
 	"H_MOVE_DIPLOMAT_EMBASSY",
 	"H_MOVE_MESSENGER",
+	"H_MOVE_SECONDARY_SETTLER",
+	"H_MOVE_SECONDARY_WORKER",
 };
 
 const char* directiveNames[] = 

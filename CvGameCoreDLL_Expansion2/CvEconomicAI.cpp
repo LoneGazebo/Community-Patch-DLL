@@ -2539,12 +2539,9 @@ void CvEconomicAI::DoReconState()
 	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
 	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded() < 3 )
 	{
-		// Need recon if there are no good plots to settle, at least until we have some cities
-		if (! GetPlayer()->HaveGoodSettlePlot(-1) )
-		{
-			m_eReconState = RECON_STATE_NEEDED;
-			m_eNavalReconState = RECON_STATE_NEEDED;
-		}
+		// Need recon at least until we have some cities
+		m_eReconState = RECON_STATE_NEEDED;
+		m_eNavalReconState = RECON_STATE_NEEDED;
 	}
 
 	// RECON ON OUR HOME CONTINENT
@@ -2554,7 +2551,7 @@ void CvEconomicAI::DoReconState()
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality
-	int iPlotsPerExplorer = 50 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	int iPlotsPerExplorer = 30 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	SetExplorersNeeded(iNumExplorersNeededTimes100 / 100);
@@ -2568,7 +2565,10 @@ void CvEconomicAI::DoReconState()
 		for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
 			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
-				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
+				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE) || 
+				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_COUNTER) || 
+				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || 
+				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
@@ -2634,7 +2634,7 @@ void CvEconomicAI::DoReconState()
 	{
 		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, true);
 		int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
-		int iPlotsPerExplorer = 25 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
+		int iPlotsPerExplorer = 30 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
 
 		// estimate one explorer per x open plots
 		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
@@ -2650,7 +2650,9 @@ void CvEconomicAI::DoReconState()
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
-					pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA)
+					(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA ||
+					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
+					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA))
 				{
 					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 					{
