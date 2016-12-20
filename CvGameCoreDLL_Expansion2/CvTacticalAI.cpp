@@ -11172,8 +11172,16 @@ int CvTacticalAI::ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pLoopPlot)
 
 	const CvUnit* pDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
 	CvCity* pPlotCity = pLoopPlot->getPlotCity();
-	if ( (!pDefender || pDefender->isProjectedToDieNextTurn()) && (!pPlotCity || pPlotCity->isInDangerOfFalling()) )
+	if ( (!pDefender || pDefender->isProjectedToDieNextTurn()) && !pPlotCity ) 
 		return 0;
+
+	//if we're in a besieged city, chances are we cannot escape
+	if ( pPlotCity && pPlotCity->isInDangerOfFalling() )
+	{
+		CvPlot* pEscapePlot = TacticalAIHelpers::FindSafestPlotInReach(pGeneral,true,true);
+		if (pEscapePlot) //the city plot is bad if we can escape
+			return 0;
+	}
 
 	//avoid the front line
 	int iBaseMultiplier = 3;

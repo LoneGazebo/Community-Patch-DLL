@@ -3168,6 +3168,8 @@ void CvHomelandAI::PlotAirliftMoves()
 void CvHomelandAI::ReviewUnassignedUnits()
 {
 	ClearCurrentMoveUnits();
+	m_CurrentMoveUnits.setCurrentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
+
 	// Loop through all remaining units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
