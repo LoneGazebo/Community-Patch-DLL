@@ -5617,31 +5617,26 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
+		//needs to be visible so we don't run into problems with stacking
+		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
+			continue;
+
+		if (pLoopPlot->isValidDomainForLocation(*this))
 		{
 			//need to check for invisible units as well ...
-			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION) && pLoopPlot->getNumUnits()==0 )
+			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
+				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+				if(pNearestCity != NULL)
 				{
-					if(getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCity(*this, true) && pLoopPlot->isCoastalLand()) || (pLoopPlot->isWater() && !pLoopPlot->isLake()))
-					{
-						if(pLoopPlot->isRevealed(getTeam()))
-						{
-							int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+					iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
+				}
 
-							if(pNearestCity != NULL)
-							{
-								iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
-							}
-
-							if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
-							{
-								iBestValue = iValue;
-								pBestPlot = pLoopPlot;
-							}
-						}
-					}
+				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+				{
+					iBestValue = iValue;
+					pBestPlot = pLoopPlot;
 				}
 			}
 		}
@@ -5690,28 +5685,26 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots( plot(), i );
 
-		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
+		//needs to be visible so we don't run into problems with stacking
+		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
+			continue;
+
+		if(pLoopPlot->isValidDomainForLocation(*this))
 		{
 			//need to check for invisible units as well ...
-			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION) && pLoopPlot->getNumUnits()==0 )
+			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
+				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+				if(pLoopPlot->area() != area())
 				{
-					if(pLoopPlot->isRevealed(getTeam()))
-					{
-						int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+					iValue *= 3;
+				}
 
-						if(pLoopPlot->area() != area())
-						{
-							iValue *= 3;
-						}
-
-						if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
-						{
-							iBestValue = iValue;
-							pBestPlot = pLoopPlot;
-						}
-					}
+				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+				{
+					iBestValue = iValue;
+					pBestPlot = pLoopPlot;
 				}
 			}
 		}

@@ -5144,15 +5144,21 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_HOVER:
-		return !isDeepWater();
+		if (unit.isEmbarked())
+			return needsEmbarkation(&unit);
+		else
+			return !isDeepWater();
 		break;
 
 	case DOMAIN_IMMOBILE:
-		return false;
+		return unit.plot()==this;
 		break;
 
 	case DOMAIN_LAND:
-		return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory())) || unit.canLoad(*this);
+		if (unit.isEmbarked())
+			return needsEmbarkation(&unit);
+		else
+			return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory())) || unit.canLoad(*this);
 		break;
 
 	default:
