@@ -5196,13 +5196,19 @@ void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason
 			it->m_iPressure += iPressure;
 			bFoundIt = true;
 		}
-
-		//  If this is pressure from a real religion, reduce presence of pantheon by the same amount
+#if defined(MOD_CORE_RESILIENT_PANTHEONS)
+		// Don't reduce pantheon pressure for regular per-turn spread
+		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON && eReason != FOLLOWER_CHANGE_ADJACENT_PRESSURE)
+		{
+			it->m_iPressure = max(0, (it->m_iPressure - iPressure/2));
+		}
+#else
+		// If this is pressure from a real religion, reduce presence of pantheon by the same amount
 		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON)
 		{
 			it->m_iPressure = max(0, (it->m_iPressure - iPressure));
 		}
-
+#endif
 		else if (it->m_eReligion > RELIGION_PANTHEON && eReason == FOLLOWER_CHANGE_MISSIONARY)
 		{
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
@@ -5315,11 +5321,15 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 			it->m_iPressure += iPressure;
 			bFoundIt = true;
 		}
-
-		//  If this is pressure from a real religion, reduce presence of pantheon by the same amount
+		// If this is pressure from a real religion, reduce presence of pantheon by the same amount
 		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON)
 		{
+#if defined(MOD_CORE_RESILIENT_PANTHEONS)
+			//don't need to check for CvReligiousFollowChangeReason - this method is only used for prophets/missionaries
+			it->m_iPressure = max(0, (it->m_iPressure - iPressure/2));
+#else
 			it->m_iPressure = max(0, (it->m_iPressure - iPressure));
+#endif
 		}
 
 		else if (it->m_eReligion > RELIGION_PANTHEON)

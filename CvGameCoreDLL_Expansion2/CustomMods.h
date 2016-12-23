@@ -61,8 +61,9 @@
 #define MOD_BALANCE_CORE_NEW_TACTICAL_AI
 #define MOD_CORE_NEW_DEPLOYMENT_LOGIC
 
-/// for testing
+/// for better multiplayer experience
 #define MOD_CORE_REDUCE_RANDOMNESS
+#define MOD_CORE_RESILIENT_PANTHEONS
 
 ///	air units take a flat amount of damage in each air strike (plus interceptions)
 #define MOD_CORE_AIRCOMBAT_SIMPLIFIED
