@@ -1412,7 +1412,6 @@ public:
 	int getSubUnitsAlive(int iDamage) const;
 
 	bool isEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
-	bool isPotentialEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
 
 	bool canRangeStrike() const;
 	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const;

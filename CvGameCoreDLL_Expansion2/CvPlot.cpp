@@ -4350,18 +4350,6 @@ inline static bool isEnemy(const CvUnit* pUnit, TeamTypes eOtherTeam, bool bAlwa
 }
 
 //	-----------------------------------------------------------------------------------------------
-inline static bool isPotentialEnemy(const CvUnit* pUnit, TeamTypes eOtherTeam, bool bAlwaysHostile)
-{
-	if(pUnit->canCoexistWithEnemyUnit(eOtherTeam))
-	{
-		return false;
-	}
-
-	TeamTypes eOurTeam = GET_PLAYER(pUnit->getCombatOwner(eOtherTeam, *(pUnit->plot()))).getTeam();
-	return (bAlwaysHostile ? eOtherTeam != eOurTeam : isPotentialEnemy(eOtherTeam, eOurTeam));
-}
-
-//	-----------------------------------------------------------------------------------------------
 inline static bool isOtherTeam(const CvUnit* pUnit, TeamTypes eOtherTeam)
 {
 	if(pUnit->canCoexistWithEnemyUnit(eOtherTeam))
@@ -4520,41 +4508,6 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 		while(pUnitNode != NULL);
 		return iCount;
 	}
-	return 0;
-}
-
-//	-----------------------------------------------------------------------------------------------
-int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
-{
-	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
-
-	if (!isVisible(eTeam))
-		return 0;
-
-	CvAssertMsg(pUnit, "Source unit must be valid");
-	const IDInfo* pUnitNode = m_units.head();
-	if(pUnit && pUnitNode)
-	{
-		int iCount = 0;
-		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
-
-		do
-		{
-			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
-			pUnitNode = m_units.next(pUnitNode);
-
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
-			{
-				if(pLoopUnit->IsCanDefend() && isPotentialEnemy(pLoopUnit, eTeam, bAlwaysHostile))
-				{
-					++iCount;
-				}
-			}
-		}
-		while(pUnitNode != NULL);
-		return iCount;
-	}
-
 	return 0;
 }
 

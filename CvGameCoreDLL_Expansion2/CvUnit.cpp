@@ -5621,7 +5621,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
 			continue;
 
-		if (pLoopPlot->isValidDomainForLocation(*this))
+		if (pLoopPlot->isValidDomainForLocation(*this) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
 		{
 			//need to check for invisible units as well ...
 			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -5689,7 +5689,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 		if(!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
 			continue;
 
-		if(pLoopPlot->isValidDomainForLocation(*this))
+		if(pLoopPlot->isValidDomainForLocation(*this) && !pLoopPlot->isEnemyUnit(getOwner(),true,false) && !pLoopPlot->isNeutralUnit(getOwner(),true,false))
 		{
 			//need to check for invisible units as well ...
 			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -26492,23 +26492,6 @@ bool CvUnit::isEnemy(TeamTypes eTeam, const CvPlot* pPlot) const
 		return false;
 	}
 	return (atWar(GET_PLAYER(getCombatOwner(eTeam, *pPlot)).getTeam(), eTeam));
-}
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::isPotentialEnemy(TeamTypes eTeam, const CvPlot* pPlot) const
-{
-	VALIDATE_OBJECT
-	if(NULL == pPlot)
-	{
-		pPlot = plot();
-	}
-
-	if(! pPlot)
-	{
-		return false;
-	}
-
-	return (::isPotentialEnemy(GET_PLAYER(getCombatOwner(eTeam, *pPlot)).getTeam(), eTeam));
 }
 
 //	--------------------------------------------------------------------------------
