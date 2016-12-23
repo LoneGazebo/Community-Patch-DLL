@@ -1983,7 +1983,11 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 	{
 		const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 #if defined(MOD_TRAITS_ANY_BELIEF)
-		if(!IsInSomeReligion(eBelief, ePlayer))
+#if defined(MOD_ANY_PANTHEON)
+		if (MOD_ANY_PANTHEON || !IsInSomeReligion(eBelief, ePlayer))
+#else
+		if (!IsInSomeReligion(eBelief, ePlayer))
+#endif
 #else
 		if(!IsInSomeReligion(eBelief))
 #endif
@@ -2041,7 +2045,12 @@ bool CvGameReligions::IsPantheonBeliefAvailable(BeliefTypes eBelief)
 {
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 #if defined(MOD_TRAITS_ANY_BELIEF)
+
+#if defined(MOD_ANY_PANTHEON)
+	if (MOD_ANY_PANTHEON || !IsInSomeReligion(eBelief, ePlayer))
+#else
 	if(!IsInSomeReligion(eBelief, ePlayer))
+#endif
 #else
 	if(!IsInSomeReligion(eBelief))
 #endif
