@@ -1043,8 +1043,8 @@
 	<!-- City-state influence and yields scale with era and number of cities. -->
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->
-	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
-	
+	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>	<!-- Remove some tourism from annexed cities. -->
+	<Row Class="6" Name="NO_TOURISM_CONQUEST" Value="0"/>	
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->
