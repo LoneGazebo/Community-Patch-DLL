@@ -819,11 +819,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					if (bEnemy)
 					{
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-						CvString msg;
-						msg.Format("Zone %d, Enemy %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
-							pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength, pZone->GetEnemyStrength());
-						GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+						//CvString msg;
+						//msg.Format("Zone %d, Enemy %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
+						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength, pZone->GetEnemyStrength());
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
 #endif
 
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
@@ -852,11 +852,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					{
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-						CvString msg;
-						msg.Format("Zone %d, Friendly %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
-							pLoopUnit->getX(), pLoopUnit->getY(), iDistance, iUnitStrength, iRangedStrength, pZone->GetFriendlyStrength());
-						GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+						//CvString msg;
+						//msg.Format("Zone %d, Friendly %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
+						//	pLoopUnit->getX(), pLoopUnit->getY(), iDistance, iUnitStrength, iRangedStrength, pZone->GetFriendlyStrength());
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
 #endif
 
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
