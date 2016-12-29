@@ -4383,6 +4383,10 @@ void CvTacticalAI::PlotWithdrawMoves()
 			if (pUnit->getArmyID() != -1)
 				continue;
 
+			//special moves for support units
+			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+				continue;
+
 			// Am I in the current dominance zone?
 			int iPlotIndex = GC.getMap().plotNum(pUnit->getX(), pUnit->getY());
 			if(GetTacticalAnalysisMap()->GetCell(iPlotIndex)->GetDominanceZone() == GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex)->GetDominanceZoneID())

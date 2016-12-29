@@ -14012,23 +14012,23 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if (!isBarbarian())
 		{
 #endif
-		int iNumOfThisResourceAvailable;
-		ResourceTypes eResource;
-		int iNumResourceNeeded;
+
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes)iResourceLoop;
-			iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
+			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+			int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
 
 			if (iNumResourceNeeded > 0)
 			{
 				// Amount we have lying around
-				iNumOfThisResourceAvailable = kPlayer.getNumResourceAvailable(eResource);
+				int iNumOfThisResourceAvailable = kPlayer.getNumResourceAvailable(eResource);
 				// Amount this old unit is using
-				iNumOfThisResourceAvailable += m_pUnitInfo->GetResourceQuantityRequirement(eResource);
+				int iNumOfThisResourceFreed = m_pUnitInfo->GetResourceQuantityRequirement(eResource);
 
-				if (iNumOfThisResourceAvailable <= 0 || iNumOfThisResourceAvailable < iNumResourceNeeded)
-					return false;
+				//do we need more than before?
+				if (iNumResourceNeeded > iNumOfThisResourceFreed)
+					if (iNumOfThisResourceAvailable - iNumResourceNeeded + iNumOfThisResourceFreed < 0)
+						return false;
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
