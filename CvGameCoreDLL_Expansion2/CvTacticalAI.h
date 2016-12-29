@@ -858,6 +858,7 @@ private:
 	void IdentifyPriorityBarbarianTargets();
 	void IdentifyPriorityTargetsByType();
 	void UpdateTargetScores();
+	void DumpTacticalTargets(const char* hint);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
 	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType);
 	CvTacticalTarget* GetNextZoneTarget();

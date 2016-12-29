@@ -3673,8 +3673,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strTemp = pUnit->getUnitInfo().GetDescription();
-						CvString msg = CvString::format("Checking plots for scouting unit %s is %d, %d with base %d, extra %d, bonus %d\n",
-							strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
+						CvString msg = CvString::format("Checking plot (%d:%d) for scout %s %d - base score %d, extra %d, bonus %d\n",
+							pBestPlot->getX(), pBestPlot->getY(), strTemp.GetCString(), pUnit->GetID(), iScoreBase, iScoreExtra, iScoreBonus);
 						LogHomelandMessage(msg);
 					}
 				}

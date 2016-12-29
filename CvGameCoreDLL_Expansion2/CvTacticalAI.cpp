@@ -1637,14 +1637,8 @@ void CvTacticalAI::FindTacticalTargets()
 				CvUnit* pUnit = pLoopPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 				if (pUnit != NULL)
 				{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-					if (pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-					else
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
-#else
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
-#endif
+
 					//note that the HIGH/MEDIUM/LOW classification is changed later in IdentifyPriorityTargets
 					newTarget.SetTargetPlayer(pUnit->getOwner());
 					newTarget.SetAuxData((void*)pUnit);
@@ -1976,22 +1970,21 @@ void CvTacticalAI::FindTacticalTargets()
 	}
 
 	// POST-PROCESSING ON TARGETS
+	DumpTacticalTargets("pre");
 
 	// Mark enemy units threatening our cities (or camps) as priority targets
-	if (m_pPlayer->isBarbarian())
-	{
-		IdentifyPriorityBarbarianTargets();
-	}
-	else
-	{
-		IdentifyPriorityTargets();
-	}
+	IdentifyPriorityTargets();
+	IdentifyPriorityBarbarianTargets();
+
+	DumpTacticalTargets("mid");
 
 	// Also add some priority targets that we'd like to hit just because of their unit type (e.g. catapults)
 	IdentifyPriorityTargetsByType();
 
 	// make sure high prio units have the higher scores
 	UpdateTargetScores();
+
+	DumpTacticalTargets("post");
 
 #if defined(MOD_BALANCE_CORE)
 	//Let's clean up our naval target list.
@@ -5981,8 +5974,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 		possibleAttackers.clear();
 		iExpectedTotalDamage = 0;
 
-		CvTacticalTarget* pTarget;
-		pTarget = GetFirstUnitTarget();
+		CvTacticalTarget* pTarget = GetFirstUnitTarget();
 		while(pTarget != NULL)
 		{
 			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -6092,43 +6084,86 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 	CvPlot* pLoopPlot;
 	CvTacticalTarget* pTarget;
 
-	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	if (!m_pPlayer->isBarbarian())
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		pTarget = GetFirstUnitTarget();
+		while(pTarget != NULL)
 		{
-			pTarget = GetFirstUnitTarget();
-			while(pTarget != NULL)
+			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+			if (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+				pTarget->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
+			pTarget = GetNextUnitTarget();
+		}
+	}
+	else
+	{
+		for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+			if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
-				bool bPriorityTarget = false;
-
-				// Skip if already a priority target (because was able to strike another camp)
-				if(pTarget->GetTargetType() != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+				pTarget = GetFirstUnitTarget();
+				while(pTarget != NULL)
 				{
-					CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-					CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-					if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) > pEnemyUnit->GetMaxAttackStrength(NULL, pLoopPlot, NULL))
+					bool bPriorityTarget = false;
+
+					// Skip if already a priority target (because was able to strike another camp)
+					if(pTarget->GetTargetType() != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
 					{
-						if(plotDistance(pEnemyUnit->getX(), pEnemyUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= pEnemyUnit->GetRange())
+						CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+						CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+						if(pEnemyUnit->IsCanAttackRanged() && pEnemyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) > pEnemyUnit->GetMaxAttackStrength(NULL, pLoopPlot, NULL))
 						{
-							if(pEnemyUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+							if(plotDistance(pEnemyUnit->getX(), pEnemyUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= pEnemyUnit->GetRange())
 							{
-								bPriorityTarget = true;
+								if(pEnemyUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+								{
+									bPriorityTarget = true;
+								}
 							}
 						}
+						else if(pEnemyUnit->CanReachInXTurns(pLoopPlot, 1))
+						{
+							bPriorityTarget = true;
+						}
+						if(bPriorityTarget)
+						{
+							pTarget->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
+						}
 					}
-					else if(pEnemyUnit->CanReachInXTurns(pLoopPlot, 1))
-					{
-						bPriorityTarget = true;
-					}
-					if(bPriorityTarget)
-					{
-						pTarget->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-					}
+					pTarget = GetNextUnitTarget();
 				}
-				pTarget = GetNextUnitTarget();
 			}
 		}
+	}
+}
+
+void CvTacticalAI::DumpTacticalTargets(const char* hint)
+{
+	CvTacticalTarget* pTarget = GetFirstUnitTarget();
+	while(pTarget != NULL)
+	{
+		const char* prio;
+		switch (pTarget->GetTargetType())
+		{
+		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
+			prio = "low";
+			break;
+		case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
+			prio = "med";
+			break;
+		case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
+			prio = "hi";
+			break;
+		default:
+			continue;
+		}
+
+		CvString strMsg;
+		strMsg.Format("Tactical Target (%s) at (%d,%d) with prio %s, score %d", hint, pTarget->GetTargetX(), pTarget->GetTargetY(), prio, pTarget->GetAuxIntData());
+		LogTacticalMessage(strMsg);
+
+		pTarget = GetNextUnitTarget();
 	}
 }
 
