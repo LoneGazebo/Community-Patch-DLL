@@ -1640,11 +1640,6 @@ void CvGame::update()
 		{
 			sendPlayerOptions();
 
-			if(getTurnSlice() == 0 && !isPaused())
-			{
-				gDLL->AutoSave(true);
-			}
-
 #if defined(EXTERNAL_PAUSING)
 			bool bExternalPause = ExternalPause();
 #else
@@ -3710,10 +3705,6 @@ void CvGame::doControl(ControlTypes eControl)
 		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-			if (!isNetworkMultiPlayer() && kActivePlayer.isHuman() && GC.GetPostTurnAutosaves())
-			{
-				gDLL->AutoSave(false, true);
-			}
 #if defined(MOD_EVENTS_RED_TURN)
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<
@@ -8031,10 +8022,9 @@ void CvGame::doTurn()
 	int iLoopPlayer;
 	int iI;
 
-	if(getAIAutoPlay())
-	{
-		gDLL->AutoSave(false);
-	}
+	//create an autosave
+	if(!isNetworkMultiPlayer())
+		gDLL->AutoSave(false, false);
 
 	// END OF TURN
 
@@ -8229,21 +8219,9 @@ void CvGame::doTurn()
 
 	LogGameState();
 
+	//autosave after doing a turn
 	if(isNetworkMultiPlayer())
-	{//autosave after doing a turn
-#if defined(MOD_BALANCE_CORE)
-		if (GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
-		{
-			gDLL->AutoSave(false, true);
-		}
-		else
-		{
-#endif
-		gDLL->AutoSave(false);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-	}
+		gDLL->AutoSave(false, true);
 
 	gDLL->PublishNewGameTurn(getGameTurn());
 }
