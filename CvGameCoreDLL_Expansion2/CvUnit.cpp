@@ -5489,7 +5489,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		if (isBarbarian())
 		{
-			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, GetID()) * 120);
+			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, *plot()) * 120);
 		}
 		else
 		{
@@ -16748,7 +16748,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	{
 		if (isBarbarian())
 		{
-			iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(10, GetID()) * 120;
+			iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(10, *plot()) * 120;
 		}
 		else
 		{
@@ -20421,6 +20421,17 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT;
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	//if (GC.getLogging() && GC.getAILogging())
+	//{
+	//	CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
+	//		GC.getGame().getElapsedGameTurns(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),"DAMAGE",m_iDamage.get(),m_iDamage+iChange,0,getX(),getY() );
+	//	FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+	//	pLog->Msg( info.c_str() );
+	//}
+#endif
+
 	return setDamage((getDamage() + iChange), ePlayer, fAdditionalTextDelay, pAppendText);
 }
 

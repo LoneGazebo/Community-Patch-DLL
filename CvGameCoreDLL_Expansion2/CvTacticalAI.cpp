@@ -449,6 +449,9 @@ void CvTacticalAI::CommandeerUnits()
 			pLoopUnit->DumpDangerInNeighborhood();
 		}
 
+		//LogTacticalMessage( CvString::format("looking to recruit %s %d at (%d,%d) with %d hp",
+		//	pLoopUnit->getName().c_str(),pLoopUnit->GetID(),pLoopUnit->getX(),pLoopUnit->getY(),pLoopUnit->GetCurrHitPoints()).c_str() );
+
 		// reset mission AI so we don't see stale information
 		if (pLoopUnit->GetMissionAIType()==MISSIONAI_ASSAULT)
 			pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
@@ -1970,13 +1973,13 @@ void CvTacticalAI::FindTacticalTargets()
 	}
 
 	// POST-PROCESSING ON TARGETS
-	DumpTacticalTargets("pre");
+#if defined(MOD_BALANCE_CORE)
+	//DumpTacticalTargets("pre");
+#endif
 
 	// Mark enemy units threatening our cities (or camps) as priority targets
 	IdentifyPriorityTargets();
 	IdentifyPriorityBarbarianTargets();
-
-	DumpTacticalTargets("mid");
 
 	// Also add some priority targets that we'd like to hit just because of their unit type (e.g. catapults)
 	IdentifyPriorityTargetsByType();
@@ -1984,9 +1987,9 @@ void CvTacticalAI::FindTacticalTargets()
 	// make sure high prio units have the higher scores
 	UpdateTargetScores();
 
-	DumpTacticalTargets("post");
-
 #if defined(MOD_BALANCE_CORE)
+	//DumpTacticalTargets("post");
+
 	//Let's clean up our naval target list.
 	PrioritizeNavalTargets();
 #endif
@@ -6159,8 +6162,10 @@ void CvTacticalAI::DumpTacticalTargets(const char* hint)
 			continue;
 		}
 
+		CvUnit* pUnit = (CvUnit*)(pTarget->GetAuxData());
 		CvString strMsg;
-		strMsg.Format("Tactical Target (%s) at (%d,%d) with prio %s, score %d", hint, pTarget->GetTargetX(), pTarget->GetTargetY(), prio, pTarget->GetAuxIntData());
+		strMsg.Format("Enemy unit (%s) at (%d,%d) with prio %s, score %d (%s with %d hp)", hint, pTarget->GetTargetX(), pTarget->GetTargetY(), 
+			prio, pTarget->GetAuxIntData(), pUnit->getName().c_str(), pUnit->GetCurrHitPoints());
 		LogTacticalMessage(strMsg);
 
 		pTarget = GetNextUnitTarget();
@@ -6202,8 +6207,7 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 		if (MOD_BALANCE_CORE_MILITARY) 
 		{
 			// Don't consider units that are already higher than low priority
-			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-					m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 			{
 				//units which are in the front line should be medium at least
 				CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
@@ -6217,38 +6221,20 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 			{
 				// Units defending forts will always be high priority targets
 				CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
+
 				ImprovementTypes eImprovement = pUnit->plot()->getImprovementType();
 				if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetDefenseModifier() > 0)
 				{
 					m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 				}
-				TerrainTypes eTerrain = pUnit->plot()->getTerrainType();
-				//Units in weak terrain will be a high target.
-				if(GC.getTerrainInfo(eTerrain)->getDefenseModifier() < 0)
-				{
-					m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-				}
+
 				//Is a unit below 1/4 health? If so, make it a high-priority target.
-				if(pUnit && pUnit->getOwner() != m_pPlayer->GetID())
+				if(pUnit->getOwner() != m_pPlayer->GetID())
 				{
-					int iDamage = 0;
-					iDamage = pUnit->GetMaxHitPoints() - pUnit->GetCurrHitPoints();
-					if(iDamage != 0 && (iDamage <= (pUnit->GetMaxHitPoints() / 4)))
+					if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() / 4)
 					{
 						m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 					}
-				}
-			}
-			// Don't consider units that are already medium priority
-			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-					m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-			{
-				CvUnit* pUnit = (CvUnit*)m_AllTargets[iI].GetAuxData();
-				//Units in defensive terrain will be more of a target.
-				TerrainTypes eTerrain = pUnit->plot()->getTerrainType();
-				if(GC.getTerrainInfo(eTerrain)->getDefenseModifier() > 0)
-				{
-					m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 				}
 			}
 		}
