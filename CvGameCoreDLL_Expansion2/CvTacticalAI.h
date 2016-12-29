@@ -330,7 +330,7 @@ public:
 	{
 		return m_eTargetType;
 	}
-	inline void SetTargetType(AITacticalTargetType eTargetType)
+	void SetTargetType(AITacticalTargetType eTargetType)
 	{
 		m_eTargetType = eTargetType;
 	}

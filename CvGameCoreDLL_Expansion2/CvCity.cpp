@@ -23010,14 +23010,14 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 4) : (pUnit->GetBaseCombatStrength() * 4);
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pUnit->GetID()) * 18;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, *plot()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->GetID());
+							int iYield = GC.getGame().getSmallFakeRandNum(10, *plot());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -29416,7 +29416,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	{
 		if (isBarbarian())
 		{
-			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, GetID()) * 120;
+			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 120;
 		}
 		else
 		{

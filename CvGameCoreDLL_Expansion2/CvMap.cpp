@@ -1373,7 +1373,11 @@ CvArea* CvMap::getArea(int iID)
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::addArea()
 {
-	return m_areas.Add();
+	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	CvArea* pNew = new CvArea();
+	pNew->SetID( m_areas.GetCount()+1 );
+	m_areas.Load(pNew);
+	return pNew;
 }
 
 
@@ -2198,7 +2202,11 @@ CvLandmass* CvMap::getLandmass(int iID)
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::addLandmass()
 {
-	return m_landmasses.Add();
+	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	CvLandmass* pNew = new CvLandmass();
+	pNew->SetID( m_landmasses.GetCount()+1 );
+	m_landmasses.Load(pNew);
+	return pNew;
 }
 
 

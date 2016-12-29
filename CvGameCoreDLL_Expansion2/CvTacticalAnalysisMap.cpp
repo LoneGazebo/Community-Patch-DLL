@@ -818,6 +818,14 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 					if (bEnemy)
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						//CvString msg;
+						//msg.Format("Zone %d, Enemy %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
+						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength, pZone->GetEnemyStrength());
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+#endif
+
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
 							pZone->AddEnemyNavalStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
@@ -839,17 +847,18 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						//again only for enemies
 						if(pZone->GetRangeClosestEnemyUnit()<0 || iDistance<pZone->GetRangeClosestEnemyUnit())
 							pZone->SetRangeClosestEnemyUnit(iDistance);
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-						CvString msg;
-						msg.Format("Zone %d, Enemy %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-							pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
-						GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
-#endif
 					}
 					else if (bFriendly)
 					{
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						//CvString msg;
+						//msg.Format("Zone %d, Friendly %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
+						//	pLoopUnit->getX(), pLoopUnit->getY(), iDistance, iUnitStrength, iRangedStrength, pZone->GetFriendlyStrength());
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+#endif
+
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
 							pZone->AddFriendlyNavalStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
@@ -868,14 +877,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							else
 								pZone->AddFriendlyMeleeUnitCount(1);
 						}
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-						CvString msg;
-						msg.Format("Zone %d, Friendly %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-							pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
-						GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
-#endif
 					}
 					else
 					{
