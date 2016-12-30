@@ -9263,7 +9263,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 		if(MOD_LIBERATE_WITH_TECHS)
 		{
 			//give the techs of his old master
-			CvTeamTechs *techsOldOwner = GET_TEAM(GET_PLAYER(eOldOwner).getTeam()).GetTeamTechs();
+			CvTeamTechs *techsOldOwner = GET_TEAM(GET_TEAM(eLiberatedTeam).GetKilledByTeam()).GetTeamTechs();
 			CvTeamTechs *techRightfulOwner = GET_TEAM(eLiberatedTeam).GetTeamTechs();
 			for (int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 			{

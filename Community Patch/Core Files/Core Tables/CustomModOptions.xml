@@ -1043,8 +1043,12 @@
 	<!-- City-state influence and yields scale with era and number of cities. -->
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->
-	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>	<!-- Remove some tourism from annexed cities. -->
-	<Row Class="6" Name="NO_TOURISM_CONQUEST" Value="0"/>	
+	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
+	<!-- Remove some tourism from annexed cities. -->
+	<Row Class="6" Name="NO_TOURISM_CONQUEST" Value="0"/>
+	<!-- When a player is liberated, it has the techs of his 'old master' -->
+	<Row Class="6" Name="LIBERATE_WITH_TECHS" Value="0"/>
+	
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->
