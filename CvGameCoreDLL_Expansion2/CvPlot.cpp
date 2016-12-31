@@ -4783,10 +4783,8 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 
 	CvTeam& kUnitTeam = GET_TEAM(pUnit->getTeam());
 
-	const IDInfo* pUnitNode;
 	const CvUnit* pLoopUnit;
-
-	pUnitNode = headUnitNode();
+	const IDInfo* pUnitNode = headUnitNode();
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int iPlotUnitLimit = getUnitLimit();

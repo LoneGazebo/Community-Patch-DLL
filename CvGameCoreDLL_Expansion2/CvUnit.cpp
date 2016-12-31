@@ -14027,6 +14027,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 				//do we need more than before?
 				if (iNumResourceNeeded > iNumOfThisResourceFreed)
+					//can't go negative in total
 					if (iNumOfThisResourceAvailable - iNumResourceNeeded + iNumOfThisResourceFreed < 0)
 						return false;
 			}

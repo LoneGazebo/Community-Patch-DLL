@@ -10004,20 +10004,22 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
 	int iFake = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + getGameTurn();
 	
+	//watch out, iFake^2 may turn negative because of overflow!
 	if (iNum>0)
-		return (iFake*iFake) % iNum; 
+		return abs(iFake*iFake) % iNum; 
 	else
-		return (-1) * ((iFake*iFake) % (-iNum));
+		return (-1) * (abs(iFake*iFake) % (-iNum));
 }
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
 	int iFake = getGameTurn() + abs(iExtraSeed);
 
+	//watch out, iFake^2 may turn negative because of overflow!
 	if (iNum>0)
-		return (iFake*iFake) % iNum;
+		return abs(iFake*iFake) % iNum;
 	else
-		return (-1) * ((iFake*iFake) % (-iNum));
+		return (-1) * (abs(iFake*iFake) % (-iNum));
 }
 
 #endif
