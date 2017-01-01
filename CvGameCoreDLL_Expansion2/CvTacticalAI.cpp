@@ -474,8 +474,8 @@ void CvTacticalAI::CommandeerUnits()
 		else if (bCanHeal && !bHasTarget)
 		{
 			//does it need healing? unless barbarian or japanese!
-			if ((pLoopUnit->getDamage()>80 || pLoopUnit->isProjectedToDieNextTurn()) && 
-				!m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged())
+			if ((pLoopUnit->getDamage()>80 && !m_pPlayer->isBarbarian()) || 
+				(pLoopUnit->isProjectedToDieNextTurn() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged()))
 			{
 				CvPlot* pHealPlot = TacticalAIHelpers::FindSafestPlotInReach(pLoopUnit, true, true);
 				if (pHealPlot)
