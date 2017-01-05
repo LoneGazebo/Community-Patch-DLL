@@ -16913,7 +16913,7 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pk
 		for(CvUnit* pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
 		{
 			// Must be able to intercept
-			if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
+			if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat() && !pLoopUnit->isEmbarked())
 			{
 				// Must not have already intercepted this turn
 				if(!pLoopUnit->isOutOfInterceptions())
