@@ -311,7 +311,7 @@ public:
 	PolicyBranchTypes m_ePreferredIdeology;
 	int m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int m_iWarWeariness;
+	int m_iRawWarWeariness; //without modifier
 	int m_iLastUpdate;
 	int m_iLastThemUpdate;
 #endif

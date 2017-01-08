@@ -962,7 +962,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	m_iLastTurnLifetimeCulture = 0;
 	m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	m_iWarWeariness = 0;
+	m_iRawWarWeariness = 0;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
 #endif
@@ -4964,13 +4964,15 @@ int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 {
 	return m_iOpinionUnhappiness;
 }
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 /// Unhappiness generated from public opinion
 int CvPlayerCulture::GetWarWeariness() const
 {
-	return m_iWarWeariness;
+	return (m_iRawWarWeariness * m_pPlayer->GetWarWearinessModifier()) / 100;
 }
 #endif
+
 /// Tooltip breaking down public opinion unhappiness
 CvString CvPlayerCulture::GetPublicOpinionUnhappinessTooltip() const
 {
@@ -5100,13 +5102,13 @@ int CvPlayerCulture::ComputeWarWeariness()
 	{
 		//signed peace last turn - halve value for immediate relief
 		//if we eliminate another player, this won't apply!
-		iFallingWarWeariness = m_iWarWeariness / 2;
+		iFallingWarWeariness = m_iRawWarWeariness / 2;
 	}
 	else if (iLeastPeaceTurns>1)
 	{
 		//apparently we made peace recently ... reduce the value step by step
 		int iReduction = GC.getGame().getSmallFakeRandNum(4, iLeastPeaceTurns);
-		iFallingWarWeariness = max(m_iWarWeariness-iReduction, 0);
+		iFallingWarWeariness = max(m_iRawWarWeariness-iReduction, 0);
 	}
 
 	//but if we have a war going, it will generate rising unhappiness
@@ -5127,11 +5129,11 @@ int CvPlayerCulture::ComputeWarWeariness()
 
 	//see which one is worse
 	if (iRisingWarWeariness>=iFallingWarWeariness)
-		m_iWarWeariness = iRisingWarWeariness;
+		m_iRawWarWeariness = iRisingWarWeariness;
 	else
-		m_iWarWeariness = iFallingWarWeariness;
+		m_iRawWarWeariness = iFallingWarWeariness;
 
-	return m_iWarWeariness;
+	return GetWarWeariness(); //return the modified value
 }
 #endif
 
@@ -5432,11 +5434,11 @@ void CvPlayerCulture::DoPublicOpinion()
 			m_strOpinionTooltip += locText.toUTF8();
 		}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS && m_iWarWeariness > 0)
+		if(MOD_BALANCE_CORE_HAPPINESS && GetWarWeariness() > 0)
 		{
 			Localization::String locText;
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS");
-			locText << m_iWarWeariness;
+			locText << GetWarWeariness();
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 		}
 #endif
@@ -6055,7 +6057,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 		loadFrom >> writeTo.m_ePreferredIdeology;
 		loadFrom >> writeTo.m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		loadFrom >> writeTo.m_iWarWeariness;
+		loadFrom >> writeTo.m_iRawWarWeariness;
 		loadFrom >> writeTo.m_iLastUpdate;
 		loadFrom >> writeTo.m_iLastThemUpdate;
 #endif
@@ -6067,7 +6069,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 		writeTo.m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
 		writeTo.m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		writeTo.m_iWarWeariness = 0;
+		writeTo.m_iRawWarWeariness = 0;
 #endif
 		writeTo.m_strOpinionTooltip = "";
 	}
@@ -6143,7 +6145,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 	saveTo << readFrom.m_ePreferredIdeology;
 	saveTo << readFrom.m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	saveTo << readFrom.m_iWarWeariness;
+	saveTo << readFrom.m_iRawWarWeariness;
 	saveTo << readFrom.m_iLastUpdate;
 	saveTo << readFrom.m_iLastThemUpdate;
 #endif
