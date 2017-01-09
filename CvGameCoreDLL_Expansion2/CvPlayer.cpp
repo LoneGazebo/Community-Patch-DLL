@@ -9258,6 +9258,22 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 #endif
 			}
 		}
+
+#if defined(MOD_LIBERATE_WITH_TECHS)
+		if(MOD_LIBERATE_WITH_TECHS)
+		{
+			//give the techs of his old master
+			CvTeamTechs *techsOldOwner = GET_TEAM(GET_TEAM(eLiberatedTeam).GetKilledByTeam()).GetTeamTechs();
+			CvTeamTechs *techRightfulOwner = GET_TEAM(eLiberatedTeam).GetTeamTechs();
+			for (int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
+			{
+				if (techsOldOwner->HasTech((TechTypes)iTechLoop) && !techRightfulOwner->HasTech((TechTypes)iTechLoop))
+				{
+					techRightfulOwner->SetHasTech((TechTypes)iTechLoop, true);
+				}
+			}
+		}
+#endif
 	
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{

@@ -399,6 +399,10 @@
 #define MOD_CITY_STATE_SCALE						gCustomMods.isCITY_STATE_SCALE()
 // allow anyone to choose his panthon, even if an other player has already choosed it.
 #define MOD_ANY_PANTHEON						gCustomMods.isANY_PANTHEON()
+// do not receive tourism from annexed cities, unless a building is present.
+#define MOD_NO_TOURISM_CONQUEST						gCustomMods.isNO_TOURISM_CONQUEST()
+// liberated players gain tech from the occupant
+#define MOD_LIBERATE_WITH_TECHS						gCustomMods.isLIBERATE_WITH_TECHS()
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 #define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
@@ -1467,6 +1471,8 @@ public:
 	MOD_OPT_DECL(CIV6_EUREKAS);
 	MOD_OPT_DECL(CITY_STATE_SCALE);
 	MOD_OPT_DECL(ANY_PANTHEON);
+	MOD_OPT_DECL(NO_TOURISM_CONQUEST);
+	MOD_OPT_DECL(LIBERATE_WITH_TECHS);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);

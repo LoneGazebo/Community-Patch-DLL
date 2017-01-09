@@ -6444,6 +6444,26 @@ void CvCityCulture::CalculateBaseTourism()
 		iBase *= (100 + iModifier);
 		iBase /= 100;
 	}
+
+#if defined(MOD_NO_TOURISM_CONQUEST)
+	if (MOD_NO_TOURISM_CONQUEST && m_pCity->getOwner() != m_pCity->getOriginalOwner()){
+		BuildingClassTypes buildingClass = (BuildingClassTypes)GD_INT_GET(BUILDING_CLASS_ENABLE_TOURISM_ANNEXED);
+		if (buildingClass == NO_BUILDINGCLASS)
+			return;
+
+		BuildingTypes buildingType = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(buildingClass);
+		if (buildingType == NO_BUILDING)
+			return;
+
+		// Destination city cannot have a franchise
+		if (!m_pCity->HasBuilding(buildingType))
+		{
+			iBase *= GD_INT_GET(TOURISM_ANNEXED_MOD);
+			iBase /= 100;
+		}
+	}
+#endif
+
 	m_pCity->SetBaseTourism(iBase);
 }
 #endif
