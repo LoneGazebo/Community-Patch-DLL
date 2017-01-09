@@ -18879,7 +18879,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	if (bOwnerIsActivePlayer)
 		DLLUI->SetDontShowPopups(true);
 
-	CvAssert(!at(iX, iY));
+	//avoid recursion with jump to valid plot
+	if (at(iX, iY))
+		return;
+
 	CvAssert(!isFighting());
 	CvAssert((iX == INVALID_PLOT_COORD) || (GC.getMap().plot(iX, iY)->getX() == iX));
 	CvAssert((iY == INVALID_PLOT_COORD) || (GC.getMap().plot(iX, iY)->getY() == iY));

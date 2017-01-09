@@ -5118,7 +5118,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		//war weariness is asymptotic. for Delay turns nothing happens, then after TimeConstant more turns it affects max/2 % of the population, then asymptotically approaches max %
 		int iDelay = 8; 
 		int iTimeConstant = 32;
-		int iMaxPercent = 20;
+		int iMaxPercent = 16;
 		
 		//simple asymptotic function x/(1+x) mapped to interval [0;100]
 		int iX = max(0, iMostWarTurns - iDelay);

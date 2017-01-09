@@ -4108,6 +4108,10 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				//second chance
 				pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, bIsSafe);
 
+				//last chance - failsafe
+				if(pBestSettle == NULL)
+					pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, bIsSafe);
+
 				if(pBestSettle == NULL)
 				{
 					if(GC.getLogging() && GC.getAILogging())
@@ -4120,7 +4124,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				}
 				else
 				{
-					iFinalArea = iSecondBestArea;
+					iFinalArea = pBestSettle->getArea();
 				}
 			}
 			else
