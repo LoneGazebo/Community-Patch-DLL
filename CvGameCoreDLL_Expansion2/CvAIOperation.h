@@ -579,6 +579,7 @@ public:
 
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
+	virtual bool CheckTransitionToNextStage();
 
 protected:
 	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);

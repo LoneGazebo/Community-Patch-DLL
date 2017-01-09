@@ -2433,6 +2433,29 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 	}
 }
 
+//don't wait an escort if it's unlikely it will come.
+bool CvAIOperationCivilianFoundCity::CheckTransitionToNextStage()
+{
+	if (m_viArmyIDs.empty())
+		return false;
+
+	bool bStateChanged = CvAIOperationCivilian::CheckTransitionToNextStage();
+	CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
+
+	if (!bStateChanged && pThisArmy->GetArmyAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE && (
+		GET_PLAYER(m_eOwner).GetTreasury()->CalculateBaseNetGold() < -1
+		|| GET_PLAYER(m_eOwner).getNumMilitaryUnits() >= GET_PLAYER(m_eOwner).GetNumUnitsSupplied()
+		))
+		{
+			pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+			m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+			LogOperationSpecialMessage("Transition to gathering stage (cannot reinforce more)");
+			bStateChanged = true;
+		}
+
+	return bStateChanged;
+}
+
 /// Find the plot where we want to settle
 CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
 {
