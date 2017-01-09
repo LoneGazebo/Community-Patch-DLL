@@ -2442,7 +2442,7 @@ bool CvAIOperationCivilianFoundCity::CheckTransitionToNextStage()
 	bool bStateChanged = CvAIOperationCivilian::CheckTransitionToNextStage();
 	CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 
-	if (!bStateChanged && pThisArmy->GetArmyAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE && (
+	if (!bStateChanged && pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE && (
 		GET_PLAYER(m_eOwner).GetTreasury()->CalculateBaseNetGold() < -1
 		|| GET_PLAYER(m_eOwner).getNumMilitaryUnits() >= GET_PLAYER(m_eOwner).GetNumUnitsSupplied()
 		))
