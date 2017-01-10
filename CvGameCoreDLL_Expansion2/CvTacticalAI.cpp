@@ -4637,12 +4637,12 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		if(pOperation->GetMusterPlot() != NULL)
 		{
 			//nothing to do?
-			if(pEscort && pCivilian->plot() == pEscort->plot())
+			if(pEscort && plotDistance(*pCivilian->plot(),*pEscort->plot())<2)
 			{
 				return;
 			}
 			//civilian and escort have not yet met up
-			else if(pEscort && pEscort->plot() != pCivilian->plot())
+			else if(pEscort && plotDistance(*pCivilian->plot(),*pEscort->plot())>=2)
 			{
 				//civilian is already there
 				if(pCivilian->plot() == pOperation->GetMusterPlot())
@@ -4700,12 +4700,14 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				}
 				else
 				{
-					// Civilian is not yet there - both must move
-					ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot());
-					ExecuteMoveToPlotIgnoreDanger(pEscort, pOperation->GetMusterPlot());
+					// Civilian is not yet there - both must move - use approximate pathfinding to avoid embarked stacking problems
+					if (!ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+					else if (!ExecuteMoveToPlotIgnoreDanger(pEscort, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 				}
 
-				if(GC.getLogging() && GC.getAILogging())
+				if(pOperation->GetOperationState()!=AI_ABORT_LOST_PATH && GC.getLogging() && GC.getAILogging())
 				{
 					CvString strTemp;
 					CvString strLogString;
@@ -4795,9 +4797,14 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						//in CP embarked units cannot stack ...
 						if (pCommonPlot->needsEmbarkation(pCivilian))
 						{
-							//civilian goes first, escort stays close
+							//civilian goes first
 							ExecuteMoveToPlotIgnoreDanger(pCivilian, pCommonPlot, bSaveMoves);
-							ExecuteMoveToPlotIgnoreDanger(pEscort, pCivilian->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+							if ( pCivilian->plot()->isAdjacent( pEscort->plot() ) )
+								//approximate move wouldn't make any progress - go straight to the target
+								ExecuteMoveToPlotIgnoreDanger(pEscort, pOperation->GetTargetPlot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+							else
+								//escort tries to stay close
+								ExecuteMoveToPlotIgnoreDanger(pEscort, pCivilian->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 						}
 						else
 						{
@@ -4840,7 +4847,14 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							{
 								//avoid problems with embarked stacking
 								if ( pEscort->plot()->needsEmbarkation(pCivilian) )
-									ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+								{
+									if ( pEscort->plot()->isAdjacent( pCivilian->plot() ) )
+										//approximate move wouldn't make any progress - go straight to the target
+										ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetTargetPlot(), bSaveMoves);
+									else
+										//simply stay close
+										ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+								}
 								else
 									ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves);
 
@@ -7895,15 +7909,16 @@ bool CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget,
 			pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTarget,NULL);
 		}
 
-		if(!bSaveMoves)
+		if(!bSaveMoves && bResult)
 		{
 			TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
 			pUnit->finishMoves();
 		}
 	}
 
-	//todo: does this make sense even if the move failed? shouldn't happen but you never know ...
-	UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
+	if (bResult)
+		UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
+
 	return bResult;
 }
 

@@ -5061,6 +5061,7 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
+	PlayerTypes eMostWarTurnsPlayer = NO_PLAYER;
 	int iMostWarTurns = -1;
 	int iLeastPeaceTurns = MAX_INT;
 	// Look at each civ and get longest war and shortest peace
@@ -5075,6 +5076,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 				if(iWarTurns > iMostWarTurns)
 				{
 					iMostWarTurns = iWarTurns;
+					eMostWarTurnsPlayer = kPlayer.GetID();
 				}
 			}
 			else
@@ -5115,10 +5117,13 @@ int CvPlayerCulture::ComputeWarWeariness()
 	int iRisingWarWeariness = 0;
 	if(iMostWarTurns > 0)
 	{
+		int iMapSizeModifier = (GC.getMap().getWorldSize() - 2) * 4;
+		int iInfluenceModifier = (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer)) * 2;
+
 		//war weariness is asymptotic. for Delay turns nothing happens, then after TimeConstant more turns it affects max/2 % of the population, then asymptotically approaches max %
-		int iDelay = 8; 
-		int iTimeConstant = 32;
-		int iMaxPercent = 16;
+		int iDelay = 8;
+		int iTimeConstant = 30 + iMapSizeModifier;
+		int iMaxPercent = 16 + iInfluenceModifier;
 		
 		//simple asymptotic function x/(1+x) mapped to interval [0;100]
 		int iX = max(0, iMostWarTurns - iDelay);
