@@ -3638,6 +3638,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 		if (pGarrison)
 		{
+			//make sure the AI type is right
+			pGarrison->AI_setUnitAIType(UNITAI_DEFENSE);
+
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
 			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 			{
@@ -8849,6 +8852,10 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 				else if(bRangedOnly)
 					continue;
 
+				//Let's not pull out garrisons to do this.
+				if(pLoopUnit->IsGarrisoned() || pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE)
+					continue;
+
 				if(pLoopUnit->IsHurt())
 					bHighPriority = true;
 
@@ -8875,7 +8882,7 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 				}
 
 				//Let's not pull out garrisons to do this.
-				if(pLoopUnit->IsGarrisoned())
+				if(pLoopUnit->IsGarrisoned() || pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE)
 					continue;
 			}
 			else if(eMove == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_ANCIENT_RUINS])
