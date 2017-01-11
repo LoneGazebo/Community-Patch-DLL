@@ -1044,10 +1044,14 @@ void CvHomelandAI::AssignHomelandMoves()
 		switch(move.m_eMoveType)
 		{
 		case AI_HOMELAND_MOVE_EXPLORE:
-			PlotExplorerMoves();
+			//call it twice in case the unit reaches the end of it's sight with moves left
+			PlotExplorerMoves(false);
+			PlotExplorerMoves(true);
 			break;
 		case AI_HOMELAND_MOVE_EXPLORE_SEA:
-			PlotExplorerSeaMoves();
+			//call it twice in case the unit reaches the end of it's sight with moves left
+			PlotExplorerSeaMoves(false);
+			PlotExplorerSeaMoves(true);
 			break;
 		case AI_HOMELAND_MOVE_SETTLE:
 			PlotFirstTurnSettlerMoves();
@@ -1171,7 +1175,7 @@ void CvHomelandAI::AssignHomelandMoves()
 }
 
 /// Get units with explore AI and plan their moves
-void CvHomelandAI::PlotExplorerMoves()
+void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 {
 	ClearCurrentMoveUnits();
 
@@ -1193,19 +1197,24 @@ void CvHomelandAI::PlotExplorerMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		// Execute twice so explorers who can reach the end of their sight can move again
-#if defined(MOD_BALANCE_CORE)
-		ExecuteExplorerMoves(false);
-		ExecuteExplorerMoves(true);
-#else
 		ExecuteExplorerMoves();
-		ExecuteExplorerMoves();
-#endif
+	}
+
+	if(bSecondPass)
+	{
+		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			{
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+		}
 	}
 }
 
 /// Get units with explore AI and plan their moves
-void CvHomelandAI::PlotExplorerSeaMoves()
+void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 {
 	ClearCurrentMoveUnits();
 
@@ -1227,14 +1236,19 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		// Execute twice so explorers who can reach the end of their sight can move again
-#if defined(MOD_BALANCE_CORE)
-		ExecuteExplorerMoves(false);
-		ExecuteExplorerMoves(true);
-#else
 		ExecuteExplorerMoves();
-		ExecuteExplorerMoves();
-#endif
+	}
+
+	if(bSecondPass)
+	{
+		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			{
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+		}
 	}
 }
 
@@ -3464,7 +3478,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 }
 
 /// Moves units to explore the map
-void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
+void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
 
@@ -3815,12 +3829,6 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					}
 				}
 			}
-		}
-
-		if(bSecondPass)
-		{
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
 		}
 	}
 }

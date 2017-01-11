@@ -3636,11 +3636,8 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 			continue;
 
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-		if (pGarrison)
+		if (pGarrison && !pGarrison->AI_getUnitAIType()==UNITAI_EXPLORE)
 		{
-			//make sure the AI type is right
-			pGarrison->AI_setUnitAIType(UNITAI_DEFENSE);
-
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
 			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 			{
@@ -4703,9 +4700,10 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				}
 				else
 				{
-					// Civilian is not yet there - both must move - use approximate pathfinding to avoid embarked stacking problems
-					if (!ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+					// Civilian is not yet there - both must move
+					if (!ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot(),false))
 						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+					// use approximate pathfinding to avoid embarked stacking problems - but only for one of them, else they will never come close
 					else if (!ExecuteMoveToPlotIgnoreDanger(pEscort, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 				}
