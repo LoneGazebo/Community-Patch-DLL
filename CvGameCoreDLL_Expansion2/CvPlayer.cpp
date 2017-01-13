@@ -42991,7 +42991,7 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 	iFirstArea = iBestArea;
 	iSecondArea = iSecondBestArea;
 
-	return max(10, iNumFound);
+	return iNumFound;
 }
 
 //	--------------------------------------------------------------------------------

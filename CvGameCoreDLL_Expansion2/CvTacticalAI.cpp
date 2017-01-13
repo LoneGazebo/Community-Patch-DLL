@@ -3635,8 +3635,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		if(!pCity)
 			continue;
 
+		//an explorer can be a transient garrison but we don't want to keep it here
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-		if (pGarrison && !pGarrison->AI_getUnitAIType()==UNITAI_EXPLORE)
+		if (pGarrison && pGarrison->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		{
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
 			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
@@ -12493,30 +12494,32 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		result.iRemainingMoves = 0;
 
 	//finally the almighty score
-	float fAggFactor = 1;
+	float fAggFactor = -1;
 	switch (eAggLvl)
 	{
 	case AL_LOW:
-		if ( iDamageReceived > 0 && pUnit->GetCurrHitPoints() - iDamageReceived < pUnit->GetMaxHitPoints()/2 )
-			result.iScore = -1; //don't do it
-		fAggFactor = 0.5f;
+		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints()/2 )
+			fAggFactor = 0.5f;
 		break;
 	case AL_MEDIUM:
-		if ( iDamageReceived > 0 && pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints()/2 )
-			result.iScore = -1; //don't do it
-		fAggFactor = 1.f;
+		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2 )
+			fAggFactor = 1.f;
 		break;
 	case AL_HIGH:
-		if ( iDamageReceived > pUnit->GetCurrHitPoints() && fUnitNumberRatio<1 )
-			result.iScore = -1; //don't do it
-		fAggFactor = 4.f;
+		if ( iDamageReceived < pUnit->GetCurrHitPoints() || fUnitNumberRatio>1 )
+			fAggFactor = 4.f;
 		break;
 	}
 
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
-	result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
-	result.iDamage = iDamageDealt;
+	if (fAggFactor>0)
+	{
+		result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
+		result.iDamage = iDamageDealt;
+	}
+	else
+		result.iScore = -1;
 }
 
 STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition)
