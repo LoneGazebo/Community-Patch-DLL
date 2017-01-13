@@ -223,6 +223,11 @@
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
 			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
+			<Text>{1_Num}% [ICON_TOURISM] Tourism from owned foreign Capitals</Text>
+		</Row>
+		
 		<!-- Resource Monopoly Text-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY">
 			<Text>(You) {1_Monopoly}%</Text>
@@ -322,6 +327,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_GAP_STRING">
 			<Text>{1_Num}[ENDCOLOR] [ICON_GOLDEN_AGE] Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_GGP_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_GAP2_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_ADMIRAL] Great Admiral Points</Text>
 		</Row>
 
 		<!-- Assyria UA Text -->

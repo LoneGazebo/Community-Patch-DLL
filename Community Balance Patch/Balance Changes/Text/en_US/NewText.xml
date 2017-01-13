@@ -31,13 +31,13 @@
 			<Text>Epona, the Great Mare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_CULTURE] Culture for every 15 [ICON_GOLD] Gold per turn, and +1 [ICON_GOLDEN_AGE] Golden Age Points for every 10 [ICON_RESEARCH] Science per turn</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, and +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
-			<Text>+1 [ICON_FOOD] Food from Forests, +1 [ICON_PRODUCTION] Production from Jungles</Text>
+			<Text>+1 [ICON_FOOD] Food and [ICON_CULTURE] Culture from Forests, +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Jungles</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
 			<Text>Cernunnos, the Horned Stag</Text>
@@ -49,19 +49,19 @@
 			<Text>Lugh, the Skilled One</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON">
-			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in every City</Text>
+			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold in every City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
 			<Text>Rhiannon, Goddess of Sovereignty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
-			<Text>+2 [ICON_FOOD] Food, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
+			<Text>+3 [ICON_FOOD] Food, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
 			<Text>Mannanan, Son of the Sea</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA">
-			<Text>+1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in a City, and gain 8 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born</Text>
+			<Text>+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in a City, and gain 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA_SHORT">
 			<Text>Ogma, the Learned</Text>
@@ -73,7 +73,7 @@
 			<Text>Bran, the Sleeping Guardian</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA">
-			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science for every 5 Followers of your Pantheon in owned Cities</Text>
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science for every 4 Followers of your Pantheon in owned Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
 			<Text>Dagda, the All-Father</Text>

@@ -7408,25 +7408,6 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 					iRtnValue *= 100 + iQuantityMod;
 					iRtnValue /= 100;
 				}
-#if defined(MOD_BALANCE_CORE)
-				ReligionTypes eMajority = NO_RELIGION;
-
-				CvCity* pWorkingCity = getWorkingCity();
-				if (pWorkingCity)
-				{
-					eMajority = pWorkingCity->GetCityReligions()->GetReligiousMajority();
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
-					if (pReligion)
-					{
-						int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eResource, pWorkingCity->getOwner());
-						if( iQuantityMod != 0)
-						{
-							iRtnValue *= 100 + iQuantityMod;
-							iRtnValue /= 100;
-						}
-					}
-				}
-#endif
 			}
 		}
 	}

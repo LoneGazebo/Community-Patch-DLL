@@ -396,6 +396,7 @@ public:
 #endif
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
+	int GetCityStateYieldModifier(PlayerTypes ePlayer) const;
 	int GetSpyPressure(PlayerTypes ePlayer) const;
 	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;

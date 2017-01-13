@@ -5165,6 +5165,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					{
 						iYieldValue *= 10;
 					}
+					if (GET_PLAYER(eLoopPlayer).GetCulture()->GetInfluenceTrend(kPlayer.GetID()) == INFLUENCE_TREND_RISING)
+					{
+						iYieldValue *= 5;
+					}
+					if (GET_PLAYER(eLoopPlayer).GetCulture()->GetInfluenceLevel(kPlayer.GetID()) >= INFLUENCE_LEVEL_FAMILIAR)
+					{
+						iYieldValue *= 3;
+					}
 				}
 			}
 		}

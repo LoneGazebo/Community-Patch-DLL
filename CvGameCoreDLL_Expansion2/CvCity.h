@@ -1122,6 +1122,9 @@ public:
 	void ChangeSeaTourismBonus(int iChange);
 	void SetSeaTourismBonus(int iValue);
 
+	int GetSeaTourismFromEvent();
+	int GetLandTourismFromEvent();
+
 	int GetAlwaysHeal() const;
 	void ChangeAlwaysHeal(int iChange);
 	void SetAlwaysHeal(int iValue);

@@ -3156,55 +3156,8 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(MOD_BALANCE_CORE_DEALS)
 		{
-			//How strong are they compared to us?
-			switch (GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
-			{
-			case STRENGTH_PATHETIC:
-				return INT_MAX;
-				break;
-			case STRENGTH_WEAK:
-				return INT_MAX;
-				break;
-			case STRENGTH_POOR:
-				iItemValue += 50;
-				break;
-			case STRENGTH_AVERAGE:
-				iItemValue += 100;
-				break;
-			case STRENGTH_STRONG:
-				iItemValue += 200;
-				break;
-			case STRENGTH_POWERFUL:
-				iItemValue += 300;
-				break;
-			case STRENGTH_IMMENSE:
-				iItemValue += 400;
-				break;
-			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid MilitaryStrengthComparedToUs for Defensive Pact valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue = 100;
-				break;
-			}
-			// Proximity is very important
-			switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
-			{
-			case PLAYER_PROXIMITY_DISTANT:
-				iItemValue -= 300;
-				break;
-			case PLAYER_PROXIMITY_FAR:
-				iItemValue -= 100;
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
-				iItemValue += 50;
-				break;
-			case PLAYER_PROXIMITY_NEIGHBORS:
-				iItemValue += 75;
-				break;
-			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue = 0;
-				break;
-			}
+			iItemValue *= 100;
+			iItemValue /= max(1, GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer));
 		}
 #endif
 	}
@@ -3214,55 +3167,8 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(MOD_BALANCE_CORE_DEALS)
 		{
-			//How strong are we compared to them?
-			switch (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetPlayer()->GetID()))
-			{
-			case STRENGTH_PATHETIC:
-				iItemValue += 400;
-				break;
-			case STRENGTH_WEAK:
-				iItemValue += 300;
-				break;
-			case STRENGTH_POOR:
-				iItemValue += 200;
-				break;
-			case STRENGTH_AVERAGE:
-				iItemValue += 100;
-				break;
-			case STRENGTH_STRONG:
-				iItemValue += 50;
-				break;
-			case STRENGTH_POWERFUL:
-				iItemValue += 25;
-				break;
-			case STRENGTH_IMMENSE:
-				iItemValue += 0;
-				break;
-			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid MilitaryStrengthComparedToUs for Defensive Pact valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue = 100;
-				break;
-			}
-			// Proximity is very important
-			switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()))
-			{
-			case PLAYER_PROXIMITY_DISTANT:
-				iItemValue -= 100;
-				break;
-			case PLAYER_PROXIMITY_FAR:
-				iItemValue -= 50;
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
-				iItemValue += 25;
-				break;
-			case PLAYER_PROXIMITY_NEIGHBORS:
-				iItemValue += 50;
-				break;
-			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue = 0;
-				break;
-			}
+			iItemValue *= GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer);
+			iItemValue /= 100;
 		}
 #else
 		// Opinion also matters
@@ -3288,15 +3194,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 		}
 #endif
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES)
-	{
-		if(GetPlayer()->GetDefensePactsToVotes() > 0)
-		{
-			iItemValue *= 2;
-		}
-	}
-#endif
+
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
@@ -4009,17 +3907,17 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		else
 		{
 			// Modify for our feelings towards the player we're would go to war with
-			if(eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_WAR)
+			if (eMajorApproachTowardsWarPlayer == MAJOR_CIV_APPROACH_WAR)
 			{
 				iItemValue *= 75;
 				iItemValue /= 100;
 			}
-			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= MAJOR_CIV_APPROACH_AFRAID)
+			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_HOSTILE && eApproachTowardsAskingPlayer >= MAJOR_CIV_APPROACH_AFRAID)
 			{
 				iItemValue *= 90;
 				iItemValue /= 100;
 			}
-			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+			else if (eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				iItemValue *= 150;
 				iItemValue /= 100;
@@ -4028,6 +3926,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			{
 				return INT_MAX;
 			}
+
+			if (eWithPlayer == m_pPlayer->GetDiplomacyAI()->GetBiggestCompetitor())
+				iItemValue /= 2;
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Already planning war? Less valuable.
@@ -4269,6 +4170,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 250;
 				iItemValue /= 100;
 			}
+
+			if (eWithPlayer == m_pPlayer->GetDiplomacyAI()->GetBiggestCompetitor())
+				iItemValue *= 4;
 		}
 		if(eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_AFRAID)
 		{
@@ -6105,6 +6009,9 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeMy
 					iNumGPT = min(iNumGPT, GET_PLAYER(eMyPlayer).calculateGoldRate());
 #if defined(MOD_BALANCE_CORE)
 					int iItemValue = GetGPTforForValueExchange(iNumGPT, false, iDealDuration, /*bFromMe*/ true, eThem, bUseEvenValue, /*bRoundUp*/ false);
+					if (iItemValue == MAX_INT)
+						return;
+
 					int iAmountUnderWeWillOffer = iTotalValue;
 					int iPercentOverWeWillOffer = 0;
 					if (GET_PLAYER(eThem).isHuman())
@@ -7758,21 +7665,27 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 
 	// Don't ask for a war if we're hostile or planning a war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
-	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_GUARDED || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
+	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_GUARDED)
 	{
 		return false;
 	}
 
+	//If we aren't at war, also buck on deceptive. Otherwise we want allies ASAP.
+	if (!GetPlayer()->IsAtWarAnyMajor() && eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
+		return false;
+
 	// Don't ask for war if they are weaker than us
-	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
+	if (GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE && GetPlayer()->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer))
 	{
 		return false;
 	}
+
 	// Don't ask for war if we are in a DoF (we'll do the 'free' method instead)
 	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
 	{
 		return false;
 	}
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	//Asking a vassal? Abort!
 	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())

@@ -86,7 +86,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetPressureChangeTradeRoute() const;
-	bool IsHalvedFollowers() const;
 	int GetYieldPerPop(int i) const;
 	int GetYieldPerGPT(int i) const;
 	int GetYieldPerLux(int i) const;
@@ -113,6 +112,9 @@ public:
 	int GetExtraVotes() const;
 	int GetPolicyReductionWonderXFollowerCities() const;
 	int GetMaxYieldPerFollower(int i) const;
+	int GetMaxYieldPerFollowerHalved(int i) const;
+	bool IsIgnorePolicyRequirements() const;
+	int GetCSYieldBonus() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	CivilizationTypes GetRequiredCivilization() const;
@@ -176,6 +178,7 @@ public:
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetYieldModifierNaturalWonder(int i) const;
 	int GetMaxYieldModifierPerFollower(int i) const;
+	int GetMaxYieldModifierPerFollowerHalved(int i) const;
 	bool IsFaithUnitPurchaseEra(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsFaithUnitPurchaseSpecific(int i) const;
@@ -297,6 +300,7 @@ protected:
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldModifierNaturalWonder;
 	int* m_piMaxYieldModifierPerFollower;
+	int* m_piMaxYieldModifierPerFollowerHalved;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbFaithPurchaseUnitSpecificEnabled;
 #endif
@@ -305,7 +309,6 @@ protected:
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int m_iGetPressureChangeTradeRoute;
-	bool m_bIsHalvedFollowers;
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
 	int* m_piYieldPerLux;
@@ -326,6 +329,9 @@ protected:
 	int* m_piYieldFromHost;
 	int* m_piYieldFromKnownPantheons;
 	int* m_piMaxYieldPerFollower;
+	int* m_piMaxYieldPerFollowerHalved;
+	bool m_bIgnorePolicyRequirements;
+	int m_iCSYieldBonus;
 	int m_iCombatVersusOtherReligionOwnLands;
 	int m_iCombatVersusOtherReligionTheirLands;
 	int m_iMissionaryInfluenceCS;
@@ -494,6 +500,7 @@ public:
 	int GetYieldChangeWorldWonder(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldModifierNaturalWonder(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetMaxYieldModifierPerFollower(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER) const;
 
 	bool IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer = NO_PLAYER) const;
 	bool IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER) const;
@@ -512,7 +519,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetPressureChangeTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
-	bool IsHalvedFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldPerPop(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
@@ -532,8 +538,11 @@ public:
 	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER) const;
+	bool IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCSYieldBonus(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 
 	// Serialization

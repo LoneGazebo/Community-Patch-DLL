@@ -4770,21 +4770,25 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	if(iArt > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getArtYieldBonus(eYield) * iArt);
 	}
 	int iArtifact = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), true);
 	if(iArtifact > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getArtifactYieldBonus(eYield) * iArtifact);
 	}
 	int iLit = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 	if(iLit > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getLitYieldBonus(eYield) * iLit);
 	}
 	int iMusic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
 	if(iMusic > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getMusicYieldBonus(eYield) * iMusic);
 	}
 	
 	//Now grab the base yields.

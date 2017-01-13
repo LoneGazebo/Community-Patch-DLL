@@ -1,11 +1,12 @@
 -- Units
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ENVOY','BUILDINGCLASS_CHANCERY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DIPLOMAT','BUILDINGCLASS_CHANCERY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_AMBASSADOR','BUILDINGCLASS_WIRE_SERVICE';
 
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_EMISSARY';
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_ENVOY';
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_DIPLOMAT';
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_AMBASSADOR';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_EMISSARY';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_ENVOY';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_DIPLOMAT';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_AMBASSADOR';
 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
 

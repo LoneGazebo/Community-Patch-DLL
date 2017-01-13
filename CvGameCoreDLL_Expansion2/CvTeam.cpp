@@ -6822,13 +6822,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 						{
-							int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+							int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism();
 							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
 							// Culture boost based on previous turns
-							int iPreviousTurnsToCount = 10;
-							// Calculate boost
-							iTourism *= GET_PLAYER(eLoopPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-							iTourism /= 100;
 							if(iTourism > 0)
 							{
 								GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
@@ -7019,13 +7015,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 									{
-										int iTourism = GET_PLAYER(eLoopPlayer).GetEventTourism();
+										int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism();
 										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
 										// Culture boost based on previous turns
-										int iPreviousTurnsToCount = 10;
-										// Calculate boost
-										iTourism *= GET_PLAYER(eLoopPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-										iTourism /= 100;
 										if(iTourism > 0)
 										{
 											GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);

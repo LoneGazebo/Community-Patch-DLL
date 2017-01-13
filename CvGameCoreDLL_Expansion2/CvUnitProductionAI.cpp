@@ -269,9 +269,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 	else
 	{
-		if (iTempWeight > 1600)
+		if (iTempWeight > 1500)
 		{
-			iTempWeight = 1600;
+			iTempWeight = 1500;
 		}
 	}
 
@@ -959,7 +959,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 				{
-					iFlavorExpansion += 2;
+					iFlavorExpansion += 3;
 				}
 			}
 
@@ -969,7 +969,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 				{
-					iFlavorExpansion += 3;
+					iFlavorExpansion += 4;
 				}
 			}
 
@@ -979,33 +979,33 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 				{
-					iFlavorExpansion += 3;
+					iFlavorExpansion += 5;
 				}
 			}
 
 			if(kPlayer.getSettlerProductionModifier() > 0)
 			{
-				iFlavorExpansion += 1;
+				iFlavorExpansion += 2;
 			}
 			if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 			{
-				iFlavorExpansion += 1;
+				iFlavorExpansion += 2;
 			}
 
 			if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 			{
-				iFlavorExpansion -= 3;
+				iFlavorExpansion -= 4;
 			}
 			if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 			{
-				iFlavorExpansion -= 2;
+				iFlavorExpansion -= 3;
 			}
 
 			MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 			// scale based on flavor and world size
 			if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 			{
-				iFlavorExpansion -= 1;
+				iFlavorExpansion -= 2;
 			}
 			int iNumCities = kPlayer.getNumCities();
 			

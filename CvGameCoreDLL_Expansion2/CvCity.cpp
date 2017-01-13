@@ -3215,7 +3215,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 7250;
+					iValue = ((1000 - iDanger) * iValue) / 6650;
 
 					if(iValue > iBestValue)
 					{
@@ -12429,16 +12429,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
-				int iTourism = owningPlayer.GetEventTourism();
+				int iTourism = owningPlayer.GetHistoricEventTourism();
 				owningPlayer.ChangeNumHistoricEvents(1);
-				// Culture boost based on previous turns
-				int iPreviousTurnsToCount = 10;
-				// Calculate boost
-				iTourism *= owningPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-				iTourism /= 100;
-				owningPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 				if(iTourism > 0)
 				{
+					owningPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
@@ -14386,13 +14381,18 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 				if (iReligionYieldMaxFollowers > 0)
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-					if(pReligion->m_Beliefs.IsHalvedFollowers(getOwner()))
-					{
-						iFollowers /= 2;
-					}
-#endif
+
 					int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+					iReligionYieldChange += iTempMod;
+				}
+
+				int iReligionYieldMaxFollowersHalved = pReligion->m_Beliefs.GetMaxYieldPerFollowerHalved((YieldTypes)iYield, getOwner());
+				if (iReligionYieldMaxFollowersHalved > 0)
+				{
+					int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
+					iFollowers /= 2;
+
+					int iTempMod = min(iFollowers, iReligionYieldMaxFollowersHalved);
 					iReligionYieldChange += iTempMod;
 				}
 #endif
@@ -21205,15 +21205,21 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (iReligionYieldMaxFollowers > 0)
 		{
 			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			if(pReligion->m_Beliefs.IsHalvedFollowers(getOwner()))
-			{
-				iFollowers /= 2;
-			}
-#endif
 			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
 			iModifier += iTempMod;
 			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
+		}
+
+		int iReligionYieldMaxFollowersHalved = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerHalved(eIndex, getOwner());
+		if (iReligionYieldMaxFollowersHalved > 0)
+		{
+			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+			iFollowers /= 2;
+
+			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+			iModifier += iTempMod;
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 		}
 	}
@@ -22884,6 +22890,27 @@ void CvCity::SetSeaTourismBonus(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iSeaTourismBonus = iChange;
+}
+
+int CvCity::GetSeaTourismFromEvent()
+{
+	int iBonus = GetSeaTourismBonus();
+	int iPreviousTurnsToCount = 10;
+	// Calculate boost
+	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus /= 100;
+
+	return iBonus;
+}
+int CvCity::GetLandTourismFromEvent()
+{
+	int iBonus = GetLandTourismBonus();
+	int iPreviousTurnsToCount = 10;
+	// Calculate boost
+	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus /= 100;
+
+	return iBonus;
 }
 
 //	--------------------------------------------------------------------------------

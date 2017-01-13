@@ -193,6 +193,7 @@ public:
 	int GetResourceType() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsMinorCivGift() const;
+	bool IsInvalidMinorCivGift() const;
 	int GetCooldown() const;
 	int GetGlobalFaithCooldown() const;
 	bool IsMounted() const;
@@ -373,6 +374,7 @@ private:
 	int m_iResourceType;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bMinorCivGift;
+	bool m_bNoMinorCivGift;
 	bool m_bIsMounted;
 	int m_iCooldown;
 	int m_iGlobalFaithCooldown;

@@ -8838,6 +8838,10 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if(!bValid)
 			continue;
 
+		//Not valid?
+		if (pkUnitInfo->IsInvalidMinorCivGift())
+			continue;
+
 		// Avoid Recon units
 		if(pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 			continue;

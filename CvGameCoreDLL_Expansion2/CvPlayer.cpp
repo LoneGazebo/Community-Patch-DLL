@@ -618,6 +618,10 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldGPExpend("CvPlayer::m_aiYieldGPExpend", m_syncArchive)
 	, m_aiConquerorYield("CvPlayer::m_aiConquerorYield", m_syncArchive)
 	, m_aiFounderYield("CvPlayer::m_aiFounderYield", m_syncArchive)
+	, m_aiArtifactYieldBonus("CvPlayer::m_aiArtifactYieldBonus", m_syncArchive)
+	, m_aiArtYieldBonus("CvPlayer::m_aiArtYieldBonus", m_syncArchive)
+	, m_aiMusicYieldBonus("CvPlayer::m_aiMusicYieldBonus", m_syncArchive)
+	, m_aiLitYieldBonus("CvPlayer::m_aiLitYieldBonus", m_syncArchive)
 	, m_aiReligionYieldRateModifier("CvPlayer::m_aiReligionYieldRateModifier", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvPlayer::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_paiBuildingClassCulture("CvPlayer::m_paiBuildingClassCulture", m_syncArchive)
@@ -1770,6 +1774,18 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiFounderYield.clear();
 	m_aiFounderYield.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiArtifactYieldBonus.clear();
+	m_aiArtifactYieldBonus.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiArtYieldBonus.clear();
+	m_aiArtYieldBonus.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiMusicYieldBonus.clear();
+	m_aiMusicYieldBonus.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiLitYieldBonus.clear();
+	m_aiLitYieldBonus.resize(NUM_YIELD_TYPES, 0);	
 
 	m_aiReligionYieldRateModifier.clear();
 	m_aiReligionYieldRateModifier.resize(NUM_YIELD_TYPES, 0);
@@ -9643,10 +9659,53 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
-	if(NULL != pUnit)
+	if (NULL != pUnit)
 	{
-		pUnit->initWithSpecificName(pUnit->GetID(), eUnit, strKey, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, -1, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, NO_CONTRACT, true, true);
+
+#if !defined(NO_TUTORIALS)
+		// slewis - added for the tutorial
+		if (pUnit->getUnitInfo().GetWorkRate() > 0 && pUnit->getUnitInfo().GetDomainType() == DOMAIN_LAND)
+		{
+			m_bEverTrainedBuilder = true;
+		}
+		// end added for the tutorial
+#endif
+
+		pUnit->SetGreatWork(NO_GREAT_WORK);
+#if !defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+		int iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
+		int iNumNames = pUnit->getUnitInfo().GetNumUnitNames();
+		if (iUnitName < iNumNames)
+#endif
+		{
+			if (strKey != NULL)
+			{
+				CvString strName = strKey;
+				int iNumNames = pUnit->getUnitInfo().GetNumUnitNames();
+				for (int iI = 0; iI < iNumNames; iI++)
+				{
+					CvString strOtherName = pUnit->getUnitInfo().GetUnitNames(iI);
+					if (strOtherName == strName)
+					{
+						pUnit->setName(strName);
+						pUnit->SetGreatWork(pUnit->getUnitInfo().GetGreatWorks(iI));
+						GC.getGame().addGreatPersonBornName(strName);
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+						if (MOD_GLOBAL_NO_LOST_GREATWORKS)
+						{
+							// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
+							pUnit->setGreatName(strName);
+						}
+#endif
+						break;
+					}
+				}
+			}
+		}
 	}
+
+	m_kPlayerAchievements.AddUnit(pUnit);
 
 	return pUnit;
 }
@@ -14779,43 +14838,69 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 #if defined(MOD_BALANCE_CORE)
 		if(GetPlayerPolicies() && !isMinorCiv() && !isBarbarian())
 		{
-			int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
-			int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
-			if(iCSPolicyReduction > 0)
-			{
-				int iNumAllies = GetNumCSAllies();
-				iNumPolicies += (iNumAllies / iCSPolicyReduction);
-			}
+			bool IgnoreRequirements = false;
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
-			if(eFoundedReligion != NO_RELIGION)
+			if (eFoundedReligion != NO_RELIGION)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
-				if(pReligion)
+				if (pReligion)
 				{
-					CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-					if(pPlot != NULL && pPlot->getOwner() == GetID())
+					// Depends on era of wonder
+					EraTypes eEra;
+					TechTypes eTech = (TechTypes)pBuildingInfo.GetPrereqAndTech();
+					if (eTech != NO_TECH)
 					{
-						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID());
-						if(iReligionPolicyReduction > 0)
+						CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+						if (pEntry)
 						{
-							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
-							if(iNumFollowerCities > 0)
+							eEra = (EraTypes)pEntry->GetEra();
+							if (eEra != NO_ERA)
 							{
-								iNumPolicies += (iNumFollowerCities / iReligionPolicyReduction);
+								IgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, GetID());
 							}
 						}
 					}
 				}
 			}
-			//If # of policies will do it, then we need to see the either/or here.
-			if(pBuildingInfo.GetNumPoliciesNeeded() > 0)
+			if (!IgnoreRequirements)
 			{
-				if(iNumPolicies < pBuildingInfo.GetNumPoliciesNeeded())
+				int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
+				int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
+				if (iCSPolicyReduction > 0)
 				{
-					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies);
-					if(toolTipSink == NULL)
-					return false;
+					int iNumAllies = GetNumCSAllies();
+					iNumPolicies += (iNumAllies / iCSPolicyReduction);
+				}
+				if (eFoundedReligion != NO_RELIGION)
+				{
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
+					if (pReligion)
+					{
+						CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pPlot != NULL && pPlot->getOwner() == GetID())
+						{
+							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID());
+							if (iReligionPolicyReduction > 0)
+							{
+								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+								if (iNumFollowerCities > 0)
+								{
+									iNumPolicies += (iNumFollowerCities / iReligionPolicyReduction);
+								}
+							}
+						}
+					}
+				}
+				//If # of policies will do it, then we need to see the either/or here.
+				if (pBuildingInfo.GetNumPoliciesNeeded() > 0)
+				{
+					if (iNumPolicies < pBuildingInfo.GetNumPoliciesNeeded())
+					{
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies);
+						if (toolTipSink == NULL)
+							return false;
+					}
 				}
 			}
 		}
@@ -18768,13 +18853,9 @@ void CvPlayer::DoWarVictoryBonuses()
 		changeGoldenAgeTurns(iTurns, iValue);
 	}
 
-	int iTourism = GetEventTourism();
+	int iTourism = GetHistoricEventTourism();
 	ChangeNumHistoricEvents(1);
 	// Culture boost based on previous turns
-	int iPreviousTurnsToCount = 10;
-	// Calculate boost
-	iTourism *= GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-	iTourism /= 100;
 	if(iTourism > 0)
 	{
 		GetCulture()->AddTourismAllKnownCivs(iTourism);
@@ -23154,6 +23235,11 @@ void CvPlayer::DoProcessVotes()
 	{
 		return;
 	}
+	ChangeFaithToVotes(0);
+	ChangeCapitalsToVotes(0);
+	ChangeDoFToVotes(0);
+	ChangeRAToVotes(0);
+	ChangeDefensePactsToVotes(0);
 
 	// Minors and Barbs don't matter
 	if(!isMinorCiv() && !isBarbarian())
@@ -23591,7 +23677,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 			// Culture boost based on previous turns
 			int iPreviousTurnsToCount = 10;
 			// Calculate boost
-			iTourism *= GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+			iTourism *= (GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
 			iTourism /= 100;
 			GetCulture()->AddTourismAllKnownCivs(iTourism);
 			CvCity* pCapitalCity = getCapitalCity();
@@ -28484,6 +28570,17 @@ int CvPlayer::GetNumHistoricEvents() const
 {
 	return m_iNumHistoricEvent;
 }
+int CvPlayer::GetHistoricEventTourism()
+{
+	int iTourism = GetEventTourism();
+	int iPreviousTurnsToCount = 10;
+	// Calculate boost
+	int iBonusPerTurn = (GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iTourism *= iBonusPerTurn;
+	iTourism /= 100;
+
+	return iTourism;
+}
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeSingleVotes(int iChange)
 {
@@ -29733,6 +29830,16 @@ int CvPlayer::calculateMilitaryMight() const
 	if(MOD_BALANCE_CORE_MILITARY && GetAttackBonusTurns() > 3)
 	{
 		rtnValue = (rtnValue*(100+GC.getPOLICY_ATTACK_BONUS_MOD()))/100;
+	}
+
+	//AI military might adjusted based on their handicap supply bonus.
+	if (!isHuman())
+	{
+		int iReductionPercent = rtnValue;
+		iReductionPercent *= (GC.getGame().getHandicapInfo().getAIUnitSupplyPercent() / 2);
+		iReductionPercent /= 100;
+
+		rtnValue -= iReductionPercent;
 	}
 
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
@@ -31748,6 +31855,86 @@ void CvPlayer::changeFounderYield(YieldTypes eIndex, int iChange)
 		{
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getArtifactYieldBonus(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiArtifactYieldBonus[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeArtifactYieldBonus(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiArtifactYieldBonus.setAt(eIndex, m_aiArtifactYieldBonus[eIndex] + iChange);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getArtYieldBonus(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiArtYieldBonus[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeArtYieldBonus(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiArtYieldBonus.setAt(eIndex, m_aiArtYieldBonus[eIndex] + iChange);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getMusicYieldBonus(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiMusicYieldBonus[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeMusicYieldBonus(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiMusicYieldBonus.setAt(eIndex, m_aiMusicYieldBonus[eIndex] + iChange);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getLitYieldBonus(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiLitYieldBonus[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeLitYieldBonus(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiLitYieldBonus.setAt(eIndex, m_aiLitYieldBonus[eIndex] + iChange);
 	}
 }
 
@@ -33955,6 +34142,23 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
 
+#if defined(MOD_BALANCE_CORE)
+	// Additional resources from Corporation
+	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
+	if (eCorporation != NO_CORPORATION)
+	{
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+		if (pkCorporationInfo)
+		{
+			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
+			if (iFreeResource > 0)
+			{
+				iTotalNumResource += iFreeResource;
+			}
+		}
+	}
+#endif
+
 	if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -33983,18 +34187,17 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	// Additional resources from Corporation
-	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
-	if (eCorporation != NO_CORPORATION)
+	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
+	if (pReligion)
 	{
-		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-		if (pkCorporationInfo)
+		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID());
+		if (iQuantityMod != 0)
 		{
-			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
-			if (iFreeResource > 0)
-			{
-				iTotalNumResource += iFreeResource;
-			}
+			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
+
+			iTotalNumResource *= 100 + max(50, iQuantityMod);
+			iTotalNumResource /= 100;
 		}
 	}
 #endif
@@ -34039,12 +34242,12 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 
 				if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 				{
-					// Someone new is getting the bonus
-					if(eBestRelationsPlayer != NO_PLAYER)
-					{
-						GET_PLAYER(eBestRelationsPlayer).changeResourceFromMinors(eIndex, iChange);
-						changeResourceExport(eIndex, iChange);
+					GET_PLAYER(eBestRelationsPlayer).changeResourceFromMinors(eIndex, iChange);
+					changeResourceExport(eIndex, iChange);
 
+					// Someone new is getting the bonus - but do they have the tech to see it?
+					if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(eIndex)->getTechReveal()))
+					{
 						CvNotifications* pNotifications = GET_PLAYER(eBestRelationsPlayer).GetNotifications();
 						if(pNotifications && !GetMinorCivAI()->IsDisableNotifications())
 						{
@@ -39122,6 +39325,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeReligionYieldRateModifier(eYield, (pPolicy->GetReligionYieldMod(iI) * iChange));
 		changeGoldenAgeYieldMod(eYield, (pPolicy->GetGoldenAgeYieldMod(iI) * iChange));
 		changeFounderYield(eYield, (pPolicy->GetFounderYield(iI) * iChange));
+
+		changeArtifactYieldBonus(eYield, (pPolicy->GetArtifactYieldChanges(iI) * iChange));
+		changeArtYieldBonus(eYield, (pPolicy->GetArtYieldChanges(iI) * iChange));
+		changeMusicYieldBonus(eYield, (pPolicy->GetMusicYieldChanges(iI) * iChange));
+		changeLitYieldBonus(eYield, (pPolicy->GetLitYieldChanges(iI) * iChange));
 #endif
 
 		iMod = pPolicy->GetYieldModifier(iI) * iChange;
@@ -44619,7 +44827,7 @@ CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
 #if defined(MOD_BALANCE_CORE)
 int CvPlayer::GetScoreFromMinorAllies() const
 {
-	int iScore = (GC.getGame().GetNumMinorCivsEver() * 20);
+	int iScore = (GC.getGame().GetNumMinorCivsEver() * 25);
 	int iMaxMinorCivs = 0;
 	int iMinorAllies = 0;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -44644,7 +44852,7 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / 20);
+	return (GetMilitaryMight() / (30 + getNumCities()));
 }
 #endif
 

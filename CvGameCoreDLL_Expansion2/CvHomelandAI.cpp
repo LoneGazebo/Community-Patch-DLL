@@ -5711,10 +5711,13 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 	if(pMyReligion)
 	{
 		pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-		pHolyCity = pHolyCityPlot->getPlotCity();
-		if(pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+		if (pHolyCityPlot != NULL)
 		{
-			bKeepHolyCityClear = true;
+			pHolyCity = pHolyCityPlot->getPlotCity();
+			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+			{
+				bKeepHolyCityClear = true;
+			}
 		}
 	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)

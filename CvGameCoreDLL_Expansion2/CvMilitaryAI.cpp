@@ -4370,6 +4370,10 @@ int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globa
 			{
 				iValue /= 5;
 			}
+			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
+			{
+				iValue *= 2;
+			}
 		}
 		else
 		{
@@ -4408,6 +4412,11 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 			else
 			{
 				iValue /= 5;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
+			{
+				iValue *= 2;
 			}
 		}
 		else
