@@ -1520,6 +1520,8 @@ public:
 	int GetNumHistoricEvents() const;
 	void SetNumHistoricEvents(int iValue);
 
+	int GetHistoricEventTourism();
+
 	void ChangeSingleVotes(int iValue);
 	int GetSingleVotes() const;
 	void SetSingleVotes(int iValue);
@@ -1810,6 +1812,18 @@ public:
 
 	int getFounderYield(YieldTypes eIndex) const;
 	void changeFounderYield(YieldTypes eIndex, int iChange);
+
+	int getArtifactYieldBonus(YieldTypes eIndex) const;
+	void changeArtifactYieldBonus(YieldTypes eYield, int iChange);
+
+	int getArtYieldBonus(YieldTypes eIndex) const;
+	void changeArtYieldBonus(YieldTypes eYield, int iChange);
+
+	int getMusicYieldBonus(YieldTypes eIndex) const;
+	void changeMusicYieldBonus(YieldTypes eYield, int iChange);
+
+	int getLitYieldBonus(YieldTypes eIndex) const;
+	void changeLitYieldBonus(YieldTypes eYield, int iChange);
 
 	int getReligionYieldRateModifier(YieldTypes eIndex)	const;
 	void changeReligionYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -3194,6 +3208,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiConquerorYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiFounderYield;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiArtifactYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiArtYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiMusicYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiLitYieldBonus;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;

@@ -340,6 +340,18 @@ public:
 	int* GetYieldFromMinorDemandArray() const;
 	int GetYieldFromWLTKD(int i) const;
 	int* GetYieldFromWLTKDArray() const;
+
+	int GetArtifactYieldChanges(int i) const;
+	int* GetArtifactYieldChangesArray() const;
+
+	int GetArtYieldChanges(int i) const;
+	int* GetArtYieldChangesArray() const;
+
+	int GetMusicYieldChanges(int i) const;
+	int* GetMusicYieldChangesArray() const;
+
+	int GetLitYieldChanges(int i) const;
+	int* GetLitYieldChangesArray() const;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
@@ -686,6 +698,10 @@ private:
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldFromMinorDemand;
 	int* m_piYieldFromWLTKD;
+	int* m_piArtifactYieldChanges;
+	int* m_piArtYieldChanges;
+	int* m_piLitYieldChanges;
+	int* m_piMusicYieldChanges;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;

@@ -2298,12 +2298,7 @@ void CvPlayerTrade::MoveUnits (void)
 								{
 									if(pOriginCity->GetLandTourismBonus() > 0)
 									{
-										int iBonus = pOriginCity->GetLandTourismBonus();
-										// Culture boost based on previous turns
-										int iPreviousTurnsToCount = 10;
-										// Calculate boost
-										iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-										iBonus /= 100;
+										int iBonus = pOriginCity->GetLandTourismFromEvent();
 										if(iBonus > 0)
 										{
 											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
@@ -2360,12 +2355,7 @@ void CvPlayerTrade::MoveUnits (void)
 								{
 									if(pOriginCity->GetSeaTourismBonus() > 0)
 									{
-										int iBonus = pOriginCity->GetSeaTourismBonus();
-										// Culture boost based on previous turns
-										int iPreviousTurnsToCount = 10;
-										// Calculate boost
-										iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-										iBonus /= 100;
+										int iBonus = pOriginCity->GetSeaTourismFromEvent();
 										if(iBonus > 0)
 										{
 											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);

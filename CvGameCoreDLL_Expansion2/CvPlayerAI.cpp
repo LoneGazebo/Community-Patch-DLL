@@ -384,7 +384,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
 		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
-		if (IsEmpireVeryUnhappy() || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
+		if (IsEmpireVeryUnhappy() || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= (GetDiplomacyAI()->GetBoldness() + GetDiplomacyAI()->GetMeanness() + (GC.getGame().getGameTurn() / 100))) )
 #else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
 #endif
@@ -396,20 +396,25 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #if defined(MOD_BALANCE_CORE)
 		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
 		{
-			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-			if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+			//Only raze if this isn't a beachhead city.
+			CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+			if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) > 1)
 			{
-				pCity->doTask(TASK_RAZE);
-				return;
-			}
-			else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
-			{
-				if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner);
+				if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
 				{
-					if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+					pCity->doTask(TASK_RAZE);
+					return;
+				}
+				else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
+				{
+					if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
 					{
-						pCity->doTask(TASK_RAZE);
-						return;
+						if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+						{
+							pCity->doTask(TASK_RAZE);
+							return;
+						}
 					}
 				}
 			}
@@ -428,6 +433,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	else if(pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoAnnex();
+		pCity->ChangeNoOccupiedUnhappinessCount(1);
 		return;
 	}
 #endif
@@ -2861,6 +2867,12 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 			if(pAdjacentPlot->IsChokePoint())
 			{
 				iWeightFactor += 3;
+			}
+
+			//Let's grab embassies if we can!
+			if (pAdjacentPlot->IsImprovementEmbassy())
+			{
+				iWeightFactor += 5;
 			}
 
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();

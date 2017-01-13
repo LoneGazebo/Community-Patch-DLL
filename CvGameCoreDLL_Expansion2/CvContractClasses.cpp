@@ -519,7 +519,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 					if(pBestCity != NULL)
 					{
 						// Init unit
-						CvUnit* pUnit = m_pPlayer->initUnit(eUnit, pLoopCity->getX(), pLoopCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), NO_DIRECTION, true, true, 0, 0, eContract);
+						CvUnit* pUnit = m_pPlayer->initUnit(eUnit, pBestCity->getX(), pBestCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), NO_DIRECTION, true, true, 0, 0, eContract);
 						iNumUnits--;	// Reduce the count since we just added the seed rebel
 
 						// Valid Promotion for this Unit?
@@ -535,7 +535,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 							iNumUnits--;
 
 							// Init unit
-							pUnit = m_pPlayer->initUnit(eUnit, pLoopCity->getX(), pLoopCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), NO_DIRECTION, false, true, 0, 0, eContract);
+							pUnit = m_pPlayer->initUnit(eUnit, pBestCity->getX(), pBestCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), NO_DIRECTION, false, true, 0, 0, eContract);
 							CvAssert(pUnit);
 							if (pUnit)
 							{

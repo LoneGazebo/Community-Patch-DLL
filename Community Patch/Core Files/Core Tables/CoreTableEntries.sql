@@ -462,8 +462,12 @@ ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' INTEGER DEFAULT 0;
 -- Extra Votes from Belief
 ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' INTEGER DEFAULT 0;
 
--- Extra Votes from Belief
-ALTER TABLE Beliefs ADD COLUMN 'HalvedFollowers' BOOLEAN DEFAULT 0;
+-- Ignore Policy Requirements (number) for wonders up to a set era
+ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirementsUpToEra' BOOLEAN DEFAULT 0;
+
+-- Increase yields from friendship/alliance for CS sharing your religion by x%
+ALTER TABLE Beliefs ADD COLUMN 'CSYieldBonusFromSharedReligion' INTEGER DEFAULT 0;
+
 
 -- New Buildings
 
@@ -689,6 +693,9 @@ ALTER TABLE Improvements ADD WonderProductionModifier INTEGER DEFAULT 0;
 
 -- Unit stuff for minor civs
 ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT 0;
+
+-- Forbids unit from being a CS UU
+ALTER TABLE Units ADD COLUMN 'NoMinorCivGift' BOOLEAN DEFAULT 0;
 
 -- Alters monopoly values below (except for strategic elements, like attack/defense/heal/etc.)
 ALTER TABLE Policies ADD COLUMN 'MonopolyModFlat' INTEGER DEFAULT 0;
@@ -993,6 +1000,9 @@ ALTER TABLE Traits ADD COLUMN 'FreeZuluPikemanToImpi' BOOLEAN DEFAULT 0;
 
 -- Improvement grants new Ownership if plot is not owned.
 ALTER TABLE Improvements ADD COLUMN 'NewOwner' BOOLEAN DEFAULT 0;
+
+-- Improvement grants promotion if plot is owned by the player.
+ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 
 -- CSD
 

@@ -1122,6 +1122,9 @@ public:
 	void ChangeSeaTourismBonus(int iChange);
 	void SetSeaTourismBonus(int iValue);
 
+	int GetSeaTourismFromEvent();
+	int GetLandTourismFromEvent();
+
 	int GetAlwaysHeal() const;
 	void ChangeAlwaysHeal(int iChange);
 	void SetAlwaysHeal(int iValue);
@@ -1364,7 +1367,8 @@ public:
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);
 
-	bool CanPlaceUnitHere(UnitTypes eUnitType);
+	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
+	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 

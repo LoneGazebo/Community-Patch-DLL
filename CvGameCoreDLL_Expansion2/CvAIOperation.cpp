@@ -207,7 +207,7 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 				if (IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
 					continue;
 
-				if (pLoopPlot->canPlaceUnit(GetOwner()))
+				if (pLoopPlot->canPlaceCombatUnit(GetOwner()))
 					iValidPlotsNearby++;
 			}
 		}

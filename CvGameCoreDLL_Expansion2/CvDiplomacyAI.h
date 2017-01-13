@@ -471,6 +471,17 @@ public:
 	BlockLevelTypes GetVictoryBlockLevel(PlayerTypes ePlayer) const;
 	void SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel);
 	void DoUpdateVictoryBlockLevels();
+
+	void DoRelationshipPairing();
+	
+	int GetDefensivePactValue(PlayerTypes ePlayer);
+	PlayerTypes GetMostValuableDefensivePact(bool bIgnoreDPs);
+
+	int GetDoFValue(PlayerTypes ePlayer);
+	PlayerTypes GetMostValuableDoF(bool bIgnoreDoFs);
+
+	int GetCompetitorValue(PlayerTypes ePlayer);
+	PlayerTypes GetBiggestCompetitor();
 #endif
 
 	// Victory Dispute
@@ -1576,6 +1587,10 @@ private:
 		short m_aiPlayerStopSpyingRequestCounter[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
 		short m_aiPlayerBackstabCounter[MAX_MAJOR_CIVS];
+
+		short m_aiDefensivePactValue[MAX_MAJOR_CIVS];
+		short m_aiDoFValue[MAX_MAJOR_CIVS];
+		short m_aiCompetitorValue[MAX_MAJOR_CIVS];
 #endif
 
 		short m_aiDemandCounter[MAX_MAJOR_CIVS];
@@ -1845,6 +1860,10 @@ private:
 #if defined(MOD_BALANCE_CORE_DEALS)
 	bool* m_pabWantsDefensivePactWithPlayer;
 	bool* m_pabWantsSneakAttack;
+
+	short* m_paiDefensivePactValue;
+	short* m_paiDoFValue;
+	short* m_paiCompetitorValue;
 #endif
 	bool* m_pabWantToRouteToMinor;
 

@@ -741,23 +741,6 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
-					if(hUnit->GetMissionAIType() != MISSIONAI_SHADOW && hUnit->GetMissionAIType() != MISSIONAI_GROUP)
-					{
-						if(!hUnit->plot()->isOwned() || hUnit->plot()->getOwner() == hUnit->getOwner())
-						{
-							CvPlot* pMissionPlot = pTargetUnit->GetMissionAIPlot();
-							if(pMissionPlot != NULL && NO_TEAM != pMissionPlot->getTeam())
-							{
-								if(pMissionPlot->isOwned() && pTargetUnit->isPotentialEnemy(pMissionPlot->getTeam(), pMissionPlot))
-								{
-									bAction = false;
-									bDone = true;
-									break;
-								}
-							}
-						}
-					}
-
 					if(hUnit->UnitPathTo(pTargetUnit->getX(), pTargetUnit->getY(), kMissionData.iFlags) > 0)
 					{
 						bAction = true;

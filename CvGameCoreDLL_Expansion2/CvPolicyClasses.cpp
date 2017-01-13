@@ -317,6 +317,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldFromMinorDemand(NULL),
 	m_piYieldFromWLTKD(NULL),
+	m_piArtifactYieldChanges(NULL),
+	m_piArtYieldChanges(NULL),
+	m_piLitYieldChanges(NULL),
+	m_piMusicYieldChanges(NULL),
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
@@ -393,6 +397,10 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
+	SAFE_DELETE_ARRAY(m_piArtifactYieldChanges);
+	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
+	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
+	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -1036,6 +1044,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Policy_YieldFromMinorDemand", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Policy_WLTKDYieldMod", "PolicyType", szPolicyType);
+
+	kUtility.SetYields(m_piArtifactYieldChanges, "Policy_ArtifactYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piArtYieldChanges, "Policy_ArtYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piLitYieldChanges, "Policy_LitYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piMusicYieldChanges, "Policy_MusicYieldChanges", "PolicyType", szPolicyType);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
@@ -2966,6 +2979,55 @@ int* CvPolicyEntry::GetYieldFromWLTKDArray() const
 {
 	return m_piYieldFromWLTKD;
 }
+
+int CvPolicyEntry::GetArtifactYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piArtifactYieldChanges ? m_piArtifactYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetArtifactYieldChangesArray() const
+{
+	return m_piArtifactYieldChanges;
+}
+
+int CvPolicyEntry::GetArtYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piArtYieldChanges ? m_piArtYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetArtYieldChangesArray() const
+{
+	return m_piArtYieldChanges;
+}
+
+int CvPolicyEntry::GetLitYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piLitYieldChanges ? m_piLitYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetLitYieldChangesArray() const
+{
+	return m_piLitYieldChanges;
+}
+
+int CvPolicyEntry::GetMusicYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetMusicYieldChangesArray() const
+{
+	return m_piMusicYieldChanges;
+}
+
 #endif
 
 /// Yield modifier for a specific BuildingClass by yield type

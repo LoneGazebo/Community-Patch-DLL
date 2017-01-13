@@ -3215,7 +3215,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 7250;
+					iValue = ((1000 - iDanger) * iValue) / 6650;
 
 					if(iValue > iBestValue)
 					{
@@ -12429,16 +12429,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
-				int iTourism = owningPlayer.GetEventTourism();
+				int iTourism = owningPlayer.GetHistoricEventTourism();
 				owningPlayer.ChangeNumHistoricEvents(1);
-				// Culture boost based on previous turns
-				int iPreviousTurnsToCount = 10;
-				// Calculate boost
-				iTourism *= owningPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-				iTourism /= 100;
-				owningPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 				if(iTourism > 0)
 				{
+					owningPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
@@ -14386,13 +14381,18 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 				if (iReligionYieldMaxFollowers > 0)
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-					if(pReligion->m_Beliefs.IsHalvedFollowers(getOwner()))
-					{
-						iFollowers /= 2;
-					}
-#endif
+
 					int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+					iReligionYieldChange += iTempMod;
+				}
+
+				int iReligionYieldMaxFollowersHalved = pReligion->m_Beliefs.GetMaxYieldPerFollowerHalved((YieldTypes)iYield, getOwner());
+				if (iReligionYieldMaxFollowersHalved > 0)
+				{
+					int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
+					iFollowers /= 2;
+
+					int iTempMod = min(iFollowers, iReligionYieldMaxFollowersHalved);
 					iReligionYieldChange += iTempMod;
 				}
 #endif
@@ -21205,15 +21205,21 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (iReligionYieldMaxFollowers > 0)
 		{
 			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			if(pReligion->m_Beliefs.IsHalvedFollowers(getOwner()))
-			{
-				iFollowers /= 2;
-			}
-#endif
 			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
 			iModifier += iTempMod;
 			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
+		}
+
+		int iReligionYieldMaxFollowersHalved = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerHalved(eIndex, getOwner());
+		if (iReligionYieldMaxFollowersHalved > 0)
+		{
+			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+			iFollowers /= 2;
+
+			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+			iModifier += iTempMod;
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 		}
 	}
@@ -22886,6 +22892,27 @@ void CvCity::SetSeaTourismBonus(int iChange)
 	m_iSeaTourismBonus = iChange;
 }
 
+int CvCity::GetSeaTourismFromEvent()
+{
+	int iBonus = GetSeaTourismBonus();
+	int iPreviousTurnsToCount = 10;
+	// Calculate boost
+	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus /= 100;
+
+	return iBonus;
+}
+int CvCity::GetLandTourismFromEvent()
+{
+	int iBonus = GetLandTourismBonus();
+	int iPreviousTurnsToCount = 10;
+	// Calculate boost
+	iBonus *= (GET_PLAYER(getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GET_PLAYER(getOwner()).GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
+	iBonus /= 100;
+
+	return iBonus;
+}
+
 //	--------------------------------------------------------------------------------
 int CvCity::GetAlwaysHeal() const
 {
@@ -23010,14 +23037,14 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 4) : (pUnit->GetBaseCombatStrength() * 4);
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pUnit->GetID()) * 18;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, *plot()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->GetID());
+							int iYield = GC.getGame().getSmallFakeRandNum(10, *plot());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -26422,9 +26449,13 @@ bool CvCity::CleanUpQueue(void)
 int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation)
 {
 	VALIDATE_OBJECT
+	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
+	//if there's no free plot around, then stack it in the city
+	if (!pUnitPlot)
+		pUnitPlot = plot(); 
+
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), eAIType);
-	CvAssertMsg(pUnit, "");
+	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType);
 	if(!pUnit)
 	{
 		CvAssertMsg(false, "CreateUnit failed");
@@ -26440,14 +26471,8 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	addProductionExperience(pUnit);
 
 #if defined(MOD_BALANCE_CORE)
-	if(pUnit)
-	{
-		pUnit->setMoves(pUnit->maxMoves());
-	}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-	if(pUnit && pUnit->isTrade())
+	pUnit->setMoves(pUnit->maxMoves());
+	if(pUnit->isTrade())
 	{
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -26701,55 +26726,94 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	return true;
 }
 
-//	--------------------------------------------------------------------------------
-bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType)
+CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 {
 	VALIDATE_OBJECT
-	bool bCombat = false;
-
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 	if(pkUnitInfo == NULL)
-		return false;
+		return NULL;
 
-	// slewis - modifying 1upt
-	if (pkUnitInfo->IsTrade())
+	// slewis - modifying 1upt for civilian
+	if (pkUnitInfo->IsTrade() || (pkUnitInfo->GetCombat() == 0 && pkUnitInfo->GetRange() == 0))
+		return plot();
+
+	//don't be too predictable with the chosen plot - but zero always maps to zero
+	int aiShuffle[3][7] = {
+		{ 0, 5, 4, 2, 1, 3, 6 },
+		{ 0, 3, 6, 4, 1, 2, 5 },
+		{ 0, 1, 2, 4, 5, 6, 3 } };
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *plot());
+
+	//check city plot and adjacent plots
+	vector<CvPlot*> validChoices;
+	for (int i=0; i<RING1_PLOTS; i++)
 	{
-		return true;
-	}
+		bool bCanPlace = true;
+		CvPlot* pPlot = iterateRingPlots( plot(), aiShuffle[iShuffleType][i] );
 
-	if(pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRange() > 0)
-	{
-		bCombat = true;
-	}
+		//must be able to go there
+		if (!pPlot->isValidMovePlot(m_eOwner))
+			continue;
 
-	CvPlot* pPlot = plot();
-
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
-
-	pUnitNode = pPlot->headUnitNode();
-
-	while(pUnitNode != NULL)
-	{
-		pLoopUnit = ::getUnit(*pUnitNode);
-		pUnitNode = pPlot->nextUnitNode(pUnitNode);
-
-		if(pLoopUnit != NULL)
+		bool bAccept = false;
+		switch (pkUnitInfo->GetDomainType())
 		{
-			// if a trade unit is here, ignore
-			if (pLoopUnit->isTrade())
+		case DOMAIN_AIR:
+			bAccept = pPlot->isCity();
+			break;
+		case DOMAIN_LAND:
+			bAccept = !pPlot->isWater();
+			break;
+		case DOMAIN_SEA:
+			bAccept = pPlot->isWater() || pPlot->isFriendlyCityOrPassableImprovement(getOwner());
+			break;
+		case DOMAIN_HOVER:
+			bAccept = true;
+			break;
+		}
+
+		if (!bAccept)
+			continue;
+
+		const IDInfo* pUnitNode = pPlot->headUnitNode();
+		while(pUnitNode != NULL)
+		{
+			const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			if(pLoopUnit != NULL)
 			{
-				continue;
+				// check stacking
+				if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
+					bCanPlace = false;
 			}
 
-			// Units of the same type OR Units belonging to different civs
-			if(CvGameQueries::AreUnitsSameType(eUnitType, pLoopUnit->getUnitType()))
-			{
-				return false;
-			}
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 		}
+
+		if (bCanPlace)
+			validChoices.push_back(pPlot);
 	}
-	return true;
+
+	//now check for plots with route
+	for (size_t i=0; i<validChoices.size(); i++)
+		if (validChoices[i]->isValidRoute(NULL))
+			return validChoices[i];
+
+	//now try to find one without enemies around
+	for (size_t i=0; i<validChoices.size(); i++)
+		if (validChoices[i]->GetNumEnemyUnitsAdjacent( getTeam(), (DomainTypes)pkUnitInfo->GetDomainType() ) == 0)
+			return validChoices[i];
+
+	//ok, let's just take the first one
+	if (!validChoices.empty())
+		return validChoices.front();
+
+	return NULL;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType) const
+{
+	return GetPlotForNewUnit(eUnitType)!=NULL;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29379,7 +29443,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	{
 		if (isBarbarian())
 		{
-			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, GetID()) * 120;
+			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 120;
 		}
 		else
 		{

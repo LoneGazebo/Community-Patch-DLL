@@ -384,8 +384,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
 
-	//this is in turns for a typical unit
-	int iBorderlandRange = 4;
+	//this is in plots
+	int iBorderlandRange = 6;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -437,14 +437,14 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 		//not only our cities, also other player's cities!
 		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
+		int iExistingFriendlyCityDistance = pPlayer ? pPlayer->GetCityDistanceInPlots(pLoopPlot) : 5;
 
 		//count the tile only if the city will be able to work it
 		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
 			iRingModifier = 0;
-
-		if (iExistingCityDistance==2)
+		else if (iExistingCityDistance==2)
 			//this plot will likely be contested between the two cities, reduce its value
-			iRingModifier /= 2;
+			iRingModifier = 1;
 
 		int iPlotValue = iDefaultPlotValue;
 		if (iRingModifier>0)
@@ -477,6 +477,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			{
 				iHappinessValue = ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
 				iResourceValue = ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
+
+				//our existing city will catch those eventually
+				if (iExistingFriendlyCityDistance<=3)
+				{
+					iHappinessValue /= 2;
+					iResourceValue /= 2;
+				}
 			}
 
 			//this is about strategic placement, not resources
@@ -721,15 +728,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
-	if ( iTotalProductionValue > 3*iTotalFoodValue )
+	if ( iTotalProductionValue > 4*iTotalFoodValue )
 	{
-		iValueModifier -= 20 * iTotalPlotValue / 100;
+		iValueModifier -= 10 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
-	if ( iTotalFoodValue > 8*iTotalProductionValue )
+	if ( iTotalFoodValue > 10*iTotalProductionValue )
 	{
-		iValueModifier -= 20 * iTotalPlotValue / 100;
+		iValueModifier -= 10 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
@@ -780,7 +787,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// AI only
 	if (pPlayer && !pPlayer->isHuman())
 	{
-		int iOwnCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
+		int iOwnCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
 
 		//check if this location can be defended (from majors)
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
@@ -788,21 +795,21 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
 			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
-				int iEnemyDistance = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+				int iEnemyDistance = kNeighbor.GetCityDistanceInPlots(pPlot);
 				int iEnemyMight = kNeighbor.GetMilitaryMight();
 				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
 				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRange))
 				{
 					//stay away if we are weak
-					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.3f - iBoldnessDelta*0.05f))
 					{
 						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
 					}
 
 					//landgrab if the neighbor is weak
-					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.3f - iBoldnessDelta*0.05f))
 					{
 						iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 						if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
@@ -829,7 +836,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOwnCityDistance <= iMinDistance)
 		{
 			//this case should be handled by the distance check in CanFound() also
-			iValueModifier -= (30*iTotalPlotValue) / 100;
+			iValueModifier -= (20*iTotalPlotValue) / 100;
 			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 
@@ -866,8 +873,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 		//this affects both friendly and other cities
 		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
-		int iMyCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
-		if (iCityDistance >= iSweetMin && iMyCityDistance <= iSweetMax)
+		if (iCityDistance >= iSweetMin && iOwnCityDistance <= iSweetMax)
 		{
 			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
 			if (pDebug) vQualifiersPositive.push_back("(V) optimal distance to existing cities");
@@ -1261,10 +1267,13 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, i
 	}
 #endif
 
-	// Hills in first ring are useful for defense and production
-	if(iPlotsFromCity <= 1 && pPlot->isHills())
+	if (pPlot->isHills())
 	{
-		rtnValue += /*3*/ GC.getHILL_STRATEGIC_VALUE();
+		// Hills in first ring are useful for defense and production
+		if(iPlotsFromCity == 1)
+			rtnValue += /*3*/ GC.getHILL_STRATEGIC_VALUE();
+		else if(iPlotsFromCity == 0)
+			rtnValue += GC.getHILL_STRATEGIC_VALUE() * 6; //good for defense
 	}
 
 	// Some Features are less attractive to settle in, (e.g. Jungles, since it takes a while before you can clear them and they slow down movement)

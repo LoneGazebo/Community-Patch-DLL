@@ -111,7 +111,7 @@ private:
 class CHomelandUnitArray
 {
 public:
-	CHomelandUnitArray() : m_owner(NULL) {}
+	CHomelandUnitArray() : m_owner(NULL), m_currentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED) {}
 
 	std::vector<CvHomelandUnit>::iterator begin() { return m_vec.begin(); }
 	std::vector<CvHomelandUnit>::iterator end() { return m_vec.end(); }
@@ -278,8 +278,8 @@ private:
 	void AssignHomelandMoves();
 
 	// Routines to manage identifying and implementing homeland moves
-	void PlotExplorerMoves();
-	void PlotExplorerSeaMoves();
+	void PlotExplorerMoves(bool bSecondPass);
+	void PlotExplorerSeaMoves(bool bSecondPass);
 	void PlotFirstTurnSettlerMoves();
 	void PlotGarrisonMoves(bool bCityStateOnly = false);
 	void PlotHealMoves();
@@ -334,11 +334,7 @@ private:
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
-#if defined(MOD_BALANCE_CORE)
-	void ExecuteExplorerMoves(bool bSecondPass);
-#else
 	void ExecuteExplorerMoves();
-#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void ExecuteWorkerMoves(bool bSecondary = false);

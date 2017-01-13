@@ -993,7 +993,9 @@ int CvLuaPlot::lGetNumVisibleEnemyDefenders(lua_State* L)
 //int getNumVisiblePotentialEnemyDefenders(CyUnit* pUnit);
 int CvLuaPlot::lGetNumVisiblePotentialEnemyDefenders(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::getNumVisiblePotentialEnemyDefenders);
+	//not implemented
+	lua_pushboolean(L, 0);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isVisibleEnemyUnit(PlayerTypes ePlayer);

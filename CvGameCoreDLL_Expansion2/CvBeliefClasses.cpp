@@ -75,7 +75,6 @@ CvBeliefEntry::CvBeliefEntry() :
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iGetPressureChangeTradeRoute(0),
-	m_bIsHalvedFollowers(false),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
 	m_piYieldPerLux(NULL),
@@ -102,6 +101,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iExtraVotes(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
 	m_piMaxYieldPerFollower(NULL),
+	m_piMaxYieldPerFollowerHalved(NULL),
+	m_bIgnorePolicyRequirements(false),
+	m_iCSYieldBonus(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_eRequiredCivilization(NO_CIVILIZATION),
@@ -157,6 +159,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldModifierNaturalWonder(NULL),
 	m_piMaxYieldModifierPerFollower(NULL),
+	m_piMaxYieldModifierPerFollowerHalved(NULL),
 	m_pbFaithPurchaseUnitEraEnabled(NULL),
 	m_pbBuildingClassEnabled(NULL)
 {
@@ -488,11 +491,6 @@ bool CvBeliefEntry::RequiresNoFeature() const
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-/// Accessor: is this a belief that grants half follower belief yields?
-bool CvBeliefEntry::IsHalvedFollowers() const
-{
-	return m_bIsHalvedFollowers;
-}
 int CvBeliefEntry::GetPressureChangeTradeRoute() const
 {
 	return m_iGetPressureChangeTradeRoute;
@@ -638,6 +636,23 @@ int CvBeliefEntry::GetMaxYieldPerFollower(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piMaxYieldPerFollower ? m_piMaxYieldPerFollower[i] : -1;
 }
+/// Accessor:: Yield from Followers Halved
+int CvBeliefEntry::GetMaxYieldPerFollowerHalved(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piMaxYieldPerFollowerHalved ? m_piMaxYieldPerFollowerHalved[i] : -1;
+}
+
+bool CvBeliefEntry::IsIgnorePolicyRequirements() const
+{
+	return m_bIgnorePolicyRequirements;
+}
+int CvBeliefEntry::GetCSYieldBonus() const
+{
+	return m_iCSYieldBonus;
+}
+
 /// Accessor: combat bonus v. other in own lands
 int CvBeliefEntry::GetCombatVersusOtherReligionOwnLands() const
 {
@@ -1012,6 +1027,12 @@ int CvBeliefEntry::GetMaxYieldModifierPerFollower(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piMaxYieldModifierPerFollower ? m_piMaxYieldModifierPerFollower[i] : -1;
 }
+int CvBeliefEntry::GetMaxYieldModifierPerFollowerHalved(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piMaxYieldModifierPerFollowerHalved ? m_piMaxYieldModifierPerFollowerHalved[i] : -1;
+}
 
 /// Can we buy units of this era with faith?
 bool CvBeliefEntry::IsFaithUnitPurchaseEra(int i) const
@@ -1105,7 +1126,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
-	m_bIsHalvedFollowers			  = kResults.GetBool("HalvedFollowers");
 	m_iCombatVersusOtherReligionOwnLands = kResults.GetInt("CombatVersusOtherReligionOwnLands");
 	m_iCombatVersusOtherReligionTheirLands = kResults.GetInt("CombatVersusOtherReligionTheirLands");
 	m_iMissionaryInfluenceCS = kResults.GetInt("MissionaryInfluenceCS");
@@ -1156,8 +1176,13 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKnownPantheons, "Belief_YieldFromKnownPantheons", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerHalved, "Yields", "Belief_MaxYieldPerFollowerHalved", "YieldType", "BeliefType", szBeliefType, "Max");
+
+	m_bIgnorePolicyRequirements = kResults.GetBool("IgnorePolicyRequirementsUpToEra");
+	m_iCSYieldBonus = kResults.GetInt("CSYieldBonusFromSharedReligion");
 #endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollowerHalved, "Yields", "Belief_MaxYieldModifierPerFollowerHalved", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piResourceHappiness, "Resources", "Belief_ResourceHappiness", "ResourceType", "BeliefType", szBeliefType, "HappinessChange");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Belief_ResourceQuantityModifiers", "ResourceType", "BeliefType", szBeliefType, "ResourceQuantityModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Belief_BuildingClassHappiness", "BuildingClassType", "BeliefType", szBeliefType, "Happiness");
@@ -3158,6 +3183,23 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, Pla
 
 	return rtnValue;
 }
+int CvReligionBeliefs::GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			rtnValue += pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollowerHalved(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+
+
 
 /// Does this belief allow a building to be constructed?
 bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer) const
@@ -3328,24 +3370,6 @@ bool CvReligionBeliefs::RequiresResource(PlayerTypes ePlayer) const
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-/// Is there a belief that halves follower values?
-bool CvReligionBeliefs::IsHalvedFollowers(PlayerTypes ePlayer) const
-{
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-
-	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
-	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
-		{
-			if (pBeliefs->GetEntry(*it)->IsHalvedFollowers())
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
 /// Get yield modifier from beliefs for pop
 int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer) const
 {
@@ -3695,6 +3719,60 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 
 	return rtnValue;
 }
+/// Get yield from beliefs from # of followers halved
+int CvReligionBeliefs::GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			rtnValue += pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerHalved(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+
+/// Get yield from beliefs from # of followers halved
+bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			if ((int)eEra < (int)pBeliefs->GetEntry(*it)->GetObsoleteEra())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+/// Get yield from beliefs from # of followers halved
+int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			rtnValue += pBeliefs->GetEntry(*it)->GetCSYieldBonus();
+		}
+	}
+
+	return rtnValue;
+}
+
+
 /// Get unique civ
 CivilizationTypes CvReligionBeliefs::GetUniqueCiv(PlayerTypes ePlayer) const
 {

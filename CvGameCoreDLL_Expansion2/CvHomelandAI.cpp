@@ -1044,10 +1044,14 @@ void CvHomelandAI::AssignHomelandMoves()
 		switch(move.m_eMoveType)
 		{
 		case AI_HOMELAND_MOVE_EXPLORE:
-			PlotExplorerMoves();
+			//call it twice in case the unit reaches the end of it's sight with moves left
+			PlotExplorerMoves(false);
+			PlotExplorerMoves(true);
 			break;
 		case AI_HOMELAND_MOVE_EXPLORE_SEA:
-			PlotExplorerSeaMoves();
+			//call it twice in case the unit reaches the end of it's sight with moves left
+			PlotExplorerSeaMoves(false);
+			PlotExplorerSeaMoves(true);
 			break;
 		case AI_HOMELAND_MOVE_SETTLE:
 			PlotFirstTurnSettlerMoves();
@@ -1171,7 +1175,7 @@ void CvHomelandAI::AssignHomelandMoves()
 }
 
 /// Get units with explore AI and plan their moves
-void CvHomelandAI::PlotExplorerMoves()
+void CvHomelandAI::PlotExplorerMoves(bool bSecondPass)
 {
 	ClearCurrentMoveUnits();
 
@@ -1193,19 +1197,24 @@ void CvHomelandAI::PlotExplorerMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		// Execute twice so explorers who can reach the end of their sight can move again
-#if defined(MOD_BALANCE_CORE)
-		ExecuteExplorerMoves(false);
-		ExecuteExplorerMoves(true);
-#else
 		ExecuteExplorerMoves();
-		ExecuteExplorerMoves();
-#endif
+	}
+
+	if(bSecondPass)
+	{
+		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			{
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+		}
 	}
 }
 
 /// Get units with explore AI and plan their moves
-void CvHomelandAI::PlotExplorerSeaMoves()
+void CvHomelandAI::PlotExplorerSeaMoves(bool bSecondPass)
 {
 	ClearCurrentMoveUnits();
 
@@ -1227,14 +1236,19 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-		// Execute twice so explorers who can reach the end of their sight can move again
-#if defined(MOD_BALANCE_CORE)
-		ExecuteExplorerMoves(false);
-		ExecuteExplorerMoves(true);
-#else
 		ExecuteExplorerMoves();
-		ExecuteExplorerMoves();
-#endif
+	}
+
+	if(bSecondPass)
+	{
+		for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			{
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+		}
 	}
 }
 
@@ -1304,7 +1318,6 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
 #if defined(MOD_BALANCE_CORE)
 						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pGarrison);
-						pGarrison->finishMoves();
 						UnitProcessed(pGarrison->GetID());
 #endif
 						if(GC.getLogging() && GC.getAILogging())
@@ -3169,6 +3182,8 @@ void CvHomelandAI::PlotAirliftMoves()
 void CvHomelandAI::ReviewUnassignedUnits()
 {
 	ClearCurrentMoveUnits();
+	m_CurrentMoveUnits.setCurrentHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
+
 	// Loop through all remaining units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
@@ -3463,7 +3478,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 }
 
 /// Moves units to explore the map
-void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
+void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
 
@@ -3672,8 +3687,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strTemp = pUnit->getUnitInfo().GetDescription();
-						CvString msg = CvString::format("Checking plots for scouting unit %s is %d, %d with base %d, extra %d, bonus %d\n",
-							strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
+						CvString msg = CvString::format("Checking plot (%d:%d) for scout %s %d - base score %d, extra %d, bonus %d\n",
+							pBestPlot->getX(), pBestPlot->getY(), strTemp.GetCString(), pUnit->GetID(), iScoreBase, iScoreExtra, iScoreBonus);
 						LogHomelandMessage(msg);
 					}
 				}
@@ -3814,12 +3829,6 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					}
 				}
 			}
-		}
-
-		if(bSecondPass)
-		{
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -5702,10 +5711,13 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 	if(pMyReligion)
 	{
 		pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-		pHolyCity = pHolyCityPlot->getPlotCity();
-		if(pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+		if (pHolyCityPlot != NULL)
 		{
-			bKeepHolyCityClear = true;
+			pHolyCity = pHolyCityPlot->getPlotCity();
+			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+			{
+				bKeepHolyCityClear = true;
+			}
 		}
 	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
@@ -8271,6 +8283,7 @@ const char* homelandMoveNames[] =
 	"H_MOVE_TO_SAFETY",
 	"H_MOVE_MOBILE_RESERVE",
 	"H_MOVE_SENTRY",
+	"H_MOVE_SENTRY_NAVAL",
 	"H_MOVE_WORKER",
 	"H_MOVE_WORKER_SEA",
 	"H_MOVE_PATROL",
@@ -8297,6 +8310,8 @@ const char* homelandMoveNames[] =
 	"H_MOVE_AIRLIFT",
 	"H_MOVE_DIPLOMAT_EMBASSY",
 	"H_MOVE_MESSENGER",
+	"H_MOVE_SECONDARY_SETTLER",
+	"H_MOVE_SECONDARY_WORKER",
 };
 
 const char* directiveNames[] = 

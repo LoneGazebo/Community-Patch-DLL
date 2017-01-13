@@ -1600,6 +1600,10 @@ function TipHandler( control )
 					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_TOURISM_STRING", iYieldChange);
 				elseif (iYield == YieldTypes.YIELD_GOLDEN_AGE_POINTS) then
 					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_GAP_STRING", iYieldChange);
+				elseif (iYield == YieldTypes.YIELD_GREAT_GENERAL_POINTS) then
+					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_GGP_STRING", iYieldChange);
+				elseif (iYield == YieldTypes.YIELD_GREAT_ADMIRAL_POINTS) then
+					strBuildYieldString = strBuildYieldString .. Locale.ConvertTextKey("TXT_KEY_BUILD_GAP2_STRING", iYieldChange);
 				end
 				
 				bFirstYield = false;

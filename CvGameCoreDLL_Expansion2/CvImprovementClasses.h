@@ -91,6 +91,7 @@ public:
 	bool IsExperience() const;
 	FeatureTypes GetCreatedFeature() const;
 	bool IsNewOwner() const;
+	bool IsOwnerOnly() const;
 #endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
@@ -263,6 +264,7 @@ protected:
 	bool m_bIsExperience;
 	FeatureTypes m_eCreatesFeature;
 	bool m_bNewOwner;
+	bool m_bOwnerOnly;
 #endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;

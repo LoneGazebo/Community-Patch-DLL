@@ -2854,7 +2854,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		CvString strIntrigue = "";
 		for (int i = m_aIntrigueNotificationMessages.size(); i > 0; i--)
 		{
-			if (m_aIntrigueNotificationMessages[i - 1].m_iTurnNum < (GC.getGame().getGameTurn() - 10))  // todo: make 5 an xml global
+			if (m_aIntrigueNotificationMessages[i - 1].m_iTurnNum < (GC.getGame().getGameTurn() - 10))
 			{
 				continue;
 			}
@@ -9371,6 +9371,9 @@ void CvEspionageAI::StealGreatWork()
 													pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
 													pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, iGreatWorkIndex);
 													iStuffStolen++;
+
+													pPlayerCity->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClassLoop);
+													pArtCity->GetCityCulture()->UpdateThemingBonusIndex(eGWBuildingClass);
 													if ((GC.getLogging() && GC.getAILogging()))
 													{
 														CvGameCulture *pCulture = GC.getGame().GetGameCulture();
@@ -9390,9 +9393,7 @@ void CvEspionageAI::StealGreatWork()
 														CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGreatWorkIndex);
 														GC.GetEngineUserInterface()->AddPopup(kPopup);
 													}
-#if defined(MOD_BALANCE_CORE)
 													pEspionage->m_aiNumSpyActionsDone[eDefendingPlayer]++;
-#endif
 
 													// send out notifications to the parties that were stolen from
 													CvPlot* pPlot = GC.getMap().plot(pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iX, pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iY);

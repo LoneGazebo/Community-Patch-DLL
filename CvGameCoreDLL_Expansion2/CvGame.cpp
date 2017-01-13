@@ -1640,11 +1640,6 @@ void CvGame::update()
 		{
 			sendPlayerOptions();
 
-			if(getTurnSlice() == 0 && !isPaused())
-			{
-				gDLL->AutoSave(true);
-			}
-
 #if defined(EXTERNAL_PAUSING)
 			bool bExternalPause = ExternalPause();
 #else
@@ -3710,10 +3705,6 @@ void CvGame::doControl(ControlTypes eControl)
 		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-			if (!isNetworkMultiPlayer() && kActivePlayer.isHuman() && GC.GetPostTurnAutosaves())
-			{
-				gDLL->AutoSave(false, true);
-			}
 #if defined(MOD_EVENTS_RED_TURN)
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<
@@ -8031,10 +8022,9 @@ void CvGame::doTurn()
 	int iLoopPlayer;
 	int iI;
 
-	if(getAIAutoPlay())
-	{
-		gDLL->AutoSave(false);
-	}
+	//create an autosave
+	if(!isNetworkMultiPlayer())
+		gDLL->AutoSave(false, false);
 
 	// END OF TURN
 
@@ -8229,21 +8219,9 @@ void CvGame::doTurn()
 
 	LogGameState();
 
+	//autosave after doing a turn
 	if(isNetworkMultiPlayer())
-	{//autosave after doing a turn
-#if defined(MOD_BALANCE_CORE)
-		if (GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
-		{
-			gDLL->AutoSave(false, true);
-		}
-		else
-		{
-#endif
-		gDLL->AutoSave(false);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-	}
+		gDLL->AutoSave(false, true);
 
 	gDLL->PublishNewGameTurn(getGameTurn());
 }
@@ -8858,6 +8836,10 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			}
 		}
 		if(!bValid)
+			continue;
+
+		//Not valid?
+		if (pkUnitInfo->IsInvalidMinorCivGift())
 			continue;
 
 		// Avoid Recon units
@@ -10024,22 +10006,24 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
+	int iFake = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + getGameTurn();
 	
+	//watch out, iFake^2 may turn negative because of overflow!
 	if (iNum>0)
-		return (iFake*iFake) % iNum; 
+		return abs(iFake*iFake) % iNum; 
 	else
-		return (-1) * ((iFake*iFake) % (-iNum));
+		return (-1) * (abs(iFake*iFake) % (-iNum));
 }
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
 	int iFake = getGameTurn() + abs(iExtraSeed);
 
+	//watch out, iFake^2 may turn negative because of overflow!
 	if (iNum>0)
-		return (iFake*iFake) % iNum;
+		return abs(iFake*iFake) % iNum;
 	else
-		return (-1) * ((iFake*iFake) % (-iNum));
+		return (-1) * (abs(iFake*iFake) % (-iNum));
 }
 
 #endif

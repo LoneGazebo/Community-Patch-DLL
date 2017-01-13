@@ -312,7 +312,6 @@ public:
 	int getNumDefenders(PlayerTypes ePlayer) const;
 	int getNumNavalDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
-	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const;
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
@@ -948,7 +947,7 @@ public:
 	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
 #endif
 
-	bool canPlaceUnit(PlayerTypes ePlayer) const;
+	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
 
 protected:
 	class PlotBoolField

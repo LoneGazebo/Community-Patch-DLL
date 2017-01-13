@@ -320,6 +320,19 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Max" type="integer" default="0"/>
 	</Table>
+	<!-- Same as above, but 1 per 2 citizens -->
+	<Table name="Belief_MaxYieldPerFollowerHalved">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Max" type="integer" default="0"/>
+	</Table>
+
+	<!-- Same as vanilla but halved -->
+	<Table name="Belief_MaxYieldModifierPerFollowerHalved">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Max" type="integer" default="0"/>
+	</Table>
 
 	<!-- POLICY: Allows you to define an instant yield granted when a building is constructed. (culture only - grants local border growth as well) -->
 	<Table name="Policy_YieldFromConstruction">
@@ -460,6 +473,31 @@
 
 	<!-- POLICY: Allows you to define a yield granted from citizen birth in the capital -->
 	<Table name="Policy_YieldFromBirthCapital">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_MusicYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_ArtifactYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_ArtYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_LitYieldChanges">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>

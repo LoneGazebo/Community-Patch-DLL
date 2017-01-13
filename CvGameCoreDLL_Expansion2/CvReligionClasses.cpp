@@ -1983,7 +1983,11 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 	{
 		const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 #if defined(MOD_TRAITS_ANY_BELIEF)
-		if(!IsInSomeReligion(eBelief, ePlayer))
+#if defined(MOD_ANY_PANTHEON)
+		if (MOD_ANY_PANTHEON || !IsInSomeReligion(eBelief, ePlayer))
+#else
+		if (!IsInSomeReligion(eBelief, ePlayer))
+#endif
 #else
 		if(!IsInSomeReligion(eBelief))
 #endif
@@ -2041,7 +2045,12 @@ bool CvGameReligions::IsPantheonBeliefAvailable(BeliefTypes eBelief)
 {
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 #if defined(MOD_TRAITS_ANY_BELIEF)
+
+#if defined(MOD_ANY_PANTHEON)
+	if (MOD_ANY_PANTHEON || !IsInSomeReligion(eBelief, ePlayer))
+#else
 	if(!IsInSomeReligion(eBelief, ePlayer))
+#endif
 #else
 	if(!IsInSomeReligion(eBelief))
 #endif
@@ -2381,7 +2390,7 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 		for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 		{
 			//Our Pantheon?
-			if(it->m_bPantheon && it->m_eFounder)
+			if (it->m_bPantheon && it->m_eFounder != NO_PLAYER)
 			{
 				//Our national majority?
 				if(kPlayer.GetReligions()->GetReligionInMostCities() == it->m_eReligion)
@@ -4406,6 +4415,25 @@ int CvPlayerReligions::GetCityStateInfluenceModifier(PlayerTypes ePlayer) const
 	return iRtnValue;
 }
 
+int CvPlayerReligions::GetCityStateYieldModifier(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if (eReligion == NO_RELIGION)
+	{
+		eReligion = GetReligionInMostCities();
+	}
+	if (eReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+		if (pReligion)
+		{
+			iRtnValue += pReligion->m_Beliefs.GetCSYieldBonus(ePlayer);
+		}
+	}
+	return iRtnValue;
+} 
+
 /// Does this player get religious pressure from spies?
 int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
 {
@@ -5196,13 +5224,19 @@ void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason
 			it->m_iPressure += iPressure;
 			bFoundIt = true;
 		}
-
-		//  If this is pressure from a real religion, reduce presence of pantheon by the same amount
+#if defined(MOD_CORE_RESILIENT_PANTHEONS)
+		// Don't reduce pantheon pressure for regular per-turn spread
+		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON && eReason != FOLLOWER_CHANGE_ADJACENT_PRESSURE)
+		{
+			it->m_iPressure = max(0, (it->m_iPressure - iPressure/2));
+		}
+#else
+		// If this is pressure from a real religion, reduce presence of pantheon by the same amount
 		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON)
 		{
 			it->m_iPressure = max(0, (it->m_iPressure - iPressure));
 		}
-
+#endif
 		else if (it->m_eReligion > RELIGION_PANTHEON && eReason == FOLLOWER_CHANGE_MISSIONARY)
 		{
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
@@ -5315,11 +5349,15 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 			it->m_iPressure += iPressure;
 			bFoundIt = true;
 		}
-
-		//  If this is pressure from a real religion, reduce presence of pantheon by the same amount
+		// If this is pressure from a real religion, reduce presence of pantheon by the same amount
 		else if(eReligion > RELIGION_PANTHEON && it->m_eReligion == RELIGION_PANTHEON)
 		{
+#if defined(MOD_CORE_RESILIENT_PANTHEONS)
+			//don't need to check for CvReligiousFollowChangeReason - this method is only used for prophets/missionaries
+			it->m_iPressure = max(0, (it->m_iPressure - iPressure/2));
+#else
 			it->m_iPressure = max(0, (it->m_iPressure - iPressure));
+#endif
 		}
 
 		else if (it->m_eReligion > RELIGION_PANTHEON)
@@ -8840,6 +8878,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		if (pEntry->GetMaxYieldPerFollower(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetMaxYieldPerFollower(iI) * iFlavorExpansion);
+		}
+		if (pEntry->GetMaxYieldPerFollowerHalved(iI) > 0)
+		{
+			iRtnValue += (pEntry->GetMaxYieldPerFollowerHalved(iI) * iFlavorExpansion);
+		}
+		if (pEntry->IsIgnorePolicyRequirements())
+		{
+			iRtnValue += (iFlavorCulture * iFlavorScience);
+		}
+		if (pEntry->GetCSYieldBonus() > 0)
+		{
+			iRtnValue += (iFlavorDiplomacy * iFlavorExpansion);
 		}
 		if (pEntry->GetYieldFromGPUse(iI) > 0)
 		{

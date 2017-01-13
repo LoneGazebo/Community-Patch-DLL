@@ -12821,7 +12821,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 			// Dropped from Allies
 			if(bAllies)
 			{
-				if(ePlayer != eNotifyPlayer)
+				if(ePlayer != eNotifyPlayer && eOldAlly != GetPermanentAlly())
 				{
 					if(pNotifyTeam->isHasMet(eMinorTeam))
 					{
@@ -13472,6 +13472,9 @@ bool CvMinorCivAI::IsProtectedByMajor(PlayerTypes eMajor) const
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
+	if (!GET_PLAYER(eMajor).isAlive())
+		return false;
+
 	return m_abPledgeToProtect[eMajor];
 }
 
@@ -13823,6 +13826,18 @@ int CvMinorCivAI::GetCurrentCultureFlatBonus(PlayerTypes ePlayer)
 		iAmount *= (iModifier + 100);
 		iAmount /= 100;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iAmount *= (iModifier + 100);
+			iAmount /= 100;
+		}
+	}
+#endif
 
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
@@ -14208,6 +14223,18 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iAmount *= (iModifier + 100);
+			iAmount /= 100;
+		}
+	}
+#endif
+
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -14350,6 +14377,18 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iAmount *= (iModifier + 100);
+			iAmount /= 100;
+		}
+	}
+#endif
+
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -14491,6 +14530,18 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iAmount *= (iModifier + 100);
+			iAmount /= 100;
+		}
+	}
+#endif
+
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -14539,6 +14590,18 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 		iBonus /= 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iBonus *= (iModifier + 100);
+			iBonus /= 100;
+		}
+	}
+#endif
+
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -14577,6 +14640,18 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 		iBonus /= 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iBonus *= (iModifier + 100);
+			iBonus /= 100;
+		}
+	}
+#endif
+
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -14601,6 +14676,18 @@ int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 		iBonus /= 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iBonus *= (iModifier + 100);
+			iBonus /= 100;
+		}
+	}
+#endif
+
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -14624,6 +14711,18 @@ int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
 		iBonus *= (iModifier + 100);
 		iBonus /= 100;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
+		if (iModifier > 0)
+		{
+			iBonus *= (iModifier + 100);
+			iBonus /= 100;
+		}
+	}
+#endif
 
 #if defined(MOD_CITY_STATE_SCALE)
 	if (MOD_CITY_STATE_SCALE)
@@ -18095,136 +18194,139 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 
 pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly)
 {
-	Localization::String strMessage;
-	Localization::String strSummary;
+	Localization::String strMessage = "";
+	Localization::String strSummary = "";
 
-	CvTeam* pTeam = &GET_TEAM(GET_PLAYER(ePlayer).getTeam());
-	CvAssertMsg(pTeam, "pTeam not expected to be NULL. Please send Anton your save file and version.");
-
-	const char* strMinorsNameKey = GetPlayer()->getNameKey();
-
-	// Adding/Increasing bonus
-	if(bAdd)
+	if (ePlayer != GetPermanentAlly())
 	{
-		// Jumped up to Allies (either from Neutral or from Friends, or passing another player)
-		if(bAllies)
+		CvTeam* pTeam = &GET_TEAM(GET_PLAYER(ePlayer).getTeam());
+		CvAssertMsg(pTeam, "pTeam not expected to be NULL. Please send Anton your save file and version.");
+
+		const char* strMinorsNameKey = GetPlayer()->getNameKey();
+
+		// Adding/Increasing bonus
+		if (bAdd)
 		{
-			// BASE ALLIES MESSAGE
-
-			// No previous Ally (or it was us)
-			if(eOldAlly == NO_PLAYER || eOldAlly == ePlayer)
+			// Jumped up to Allies (either from Neutral or from Friends, or passing another player)
+			if (bAllies)
 			{
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_BASE");
-			}
-			// We're passing someone
-			else
-			{
-				CvAssertMsg(eOldAlly != NO_PLAYER, "eOldAlly not expected to be NO_PLAYER here. Please send Anton your save file and version.");
-				const char* strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
-				TeamTypes eOldAllyTeam = GET_PLAYER(eOldAlly).getTeam();
-				if(pTeam->isHasMet(eOldAllyTeam))
-					strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+				// BASE ALLIES MESSAGE
 
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_BASE_PASSED");
-				strMessage << strOldBestPlayersNameKey;
-			}
-
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_ALLIES_STATUS");
-
-			// Build Resource info
-			int iNumResourceTypes = 0;
-			FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veResources;
-			ResourceTypes eResource;
-			ResourceUsageTypes eUsage;
-			int iResourceQuantity;
-			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				eResource = (ResourceTypes) iResourceLoop;
-				iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
-
-				if(iResourceQuantity > 0)
+				// No previous Ally (or it was us)
+				if (eOldAlly == NO_PLAYER || eOldAlly == ePlayer)
 				{
-					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);					
-					if (pkResourceInfo != NULL)
-					{
-						eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_BASE");
+				}
+				// We're passing someone
+				else
+				{
+					CvAssertMsg(eOldAlly != NO_PLAYER, "eOldAlly not expected to be NO_PLAYER here. Please send Anton your save file and version.");
+					const char* strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
+					TeamTypes eOldAllyTeam = GET_PLAYER(eOldAlly).getTeam();
+					if (pTeam->isHasMet(eOldAllyTeam))
+						strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
 
-						if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_BASE_PASSED");
+					strMessage << strOldBestPlayersNameKey;
+				}
+
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_ALLIES_STATUS");
+
+				// Build Resource info
+				int iNumResourceTypes = 0;
+				FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veResources;
+				ResourceTypes eResource;
+				ResourceUsageTypes eUsage;
+				int iResourceQuantity;
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes)iResourceLoop;
+					iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
+
+					if (iResourceQuantity > 0)
+					{
+						const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+						if (pkResourceInfo != NULL)
 						{
-							veResources.push_back(eResource);
-							iNumResourceTypes++;
+							eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+
+							if (eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
+							{
+								veResources.push_back(eResource);
+								iNumResourceTypes++;
+							}
 						}
 					}
 				}
-			}
-			// APPEND RESOURCE INFO
-			Localization::String strResourceDetails;
-			if(iNumResourceTypes == 0)
-			{
-				strResourceDetails = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_GAINED_BEST_RELATIONS_BONUS_NONE");
-				strResourceDetails << strMinorsNameKey;
-			}
-			else
-			{
-				CvString strResourceNames = GC.getResourceInfo(veResources[0])->GetDescription();
-				int i = 1;
-				while(i < iNumResourceTypes)
+				// APPEND RESOURCE INFO
+				Localization::String strResourceDetails;
+				if (iNumResourceTypes == 0)
 				{
-					strResourceNames += ", ";
-					strResourceNames += GC.getResourceInfo(veResources[i++])->GetDescription();
+					strResourceDetails = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_GAINED_BEST_RELATIONS_BONUS_NONE");
+					strResourceDetails << strMinorsNameKey;
 				}
+				else
+				{
+					CvString strResourceNames = GC.getResourceInfo(veResources[0])->GetDescription();
+					int i = 1;
+					while (i < iNumResourceTypes)
+					{
+						strResourceNames += ", ";
+						strResourceNames += GC.getResourceInfo(veResources[i++])->GetDescription();
+					}
 
-				strResourceDetails = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_GAINED_BEST_RELATIONS_BONUS_SOME");
-				strResourceDetails << strResourceNames.c_str();
+					strResourceDetails = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_GAINED_BEST_RELATIONS_BONUS_SOME");
+					strResourceDetails << strResourceNames.c_str();
+				}
+				strMessage << strResourceDetails.toUTF8();
 			}
-			strMessage << strResourceDetails.toUTF8();
-		}
-		// Went from Neutral to Friends
-		else if(bFriends)
-		{
-			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_BASE");
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDS_STATUS");
-		}
-	}
-	// Removing/Reducing bonus
-	else
-	{
-		// Dropped from Allies
-		if(bAllies)
-		{
-			// Normal friendship decay
-			if(eNewAlly == NO_PLAYER)
+			// Went from Neutral to Friends
+			else if (bFriends)
 			{
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_ALLIES_LOST");
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_ALLIES_STATUS_LOST");
-			}
-			// Someone passed us up
-			else
-			{
-				CvAssertMsg(eNewAlly != NO_PLAYER, "eNewAlly not expected to be NO_PLAYER here. Please send Anton your save file and version.");
-				CvAssertMsg(eNewAlly != ePlayer, "eNewAlly not expected to be same as ePlayer here. Please send Anton your save file and version.");
-				const char* strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
-				TeamTypes eNewAllyTeam = GET_PLAYER(eNewAlly).getTeam();
-				if(pTeam->isHasMet(eNewAllyTeam))
-					strNewBestPlayersNameKey = GET_PLAYER(eNewAlly).getCivilizationShortDescriptionKey();
-
-				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_ALLIES_PASSED");
-				strMessage << strNewBestPlayersNameKey;
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_ALLIES_STATUS_PASSED");
-				strSummary << strNewBestPlayersNameKey;
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_BASE");
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDS_STATUS");
 			}
 		}
-		// Dropped down to Neutral from Friends (case of Allies down to Neutral not handled well... let's hope it doesn't happen often!)
-		else if(bFriends)
+		// Removing/Reducing bonus
+		else
 		{
-			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDS_LOST_BASE");
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDS_STATUS_LOST");
-		}
-	}
+			// Dropped from Allies
+			if (bAllies)
+			{
+				// Normal friendship decay
+				if (eNewAlly == NO_PLAYER)
+				{
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_ALLIES_LOST");
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_ALLIES_STATUS_LOST");
+				}
+				// Someone passed us up
+				else
+				{
+					CvAssertMsg(eNewAlly != NO_PLAYER, "eNewAlly not expected to be NO_PLAYER here. Please send Anton your save file and version.");
+					CvAssertMsg(eNewAlly != ePlayer, "eNewAlly not expected to be same as ePlayer here. Please send Anton your save file and version.");
+					const char* strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
+					TeamTypes eNewAllyTeam = GET_PLAYER(eNewAlly).getTeam();
+					if (pTeam->isHasMet(eNewAllyTeam))
+						strNewBestPlayersNameKey = GET_PLAYER(eNewAlly).getCivilizationShortDescriptionKey();
 
-	CvString strDetailedInfo = GetStatusChangeDetails(ePlayer, bAdd, bFriends, bAllies);
-	strMessage << GetPlayer()->getNameKey() << strDetailedInfo;
-	strSummary << GetPlayer()->getNameKey();
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_ALLIES_PASSED");
+					strMessage << strNewBestPlayersNameKey;
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_ALLIES_STATUS_PASSED");
+					strSummary << strNewBestPlayersNameKey;
+				}
+			}
+			// Dropped down to Neutral from Friends (case of Allies down to Neutral not handled well... let's hope it doesn't happen often!)
+			else if (bFriends)
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_FRIENDS_LOST_BASE");
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_FRIENDS_STATUS_LOST");
+			}
+		}
+
+		CvString strDetailedInfo = GetStatusChangeDetails(ePlayer, bAdd, bFriends, bAllies);
+		strMessage << GetPlayer()->getNameKey() << strDetailedInfo;
+		strSummary << GetPlayer()->getNameKey();
+	}
 
 	pair<CvString, CvString> notifStrings = pair<CvString, CvString>(strMessage.toUTF8(), strSummary.toUTF8());
 	return notifStrings;
