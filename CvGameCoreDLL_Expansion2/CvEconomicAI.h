@@ -205,7 +205,9 @@ public:
 	}
 	int GetMinimumSettleFertility() const
 	{
-		return m_iMinimumSettleFertility;
+		//todo: take into account previously settled cities? eg generalize GetFoundValueOfCapital()
+		int iFlavorExpansion = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+		return m_iMinimumSettleFertility - iFlavorExpansion*1000;
 	};
 
 	ReconState GetReconState() const

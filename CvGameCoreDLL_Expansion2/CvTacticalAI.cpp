@@ -12499,15 +12499,15 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	{
 	case AL_LOW:
 		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints()/2 )
-			fAggFactor = 0.5f;
+			fAggFactor = 0.8f;
 		break;
 	case AL_MEDIUM:
 		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2 )
-			fAggFactor = 1.f;
+			fAggFactor = 1.2f;
 		break;
 	case AL_HIGH:
 		if ( iDamageReceived < pUnit->GetCurrHitPoints() || fUnitNumberRatio>1 )
-			fAggFactor = 4.f;
+			fAggFactor = 4.2f;
 		break;
 	}
 
