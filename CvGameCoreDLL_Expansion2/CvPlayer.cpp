@@ -13858,14 +13858,6 @@ void CvPlayer::found(int iX, int iY)
 
 	SetTurnsSinceSettledLastCity(0);
 
-#if defined(MOD_BALANCE_CORE)
-	if (getNumCities() <= 0)
-	{
-		int iFoundValue = GC.getMap().plot(iX,iY)->getFoundValue(GetID());
-		SetFoundValueOfCapital(iFoundValue);
-	}
-#endif
-
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
 #else
@@ -42847,30 +42839,16 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-/// How good was the last city?
-void CvPlayer::SetFoundValueOfCapital(int iValue)
-{
-	if(m_iFoundValueOfCapital != iValue)
-		m_iFoundValueOfCapital = iValue;
-}
-
-//	--------------------------------------------------------------------------------
-/// How good was the last city?
-int CvPlayer::GetFoundValueOfCapital() const
-{
-	return m_iFoundValueOfCapital;
-}
 
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	// Check if there are good plots to settle somewhere
-	int iRefValue = ((GetFoundValueOfCapital() * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY()) / 100);
 	int iFirstArea, iSecondArea;
 	if (iAreaID==-1)
-		return GetBestSettleAreas(iRefValue, iFirstArea, iSecondArea) > 0; 
+		return GetBestSettleAreas(iFirstArea, iSecondArea) > 0; 
 	else
 	{
-		GetBestSettleAreas(iRefValue, iFirstArea, iSecondArea);
+		GetBestSettleAreas(iFirstArea, iSecondArea);
 		return (iFirstArea == iAreaID || iSecondArea == iAreaID);
 	}
 }
@@ -42901,10 +42879,12 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Find best continents to settle next two cities; returns number found over minimum
-int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea)
+int CvPlayer::GetBestSettleAreas(int& iFirstArea, int& iSecondArea)
 {
+	int iMinScore = GetEconomicAI()->GetMinimumCityFoundValue();
+
 	//lazy update
-	updatePlotFoundValues();
+	updatePlotFoundValues(false,iMinScore);
 
 	CvArea* pLoopArea;
 	int iLoop;
@@ -42923,7 +42903,7 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 		{
 			float fScore = (float)pLoopArea->getTotalFoundValue();
 
-			if(fScore >= iMinScore)
+			if(fScore >= iMinScore) //should always be true ...
 			{
 				EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 				if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
@@ -43007,6 +42987,7 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
 CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	std::vector<SPlotWithScore> vSettlePlots;
+	int iMinRawScore = GetEconomicAI()->GetMinimumCityFoundValue();
 
 	//play it safe
 	bIsSafe = false;
@@ -43025,19 +43006,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
 
 	int iBestArea, iSecondBestArea;
-	//start with a predefined base value
-	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	//call this the sneaky way cause it's not const
-	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestFoundValue, iBestArea, iSecondBestArea);
+	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestArea, iSecondBestArea);
 	if(iNumSettleAreas == 0)
 	{
 		return NULL;
-	}
-
-	if(pUnit)
-	{
-		int iTurnsWaiting = (GC.getGame().getGameTurn() - pUnit->getGameTurnCreated());
-		iBestFoundValue -= (iTurnsWaiting * 200);
 	}
 
 	//prefer settling close in the beginning
@@ -43197,11 +43170,13 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			iValue = pPlot->getFoundValue(eOwner);
 		}
 
+		if (iValue<iMinRawScore)
+			continue;
+
 		//factor in the distance
 		iValue = (iValue*iScale)/100;
 
-		if (iValue>0)
-			vSettlePlots.push_back( SPlotWithScore(pPlot,iValue) );
+		vSettlePlots.push_back( SPlotWithScore(pPlot,iValue) );
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
@@ -45453,7 +45428,7 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
-void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
+void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck, int iGoodEnoughToBeWorthOurTimeScore)
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
 		return;
@@ -45502,13 +45477,12 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 	std::map<int,int> countPerArea;
 
 	// second pass: non-maxima suppression and aggregation
-	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		int iRefValue = m_viPlotFoundValues[iI];
 
-		if (iRefValue < iGoodEnoughToBeWorthOurTime)
+		if (iRefValue < iGoodEnoughToBeWorthOurTimeScore)
 			continue;
 
 		for (int iCount = RING0_PLOTS; iCount<RING3_PLOTS; iCount++)
@@ -45531,7 +45505,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 			if (pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
 			{
 				//one supercity counts more than two mediocre ones
-				int iAddValue = (int)pow((float)iRefValue-iGoodEnoughToBeWorthOurTime,1.5f);
+				int iAddValue = (int)pow((float)iRefValue-iGoodEnoughToBeWorthOurTimeScore,1.5f);
 				int newValue = pLoopArea->getTotalFoundValue() + iAddValue;
 				pLoopArea->setTotalFoundValue(newValue);
 				
@@ -45571,7 +45545,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 int CvPlayer::getPlotFoundValue(int iX, int iY)
 {
 	//lazy update
-	updatePlotFoundValues();
+	updatePlotFoundValues(false,GetEconomicAI()->GetMinimumCityFoundValue());
 
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
 

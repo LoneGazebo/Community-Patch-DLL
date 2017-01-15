@@ -2382,10 +2382,8 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
+	int GetBestSettleAreas(int& iFirstArea, int& iSecondArea);
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
-	int GetFoundValueOfCapital() const;
-	void SetFoundValueOfCapital(int iValue);
 	bool HaveGoodSettlePlot(int iAreaID);
 
 	// New Victory Stuff
@@ -2611,7 +2609,7 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void updatePlotFoundValues(bool bOverrideRevealedCheck=false);
+	virtual void updatePlotFoundValues(bool bOverrideRevealedCheck=false, int iMinPlotFoundValue=0);
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);

@@ -246,8 +246,7 @@ CvEconomicAIStrategyXMLEntry* CvEconomicAIStrategyXMLEntries::GetEntry(int index
 CvEconomicAI::CvEconomicAI():
 	m_pabUsingStrategy(NULL),
 	m_paiTurnStrategyAdopted(NULL),
-	m_aiTempFlavors(NULL),
-	m_iEarlyCityNumberTarget(1)
+	m_aiTempFlavors(NULL)
 {
 }
 
@@ -345,13 +344,6 @@ void CvEconomicAI::Reset()
 	m_iExplorersNeeded = 0;
 	m_iNavalExplorersNeeded = 0;
 #endif
-
-	// Cached AI defines
-	m_iMinimumSettleFertility = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
-
-	// Basic number of cities desired for early growth is in XML (10)
-	// Later will scale that up or down based on ratio of FLAVOR_EXPANSION to FLAVOR_GROWTH
-	m_iEarlyCityNumberTarget = GC.getAI_STRATEGY_EARLY_EXPANSION_NUM_CITIES_LIMIT();
 }
 
 /// Serialization read
@@ -3802,7 +3794,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			return false;
 		}
 		int iBestArea, iSecondBestArea;
-		pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
 		if(iBestArea == pArea->GetID())
 		{
 			return true;
@@ -4093,7 +4085,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iBestArea = -1;
 	int iSecondBestArea = -1;
 	bool bIsSafe = false;
-	int iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	int iNumAreas = pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
 	if(iNumAreas == 0)
 	{
 		return false;
@@ -4786,7 +4778,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 	{
 		// If the other area is clearly better
 		int iBestArea, iSecondBestArea;
-		pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
 		if ((iBestArea != pPlayer->getCapitalCity()->getArea() && iBestArea != -1))
 		{
 			return true;

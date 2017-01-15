@@ -199,15 +199,11 @@ public:
 	void LogMonitor();
 	void LogCityMonitor();
 
-	int GetEarlyCityNumberTarget() const
-	{
-		return m_iEarlyCityNumberTarget;
-	}
-	int GetMinimumSettleFertility() const
+	int GetMinimumCityFoundValue() const
 	{
 		//todo: take into account previously settled cities? eg generalize GetFoundValueOfCapital()
 		int iFlavorExpansion = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-		return m_iMinimumSettleFertility - iFlavorExpansion*1000;
+		return GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY() - iFlavorExpansion*1000;
 	};
 
 	ReconState GetReconState() const
@@ -286,7 +282,6 @@ private:
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
 	int* m_aiTempFlavors;
-	int m_iEarlyCityNumberTarget;
 	ReconState m_eReconState;
 	ReconState m_eNavalReconState;
 	int m_iExplorersDisbanded;
@@ -300,7 +295,6 @@ private:
 #endif
 
 	// Cached AI parameters
-	int m_iMinimumSettleFertility;
 	bool m_bExplorationPlotsDirty;
 
 	// used for the log monitor
