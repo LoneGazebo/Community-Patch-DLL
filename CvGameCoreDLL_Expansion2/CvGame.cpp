@@ -1640,6 +1640,12 @@ void CvGame::update()
 		{
 			sendPlayerOptions();
 
+			//this creates the initial autosave
+			if(getTurnSlice() == 0 && !isPaused())
+			{
+				gDLL->AutoSave(true);
+			}
+
 #if defined(EXTERNAL_PAUSING)
 			bool bExternalPause = ExternalPause();
 #else
