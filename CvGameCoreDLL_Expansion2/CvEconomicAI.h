@@ -199,13 +199,6 @@ public:
 	void LogMonitor();
 	void LogCityMonitor();
 
-	int GetMinimumCityFoundValue() const
-	{
-		//todo: take into account previously settled cities? eg generalize GetFoundValueOfCapital()
-		int iFlavorExpansion = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-		return GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY() - iFlavorExpansion*1000;
-	};
-
 	ReconState GetReconState() const
 	{
 		return m_eReconState;

@@ -1317,32 +1317,26 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	// Is there any reason this site doesn't work for a settler?
 	//
 	// First must be on coast if settling a new continent
-	bool bIsCoastal = pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN());
 	CvArea* pArea = pPlot->area();
-	CvAssert(pArea);
-	if(!pArea) 
+	if(pArea && pPlayer) 
 	{
-		return 0;
-	}
-
-	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
-	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
-	{
-		return 0;
+		bool bIsCoastal = pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN());
+		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
+		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
+		{
+			return 0;
+		}
 	}
 
 	// Seems okay for a settler, use base class to determine exact value
+	// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
+	if (pPlayer && pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
+	{
+		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug) * 2;
+	}
 	else
 	{
-		// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
-		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
-		{
-			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug) * 2;
-		}
-		else
-		{
-			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug);
-		}
+		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug);
 	}
 }
 #else

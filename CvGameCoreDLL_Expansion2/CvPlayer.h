@@ -2609,7 +2609,8 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void updatePlotFoundValues(bool bOverrideRevealedCheck=false, int iMinPlotFoundValue=0);
+	virtual void setAveragePlotFoundValue();
+	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
@@ -2765,6 +2766,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatWorksTourismModifierGlobal;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
+	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
