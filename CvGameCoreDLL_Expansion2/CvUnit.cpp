@@ -16236,7 +16236,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		{
 			//have to consider embarkation explicitly
 			if ( (!pTargetPlot && pDefender->isEmbarked()) || (pTargetPlot && pTargetPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
-				iDefenderStrength = GetEmbarkedUnitDefense();
+				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
 				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
 		}
