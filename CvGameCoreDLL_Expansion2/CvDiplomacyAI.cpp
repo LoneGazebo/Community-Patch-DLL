@@ -7928,9 +7928,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			//look at the tactical map (is it up to date?)
 			CvTacticalDominanceZone* pLandZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_FRIENDLY)
+			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iTheirDanger++;
-			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_FRIENDLY)
+			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iTheirDanger++;
 
 			if(pLoopCity->isUnderSiege())

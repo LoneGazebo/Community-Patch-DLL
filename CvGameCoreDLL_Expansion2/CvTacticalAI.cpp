@@ -12481,6 +12481,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			//don't hand out points for over-killing (but make an allowance for randomness)
 			iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
 			iExtraDamage = 50;
+			if (pTestPlot->isEnemyUnit(pUnit->getOwner(),false,false))
+				iExtraDamage += 20; //even more points for a double kill
 			result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEATTACK : STacticalAssignment::A_MELEEATTACK;
 		}
 	}

@@ -30735,12 +30735,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 					GetTreasury()->DoUpdateCityConnectionGold();
 				}
 
-				{
-					AI_PERF_FORMAT("AI-perf.csv", ("Builder Tasking, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
-
-					m_pBuilderTaskingAI->Update();
-				}
-
 				if(kGame.isFinalInitialized())
 				{
 					if(isAlive())
