@@ -472,12 +472,6 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 #else
 	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if(GC.getGame().getGameTurn() > 0)
-	{
-		GET_PLAYER(getOwner()).UpdateAreaEffectUnits(false);
-	}
-#endif
 }
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
@@ -18691,6 +18685,9 @@ if (!bDoEvade)
 
 	if(pNewPlot != NULL)
 	{
+		//update area effects
+		kPlayer.UpdateAreaEffectUnit(this);
+
 		//update facing direction
 		if(pOldPlot != NULL)
 		{

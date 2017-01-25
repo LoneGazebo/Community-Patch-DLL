@@ -4111,16 +4111,16 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		// CASE 1: we can go offshore
 		if (bCanEmbark)
 		{				
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, bIsSafe);
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, false, bIsSafe);
 
 			if(pBestSettle == NULL)
 			{
 				//second chance
-				pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, bIsSafe);
+				pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, false, bIsSafe);
 
 				//last chance - failsafe
 				if(pBestSettle == NULL)
-					pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, bIsSafe);
+					pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
 
 				if(pBestSettle == NULL)
 				{
@@ -4168,7 +4168,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		}
 		else // we can't embark yet
 		{
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, bIsSafe);
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, false, bIsSafe);
 			if(pBestSettle == NULL)
 			{
 				if(GC.getLogging() && GC.getAILogging())

@@ -10815,6 +10815,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateDangerPlots();
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
+			UpdateAreaEffectPlots();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
 
@@ -37314,41 +37315,14 @@ bool CvPlayer::IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgn
 #endif
 
 //	--------------------------------------------------------------------------------
-/// Are we already sending a settler to this plot (or any plot within 2)
-#if defined(MOD_BALANCE_CORE_SETTLER)
+/// Are we already sending a settler to this plot (or any plot within 3)
 bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const
-#else
-bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
-#endif
 {
-	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
-
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
-		pOperation = iter->second;
-#if defined(MOD_BALANCE_CORE_SETTLER)
-		if(MOD_BALANCE_CORE_SETTLER)
-		{
-			if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
-			{
-				switch (pOperation->GetOperationType())
-				{
-				case AI_OPERATION_FOUND_CITY:
-				case AI_OPERATION_FOUND_CITY_OVERSEAS:
-				case AI_OPERATION_FOUND_CITY_QUICK:
-					{
-						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 3)
-						{
-							return true;
-						}
-					}
-				}
-			}
-		}
-		else
-#endif
-		if(pOperation)
+		CvAIOperation* pOperation = iter->second;
+		if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
 		{
 			switch (pOperation->GetOperationType())
 			{
@@ -37356,7 +37330,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 			case AI_OPERATION_FOUND_CITY_OVERSEAS:
 			case AI_OPERATION_FOUND_CITY_QUICK:
 				{
-					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
+					if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
 					{
 						return true;
 					}
@@ -37364,6 +37338,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -41231,6 +41206,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
+	UpdateAreaEffectPlots();
 	GET_TEAM(getTeam()).updateTeamStatus();
 	UpdateCurrentAndFutureWars();
 
@@ -42610,33 +42586,63 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 	}
 }
 
-void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
+void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
+{
+	if (!pUnit)
+		return;
+
+	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport())
+	{
+		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
+		{
+			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
+			{
+				m_unitsAreaEffectPositive[i].second = pUnit->plot()->GetPlotIndex();
+				break;
+			}
+		}
+	}
+
+	if (pUnit->getNearbyEnemyCombatMod() < 0)
+	{
+		for ( size_t i=0; i<m_unitsAreaEffectNegative.size(); i++ )
+		{
+			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
+			{
+				m_unitsAreaEffectNegative[i].second = pUnit->plot()->GetPlotIndex();
+				break;
+			}
+		}
+	}
+}
+
+void CvPlayer::UpdateAreaEffectUnits()
 {
 	//great generals/admirals
 	m_unitsAreaEffectPositive.clear();
 	//maori warrior et al
 	m_unitsAreaEffectNegative.clear();
-	//moai et al
-	m_plotsAreaEffectPositiveFromTraits.clear();
 
 	// Loop through our units
 	int iLoop;
-	CvUnit* pLoopUnit = NULL;
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (!pLoopUnit)
-			continue;
-		
 		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport())
 			m_unitsAreaEffectPositive.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
 	}
+}
+
+void CvPlayer::UpdateAreaEffectPlots()
+{
+	//moai et al
+	m_plotsAreaEffectPositiveFromTraits.clear();
 
 	// Loop through our plots
 	ImprovementTypes iTraitImprovement = GetPlayerTraits()->GetCombatBonusImprovementType();
-	if (bCheckSpecialPlotAsWell && iTraitImprovement!=NO_IMPROVEMENT)
+	if (iTraitImprovement!=NO_IMPROVEMENT)
 	{
 		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
@@ -42645,8 +42651,9 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
 		}
 	}
+
 	//Looks for Natural Wonders
-	if(bCheckSpecialPlotAsWell && GetPlayerTraits()->IsCombatBoostNearNaturalWonder())
+	if(GetPlayerTraits()->IsCombatBoostNearNaturalWonder())
 	{
 		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
@@ -42971,12 +42978,9 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafePlot, bool& bIsSafe, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	std::vector<SPlotWithScore> vSettlePlots;
-
-	//play it safe
-	bIsSafe = false;
 
 	//--------
 	bool bLogging = (GC.getLogging() && GC.getAILogging()) || bForceLogging; 
@@ -43152,7 +43156,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		}
 		else
 		{
-			//with caching
+			//with caching - is set to -1 if not possible / not good enough
 			iValue = pPlot->getFoundValue(eOwner);
 		}
 
@@ -43182,9 +43186,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	//delete all but the best
+	//delete the worst half
 	SPlotWithScore ref = vSettlePlots.back();
-	ref.score = int(ref.score * 0.8f);
+	ref.score = int(ref.score * 0.5f);
 	std::vector<SPlotWithScore>::iterator cutoff = std::upper_bound( vSettlePlots.begin(), vSettlePlots.end(), ref );
 	//reverse so best comes first
 	vSettlePlots.erase( vSettlePlots.begin(), cutoff );
@@ -43222,11 +43226,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		}
 	}
 
-	//by default we return the best plot whether it's safe or not
-	//however, if we find a safe plot which is only marginally worse, return that one
-	CvPlot* pBestFoundPlot = NULL;
-	bool bBestPlotSafe = false;
-
 	//see where our settler can go
 	ReachablePlots reachablePlots;
 	if (pUnit)
@@ -43238,8 +43237,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
+		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 		bool isDangerous = false;
-		int iDistanceToSettler = plotDistance(*(vSettlePlots[i].pPlot),*(pUnit->plot()));
+		int iDistanceToSettler = plotDistance(*pTestPlot,*(pUnit->plot()));
 
 		//check if it's too close to an enemy
 		for (size_t j=0; j<vBadPlots.size(); j++)
@@ -43247,8 +43247,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
 				continue;
 
-			int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
-			if (iDistanceToDanger<6 && iDistanceToSettler>1)
+			int iDistanceToDanger = plotDistance(*pTestPlot,*(vBadPlots[j]));
+			if (iDistanceToDanger<5 && iDistanceToSettler>1)
 			{
 				isDangerous = true;
 				break;
@@ -43258,7 +43258,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//if it's too far from our existing cities, it's dangerous
 		if (!isDangerous && !bWantOffshore)
 		{
-			int iDistanceToCity = GetCityDistanceInEstimatedTurns(vSettlePlots[i].pPlot);
+			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider settler plot here in case of re-targeting an operation
 			if (iDistanceToCity>4 && iDistanceToSettler>1)
 				isDangerous = true;
@@ -43267,37 +43267,29 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//could be close but take many turns to get there ...
 		if (!isDangerous && !bWantOffshore)
 		{
-			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
-
-			//if the muster plot is more than 6 turns away it's unsafe by definition
+			//if the target plot is more than 6 turns away it's unsafe by definition
 			ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
 			if (it==reachablePlots.end() || it->iTurns>=6)
 				isDangerous = true;
 		}
 
-		if (pBestFoundPlot==NULL)
+		if (bNeedSafePlot)
 		{
-			//first iteration
-			pBestFoundPlot = vSettlePlots[i].pPlot;
-			bBestPlotSafe = !isDangerous;
-			if (bBestPlotSafe)
-				break;
-		}
-		else
-		{
-			//later iteration
 			if (!isDangerous)
 			{
-				//hooray! we found an alternative
-				pBestFoundPlot = vSettlePlots[i].pPlot;
-				bBestPlotSafe = true;
-				break;
+				bIsSafe = true;
+				return pTestPlot;
 			}
+		}
+		else //don't care about safety but return the status nevertheless
+		{
+			bIsSafe = !isDangerous;
+			return pTestPlot;
 		}
 	}
 
-	bIsSafe = bBestPlotSafe;
-	return pBestFoundPlot;
+	bIsSafe = false;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------

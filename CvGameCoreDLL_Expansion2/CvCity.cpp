@@ -24892,7 +24892,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						// if we can't work this tile in this city make it much less likely to be picked
 						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
 						{
-							iInfluenceCost += iPLOT_INFLUENCE_RING_COST*2;
+							iInfluenceCost += iPLOT_INFLUENCE_RING_COST*3;
 						}
 
 					}

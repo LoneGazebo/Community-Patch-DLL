@@ -2257,11 +2257,7 @@ public:
 	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
 #endif
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
-#else
-	bool IsPlotTargetedForCity(CvPlot *pPlot) const;
-#endif
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
@@ -2357,7 +2353,9 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
-	void UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell=true);
+	void UpdateAreaEffectUnits();
+	void UpdateAreaEffectUnit(CvUnit* pUnit);
+	void UpdateAreaEffectPlots();
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
@@ -2383,7 +2381,7 @@ public:
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
 	int GetBestSettleAreas(int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	bool HaveGoodSettlePlot(int iAreaID);
 
 	// New Victory Stuff
