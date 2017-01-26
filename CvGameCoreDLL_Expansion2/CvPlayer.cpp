@@ -11996,26 +11996,19 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer)
 //	--------------------------------------------------------------------------------
 void CvPlayer::findNewCapital()
 {
-	CvCity* pOldCapital;
-	CvCity* pLoopCity;
-	CvCity* pBestCity;
-	BuildingTypes eCapitalBuilding;
-	int iValue;
-	int iBestValue;
 	int iLoop;
 
-	eCapitalBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS())));
-
+	BuildingTypes eCapitalBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(GC.getCAPITAL_BUILDINGCLASS())));
 	if(eCapitalBuilding == NO_BUILDING)
 	{
 		return;
 	}
 
-	pOldCapital = getCapitalCity();
+	CvCity* pOldCapital = getCapitalCity();
+	int iBestValue = 0;
+	CvCity* pBestCity = NULL;
 
-	iBestValue = 0;
-	pBestCity = NULL;
-
+	CvCity* pLoopCity;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if(pLoopCity != pOldCapital)
@@ -12027,7 +12020,7 @@ void CvPlayer::findNewCapital()
 				if (!(pLoopCity->IsResistance() || pLoopCity->IsPuppet() || pLoopCity->IsRazing()))
 				{
 #endif
-					iValue = (pLoopCity->getPopulation() * 4);
+					int iValue = (pLoopCity->getPopulation() * 4);
 
 					int iYieldValueTimes100 = pLoopCity->getYieldRateTimes100(YIELD_FOOD, false);
 					iYieldValueTimes100 += (pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * 3);
@@ -12049,7 +12042,7 @@ void CvPlayer::findNewCapital()
 	}
 
 #if defined(MOD_BUGFIX_NO_PUPPET_CAPITALS)
-	if (pBestCity != NULL)
+	if (pBestCity == NULL)
 	{
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
@@ -12057,6 +12050,8 @@ void CvPlayer::findNewCapital()
 			{
 				if (0 == pLoopCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding))
 				{
+					int iValue = 0;
+
 					// Second pass, consider only those we ignored first time
 					if (pLoopCity->IsResistance())
 					{
@@ -12072,10 +12067,6 @@ void CvPlayer::findNewCapital()
 					{
 						// Might be an idea to stop the burning!
 						iValue = pLoopCity->getPopulation();
-					}
-					else
-					{
-						iValue = iBestValue;
 					}
 
 					if (iValue > iBestValue)
