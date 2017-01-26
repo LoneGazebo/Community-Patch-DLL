@@ -14730,6 +14730,9 @@ bool CvCity::IsOriginalMajorCapital() const
 //	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
+	if (iMinWaterSize==-1)
+		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
+
 	VALIDATE_OBJECT
 	return plot()->isCoastalLand(iMinWaterSize);
 }
@@ -22955,7 +22958,7 @@ void CvCity::TestBastion()
 		return;
 	}
 	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
-	if(plot()->isCoastalLand() && GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+	if(isCoastal() && GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
@@ -26765,7 +26768,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 			bAccept = !pPlot->isWater();
 			break;
 		case DOMAIN_SEA:
-			bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(getOwner()) && pPlot->isAdjacentToShallowWater());
+			bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(getOwner()) && pPlot->isCoastalLand());
 			break;
 		case DOMAIN_HOVER:
 			bAccept = true;

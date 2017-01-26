@@ -2935,11 +2935,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_LargeCity(CvCity* pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 {
 	// If this City isn't adjacent to a body of water big enough to be "Ocean" then we consider it landlocked
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(!pCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
-#else
 	if(!pCity->isCoastal())
-#endif
 	{
 		return true;
 	}
@@ -4056,12 +4052,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_JungleCity(CvCity* pCity)
 /// "Coast City" City Strategy: give a little flavor to this city
 bool CityStrategyAIHelpers::IsTestCityStrategy_CoastCity(CvCity* pCity)
 {
-	if(pCity->plot()->isCoastalLand())
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->isCoastal();
 }
 
 bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)

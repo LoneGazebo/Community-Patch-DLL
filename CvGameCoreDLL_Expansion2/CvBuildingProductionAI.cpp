@@ -432,7 +432,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
 	}
-	if(m_pCity->plot()->isCoastalLand())
+	if(m_pCity->isCoastal())
 	{
 		if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 		{

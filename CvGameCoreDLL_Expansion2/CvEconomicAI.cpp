@@ -4646,7 +4646,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 	CvCity* pLoopCity = NULL;
 	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		if(pLoopCity->isCoastal())
 		{
 			bCoastal = true;
 			break;
@@ -4799,7 +4799,7 @@ bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)
 	CvCity* pLoopCity = NULL;
 	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity->isCoastal(100))  // don't run this for lakes or even small inland seas
+		if(pLoopCity->isCoastal())  // don't run this for lakes or even small inland seas
 		{
 			iCoastalPop += pLoopCity->getPopulation();
 		}

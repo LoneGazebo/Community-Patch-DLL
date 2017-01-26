@@ -1092,15 +1092,11 @@ bool CvPlot::isAdjacentToIce() const
 bool CvPlot::isCoastalLand(int iMinWaterSize) const
 {
 	if(isWater())
-	{
 		return false;
-	}
 
 	// If -1 was passed in (default argument) use min water size for ocean define
 	if(iMinWaterSize == -1)
-	{
 		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
-	}
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)

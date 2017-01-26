@@ -9982,7 +9982,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 
 	// Is this a friendly coastal city, if so we'll go with that
 	CvCity *pInitialCity = pInitialPlot->getPlotCity();
-	if (pInitialCity && pInitialCity->isCoastal(GC.getLAKE_MAX_AREA_SIZE()))
+	if (pInitialCity && pInitialCity->isCoastal())
 	{
 		// Equal okay checking this plot because this is where the unit is right now
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -10002,7 +10002,7 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	{
 		if (pLoopCity != pInitialCity)
 		{
-			if (pLoopCity->isCoastal(GC.getLAKE_MAX_AREA_SIZE()))
+			if (pLoopCity->isCoastal())
 			{
 #if defined(MOD_GLOBAL_STACKING_RULES)
 				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < pLoopCity->plot()->getUnitLimit())

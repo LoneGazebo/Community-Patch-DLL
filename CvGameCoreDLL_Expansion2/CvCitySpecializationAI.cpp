@@ -1118,7 +1118,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		{
 			cityData = *cityIter;
 
-			if(bCoastal && !m_pPlayer->getCity(cityData.m_eID)->isCoastal(100))
+			if(bCoastal && !m_pPlayer->getCity(cityData.m_eID)->isCoastal())
 			{
 				continue;
 			}

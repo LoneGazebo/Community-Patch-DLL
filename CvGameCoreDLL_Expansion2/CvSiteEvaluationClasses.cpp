@@ -510,7 +510,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iGoodPlotsInRing1++;
 
 		// avoid this
-		if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
 			bIsAlmostCoast = true;
 
 		// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
@@ -754,7 +754,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
-	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	if (pPlot->isCoastalLand())
 	{
 		iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(V) coast");
@@ -1320,7 +1320,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	CvArea* pArea = pPlot->area();
 	if(pArea && pPlayer) 
 	{
-		bool bIsCoastal = pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN());
+		bool bIsCoastal = pPlot->isCoastalLand();
 		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
 		{

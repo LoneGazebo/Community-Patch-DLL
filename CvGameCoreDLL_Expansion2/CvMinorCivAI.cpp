@@ -5288,7 +5288,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		bool bCoastal = false;
 		if(GetPlayer()->getStartingPlot() != NULL)
 		{
-			if(GetPlayer()->getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+			if(GetPlayer()->getStartingPlot()->isCoastalLand())
 			{
 				if(GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 				{
@@ -5301,7 +5301,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 						if(GET_PLAYER(ePlayer).isAlive())
 						{
-							if(GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+							if(GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
 							{
 								iCoastal++;
 							}

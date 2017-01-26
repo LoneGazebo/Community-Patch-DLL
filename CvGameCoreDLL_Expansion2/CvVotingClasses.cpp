@@ -7975,13 +7975,13 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 					if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pkUnitInfo)
 					{
-						if((pkUnitInfo->GetDomainType() == DOMAIN_SEA) && !pCapital->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+						if((pkUnitInfo->GetDomainType() == DOMAIN_SEA) && !pCapital->isCoastal())
 						{
 							CvCity* pLoopCity;
 							int iLoop;
 							for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 							{
-								if(pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+								if(pLoopCity->isCoastal())
 								{
 									pCapital = pLoopCity;
 									break;
