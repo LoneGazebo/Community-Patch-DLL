@@ -488,12 +488,8 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || 
-			pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
-			pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA || pLoopUnit->isHuman())
-		{
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || pLoopUnit->isHuman() )
 			continue;
-		}
 
 		// We want ALL the barbarians and air units (that are combat ready)
 		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit)))
@@ -504,7 +500,13 @@ void CvTacticalAI::CommandeerUnits()
 			}
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
-
+		// these should be handled by homeland AI
+		else if ( pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || 
+					pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
+					pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA )
+		{
+			continue;
+		}
 		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
 		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() && !pLoopUnit->IsCityAttackSupport())
 		{
