@@ -514,7 +514,7 @@ SET Text = 'Cathedral of St. Basil'
 WHERE Tag = 'TXT_KEY_BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral of Saint Basil, is a former church in Red Square in Moscow, Russia. The building, now a museum, is officially known as the Cathedral of the Intercession of the Most Holy Theotokos on the Moat or Pokrovsky Cathedral. It was built from 1555–61 on orders from Ivan the Terrible and commemorates the capture of Kazan and Astrakhan. A world famous landmark, it has been the hub of growth since the 14th century and was the tallest building in the city until the completion of the Ivan the Great Bell Tower in 1600.'
+SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral of Saint Basil, is a former church in Red Square in Moscow, Russia. The building, now a museum, is officially known as the Cathedral of the Intercession of the Most Holy Theotokos on the Moat or Pokrovsky Cathedral. It was built from 1555Â–61 on orders from Ivan the Terrible and commemorates the capture of Kazan and Astrakhan. A world famous landmark, it has been the hub of growth since the 14th century and was the tallest building in the city until the completion of the Ivan the Great Bell Tower in 1600.'
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -562,7 +562,7 @@ SET Text = 'Receive a free Great Engineer and a free Arsenal in the city. Greatl
 WHERE Tag = 'TXT_KEY_WONDER_RED_FORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+25% generation of [ICON_GREAT_PEOPLE] Great People in the City, and +10% in all other Cities. A free Great Person of your choice appears near the [ICON_CAPITAL] Capital.'
+SET Text = '+15% generation of [ICON_GREAT_PEOPLE] Great People in the City, and +10% in all other Cities. A free Great Person of your choice appears near the [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_WONDER_LEANING_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
