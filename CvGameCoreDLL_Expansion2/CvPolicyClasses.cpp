@@ -226,6 +226,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iWarWearinessModifier(0),
+	m_iGreatGeneralExtraBonus(0),
 #endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -622,6 +623,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
+	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
@@ -2269,6 +2271,11 @@ int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
 int CvPolicyEntry::GetWarWearinessModifier() const
 {
 	return m_iWarWearinessModifier;
+}
+
+int CvPolicyEntry::GetGreatGeneralExtraBonus() const
+{
+	return m_iGreatGeneralExtraBonus;
 }
 #endif
 
@@ -5900,7 +5907,7 @@ void CvPlayerPolicies::DoPolicyAI()
 	m_pPolicyAI->DoConsiderIdeologySwitch(m_pPlayer);
 
 	// Do we have enough points to buy a new policy?
-	if(m_pPlayer->getNextPolicyCost() > 0)
+	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 	{
 		// Adopt new policies until we run out of freebies and culture (usually only one per turn)
 		while(m_pPlayer->getJONSCulture() >= m_pPlayer->getNextPolicyCost() || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)

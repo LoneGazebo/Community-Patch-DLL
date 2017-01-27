@@ -2413,6 +2413,9 @@ void CvEconomicAI::DoPlotPurchases()
 			{
 				iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
 
+				if (iScore == -1)
+					continue;
+
 #if defined(MOD_BALANCE_CORE)
 				int iCost = pLoopCity->GetBuyPlotCost(iTempX, iTempY);
 

@@ -6426,12 +6426,19 @@
 		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
 			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_UNIT">
-			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Unit reduces its [ICON_PRODUCTION] Production cost by {1_Num}%.[ENDCOLOR]</Text>
-		</Row>
+
 		<Row Tag="TXT_KEY_INVESTED">
 			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_UNIT">
+			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Unit reduces its [ICON_PRODUCTION] Production cost by {1_Num}%.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WONDER_COST_INCREASE_METRIC">
+			<Text>Additional [ICON_PRODUCTION] Production cost due to owned World Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].[NEWLINE][ICON_PRODUCTION] Production cost increase metric:[NEWLINE][ICON_BULLET] Wonders from the same Era: [COLOR_POSITIVE_TEXT]25%.[ENDCOLOR][NEWLINE][ICON_BULLET] Wonders from the previous Era: [COLOR_POSITIVE_TEXT]15%[ENDCOLOR].[NEWLINE][ICON_BULLET] Wonders from earlier Eras: [COLOR_POSITIVE_TEXT]10%.[ENDCOLOR]</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS">
 			<Text>Enable Events System</Text>
 		</Row>
@@ -6477,6 +6484,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP">
 			<Text>Barbarian spawn rates reduced slightly, and camps do not spawn two units when created. Groovy, man.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY">
+			<Text>Randomized Victories</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP">
+			<Text>One random Victory Type (Domination, Culture, Diplomatic, or Spaceship) is enabled when any player enters the Information Era. All other victories are disabled (note: Score and Domination Victories are always possible).</Text>
 		</Row>
 
 		<!-- Egypt CBO-->

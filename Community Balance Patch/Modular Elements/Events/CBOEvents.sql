@@ -23,3 +23,6 @@ INSERT INTO CityEventChoices (Type,Description,Help,DisabledTooltip,EventChoiceA
 
 INSERT INTO CityEventChoice_InstantYield (CityEventChoiceType,YieldType,Yield) VALUES ('CITY_EVENT_PLANTATION_RARE_CROP_CHOICE_1','YIELD_SCIENCE',50);
 
+UPDATE EventChoices
+SET EventPromotion = 'PROMOTION_MORALE_EVENT'
+WHERE Type = 'PLAYER_EVENT_WAR_FERVOR_CHOICE_1';

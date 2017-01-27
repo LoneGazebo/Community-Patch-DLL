@@ -3848,6 +3848,14 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 	CvAssertMsg (ePlayer >= 0, "Invalid player index");
 	CvAssertMsg (ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
+#if defined(MOD_BALANCE_CORE)
+	if (ePlayer != m_pPlayer->GetID() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoOpenTrade())
+	{
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, m_pPlayer->GetID(), true))
+			iValue /= 2;
+	}
+#endif
+
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
 	m_aiCulturalInfluence[iIndex] = m_aiCulturalInfluence[iIndex] + iValue;
@@ -3868,6 +3876,14 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflu
             iInfluence = iInfluence * (100 + iModifier) / 100;
         }
     }
+
+#if defined(MOD_BALANCE_CORE)
+	if (eOtherPlayer != m_pPlayer->GetID() && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
+	{
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, m_pPlayer->GetID(), true))
+			iInfluence /= 2;
+	}
+#endif
     
     if (iInfluence != 0) {
 		ChangeInfluenceOn(eOtherPlayer, iInfluence);
@@ -4066,7 +4082,7 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 
 	if (kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() > 0 && kOtherPlayer.GetJONSCultureEverGenerated() > 0)
 	{
-		if (iLHS > iRHS)
+		if (iLHS > iRHS && kOtherPlayer.GetTotalJONSCulturePerTurn() < GetInfluencePerTurn(ePlayer))
 		{
 			eRtnValue = INFLUENCE_TREND_RISING;
 		}
@@ -4108,6 +4124,9 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
 			{
 				iRtnValue++;
 			}
+
+			if (iRtnValue <= 0)
+				return 0;
 		}
 	}
 
@@ -4861,7 +4880,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{
-		if(pLeague->GetTourismMod() != 0)
+		if(pLeague->GetTourismMod() > 0)
 		{
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_LEAGUE", pLeague->GetTourismMod()) + "[ENDCOLOR]";
 		}

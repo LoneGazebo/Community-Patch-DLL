@@ -6530,6 +6530,28 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			GetTeamTechs()->SetHasTech(eIndex, bNewValue);
 
+#if defined(MOD_BALANCE_CORE)
+			if (bNewValue)
+			{
+				for (int iI = 0; iI < MAX_PLAYERS; iI++)
+				{
+					const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+					CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+					if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
+					{
+						if(kLoopPlayer.GetPlayerTraits()->GetFreePolicyPerXTechs() > 0)
+						{
+							int iRemainder = (GetTeamTechs()->GetNumTechsKnown() % kLoopPlayer.GetPlayerTraits()->GetFreePolicyPerXTechs());
+							if (iRemainder == 0)
+							{
+								kLoopPlayer.ChangeNumFreePolicies(1);
+							}
+						}
+					}
+				}
+			}
+#endif
+
 			// Tech progress affects city strength, so update
 			CvCity* pLoopCity;
 			int iLoop;
@@ -10012,7 +10034,11 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 	// Never at war with Master
 	if(isAtWar(eMaster))
 	{
-		makePeace(eMaster);
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		makePeace(eMaster, true, false, getLeaderID());
+#else
+		makePeace(eMaster, true, false);
+#endif
 	}
 
 	TeamTypes eTeam;

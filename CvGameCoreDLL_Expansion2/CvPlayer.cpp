@@ -4177,10 +4177,56 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (getCapitalCity() != NULL)
 #endif
 			{
-				getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+				pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
+#if defined(MOD_BALANCE_CORE)
+				if (GetPlayerTraits()->IsNoAnnexing())
+				{
+					pOldCapital->SetPuppet(true);
+				}
+#endif
 			}
 			CvAssertMsg(!(pNewCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
 			pNewCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
+
+#if defined(MOD_BALANCE_CORE)
+			//Check for policies that add capital buildings and move them over.
+			for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+			{
+				PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
+				CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
+				if (pkPolicyInfo)
+				{
+					if (GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+					{
+						for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+						{
+							const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+							CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+							if (pkBuildingClassInfo)
+							{
+								int iNumFreeBuildings = pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass);
+								if (iNumFreeBuildings > 0)
+								{
+									const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+									if (NO_BUILDING != eBuilding)
+									{
+										CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+										if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
+										{
+											pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+											if (pOldCapital != NULL)
+											{
+												pOldCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
 
 #if defined(MOD_EVENTS_CITY_CAPITAL)
 			if (MOD_EVENTS_CITY_CAPITAL) {
@@ -12088,6 +12134,42 @@ void CvPlayer::findNewCapital()
 		}
 		CvAssertMsg(!(pBestCity->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding)), "(pBestCity->getNumRealBuilding(eCapitalBuilding)) did not return false as expected");
 		pBestCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
+
+#if defined(MOD_BALANCE_CORE)
+		//Check for policies that add capital buildings and move them over.
+		for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+		{
+			PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
+			CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
+			if (pkPolicyInfo)
+			{
+				if (GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+				{
+					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+					{
+						const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if (pkBuildingClassInfo)
+						{
+							int iNumFreeBuildings = pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass);
+							if (iNumFreeBuildings > 0)
+							{
+								const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+								if (NO_BUILDING != eBuilding)
+								{
+									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+									if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
+									{
+										pBestCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+#endif
 
 #if defined(MOD_EVENTS_CITY_CAPITAL)
 		if (MOD_EVENTS_CITY_CAPITAL) {
@@ -23430,7 +23512,9 @@ void CvPlayer::DoProcessGoldenAge()
 				changeGoldenAgeTurns(-1);
 			}
 		}
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL || getGoldenAgeTurns() <= 0)
+#else
 		// Not in GA
 		else
 		{
@@ -26030,6 +26114,11 @@ int CvPlayer::GetGreatGeneralCombatBonus() const
 void CvPlayer::SetGreatGeneralCombatBonus(int iValue)
 {
 	m_iGreatGeneralCombatBonus = iValue;
+}
+
+void CvPlayer::ChangeGreatGeneralCombatBonus(int iValue)
+{
+	m_iGreatGeneralCombatBonus += iValue;
 }
 
 
@@ -30468,7 +30557,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 
 		if(isAlive())
 		{
-			if(!isEverAlive())
+			if(!isEverAlive() && !isObserver())
 			{
 				m_bEverAlive = true;
 
@@ -34176,7 +34265,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 		{
 			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
 
-			iTotalNumResource *= 100 + max(50, iQuantityMod);
+			iTotalNumResource *= 100 + std::min(50, iQuantityMod);
 			iTotalNumResource /= 100;
 		}
 	}
@@ -38907,6 +38996,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerTradeRoute(pPolicy->GetHappinessPerTradeRoute() * iChange);
 	ChangeHappinessPerXPopulation(pPolicy->GetHappinessPerXPopulation() * iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	ChangeGreatGeneralCombatBonus(pPolicy->GetGreatGeneralExtraBonus() * iChange);
 	ChangeExtraSupplyPerPopulation(pPolicy->GetExtraSupplyPerPopulation() * iChange);
 	ChangeCSAlliesLowersPolicyNeedWonders(pPolicy->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
@@ -42569,7 +42659,7 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
 		{
 			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-			if (kPlayer.isEverAlive() && !kPlayer.isMinorCiv())
+			if (kPlayer.isEverAlive() && kPlayer.isMajorCiv() && !kPlayer.isObserver())
 				iCivCount++;
 		}
 

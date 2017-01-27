@@ -11934,6 +11934,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 					iScore += 25;
 				}
+				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+				if (pLeague)
+				{
+					if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) >= GC.getGame().GetVotesNeededForDiploVictory())
+					{
+						iScore += 1000;
+					}
+				}
 			}
 			else
 			{

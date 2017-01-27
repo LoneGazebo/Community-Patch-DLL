@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(1-12) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(1-26) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems  to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -750,6 +750,7 @@
     <Folder Include="Modular Elements\Corporations" />
     <Folder Include="Modular Elements\ArchaeologistUIMods" />
     <Folder Include="Modular Elements\Events" />
+    <Folder Include="Modular Elements\RandomVictory" />
     <Folder Include="Modular Elements\ReligionPopup" />
     <Folder Include="Modular Elements\TradeUIMod" />
     <Folder Include="Balance Changes" />
@@ -2438,6 +2439,30 @@
     <Content Include="Modular Elements\Happiness Mod\NationalHappiness.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\RandomVictory\ConquestVictory.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\RandomVictory\CultureVictory.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\RandomVictory\DiploVictory.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\RandomVictory\NewEraPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\RandomVictory\NewEraPopup.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\RandomVictory\SpaceRaceVictory.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\ReligionPopup\ChooseReligionPopup.lua">
       <SubType>Lua</SubType>

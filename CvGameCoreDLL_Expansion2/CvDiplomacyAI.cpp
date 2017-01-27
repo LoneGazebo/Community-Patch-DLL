@@ -13445,6 +13445,39 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			{
 				iEnemyWeight += 20;
 			}
+
+			// Loop through all (known) Players and see who he likes/hates - if he likes/hates who we like/hate, then add those points in!
+			for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+			{
+				PlayerTypes eOtherPlayer = (PlayerTypes)iPlayerLoop2;
+
+				if (eOtherPlayer == ePlayer)
+					continue;
+
+				if (eOtherPlayer == GetPlayer()->GetID())
+					continue;
+
+				if (IsPlayerValid(eOtherPlayer))
+				{
+					//Friend or DP?
+					if (IsDoFAccepted(eOtherPlayer) || GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsHasDefensivePact(GetPlayer()->getTeam()))
+					{
+						//At war?
+						if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsAtWar(ePlayer))
+						{
+							iEnemyWeight += 3;
+						}
+						if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
+						{
+							iEnemyWeight += 3;
+						}
+						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer))
+						{
+							iEnemyWeight += 3;
+						}
+					}
+				}
+			}
 		}
 		//Total it up and add it to the pool of values.
 		m_paiCompetitorValue[ePlayer] = iEnemyWeight;
@@ -13483,9 +13516,9 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			else if (eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
 				iDPWeight += 5;
 			else if (eOpinion == MAJOR_CIV_OPINION_FRIEND)
-				iDPWeight += 10;
+				iDPWeight += 8;
 			else if (eOpinion == MAJOR_CIV_OPINION_ALLY)
-				iDPWeight += 15;
+				iDPWeight += 12;
 			else if (eOpinion == MAJOR_CIV_OPINION_NEUTRAL)
 				iDPWeight += -5;
 			else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
@@ -13497,32 +13530,32 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 			{
 			case STRENGTH_AVERAGE:
-				iDPWeight += 1;
+				iDPWeight += 10;
 				break;
 			case STRENGTH_STRONG:
-				iDPWeight += 4;
+				iDPWeight += 5;
 				break;
 			case STRENGTH_POWERFUL:
-				iDPWeight += 8;
+				iDPWeight += 3;
 				break;
 			case STRENGTH_IMMENSE:
-				iDPWeight += 15;
+				iDPWeight += 1;
 				break;
 			}
 			// Military Strength compared to us
 			switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 			{
 			case STRENGTH_AVERAGE:
-				iDPWeight += 1;
+				iDPWeight += 10;
 				break;
 			case STRENGTH_STRONG:
-				iDPWeight += 4;
+				iDPWeight += 5;
 				break;
 			case STRENGTH_POWERFUL:
-				iDPWeight += 8;
+				iDPWeight += 3;
 				break;
 			case STRENGTH_IMMENSE:
-				iDPWeight += 15;
+				iDPWeight += 1;
 				break;
 			}
 
@@ -13532,7 +13565,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				iDPWeight += 10;
 				break;
 			case PLAYER_PROXIMITY_CLOSE:
-				iDPWeight += 5;
+				iDPWeight += 4;
 				break;
 			}
 
@@ -13554,27 +13587,27 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			switch (GetWarmongerThreat(ePlayer))
 			{
 			case THREAT_CRITICAL:
-				iDPWeight += -10;
+				iDPWeight += -15;
 				break;
 			case THREAT_SEVERE:
-				iDPWeight += -5;
+				iDPWeight += -8;
 				break;
 			case THREAT_MAJOR:
-				iDPWeight += -3;
+				iDPWeight += -5;
 				break;
 			}
 
 			//Do we already have a DP? Let's keep this alive then.
 			if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
-				iDPWeight += 15;
+				iDPWeight += 12;
 
 			//Let's not have too many defensive pacts.
-			iDPWeight -= (GetNumDefensePacts() * 3);
+			iDPWeight -= (GetNumDefensePacts() * 4);
 
 			//He hates who we hate? We love this guy!
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBiggestCompetitor() == GetBiggestCompetitor())
 			{
-				iDPWeight += 15;
+				iDPWeight += 10;
 			}
 
 			// Loop through all (known) Players and see who he likes/hates - if he likes/hates who we like/hate, then add those points in!
@@ -13593,19 +13626,19 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					//We dislike the same people? Good!
 					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCompetitorValue(eOtherPlayer) > GC.getDOF_THRESHOLD() && GetCompetitorValue(eOtherPlayer) > GC.getDOF_THRESHOLD())
 					{
-						iDPWeight += 5;
+						iDPWeight += 4;
 					}
 
 					//We have defensive pacts with the same people? Good!
 					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()) && GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
 					{
-						iDPWeight += 5;
+						iDPWeight += 4;
 					}
 
 					//We have DoFs with the same people? Good!
 					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer) && IsDoFAccepted(eOtherPlayer))
 					{
-						iDPWeight += 5;
+						iDPWeight += 4;
 					}
 
 					//War? Are we threatened?
@@ -13613,19 +13646,19 @@ void CvDiplomacyAI::DoRelationshipPairing()
 					{
 						if (GetPlayer()->IsAtWarWith(eOtherPlayer))
 						{
-							iDPWeight += 5;
+							iDPWeight += 4;
 						}
 
 						//Close? We might be next!
 						if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 						{
-							iDPWeight += 5;
+							iDPWeight += 4;
 						}
 
 						//Warmonger? We might be next!
 						if (GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR)
 						{
-							iDPWeight += 5;
+							iDPWeight += 4;
 						}
 					}
 				}
@@ -13707,7 +13740,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			}
 
 			//Subtract for # of existing DoFs - want only a few close friends.
-			iDoFWeight -= (GetNumDoF() * 3);
+			iDoFWeight -= (GetNumDoF() * 4);
 			
 			// Weight for Approach
 			if (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
@@ -19261,14 +19294,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// **************************
 	bool bWantsToMakeGoldGift = false;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	//Default is 1 - this will prevent the AI from trying to spam gold gifts of zero gold.
-	if(MOD_DIPLOMACY_CITYSTATES && GC.getCSD_GOLD_GIFT_DISABLED() > 0)
-	{
-		bWantsToMakeGoldGift = false;
-	}
-	else
-#endif
 	// If we're a highly diplomatic leader, then always look for an opportunity
 	if(iDiplomacyFlavor >= /*4*/ GC.getMC_ALWAYS_GIFT_DIPLO_THRESHOLD() ||
 	        IsGoingForDiploVictory() ||
@@ -20138,6 +20163,25 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		{
 			int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
 			MinorGoldGiftInfo sGift = veMinorsToGiveGold.GetElement(i);
+#if defined(MOD_BALANCE_CORE)
+			//Interception! Let's do a tile improvement if we can (and we'll benefit from it)
+			if (sGift.eMinor != NO_PLAYER && GET_PLAYER(sGift.eMinor).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
+			{
+				CvPlot* pImprovementPlot = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetMajorGiftTileImprovement(GetPlayer()->GetID());
+				if (pImprovementPlot != NULL)
+				{
+					GET_PLAYER(sGift.eMinor).GetMinorCivAI()->DoTileImprovementGiftFromMajor(GetPlayer()->GetID(), pImprovementPlot->getX(), pImprovementPlot->getY());
+					LogMinorCivGiftTile(sGift.eMinor);
+				}
+			}
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+			//Default is 1 - this will prevent the AI from trying to spam gold gifts of zero gold.
+			if (MOD_DIPLOMACY_CITYSTATES && GC.getCSD_GOLD_GIFT_DISABLED() > 0)
+			{
+				continue;
+			}
+#endif			
 			sGift.iGoldAmount = 0;
 
 			if(iGoldLeft >= iSmallGift && sGift.bQuickBoost)
@@ -30309,7 +30353,7 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 
-	if(iWeight >= 19)
+	if(iWeight >= 20)
 		return true;
 
 	return false;
@@ -30423,7 +30467,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	}
 
 	if (GetBiggestCompetitor() == ePlayer)
-		iWeight += 5;
+		iWeight += 10;
 #endif
 
 	MajorCivApproachTypes eThirdPartyApproach;
@@ -34063,7 +34107,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(stasisID);
 		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(engineID);
 		
-		if(iValue >= 4)
+		if(iValue >= 2)
 		{
 			return true;
 		}
@@ -34312,6 +34356,56 @@ int CvDiplomacyAI::GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer)
 }
 #endif
 /// AI is doing something with a Minor civ
+void CvDiplomacyAI::LogMinorCivGiftTile(PlayerTypes eMinor)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLogName;
+
+		CvString strOutBuf;
+		CvString strBaseString;
+
+		CvString playerName;
+		CvString otherPlayerName;
+
+		CvString strTemp;
+
+		playerName = GetPlayer()->getCivilizationShortDescription();
+
+		// Open the log file
+		if (GC.getPlayerAndCityAILogSplit())
+			strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
+		else
+			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
+
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		// Turn number
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+
+		// Our Name
+		strBaseString += playerName;
+
+		// Their Name
+		otherPlayerName = GET_PLAYER(eMinor).getCivilizationShortDescription();
+		strBaseString += ", " + otherPlayerName;
+
+		strOutBuf = strBaseString;
+
+		// Gift amount
+		strTemp.Format("Tile Improvement");
+		strOutBuf += ", " + strTemp;
+
+		LogGrandStrategy(strOutBuf);
+
+		// City State type
+		strOutBuf += ", ";
+		strOutBuf += GC.getMinorCivInfo(GET_PLAYER(eMinor).GetMinorCivAI()->GetMinorCivType())->GetType();
+
+		pLog->Msg(strOutBuf);
+	}
+}
 void CvDiplomacyAI::LogMinorCivGiftGold(PlayerTypes eMinor, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass)
 {
 	if(GC.getLogging() && GC.getAILogging())

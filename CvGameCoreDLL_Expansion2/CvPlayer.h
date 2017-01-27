@@ -1122,6 +1122,7 @@ public:
 
 	int GetGreatGeneralCombatBonus() const;
 	void SetGreatGeneralCombatBonus(int iValue);
+	void ChangeGreatGeneralCombatBonus(int iValue);
 
 	// Unit Killed in Combat
 #if defined(MOD_API_EXTENSIONS)

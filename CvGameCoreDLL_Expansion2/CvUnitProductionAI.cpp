@@ -953,13 +953,25 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
-			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
-			EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-			if (eExpandOther != NO_ECONOMICAISTRATEGY)
+			if (GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
 			{
-				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
+				// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
+				EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+				if (eExpandOther != NO_ECONOMICAISTRATEGY)
 				{
-					iFlavorExpansion += 3;
+					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
+					{
+						iFlavorExpansion += 4;
+					}
+				}
+
+				EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
+				if (eExpandOtherOffshore != NO_ECONOMICAISTRATEGY)
+				{
+					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
+					{
+						iFlavorExpansion += 4;
+					}
 				}
 			}
 
@@ -1098,14 +1110,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += -100;
 		}
-		if(GC.getGame().getGameTurn() <= 20)
-		{
-			iBonus += -200;
-		}
 		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
-		if(iNumBuilders == 0)
+		if(GC.getGame().getGameTurn() <= 25)
 		{
-			iBonus += 150;
+			iBonus += -400;
+		}
+		else
+		{
+			if (iNumBuilders == 0)
+			{
+				if (kPlayer.isMinorCiv())
+				{
+					iBonus += 100;
+				}
+				else
+				{
+					iBonus += 200;
+				}
+			}
 		}
 		if (!kPlayer.isMinorCiv())
 		{

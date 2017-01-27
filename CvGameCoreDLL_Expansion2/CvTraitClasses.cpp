@@ -234,6 +234,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iVotePerXCSFollowingFollowingYourReligion(0),
 	m_iChanceToConvertReligiousUnits(0),
 	m_iGoldenAgeFromVictory(0),
+	m_iFreePolicyPerXTechs(0),
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
 	m_bCombatBoostNearNaturalWonder(false),
@@ -1340,6 +1341,10 @@ int CvTraitEntry::GetGoldenAgeFromVictory() const
 {
 	return m_iGoldenAgeFromVictory;
 }
+int CvTraitEntry::GetFreePolicyPerXTechs() const
+{
+	return m_iFreePolicyPerXTechs;
+}
 int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 {
 	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
@@ -2372,6 +2377,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iVotePerXCSFollowingFollowingYourReligion = kResults.GetInt("VotePerXCSFollowingYourReligion");
 	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
 	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
+	m_iFreePolicyPerXTechs = kResults.GetInt("FreePolicyPerXTechs");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
 	m_bCombatBoostNearNaturalWonder = kResults.GetBool("CombatBoostNearNaturalWonder");
@@ -3222,6 +3228,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
 				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
+				m_iFreePolicyPerXTechs = trait->GetFreePolicyPerXTechs();
 				if(trait->IsFreeGreatWorkOnConquest())
 				{
 					m_bFreeGreatWorkOnConquest = true;
@@ -3712,6 +3719,7 @@ void CvPlayerTraits::Reset()
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
 		m_iGoldenAgeFromVictory = 0;
+		m_iFreePolicyPerXTechs;
 		m_bFreeGreatWorkOnConquest = false;
 		m_bPopulationBoostReligion = false;
 		m_bCombatBoostNearNaturalWonder = false;
@@ -4378,8 +4386,12 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 #endif
 					{
-						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						if(pLoopPlot->getResourceType() == NO_RESOURCE)
 						{
+							if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+							{
+								pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+							}
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResourceToGive, 1, false);
 							iNumResourceGiven++;
@@ -5807,6 +5819,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
@@ -6157,6 +6170,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreePolicyPerXTechs);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSFollowingFollowingYourReligion);
 	MOD_SERIALIZE_WRITE(kStream, m_iChanceToConvertReligiousUnits);
 #endif

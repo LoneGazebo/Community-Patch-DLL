@@ -182,7 +182,8 @@ function InitMajorCivList()
 									
 									local textControls = {};
 									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
-									textControls.Text:LocalizeAndSetText("TXT_KEY_AT_WAR_WITH", thirdName);
+									local iWarScore = pOtherPlayer:GetWarScore(iThirdPlayer);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_AT_WAR_WITH", thirdName, iWarScore);
 								end
 							end
 						end

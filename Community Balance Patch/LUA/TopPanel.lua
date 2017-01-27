@@ -992,7 +992,7 @@ end
 -- Golden Age Tooltip
 function GoldenAgeTipHandler( control )
 
-	local strText;
+	local strText = "";
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)) then
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP");
@@ -1004,34 +1004,39 @@ function GoldenAgeTipHandler( control )
 	
 		if (pPlayer:GetGoldenAgeTurns() > 0) then
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_NOW", pPlayer:GetGoldenAgeTurns());
-		else
-			local iHappiness = pPlayer:GetExcessHappiness();
-
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
-			strText = strText .. "[NEWLINE]";
+		end
 		
-			if (iHappiness >= 0) then
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION", iHappiness);
-			else
-				strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
-			end
-			-- CBP
-			local iGAPReligion = pPlayer:GetGAPFromReligion();
-			if (iGAPReligion > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
-			end
-			local iGAPTrait = pPlayer:GetGAPFromTraits();
-			if (iGAPTrait > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
-			end
-			local iGAPCities = pPlayer:GetGAPFromCities();
-			if (iGAPCities > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
-			end
-			-- END
+		local iHappiness = pPlayer:GetExcessHappiness();
+
+		if(strText ~= "") then
+			strText = strText .. "[NEWLINE][NEWLINE]";
+		end
+
+		strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. "[NEWLINE]";
+		
+		if (iHappiness >= 0) then
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION", iHappiness);
+		else
+			strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
+		end
+		-- CBP
+		local iGAPReligion = pPlayer:GetGAPFromReligion();
+		if (iGAPReligion > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
+		end
+		local iGAPTrait = pPlayer:GetGAPFromTraits();
+		if (iGAPTrait > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
+		end
+		local iGAPCities = pPlayer:GetGAPFromCities();
+		if (iGAPCities > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
+		end
+		-- END
 		end
 	
 		strText = strText .. "[NEWLINE][NEWLINE]";
@@ -1230,6 +1235,13 @@ function CultureTipHandler( control )
 		end
 -- END
 
+-- CBP
+		if(pPlayer:GetTechsToFreePolicy() >= 0)then
+			strText = strText .. "[NEWLINE][NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY", pPlayer:GetTechsToFreePolicy());
+		end
+--END 
+
 		-- Let people know that building more cities makes policies harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
@@ -1269,6 +1281,12 @@ function TourismTipHandler( control )
 		
 		strText = strText .. "[NEWLINE][NEWLINE]" .. strText3;
 	end	
+
+	--CBP
+	local iCapitalValue = pPlayer:GetFractionOriginalCapitalsUnderControl(1);
+	local strTextTourism = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iCapitalValue);
+	strText = strText .. "[NEWLINE][NEWLINE]" .. strTextTourism;
+	--END
 
 	tipControlTable.TooltipLabel:SetText( strText );
 	tipControlTable.TopPanelMouseover:SetHide(false);

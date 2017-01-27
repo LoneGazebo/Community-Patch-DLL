@@ -5191,6 +5191,10 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
+		if (pBestPlot->isWater() && getDomainType() != DOMAIN_SEA)
+		{
+			setEmbarked(true);
+		}
 		return true;
 	}
 	else
@@ -10368,16 +10372,18 @@ bool CvUnit::DoFoundReligion()
 #endif
 						iIndex++;
 					}
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion);
-#else
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief();
-#endif
-					iIndex++;
+
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFounderBelief(kOwner.GetID(), eReligion);
 #else
 					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFounderBelief();
+#endif
+					iIndex++;
+
+#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
+					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion);
+#else
+					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief();
 #endif
 					iIndex++;
 

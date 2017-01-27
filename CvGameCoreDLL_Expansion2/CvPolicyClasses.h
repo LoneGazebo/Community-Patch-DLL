@@ -382,6 +382,8 @@ public:
 	int GetNoUnhappfromXSpecialistsCapital() const;
 
 	int GetWarWearinessModifier() const;
+
+	int GetGreatGeneralExtraBonus() const;
 #endif
 private:
 	int m_iTechPrereq;
@@ -582,6 +584,8 @@ private:
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iWarWearinessModifier;
+
+	int m_iGreatGeneralExtraBonus;
 #endif
 
 	CvString m_strWeLoveTheKingKey;

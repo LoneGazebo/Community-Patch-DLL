@@ -397,7 +397,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		}
 
 #if defined(MOD_BALANCE_CORE)
-		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
+		if(IsEmpireVeryUnhappy() && !pCity->HasAnyWonder())
 		{
 			//Only raze if this isn't a beachhead city.
 			CvArea* pArea = GC.getMap().getArea(pCity->getArea());

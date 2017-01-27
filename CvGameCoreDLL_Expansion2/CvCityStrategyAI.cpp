@@ -5200,12 +5200,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			AICityStrategyTypes eNeedFaith = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_FAITH_BUILDING");
 			if (eNeedFaith != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFaith))
 			{
-				iYieldValue *= 5;
+				iYieldValue *= 20;
 			}
 			EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
 			{
-				iYieldValue *= 5;
+				iYieldValue *= 20;
 			}
 		}
 		AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -5215,11 +5215,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 
 		//GS Yield Valuation
-		if (bSeekingDiploVictory && eYield == YIELD_GOLD)
+		if (bSeekingDiploVictory && (eYield == YIELD_GOLD || eYield == YIELD_FAITH))
 		{
 			iYieldValue *= 5;
 		}
-		if (bSeekingConquestVictory && eYield == YIELD_PRODUCTION)
+		if (bSeekingConquestVictory && (eYield == YIELD_PRODUCTION || eYield == YIELD_GOLD))
 		{
 			iYieldValue *= 5;
 		}
@@ -5227,7 +5227,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iYieldValue *= 5;
 		}
-		if (bSeekingScienceVictory && eYield == YIELD_SCIENCE)
+		if (bSeekingScienceVictory && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD))
 		{
 			iYieldValue *= 5;
 		}

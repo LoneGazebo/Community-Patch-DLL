@@ -4710,7 +4710,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxTechCostAdjusted /= 100;
 #if defined(MOD_BALANCE_CORE)
-			if(GET_PLAYER(ePlayer).GetCurrentEra() <= GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+			if (GET_PLAYER(ePlayer).GetCurrentEra() <= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 			{
 				uiMaxTechCostAdjusted *= (100 + GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
 				uiMaxTechCostAdjusted /= 100;
@@ -4745,7 +4745,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxGWAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxGWAdjusted /= 100;
 #if defined(MOD_BALANCE_CORE)
-			if (GET_PLAYER(ePlayer).GetCurrentEra() <= GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+			if (GET_PLAYER(ePlayer).GetCurrentEra() <= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 			{
 				uiMaxGWAdjusted *= (100 + GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
 				uiMaxGWAdjusted /= 100;

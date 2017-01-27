@@ -286,6 +286,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
+	Method(GetFractionOriginalCapitalsUnderControl);
+	Method(GetTechsToFreePolicy);
 #endif
 	Method(GetInfluenceCityStateSpyRankBonus);
 	Method(GetInfluenceMajorCivSpyRankBonus);
@@ -3106,6 +3108,60 @@ int CvLuaPlayer::lGetNoUnhappinessExpansion(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetFractionOriginalCapitalsUnderControl(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iSpoofValue = luaL_optint(L, 2, 0);
+	
+	if (pkPlayer == NULL)
+		return 0;
+
+	int iTotal = 0;
+	int iOCCount = iSpoofValue;
+
+	if (iOCCount > 0)
+	{
+		int iCivCount = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
+		{
+			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			if (kPlayer.isEverAlive() && kPlayer.isMajorCiv() && !kPlayer.isObserver())
+				iCivCount++;
+		}
+
+		iTotal = iOCCount * 100 / iCivCount;
+	}
+
+	lua_pushinteger(L, iTotal);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTechsToFreePolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer == NULL)
+		return 0;
+
+	if (pkPlayer->GetPlayerTraits()->GetFreePolicyPerXTechs() <= 0)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+
+	int iTechMultiplier = (GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() / pkPlayer->GetPlayerTraits()->GetFreePolicyPerXTechs()) + 1;
+
+	int iTechsNeeded =  pkPlayer->GetPlayerTraits()->GetFreePolicyPerXTechs() * iTechMultiplier;
+	int iTechsWeHave = GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+
+	iTechsNeeded -= iTechsWeHave;
+
+	lua_pushinteger(L, iTechsNeeded);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int GetInfluenceTradeRouteScienceBonus();

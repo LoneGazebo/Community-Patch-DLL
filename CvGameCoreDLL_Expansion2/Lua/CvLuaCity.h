@@ -114,6 +114,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	LUAAPIEXTN(GetBuildingInvestment, int);
 	LUAAPIEXTN(GetUnitInvestment, int);
+	LUAAPIEXTN(IsWorldWonder, int);
+	LUAAPIEXTN(GetWorldWonderCost, int);
 #endif
 	static int lGetProjectProductionNeeded(lua_State* L);
 	static int lGetProductionTurnsLeft(lua_State* L);
