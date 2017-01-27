@@ -1199,7 +1199,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(CvPlot* pPlot)
 	CvTacticalAnalysisCell* pCell = GetCell(iPlotIndex);
 	CvTacticalDominanceZone* pZone = GetZoneByID(pCell->GetDominanceZone());
 
-	if(pZone)
+	if(pZone && pZone->GetZoneCity()) //city check is to skip the potentially very large ocean zone
 		return (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY);
 
 	return false;

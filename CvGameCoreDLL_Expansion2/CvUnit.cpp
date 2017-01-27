@@ -472,12 +472,6 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 #else
 	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if(GC.getGame().getGameTurn() > 0)
-	{
-		GET_PLAYER(getOwner()).UpdateAreaEffectUnits(false);
-	}
-#endif
 }
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
@@ -495,7 +489,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	initPromotions();
 	m_pReligion->Init();
-
 
 	//--------------------------------
 	// Init saved data
@@ -4635,11 +4628,14 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 	VALIDATE_OBJECT
 	TeamTypes ePlotTeam;
 
-	//nothing to do
+	// do not check this, the current plot may well be invalid!
+	/*
+	// nothing to do
 	if(atPlot(plot))
 	{
 		return true;
 	}
+	*/
 
 	// Cannot move around in unrevealed land freely
 	if(!(iMoveFlags & CvUnit::MOVEFLAG_PRETEND_UNEMBARKED) && isNoRevealMap() && willRevealByMove(plot))
@@ -4674,11 +4670,12 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && GC.getPLOT_UNIT_LIMIT() > 0)
 #endif
 		{
-			// pSelectionGroup has no Team but the HeadUnit does... ???
+			// take care not to count ourself!
+			int iNumUnits = plot.getMaxFriendlyUnitsOfType(this) - (atPlot(plot) ? 1 : 0);
 #if defined(MOD_GLOBAL_STACKING_RULES)
-			if(plot.isVisible(getTeam()) && plot.getMaxFriendlyUnitsOfType(this) >= plot.getUnitLimit())
+			if(plot.isVisible(getTeam()) && iNumUnits >= plot.getUnitLimit())
 #else
-			if(plot.isVisible(getTeam()) && plot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+			if(plot.isVisible(getTeam()) && iNumUnits >= GC.getPLOT_UNIT_LIMIT())
 #endif
 			{
 				return FALSE;
@@ -5194,6 +5191,10 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
+		if (pBestPlot->isWater() && getDomainType() != DOMAIN_SEA)
+		{
+			setEmbarked(true);
+		}
 		return true;
 	}
 	else
@@ -10371,16 +10372,18 @@ bool CvUnit::DoFoundReligion()
 #endif
 						iIndex++;
 					}
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion);
-#else
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief();
-#endif
-					iIndex++;
+
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFounderBelief(kOwner.GetID(), eReligion);
 #else
 					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFounderBelief();
+#endif
+					iIndex++;
+
+#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
+					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion);
+#else
+					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief();
 #endif
 					iIndex++;
 
@@ -16233,7 +16236,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		{
 			//have to consider embarkation explicitly
 			if ( (!pTargetPlot && pDefender->isEmbarked()) || (pTargetPlot && pTargetPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
-				iDefenderStrength = GetEmbarkedUnitDefense();
+				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
 				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
 		}
@@ -18688,6 +18691,9 @@ if (!bDoEvade)
 
 	if(pNewPlot != NULL)
 	{
+		//update area effects
+		kPlayer.UpdateAreaEffectUnit(this);
+
 		//update facing direction
 		if(pOldPlot != NULL)
 		{

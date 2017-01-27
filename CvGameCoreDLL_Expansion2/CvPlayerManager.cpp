@@ -30,6 +30,7 @@ void CvPlayerManager::Refresh(bool /*bWarDeclaration*/)
 		kPlayer.invalidatePlotFoundValues();
 		kPlayer.SetDangerPlotsDirty();
 		kPlayer.UpdateAreaEffectUnits();
+		kPlayer.UpdateAreaEffectPlots();
 		kPlayer.UpdateFractionOriginalCapitalsUnderControl();
 		kPlayer.UpdateCurrentAndFutureWars();
 #else

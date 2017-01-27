@@ -36,7 +36,7 @@
 			<Text>Historic Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
-			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture per turn over the past 10 turns. As a rule, standard civilizations, at standard speed, gain around 40% of their current culture per turn as tourism. The amount of tourism you receive may be modified by a few social policies and ideological tenets, as well as leader traits or buildings.</Text>
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture per turn over the past 10 turns. As a rule, standard civilizations, at standard speed, gain around 40% of their current culture per turn as tourism. The amount of tourism you receive may be modified by a few social policies and ideological tenets, as well as leader traits or buildings.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
 			<Text>What is a Historic Event?</Text>
@@ -217,6 +217,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES">
 			<Text>[ICON_BULLET]{1_Num} is added per turn from [ICON_CAPITAL] Cities</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING">
+			<Text>Reminder: Every owned foreign [ICON_CAPITAL] Capital [COLOR_NEGATIVE_TEXT]decreases[ENDCOLOR] the [ICON_TOURISM] Tourism you produce in all Cities by [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]! </Text>
 		</Row>
 
 		<!-- Aesthetics -->
@@ -946,6 +950,28 @@
 		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_TEXT">
 			<Text>Brazilwood is a dense, compact dyewood from any of various tropical trees whose extracts yield bright crimson and deep purple colours. Brazilwood is also used in cabinetwork and the creation of musical instruments. In ancient and medieval times, the brazilwood imported to Europe from the Middle East was Caesalpinia braziliensis and other species of Caesalpinia. Caesalpinia echinata (called pau-brasil in Portuguese) is indigenous to the Brazilian coast and played a role in the naming of that country.</Text>
 		</Row>
-		
+
+		<!-- New Poland UA TT -->
+		<Row Tag="TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY">
+			<Text>[COLOR_POSITIVE_TEXT]Tech unlocks remaining until free Social Policy: {1_Num}[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Randomization Victory Data-->
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
+			<Text>Victory Condition Enabled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_DIPLO">
+			<Text>Human history is a history of violence, yet a new era dawns, and with it, a chance at human redemption. The World Congress is the battleground of the future; the prize is leadership over all other nations as the first World Leader.[NEWLINE][COLOR_POSITIVE_TEXT]Secure power as the Global Hegemon via a Diplomatic Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CULTURE">
+			<Text>The survival of humanity depends on the creation of a single, unifying cultural entity, a monolith of ideas, ideologies, and values. The world's cultural powers will each strive to define this monolith themselves - it is up to you to show the world what a truly unifed culture should look like.[NEWLINE][COLOR_POSITIVE_TEXT]Unify the world via a Cultural Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_SPACERACE">
+			<Text>Modernity has not been kind to planet earth. The very vessel upon which we depend - Spaceship Earth - may soon perish. Our first flights took us to the edge of space; we must harness this power and be the first to discover a new home for humanity.[NEWLINE][COLOR_POSITIVE_TEXT]Be the first to escape a dying planet via a Spaceship Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CONQUEST">
+			<Text>An age of eternal war has fallen upon humanity. Bitter rivalries, unsolved through diplomacy, look to the battlefield for resolution.To be second place in this contest is to be condemnded to the ash heap of history. Harness the weapons of war and bring glory to your empire![NEWLINE][COLOR_POSITIVE_TEXT]Conquer or be conquered via a Domination Victory![ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

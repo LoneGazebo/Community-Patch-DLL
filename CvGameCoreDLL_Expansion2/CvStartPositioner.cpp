@@ -53,14 +53,12 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 
 	// Compute fertility for each plot
 	ComputeTileFertilityValues();
-	// We will need this later
-	GET_PLAYER((PlayerTypes)0).updatePlotFoundValues(true);
 
 	// Loop through each continent adding it to our list
 	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
 	{
 		// Throw out oceans and desert islands
-		if(pLoopArea->getTotalFoundValue() > 0 && pLoopArea->getNumTiles() >= GC.getMIN_START_AREA_TILES())
+		if(pLoopArea->getNumTiles() >= GC.getMIN_START_AREA_TILES())
 		{
 			CvContinent continent;
 			continent.SetFertility(pLoopArea->getTotalFoundValue());
@@ -96,17 +94,16 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 void CvStartPositioner::ComputeFoundValues()
 {
 	CUSTOMLOG("CvStartPositioner::ComputeFoundValues()");
-	CvPlot* pLoopPlot(NULL);
 
 	// Progress through entire map
+	unsigned int iSum = 0, iValidPlots = 0;
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		// Store in player 1 slot for now
+		// Store found value in player 1 slot for now
 		//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 		//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		CvAssert(pLoopPlot);
-		if(!pLoopPlot) continue;
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+
 		int iValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, NULL);
 		pLoopPlot->setFoundValue((PlayerTypes)1, iValue);
 
@@ -114,7 +111,17 @@ void CvStartPositioner::ComputeFoundValues()
 		{
 			m_iBestFoundValueOnMap = iValue;
 		}
+
+		if (iValue > 0)
+		{
+			//avoid overflow - also we just need a rough estimate
+			iSum += (iValue/1000);
+			iValidPlots++;
+		}
 	}
+
+	int iAvg = (iSum / iValidPlots) * 1000;
+	OutputDebugString( CvString::format("Average city site value is %d\n",iAvg).c_str() );
 }
 
 /// Take into account handicaps to rank the "draft order" for start positions
@@ -331,39 +338,32 @@ void CvStartPositioner::DivideContinentIntoRegions(CvContinent continent)
 /// Compute the fertility of each tile on the map
 void CvStartPositioner::ComputeTileFertilityValues()
 {
-	CvArea* pLoopArea(NULL);
-	int iLoop;
-	CvPlot* pLoopPlot(NULL);
-	int iI;
-	int uiFertility;
-
 	// Set all area fertilities to 0
-	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+	int iLoop;
+	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
 	{
 		pLoopArea->setTotalFoundValue(0);
 	}
 
 	// Now process through the map
-	for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		CvAssert(pLoopPlot);
-		if(!pLoopPlot) continue;
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		// Compute fertility and save off in player 0's found value slot
 		//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 		//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-		uiFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot);
-		pLoopPlot->setFoundValue((PlayerTypes)0, uiFertility);
+		int iFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot);
+		pLoopPlot->setFoundValue((PlayerTypes)0, iFertility);
 
-		if(uiFertility > 0)
+		if(iFertility > 0)
 		{
 			// Add to total for area
 			CvArea* pArea = GC.getMap().getArea(pLoopPlot->getArea());
 			CvAssert(pArea);
 			if(!pArea) 
 				continue;
-			pArea->setTotalFoundValue(pArea->getTotalFoundValue() + uiFertility);
+			pArea->setTotalFoundValue(pArea->getTotalFoundValue() + iFertility);
 		}
 	}
 }
@@ -605,7 +605,7 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 
 			if(pPlot && pPlot->getArea() == iAreaID)
 			{
-				// Retrieve from player 0's found value slot
+				// Retrieve fertility from player 0's found value slot
 				//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 				//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 				int iValue = pPlot->getFoundValue((PlayerTypes)0);
@@ -662,19 +662,16 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 				        || (bIsMinorCiv && MeetsFoodRequirement(pLoopPlot, ePlayer, iMinorFoodReq))
 				        || MeetsFoodRequirement(pLoopPlot, ePlayer, iMajorFoodReq))
 				{
-#if defined(MOD_BALANCE_CORE_SETTLER)
-					// Plot found values are now calculated for each player to account for flavoring
-					uiPlotFoundValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, &(GET_PLAYER((PlayerTypes)iPlayerIndex)));
-
-					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||
-						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
-					{
-#else
-					// Retrieve from player 1's found value slot
+					// Retrieve found value from player 1's found value slot
 					//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 					//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 					uiPlotFoundValue = pLoopPlot->getFoundValue((PlayerTypes)1);
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||
+						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
+					{
+#else
 					// If we're a Maritime Minor Civ then decrease the value of non-coastal starts
 					if(bIsMinorCiv)
 					{

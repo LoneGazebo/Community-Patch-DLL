@@ -179,6 +179,9 @@ ALTER TABLE Traits ADD COLUMN 'GAGarrisonCityRangeStrikeModifier' INTEGER DEFAUL
 -- Player enters a golden age on a declaration of war, either as attacking or defending
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 
+-- Player gains a free policy after unlocking x number of technologies from the tech tree.
+ALTER TABLE Traits ADD COLUMN 'FreePolicyPerXTechs' INTEGER default 0;
+
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
 ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
@@ -314,7 +317,10 @@ ALTER TABLE Policies ADD COLUMN 'HappinessPerXPopulationGlobal' INTEGER DEFAULT 
 -- War Weariness Mod - Positive values make it harder to accumulate war weariness.
 ALTER TABLE Policies ADD COLUMN 'WarWearinessModifier' INTEGER DEFAULT 0;
 
--- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
+-- GG Mod - boosts strength modifier of GGs
+ALTER TABLE Policies ADD COLUMN 'GreatGeneralExtraBonus' INTEGER DEFAULT 0;
+
+-- % boosts to city yield for happiness sources (traits) - Values should be negative to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' INTEGER DEFAULT 0;

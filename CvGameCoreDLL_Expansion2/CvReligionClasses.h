@@ -657,6 +657,9 @@ private:
 	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot);
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION);
+#endif
 
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit);
 	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit);

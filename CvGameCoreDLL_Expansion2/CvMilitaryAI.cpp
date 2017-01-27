@@ -2093,7 +2093,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		fDistWeightInterpolated = min( fWeightLow, max( fWeightHigh, fDistWeightInterpolated ) );
 
 		// If coming over sea, inland cities are trickier
-		if(!target.m_pTargetCity->plot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		if(!target.m_pTargetCity->isCoastal())
 			fDistWeightInterpolated /= 2;
 	}
 
@@ -2279,10 +2279,20 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 		}
 	}
+
 	//Closest City? Emphasize.
 	if(pBestCity == target.m_pTargetCity && !bMinorButMajorWar)
 	{
 		fDesirability *= 20;
+	}
+
+	//Venice special - prefer to attack cities between our far-flung bases
+	bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
+	if (bIsVenice && m_pPlayer->getCapitalCity())
+	{
+		CvPlot* pTargetPlot = target.m_pTargetCity->plot();
+		int iDistToCapital = plotDistance(*pTargetPlot,*m_pPlayer->getCapitalCity()->plot());
+		fDesirability *= 1 + ( m_pPlayer->GetCityDistanceInPlots(pTargetPlot) / float(iDistToCapital) );
 	}
 
 	//Muster already targeted by operation? De-emphasize.
@@ -6637,11 +6647,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	CvCity* pCity;
 	for(pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 	{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
-#else
-		if(pCity->isCoastal(-1))
-#endif
+		if(pCity->isCoastal())
 		{
 			iNumCoastalCities++;
 		}

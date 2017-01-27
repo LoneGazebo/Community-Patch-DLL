@@ -14730,6 +14730,9 @@ bool CvCity::IsOriginalMajorCapital() const
 //	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
+	if (iMinWaterSize==-1)
+		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
+
 	VALIDATE_OBJECT
 	return plot()->isCoastalLand(iMinWaterSize);
 }
@@ -15241,7 +15244,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner());
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 #if defined(MOD_BALANCE_CORE)
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() || GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer()))
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && ((eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities()) || (eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer())))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 					iReligionGrowthMod += (iFollowers * GC.getMOD_BALANCE_FOLLOWER_GROWTH_BONUS());
@@ -22955,7 +22958,7 @@ void CvCity::TestBastion()
 		return;
 	}
 	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
-	if(plot()->isCoastalLand() && GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+	if(isCoastal() && GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
@@ -24892,7 +24895,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						// if we can't work this tile in this city make it much less likely to be picked
 						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
 						{
-							iInfluenceCost += iPLOT_INFLUENCE_RING_COST;
+							iInfluenceCost += iPLOT_INFLUENCE_RING_COST*3;
 						}
 
 					}
@@ -25062,7 +25065,8 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	{
 		if((pPlot->getOwner() != NO_PLAYER) && (pPlot->getOwner() != getOwner()))
 		{
-			iCost *= 2;
+			iCost *= 3;
+			iCost /= 2;
 		}
 	}
 #endif
@@ -25510,7 +25514,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 #if defined(MOD_BALANCE_CORE)
 								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
 								{
-									iRtnValue *= 10;
+									iRtnValue *= 25;
 								}
 #endif
 								break;
@@ -26765,7 +26769,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 			bAccept = !pPlot->isWater();
 			break;
 		case DOMAIN_SEA:
-			bAccept = pPlot->isWater() || pPlot->isFriendlyCityOrPassableImprovement(getOwner());
+			bAccept = pPlot->isWater() || (pPlot->isFriendlyCityOrPassableImprovement(getOwner()) && pPlot->isCoastalLand());
 			break;
 		case DOMAIN_HOVER:
 			bAccept = true;
@@ -27402,10 +27406,18 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 						SetUnitInvestment(eUnitClass, true);
 						if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
 						{
+							if (getProductionProcess() != NO_PROCESS)
+							{
+								clearOrderQueue();
+							}
 							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
 						}
 						else if(!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
 						{
+							if (getProductionProcess() != NO_PROCESS)
+							{
+								clearOrderQueue();
+							}
 							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
 						}
 					}
@@ -27499,10 +27511,18 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 						SetBuildingInvestment(eBuildingClass, true);
 						if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
 						{
+							if (getProductionProcess() != NO_PROCESS)
+							{
+								clearOrderQueue();
+							}
 							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
 						}
 						else if(!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
 						{
+							if (getProductionProcess() != NO_PROCESS)
+							{
+								clearOrderQueue();
+							}
 							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, true, false);
 						}
 					}

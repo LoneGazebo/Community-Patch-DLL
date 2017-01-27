@@ -488,12 +488,8 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || 
-			pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
-			pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA || pLoopUnit->isHuman())
-		{
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || pLoopUnit->isHuman() )
 			continue;
-		}
 
 		// We want ALL the barbarians and air units (that are combat ready)
 		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit)))
@@ -504,7 +500,13 @@ void CvTacticalAI::CommandeerUnits()
 			}
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
-
+		// these should be handled by homeland AI
+		else if ( pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || 
+					pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE ||
+					pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA )
+		{
+			continue;
+		}
 		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
 		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() && !pLoopUnit->IsCityAttackSupport())
 		{
@@ -3635,12 +3637,10 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		if(!pCity)
 			continue;
 
+		//an explorer can be a transient garrison but we don't want to keep it here
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-		if (pGarrison)
+		if (pGarrison && pGarrison->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		{
-			//make sure the AI type is right
-			pGarrison->AI_setUnitAIType(UNITAI_DEFENSE);
-
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
 			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 			{
@@ -4703,9 +4703,10 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				}
 				else
 				{
-					// Civilian is not yet there - both must move - use approximate pathfinding to avoid embarked stacking problems
-					if (!ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+					// Civilian is not yet there - both must move
+					if (!ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot(),false))
 						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+					// use approximate pathfinding to avoid embarked stacking problems - but only for one of them, else they will never come close
 					else if (!ExecuteMoveToPlotIgnoreDanger(pEscort, pOperation->GetMusterPlot(),false,CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 						pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 				}
@@ -4818,7 +4819,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
-							strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. escort leading.", 
+							strLogString.Format("%s now at (%d,%d). Moving towards (%d,%d) with escort %s. escort leading.", 
 							pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
 							pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
 						}
@@ -4863,7 +4864,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 
 								if (GC.getLogging() && GC.getAILogging())
 								{
-									strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.",
+									strLogString.Format("%s now at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.",
 										pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(),
 										pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str());
 								}
@@ -4906,7 +4907,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					ExecuteMoveToPlotIgnoreDanger(pCivilian, pCommonPlot, bSaveMoves); 
 					if(GC.getLogging() && GC.getAILogging())
 					{
-						strLogString.Format("%s at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+						strLogString.Format("%s now at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
 					}
 				}
 			}
@@ -4915,7 +4916,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				if (MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot(), DOMAIN_LAND, INT_MAX))
 				{
 					if(GC.getLogging() && GC.getAILogging())
-						strLogString.Format("%s at (%d,%d). Moving to empty space near target (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+						strLogString.Format("%s now at (%d,%d). Moving to empty space near target (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
 				}
 				else
 				{
@@ -12482,6 +12483,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			//don't hand out points for over-killing (but make an allowance for randomness)
 			iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
 			iExtraDamage = 50;
+			if (pTestPlot->isEnemyUnit(pUnit->getOwner(),false,false))
+				iExtraDamage += 20; //even more points for a double kill
 			result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEATTACK : STacticalAssignment::A_MELEEATTACK;
 		}
 	}
@@ -12495,30 +12498,32 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		result.iRemainingMoves = 0;
 
 	//finally the almighty score
-	float fAggFactor = 1;
+	float fAggFactor = -1;
 	switch (eAggLvl)
 	{
 	case AL_LOW:
-		if ( iDamageReceived > 0 && pUnit->GetCurrHitPoints() - iDamageReceived < pUnit->GetMaxHitPoints()/2 )
-			result.iScore = -1; //don't do it
-		fAggFactor = 0.5f;
+		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints()/2 )
+			fAggFactor = 0.8f;
 		break;
 	case AL_MEDIUM:
-		if ( iDamageReceived > 0 && pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints()/2 )
-			result.iScore = -1; //don't do it
-		fAggFactor = 1.f;
+		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2 )
+			fAggFactor = 1.2f;
 		break;
 	case AL_HIGH:
-		if ( iDamageReceived > pUnit->GetCurrHitPoints() && fUnitNumberRatio<1 )
-			result.iScore = -1; //don't do it
-		fAggFactor = 4.f;
+		if ( iDamageReceived < pUnit->GetCurrHitPoints() || fUnitNumberRatio>1 )
+			fAggFactor = 4.2f;
 		break;
 	}
 
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
-	result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
-	result.iDamage = iDamageDealt;
+	if (fAggFactor>0)
+	{
+		result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
+		result.iDamage = iDamageDealt;
+	}
+	else
+		result.iScore = -1;
 }
 
 STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition)

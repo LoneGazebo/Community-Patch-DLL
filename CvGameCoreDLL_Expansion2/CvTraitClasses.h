@@ -300,6 +300,7 @@ public:
 	bool IsFreeGreatWorkOnConquest() const;
 	bool IsPopulationBoostReligion() const;
 	bool IsCombatBoostNearNaturalWonder() const;
+	int GetFreePolicyPerXTechs() const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
@@ -587,6 +588,7 @@ protected:
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
+	int m_iFreePolicyPerXTechs;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
@@ -1449,6 +1451,10 @@ public:
 	{
 		return m_iGoldenAgeFromVictory;
 	};
+	int GetFreePolicyPerXTechs() const
+	{
+		return m_iFreePolicyPerXTechs;
+	};
 	bool IsFreeGreatWorkOnConquest() const
 	{
 		return m_bFreeGreatWorkOnConquest;
@@ -1857,6 +1863,7 @@ private:
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
+	int m_iFreePolicyPerXTechs;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;

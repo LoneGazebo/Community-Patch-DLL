@@ -528,6 +528,16 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 				-- Separator
 				strHelpText = strHelpText .. "[NEWLINE]----------------[NEWLINE]";
 				strHelpText = strHelpText .. localizedText;
+
+				if(pCity:IsWorldWonder(iBuildingID)) then
+					-- Separator
+					local iCost = pCity:GetWorldWonderCost(iBuildingID);
+					if(iCost > 0) then
+						local localizedText = Locale.ConvertTextKey("TXT_KEY_WONDER_COST_INCREASE_METRIC", iCost);
+						strHelpText = strHelpText .. "[NEWLINE]----------------[NEWLINE]";
+						strHelpText = strHelpText .. localizedText;
+					then
+				end
 			end
 		end
 	end

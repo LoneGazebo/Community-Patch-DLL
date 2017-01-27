@@ -510,7 +510,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iGoodPlotsInRing1++;
 
 		// avoid this
-		if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
 			bIsAlmostCoast = true;
 
 		// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
@@ -754,7 +754,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
-	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	if (pPlot->isCoastalLand())
 	{
 		iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(V) coast");
@@ -1317,32 +1317,26 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	// Is there any reason this site doesn't work for a settler?
 	//
 	// First must be on coast if settling a new continent
-	bool bIsCoastal = pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN());
 	CvArea* pArea = pPlot->area();
-	CvAssert(pArea);
-	if(!pArea) 
+	if(pArea && pPlayer) 
 	{
-		return 0;
-	}
-
-	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
-	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
-	{
-		return 0;
+		bool bIsCoastal = pPlot->isCoastalLand();
+		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
+		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
+		{
+			return 0;
+		}
 	}
 
 	// Seems okay for a settler, use base class to determine exact value
+	// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
+	if (pPlayer && pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
+	{
+		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug) * 2;
+	}
 	else
 	{
-		// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
-		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
-		{
-			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug) * 2;
-		}
-		else
-		{
-			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug);
-		}
+		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug);
 	}
 }
 #else

@@ -199,15 +199,6 @@ public:
 	void LogMonitor();
 	void LogCityMonitor();
 
-	int GetEarlyCityNumberTarget() const
-	{
-		return m_iEarlyCityNumberTarget;
-	}
-	int GetMinimumSettleFertility() const
-	{
-		return m_iMinimumSettleFertility;
-	};
-
 	ReconState GetReconState() const
 	{
 		return m_eReconState;
@@ -284,7 +275,6 @@ private:
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
 	int* m_aiTempFlavors;
-	int m_iEarlyCityNumberTarget;
 	ReconState m_eReconState;
 	ReconState m_eNavalReconState;
 	int m_iExplorersDisbanded;
@@ -298,7 +288,6 @@ private:
 #endif
 
 	// Cached AI parameters
-	int m_iMinimumSettleFertility;
 	bool m_bExplorationPlotsDirty;
 
 	// used for the log monitor

@@ -1122,6 +1122,7 @@ public:
 
 	int GetGreatGeneralCombatBonus() const;
 	void SetGreatGeneralCombatBonus(int iValue);
+	void ChangeGreatGeneralCombatBonus(int iValue);
 
 	// Unit Killed in Combat
 #if defined(MOD_API_EXTENSIONS)
@@ -2257,11 +2258,7 @@ public:
 	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
 #endif
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
-#else
-	bool IsPlotTargetedForCity(CvPlot *pPlot) const;
-#endif
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
@@ -2357,7 +2354,9 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
-	void UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell=true);
+	void UpdateAreaEffectUnits();
+	void UpdateAreaEffectUnit(CvUnit* pUnit);
+	void UpdateAreaEffectPlots();
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
@@ -2382,10 +2381,8 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
-	int GetFoundValueOfCapital() const;
-	void SetFoundValueOfCapital(int iValue);
+	int GetBestSettleAreas(int& iFirstArea, int& iSecondArea);
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	bool HaveGoodSettlePlot(int iAreaID);
 
 	// New Victory Stuff
@@ -2611,7 +2608,8 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void updatePlotFoundValues(bool bOverrideRevealedCheck=false);
+	virtual void setAveragePlotFoundValue();
+	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
@@ -2767,6 +2765,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatWorksTourismModifierGlobal;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
+	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)

@@ -246,8 +246,7 @@ CvEconomicAIStrategyXMLEntry* CvEconomicAIStrategyXMLEntries::GetEntry(int index
 CvEconomicAI::CvEconomicAI():
 	m_pabUsingStrategy(NULL),
 	m_paiTurnStrategyAdopted(NULL),
-	m_aiTempFlavors(NULL),
-	m_iEarlyCityNumberTarget(1)
+	m_aiTempFlavors(NULL)
 {
 }
 
@@ -345,13 +344,6 @@ void CvEconomicAI::Reset()
 	m_iExplorersNeeded = 0;
 	m_iNavalExplorersNeeded = 0;
 #endif
-
-	// Cached AI defines
-	m_iMinimumSettleFertility = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
-
-	// Basic number of cities desired for early growth is in XML (10)
-	// Later will scale that up or down based on ratio of FLAVOR_EXPANSION to FLAVOR_GROWTH
-	m_iEarlyCityNumberTarget = GC.getAI_STRATEGY_EARLY_EXPANSION_NUM_CITIES_LIMIT();
 }
 
 /// Serialization read
@@ -2421,6 +2413,9 @@ void CvEconomicAI::DoPlotPurchases()
 			{
 				iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
 
+				if (iScore == -1)
+					continue;
+
 #if defined(MOD_BALANCE_CORE)
 				int iCost = pLoopCity->GetBuyPlotCost(iTempX, iTempY);
 
@@ -3802,7 +3797,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			return false;
 		}
 		int iBestArea, iSecondBestArea;
-		pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
 		if(iBestArea == pArea->GetID())
 		{
 			return true;
@@ -4093,7 +4088,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iBestArea = -1;
 	int iSecondBestArea = -1;
 	bool bIsSafe = false;
-	int iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	int iNumAreas = pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
 	if(iNumAreas == 0)
 	{
 		return false;
@@ -4119,16 +4114,16 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		// CASE 1: we can go offshore
 		if (bCanEmbark)
 		{				
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, bIsSafe);
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iBestArea, false, bIsSafe);
 
 			if(pBestSettle == NULL)
 			{
 				//second chance
-				pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, bIsSafe);
+				pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iSecondBestArea, false, bIsSafe);
 
 				//last chance - failsafe
 				if(pBestSettle == NULL)
-					pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, bIsSafe);
+					pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, -1, false, bIsSafe);
 
 				if(pBestSettle == NULL)
 				{
@@ -4176,7 +4171,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		}
 		else // we can't embark yet
 		{
-			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, bIsSafe);
+			CvPlot* pBestSettle = pPlayer->GetBestSettlePlot(pLoopUnit, iInitialSettlerArea, false, bIsSafe);
 			if(pBestSettle == NULL)
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -4654,7 +4649,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 	CvCity* pLoopCity = NULL;
 	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		if(pLoopCity->isCoastal())
 		{
 			bCoastal = true;
 			break;
@@ -4786,7 +4781,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 	{
 		// If the other area is clearly better
 		int iBestArea, iSecondBestArea;
-		pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		pPlayer->GetBestSettleAreas(iBestArea, iSecondBestArea);
 		if ((iBestArea != pPlayer->getCapitalCity()->getArea() && iBestArea != -1))
 		{
 			return true;
@@ -4807,7 +4802,7 @@ bool EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer)
 	CvCity* pLoopCity = NULL;
 	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity->isCoastal(100))  // don't run this for lakes or even small inland seas
+		if(pLoopCity->isCoastal())  // don't run this for lakes or even small inland seas
 		{
 			iCoastalPop += pLoopCity->getPopulation();
 		}

@@ -4089,8 +4089,13 @@ bool CvMinorCivQuest::DoFinishQuest()
 		//Peace!
 		if(eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isAlive() && pMinor->isAlive() && GET_PLAYER(pMinor->GetID()).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer)
 		{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
+			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
+#else
 			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
 			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
+#endif
 			pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -4104,8 +4109,13 @@ bool CvMinorCivQuest::DoFinishQuest()
 		//Destruction...
 		else
 		{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
+			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
+#else
 			GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
 			GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
+#endif
 			pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -4475,8 +4485,13 @@ bool CvMinorCivQuest::DoCancelQuest()
 			//Peace!
 			if(eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isAlive() && pMinor->isAlive() && GET_PLAYER(pMinor->GetID()).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly() == m_eAssignedPlayer)
 			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
+				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
+#else
 				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
 				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
+#endif
 				pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -4491,8 +4506,13 @@ bool CvMinorCivQuest::DoCancelQuest()
 			}
 			else
 			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam(), true, false, pMinor->GetID());
+				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam(), true, false, eTargetCityState);
+#else
 				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
 				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
+#endif
 				pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -5288,7 +5308,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		bool bCoastal = false;
 		if(GetPlayer()->getStartingPlot() != NULL)
 		{
-			if(GetPlayer()->getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+			if(GetPlayer()->getStartingPlot()->isCoastalLand())
 			{
 				if(GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 				{
@@ -5301,7 +5321,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 						if(GET_PLAYER(ePlayer).isAlive())
 						{
-							if(GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+							if(GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
 							{
 								iCoastal++;
 							}
@@ -12553,6 +12573,10 @@ bool CvMinorCivAI::IsFriendshipAboveFriendsThreshold(int iFriendship) const
 	{
 		return true;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (GetPermanentAlly() == ePlayer)
+		return true;
+#endif
 
 	return false;
 }
@@ -12737,7 +12761,10 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	if (!bSuppressNotifications)
 	{
 		pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(ePlayer, bAdd, bFriends, bAllies, eOldAlly, (bAdd && bAllies) ? ePlayer : eNewAlly);
-		AddNotification(notifStrings.first, notifStrings.second, ePlayer);
+		if (notifStrings.first != "")
+		{
+			AddNotification(notifStrings.first, notifStrings.second, ePlayer);
+		}
 	}
 
 	// *******************************************
@@ -13148,7 +13175,7 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	// Influence for liberator - raise to ally status
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int iNewInfluence = 0;
-	if(MOD_DIPLOMACY_CITYSTATES && (IsNoAlly() || GetPermanentAlly() != NO_PLAYER))
+	if (MOD_DIPLOMACY_CITYSTATES && (IsNoAlly() || GetPermanentAlly() != NO_PLAYER))
 	{
  #if defined(MOD_CITY_STATE_SCALE)
 		iNewInfluence = (GetFriendsThreshold(eLiberator) + 10); // Must be at least enough to make us allies
@@ -14979,7 +15006,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #if defined(MOD_GLOBAL_CS_GIFTS)
 			if (bExplore) {
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pMinorCapitalPlot->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
+				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
 #endif
@@ -15006,7 +15033,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #if defined(MOD_GLOBAL_CS_GIFTS)
 			if (bExplore) {
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pMinorCapitalPlot->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
+				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pSpawnCity->plot()->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
 #endif
@@ -17261,6 +17288,69 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 	return true;
 }
 
+CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
+	CvPlayer* pPlayer = &GET_PLAYER(eMajor);
+	if (pPlayer == NULL)
+	{
+		CvAssertMsg(false, "pPlayer not expected to be NULL. Please send Anton your save file and version.");
+		return NULL;
+	}
+
+	// Must have enough gold
+	const int iCost = GetGiftTileImprovementCost(eMajor);
+	if (pPlayer->GetTreasury()->GetGold() < iCost)
+		return NULL;
+
+	int iBestScore = 0;
+	CvPlot* pBestPlot = NULL;
+	// Must own an improveable plot
+	bool bHasValidPlot = false;
+	CvPlotsVector& aiPlots = GetPlayer()->GetPlots();
+	for (uint ui = 0; ui < aiPlots.size(); ui++)
+	{
+		// at the end of the plot list
+		if (aiPlots[ui] == -1)
+		{
+			break;
+		}
+
+		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
+		if (IsLackingGiftableTileImprovementAtPlot(eMajor, pPlot->getX(), pPlot->getY()))
+		{
+			if (pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()) != NO_RESOURCE)
+			{
+				int iScore = 0;
+				ResourceUsageTypes eUsage = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()))->getResourceUsage();
+				if (eUsage == RESOURCEUSAGE_STRATEGIC)
+				{
+					iScore = (pPlot->getNumResource() * 100);
+				}
+				else if (eUsage == RESOURCEUSAGE_LUXURY)
+				{
+					iScore = 150;
+					// New? Ooh.
+					if (GET_PLAYER(eMajor).getNumResourceTotal(pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()), /*bIncludeImport*/ true) == 0)
+						iScore += 100;
+				}
+				if (iScore > iBestScore)
+				{
+					iBestScore = iScore;
+					pBestPlot = pPlot;
+				}
+			}
+		}
+	}
+
+	if (!bHasValidPlot)
+		return pBestPlot;
+
+	return pBestPlot;
+}
+
 // Does this plot lack a resource tile improvement that eMajor has access to?
 bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, int iPlotX, int iPlotY)
 {
@@ -17347,6 +17437,32 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	}
 
 	pPlot->setImprovementType(eImprovement, eMajor);
+
+#if defined(MOD_BALANCE_CORE)
+	if (pPlot->getFeatureType() != NO_FEATURE)
+	{
+		for (int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
+		{
+			CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iI);
+			if (!pkBuildInfo)
+			{
+				continue;
+			}
+
+			ImprovementTypes eLoopImprovement = ((ImprovementTypes)(pkBuildInfo->getImprovement()));
+
+			if (eImprovement == eLoopImprovement)
+			{
+				if (pkBuildInfo->isFeatureRemove(pPlot->getFeatureType()))
+				{
+					pPlot->setFeatureType(NO_FEATURE);
+					break;
+				}
+			}
+
+		}
+	}
+#endif
 #if defined(MOD_BUGFIX_MINOR)
 	// Clear the pillage state on this plot (eg Minor builds a farm, barbs pillage it,
 	// minor discovers iron on the plot, player pays to build a mine, but the plot is still pillaged!)

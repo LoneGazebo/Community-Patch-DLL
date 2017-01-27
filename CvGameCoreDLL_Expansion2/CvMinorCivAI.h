@@ -729,6 +729,7 @@ public:
 	int GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold);
 
 	bool CanMajorGiftTileImprovement(PlayerTypes eMajor);
+	CvPlot* GetMajorGiftTileImprovement(PlayerTypes eMajor);
 	bool IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, int iPlotX, int iPlotY);
 	bool CanMajorGiftTileImprovementAtPlot(PlayerTypes eMajor, int iPlotX, int iPlotY);
 	int GetGiftTileImprovementCost(PlayerTypes eMajor);

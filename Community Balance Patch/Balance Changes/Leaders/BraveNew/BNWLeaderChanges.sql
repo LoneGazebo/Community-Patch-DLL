@@ -185,6 +185,18 @@ UPDATE Building_UnitCombatProductionModifiers
 SET Modifier = '25'
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Traits
+SET FreePolicyPerXTechs = '16'
+WHERE Type = 'TRAIT_SOLIDARITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET FreeSocialPoliciesPerEra = '0'
+WHERE Type = 'TRAIT_SOLIDARITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET DefenseHappinessTraitMod = '-10'
+WHERE Type = 'TRAIT_SOLIDARITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Pedro -- Improve Brazilwood Camp, increase all GP production during GA
 
 UPDATE Traits
@@ -290,6 +302,12 @@ INSERT INTO Builds
 	(Type, ImprovementType, Description, Help, Kill, EntityEvent, HotKey, OrderPriority, IconIndex, IconAtlas)
 VALUES
 	('BUILD_CUSTOMS_HOUSE_VENICE', 'IMPROVEMENT_CUSTOMS_HOUSE_VENICE', 'TXT_KEY_BUILD_CUSTOMS_HOUSE_VENICE', 'TXT_KEY_BUILD_CONSUMED_HELP', 1, 'ENTITY_EVENT_MINE', 'KB_H', 96, 57, 'UNIT_ACTION_ATLAS');
+
+INSERT INTO BuildFeatures
+	(BuildType, FeatureType, PrereqTech, Production, Remove)
+VALUES
+	('BUILD_CUSTOMS_HOUSE_VENICE', 'FEATURE_FOREST', 'TECH_BRONZE_WORKING', '20', 'true'),
+	('BUILD_CUSTOMS_HOUSE_VENICE', 'FEATURE_JUNGLE', 'TECH_IRON_WORKING', '20', 'true');
 
 INSERT INTO Trait_YieldChangesPerTradePartner
 	(TraitType, YieldType, Yield)

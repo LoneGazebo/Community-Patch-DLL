@@ -432,7 +432,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
 	}
-	if(m_pCity->plot()->isCoastalLand())
+	if(m_pCity->isCoastal())
 	{
 		if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 		{
@@ -730,6 +730,42 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iBonus += 1000;
 		}
+	}
+
+	//Espionage!
+	if (pkBuildingInfo->GetBlockBuildingDestruction() > 0)
+	{
+		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 30);
+	}
+	if (pkBuildingInfo->GetBlockWWDestruction() > 0)
+	{
+		iBonus += (m_pCity->getNumWorldWonders() * 10);
+	}
+	if (pkBuildingInfo->GetBlockUDestruction() > 0)
+	{
+		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 30);
+	}
+	if (pkBuildingInfo->GetBlockGPDestruction() > 0)
+	{
+		iBonus += m_pCity->getGreatPeopleRate() / 5;
+	}
+	if (pkBuildingInfo->GetBlockRebellion() > 0)
+	{
+		//Less happy = better!
+		iBonus += (50 - kPlayer.GetHappiness());
+	}
+	if (pkBuildingInfo->GetBlockUnrest() > 0)
+	{
+		//Less happy = better!
+		iBonus += (40 - kPlayer.GetHappiness());
+	}
+	if (pkBuildingInfo->GetBlockScience() > 0)
+	{
+		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 40);
+	}
+	if (pkBuildingInfo->GetBlockGold() > 0)
+	{
+		iBonus += (m_pCity->getYieldRate(YIELD_GOLD, false) / 50);
 	}
 
 	///////////////////

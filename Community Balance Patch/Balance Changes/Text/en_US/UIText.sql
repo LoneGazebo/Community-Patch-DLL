@@ -546,7 +546,7 @@ WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_TITLE';
 
 	
 UPDATE Language_en_US
-SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on mountains: +2 [ICON_PRODUCTION] Production. [NEWLINE][ICON_BULLET] Cities on hills: +1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on fresh water: +1 [ICON_FOOD] Food. [NEWLINE][ICON_BULLET] Cities without fresh water or hills: +1 [ICON_GOLD] Gold.'
+SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on mountains: +2 [ICON_PRODUCTION] Production. [NEWLINE][ICON_BULLET] Cities on hills: +1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on fresh water: +1 [ICON_FOOD] Food. [NEWLINE][ICON_BULLET] Cities without fresh water or hills: +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Many Yields, especially those from Policies, Beliefs, and Buildings, state that they [COLOR_POSITIVE_TEXT]''Scale with Era''[ENDCOLOR]. This means that, as the game progresses, indicated Yield values increase in a linear fashion based on the current Era:[NEWLINE]1x in the Ancient and Classical Eras.[NEWLINE]2x in the Medieval Era.[NEWLINE]3x in the Renaissance Era.[NEWLINE]4x in the Industrial Era.[NEWLINE]5x in the Modern Era.[NEWLINE]6x in the Atomic Era.[NEWLINE]7x in the Information Era.'
 WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_BODY';
 
 -- Trade Routes
@@ -562,3 +562,9 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_HELP';
 UPDATE Language_en_US
 SET Text = 'Moai can only be built on the coast.  If built next to another Moai, it provides additional [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production. Gains additional yields from unlocking technologies. If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE]Perhaps better known as the "Easter Island Statues", the Moai are large, humanoid figures carved mostly from volcanic rocks like tuff. 887 of these statues dot Easter Island, and are believed to have been created sometime between 1250 and 1500 AD.  Almost half still remain at the original quarry site, but the rest were transported and erected around the island''s coastline.  Easily recognizable by their large heads and elongated features, it is believed that they were individual depictions of deceased ancestors and powerful chiefs.[NEWLINE][NEWLINE]While most scholars agree on why and how the statues were created, the method of their transportation still remains a mystery.  Weighing from 9 to 86 tons a piece, they would have required an amazing feat of engineering to move from quarry to final resting place.[NEWLINE][NEWLINE]In 1994, the Moai statues were given official protection on the UNESCO World Heritage site list.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_TEXT';
+
+-- Warscore Diplo
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]At war with {1_enemy} (Warscore: {2_Num})[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_AT_WAR_WITH';

@@ -118,6 +118,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingProductionNeeded);
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetBuildingInvestment);
+	Method(IsWorldWonder);
+	Method(GetWorldWonderCost);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetUnitInvestment);
@@ -1651,6 +1653,81 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 	}
 
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsWorldWonder();
+int CvLuaCity::lIsWorldWonder(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	bool bResult = false;
+	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+	const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+	if (::isWorldWonderClass(kBuildingClassInfo))
+	{
+		bResult = true;
+	}
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaCity::lGetWorldWonderCost(lua_State* L)
+{
+	int iNumWorldWonderPercent = 0;
+	CvCity* pkCity = GetInstance(L);
+
+	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+	const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && ::isWorldWonderClass(kBuildingClassInfo))
+	{
+		const CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
+		{
+			if (pLoopCity->getNumWorldWonders() > 0)
+			{
+				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				{
+					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+					// Has this Building
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						{
+							if (pkeBuildingInfo->GetPrereqAndTech() != NO_TECH)
+							{
+								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+								if (pkTechInfo)
+								{
+									// Loop through all eras and apply Building production mod based on how much time has passed
+									EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+									if (eBuildingUnlockedEra == GET_PLAYER(pkCity->getOwner()).GetCurrentEra())
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+									}
+									else if ((GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra) == 1)
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+									}
+									else if ((GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra) > 1)
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	lua_pushinteger(L, iNumWorldWonderPercent);
 	return 1;
 }
 //------------------------------------------------------------------------------

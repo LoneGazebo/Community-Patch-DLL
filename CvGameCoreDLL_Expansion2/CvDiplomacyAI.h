@@ -1402,6 +1402,7 @@ public:
 	int GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer);
 #endif
 	// Minor Civ Log
+	void LogMinorCivGiftTile(PlayerTypes ePlayer);
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
 	void LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, int iGold, bool bSuccess, int iBullyMetricScore);
 	void LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, UnitTypes eUnit, bool bSuccess, int iBullyMetricScore);
