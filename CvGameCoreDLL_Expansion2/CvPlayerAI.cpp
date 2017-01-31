@@ -43,8 +43,6 @@
 #include <queue>
 #endif
 
-#define DANGER_RANGE				(6)
-
 // statics
 
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;

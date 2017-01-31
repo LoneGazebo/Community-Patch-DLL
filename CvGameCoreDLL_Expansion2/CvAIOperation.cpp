@@ -2420,7 +2420,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 		// No targets at all!
 		if(pBetterTarget == NULL)
 		{
-			LogOperationSpecialMessage( CvString::format("no city site target found (%s)!", IsEscorted() ? "with escort" : "no escort").c_str() );
+			LogOperationSpecialMessage( CvString::format("no valid city site target found (%s)!", IsEscorted() ? "with escort" : "no escort").c_str() );
 			return AI_ABORT_NO_TARGET;
 		}
 

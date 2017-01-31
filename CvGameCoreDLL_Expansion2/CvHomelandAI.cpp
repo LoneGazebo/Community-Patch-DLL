@@ -6829,11 +6829,11 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if(pCity && pCity->getTeam() == pUnit->getTeam())
 			{
-				iValue += pCity->getStrengthValue() * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDamage());
+				iValue += pCity->getStrengthValue();
+
 				if(pCity->getDamage() <= 0)
 				{
 					//We should always hide in cities if we can.
-					iValue += 1;
 					iValue *= 1000;
 				}
 			}
