@@ -8127,15 +8127,15 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 				break;
 			}
 		}
+
+		// Need to keep hitting the target?
+		if(pDefender->GetCurrHitPoints() <= 0)
+			return true;
+
+		// Make attacks - this includes melee attacks but only very safe ones
+		if(FindUnitsWithinStrikingDistance(pTargetPlot))
+			ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
 	}
-
-	// Need to keep hitting the target?
-	if(pDefender->GetCurrHitPoints() <= 0)
-		return true;
-
-	// Make attacks - this includes melee attacks but only very safe ones
-	if(FindUnitsWithinStrikingDistance(pTargetPlot))
-		ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
 #else
 	CvTacticalUnit unit;
 	CvCity* pTargetCity = 0;
