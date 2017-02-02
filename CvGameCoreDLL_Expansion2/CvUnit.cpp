@@ -5190,11 +5190,11 @@ bool CvUnit::jumpToNearestValidPlot()
 	if(pBestPlot != NULL)
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
+		if (pBestPlot->needsEmbarkation(this))
+			embark(pBestPlot);
+		else 
+			disembark(pBestPlot);
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
-		if (pBestPlot->isWater() && getDomainType() != DOMAIN_SEA)
-		{
-			setEmbarked(true);
-		}
 		return true;
 	}
 	else
@@ -5253,6 +5253,10 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
+		if (pBestPlot->needsEmbarkation(this))
+			embark(pBestPlot);
+		else 
+			disembark(pBestPlot);
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
 	}
 	else
@@ -18433,16 +18437,14 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
 
-	//sanity check - may interfere with carriers for land units, so don't fix it
-	/*
+	//sanity check
 	if (pNewPlot)
 	{
-		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() )
+		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() && !isCargo() )
 			setEmbarked(false);
-		if ( pNewPlot->needsEmbarkation(this) && CanEverEmbark() && !isEmbarked() )
+		if ( pNewPlot->needsEmbarkation(this) && CanEverEmbark() && !isEmbarked() && !isCargo() )
 			setEmbarked(true);
 	}
-	*/
 
 	if(pNewPlot != NULL && !bNoMove)
 	{
