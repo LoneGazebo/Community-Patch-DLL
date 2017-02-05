@@ -24851,7 +24851,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					ResourceTypes eResource = pLoopPlot->getResourceType(thisTeam);
 					if (eResource != NO_RESOURCE)
 					{
-#if defined(MOD_BALANCE_CORE)
 						CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
 						if (pkResource)
 						{
@@ -24861,43 +24860,21 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 								//bonus resources are meh, even if they are in range
 								iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST/2;
 						}
-#else
-						iInfluenceCost += iPLOT_INFLUENCE_RESOURCE_COST;
-						bool bBonusResource = GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS;
-						if (bBonusResource)
-						{
-							if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
-							{
-								// undo the bonus - we can't work this tile from this city
-								iInfluenceCost -= iPLOT_INFLUENCE_RESOURCE_COST;
-							}
-							else
-							{
-								// very slightly decrease value of bonus resources
-								++iInfluenceCost;
-							}
-						}
-#endif
 					}
-					else 
+					else //no resource
 					{
 
 						// Water Plots claimed later
-#if defined(MOD_BALANCE_CORE)
 						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
-#else
-						if (pLoopPlot->isWater())
-#endif
 						{
 							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
 						}
+					}
 
-						// if we can't work this tile in this city make it much less likely to be picked
-						if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
-						{
-							iInfluenceCost += iPLOT_INFLUENCE_RING_COST*3;
-						}
-
+					// if we can't work this tile in this city make it much less likely to be picked
+					if (plotDistance(pLoopPlot->getX(),pLoopPlot->getY(),getX(),getY()) > iWorkPlotDistance)
+					{
+						iInfluenceCost += iPLOT_INFLUENCE_RING_COST*2;
 					}
 
 					// avoid barbarian camps
@@ -25387,22 +25364,16 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	int iRtnValue = 0;
-	ResourceTypes eResource;
-	int iYield;
-	int iI;
 	YieldTypes eSpecializationYield = NO_YIELD;
-	CitySpecializationTypes eSpecialization;
-	CvCity* pCity;
 
-	eSpecialization = GetCityStrategyAI()->GetSpecialization();
-
+	CitySpecializationTypes eSpecialization = GetCityStrategyAI()->GetSpecialization();
 	if(eSpecialization != NO_CITY_SPECIALIZATION)
 	{
 		eSpecializationYield = GC.getCitySpecializationInfo(eSpecialization)->GetYieldType();
 	}
 
 	// Does it have a resource?
-	eResource = pPlot->getResourceType(getTeam());
+	ResourceTypes eResource = pPlot->getResourceType(getTeam());
 	if(eResource != NO_RESOURCE)
 	{
 		CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
@@ -25438,16 +25409,14 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	int iYieldValue = 0;
 	int iTempValue;
 
-	YieldTypes eYield;
-
 	CvCityStrategyAI* pCityStrategyAI = GetCityStrategyAI();
 
 	// Valuate the yields from this plot
-	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		eYield = (YieldTypes) iI;
+		YieldTypes eYield = (YieldTypes) iI;
 
-		iYield = pPlot->calculateNatureYield(eYield, getOwner());
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner());
 
 		iTempValue = 0;
 
@@ -25469,7 +25438,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	// For each player not on our team, check how close their nearest city is to this plot
 	CvPlayer& owningPlayer = GET_PLAYER(m_eOwner);
 	CvDiplomacyAI* owningPlayerDiploAI = owningPlayer.GetDiplomacyAI();
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		CvPlayer& loopPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(loopPlayer.isAlive())
@@ -25480,7 +25449,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 				if(eLandDisputeLevel != NO_DISPUTE_LEVEL && eLandDisputeLevel != DISPUTE_LEVEL_NONE)
 				{
-					pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), (PlayerTypes)iI, NO_TEAM, true /*bSameArea */);
+					CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), (PlayerTypes)iI, NO_TEAM, true /*bSameArea */);
 
 					if(pCity)
 					{

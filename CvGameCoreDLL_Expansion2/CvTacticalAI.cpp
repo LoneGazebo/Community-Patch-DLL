@@ -11100,7 +11100,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 
 				// Unescorted civilian?
 				if (pPlot->isEnemyUnit(m_pPlayer->GetID(),false,true) && !pPlot->isEnemyUnit(m_pPlayer->GetID(),true,true))
-					iScore += 200;
+					iScore += 500;
 
 				// Top priority is hexes to bombard from (within range but not adjacent)
 				pCell->SetTargetDistance(iDistance);
@@ -12518,15 +12518,18 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 	//finally the almighty score
 	float fAggFactor = -1;
+	int iHPbelowHalf = pUnit->GetMaxHitPoints()/2 - (pUnit->GetCurrHitPoints() - iDamageReceived);
 	switch (eAggLvl)
 	{
 	case AL_LOW:
-		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints()/2 )
-			fAggFactor = 0.8f;
+		fAggFactor = 0.5f;
+		if ( iHPbelowHalf>0 )
+			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
-		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2 )
-			fAggFactor = 1.2f;
+		fAggFactor = 1.1f;
+		if ( iHPbelowHalf>0 )
+			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
 		if ( iDamageReceived < pUnit->GetCurrHitPoints() || fUnitNumberRatio>1 )
@@ -12606,6 +12609,15 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				if (result.eType==STacticalAssignment::A_MELEEKILL && currentPlot.isEnemyCivilian())
 					result.iScore += 5;
 			}
+		}
+	}
+	else if (currentPlot.isEnemyCivilian()) //unescorted civilian
+	{
+		if (plot.iMovesLeft > 0 || currentPlot.getNumAdjacentEnemies()==0)
+		{
+			result.iScore = 20;
+			result.eType = STacticalAssignment::A_CAPTURE;
+			result.iRemainingMoves = plot.iMovesLeft;
 		}
 	}
 	else //empty plot or friendly unit. the latter case will be handled by the isMoveBlockedByOtherUnit check
@@ -12737,14 +12749,6 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 		//temporary score
 		result.iScore = iDamageScore + iDistanceScore;
-
-		//bonus for capturing a civilian
-		if (currentPlot.isEnemyCivilian())
-		{
-			result.iScore += 10;
-			//define a special assignment for this because consecutive moves are not allowed
-			result.eType = STacticalAssignment::A_CAPTURE;
-		}
 
 		//does it make sense to pillage here?
 		if (result.eType == STacticalAssignment::A_ENDTURN && unit.iMovesLeft > 0 && 
