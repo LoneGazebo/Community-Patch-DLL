@@ -17886,6 +17886,14 @@ void CvMinorCivAI::SetPermanentAlly(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= NO_PLAYER, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
+	if (ePlayer != NO_PLAYER)
+	{
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
+		{
+			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).meet(GetPlayer()->getTeam(), false);
+		}
+	}
+
 	m_ePermanentAlly = ePlayer;
 }
 

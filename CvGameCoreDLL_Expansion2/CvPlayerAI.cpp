@@ -43,8 +43,6 @@
 #include <queue>
 #endif
 
-#define DANGER_RANGE				(6)
-
 // statics
 
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
@@ -718,6 +716,27 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 	}
 
+	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
+	// find courthouse
+	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
+		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if (buildingInfo)
+		{
+			if (buildingInfo->IsNoOccupiedUnhappiness() && canConstruct(eBuilding))
+			{
+				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
+				break;
+			}
+		}
+	}
+
+	//Can't build a courthouse? Abort!
+	if (eCourthouseType == NO_BUILDINGCLASS)
+		return;
+
 	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
 	pCity = NULL;
@@ -744,22 +763,6 @@ void CvPlayerAI::AI_considerAnnex()
 	
 	CvCity* pTargetCity = NULL;
 	float fCutoffValue = GC.getNORMAL_ANNEX();
-	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
-	// find courthouse
-	for(int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
-		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if(buildingInfo)
-		{
-			if (buildingInfo->IsNoOccupiedUnhappiness())
-			{
-				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
-				break;
-			}
-		}
-	}
 
 	bool bCourthouseImprovement = false;
 	if (eCourthouseType != NO_BUILDINGCLASS)

@@ -10283,6 +10283,9 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 		meet(eTeam, true);
 	}
 
+	//Set open borders
+	SetAllowsOpenBordersToTeam(eTeam, true);
+
 	// Update war/peace relationships for all of eTeam's vassals
 	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
@@ -10376,7 +10379,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam))
 						{
 							summaryString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_NOW_VASSAL_UNKNOWN_VASSAL_SUMMARY");
-							summaryString << getName().GetCString();
+							summaryString << GET_TEAM(eTeam).getName().GetCString();
 
 							locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_NOW_VASSAL_UNKNOWN_VASSAL");
 							locString << GET_TEAM(eTeam).getName().GetCString() << Localization::Lookup("TXT_KEY_UNMET_PLAYER");

@@ -593,9 +593,9 @@ function OnDisplay()
 	-- CBP
 	if(not pPlayer:IsMarried(iActivePlayer)) then
 		iBuyoutCost = pPlayer:GetMarriageCost(iActivePlayer);
-			local strButtonLabel = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_BUYOUT");
-			local strToolTip = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_MARRIAGE_TT", iBuyoutCost );
-		if(pPlayer:CanMajorMarry(iActivePlayer) and not bWar ) then	
+		local strButtonLabel = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_BUYOUT");
+		local strToolTip = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_MARRIAGE_TT", iBuyoutCost );
+		if(pPlayer:CanMajorMarry(iActivePlayer) and not bWar) then	
 			Controls.MarriageButton:SetHide(false);
 			Controls.MarriageAnim:SetHide(false);
 		elseif (pActivePlayer:IsDiplomaticMarriage() and not bWar) then

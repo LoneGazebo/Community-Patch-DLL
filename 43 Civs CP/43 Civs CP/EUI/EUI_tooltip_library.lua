@@ -2310,16 +2310,20 @@ local function GetCityHappinessTooltip(city)
 		iCapitalMod = Players[city:GetOwner()]:GetCapitalUnhappinessModCBP();
 	end
 
-	local iThresholdAdditions = (city:getThresholdAdditions() - iCapitalMod);
+	local iThresholdAdditionsGold = (city:getThresholdAdditions(YieldTypes.YIELD_GOLD) - iCapitalMod);
+	local iThresholdAdditionsDefense = (city:getThresholdAdditions(YieldTypes.YIELD_PRODUCTION) - iCapitalMod);
+	local iThresholdAdditionsScience = (city:getThresholdAdditions(YieldTypes.YIELD_SCIENCE) - iCapitalMod);
+	local iThresholdAdditionsCulture = (city:getThresholdAdditions(YieldTypes.YIELD_CULTURE) - iCapitalMod);
+
 	local iThresholdSubtractionsGold = city:getThresholdSubtractions(YieldTypes.YIELD_GOLD);
 	local iThresholdSubtractionsDefense = city:getThresholdSubtractions(YieldTypes.YIELD_PRODUCTION);
 	local iThresholdSubtractionsScience = city:getThresholdSubtractions(YieldTypes.YIELD_SCIENCE);
 	local iThresholdSubtractionsCulture = city:getThresholdSubtractions(YieldTypes.YIELD_CULTURE);
 
-	iThresholdSubtractionsGold = iThresholdAdditions + (iThresholdSubtractionsGold + (iPuppetMod * -1));
-	iThresholdSubtractionsDefense = iThresholdAdditions + (iThresholdSubtractionsDefense + (iPuppetMod * -1));
-	iThresholdSubtractionsScience = iThresholdAdditions + (iThresholdSubtractionsScience + (iPuppetMod * -1));
-	iThresholdSubtractionsCulture = iThresholdAdditions + (iThresholdSubtractionsCulture + (iPuppetMod * -1));
+	iThresholdSubtractionsGold = iThresholdAdditionsGold + (iThresholdSubtractionsGold + (iPuppetMod * -1));
+	iThresholdSubtractionsDefense = iThresholdAdditionsDefense + (iThresholdSubtractionsDefense + (iPuppetMod * -1));
+	iThresholdSubtractionsScience = iThresholdAdditionsScience + (iThresholdSubtractionsScience + (iPuppetMod * -1));
+	iThresholdSubtractionsCulture = iThresholdAdditionsCulture + (iThresholdSubtractionsCulture + (iPuppetMod * -1));
 
 	local iCultureYield = city:GetUnhappinessFromCultureYield() / 100;
 	local iDefenseYield = city:GetUnhappinessFromDefenseYield() / 100;
@@ -2494,15 +2498,15 @@ local function GetReligionTooltip(city)
 							beliefs = {Players[city:GetOwner()]:GetBeliefInPantheon()}
 						end
 						for _,beliefID in pairs( beliefs or {} ) do
-							if(GameInfo.Beliefs[beliefID].Pantheon) then
+							if(GameInfo.Beliefs[beliefID].Pantheon and Game.IsBeliefValid(religionID, beliefID, city)) then
 								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_PANTHEON") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
-							elseif(GameInfo.Beliefs[beliefID].Founder) then
+							elseif(GameInfo.Beliefs[beliefID].Founder and Game.IsBeliefValid(religionID, beliefID, city)) then
 								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_FOUNDER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
-							elseif(GameInfo.Beliefs[beliefID].Follower) then
+							elseif(GameInfo.Beliefs[beliefID].Follower and Game.IsBeliefValid(religionID, beliefID, city)) then
 								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_FOLLOWER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
-							elseif(GameInfo.Beliefs[beliefID].Enhancer) then
+							elseif(GameInfo.Beliefs[beliefID].Enhancer and Game.IsBeliefValid(religionID, beliefID, city)) then
 								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_ENHANCER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
-							elseif(GameInfo.Beliefs[beliefID].Reformation) then
+							elseif(GameInfo.Beliefs[beliefID].Reformation and Game.IsBeliefValid(religionID, beliefID, city)) then
 								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_REFORMATION") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
 							end
 						end
@@ -3149,7 +3153,7 @@ local function GetMoodInfo( playerID )
 			if team:IsAtWar(otherPlayer:GetTeam()) then			
 				if not otherPlayer:IsMinorCiv() then
 					local iWarScore = player:GetWarScore(otherPlayerID);
-					wars:insert(otherPlayerName .. " (" .. L"TXT_KEY_DIPLO_WARSCORE_CP" .. "[COLOR_NEGATIVE_TEXT] " .. iWarScore .. ")[ENDCOLOR]")
+					wars:insert(otherPlayerName .. " (" .. L"TXT_KEY_DIPLO_WARSCORE_CP" .. iWarScore .. ")")
 				else
 					wars:insert( otherPlayerName)
 

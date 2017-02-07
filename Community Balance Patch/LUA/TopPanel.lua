@@ -1284,7 +1284,8 @@ function TourismTipHandler( control )
 
 	--CBP
 	local iCapitalValue = pPlayer:GetFractionOriginalCapitalsUnderControl(1);
-	local strTextTourism = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iCapitalValue);
+	local iTourismPenalty = pPlayer:GetTourismPenalty();
+	local strTextTourism = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iCapitalValue, iTourismPenalty);
 	strText = strText .. "[NEWLINE][NEWLINE]" .. strTextTourism;
 	--END
 

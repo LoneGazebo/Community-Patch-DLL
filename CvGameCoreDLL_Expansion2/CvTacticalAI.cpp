@@ -8107,16 +8107,35 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 				if(pCity != NULL)
 					PerformAttack(pCity, &kTarget);
 
-				// Need to keep hitting target?
+				// Need to keep hitting the target?
 				if(pDefender->GetCurrHitPoints() <= 0)
 					return true;
 			}
 		}
-	}
 
-	// Make attacks - this includes melee attacks but only very safe ones
-	if(FindUnitsWithinStrikingDistance(pTargetPlot))
-		ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
+		//special handling for ranged garrison as it is ignored by FindUnitsWithinStrikingDistance()
+		//note: melee garrison is handled in PlotGarrisonMoves()
+		for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if(pUnit->IsGarrisoned() && pUnit->canRangeStrikeAt(kTarget.GetTargetX(), kTarget.GetTargetY()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), kTarget.GetTargetX(), kTarget.GetTargetY());
+
+				//this invalidates our iterator so exit the loop immediately
+				UnitProcessed(pUnit->GetID());
+				break;
+			}
+		}
+
+		// Need to keep hitting the target?
+		if(pDefender->GetCurrHitPoints() <= 0)
+			return true;
+
+		// Make attacks - this includes melee attacks but only very safe ones
+		if(FindUnitsWithinStrikingDistance(pTargetPlot))
+			ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
+	}
 #else
 	CvTacticalUnit unit;
 	CvCity* pTargetCity = 0;

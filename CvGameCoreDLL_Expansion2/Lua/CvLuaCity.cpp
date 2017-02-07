@@ -120,6 +120,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingInvestment);
 	Method(IsWorldWonder);
 	Method(GetWorldWonderCost);
+	Method(GetNumPoliciesNeeded);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetUnitInvestment);
@@ -1730,6 +1731,68 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 	lua_pushinteger(L, iNumWorldWonderPercent);
 	return 1;
 }
+int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
+{
+	int iNumPoliciesReduced = 0;
+	int iTotalPoliciesNeeded = 0;
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pBuildingInfo)
+		{
+			//If # of policies will do it, then we need to see the either/or here.
+			iTotalPoliciesNeeded = pBuildingInfo->GetNumPoliciesNeeded();
+			if (iTotalPoliciesNeeded > 0)
+			{
+				int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
+				if (iCSPolicyReduction > 0)
+				{
+					int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
+					iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
+				}
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkCity->getOwner());
+				if (eFoundedReligion == NO_RELIGION)
+				{
+					eFoundedReligion = GET_PLAYER(pkCity->getOwner()).GetReligions()->GetReligionInMostCities();
+				}
+				if (eFoundedReligion != NO_RELIGION)
+				{
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkCity->getOwner());
+					if (pReligion)
+					{
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						if (pHolyCity == NULL)
+						{
+							pHolyCity = GET_PLAYER(pkCity->getOwner()).getCapitalCity();
+						}
+						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity, true);
+						if (iReligionPolicyReduction > 0)
+						{
+							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+							if (iNumFollowerCities > 0)
+							{
+								iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	iTotalPoliciesNeeded -= iNumPoliciesReduced;
+
+	lua_pushinteger(L, iTotalPoliciesNeeded);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //bool IsUnitInvestment();
 int CvLuaCity::lGetUnitInvestment(lua_State* L)
@@ -2968,7 +3031,7 @@ int CvLuaCity::lGetFaithBuildingTourism(lua_State* L)
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 	if(pReligion)
 	{
-		iRtnValue = pReligion->m_Beliefs.GetFaithBuildingTourism(pkCity->getOwner());
+		iRtnValue = pReligion->m_Beliefs.GetFaithBuildingTourism(pkCity->getOwner(), pkCity);
 	}
 	lua_pushinteger(L, iRtnValue);
 	return 1;
@@ -3182,7 +3245,7 @@ int CvLuaCity::lGetReligionBuildingClassHappiness(lua_State* L)
 		if(pReligion)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
-			iHappinessFromBuilding += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
+			iHappinessFromBuilding += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers, pkCity->getOwner(), pkCity);
 		}
 	}
 	lua_pushinteger(L, iHappinessFromBuilding);
@@ -3205,7 +3268,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 		if(pReligion)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
-			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers);
+			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers, pkCity->getOwner(), pkCity);
 			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
@@ -3434,7 +3497,8 @@ int CvLuaCity::lgetThresholdSubtractions(lua_State* L)
 int CvLuaCity::lgetThresholdAdditions(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getThresholdAdditions());
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkCity->getThresholdAdditions(eYield));
 	return 1;
 }
 //int getUnhappinessFromCultureYield();
@@ -5214,7 +5278,7 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkCity->getOwner());
 	if(eReligion != NO_RELIGION)
 	{
-		 iRtnValue = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield);
+		iRtnValue = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, pkCity->getOwner(), pkCity);
 	}
 	BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 	if (eSecondaryPantheon != NO_BELIEF)
@@ -5243,7 +5307,7 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, ePlayer);
-			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield);
+			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield, ePlayer, pkCity);
 		}
 		iRtnValue += GET_PLAYER(ePlayer).GetYieldFromWLTKD((YieldTypes)eYield);
 		iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
@@ -5281,7 +5345,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			if(pkCity->GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
-				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield);
+				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield, ePlayer, pkCity);
 			}
 		}
 		iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
@@ -5477,7 +5541,7 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 		if(pReligion)
 		{
-			iReligionRangeStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier();
+			iReligionRangeStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(pkCity->getOwner(), pkCity);
 			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{

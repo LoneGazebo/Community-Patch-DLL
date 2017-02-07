@@ -1521,7 +1521,7 @@ public:
 	int GetNumHistoricEvents() const;
 	void SetNumHistoricEvents(int iValue);
 
-	int GetHistoricEventTourism();
+	int GetHistoricEventTourism(bool bIsArchaeology = false, bool bIsCS = false, bool bIsGoldenAge = false);
 
 	void ChangeSingleVotes(int iValue);
 	int GetSingleVotes() const;

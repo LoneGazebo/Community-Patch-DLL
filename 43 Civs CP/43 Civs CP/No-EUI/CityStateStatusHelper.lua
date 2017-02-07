@@ -86,18 +86,25 @@ function GetCityStateStatusRow(iMajor, iMinor)
 	
 	-- Negative INF
 	if (iInf < GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]) then
-		-- Able to bully?
-		if (bCanBully) then
+		if(bCanBully) then
 			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
 		else
 			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_ANGRY"];
 		end
 	-- Neutral
 	elseif (iInf < GameDefines["FRIENDSHIP_THRESHOLD_FRIENDS"]) then
-		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_NEUTRAL"];
+		if(bCanBully) then
+			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
+		else
+			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_NEUTRAL"];
+		end
 	-- Friends
 	elseif (iInf < GameDefines["FRIENDSHIP_THRESHOLD_ALLIES"]) then
-		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_FRIENDS"];
+		if(bCanBully) then
+			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
+		else
+			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_FRIENDS"];
+		end
 	-- Friends, but high enough INF to be a potential ally
 	elseif (not bAllies) then
 		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_FRIENDS"];
@@ -240,12 +247,13 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	
 	local bWar = pMajorTeam:IsAtWar(iMinorTeam);
 	local bCanBully = pMinor:CanMajorBullyGold(iMajor);
+	local bCanProtect = pMinor:CanMajorProtect(iMajor);
 	
 	local strShortDescKey = pMinor:GetCivilizationShortDescriptionKey();
 	local iInfluence = pMinor:GetMinorCivFriendshipWithMajor(iMajor);
 	local iInfluenceChangeThisTurn = pMinor:GetFriendshipChangePerTurnTimes100(iMajor) / 100;
 	local iInfluenceAnchor = pMinor:GetMinorCivFriendshipAnchorWithMajor(iMajor);
-
+	
 	local strStatusTT = "";
 	
 	-- Status and Influence
@@ -312,6 +320,10 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	end
 	
 	-- Bullying
+	if(bCanProtect) then
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
+		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_PROTECT");
+	end
 	if (bCanBully) then
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_BULLY");
@@ -319,7 +331,6 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY");
 	end
-
 -- CBP
 	local iJerk = pMinor:GetJerk(iMajor);
 	if(iJerk > 0) then

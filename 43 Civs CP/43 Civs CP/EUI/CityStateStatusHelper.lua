@@ -440,6 +440,10 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 			if influenceAccumulated ~= influenceAnchor then
 				table_insert( tips, L( "TXT_KEY_CSTATE_INFLUENCE_RATE", minorPlayer:GetFriendshipChangePerTurnTimes100(majorPlayerID) / 100, influenceAnchor ) )
 			end
+			--Protect
+			if minorPlayer:CanMajorProtect(majorPlayerID) then
+				table_insert( tips, L"TXT_KEY_CSTATE_CAN_PROTECT" )
+			end
 			-- Bullying
 			if minorPlayer:CanMajorBullyGold(majorPlayerID) then
 				table_insert( tips, L"TXT_KEY_CSTATE_CAN_BULLY" )

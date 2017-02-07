@@ -173,11 +173,48 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 #if defined(MOD_BALANCE_CORE)
 			//Grand Strategy Considerations - if valid, it doubles our initial weighting.
 			// == Grand Strategy ==
-			AIGrandStrategyTypes eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-			bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-			bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-			bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-			bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+			
+			// == Grand Strategy ==
+			int iDiploInterest = 0;
+			int iConquestInterest = 0;
+			int iScienceInterest = 0;
+			int iCultureInterest = 0;
+
+			int iDiploValue = 0;
+			int iScienceValue = 0;
+			int iConquestValue = 0;
+			int iCultureValue = 0;
+
+			int iGrandStrategiesLoop;
+			AIGrandStrategyTypes eGrandStrategy;
+			CvAIGrandStrategyXMLEntry* pGrandStrategy;
+			CvString strGrandStrategyName;
+
+			// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later
+			for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GC.GetGameAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
+			{
+				eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+				pGrandStrategy = GC.GetGameAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
+				strGrandStrategyName = (CvString)pGrandStrategy->GetType();
+
+				if (strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
+				{
+					iConquestInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
+				}
+				else if (strGrandStrategyName == "AIGRANDSTRATEGY_CULTURE")
+				{
+					iCultureInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
+				}
+				else if (strGrandStrategyName == "AIGRANDSTRATEGY_UNITED_NATIONS")
+				{
+					iDiploInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
+				}
+				else if (strGrandStrategyName == "AIGRANDSTRATEGY_SPACESHIP")
+				{
+					iScienceInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
+				}
+			}
+
 			CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo((PolicyTypes) iPolicyLoop);
 			if(pkPolicyInfo)
 			{
@@ -187,53 +224,213 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					if(eFlavor == NO_FLAVOR)
 						continue;
 
+					iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+
 					if(pkPolicyInfo->GetFlavorValue(eFlavor) > 0)
 					{
 						if(GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY")
 						{
-							if(bSeekingDiploVictory)
-							{
-								iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
-							}
-							else if(bSeekingConquestVictory)
-							{
-								iWeight -= m_PolicyAIWeights.GetWeight(iPolicyLoop);
-							}
-							else
-							{
-								for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
-								{
-									PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
-									if(eMinor == NO_PLAYER)
-										continue;
+							iDiploValue += iDiploInterest;
 
-									// Loop through all minors - if we're itching to conquer, bail out on diplo policies.
-									if(GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive())
+							for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+							{
+								PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
+								if (eMinor == NO_PLAYER)
+									continue;
+
+								// Loop through all minors - if we're itching to conquer, bail out on diplo policies.
+								if (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive())
+								{
+									if (pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
 									{
-										if(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
-										{
-											iWeight -= m_PolicyAIWeights.GetWeight(iPolicyLoop);
-											break;
-										}
+										iWeight -= iDiploValue += iDiploInterest;;
+										break;
 									}
 								}
 							}
 						}
-						if(bSeekingConquestVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING"))
+						//War
+						if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE")
 						{
-							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+							iConquestValue += iConquestInterest;
+							iCultureValue += iCultureInterest;
 						}
-						if(bSeekingCultureVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CULTURE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER"))
+						else if(GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING")
 						{
-							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+							iConquestValue += iConquestInterest;
 						}
-						if(bSeekingScienceVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE")
 						{
-							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+							iConquestValue += iConquestInterest;
+							iDiploValue += iDiploInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ANTIAIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR_CARRIER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIRLIFT")
+						{
+							iConquestValue += iConquestInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL")
+						{
+							iConquestValue += iConquestInterest;
+							iScienceValue += iScienceInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RECON")
+						{
+							iConquestValue += iConquestInterest;
+							iCultureValue += iCultureInterest;
+							iDiploValue += iDiploInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED")
+						{
+							iConquestValue += iConquestInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RECON")
+						{
+							iDiploValue += iDiploInterest;
+							iConquestValue += iConquestInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_EXPANSION")
+						{
+							iDiploValue += iDiploInterest;
+							iConquestValue += iConquestInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_PRODUCTION")
+						{
+							iConquestValue += iConquestInterest;
+							iScienceValue += iScienceInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GOLD")
+						{
+							iDiploValue += iDiploInterest;
+							iConquestValue += iConquestInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GREAT_PEOPLE")
+						{
+							iScienceValue += iScienceInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GROWTH")
+						{
+							iScienceValue += iScienceInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_HAPPINESS")
+						{
+							iConquestValue += iConquestInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_INFRASTRUCTURE")
+						{
+							iDiploValue += iDiploInterest;
+							iConquestValue += iConquestInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE")
+						{
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE")
+						{
+							iCultureValue += iCultureInterest;
+						}
+						
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RELIGION")
+						{
+							iCultureValue += iCultureInterest;
+							iDiploValue += iDiploInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE")
+						{
+							iScienceValue += iScienceInterest;
+							iCultureValue += iCultureInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP")
+						{
+							iScienceValue += iScienceInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_TILE_IMPROVEMENT")
+						{
+							iCultureValue += iCultureInterest;
+							iScienceValue += iScienceInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER")
+						{
+							iCultureValue += iCultureInterest;
+							iScienceValue += iScienceInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WATER_CONNECTION" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_TRADE_DESTINATION")
+						{
+							iCultureValue += iCultureInterest;
+							iScienceValue += iScienceInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_USE_NUKE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NUKE")
+						{
+							iConquestValue += iConquestInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE")
+						{
+							iConquestValue += iConquestInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ESPIONAGE")
+						{
+							iDiploValue += iDiploInterest;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ARCHAEOLOGY")
+						{
+							iCultureValue += iCultureInterest;
 						}
 					}
 				}
 			}
+
+			iConquestValue *= (100 + (iConquestInterest / 10));
+			iConquestValue /= 100;
+
+			iCultureValue *= (100 + (iCultureInterest / 10));
+			iCultureValue /= 100;
+
+			iDiploValue *= (100 + (iDiploInterest / 10));
+			iDiploValue /= 100;
+
+			iScienceValue *= (100 + (iScienceInterest / 10));
+			iScienceValue /= 100;
+
+			//And now add them in. Halve if not our main focus.
+			if (pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
+			{
+				iWeight += iCultureValue;
+			}
+			else
+			{
+				iWeight += (iCultureValue / 2);
+			}
+			if (pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory())
+			{
+				iWeight += iDiploValue;
+			}
+			else
+			{
+				iWeight += (iDiploValue / 2);
+			}
+			if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSSVictory())
+			{
+				iWeight += iScienceValue;
+			}
+			else
+			{
+				iWeight += (iScienceValue / 2);
+			}
+
+			if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+			{
+				iWeight += iConquestValue;
+			}
+			else
+			{
+				iWeight += (iConquestValue / 2);
+			}
+
 			//If this is an ideology policy, let's snap those up.
 			if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0)
 			{

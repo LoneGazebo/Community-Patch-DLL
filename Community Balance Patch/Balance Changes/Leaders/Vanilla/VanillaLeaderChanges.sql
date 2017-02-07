@@ -894,7 +894,7 @@ VALUES
 INSERT INTO Trait_YieldFromTilePurchase
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_RIVER_EXPANSION', 'YIELD_PRODUCTION', 25);
+	('TRAIT_RIVER_EXPANSION', 'YIELD_PRODUCTION', 20);
 
 INSERT INTO Trait_YieldFromTileEarn
 	(TraitType, YieldType, Yield)

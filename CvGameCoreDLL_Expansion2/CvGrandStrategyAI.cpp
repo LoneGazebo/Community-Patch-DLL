@@ -686,13 +686,19 @@ int CvGrandStrategyAI::GetConquestPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->GetCombatModifierEnemyCities() > 0)
 					{
@@ -888,13 +894,19 @@ int CvGrandStrategyAI::GetCulturePriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->FaithPurchaseAllGreatPeople())
 					{
@@ -1028,13 +1040,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->GetExtraVotes())
 					{
@@ -1361,13 +1379,19 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->GetSciencePerOtherReligionFollower() > 0)
 					{

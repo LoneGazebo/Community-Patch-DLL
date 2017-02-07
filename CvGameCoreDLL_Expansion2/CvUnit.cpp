@@ -5190,11 +5190,11 @@ bool CvUnit::jumpToNearestValidPlot()
 	if(pBestPlot != NULL)
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
+		if (pBestPlot->needsEmbarkation(this))
+			embark(pBestPlot);
+		else 
+			disembark(pBestPlot);
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
-		if (pBestPlot->isWater() && getDomainType() != DOMAIN_SEA)
-		{
-			setEmbarked(true);
-		}
 		return true;
 	}
 	else
@@ -5253,6 +5253,10 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
+		if (pBestPlot->needsEmbarkation(this))
+			embark(pBestPlot);
+		else 
+			disembark(pBestPlot);
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
 	}
 	else
@@ -7275,7 +7279,13 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if(pReligion)
 				{
-					iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner());
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
+					{
+						pHolyCity = pHolyCityPlot->getPlotCity();
+					}
+					iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner(), pHolyCity);
 					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
@@ -7536,14 +7546,20 @@ void CvUnit::doHeal()
 					{
 						iEra = 1;
 					}
-					if(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner()) > 0)
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
 					{
-						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner()) * iEra);
+						pHolyCity = pHolyCityPlot->getPlotCity();
+					}
+					if (pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) * iEra);
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							float fDelay = 0.0f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner())* iEra);
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity)* iEra);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
@@ -10683,7 +10699,14 @@ bool CvUnit::DoSpreadReligion()
 					}
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-					iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner()) * iEra);
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
+					{
+						pHolyCity = pHolyCityPlot->getPlotCity();
+					}
+
+					iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner(), pHolyCity) * iEra);
 #endif
 				}
 			}
@@ -10991,14 +11014,20 @@ int CvUnit::GetConversionStrength() const
 		const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			int iStrengthMod;
 			if (IsGreatPerson())
 			{
-				iStrengthMod = pReligion->m_Beliefs.GetProphetStrengthModifier(getOwner());
+				iStrengthMod = pReligion->m_Beliefs.GetProphetStrengthModifier(getOwner(), pHolyCity);
 			}
 			else
 			{
-				iStrengthMod = pReligion->m_Beliefs.GetMissionaryStrengthModifier(getOwner());
+				iStrengthMod = pReligion->m_Beliefs.GetMissionaryStrengthModifier(getOwner(), pHolyCity);
 			}
 
 			if(iStrengthMod != 0)
@@ -14836,7 +14865,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+	if (eFoundedReligion == NO_RELIGION)
+	{
+		eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	}
 
 	// If the empire is unhappy, then Units get a combat penalty
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
@@ -14974,7 +15007,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
 					if(pCityReligion)
 					{
-						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner());
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner(), pHolyCity);
 						iModifier += iTempModifier;
 					}
 				}
@@ -15016,7 +15055,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
 						if(pCityReligion)
 						{
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner());
+							CvCity* pHolyCity = NULL;
+							CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
+							if (pHolyCityPlot)
+							{
+								pHolyCity = pHolyCityPlot->getPlotCity();
+							}
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
 							iModifier += iTempModifier;
 						}
 					}
@@ -15035,49 +15080,52 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				{
 					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 				} 
-				if(eTheirReligion != NO_RELIGION)
+				if (eFoundedReligion != NO_RELIGION)
 				{
-					if(eFoundedReligion != NO_RELIGION)
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
+					if(pReligion)
 					{
-						const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
-						if(pReligion)
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
 						{
-							//Other religion! Full bonus.
-							if(eTheirReligion != eFoundedReligion)
-							{			
-								// Bonus in own land
-								int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner());
-								int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner());
-								if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
-								{
-										iTempModifier = iOtherOwn;
-										iModifier += iTempModifier;
-								}
-								//Bonus in their land
-								else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-								{
-									iTempModifier = iOtherTheir;
-									iModifier += iTempModifier;
-								}
-							}
-							//Same religion (or no religion) - half bonus.
-							else
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						//Other religion! Full bonus.
+						if(eTheirReligion != eFoundedReligion)
+						{			
+							// Bonus in own land
+							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+							if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
 							{
-								// Bonus in own land
-								int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner());
-								int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner());
-
-								if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
-								{
-										iTempModifier = (iOtherOwn / 2);
-										iModifier += iTempModifier;
-								}
-								//Bonus in their land
-								else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-								{
-									iTempModifier = (iOtherTheir / 2);
+									iTempModifier = iOtherOwn;
 									iModifier += iTempModifier;
-								}
+							}
+							//Bonus in their land
+							else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+							{
+								iTempModifier = iOtherTheir;
+								iModifier += iTempModifier;
+							}
+						}
+						//Same religion (or no religion) - half bonus.
+						else
+						{
+							// Bonus in own land
+							int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+							int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+
+							if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
+							{
+									iTempModifier = (iOtherOwn / 2);
+									iModifier += iTempModifier;
+							}
+							//Bonus in their land
+							else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+							{
+								iTempModifier = (iOtherTheir / 2);
+								iModifier += iTempModifier;
 							}
 						}
 					}
@@ -15695,7 +15743,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+
+	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+	if (eFoundedReligion == NO_RELIGION)
+	{
+		eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	}
 
 	int iBaseStrength = GetBaseRangedCombatStrength();
 
@@ -15847,7 +15900,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
 					if (pCityReligion)
 					{
-						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner());
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner(), pHolyCity);
 						iModifier += iTempModifier;
 					}
 				}
@@ -15872,7 +15931,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
 						if (pCityReligion)
 						{
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner());
+							CvCity* pHolyCity = NULL;
+							CvPlot* pHolyCityPlot = GC.getMap().plot(pCityReligion->m_iHolyCityX, pCityReligion->m_iHolyCityY);
+							if (pHolyCityPlot)
+							{
+								pHolyCity = pHolyCityPlot->getPlotCity();
+							}
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner(), pHolyCity);
 							iModifier += iTempModifier;
 						}
 					}
@@ -18433,16 +18498,14 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
 
-	//sanity check - may interfere with carriers for land units, so don't fix it
-	/*
+	//sanity check
 	if (pNewPlot)
 	{
-		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() )
+		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() && !isCargo() )
 			setEmbarked(false);
-		if ( pNewPlot->needsEmbarkation(this) && CanEverEmbark() && !isEmbarked() )
+		if ( pNewPlot->needsEmbarkation(this) && CanEverEmbark() && !isEmbarked() && !isCargo() )
 			setEmbarked(true);
 	}
-	*/
 
 	if(pNewPlot != NULL && !bNoMove)
 	{
@@ -19058,16 +19121,26 @@ if (!bDoEvade)
 							eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 						}
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, kPlayer.GetID());
-						if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians(getOwner()))
+
+						if (pReligion)
 						{
-							CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
-							if(pAdjacentUnit)
+							CvCity* pHolyCity = NULL;
+							CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+							if (pHolyCityPlot)
 							{
+								pHolyCity = pHolyCityPlot->getPlotCity();
+							}
+							if (pReligion->m_Beliefs.IsConvertsBarbarians(getOwner(), pHolyCity))
+							{
+								CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
+								if (pAdjacentUnit)
+								{
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
-								CvBeliefHelpers::ConvertBarbarianUnit(this, pAdjacentUnit);
+									CvBeliefHelpers::ConvertBarbarianUnit(this, pAdjacentUnit);
 #else
-								CvBeliefHelpers::ConvertBarbarianUnit(&kPlayer, pAdjacentUnit);
+									CvBeliefHelpers::ConvertBarbarianUnit(&kPlayer, pAdjacentUnit);
 #endif
+								}
 							}
 						}
 					}
@@ -19088,15 +19161,26 @@ if (!bDoEvade)
 										eFoundedReligion = adjUnitPlayer.GetReligions()->GetReligionInMostCities();
 									}
 									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, adjUnitPlayer.GetID());
-									if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians(getOwner()))
+
+									if (pReligion)
 									{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
-										if (CvBeliefHelpers::ConvertBarbarianUnit(adjUnit, this))
-#else
-										if(CvBeliefHelpers::ConvertBarbarianUnit(&adjUnitPlayer, this))
-#endif
+										CvCity* pHolyCity = NULL;
+										CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+										if (pHolyCityPlot)
 										{
-											ClearMissionQueue();
+											pHolyCity = pHolyCityPlot->getPlotCity();
+										}
+
+										if (pReligion->m_Beliefs.IsConvertsBarbarians(getOwner(), pHolyCity))
+										{
+#if defined(MOD_EVENTS_UNIT_CAPTURE)
+											if (CvBeliefHelpers::ConvertBarbarianUnit(adjUnit, this))
+#else
+											if (CvBeliefHelpers::ConvertBarbarianUnit(&adjUnitPlayer, this))
+#endif
+											{
+												ClearMissionQueue();
+											}
 										}
 									}
 								}

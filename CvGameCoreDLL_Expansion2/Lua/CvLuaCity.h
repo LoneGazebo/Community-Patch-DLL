@@ -116,6 +116,7 @@ protected:
 	LUAAPIEXTN(GetUnitInvestment, int);
 	LUAAPIEXTN(IsWorldWonder, int);
 	LUAAPIEXTN(GetWorldWonderCost, int);
+	LUAAPIEXTN(GetNumPoliciesNeeded, int);
 #endif
 	static int lGetProjectProductionNeeded(lua_State* L);
 	static int lGetProductionTurnsLeft(lua_State* L);

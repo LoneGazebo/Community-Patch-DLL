@@ -2335,6 +2335,10 @@ void CvHomelandAI::PlotUpgradeMoves()
 							iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
 						}
 
+						//Extra emphasis on air/sea units
+						if (pUnit->getDomainType() != DOMAIN_LAND)
+							iPriority *= 2;
+
 #if defined(MOD_BALANCE_CORE)
 						//Add in experience - we should promote veterans.
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -6829,11 +6833,11 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if(pCity && pCity->getTeam() == pUnit->getTeam())
 			{
-				iValue += pCity->getStrengthValue() * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDamage());
+				iValue += pCity->getStrengthValue();
+
 				if(pCity->getDamage() <= 0)
 				{
 					//We should always hide in cities if we can.
-					iValue += 1;
 					iValue *= 1000;
 				}
 			}

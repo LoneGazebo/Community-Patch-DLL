@@ -2404,12 +2404,8 @@ void CvPlayerTrade::MoveUnits (void)
 							}
 							else if(GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
 							{
-								int iBonus = GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS();
+								int iBonus = GET_PLAYER(pOriginCity->getOwner()).GetHistoricEventTourism(false, true);
 								// Culture boost based on previous turns
-								int iPreviousTurnsToCount = 10;
-								// Calculate boost
-								iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-								iBonus /= 100;
 								if(iBonus > 0)
 								{
 									PlayerTypes ePlayer;
@@ -2940,7 +2936,13 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 		if(pReligion)
 		{
-			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID()) * 100;
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
+			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
 			BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{

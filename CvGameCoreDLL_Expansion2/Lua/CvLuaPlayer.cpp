@@ -287,6 +287,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
 	Method(GetFractionOriginalCapitalsUnderControl);
+	Method(GetTourismPenalty);
 	Method(GetTechsToFreePolicy);
 #endif
 	Method(GetInfluenceCityStateSpyRankBonus);
@@ -3112,13 +3113,12 @@ int CvLuaPlayer::lGetNoUnhappinessExpansion(lua_State* L)
 int CvLuaPlayer::lGetFractionOriginalCapitalsUnderControl(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iSpoofValue = luaL_optint(L, 2, 0);
-	
+	int iOCCount = luaL_optint(L, 2, 0);
+
 	if (pkPlayer == NULL)
 		return 0;
 
 	int iTotal = 0;
-	int iOCCount = iSpoofValue;
 
 	if (iOCCount > 0)
 	{
@@ -3134,6 +3134,21 @@ int CvLuaPlayer::lGetFractionOriginalCapitalsUnderControl(lua_State* L)
 	}
 
 	lua_pushinteger(L, iTotal);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTourismPenalty(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer == NULL)
+		return 0;
+
+	// Mod for City Count
+	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 15, gets smaller on larger maps
+
+	lua_pushinteger(L, iMod);
 	return 1;
 }
 
@@ -3584,7 +3599,7 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
 				if(pReligion)
 				{
-					iRtnValue = pReligion->m_Beliefs.GetCombatModifierEnemyCities();
+					iRtnValue = pReligion->m_Beliefs.GetCombatModifierEnemyCities(pkPlayer->GetID(), pPlotCity);
 				}
 			}
 		}
@@ -3615,7 +3630,7 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
 				if(pReligion)
 				{
-					iRtnValue = pReligion->m_Beliefs.GetCombatModifierFriendlyCities();
+					iRtnValue = pReligion->m_Beliefs.GetCombatModifierFriendlyCities(pkPlayer->GetID(), pPlotCity);
 				}
 			}
 		}

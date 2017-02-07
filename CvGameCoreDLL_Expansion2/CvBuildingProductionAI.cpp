@@ -350,7 +350,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	//Tiny army? Eek!
-	if(kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 3))
+	if(kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
 	{
 		iBonus -= 250;
 	}
@@ -700,17 +700,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 		if(m_pCity->IsBuildingInvestment(eBuildingClass))
 		{
-			iBonus += 500;
+			iBonus += 1000;
 		}
 	}
 #endif
 	//Courthouse? Let's get it ASAP.
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
 	{
-		if(m_pCity->IsOccupied())
+		if(m_pCity->IsOccupied() || !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			//Extend based on population.
-			iBonus += 500 * m_pCity->getPopulation();
+			iBonus += 1000 * m_pCity->getPopulation();
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -1004,7 +1004,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iEraValue = ((kPlayer.GetCurrentEra() * 5) - eEra);
 				if (iEraValue > 0)
 				{
-					iBonus += (100 * iEraValue);
+					iBonus += (75 * iEraValue);
+				}
+			}
+			//No Era? Zero!
+			else
+			{
+				int iEraValue = ((kPlayer.GetCurrentEra() * 5));
+				if (iEraValue > 0)
+				{
+					iBonus += (50 * iEraValue);
 				}
 			}
 		}
@@ -1014,7 +1023,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iEraValue = ((kPlayer.GetCurrentEra() * 5));
 		if (iEraValue > 0)
 		{
-			iBonus += (100 * iEraValue);
+			iBonus += (75 * iEraValue);
 		}
 	}
 

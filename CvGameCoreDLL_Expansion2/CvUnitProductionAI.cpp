@@ -627,11 +627,25 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(kPlayer.GetMilitaryAI()->GetWarType() == 1)
 					{
-						iValue *= 8;
+						if (pkUnitEntry->GetRange() <= 0)
+						{
+							iValue *= 8;
+						}
+						else if (pkUnitEntry->GetRange() > 0)
+						{
+							iValue *= 6;
+						}
 					}
 					else
 					{
-						iValue *= 4;
+						if (pkUnitEntry->GetRange() <= 0)
+						{
+							iValue *= 4;
+						}
+						else if (pkUnitEntry->GetRange() > 0)
+						{
+							iValue *= 2;
+						}
 					}
 				}
 				else if(bAlone)
