@@ -2553,7 +2553,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			}
 
 			//If don't have units to actually conquer, ignore.
-			if(!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),2, 1))
+			if(!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),2,1))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -8960,8 +8960,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 	bool bAirUnitsAdded = false;
 	CvUnit* pDefender = pTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID());
 
-	//todo: check if defender can be damaged at all or if an attacker would die
-
+	//todo: check if defender can be damaged at all or if an attacker would die?
 	// Loop through all units available to tactical AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
@@ -8981,8 +8980,9 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (bNoRangedUnits && pLoopUnit->IsCanAttackRanged())
 			continue;
 
-		//ignore embarked units for attacking, that usually makes no sense
-		if(!pLoopUnit->canMove() || pLoopUnit->isEmbarked())
+		//ignore most embarked units for attacking, that usually makes no sense
+		bool bAmphibiousAttackPossible = pLoopUnit->plot()->isAdjacent(pTarget) && !pLoopUnit->isRanged() && pTarget->isCoastalLand();
+		if(!pLoopUnit->canMove() || (pLoopUnit->isEmbarked() && !bAmphibiousAttackPossible) )
 			continue;
 
 		//Respect domain for melee units and subs
@@ -11784,7 +11784,8 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 
 	int iDamageDealt = 0, iDamageReceived = 1;
 	if (pTargetCity)
-		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity,pUnit,pUnit->plot(),iDamageReceived);
+		//+2 to make sure it's positive if city has zero hitpoints left
+		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity,pUnit,pUnit->plot(),iDamageReceived) + 2; 
 	else if (pTargetUnit)
 		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(pTargetUnit,pUnit,pTargetUnit->plot(),pUnit->plot(),iDamageReceived);
 	
