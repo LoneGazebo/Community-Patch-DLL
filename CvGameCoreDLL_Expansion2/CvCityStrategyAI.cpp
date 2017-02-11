@@ -4172,6 +4172,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					// Player mod
 					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();
 
+					iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 					if(eGreatPerson != NO_GREATPERSON)
 					{
@@ -4182,6 +4184,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							{
 								iMod += pCity->GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 								iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+
+								iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
 								ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
 								if(eMajority != NO_RELIGION)
@@ -4244,6 +4248,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						{
 							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
 						}
+						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
+						{
+							iMod += 25;
+						}
 					}					
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
@@ -4252,6 +4260,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						{
 							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
 						}
+						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
+						{
+							iMod += 25;
+						}
 					}					
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
@@ -4259,6 +4271,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						if (pCity->GetPlayer()->isGoldenAge())
 						{
 							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+						}
+						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
+						{
+							iMod += 25;
 						}
 					}
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -4627,7 +4643,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
-		int iValue = (pCity->getPopulation() / pkBuildingInfo->GetYieldChangePerPop(eYield));
+		//Since this is going to grow, let's boost the pop.
+		int iValue = ((pkBuildingInfo->GetYieldChangePerPop(eYield) * pCity->getPopulation()) / 50);
 		if (iValue > 0)
 		{
 			iFlatYield += iValue;
@@ -4635,7 +4652,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldChangePerReligion(eYield) * pCity->GetCityReligions()->GetNumReligionsWithFollowers());
+		iFlatYield += ((pkBuildingInfo->GetYieldChangePerReligion(eYield) * pCity->GetCityReligions()->GetNumReligionsWithFollowers()) / 100);
 	}
 
 	if (pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
@@ -4923,6 +4940,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromGPExpend(eYield) > 0)
 	{
 		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(10, ((pCity->getGreatPeopleRateModifier() + kPlayer.getGreatPeopleRateModifier()) / 10)));
+		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 	}
 	if (pkBuildingInfo->GetYieldFromTech(eYield) > 0)
 	{
@@ -4999,6 +5017,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iInstant += kPlayer.GetCapitalGrowthMod();
 		}
+		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier();
 		iInstant += kPlayer.GetPlayerTraits()->GetGrowthBoon();
 	}
 
@@ -5064,7 +5083,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			{
 				if (pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, kPlayer.GetID(), pCity) > 0)
 				{
-					iModifier += (pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, kPlayer.GetID(), pCity) * 3);
+					iModifier += (pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, kPlayer.GetID(), pCity) * 10);
 				}
 			}
 		}
@@ -5115,11 +5134,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (iDelta <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iDelta *= -5;
+			iFlatYield *= 10;
 		}
 
 		//And here's what the value represents.
-		iActualIncrease = (iYieldRate * 100);
+		//Era = higher era, less valuable in game.
+		iActualIncrease = (iFlatYield * (350 - (iEra * 40)));
 		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
@@ -5130,18 +5150,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		//Instant Yields almost always scale with era, so compensate.
 		iInstant *= max(1, iEra);
-		//But since instant yields are sporadic, let's assume that we'll get one every 20 turns.
-		iInstant /= 20;
 
 		//Let's see how much this is compared to our actual rate.
 		//We divide, since we are getting this sporadically, not all the time.
-		iDelta = max(10, (iInstant / iYieldRate));
+		iDelta = max(10, (iInstant / max(1, iYieldRate)));
 
-		//And here's what the value represents.
-		iActualIncrease = (iYieldRate * 100);
-		iActualIncrease /= max(1, iDelta);
-
-		iYieldValue += iActualIncrease;
+		iYieldValue += (iDelta * iEra * 2);
 
 	}
 	if (iModifier > 0)
@@ -5154,7 +5168,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//We don't need to do this again as this shows us the actual bonus earned here.
 		iActualIncrease = ((iModifier * iYieldRate) / 100);
 
-		iYieldValue += iActualIncrease;
+		iYieldValue += (iActualIncrease * iEra * 2);
 	}
 
 	if (iYieldValue > 0)
@@ -5466,6 +5480,10 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	if(pkBuildingInfo->GetFreeGreatWork() > 0)
 	{
 		iCultureValue += 50;
+		if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+		{
+			iCultureValue += 100;
+		}
 	}
 	if(pkBuildingInfo->GetFreePolicies() > 0)
 	{
@@ -5604,6 +5622,8 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 			iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * iNumWorkers);
 
+			iValue += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+
 			for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 			{
 				YieldTypes yield = (YieldTypes)ui;
@@ -5641,6 +5661,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	{
 		iValue += (kPlayer.getGoldenAgeModifier() + kPlayer.GetGoldenAgeTourism() + kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() + pkBuildingInfo->GetGoldenAgeModifier());
 
+		if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+		{
+			iValue += 25;
+		}
+
 		for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
 			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
@@ -5659,14 +5684,26 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
+			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+			{
+				iValue += 25;
+			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier() > 0)
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
+			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+			{
+				iValue += 25;
+			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier() > 0)
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+			{
+				iValue += 25;
+			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0)
 		{
@@ -5692,6 +5729,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 					if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
 					{
 						iValue += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity);
+						iValue += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 					}
 				}
 				for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -5713,9 +5751,10 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	{
 		iValue += kPlayer.getGreatPeopleRateModifier() > + pCity->getGreatPeopleRateModifier() + (kPlayer.GetGreatPersonExpendGold() / 10) + pkBuildingInfo->GetGreatPeopleRateChange() + pkBuildingInfo->GetGlobalGreatPeopleRateModifier() + pkBuildingInfo->GetGreatPeopleRateModifier();
 
-		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
+		if (kPlayer.GetPlayerTraits()->IsGPWLTKD() || kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
 			iValue += 100;
+			iValue += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 		}
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{

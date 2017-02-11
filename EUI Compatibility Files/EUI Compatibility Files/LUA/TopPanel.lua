@@ -1688,11 +1688,10 @@ if civ5_mode then
 			end
 
 			--CBP
-			local iCapitalValue = g_activePlayer:GetFractionOriginalCapitalsUnderControl(1);
 			local iTourismPenalty = g_activePlayer:GetTourismPenalty();
 
 			tipText = tipText .. "[NEWLINE][NEWLINE]"
-					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iCapitalValue, iTourismPenalty )
+					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty )
 			--END
 
 			return setTextToolTip( tipText )

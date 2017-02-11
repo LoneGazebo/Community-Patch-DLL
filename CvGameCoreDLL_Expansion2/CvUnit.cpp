@@ -172,6 +172,7 @@ CvUnit::CvUnit() :
 	, m_iHillsDoubleMoveCount("CvUnit::m_iHillsDoubleMoveCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
+	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 #endif
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
@@ -1117,12 +1118,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE)
 	if(IsGreatPerson() && bHistoric)
 	{
-		int iTourism = kPlayer.GetHistoricEventTourism();
+		int iTourism = kPlayer.GetHistoricEventTourism(HISTORIC_EVENT_GP);
 		kPlayer.ChangeNumHistoricEvents(1);
 		// Culture boost based on previous turns
 		if(iTourism > 0)
 		{
-			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			kPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -1138,6 +1139,29 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
 					pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, getX(), getY(), kPlayer.GetID());
 				}
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if (IsGreatGeneral() && kPlayer.GetPlayerTraits()->GetInspirationalLeader() != 0)
+	{
+		int iLoop;
+		CvUnit* pLoopUnit = NULL;
+		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if (!pLoopUnit)
+			{
+				continue;
+			}
+			if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			{
+				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
+#if defined(MOD_UNITS_XP_TIMES_100)
+				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetInspirationalLeader() * 100);
+#else
+				pLoopUnit->changeExperience(GetPlayerTraits()->GetInspirationalLeader());
+#endif
 			}
 		}
 	}
@@ -1257,6 +1281,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iHillsDoubleMoveCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
+	m_iAOEDamageOnKill = 0;
 #endif
 	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
@@ -8981,6 +9006,39 @@ bool CvUnit::createGreatWork()
 	if (pCity)
 	{
 		int iGWindex = pCulture->CreateGreatWork(eGreatWorkType, eClass, m_eOwner, kPlayer.GetCurrentEra(), getName());
+
+#if defined(MOD_BALANCE_CORE)
+		if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+		{
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+
+			if (iWLTKD > 0)
+			{
+				CvCity* pLoopCity;
+				int iCityLoop;
+
+				// Loop through owner's cities.
+				for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+					}
+				}
+				CvNotifications* pNotifications = kPlayer.GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+					strText << iWLTKD << kPlayer.GetPlayerTraits()->GetGrowthBoon();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				}
+			}
+		}
+#endif
 		pCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iSlot, iGWindex);
 
 		if(pPlot->isActiveVisible(false))
@@ -21008,6 +21066,21 @@ void CvUnit::changeMountainsDoubleMoveCount(int iChange)
 	m_iMountainsDoubleMoveCount = (m_iMountainsDoubleMoveCount + iChange);
 	CvAssert(getMountainsDoubleMoveCount() >= 0);
 }
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getAOEDamageOnKill() const
+{
+	VALIDATE_OBJECT
+	return m_iAOEDamageOnKill;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAOEDamageOnKill(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iAOEDamageOnKill = (m_iAOEDamageOnKill + iChange);
+	CvAssert(getAOEDamageOnKill() >= 0);
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getImmuneToFirstStrikesCount() const
@@ -25190,6 +25263,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackSupport()) ? iChange: 0);
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
+		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
@@ -28804,20 +28878,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetRangedDefenseMod();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraRangedDefenseModifier() * 2;
+		iExtra = getExtraRangedDefenseModifier() * 3;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		// likely not a ranged unit
 		if((AI_getUnitAIType() == UNITAI_DEFENSE) || (AI_getUnitAIType() == UNITAI_COUNTER) || (AI_getUnitAIType() == UNITAI_ATTACK))
 		{
-			iTemp *= 2;
+			iTemp *= 4;
 		}
 		// a slow unit
 		if (maxMoves() / GC.getMOVE_DENOMINATOR() <= 2)
 		{
-			iTemp *= 2;
+			iTemp *= 4;
 		}
-		iValue += iTemp + iFlavorDefense * 2;
+		iValue += iTemp + iFlavorDefense * 4;
 	}
 
 	if(pkPromotionInfo->IsRangeAttackIgnoreLOS() && isRanged())
@@ -28828,16 +28902,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetAttackWoundedMod();
 	if(iTemp != 0 && isRanged())
 	{
-		iExtra = getExtraAttackWoundedMod() * 2;
+		iExtra = getExtraAttackWoundedMod() * 3;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 2;
+		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 3;
 	}
 
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
 	if(iTemp > 0)
 	{
-		iExtra = (2 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra = (4 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
 		iExtra *= iTemp;
 		iExtra /= 100;
 		iValue += iExtra;
@@ -28972,10 +29046,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetDefenseMod();
 	if(iTemp != 0)
 	{
-		iExtra = getDefenseModifier() * 2;
+		iExtra = getDefenseModifier() * 3;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorDefense * 2;
+		iValue += iTemp + iFlavorDefense * 4;
 	}
 
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)

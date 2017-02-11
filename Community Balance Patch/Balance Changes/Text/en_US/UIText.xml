@@ -36,7 +36,7 @@
 			<Text>Historic Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
-			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire. The amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Trade with a [ICON_CITY_STATE] City-State ('Cultural Diplomacy' Policy Only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire and your tourism modifier with the target civ. Finally, the amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
 			<Text>What is a Historic Event?</Text>
@@ -220,7 +220,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING">
-			<Text>Every owned city (not including your [ICON_CAPITAL] Capital) decreases the [ICON_TOURISM] Tourism you produce from Historic Events by [COLOR_NEGATIVE_TEXT]{2_Num}%[ENDCOLOR] (up to [COLOR_NEGATIVE_TEXT]75%[ENDCOLOR]).[NEWLINE]Every foreign [ICON_CAPITAL] Capital you control reduces [ICON_TOURISM] Tourism from Cities by [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Every owned city (not including your [ICON_CAPITAL] Capital) decreases the [ICON_TOURISM] Tourism you produce from Cities and Historic Events by {1_Num}% (up to 75%).</Text>
 		</Row>
 		
 		<!-- City-State Protection Prompt -->
@@ -234,7 +234,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
-			<Text>{1_Num}% [ICON_TOURISM] Tourism from owned foreign Capitals</Text>
+			<Text>{1_Num}% [ICON_TOURISM] Tourism from number of Cities</Text>
 		</Row>
 		
 		<!-- Resource Monopoly Text-->
@@ -364,46 +364,77 @@
 			<Text>You have adopted a Belief! Choose a free technology...</Text>
 		</Row>
 
-		<!--China UA Text-->
-		<Row Tag="TXT_KEY_FOODMOD_PLAYER_UA_GOLDEN_AGE">
-			<Text>[NEWLINE][ICON_BULLET]Mandarin Bureaucracy ([ICON_GOLDEN_AGE]): {1_Num}%[ENDCOLOR]</Text>
-		</Row>
+		<!--Old China UA Text-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA">
-			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +75% [ICON_FOOD] growth bonus!</Text>
+			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day.' All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
 		</Row>
+		
+		<!-- New -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE">
+			<Text>Entering a new Era has lead to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_CULTURE] Culture from Mandate of Heaven are reduced by {1_Num} in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE">
+			<Text>Dynastic Transition...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK">
+			<Text>The creation of a [ICON_GREAT_WORK] Great Work causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture permanently.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK">
+			<Text>Mandate of Heaven</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
-			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +75% [ICON_FOOD] growth bonus!</Text>
+			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Food by +{4_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE">
-			<Text>{1_CityName:textkey} loves the Empress!</Text>
+			<Text>Mandate of Heaven</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING">
+			<Text>The founding of a new City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_SETTLING">
+			<Text>Mandate of Heaven</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST">
+			<Text>The conquest of a City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST">
+			<Text>Mandate of Heaven</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_FOODMOD_WLTKD_UA">
-			<Text>[NEWLINE][ICON_BULLET]We Love the Empress Day Modifier: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]We Love the Empress Day Modifier: +{1_Num}% [ICON_FOOD] Food</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA">
-			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day," increasing its [ICON_FOOD] Growth rate by 75%!</Text>
+			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day," causing all Cities to gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA">
-			<Text>This City is in "We Love the Empress Day", which increases [ICON_FOOD] growth!</Text>
+			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Food modifier!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA">
-			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day", which increases [ICON_FOOD] growth!</Text>
+			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day", causing all Cities to gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA">
 			<Text>We Love The Empress Day! ({1_Num})</Text>
 		</Row>
+		
+		
 		<!-- Brazil -->
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL">
 			<Text>Carnaval! ({1_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL">
-			<Text>This City is celebrating Carnaval, which increases [ICON_CULTURE] Culture!</Text>
+			<Text>This City is celebrating Carnaval, which increases [ICON_CULTURE] Culture and [ICON_FOOD] Growth, and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL">
-			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnaval, which increases [ICON_CULTURE] Culture!</Text>
+			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnaval, which increases [ICON_CULTURE] Culture and [ICON_FOOD] Growth, and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 
 		<!-- Bully Metric Values -->
@@ -947,7 +978,7 @@
 			<Text>Brazilwood</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_HELP">
-			<Text>Luxury resource unique to Brazil. Can only be acquired through the creation of Brazilwood Camps.</Text>
+			<Text>Luxury resource unique to Brazil. Can only be acquired through the creation of Brazilwood Camps.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_CULTURE] Culture from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_RESOURCE_BRAZILWOOD">
 			<Text>Brazilwood</Text>
@@ -961,22 +992,16 @@
 			<Text>[COLOR_POSITIVE_TEXT]Tech unlocks remaining until free Social Policy: {1_Num}[ENDCOLOR]</Text>
 		</Row>
 
-		<!-- Randomization Victory Data-->
-		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
-			<Text>Victory Condition Enabled!</Text>
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
+			<Text>[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]This action is only possible if you are in the top 60% of the world in terms of Military Power. Your Military Power is currently ranked as {1_Num}% of world Military Power.[ENDCOLOR]</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_DIPLO">
-			<Text>Human history is a history of violence, yet a new era dawns, and with it, a chance at human redemption. The World Congress is the battleground of the future; the prize is leadership over all other nations as the first World Leader.[NEWLINE][COLOR_POSITIVE_TEXT]Secure power as the Global Hegemon via a Diplomatic Victory![ENDCOLOR]</Text>
+		<!-- Great Work Text-->
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_FLOOD_TABLET">
+			<Text>"The sea calmed and the whirlwind and flood stopped.[NEWLINE]Utnapishtim opened a window and felt fresh air on his face.[NEWLINE]He looked for coastlines at the horizon and saw a region of land.[NEWLINE]The boat lodged firmly on mount Nimush which held the boat for several days, allowing no swaying.[NEWLINE]He released a raven which was able to eat and scratch, and did not circle back to the boat.[NEWLINE]He then sent his livestock out in various directions."</Text>
 		</Row>
-		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CULTURE">
-			<Text>The survival of humanity depends on the creation of a single, unifying cultural entity, a monolith of ideas, ideologies, and values. The world's cultural powers will each strive to define this monolith themselves - it is up to you to show the world what a truly unifed culture should look like.[NEWLINE][COLOR_POSITIVE_TEXT]Unify the world via a Cultural Victory![ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_SPACERACE">
-			<Text>Modernity has not been kind to planet earth. The very vessel upon which we depend - Spaceship Earth - may soon perish. Our first flights took us to the edge of space; we must harness this power and be the first to discover a new home for humanity.[NEWLINE][COLOR_POSITIVE_TEXT]Be the first to escape a dying planet via a Spaceship Victory![ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CONQUEST">
-			<Text>An age of eternal war has fallen upon humanity. Bitter rivalries, unsolved through diplomacy, look to the battlefield for resolution.To be second place in this contest is to be condemnded to the ash heap of history. Harness the weapons of war and bring glory to your empire![NEWLINE][COLOR_POSITIVE_TEXT]Conquer or be conquered via a Domination Victory![ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_GREAT_WORK_FLOOD_TABLET">
+			<Text>The Flood Tablet</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

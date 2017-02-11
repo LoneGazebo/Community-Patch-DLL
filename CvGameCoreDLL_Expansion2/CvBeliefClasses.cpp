@@ -1849,7 +1849,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 				{
 					return false;
 				}
-				else if (eReligion != NO_RELIGION && pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+				else if (eReligion > RELIGION_PANTHEON && pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 				{
 					return false;
 				}

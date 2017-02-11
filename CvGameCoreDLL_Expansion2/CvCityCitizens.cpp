@@ -1602,18 +1602,18 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		//Increase penalty based on function of excess food value and growth thresholds. 
 		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
 		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 5), 1));
+		iRemainder = (max(iFoodNeeded, 1) / max(iExcessFoodTimes100, 1));
 		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
-			iPenalty += iRemainder;
+			iPenalty += iRemainder * 3;
 		}
 		else if(eFocus == NO_CITY_AI_FOCUS_TYPE && !bAvoidGrowth)
 		{
-			iPenalty += (iRemainder / 2);
+			iPenalty += iRemainder;
 		}
 		else
 		{
-			iPenalty += (iRemainder / 4);
+			iPenalty += (iRemainder / 2);
 		}
 		if(iExcessFoodTimes100 < 200 && !bAvoidGrowth)
 		{
@@ -1927,8 +1927,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	//////////
 	int iHappinessYieldValue = 0;
 
-	iHappinessYieldValue = m_pCity->GetUnhappinessFromCitySpecialists();
-
+	iHappinessYieldValue = (m_pCity->GetUnhappinessFromCitySpecialists() * (25 - GetPlayer()->GetHappiness()));
+	if (GetPlayer()->IsEmpireUnhappy())
+	{
+		iHappinessYieldValue *= 2;
+	}
 	iValue -= iHappinessYieldValue;
 	iValue -= iPenalty;
 
@@ -4036,8 +4039,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
+
 			if(iWLTKD > 0)
 			{
 				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -4061,8 +4066,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				if(pLoopCity != NULL)
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
+
 					if (iWLTKD > 0)
 					{
 						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -4246,8 +4253,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
+
 			if(iWLTKD > 0)
 			{
 				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -4271,8 +4280,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				if(pLoopCity != NULL)
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
+
 					if (iWLTKD > 0)
 					{
 						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);

@@ -3167,6 +3167,38 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				}
 				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
 				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
+#if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+
+					if (iWLTKD > 0)
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+
+						// Loop through owner's cities.
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if (pLoopCity != NULL)
+							{
+								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+							}
+						}
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+							strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+						}
+					}
+				}
+#endif
 				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -3201,6 +3233,38 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
 #if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+
+					if (iWLTKD > 0)
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+
+						// Loop through owner's cities.
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if (pLoopCity != NULL)
+							{
+								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+							}
+						}
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+							strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+						}
+					}
+				}
+#endif
+#if defined(MOD_BALANCE_CORE)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes) iI;
@@ -3228,6 +3292,40 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+#endif
+#if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+
+					if (iWLTKD > 0)
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+
+						// Loop through owner's cities.
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if (pLoopCity != NULL)
+							{
+								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+							}
+						}
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+							strText << iWLTKD;
+							strText << m_pPlayer->GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+							strText << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+						}
+					}
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -3280,9 +3378,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #if defined(MOD_BALANCE_CORE)
 		if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
 		{
-			int iTourism = m_pPlayer->GetHistoricEventTourism(true);
+			int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
 			m_pPlayer->ChangeNumHistoricEvents(1);
-			m_pPlayer->GetCulture()->AddTourismAllKnownCivs(iTourism);
+			m_pPlayer->GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(iTourism > 0)
 			{
 				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
@@ -3842,14 +3940,6 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg (ePlayer >= 0, "Invalid player index");
 	CvAssertMsg (ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
-
-#if defined(MOD_BALANCE_CORE)
-	if (ePlayer != m_pPlayer->GetID() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoOpenTrade())
-	{
-		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, m_pPlayer->GetID(), true))
-			iValue /= 2;
-	}
-#endif
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
@@ -5071,6 +5161,27 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			ChangeInfluenceOn(eLoopPlayer, iTourism);
+		}
+	}
+}
+
+/// Add tourism with all known civs
+void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
+{
+#if defined(MOD_BALANCE_CORE)
+	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	{
+		return;
+	}
+#endif
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
 		}
 	}
 }
@@ -6434,10 +6545,19 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
-	if (kPlayer.GetNumCapitalCities() != 0)
+	int iNumCities = kPlayer.GetMaxEffectiveCities();
+	if (iNumCities != 0)
 	{
-		int iResistance = kPlayer.GetFractionOriginalCapitalsUnderControl();
-		iModifier += (iResistance * -1);
+		// Mod for City Count
+		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+		iMod *= (iNumCities - 1);
+
+		if (iMod >= 75)
+			iMod = 75;
+
+		iMod *= -1;
+		iModifier += iMod;
 	}
 
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
@@ -6629,10 +6749,19 @@ int CvCityCulture::GetBaseTourism()
 		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
-	if (kPlayer.GetNumCapitalCities() != 0)
+	int iNumCities = kPlayer.GetMaxEffectiveCities();
+	if (iNumCities != 0)
 	{
-		int iResistance = kPlayer.GetFractionOriginalCapitalsUnderControl();
-		iModifier += (iResistance * -1);
+		// Mod for City Count
+		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+		iMod *= (iNumCities - 1);
+
+		if (iMod >= 75)
+			iMod = 75;
+
+		iMod *= -1;
+		iModifier += iMod;
 	}
 
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
@@ -7266,17 +7395,31 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += szTemp;
 	}
 
-	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES && kCityPlayer.GetNumCapitalCities() > 0)
+	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES && kCityPlayer.GetMaxEffectiveCities() > 0)
 	{
-		int iResistance = kCityPlayer.GetFractionOriginalCapitalsUnderControl();
-		iResistance *= -1;
-
-		if (szRtnValue.length() > 0)
+		int iNumCities = kCityPlayer.GetMaxEffectiveCities();
+		int iMod = 0;
+		if (iNumCities != 0)
 		{
-			szRtnValue += "[NEWLINE][NEWLINE]";
+			// Mod for City Count
+			iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+			iMod *= (iNumCities - 1);
+
+			if (iMod >= 75)
+				iMod = 75;
+
+			iMod *= -1;
 		}
-		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iResistance);
-		szRtnValue += szTemp;
+		if (iMod != 0)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod);
+			szRtnValue += szTemp;
+		}
 	}
 
 	return szRtnValue;

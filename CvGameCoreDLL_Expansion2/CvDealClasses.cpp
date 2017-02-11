@@ -3432,12 +3432,12 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 						GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns, iValue);
 					}
 
-					int iTourism = GET_PLAYER(eAcceptedToPlayer).GetHistoricEventTourism();
+					int iTourism = GET_PLAYER(eAcceptedToPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
 					GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(1);
 					// Culture boost based on previous turns
 					if(iTourism > 0)
 					{
-						GET_PLAYER(eAcceptedToPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+						GET_PLAYER(eAcceptedToPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 						if(eAcceptedToPlayer == GC.getGame().getActivePlayer())
 						{
 							CvCity* pCity = GET_PLAYER(eAcceptedToPlayer).getCapitalCity();
@@ -3508,11 +3508,11 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 						GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns, iValue);
 					}
 
-					int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetHistoricEventTourism();
+					int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
 					GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(1);
 					if(iTourism > 0)
 					{
-						GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+						GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 						if(eAcceptedFromPlayer == GC.getGame().getActivePlayer())
 						{
 							CvCity* pCity = GET_PLAYER(eAcceptedFromPlayer).getCapitalCity();

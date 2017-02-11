@@ -5249,7 +5249,7 @@
 		
 		<!-- Brazil LUA-->
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD">
-			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +20% [ICON_CULTURE] Culture instead of the normal 25% [ICON_FOOD] Growth bonus.</Text>
+			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +20% [ICON_CULTURE] Culture in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD_S">
 			<Text>Carnaval begins!</Text>
@@ -5788,25 +5788,25 @@
 			<Text>Historic Event</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_ERA">
-			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_WAR">
-			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP">
-			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_WW">
-			<Text>Because your Civilization constructed a [ICON_GOLDEN_AGE] World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization constructed a [ICON_GOLDEN_AGE] World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_CS">
-			<Text>Because your Civilization completed a Global [ICON_CITY_STATE] City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed a Global [ICON_CITY_STATE] City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY">
-			<Text>Because your Civilization completed an [ICON_RES_ARTIFACTS] Archaeological Dig, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed an [ICON_RES_ARTIFACTS] Archaeological Dig, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GOLDEN_AGE">
-			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 
 		<!-- Arabia -->
@@ -5843,17 +5843,17 @@
 			<Text>Tourism and Trade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num} (before Tourism modifiers)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS">
 			<Text>City-State Tourism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS">
-			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 
 		<!-- Religion Majority Est. -->
@@ -6096,14 +6096,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING">
-			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase the size of your military within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase your Military Ranking by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT">
 			<Text>Pledge of Protection warning!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER">
-			<Text>If you do not improve your global military standing in {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+			<Text>If you do not improve your Military Ranking by {3_Num}% within {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
 			<Text>Pledge of Protection in jeopardy!</Text>
@@ -6827,6 +6827,24 @@
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD">
 			<Text>Golden Age Conquest Of The World Bonus</Text>
+		</Row>
+
+		<!-- Randomization Victory Data-->
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
+			<Text>Victory Condition Enabled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_DIPLO">
+			<Text>Human history is a history of violence, yet a new era dawns, and with it, a chance at human redemption. The World Congress is the battleground of the future; the prize is leadership over all other nations as the first World Leader.[NEWLINE][COLOR_POSITIVE_TEXT]Secure power as the Global Hegemon via a Diplomatic Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CULTURE">
+			<Text>The survival of humanity depends on the creation of a single, unifying cultural entity, a monolith of ideas, ideologies, and values. The world's cultural powers will each strive to define this monolith themselves - it is up to you to show the world what a truly unifed culture should look like.[NEWLINE][COLOR_POSITIVE_TEXT]Unify the world via a Cultural Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_SPACERACE">
+			<Text>Modernity has not been kind to planet earth. The very vessel upon which we depend - Spaceship Earth - may soon perish. Our first flights took us to the edge of space; we must harness this power and be the first to discover a new home for humanity.[NEWLINE][COLOR_POSITIVE_TEXT]Be the first to escape a dying planet via a Spaceship Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CONQUEST">
+			<Text>An age of eternal war has fallen upon humanity. Bitter rivalries, unsolved through diplomacy, look to the battlefield for resolution.To be second place in this contest is to be condemnded to the ash heap of history. Harness the weapons of war and bring glory to your empire![NEWLINE][COLOR_POSITIVE_TEXT]Conquer or be conquered via a Domination Victory![ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

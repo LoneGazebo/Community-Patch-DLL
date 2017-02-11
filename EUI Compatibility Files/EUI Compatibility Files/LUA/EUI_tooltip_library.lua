@@ -1867,10 +1867,6 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	-- WLTKD MOD
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_WLTKD", city:GetModFromWLTKD(yieldID), yieldIconString)
 
-	if(yieldID == YieldTypes.YIELD_CULTURE) then
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval())
-	end
-
 	-- Golden Age MOD
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID), yieldIconString)
 
@@ -2219,6 +2215,9 @@ local function GetCultureTooltip( city )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_CULTURE) )
 
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_CULTURE))
+
+	-- Base Yield from Misc
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
@@ -2241,9 +2240,10 @@ local function GetCultureTooltip( city )
 		-- WLTKD MOD
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
 
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval())
+
 		-- Golden Age MOD
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
-		
 		
 -- END
 
@@ -3136,6 +3136,9 @@ local function GetMoodInfo( playerID )
 	local friends = table()
 	local protected = table()
 	local pacts = table()
+	--CBP
+	local marriage = table()
+	--END
 	--C4df
 	local master = table()
 	local vassal = table()
@@ -3158,7 +3161,7 @@ local function GetMoodInfo( playerID )
 			if team:IsAtWar(otherPlayer:GetTeam()) then			
 				if not otherPlayer:IsMinorCiv() then
 					local iWarScore = player:GetWarScore(otherPlayerID);
-					wars:insert(otherPlayerName .. " (" .. L"TXT_KEY_DIPLO_WARSCORE_CP" .. iWarScore .. ")")
+					wars:insert(otherPlayerName .. " (" .. L"TXT_KEY_DIPLO_WARSCORE_CP" .. " " .. iWarScore .. ")")
 				else
 					wars:insert( otherPlayerName)
 
@@ -3200,6 +3203,10 @@ local function GetMoodInfo( playerID )
 					pacts:insert( otherPlayerName )
 				end
 
+				if otherPlayer:IsMarried(playerID) then
+					marriage:insert( otherPlayerName )
+				end
+
 				--C4df
 				if team:IsVassal(otherPlayer:GetTeam()) then
 					vassal:insert( otherPlayerName )
@@ -3216,6 +3223,7 @@ local function GetMoodInfo( playerID )
 	tips:insertIf( #friends > 0 and "[ICON_FLOWER]" .. L( "TXT_KEY_DIPLO_FRIENDS_WITH", friends:concat(", ") ) )
 	tips:insertIf( #protected > 0 and "[ICON_STRENGTH]" .. L"TXT_KEY_POP_CSTATE_PLEDGE_TO_PROTECT" .. ": " .. protected:concat(", ") )
 	tips:insertIf( #pacts > 0 and "[ICON_VICTORY_DOMINATION]" .. L"TXT_KEY_CP_DIPLO_DP" .. ": " .. pacts:concat(", ") )
+	tips:insertIf( #marriage > 0 and "[ICON_CITY_STATE]" .. L"TXT_KEY_CP_DIPLO_MARRIAGE" .. ": " .. marriage:concat(", ") )
 	--C4DF
 	tips:insertIf( #master > 0 and "[ICON_PUPPET]" .. L"TXT_KEY_CP_DIPLO_MASTER_OF" .. ": " .. master:concat(", ") )
 	tips:insertIf( #vassal > 0 and "[ICON_OCCUPIED]" .. L"TXT_KEY_CP_DIPLO_VASSAL_OF" .. ": " .. vassal:concat(", ") )

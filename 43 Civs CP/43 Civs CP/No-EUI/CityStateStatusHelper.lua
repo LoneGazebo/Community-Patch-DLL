@@ -247,7 +247,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	
 	local bWar = pMajorTeam:IsAtWar(iMinorTeam);
 	local bCanBully = pMinor:CanMajorBullyGold(iMajor);
-	local bCanProtect = pMinor:CanMajorProtect(iMajor);
+	local bCanProtect = pMinor:CanMajorStartProtection(iMajor);
 	
 	local strShortDescKey = pMinor:GetCivilizationShortDescriptionKey();
 	local iInfluence = pMinor:GetMinorCivFriendshipWithMajor(iMajor);

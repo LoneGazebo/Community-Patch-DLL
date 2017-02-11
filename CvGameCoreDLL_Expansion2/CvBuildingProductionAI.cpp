@@ -290,22 +290,34 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 750)
+		if (iValue > 650)
 		{
-			iValue = 750;
+			iValue = 650;
 		}
 		int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 		if (iNumCivsAlreadyBuilding > 0)
 		{
 			iValue -= (150 * iNumCivsAlreadyBuilding);
 		}
+
+		// Adjust weight for this wonder down based on number of other players currently working on it
+		int iNumOthersConstructing = 0;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()) > 0)
+			{
+				iNumOthersConstructing++;
+			}
+		}
+		iValue -= (iNumOthersConstructing * 100);
 	}
 	else
 	{
 		//Sanitize...
-		if (iValue > 350)
+		if (iValue > 275)
 		{
-			iValue = 350;
+			iValue = 275;
 		}
 	}
 
@@ -878,6 +890,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
 		if(eYield == NO_YIELD)
 			continue;
+
+		if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0 && kPlayer.GetPlayerTraits()->IsNoNaturalReligionSpread())
+		{
+			iBonus = 0;
+			break;
+		}
 
 		if(!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
 			continue;

@@ -84,7 +84,13 @@
 			<Text>Powerful Industrial Era Siege Unit capable of firing up to 3 tiles away.</Text>
 		</Row>
 
-		
+		<!-- Carolean-->
+		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL">
+			<Text>Grenadiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL_HELP">
+			<Text>When you advance after destroying an enemy unit, all newly-adjacent enemy units take 10 Damage.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
 			<Text>Conscription</Text>
@@ -449,10 +455,10 @@
 			<Text>The Bandeirantes ("those who carry the flag") were 17th-century Portuguese settlers in Brazil and fortune hunters. They led expeditions called bandeiras ("flags") which penetrated the interior of Brazil far south and west of the Tordesillas Line of 1494, which officially divided the Castilian or later Spanish (west) domain from the Portuguese (east) domain in South America. Though they originally aimed to capture and force Indigenous Americans into slavery, the bandeirantes later began to focus their expeditions on finding gold, silver, and diamond mines. As they ventured into unmapped regions in search of profit and adventure, they expanded the effective borders of the Brazilian colony.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_STRATEGY">
-			<Text>Medieval-Era Unit that is unique to Brazil, replacing the Explorer. Is faster and stronger than the Explorer, and is available earlier. Generates Gold, Culture, and Science from exploring unrevealed tiles. These yields are added to the nearest owned city. Also has the ability to construct Fort Improvements in owned territory, and is stronger versus Barbarians. Use these units to explore, clear any remaining Barbarian Encampments, and generate valuable yields for your frontier cities.</Text>
+			<Text>Medieval-Era Unit that is unique to Brazil, replacing the Explorer. Is faster and stronger than the Explorer, and is available earlier. Generates Gold, Culture, and Science from exploring unrevealed tiles. These yields are added to the nearest owned city. Also has the ability to construct Fort, Quarry, Mine, and Brazilwood Camp Improvements in owned territory, and is stronger versus Barbarians. Use these units to explore, clear any remaining Barbarian Encampments, and generate valuable yields for your frontier cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_HELP">
-			<Text>Unique Brazilian Explorer. Generates [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science whenever you reveal tiles with this Unit. Can also construct Forts in owned territory.</Text>
+			<Text>Unique Brazilian Explorer. Generates [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science whenever you reveal tiles with this Unit. Can construct Forts, Quarries, Mines, and Brazilwood Camps in owned territory.</Text>
 		</Row>
 		
 		<!-- New Tier 4 Promotions -->

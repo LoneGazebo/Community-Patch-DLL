@@ -159,13 +159,6 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 		
 		-- CBP Num Social Policies
-		local iNumPolicies = pBuildingInfo.NumPoliciesNeeded;
-		if(pActivePlayer and iNumPolicies > 0) then
-			local iNumHave = pActivePlayer:GetNumPolicies(true);
-			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies, iNumHave));
-		end
-
-		-- CBP Num Social Policies
 		if(pActivePlayer) then
 			local iNumPolicies = pBuildingInfo.NumPoliciesNeeded;
 			if(pCity ~= nil) then
@@ -331,7 +324,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (iFaith ~= nil and iFaith ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FAITH", iFaith));
 	end
-
+	
 	-- Defense
 	local iDefense = pBuildingInfo.Defense;
 	if (iDefense ~= nil and iDefense ~= 0) then
@@ -848,6 +841,18 @@ function GetCultureTooltip(pCity)
 			end
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POPULATION", iYieldPerPop);
 		end
+
+		-- Base Yield from Misc
+		local iYieldFromMisc = pCity:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE);
+		if (iYieldFromMisc ~= 0) then
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
+		end
+
 -- END
 
 -- CBP -- Yield Increase from Piety

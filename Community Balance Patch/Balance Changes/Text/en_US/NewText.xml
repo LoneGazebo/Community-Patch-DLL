@@ -19,13 +19,13 @@
 			<Text>Universal Healthcare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
-			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you win a </Text>
+			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you win a battle</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
 			<Text>Morrigan, Harbinger of Strife</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>Receive +15 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era</Text>
+			<Text>Receive +12 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>
@@ -37,7 +37,7 @@
 			<Text>Nuada, the Silver-Handed King</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
-			<Text>+1 [ICON_FOOD] Food and [ICON_CULTURE] Culture from Forests, +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Jungles</Text>
+			<Text>+1 [ICON_FOOD] Food and [ICON_GOLD] Gold from Forests, +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Jungles. +1 [ICON_CULTURE] Culture from Camps</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
 			<Text>Cernunnos, the Horned Stag</Text>
@@ -136,6 +136,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_CUSTOMS_HOUSE_VENICE">
 			<Text>Construct a Colonia</Text>
+		</Row>
+		
+		<!-- Sweden Grenadiers -->
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
+			<Text>Grenadiers</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

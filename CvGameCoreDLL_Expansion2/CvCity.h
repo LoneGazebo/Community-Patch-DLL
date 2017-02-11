@@ -1516,6 +1516,46 @@ public:
 	const std::vector<int>& GetAttachedUnits() const;
 #endif
 
+#if defined(MOD_BALANCE_CORE_JFD)
+	bool IsColony() const;
+	void SetColony(bool bValue);
+
+	int GetProvinceLevel() const;
+	void SetProvinceLevel(int iValue);
+
+	int GetOrganizedCrime() const;
+	void SetOrganizedCrime(int iValue);
+	bool HasOrganizedCrime();
+
+	void ChangeResistanceCounter(int iValue);
+	void SetResistanceCounter(int iValue);
+	int GetResistanceCounter() const;
+
+	void ChangePlagueCounter(int iValue);
+	void SetPlagueCounter(int iValue);
+	int GetPlagueCounter() const;
+
+	int GetPlagueTurns() const;
+	void ChangePlagueTurns(int iValue); //Set in city::doturn
+	void SetPlagueTurns(int iValue);
+
+	int GetPlagueType() const;
+	void SetPlagueType(int iValue);
+	bool HasPlague();
+
+	void ChangeLoyaltyCounter(int iValue);
+	void SetLoyaltyCounter(int iValue);
+	int GetLoyaltyCounter() const;
+
+	void ChangeDisloyaltyCounter(int iValue);
+	void SetDisloyaltyCounter(int iValue);
+	int GetDisloyaltyCounter() const;
+
+	int GetLoyaltyState() const;
+	void SetLoyaltyState(int iLoyalty);
+
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -1828,6 +1868,19 @@ protected:
 	int** m_ppaiEventSpecialistYield;
 	int** m_ppaiEventTerrainYield;
 	int** m_ppaiEventFeatureYield;
+#endif
+
+#if defined(MOD_BALANCE_CORE_JFD)
+	FAutoVariable<bool, CvCity> m_bIsColony;
+	FAutoVariable<int, CvCity> m_iProvinceLevel;
+	FAutoVariable<int, CvCity> m_iOrganizedCrime;
+	FAutoVariable<int, CvCity> m_iResistanceCounter;
+	FAutoVariable<int, CvCity> m_iPlagueCounter;
+	FAutoVariable<int, CvCity> m_iPlagueTurns;
+	FAutoVariable<int, CvCity> m_iPlagueType;
+	FAutoVariable<int, CvCity> m_iLoyaltyCounter;
+	FAutoVariable<int, CvCity> m_iDisloyaltyCounter;
+	FAutoVariable<int, CvCity> m_iLoyaltyStateType;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;

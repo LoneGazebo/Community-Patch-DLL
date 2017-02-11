@@ -6143,7 +6143,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
-						GET_PLAYER(eOldOwner).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
+						setResourceType(NO_RESOURCE, 0);
 					}
 #endif
 					// Maintenance change!
@@ -6372,7 +6372,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 					if(eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
-						GET_PLAYER(eNewValue).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+						setResourceType(eResourceFromImprovement, iQuantity);
 					}
 #endif
 					// Maintenance change!
@@ -7702,7 +7702,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 				{
-					GET_PLAYER(eOldBuilder).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
+					setResourceType(eResourceFromImprovement, iQuantity);
 				}
 #endif
 
@@ -7915,16 +7915,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					if(getResourceType() == NO_RESOURCE)
-					{
-						setResourceType(eResourceFromImprovement, iQuantity);
-						if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
-							SetResourceLinkedCityActive(true);
-					}
-					else if(getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
-					{
-						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
-					}
+					setResourceType(eResourceFromImprovement, iQuantity);
+					if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+						SetResourceLinkedCityActive(true);
 				}
 #endif
 
@@ -10683,6 +10676,23 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += kYield.getGoldenAgeYield();
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if (getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
+		{
+			if (GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+			{
+				if (pWorkingCity != NULL && pWorkingCity->GetWeLoveTheKingDayCounter() > 0)
+				{
+					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetWLTKDGPImprovementModifier() > 0)
+					{
+						int iBoon = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+						iYield *= (100 + iBoon);
+						iYield /= 100;
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	return std::max(0, iYield);

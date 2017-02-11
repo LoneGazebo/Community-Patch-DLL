@@ -949,6 +949,9 @@ public:
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
+
+	int getAOEDamageOnKill() const;
+	void changeAOEDamageOnKill(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1728,6 +1731,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;

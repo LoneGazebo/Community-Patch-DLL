@@ -709,6 +709,49 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetCityEventChoiceCooldown);
 	Method(IsCityEventChoiceValid);
 #endif
+
+
+#if defined(MOD_BALANCE_CORE_JFD)
+	Method(IsColony);
+	Method(SetColony);
+
+	Method(GetProvinceLevel);
+	Method(SetProvinceLevel);
+	Method(HasProvinceLevel);
+
+	Method(GetOrganizedCrime);
+	Method(SetOrganizedCrime);
+	Method(HasOrganizedCrime);
+
+	Method(ChangeResistanceCounter);
+	Method(SetResistanceCounter);
+	Method(GetResistanceCounter);
+
+	Method(ChangePlagueCounter);
+	Method(SetPlagueCounter);
+	Method(GetPlagueCounter);
+
+	Method(GetPlagueTurns);
+	Method(ChangePlagueTurns);
+	Method(SetPlagueTurns);
+
+	Method(GetPlagueType);
+	Method(SetPlagueType);
+	Method(HasPlague);
+
+	Method(ChangeLoyaltyCounter);
+	Method(SetLoyaltyCounter);
+	Method(GetLoyaltyCounter);
+
+	Method(ChangeDisloyaltyCounter);
+	Method(SetDisloyaltyCounter);
+	Method(GetDisloyaltyCounter);
+
+	Method(GetLoyaltyState);
+	Method(SetLoyaltyState);
+	Method(HasLoyaltyState);
+
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaCity::HandleMissingInstance(lua_State* L)
@@ -1736,6 +1779,8 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 	int iNumPoliciesReduced = 0;
 	int iTotalPoliciesNeeded = 0;
 	CvCity* pkCity = GetInstance(L);
+
+	bool bIgnoreRequirements = false;
 	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
 	if (eBuilding != NO_BUILDING)
 	{
@@ -1746,12 +1791,6 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 			iTotalPoliciesNeeded = pBuildingInfo->GetNumPoliciesNeeded();
 			if (iTotalPoliciesNeeded > 0)
 			{
-				int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
-				if (iCSPolicyReduction > 0)
-				{
-					int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
-					iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
-				}
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkCity->getOwner());
 				if (eFoundedReligion == NO_RELIGION)
@@ -1773,21 +1812,55 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 						{
 							pHolyCity = GET_PLAYER(pkCity->getOwner()).getCapitalCity();
 						}
-						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity, true);
-						if (iReligionPolicyReduction > 0)
+						// Depends on era of wonder
+						EraTypes eEra;
+						TechTypes eTech = (TechTypes)pBuildingInfo->GetPrereqAndTech();
+						if (eTech != NO_TECH)
 						{
-							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
-							if (iNumFollowerCities > 0)
+							CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+							if (pEntry)
 							{
-								iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
+								eEra = (EraTypes)pEntry->GetEra();
+								if (eEra != NO_ERA)
+								{
+									bIgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, pkCity->getOwner(), pHolyCity);
+								}
 							}
 						}
+						if (!bIgnoreRequirements)
+						{
+							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
+							if (iReligionPolicyReduction > 0)
+							{
+								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+								if (iNumFollowerCities > 0)
+								{
+									iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
+								}
+							}
+						}
+					}
+				}
+				if (!bIgnoreRequirements)
+				{
+					int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
+					if (iCSPolicyReduction > 0)
+					{
+						int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
+						iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
 					}
 				}
 			}
 		}
 	}
-	iTotalPoliciesNeeded -= iNumPoliciesReduced;
+	if (bIgnoreRequirements)
+	{
+		iTotalPoliciesNeeded = 0;
+	}
+	else
+	{
+		iTotalPoliciesNeeded -= iNumPoliciesReduced;
+	}
 
 	lua_pushinteger(L, iTotalPoliciesNeeded);
 	return 1;
@@ -5862,4 +5935,216 @@ int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 
 	return 1;
 }
+#endif
+
+#if defined(MOD_BALANCE_CORE_JFD)
+int CvLuaCity::lIsColony(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->IsColony());
+
+	return 1;
+}
+int CvLuaCity::lSetColony(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const bool bValue = lua_toboolean(L, 2);
+	pkCity->SetColony(bValue);
+	return 1;
+}
+int CvLuaCity::lGetProvinceLevel(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetProvinceLevel());
+	return 1;
+}
+int CvLuaCity::lSetProvinceLevel(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetProvinceLevel(iValue);
+	return 1;
+}
+
+int CvLuaCity::lHasProvinceLevel(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	const bool bValue = (pkCity->GetProvinceLevel() == iValue);
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
+
+int CvLuaCity::lGetOrganizedCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetOrganizedCrime());
+	return 1;
+}
+int CvLuaCity::lSetOrganizedCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetOrganizedCrime(iValue);
+	return 1;
+}
+int CvLuaCity::lHasOrganizedCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->HasOrganizedCrime());
+
+	return 1;
+}
+
+int CvLuaCity::lChangeResistanceCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeResistanceCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetResistanceCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetResistanceCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetResistanceCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetResistanceCounter());
+	return 1;
+}
+int CvLuaCity::lChangePlagueCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangePlagueCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetPlagueCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetPlagueCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetPlagueCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetPlagueCounter());
+	return 1;
+}
+int CvLuaCity::lGetPlagueTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetPlagueTurns());
+	return 1;
+}
+int CvLuaCity::lChangePlagueTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangePlagueTurns(iValue);
+	return 1;
+}
+int CvLuaCity::lSetPlagueTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetPlagueTurns(iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetPlagueType(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetPlagueType());
+	return 1;
+}
+int CvLuaCity::lSetPlagueType(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetPlagueType(iValue);
+	return 1;
+}
+int CvLuaCity::lHasPlague(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->HasPlague());
+
+	return 1;
+}
+
+int CvLuaCity::lChangeLoyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeLoyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetLoyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetLoyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetLoyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetLoyaltyCounter());
+	return 1;
+}
+int CvLuaCity::lChangeDisloyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeDisloyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetDisloyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetDisloyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetDisloyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetDisloyaltyCounter());
+	return 1;
+}
+int CvLuaCity::lGetLoyaltyState(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int eLoyalty = pkCity->GetLoyaltyState();
+	lua_pushinteger(L, (LoyaltyStateTypes)eLoyalty);
+	return 1;
+}
+int CvLuaCity::lSetLoyaltyState(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const LoyaltyStateTypes eLoyalty = (LoyaltyStateTypes)lua_tointeger(L, 2);
+	pkCity->SetLoyaltyState((int)eLoyalty);
+	return 1;
+}
+
+int CvLuaCity::lHasLoyaltyState(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	const bool bValue = (pkCity->GetLoyaltyState() == iValue);
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
+
 #endif

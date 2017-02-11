@@ -687,6 +687,7 @@ protected:
 
 	static int lGetPower(lua_State* L);
 	static int lGetMilitaryMight(lua_State* L);
+	static int lGetMilitaryMightForCS(lua_State* L);
 	static int lGetTotalTimePlayed(lua_State* L);
 
 	static int lGetScore(lua_State* L);

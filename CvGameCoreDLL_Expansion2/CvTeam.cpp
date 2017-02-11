@@ -2430,13 +2430,33 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 			{
 				// Our Team
 				if(pOurPlayer->getTeam() == GetID())
-				{
+				{		
+					//Reset war damage.
+					PlayerTypes eThem;
+					for (int ieThemLoop = 0; ieThemLoop < MAX_CIV_PLAYERS; ieThemLoop++)
+					{
+						eThem = (PlayerTypes)ieThemLoop;
+						if (eThem != NO_PLAYER && GET_PLAYER(eThem).getTeam() == eTeam)
+						{
+							pOurPlayer->GetDiplomacyAI()->SetWarDamageValue(eThem, 0);
+						}
+					}
 					pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(eTeam);
 					pOurPlayer->GetMilitaryAI()->LogPeace(eTeam);	// This is not quite correct, but it'll work well enough for AI testing
 				}
 				// Their Team
 				else if(pOurPlayer->getTeam() == eTeam)
 				{
+					//Reset war damage.
+					PlayerTypes eUs;
+					for (int ieUsLoop = 0; ieUsLoop < MAX_CIV_PLAYERS; ieUsLoop++)
+					{
+						eUs = (PlayerTypes)ieUsLoop;
+						if (eUs != NO_PLAYER && GET_PLAYER(eUs).getTeam() == GetID())
+						{
+							pOurPlayer->GetDiplomacyAI()->SetWarDamageValue(eUs, 0);
+						}
+					}
 					pOurPlayer->GetDiplomacyAI()->DoWeMadePeaceWithSomeone(GetID());
 					pOurPlayer->GetMilitaryAI()->LogPeace(GetID());	// This is not quite correct, but it'll work well enough for AI testing
 				}
@@ -6847,12 +6867,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 						{
-							int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism();
+							int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA);
 							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
 							// Culture boost based on previous turns
 							if(iTourism > 0)
 							{
-								GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+								GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 								if(eLoopPlayer == GC.getGame().getActivePlayer())
 								{
 									CvCity* pCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
@@ -6870,6 +6890,42 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ERA", iTourism);
 											strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
 											pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eLoopPlayer);
+										}
+									}
+								}
+							}		
+							if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
+							{
+								int iReduction = max(2, ((kPlayer.getNumCities() * GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod()) / 15));
+								bool bChange = false;
+								if (iReduction > 0)
+								{
+									// Look at all Cities
+									int iLoop;
+									for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+									{
+										for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+										{
+											if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
+												continue;
+
+											if (pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ) >= iReduction)
+											{
+												pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iReduction);
+												bChange = true;
+											}
+										}
+									}
+									if (bChange)
+									{
+										CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
+										if (pNotification)
+										{
+											CvString strMessage;
+											CvString strSummary;
+											strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE", iReduction);
+											strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE");
+											pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, eLoopPlayer);
 										}
 									}
 								}
@@ -7040,12 +7096,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 									{
-										int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism();
+										int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA);
 										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
 										// Culture boost based on previous turns
 										if(iTourism > 0)
 										{
-											GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+											GET_PLAYER(eLoopPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 											if(eLoopPlayer == GC.getGame().getActivePlayer())
 											{
 												CvCity* pCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
@@ -7063,6 +7119,42 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ERA", iTourism);
 														strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
 														pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eLoopPlayer);
+													}
+												}
+											}
+										}
+										if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
+										{
+											int iReduction = max(2, ((kPlayer.getNumCities() * GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod()) / 15));
+											bool bChange = false;
+											if (iReduction > 0)
+											{
+												// Look at all Cities
+												int iLoop;
+												for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+												{
+													for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+													{
+														if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
+															continue;
+
+														if (pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ) >= iReduction)
+														{
+															pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iReduction);
+															bChange = true;
+														}
+													}
+												}
+												if (bChange)
+												{
+													CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
+													if (pNotification)
+													{
+														CvString strMessage;
+														CvString strSummary;
+														strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE", iReduction);
+														strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE");
+														pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, eLoopPlayer);
 													}
 												}
 											}

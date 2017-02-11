@@ -5147,7 +5147,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	{
-		if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
+		if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
 		{
 			viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 10);
 		}
@@ -19543,12 +19543,21 @@ void CvDiplomacyAI::DoContactMinorCivs()
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	{
-		if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
+		if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
 		{
 			if(!GetPlayer()->IsEmpireUnhappy())
 			{
 				bWantsToBullyUnit = true;
 				bWantsToBullyGold = false;
+				bWantsToMakeGoldGift = false;
+			}
+		}
+		if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
+		{
+			if (!GetPlayer()->IsEmpireUnhappy())
+			{
+				bWantsToBullyUnit = true;
+				bWantsToBullyGold = true;
 				bWantsToMakeGoldGift = false;
 			}
 		}
@@ -19951,7 +19960,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to bully a unit from this minor
-			if(bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToGiveGoldToThisMinor)  //antonjs: todo: xml
+			if (bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToGiveGoldToThisMinor)  //antonjs: todo: xml
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if(eApproach == MINOR_CIV_APPROACH_BULLY)
@@ -19960,31 +19969,31 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					if(pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID))
 					{
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-						if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+						if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 						{
-							int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
-							int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
-							int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
-							int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_RELIGION")) / 2;
-							int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
+							int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
+							int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
+							int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
+							int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) / 2;
+							int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
 
-							if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_SCIENCE) * iScienceFlavor);
 							}
-							else if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_PRODUCTION) * iProductionFlavor);
 							}
-							else if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_CULTURE) * iCultureFlavor);
 							}
-							else if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FAITH) * iFaithFlavor);
 							}
-							else if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FOOD) * iGrowthFlavor);
 							}
@@ -20002,11 +20011,10 @@ void CvDiplomacyAI::DoContactMinorCivs()
 							iValue += -30;
 						else if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_DISTANT)
 							iValue += -50;
+						//antonjs: consider: knock it down if is there a chance the worker will get captured by a nearby rival
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 						}
 #endif
-						//antonjs: consider: knock it down if is there a chance the worker will get captured by a nearby rival
-
 						//antonjs: consider: if military unit, it would be a good thing to get it near a rival or ongoing war
 
 						// If this minor has a PtP from someone, bullying it could have big consequences
@@ -20023,7 +20031,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						//Do we get a bonus from this?
 						if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 						{
-							if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
+							if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
 							{
 								if(!GetPlayer()->IsEmpireUnhappy())
 								{
@@ -20033,6 +20041,16 @@ void CvDiplomacyAI::DoContactMinorCivs()
 								{
 									iValue -= 50;
 								}
+							}
+						}
+#endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+						//Do we get a bonus from this?
+						if (MOD_BALANCE_CORE_AFRAID_ANNEX)
+						{
+							if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
+							{
+								iValue += 100;
 							}
 						}
 #endif
@@ -20062,6 +20080,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					// Only bother if we can successfully bully
 					if(pMinor->GetMinorCivAI()->CanMajorBullyGold(eID))
 					{
+
 						// The closer we are the better
 						if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
 							iValue += 40;
@@ -20093,6 +20112,17 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						}
 						//antonjs: consider: allies or friends another major
 						//antonjs: consider: distance to other majors
+
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+						//Do we get a bonus from this?
+						if (MOD_BALANCE_CORE_AFRAID_ANNEX)
+						{
+							if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
+							{
+								iValue += 100;
+							}
+						}
+#endif
 
 						// If we are getting a bonus, don't mess that up!
 						if(pMinor->GetMinorCivAI()->IsAllies(eID) || pMinor->GetMinorCivAI()->IsFriends(eID))

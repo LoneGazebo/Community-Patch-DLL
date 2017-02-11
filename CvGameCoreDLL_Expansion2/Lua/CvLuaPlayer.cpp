@@ -623,6 +623,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetPower);
 	Method(GetMilitaryMight);
+	Method(GetMilitaryMightForCS);
 	Method(GetTotalTimePlayed);
 
 	Method(GetScore);
@@ -3146,7 +3147,7 @@ int CvLuaPlayer::lGetTourismPenalty(lua_State* L)
 		return 0;
 
 	// Mod for City Count
-	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 15, gets smaller on larger maps
+	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 15, gets smaller on larger maps
 
 	lua_pushinteger(L, iMod);
 	return 1;
@@ -7168,6 +7169,37 @@ int CvLuaPlayer::lGetMilitaryMight(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetMilitaryMight);
 }
+//------------------------------------------------------------------------------
+//int GetMilitaryMight();
+int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+	PlayerTypes eMajorLoop;
+
+	int iRankRatio = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		eMajorLoop = (PlayerTypes)iMajorLoop;
+		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		{
+			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
+		}
+	}
+	veMilitaryRankings.SortItems();
+	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	{
+		if (veMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+		{
+			iRankRatio = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
+			break;
+		}
+	}
+	lua_pushinteger(L, iRankRatio);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int getTotalTimePlayed();
 int CvLuaPlayer::lGetTotalTimePlayed(lua_State* L)
@@ -11399,10 +11431,17 @@ int CvLuaPlayer::lIsDiplomaticMarriage(lua_State* L)
 int CvLuaPlayer::lIsGPWLTKD(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	if(pkPlayer)
+	if (pkPlayer && pkPlayer->GetPlayerTraits()->IsGPWLTKD())
 	{
-		lua_pushboolean(L, pkPlayer->GetPlayerTraits()->IsGPWLTKD());
+		lua_pushboolean(L, true);
+		return 1;
 	}
+	else if (pkPlayer && pkPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+	{
+		lua_pushboolean(L, true);
+		return 1;
+	}
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------

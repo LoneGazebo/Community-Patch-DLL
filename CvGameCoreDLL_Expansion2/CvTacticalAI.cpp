@@ -1082,7 +1082,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		else
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 		break;
 	}
@@ -1093,7 +1093,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}
-		else if(eLastPosture == AI_TACTICAL_POSTURE_HEDGEHOG && pZone->GetEnemyUnitCount() > pZone->GetFriendlyUnitCount())
+		else if(eLastPosture == AI_TACTICAL_POSTURE_HEDGEHOG && pZone->GetEnemyUnitCount() >= pZone->GetFriendlyUnitCount())
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}
@@ -1121,6 +1121,11 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 		}
+
+		else if (eUnitCountDominance >= TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyUnitCount() > 0)
+		{
+			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+		}	
 
 		// Counterattack - for first time must be stronger or even with enemy having a ranged advantage
 		else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY ||
@@ -2553,7 +2558,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			}
 
 			//If don't have units to actually conquer, ignore.
-			if(!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),2, 1))
+			if(!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),2,1))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -8960,8 +8965,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 	bool bAirUnitsAdded = false;
 	CvUnit* pDefender = pTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID());
 
-	//todo: check if defender can be damaged at all or if an attacker would die
-
+	//todo: check if defender can be damaged at all or if an attacker would die?
 	// Loop through all units available to tactical AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
@@ -8981,8 +8985,9 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (bNoRangedUnits && pLoopUnit->IsCanAttackRanged())
 			continue;
 
-		//ignore embarked units for attacking, that usually makes no sense
-		if(!pLoopUnit->canMove() || pLoopUnit->isEmbarked())
+		//ignore most embarked units for attacking, that usually makes no sense
+		bool bAmphibiousAttackPossible = pLoopUnit->plot()->isAdjacent(pTarget) && !pLoopUnit->isRanged() && pTarget->isCoastalLand();
+		if(!pLoopUnit->canMove() || (pLoopUnit->isEmbarked() && !bAmphibiousAttackPossible) )
 			continue;
 
 		//Respect domain for melee units and subs
@@ -11100,7 +11105,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 
 				// Unescorted civilian?
 				if (pPlot->isEnemyUnit(m_pPlayer->GetID(),false,true) && !pPlot->isEnemyUnit(m_pPlayer->GetID(),true,true))
-					iScore += 200;
+					iScore += 500;
 
 				// Top priority is hexes to bombard from (within range but not adjacent)
 				pCell->SetTargetDistance(iDistance);
@@ -11784,7 +11789,8 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 
 	int iDamageDealt = 0, iDamageReceived = 1;
 	if (pTargetCity)
-		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity,pUnit,pUnit->plot(),iDamageReceived);
+		//+2 to make sure it's positive if city has zero hitpoints left
+		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity,pUnit,pUnit->plot(),iDamageReceived) + 2; 
 	else if (pTargetUnit)
 		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(pTargetUnit,pUnit,pTargetUnit->plot(),pUnit->plot(),iDamageReceived);
 	
@@ -12518,15 +12524,18 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 	//finally the almighty score
 	float fAggFactor = -1;
+	int iHPbelowHalf = pUnit->GetMaxHitPoints()/2 - (pUnit->GetCurrHitPoints() - iDamageReceived);
 	switch (eAggLvl)
 	{
 	case AL_LOW:
-		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints()/2 )
-			fAggFactor = 0.8f;
+		fAggFactor = 0.5f;
+		if ( iHPbelowHalf>0 )
+			iExtraDamage -= 4 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_MEDIUM:
-		if ( iDamageReceived == 0 || pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2 )
-			fAggFactor = 1.2f;
+		fAggFactor = 1.1f;
+		if ( iHPbelowHalf>0 )
+			iExtraDamage -= 2 * min(iDamageReceived,iHPbelowHalf);
 		break;
 	case AL_HIGH:
 		if ( iDamageReceived < pUnit->GetCurrHitPoints() || fUnitNumberRatio>1 )
@@ -12606,6 +12615,15 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				if (result.eType==STacticalAssignment::A_MELEEKILL && currentPlot.isEnemyCivilian())
 					result.iScore += 5;
 			}
+		}
+	}
+	else if (currentPlot.isEnemyCivilian()) //unescorted civilian
+	{
+		if (plot.iMovesLeft > 0 || currentPlot.getNumAdjacentEnemies()==0)
+		{
+			result.iScore = 20;
+			result.eType = STacticalAssignment::A_CAPTURE;
+			result.iRemainingMoves = plot.iMovesLeft;
 		}
 	}
 	else //empty plot or friendly unit. the latter case will be handled by the isMoveBlockedByOtherUnit check
@@ -12737,14 +12755,6 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 		//temporary score
 		result.iScore = iDamageScore + iDistanceScore;
-
-		//bonus for capturing a civilian
-		if (currentPlot.isEnemyCivilian())
-		{
-			result.iScore += 10;
-			//define a special assignment for this because consecutive moves are not allowed
-			result.eType = STacticalAssignment::A_CAPTURE;
-		}
 
 		//does it make sense to pillage here?
 		if (result.eType == STacticalAssignment::A_ENDTURN && unit.iMovesLeft > 0 && 

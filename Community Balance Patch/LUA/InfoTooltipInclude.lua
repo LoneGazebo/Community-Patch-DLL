@@ -840,6 +840,17 @@ function GetCultureTooltip(pCity)
 			end
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POPULATION", iYieldPerPop);
 		end
+
+		-- Base Yield from Misc
+		local iYieldFromMisc = pCity:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE);
+		if (iYieldFromMisc ~= 0) then
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
+		end
 -- END
 
 -- CBP -- Yield Increase from Piety

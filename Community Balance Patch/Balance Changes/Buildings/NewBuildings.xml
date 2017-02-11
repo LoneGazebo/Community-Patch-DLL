@@ -553,7 +553,6 @@
 			<Strategy>TXT_KEY_BUILDING_SEOWON_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_UNIVERSITY</ArtDefineTag>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-			<GreatPeopleRateModifier>20</GreatPeopleRateModifier>
 			<SpecialistCount>2</SpecialistCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<HurryCostModifier>15</HurryCostModifier>
@@ -955,4 +954,13 @@
 			<PortraitIndex>3</PortraitIndex>
 		</Row>
 	</Buildings>
+	<GreatWorks>
+		<Row>
+			<Type>GREAT_WORK_FLOOD_TABLET</Type>
+			<GreatWorkClassType>GREAT_WORK_LITERATURE</GreatWorkClassType>
+			<Description>TXT_KEY_GREAT_WORK_FLOOD_TABLET</Description>
+			<Quote>TXT_KEY_GREAT_WORK_QUOTE_FLOOD_TABLET</Quote>
+			<Image>GreatWriter_Background.dds</Image>
+		</Row>
+	</GreatWorks>
 </GameData>

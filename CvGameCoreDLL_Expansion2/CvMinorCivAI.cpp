@@ -561,7 +561,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if(GetTourism() > 0)
 		{
 			int iTourism = GetTourism();
-			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			kPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(m_eAssignedPlayer == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -788,7 +788,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if(GetTourism() > 0)
 		{
 			int iTourism = GetTourism();
-			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			kPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(m_eAssignedPlayer == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -3962,7 +3962,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		iTourism /= 100;
 		if(iTourism > 0)
 		{
-			GET_PLAYER(m_eAssignedPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
+			GET_PLAYER(m_eAssignedPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(m_eAssignedPlayer == GC.getGame().getActivePlayer() && GET_PLAYER(m_eAssignedPlayer).getCapitalCity() != NULL)
 			{
 				char text[256] = {0};
@@ -13256,7 +13256,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 			eMajorLoop = (PlayerTypes) iMajorLoop;
 			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
 			{
-				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
+				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
 			}
 		}
 		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
@@ -13265,8 +13265,8 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		{
 			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
 			{
-				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-				if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
+				int iRankRatio = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
+				if (iRankRatio < 60 && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
 				{
 					DoChangeProtectionFromMajor(eMajor, false, true);
 
@@ -13283,22 +13283,26 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 					break;
 				}
-				else if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) <= 0)
+				else if(iRankRatio < 60 && GetNumTurnsSincePtPWarning(eMajor) <= 0)
 				{
 					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
-					strMessage << GetPlayer()->getNameKey() << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
+					strMessage << GetPlayer()->getNameKey();
+					strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
+					strMessage << (60 - iRankRatio);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
 					strSummary << GetPlayer()->getNameKey();
 					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 					ChangeNumTurnsSincePtPWarning(eMajor, 1);
 					break;
 				}
-				else if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > 0)
+				else if(iRankRatio < 60 && GetNumTurnsSincePtPWarning(eMajor) > 0)
 				{
 					if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
 					{
 						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
-						strMessage << GetPlayer()->getNameKey() << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
+						strMessage << GetPlayer()->getNameKey(); 
+						strMessage << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
+						strMessage << (60 - iRankRatio);
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
 						strSummary << GetPlayer()->getNameKey();
 						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
@@ -13425,7 +13429,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			eMajorLoop = (PlayerTypes) iMajorLoop;
 			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
 			{
-				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
+				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
 			}
 		}
 		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
@@ -15534,7 +15538,7 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 // ***** Bullying *****
 // ******************************
 
-int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes /*eBullyPlayer*/)
+int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
 #if defined(MOD_BALANCE_CORE)
@@ -15555,6 +15559,9 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes /*eBullyPlayer*/)
 
 	// Game Speed Mod
 	iGold *= GC.getGame().getGameSpeedInfo().getGoldGiftMod(); //antonjs: consider: separate XML
+	iGold /= 100;
+
+	iGold *= (100 + GET_PLAYER(eBullyPlayer).GetPlayerTraits()->GetBullyValueModifier());
 	iGold /= 100;
 
 	// Rounding
@@ -15605,7 +15612,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		eMajorLoop = (PlayerTypes) iMajorLoop;
 		if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
 		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
+			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
 		}
 	}
 	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
@@ -16316,7 +16323,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 {
-	int iValue = 50;
+	int iValue = 75;
 	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iValue /= 100;
 
@@ -16380,6 +16387,10 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 		iValue *= (iNumTurns + 100);
 		iValue /= max(400, GC.getGame().getMaxTurns());
 	}
+	
+	iValue *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
+	iValue /= 100;
+
 	return iValue;
 }
 #endif

@@ -2488,6 +2488,10 @@ void CvEconomicAI::DoReconState()
 	m_eReconState = RECON_STATE_NEUTRAL;
 	m_eNavalReconState = RECON_STATE_NEUTRAL;
 
+	//No scouting if we're cityless!
+	if (m_pPlayer->getNumCities() <= 0)
+		return;
+
 #if defined(MOD_BUGFIX_MINOR_CIV_STRATEGIES)
 	bool isCannotRecon = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
 	bool isCannotReconSea = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
