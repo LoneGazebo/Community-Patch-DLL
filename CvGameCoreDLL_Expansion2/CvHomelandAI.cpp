@@ -1296,6 +1296,38 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 		return;
 	}
 
+	//No cities? Let's guard our settler!
+	if (m_TargetedCities.size() <= 0)
+	{
+		int iUnitLoop = 0;
+		int iSettlers = 0;
+		for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		{
+			if (pLoopUnit != NULL && pLoopUnit->isFound())
+			{
+				// Grab units that make sense for this move type
+				FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iSettlers == 0)/*bFirstTime*/);
+				iSettlers++;
+
+				if (m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+				{
+					CvUnit *pGarrison = GetBestUnitToReachTarget(pLoopUnit->plot(), m_iDefensiveMoveTurns);
+					if (pGarrison)
+					{
+						ExecuteMoveToTarget(pGarrison, pLoopUnit->plot(), 0);
+						UnitProcessed(pGarrison->GetID());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Moving %s %d to defend settler (first turn most likely), X: %d, Y: %d, Priority: %d", pGarrison->getName().c_str(), pGarrison->GetID(), pGarrison->getX(), pGarrison->getY(), -1);
+							LogHomelandMessage(strLogString);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// Do we have any targets of this type?
 	if(m_TargetedCities.size() > 0)
 	{
@@ -2334,6 +2366,10 @@ void CvHomelandAI::PlotUpgradeMoves()
 						{
 							iPriority += UPGRADE_IN_TERRITORY_PRIORITY_BOOST;
 						}
+
+						//Extra emphasis on air/sea units
+						if (pUnit->getDomainType() != DOMAIN_LAND)
+							iPriority *= 2;
 
 #if defined(MOD_BALANCE_CORE)
 						//Add in experience - we should promote veterans.
@@ -7353,7 +7389,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					if(pLoopUnit->IsGarrisoned())
 						continue;
 
-					if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+					if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->getNumCities() > 0)
 						continue;
 
 					// Want to put ranged units in cities to give them a ranged attack

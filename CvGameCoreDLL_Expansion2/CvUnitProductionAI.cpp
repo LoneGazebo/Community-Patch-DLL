@@ -598,11 +598,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(kPlayer.GetMilitaryAI()->GetWarType() == 2)
 					{
-						iValue *= 8;
+						iValue *= 15;
 					}
 					else
 					{
-						iValue *= 4;
+						iValue *= 5;
 					}
 				}
 				else if(bAlone)
@@ -627,11 +627,25 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(kPlayer.GetMilitaryAI()->GetWarType() == 1)
 					{
-						iValue *= 8;
+						if (pkUnitEntry->GetRange() <= 0)
+						{
+							iValue *= 12;
+						}
+						else if (pkUnitEntry->GetRange() > 0)
+						{
+							iValue *= 8;
+						}
 					}
 					else
 					{
-						iValue *= 4;
+						if (pkUnitEntry->GetRange() <= 0)
+						{
+							iValue *= 6;
+						}
+						else if (pkUnitEntry->GetRange() > 0)
+						{
+							iValue *= 3;
+						}
 					}
 				}
 				else if(bAlone)
@@ -873,7 +887,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//CIVILIAN CHECKS
 		//////////////////////
 
-		if(pkUnitEntry->IsTrade())
+		if (pkUnitEntry->IsTrade())
 		{
 			//No if we're small.
 			if(m_pCity->getPopulation() <= 4)
@@ -896,6 +910,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (iUnhappyGold > 0)
 			{
 				iBonus += (iUnhappyGold * 25);
+			}
+			//Less often if at war.
+			if (bAtWar && iGPT > 0)
+			{
+				iBonus /= (iGPT * 2);
 			}
 		}
 	}
@@ -996,6 +1015,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 
 			if(kPlayer.getSettlerProductionModifier() > 0)
+			{
+				iFlavorExpansion += 2;
+			}
+			if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
 			{
 				iFlavorExpansion += 2;
 			}
@@ -1178,15 +1201,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					{
 						if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && eDomain == DOMAIN_LAND)
 						{
-							iBonus += 200;
+							iBonus += 400;
 						}
 						else if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && eDomain == DOMAIN_SEA)
 						{
-							iBonus += 200;
+							iBonus += 400;
 						}
 						else
 						{
-							iBonus += 100;
+							iBonus += 200;
 						}
 					}
 				}
@@ -1197,7 +1220,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 			{
 				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 75;
+				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 150;
 				if(iThreat > 0)
 				{
 					if(bCombat)

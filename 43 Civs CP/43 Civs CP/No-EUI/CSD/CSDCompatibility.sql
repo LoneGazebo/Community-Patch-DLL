@@ -40,11 +40,6 @@ INSERT INTO Policy_FaithPurchaseUnitClasses
 VALUES
 	('POLICY_PATRONAGE_FINISHER', 'UNITCLASS_GREAT_DIPLOMAT');
 
-INSERT INTO Trait_GreatPersonBornYield
-	(TraitType, GreatPersonType, YieldType, Yield)
-VALUES
-	('TRAIT_ART_OF_WAR', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLDEN_AGE_POINTS', 50);
-
 INSERT INTO Belief_GreatPersonExpendedYield
 	(BeliefType, GreatPersonType, YieldType, Yield)
 VALUES
@@ -69,10 +64,15 @@ VALUES
 	('POLICY_LEGALISM', 'BUILDINGCLASS_FINANCE_CENTER', 2),
 	('POLICY_LEGALISM', 'BUILDINGCLASS_EHRENHALLE', 2);
 
+INSERT INTO Trait_GreatPersonBornYield
+	(TraitType, GreatPersonType, YieldType, Yield)
+VALUES
+	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLDEN_AGE_POINTS', 50);
+
 INSERT INTO Trait_GoldenAgeGreatPersonRateModifier
 	(TraitType, GreatPersonType, Modifier)
 VALUES
-	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 25);
+	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 30);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)

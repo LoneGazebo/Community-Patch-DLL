@@ -289,6 +289,7 @@ public:
 	void SetTurnIdeologyAdopted(int iTurn);
 	int GetTourismBlastStrength(int iMultiplier);
 	void AddTourismAllKnownCivs(int iTourism);
+	void AddTourismAllKnownCivsWithModifiers(int iTourism);
 	void DoPublicOpinion();
 	int ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTypes eBranch);
 	bool WantsDiplomatDoingPropaganda(PlayerTypes ePlayer) const;

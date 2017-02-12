@@ -399,6 +399,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lDoEnactResolution(lua_State* L);
 	static int lDoRepealResolution(lua_State* L);
+	static int lIsBeliefValid(lua_State* L);
 #endif
 	
 	static int lIsProcessingMessages(lua_State* L);

@@ -92,7 +92,6 @@ INSERT INTO Belief_MaxYieldPerFollower
 	(BeliefType, YieldType, Max)
 VALUES	
 	('BELIEF_FEED_WORLD', 'YIELD_GOLD', 20),
-	('BELIEF_CHORAL_MUSIC', 'YIELD_SCIENCE', 10),
 	('BELIEF_ASCETISM', 'YIELD_FOOD', 15);
 	
 INSERT INTO Belief_MaxYieldPerFollowerHalved

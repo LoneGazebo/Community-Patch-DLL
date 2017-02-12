@@ -362,8 +362,14 @@ ALTER TABLE Traits ADD COLUMN 'Reconquista' BOOLEAN DEFAULT 0;
 -- New Traits - No Foreign Religious Spread in cities or allied CSs
 ALTER TABLE Traits ADD COLUMN 'NoSpread' BOOLEAN DEFAULT 0;
 
--- New Traits - GG bonus when spawned
-ALTER TABLE Traits ADD COLUMN 'InspirationalLeader' BOOLEAN DEFAULT 0;
+-- New Traits - GG XP bonus when spawned and removes damage from all owned units
+ALTER TABLE Traits ADD COLUMN 'XPBonusFromGGBirth' INTEGER DEFAULT 0;
+
+-- New Traits - Military x% better at intimidating CSs
+ALTER TABLE Traits ADD COLUMN 'CSBullyMilitaryStrengthModifier' INTEGER DEFAULT 0;
+
+-- New Traits - Gain %x more yields from bullying CSs
+ALTER TABLE Traits ADD COLUMN 'CSBullyValueModifier' INTEGER DEFAULT 0;
 
 -- New Traits - Diplomatic Marriage bonus (Austria UA - CBP)
 ALTER TABLE Traits ADD COLUMN 'DiplomaticMarriage' BOOLEAN DEFAULT 0;
@@ -371,11 +377,24 @@ ALTER TABLE Traits ADD COLUMN 'DiplomaticMarriage' BOOLEAN DEFAULT 0;
 -- New Traits - Adoption of Policies/Beliefs/Ideology = free tech
 ALTER TABLE Traits ADD COLUMN 'IsAdoptionFreeTech' BOOLEAN DEFAULT 0;
 
--- New Traits - Extra Growth from GA/WLTKD
+-- New Traits - Extra Growth from WTLKD
 ALTER TABLE Traits ADD COLUMN 'GrowthBoon' INTEGER DEFAULT 0;
+
+-- New Traits - Extra GI yields from WTLKD
+ALTER TABLE Traits ADD COLUMN 'WLTKDGPImprovementModifier' INTEGER DEFAULT 0;
 
 -- New Traits - WLTKD from GP birth
 ALTER TABLE Traits ADD COLUMN 'GPWLTKD' BOOLEAN DEFAULT 0;
+
+-- New Traits - WLTKD from GP expansion - global
+ALTER TABLE Traits ADD COLUMN 'ExpansionWLTKD' BOOLEAN DEFAULT 0;
+
+-- New Traits - WLTKD from GWs - global
+ALTER TABLE Traits ADD COLUMN 'GreatWorkWLTKD' BOOLEAN DEFAULT 0;
+
+-- New Traits - permanent yield decrease at new era, scaling with empire size. Ties to permanent yields XML table.
+ALTER TABLE Traits ADD COLUMN 'PermanentYieldsDecreaseEveryEra' BOOLEAN DEFAULT 0;
+
 
 -- New Traits - Extra Terrain When Conquering a City
 ALTER TABLE Traits ADD COLUMN 'ExtraConqueredCityTerritoryClaimRange' INTEGER DEFAULT 0;
@@ -619,6 +638,8 @@ ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
 
 -- Promotions
 
+ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' BOOLEAN DEFAULT 0;
@@ -756,6 +777,12 @@ ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
 
 -- Boost CS Quest Value
 ALTER TABLE Traits ADD COLUMN 'MinorQuestYieldModifier' INTEGER DEFAULT 0;
+
+-- % culture bonus from conquering cities
+ALTER TABLE Traits ADD COLUMN 'CultureBonusModifierConquest' INTEGER DEFAULT 0;
+
+-- % production bonus in all cities from conquering cities
+ALTER TABLE Traits ADD COLUMN 'ProductionBonusModifierConquest' INTEGER DEFAULT 0;
 
 -- Limits the amount that can be built of a Unit class per city
 ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;

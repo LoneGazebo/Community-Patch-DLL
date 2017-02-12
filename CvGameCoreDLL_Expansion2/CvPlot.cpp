@@ -6143,7 +6143,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
-						GET_PLAYER(eOldOwner).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
+						setResourceType(NO_RESOURCE, 0);
 					}
 #endif
 					// Maintenance change!
@@ -6372,7 +6372,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 					if(eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
-						GET_PLAYER(eNewValue).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+						setResourceType(eResourceFromImprovement, iQuantity);
 					}
 #endif
 					// Maintenance change!
@@ -7420,6 +7420,9 @@ void CvPlot::removeMinorResources(bool bVenice)
 
 	if (GC.getMINOR_CIV_MERCANTILE_RESOURCES_KEEP_ON_CAPTURE_DISABLED() == 1)
 		bRemoveUniqueLuxury = true;
+
+	if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		bRemoveUniqueLuxury = false;
 		
 	if (bVenice)
 		bRemoveUniqueLuxury = false;
@@ -7699,7 +7702,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 				{
-					GET_PLAYER(eOldBuilder).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
+					setResourceType(eResourceFromImprovement, iQuantity);
 				}
 #endif
 
@@ -7912,16 +7915,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					if(getResourceType() == NO_RESOURCE)
-					{
-						setResourceType(eResourceFromImprovement, iQuantity);
-						if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
-							SetResourceLinkedCityActive(true);
-					}
-					else if(getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
-					{
-						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
-					}
+					setResourceType(eResourceFromImprovement, iQuantity);
+					if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+						SetResourceLinkedCityActive(true);
 				}
 #endif
 
@@ -9380,7 +9376,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			bool bRequiresNoFeature = pReligion->m_Beliefs.RequiresNoFeature(pWorkingCity->getOwner());
 			bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 			bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
-			int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, pWorkingCity->getOwner());
+			int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 			{	
 				if(bRequiresBoth)
@@ -9521,7 +9517,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 			if (MOD_RELIGION_PLOT_YIELDS) {
-				iReligionChange += pReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, pWorkingCity->getOwner());
+				iReligionChange += pReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetPlotYieldChange(getPlotType(), eYield);
@@ -9569,7 +9565,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 			if(pReligion)
 			{
-				int iReligionChange = pReligion->m_Beliefs.GetLakePlotYieldChange(eYield, pWorkingCity->getOwner());
+				int iReligionChange = pReligion->m_Beliefs.GetLakePlotYieldChange(eYield, pWorkingCity->getOwner(), pWorkingCity);
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetLakePlotYieldChange(eYield);
@@ -9600,7 +9596,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 					if(pReligion)
 					{
-						int iReligionChange = pReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+						int iReligionChange = pReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 						if (eSecondaryPantheon != NO_BELIEF)
 						{
 							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
@@ -9632,19 +9628,19 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					{		
 						if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
 						{
-							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 						}
 					}
 					else if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement)
 					{		
 						if(bRequiresNoImprovement && getImprovementType() != NO_IMPROVEMENT)
 						{
-							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 						}
 					}
 					else
 					{
-						iReligionChange +=  pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+						iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 					}
 #else
 					int iReligionChange = pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
@@ -9660,14 +9656,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 						{		
 							if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
 							{
-								iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
 							}
 						}
 						else if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement)
 						{		
 							if(bRequiresNoImprovement && getImprovementType() != NO_IMPROVEMENT)
 							{
-								iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
 							}
 						}
 						else
@@ -9705,14 +9701,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 					if(pReligion)
 					{
-						int iReligionChange = pReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, pWorkingCity->getOwner());
+						int iReligionChange = pReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, pWorkingCity->getOwner(), pWorkingCity);
 						if (eSecondaryPantheon != NO_BELIEF)
 						{
 							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldChangeNaturalWonder(eYield);
 						}
 						iYieldChange += iReligionChange;
 
-						int iReligionMod = pReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield, pWorkingCity->getOwner());
+						int iReligionMod = pReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield, pWorkingCity->getOwner(), pWorkingCity);
 						if (eSecondaryPantheon != NO_BELIEF)
 						{
 							iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldModifierNaturalWonder(eYield);
@@ -9789,7 +9785,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 				if(pReligion)
 				{
-					int iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield, pWorkingCity->getOwner());
+					int iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield, pWorkingCity->getOwner(), pWorkingCity);
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetResourceYieldChange(eResource, eYield);
@@ -10137,12 +10133,12 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				{	
 					if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE) && pImprovement->IsImprovementResourceMakesValid(getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam())))
 					{		
-						iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pWorkingCity->getOwner());
+						iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pWorkingCity->getOwner(), pWorkingCity);
 					}
 				}
 				else
 				{
-					iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pWorkingCity->getOwner());
+					iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pWorkingCity->getOwner(), pWorkingCity);
 				}
 #else
 				int iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
@@ -10680,6 +10676,23 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += kYield.getGoldenAgeYield();
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if (getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
+		{
+			if (GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+			{
+				if (pWorkingCity != NULL && pWorkingCity->GetWeLoveTheKingDayCounter() > 0)
+				{
+					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetWLTKDGPImprovementModifier() > 0)
+					{
+						int iBoon = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+						iYield *= (100 + iBoon);
+						iYield /= 100;
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	return std::max(0, iYield);

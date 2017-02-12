@@ -372,43 +372,43 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 			for(int iI = 0; iI < GC.getNUM_OR_TECH_PREREQS(); iI++)
 #endif
 			{
-				// Did we find a prereq?
-				int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
-				if(iPrereq != NO_TECH)
-				{
+// Did we find a prereq?
+int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
+if (iPrereq != NO_TECH)
+{
 #if defined(MOD_AI_SMART_V3)
-					if (MOD_AI_SMART_V3)
-					{
-						propagation_techs.push_back(pair<int, int> (iPrereq, iPropagatedWeight));
-					}
-					else
-					{
+	if (MOD_AI_SMART_V3)
+	{
+		propagation_techs.push_back(pair<int, int>(iPrereq, iPropagatedWeight));
+	}
+	else
+	{
 #endif
-					// Apply reduced weight here.  Note that we apply these to the master weight array, not
-					// the temporary one.  The temporary one is just used to hold the newly weighted techs
-					// (from which this weight propagation must originate).
-					m_TechAIWeights.IncreaseWeight(iPrereq, iPropagatedWeight);
+		// Apply reduced weight here.  Note that we apply these to the master weight array, not
+		// the temporary one.  The temporary one is just used to hold the newly weighted techs
+		// (from which this weight propagation must originate).
+		m_TechAIWeights.IncreaseWeight(iPrereq, iPropagatedWeight);
 
-					// Recurse to its prereqs (assuming we have any weight left)
-					if(iPropagatedWeight > 0)
-					{
-						PropagateWeights(iPrereq, iPropagatedWeight, iPropagationPercent, iPropagationLevel++);
-					}
+		// Recurse to its prereqs (assuming we have any weight left)
+		if (iPropagatedWeight > 0)
+		{
+			PropagateWeights(iPrereq, iPropagatedWeight, iPropagationPercent, iPropagationLevel++);
+		}
 #if defined(MOD_AI_SMART_V3)
-					}
+	}
 #endif
-				}
-				else
-				{
-					break;
-				}
+}
+else
+{
+	break;
+}
 
 			}
-			
+
 #if defined(MOD_AI_SMART_V3)
 			if (MOD_AI_SMART_V3 && !propagation_techs.empty())
 			{
-				for(unsigned int it = 0; it < propagation_techs.size(); it++)
+				for (unsigned int it = 0; it < propagation_techs.size(); it++)
 				{
 					if (propagation_techs[it].second > 0)
 					{
@@ -417,7 +417,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 
 						m_TechAIWeights.IncreaseWeight(propagation_techs[it].first, distributedWeight);
 						PropagateWeights(propagation_techs[it].first, distributedWeight, iPropagationPercent, iPropagationLevel++);
-					}					
+					}
 				}
 			}
 #endif
@@ -444,9 +444,9 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 	}
 #endif
 
-	for(int iI = 0; iI < m_ResearchableTechs.size(); iI++)
+	for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{
-		eTech = (TechTypes) m_ResearchableTechs.GetElement(iI);
+		eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
 		int iTurnsLeft = 0;
 
 		iTurnsLeft = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
@@ -457,7 +457,7 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 		double fAdditionalTurnCostFactor = GC.getAI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.015
 		double fTotalCostFactor = GC.getAI_RESEARCH_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
 
-		fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
+		fWeightDivisor = pow((double)iTurnsLeft, fTotalCostFactor);
 
 		int iNewWeight;
 		if (bNeedExpensiveTechs)
@@ -467,6 +467,14 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 		else
 		{
 			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+		}
+
+		if (pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
+		{
+			if(GC.getTechInfo(eTech)->GetEra() > pPlayer->GetCurrentEra())
+			{
+				iNewWeight /= 2;
+			}
 		}
 
 		// Now actually change the weight

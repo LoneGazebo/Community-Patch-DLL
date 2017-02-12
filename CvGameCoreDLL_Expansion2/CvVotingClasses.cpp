@@ -1549,10 +1549,6 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			{
 				if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
 				{
-					if(!GET_TEAM(GET_PLAYER(eOriginalProposer).getTeam()).isHasMet(GET_PLAYER(eTargetCityState).getTeam()))
-					{
-						GET_TEAM(GET_PLAYER(eOriginalProposer).getTeam()).meet(GET_PLAYER(eTargetCityState).getTeam(), false);
-					}
 					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(eOriginalProposer);
 					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentAlly(eOriginalProposer);
 				}
@@ -4310,7 +4306,14 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 				if(pReligion)
 				{
-					int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer);
+					CvCity* pHolyCity = NULL;
+					CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pPlot)
+					{
+						pHolyCity = pPlot->getPlotCity();
+					}
+
+					int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);
 					if(iExtraVotes > 0)
 					{
 						int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
@@ -7589,7 +7592,7 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	if (MOD_EVENTS_RESOLUTIONS) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), iDecision, true, pProposal->IsPassed(GetVotesSpentThisSession()));
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ResolutionResult, pProposal->GetType(), pProposal->GetProposalPlayer(), iDecision, true, pProposal->IsPassed(GetVotesSpentThisSession()));
 	}
 #endif
 

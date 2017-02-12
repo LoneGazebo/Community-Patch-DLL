@@ -5,6 +5,18 @@ INSERT INTO Resource_FeatureBooleans
 VALUES
 	('RESOURCE_BANANA', 'FEATURE_MARSH');
 
+
+-- New Resource - Brazilwood
+INSERT INTO Resources
+(Type, TechCityTrade, Description, Civilopedia, Help, ResourceClassType, Happiness, AIObjective, AITradeModifier, IconString, PortraitIndex, IconAtlas, TechReveal, ArtDefineTag)
+Values
+('RESOURCE_BRAZILWOOD', 'TECH_CALENDAR', 'TXT_KEY_RESOURCE_BRAZILWOOD', 'TXT_KEY_RESOURCE_BRAZILWOOD_TEXT', 'TXT_KEY_RESOURCE_BRAZILWOOD_HELP', 'RESOURCECLASS_LUXURY', '1', '1', '0', '[ICON_RES_BRAZILWOOD]', '0', 'CBP_RESOURCE_ATLAS', 'TECH_CALENDAR', 'ART_DEF_RESOURCE_FUR');
+
+INSERT INTO Resource_Flavors
+(ResourceType, FlavorType, Flavor)
+Values
+('RESOURCE_BRAZILWOOD', 'FLAVOR_HAPPINESS', '10');
+
 -- Clear out old values.
 DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_BANANA';
 DELETE FROM Resource_YieldChanges WHERE ResourceType = 'RESOURCE_COW';
@@ -71,7 +83,8 @@ VALUES
 	('RESOURCE_TRUFFLES', 'YIELD_GOLD', 1),
 	('RESOURCE_WHALE', 'YIELD_SCIENCE', 1),
 	('RESOURCE_WHALE', 'YIELD_FOOD', 1),
-	('RESOURCE_WINE', 'YIELD_FOOD', 1);
+	('RESOURCE_WINE', 'YIELD_FOOD', 1),
+	('RESOURCE_BRAZILWOOD', 'YIELD_GOLD', 1);
 
 INSERT INTO Resource_TerrainBooleans
 	(ResourceType, TerrainType)
@@ -107,7 +120,11 @@ VALUES
 	('RESOURCE_IRON', 'YIELD_PRODUCTION', 3),
 	('RESOURCE_GEMS', 'YIELD_SCIENCE', 2),
 	('RESOURCE_INCENSE', 'YIELD_FAITH', 2),
-	('RESOURCE_COTTON', 'YIELD_GOLD', 3);
+	('RESOURCE_COTTON', 'YIELD_GOLD', 3),
+	('RESOURCE_BRAZILWOOD', 'YIELD_CULTURE', 2);
+
+
+
 
 
 
@@ -221,6 +238,10 @@ VALUES
 	WHERE Type = 'RESOURCE_MARBLE';
 
 	-- Resource Monopoly Changes
+	UPDATE Resources
+	SET IsMonopoly = '1'
+	WHERE Type = 'RESOURCE_BRAZILWOOD';
+
 	UPDATE Resources
 	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_ALUMINUM';
@@ -544,15 +565,3 @@ VALUES
 	UPDATE Resources
 	Set StrategicHelp = 'TXT_KEY_RESOURCE_MONOPOLY_STRAT_URANIUM'
 	WHERE Type = 'RESOURCE_URANIUM';
-
-
--- New Resource - Brazilwood
-INSERT INTO Resources
-(Type, TechCityTrade, Description, Civilopedia, Help, ResourceClassType, Happiness, AIObjective, AITradeModifier, IconString, PortraitIndex, IconAtlas, TechReveal, ArtDefineTag)
-Values
-('RESOURCE_BRAZILWOOD', 'TECH_CALENDAR', 'TXT_KEY_RESOURCE_BRAZILWOOD', 'TXT_KEY_RESOURCE_BRAZILWOOD_TEXT', 'TXT_KEY_RESOURCE_BRAZILWOOD_HELP', 'RESOURCECLASS_LUXURY', '1', '1', '0', '[ICON_RES_BRAZILWOOD]', '0', 'CBP_RESOURCE_ATLAS', 'TECH_CALENDAR', 'ART_DEF_RESOURCE_FUR');
-
-INSERT INTO Resource_Flavors
-(ResourceType, FlavorType, Flavor)
-Values
-('RESOURCE_BRAZILWOOD', 'FLAVOR_HAPPINESS', '10');

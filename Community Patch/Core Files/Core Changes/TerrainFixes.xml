@@ -29,11 +29,6 @@
 				 />
 		</Update>
 		<Update>
-			<Where NaturalWonderType="FEATURE_VOLCANO" />
-			<Set EligibilityMethodNumber="3"
-				 />
-		</Update>
-		<Update>
 			<Where NaturalWonderType="FEATURE_GEYSER" />
 			<Set CoreTileCanBeAnyTerrainType="0"
 				 CoreTileCanBeDesert="1"

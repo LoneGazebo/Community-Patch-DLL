@@ -272,6 +272,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
 	LUAAPIEXTN(GetFractionOriginalCapitalsUnderControl, int);
+	LUAAPIEXTN(GetTourismPenalty, int);
 	LUAAPIEXTN(GetTechsToFreePolicy, int);
 #endif
 	static int lGetInfluenceTradeRouteScienceBonus(lua_State* L);
@@ -686,6 +687,7 @@ protected:
 
 	static int lGetPower(lua_State* L);
 	static int lGetMilitaryMight(lua_State* L);
+	static int lGetMilitaryMightForCS(lua_State* L);
 	static int lGetTotalTimePlayed(lua_State* L);
 
 	static int lGetScore(lua_State* L);

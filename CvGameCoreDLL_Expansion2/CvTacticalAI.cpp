@@ -1082,7 +1082,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		else
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 		break;
 	}
@@ -1093,7 +1093,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}
-		else if(eLastPosture == AI_TACTICAL_POSTURE_HEDGEHOG && pZone->GetEnemyUnitCount() > pZone->GetFriendlyUnitCount())
+		else if(eLastPosture == AI_TACTICAL_POSTURE_HEDGEHOG && pZone->GetEnemyUnitCount() >= pZone->GetFriendlyUnitCount())
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}
@@ -1121,6 +1121,11 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 		}
+
+		else if (eUnitCountDominance >= TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyUnitCount() > 0)
+		{
+			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+		}	
 
 		// Counterattack - for first time must be stronger or even with enemy having a ranged advantage
 		else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY ||

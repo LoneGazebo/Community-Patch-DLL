@@ -5970,24 +5970,6 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 		iFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
 
 //		Boost flavor even further based on in-game conditions
-#if defined(MOD_BALANCE_CORE)
-		if (m_pPlayer->GetCurrentEra() < eMedieval)
-		{
-			if (m_pPlayer->GetDiplomacyAI()->GetMeanness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_OFFENSE"))
-			{
-				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetMeanness();
-			}
-			if (m_pPlayer->GetDiplomacyAI()->GetBoldness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_EXPANSION"))
-			{
-				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetBoldness();
-			}
-			if (m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_WONDER"))
-			{
-				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness();
-			}
-		}
-#endif
-
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
 		if (eStrategyLosingMoney == NO_ECONOMICAISTRATEGY)
 		{

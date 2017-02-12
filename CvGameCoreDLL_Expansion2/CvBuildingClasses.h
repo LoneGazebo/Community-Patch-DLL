@@ -348,6 +348,7 @@ public:
 	bool IsEspionage() const;
 	bool AllowsFoodTradeRoutes() const;
 	bool AllowsProductionTradeRoutes() const;
+	bool AllowsProductionTradeRoutesGlobal() const;
 	bool NullifyInfluenceModifier() const;
 
 	const char* GetArtDefineTag() const;
@@ -778,6 +779,7 @@ private:
 	bool m_bEspionage;
 	bool m_bAllowsFoodTradeRoutes;
 	bool m_bAllowsProductionTradeRoutes;
+	bool m_bAllowsProductionTradeRoutesGlobal;
 	bool m_bNullifyInfluenceModifier;
 
 	bool m_bArtInfoCulturalVariation;

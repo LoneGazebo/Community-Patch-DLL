@@ -378,7 +378,7 @@ public:
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
 
-	int GetNumDefensivePactsWanted() const;
+	int GetNumDefensivePactsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 
 	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);

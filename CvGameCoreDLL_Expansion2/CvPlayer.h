@@ -909,6 +909,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetCultureBonusTurnsConquest() const;
 	void ChangeCultureBonusTurnsConquest(int iChange);
+
+	int GetProductionBonusTurnsConquest() const;
+	void ChangeProductionBonusTurnsConquest(int iChange);
 #endif
 	int GetTourismBonusTurns() const;
 	void ChangeTourismBonusTurns(int iChange);
@@ -1521,7 +1524,7 @@ public:
 	int GetNumHistoricEvents() const;
 	void SetNumHistoricEvents(int iValue);
 
-	int GetHistoricEventTourism();
+	int GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity = NULL);
 
 	void ChangeSingleVotes(int iValue);
 	int GetSingleVotes() const;
@@ -1581,6 +1584,9 @@ public:
 	void ChangeNoUnhappfromXSpecialistsCapital(int iChange);
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
+
+	void SetProductionRoutesAllCities(bool bValue);
+	bool IsProductionRoutesAllCities() const;
 #endif
 
 	int getCultureBombTimer() const;
@@ -1612,7 +1618,7 @@ public:
 
 	//power is military + economic
 	int getPower() const;
-	int GetMilitaryMight() const;
+	int GetMilitaryMight(bool bForMinor = false) const;
 	int GetEconomicMight() const;
 	int GetProductionMight() const;
 
@@ -2830,6 +2836,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iStrikeTurns;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeModifier;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	FAutoVariable<int, CvPlayer> m_iProductionBonusTurnsConquest;
 	FAutoVariable<int, CvPlayer> m_iCultureBonusTurnsConquest;
 	FAutoVariable<int, CvPlayer> m_iFreeGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iFreeGreatGeneralsCreated;
@@ -3217,6 +3224,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCivsConstructingWonder;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
+	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

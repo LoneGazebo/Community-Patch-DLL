@@ -1718,7 +1718,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iNumTurns * 50 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -1829,11 +1828,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				return 0;
 			}
 			
-			if(pkResourceInfo->getAITradeModifier() > 0)
-			{
-				iItemValue *= pkResourceInfo->getAITradeModifier();
-				iItemValue /= 20;
-			}
 			//If they're stronger than us, strategic resources are valuable.
 			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
@@ -1870,8 +1864,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//Are they close, or far away? We should always be a bit more eager to buy war resources from neighbors.
 			if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				iItemValue *= 12;
-				iItemValue /= 10;
+				iItemValue *= 3;
+				iItemValue /= 2;
 			}
 			//Are they going for science win? Buy their aluminum from them!
 			ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
@@ -1981,11 +1975,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				iItemValue /= 100;
 			}
 
-			if(pkResourceInfo->getAITradeModifier() > 0)
-			{
-				iItemValue *= pkResourceInfo->getAITradeModifier();
-				iItemValue /= 10;
-			}
 			//If they're stronger than us, do not give away strategic resources easily.
 			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
@@ -2055,7 +2044,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		}
 	}
 	int iResult = 0;
-	int iFlavors = 0;
+	int iFlavors = 1;
 	if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && eResource != NO_RESOURCE)
 	{
 		//Let's look at flavors for resources
@@ -2064,9 +2053,9 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			int iResourceFlavor = pkResourceInfo->getFlavorValue((FlavorTypes)i);
 			if(iResourceFlavor > 0)
 			{
-				int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
+				int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)i);
 				//Has to be above average to affect price. Will usually result in a x2-x3 modifier
-				iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 5);
+				iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 10);
 				iFlavors++;
 			}
 		}
@@ -3152,11 +3141,10 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	// What is a Defensive Pact with eOtherPlayer worth to US?
 	if(!bFromMe)
 	{
-		iItemValue = 0;
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(MOD_BALANCE_CORE_DEALS)
 		{
-			iItemValue *= 100;
+			iItemValue *= 35;
 			iItemValue /= max(1, GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer));
 		}
 #endif
@@ -3168,7 +3156,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 		if(MOD_BALANCE_CORE_DEALS)
 		{
 			iItemValue *= GetPlayer()->GetDiplomacyAI()->GetDefensivePactValue(eOtherPlayer);
-			iItemValue /= 100;
+			iItemValue /= 40;
 		}
 #else
 		// Opinion also matters
@@ -4817,7 +4805,7 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, bool bD
 											}
 											iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 											iAmountUnderWeWillOffer /= 100;
-											if (iTotalValue >= iAmountUnderWeWillOffer)
+											if (iTotalValue <= iAmountUnderWeWillOffer)
 											{
 												return;
 											}
@@ -4977,7 +4965,7 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDo
 								}
 								iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 								iAmountUnderWeWillOffer /= 100;
-								if(iTotalValue >= iAmountUnderWeWillOffer)
+								if(iTotalValue <= iAmountUnderWeWillOffer)
 								{
 									return;
 								}
@@ -5133,7 +5121,7 @@ void CvDealAI::DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, bool b
 								}
 								iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 								iAmountUnderWeWillOffer /= 100;
-								if(iTotalValue >= iAmountUnderWeWillOffer)
+								if(iTotalValue <= iAmountUnderWeWillOffer)
 								{
 									return;
 								}
@@ -5414,7 +5402,7 @@ void CvDealAI::DoAddResourceToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 							}
 							iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 							iAmountUnderWeWillOffer /= 100;
-							if(iTotalValue >= iAmountUnderWeWillOffer)
+							if(iTotalValue <= iAmountUnderWeWillOffer)
 							{
 								return;
 							}
@@ -5685,7 +5673,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 				}
 				iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 				iAmountUnderWeWillOffer /= 100;
-				if(iTotalValue >= iAmountUnderWeWillOffer)
+				if(iTotalValue <= iAmountUnderWeWillOffer)
 				{
 					return;
 				}
@@ -8060,15 +8048,6 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 				GetPlayer()->GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(eActivePlayer);
 			}
 		}
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if(GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eActivePlayer))
-		{
-			if(GetPlayer()->GetDiplomacyAI()->IsCanMakeDefensivePactRightNow(eActivePlayer))
-			{
-				GetPlayer()->GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eActivePlayer);
-			}
-		}
-#endif
 	}
 }
 
@@ -8566,7 +8545,7 @@ void CvDealAI::UpdateResearchRateCache(PlayerTypes eOther)
 // How much is a technology worth?
 int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer)
 {
-	int iItemValue = 250;
+	int iItemValue = 100;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 
 	//important, don't want to recalculate for every potential tech
@@ -8682,7 +8661,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 	// Apply the Modifier
 	iItemValue *= (100 + iTechMod);
-	iItemValue /= 100;
+	iItemValue /= 125;
 
 	PlayerTypes ePlayer;
 	if(bFromMe)
@@ -8775,7 +8754,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		
 		if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
 		{
-			iItemValue /= 2;
+			iItemValue /= 3;
 		}
 	}
 
@@ -9477,7 +9456,7 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeM
 					}
 					iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 					iAmountUnderWeWillOffer /= 100;
-					if(iTotalValue >= iAmountUnderWeWillOffer)
+					if(iTotalValue <= iAmountUnderWeWillOffer)
 					{
 						return;
 					}
@@ -9621,7 +9600,7 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeM
 						}
 						iAmountUnderWeWillOffer *= iPercentOverWeWillOffer;
 						iAmountUnderWeWillOffer /= 100;
-						if(iTotalValue >= iAmountUnderWeWillOffer)
+						if(iTotalValue <= iAmountUnderWeWillOffer)
 						{
 							return;
 						}

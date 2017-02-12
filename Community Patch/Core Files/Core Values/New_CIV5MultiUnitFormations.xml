@@ -744,20 +744,26 @@
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>

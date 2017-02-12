@@ -716,6 +716,27 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 	}
 
+	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
+	// find courthouse
+	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
+		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if (buildingInfo)
+		{
+			if (buildingInfo->IsNoOccupiedUnhappiness() && canConstruct(eBuilding))
+			{
+				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
+				break;
+			}
+		}
+	}
+
+	//Can't build a courthouse? Abort!
+	if (eCourthouseType == NO_BUILDINGCLASS)
+		return;
+
 	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
 	pCity = NULL;
@@ -742,22 +763,6 @@ void CvPlayerAI::AI_considerAnnex()
 	
 	CvCity* pTargetCity = NULL;
 	float fCutoffValue = GC.getNORMAL_ANNEX();
-	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
-	// find courthouse
-	for(int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
-		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if(buildingInfo)
-		{
-			if (buildingInfo->IsNoOccupiedUnhappiness())
-			{
-				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
-				break;
-			}
-		}
-	}
 
 	bool bCourthouseImprovement = false;
 	if (eCourthouseType != NO_BUILDINGCLASS)
@@ -1489,6 +1494,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_ENGINEER));
 	// Build manufactories up to your flavor.
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
@@ -1542,6 +1548,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_MERCHANT));
 	// build custom houses up to your flavor.
 	bool bConstructImprovement = !bTheVeniceException;
@@ -1611,6 +1618,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	{
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		//This is to prevent a buildup of scientists if the AI is having a hard time planting them.
 		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));

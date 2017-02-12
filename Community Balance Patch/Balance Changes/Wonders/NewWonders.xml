@@ -132,7 +132,7 @@
 			<Quote>TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE</Quote>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT</Civilopedia>
 			<Help>TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP</Help>
-			<ArtDefineTag>ART_DEF_BUILDING_MOTHERLAND_STATUE</ArtDefineTag>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

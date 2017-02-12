@@ -448,6 +448,7 @@ CvPlayer::CvPlayer() :
 	, m_iChangeMinorityUnhappinessGlobal("CvPlayer::m_iChangeMinorityUnhappinessGlobal", m_syncArchive)
 	, m_iLandmarksTourismPercentGlobal("CvPlayer::m_iLandmarksTourismPercentGlobal", m_syncArchive)
 	, m_iGreatWorksTourismModifierGlobal("CvPlayer::m_iGreatWorksTourismModifierGlobal", m_syncArchive)
+	, m_bAllowsProductionTradeRoutesGlobal("CvPlayer::m_bAllowsProductionTradeRoutesGlobal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iCenterOfMassX("CvPlayer::m_iCenterOfMassX", m_syncArchive)
@@ -483,6 +484,7 @@ CvPlayer::CvPlayer() :
 	, m_iLeagueCultureCityModifier("CvPlayer::m_iLeagueCultureCityModifier", m_syncArchive)
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	, m_iProductionBonusTurnsConquest("CvPlayer::m_iProductionBonusTurnsConquest", m_syncArchive)
 	, m_iCultureBonusTurnsConquest("CvPlayer::m_iCultureBonusTurnsConquest", m_syncArchive)
 	, m_iFreeGreatPeopleCreated("CvPlayer::m_iFreeGreatPeopleCreated", m_syncArchive)
 	, m_iFreeGreatGeneralsCreated("CvPlayer::m_iFreeGreatGeneralsCreated", m_syncArchive)
@@ -1345,6 +1347,7 @@ void CvPlayer::uninit()
 	m_iStrikeTurns = 0;
 	m_iGoldenAgeModifier = 0;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	m_iProductionBonusTurnsConquest = 0;
 	m_iCultureBonusTurnsConquest = 0;
 	m_iFreeGreatPeopleCreated = 0;
 	m_iFreeGreatGeneralsCreated = 0;
@@ -1590,6 +1593,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
+	m_bAllowsProductionTradeRoutesGlobal = false;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -2704,8 +2708,10 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
+
 					if (iWLTKD > 0)
 					{
 						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -3210,21 +3216,23 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #if defined(MOD_BALANCE_CORE)
 	if(bConquest && MOD_BALANCE_CORE)
 	{
-		if (GetPlayerTraits()->IsFreeGreatWorkOnConquest())
+		// Will this be the first time we have owned this city?
+		if (!pOldCity->isEverOwned(GetID()))
 		{
-			// Will this be the first time we have owned this city?
-			if (!pOldCity->isEverOwned(GetID()))
+			if (GetPlayerTraits()->GetCultureBonusModifierConquest() > 0)
 			{
-				DoFreeGreatWorkOnConquest(pOldCity->getOwner(), pOldCity);
-
-				ChangeCultureBonusTurnsConquest(pOldCity->getPopulation() / 2);
+				int iValue = (pOldCity->getPopulation() / 2);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
+				ChangeCultureBonusTurnsConquest(iValue);
 				if (GetID() == GC.getGame().getActivePlayer())
 				{
 					Localization::String strMessage;
 					Localization::String strSummary;
 					strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
-					strMessage << (pOldCity->getPopulation() / 2);
+					strMessage << iValue;
 					strMessage << pOldCity->getNameKey();
+					strMessage << GetPlayerTraits()->GetCultureBonusModifierConquest();
 					strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
 
 					CvNotifications* pNotification = GetNotifications();
@@ -3239,11 +3247,80 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					if (pCulture)
 					{
 						CvString strLogString;
-						strLogString.Format("Conquest culture boost for France: %d", (pOldCity->getPopulation() / 2));
+						strLogString.Format("Conquest culture boost: %d", (pOldCity->getPopulation() / 2));
 						GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
 			}
+			if (GetPlayerTraits()->GetProductionBonusModifierConquest() > 0)
+			{
+				int iValue = (pOldCity->getPopulation() / 2);
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
+				ChangeProductionBonusTurnsConquest(iValue);
+				if (GetID() == GC.getGame().getActivePlayer())
+				{
+					Localization::String strMessage;
+					Localization::String strSummary;
+					strMessage = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART");
+					strMessage << (pOldCity->getPopulation() / 2);
+					strMessage << pOldCity->getNameKey();
+					strMessage << GetPlayerTraits()->GetProductionBonusModifierConquest();
+					strSummary = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART_SUMMARY");
+
+					CvNotifications* pNotification = GetNotifications();
+					if (pNotification)
+					{
+						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+					}
+				}
+				if ((GC.getLogging() && GC.getAILogging()))
+				{
+					CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+					if (pCulture)
+					{
+						CvString strLogString;
+						strLogString.Format("Conquest production boost: %d", (pOldCity->getPopulation() / 2));
+						GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
+			}
+			if (GetPlayerTraits()->IsFreeGreatWorkOnConquest())
+			{
+				DoFreeGreatWorkOnConquest(pOldCity->getOwner(), pOldCity);
+			}
+#if defined(MOD_BALANCE_CORE)
+			if (GetPlayerTraits()->IsExpansionWLTKD())
+			{
+				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
+				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iWLTKD /= 100;
+
+				if (iWLTKD > 0)
+				{
+					CvCity* pLoopCity;
+					int iCityLoop;
+
+					// Loop through owner's cities.
+					for (pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+					{
+						if (pLoopCity != NULL)
+						{
+							pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						}
+					}
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST");
+						strText << iWLTKD << GetPlayerTraits()->GetGrowthBoon();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST");
+						pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), -1);
+					}
+				}
+			}
+#endif
 		}
 	}
 #endif
@@ -4190,36 +4267,25 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 #if defined(MOD_BALANCE_CORE)
 			//Check for policies that add capital buildings and move them over.
-			for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
-				PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
-				CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
-				if (pkPolicyInfo)
+				const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+				if (pkBuildingClassInfo)
 				{
-					if (GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+					int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
+					if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
 					{
-						for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+						const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+						if (NO_BUILDING != eBuilding)
 						{
-							const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
-							CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-							if (pkBuildingClassInfo)
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+							if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
 							{
-								int iNumFreeBuildings = pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass);
-								if (iNumFreeBuildings > 0)
+								pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+								if (pOldCapital != NULL)
 								{
-									const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-									if (NO_BUILDING != eBuilding)
-									{
-										CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-										if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
-										{
-											pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
-											if (pOldCapital != NULL)
-											{
-												pOldCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-											}
-										}
-									}
+									pOldCapital->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 								}
 							}
 						}
@@ -6764,7 +6830,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 				PolicyTypes ePolicy = (PolicyTypes)pkEventChoiceInfo->getEventPolicy();
 				if(ePolicy != -1)
 				{
-					GetPlayerPolicies()->SetPolicy(ePolicy, false, true);
+					setHasPolicy(ePolicy, false, true);
 					bChanged = true;
 				}
 			}
@@ -8552,12 +8618,12 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 			SetEventChoiceActive(eEventChoice, true);
 
 			//Now on to the actions themselves.
-			if(pkEventChoiceInfo->getEventPolicy() != -1)
+			if (pkEventChoiceInfo->getEventPolicy() != -1)
 			{
 				PolicyTypes ePolicy = (PolicyTypes)pkEventChoiceInfo->getEventPolicy();
 				if(ePolicy != -1)
 				{
-					GetPlayerPolicies()->SetPolicy(ePolicy, true, true);
+					setHasPolicy(ePolicy, true, true);
 				}
 			}
 			if(pkEventChoiceInfo->getEventTech() != -1)
@@ -10913,6 +10979,10 @@ void CvPlayer::doTurnPostDiplomacy()
 	{
 		ChangeCultureBonusTurnsConquest(-1);
 	}
+	if (GetProductionBonusTurnsConquest() > 0)
+	{
+		ChangeProductionBonusTurnsConquest(-1);
+	}
 #endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -12136,34 +12206,22 @@ void CvPlayer::findNewCapital()
 		pBestCity->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 1);
 
 #if defined(MOD_BALANCE_CORE)
-		//Check for policies that add capital buildings and move them over.
-		for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
-			CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
-			if (pkPolicyInfo)
+			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if (pkBuildingClassInfo)
 			{
-				if (GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+				int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
+				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
 				{
-					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+					if (NO_BUILDING != eBuilding)
 					{
-						const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
-						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-						if (pkBuildingClassInfo)
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
 						{
-							int iNumFreeBuildings = pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass);
-							if (iNumFreeBuildings > 0)
-							{
-								const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-								if (NO_BUILDING != eBuilding)
-								{
-									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-									if (pkBuildingInfo && pkBuildingInfo->IsCapitalOnly())
-									{
-										pBestCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
-									}
-								}
-							}
+							pBestCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
 						}
 					}
 				}
@@ -14909,6 +14967,10 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 			bool IgnoreRequirements = false;
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+			if (eFoundedReligion == NO_RELIGION)
+			{
+				eFoundedReligion = GetReligions()->GetReligionInMostCities();
+			}
 			if (eFoundedReligion != NO_RELIGION)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
@@ -14925,7 +14987,17 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 							eEra = (EraTypes)pEntry->GetEra();
 							if (eEra != NO_ERA)
 							{
-								IgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, GetID());
+								CvCity* pHolyCity = NULL;
+								CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+								if (pHolyCityPlot)
+								{
+									pHolyCity = pHolyCityPlot->getPlotCity();
+								}
+								if (pHolyCity == NULL)
+								{
+									pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+								}
+								IgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, GetID(), pHolyCity);
 							}
 						}
 					}
@@ -14933,22 +15005,32 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 			}
 			if (!IgnoreRequirements)
 			{
-				int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
-				int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
-				if (iCSPolicyReduction > 0)
+				//If # of policies will do it, then we need to see the either/or here.
+				if (pBuildingInfo.GetNumPoliciesNeeded() > 0)
 				{
-					int iNumAllies = GetNumCSAllies();
-					iNumPolicies += (iNumAllies / iCSPolicyReduction);
-				}
-				if (eFoundedReligion != NO_RELIGION)
-				{
-					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
-					if (pReligion)
+					int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
+					int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
+					if (iCSPolicyReduction > 0)
 					{
-						CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-						if (pPlot != NULL && pPlot->getOwner() == GetID())
+						int iNumAllies = GetNumCSAllies();
+						iNumPolicies += (iNumAllies / iCSPolicyReduction);
+					}
+					if (eFoundedReligion != NO_RELIGION)
+					{
+						const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
+						if (pReligion)
 						{
-							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID());
+							CvCity* pHolyCity = NULL;
+							CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+							if (pHolyCityPlot)
+							{
+								pHolyCity = pHolyCityPlot->getPlotCity();
+							}
+							if (pHolyCity == NULL)
+							{
+								pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+							}
+							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID(), pHolyCity);
 							if (iReligionPolicyReduction > 0)
 							{
 								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
@@ -14958,11 +15040,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 								}
 							}
 						}
-					}
-				}
-				//If # of policies will do it, then we need to see the either/or here.
-				if (pBuildingInfo.GetNumPoliciesNeeded() > 0)
-				{
+					}				
 					if (iNumPolicies < pBuildingInfo.GetNumPoliciesNeeded())
 					{
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies);
@@ -14997,48 +15075,75 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+			if (eFoundedReligion == NO_RELIGION)
+			{
+				eFoundedReligion = GetReligions()->GetReligionInMostCities();
+			}
 			if(eFoundedReligion != NO_RELIGION)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 				if(pReligion)
 				{
-					if(pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID()))
+					if (pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
 					{
-						if(pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						if (pHolyCity == NULL)
+						{
+							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+						}
+						if (pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID(), pHolyCity, true))
 						{
 							int iPopRequired = pkBuildingInfo->GetNationalFollowerPopRequired();
 							int iLoop;
 							int iCurrentPop = 0;
 							CvCity* pLoopCity;
-							for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
+							for (pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
 							{
 								iCurrentPop += pLoopCity->GetCityReligions()->GetNumFollowers(eFoundedReligion);
-							}				
-							if(iCurrentPop < iPopRequired)
+							}
+							if (iCurrentPop < iPopRequired)
 							{
 								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP", pkBuildingInfo->GetTextKey(), "", iPopRequired - iCurrentPop);
-								if(toolTipSink == NULL)
-								return false;
+								if (toolTipSink == NULL)
+									return false;
 							}
 						}
-						if(pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
+					}
+					if(pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
+					{
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						if (pHolyCity == NULL)
+						{
+							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+						}
+						if (pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID(), pHolyCity))
 						{
 							int iPopRequiredPercent = pkBuildingInfo->GetGlobalFollowerPopRequired();
-							if(GC.getMap().getWorldInfo().getReformationPercent() > 0)
+							if (GC.getMap().getWorldInfo().getReformationPercent() > 0)
 							{
 								iPopRequiredPercent *= GC.getMap().getWorldInfo().getReformationPercent();
 								iPopRequiredPercent /= 100;
 							}
 
 							int iCurrentPop = pReligions->GetNumFollowers(eFoundedReligion);
-							int iCurrentPopPercent = (iCurrentPop * 100) / GC.getGame().getTotalPopulation(); 
+							int iCurrentPopPercent = (iCurrentPop * 100) / GC.getGame().getTotalPopulation();
 
-							if(iCurrentPopPercent < iPopRequiredPercent)
+							if (iCurrentPopPercent < iPopRequiredPercent)
 							{
 								int iPercentage = iPopRequiredPercent - iCurrentPopPercent;
 								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP", pkBuildingInfo->GetTextKey(), "", iPercentage);
-								if(toolTipSink == NULL)
-								return false;
+								if (toolTipSink == NULL)
+									return false;
 							}
 						}
 					}
@@ -17759,7 +17864,13 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 			}
 #endif
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
-			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace, GetID());
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
+			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace, GetID(), pHolyCity, true);
 
 			if (iMod != 0)
 			{
@@ -17777,30 +17888,57 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 {
 	int iValue = 0;
 
+	int iOtherCulturePerTurn = 0;
+	if (GetCultureBonusTurns() > 0 || GetCultureBonusTurnsConquest() > 0)
+	{
+		int iCulturePerTurn = 0;
+
+		// Culture per turn from Cities
+		iCulturePerTurn += GetJONSCulturePerTurnFromCities();
+
+		// Special bonus which adds excess Happiness to Culture?
+		iCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
+
+		// Trait bonus which adds Culture for trade partners? 
+		iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
+
+		// Free culture that's part of the player
+		iCulturePerTurn += GetJONSCulturePerTurnForFree();
+
+		// Culture from Minor Civs
+		iCulturePerTurn += GetCulturePerTurnFromMinorCivs();
+
+		// Culture from Religion
+		iCulturePerTurn += GetCulturePerTurnFromReligion();
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES) {
+			// We're a vassal of someone, we get x% of his science
+			iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
+		}
+#endif
+
+		// Golden Age bonus
+		if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
+		{
+			iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
+		}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		{
+			iCulturePerTurn += GetYieldPerTurnFromHappiness(YIELD_CULTURE, iCulturePerTurn);
+		}
+#endif
+	}
+
 	if (GetCultureBonusTurns() > 0)
 	{
-		// Start by seeing how much the other types are bringing in
-		int iOtherCulturePerTurn = 0;
-		iOtherCulturePerTurn += GetJONSCulturePerTurnFromCities();
-		iOtherCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
-		iOtherCulturePerTurn += GetJONSCulturePerTurnForFree();
-		iOtherCulturePerTurn += GetCulturePerTurnFromMinorCivs();
-		iOtherCulturePerTurn += GetCulturePerTurnFromReligion();
-
 		iValue += ((iOtherCulturePerTurn * GC.getTEMPORARY_CULTURE_BOOST_MOD()) / 100);
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (GetCultureBonusTurnsConquest() > 0)
 	{
-		// Start by seeing how much the other types are bringing in
-		int iOtherCulturePerTurn = 0;
-		iOtherCulturePerTurn += GetJONSCulturePerTurnFromCities();
-		iOtherCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
-		iOtherCulturePerTurn += GetJONSCulturePerTurnForFree();
-		iOtherCulturePerTurn += GetCulturePerTurnFromMinorCivs();
-		iOtherCulturePerTurn += GetCulturePerTurnFromReligion();
-
-		iValue += ((iOtherCulturePerTurn * 100) / 100);
+		iValue += ((iOtherCulturePerTurn * GetPlayerTraits()->GetCultureBonusModifierConquest()) / 100);
 	}	
 #endif
 
@@ -18157,7 +18295,6 @@ int CvPlayer::GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) 
 void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange)
 {
 	m_paiNumCitiesFreeChosenBuilding.setAt(eBuildingClass, (m_paiNumCitiesFreeChosenBuilding[eBuildingClass] + iChange));
-	CvAssert(GetNumCitiesFreeChosenBuilding(eBuildingClass) >= 0);
 }
 
 /// Cities remaining to get a free building
@@ -18325,42 +18462,32 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 				iValue += GetPlayerTraits()->GetYieldFromBarbarianKills(eYield);
 			}
 
-			const ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(GetID());
-			if (eReligion >= RELIGION_PANTHEON) 
+			ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(GetID());
+			if (eReligion == NO_RELIGION)
+			{
+				eReligion = GetReligions()->GetReligionInMostCities();
+			}
+			if (eReligion != NO_RELIGION)
 			{
 				const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 				if (pMyReligion) 
 				{
-					const CvCity* pCity = getCapitalCity();
-					if(pCity && pCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
 					{
-						iValue += pMyReligion->m_Beliefs.GetYieldFromKills(eYield, GetID());
-
-						if (bWasBarbarian) 
-						{
-							iValue += pMyReligion->m_Beliefs.GetYieldFromBarbarianKills(eYield, GetID());
-						}
+						pHolyCity = pHolyCityPlot->getPlotCity();
 					}
-				}
-			}
-			else
-			{
-				ReligionTypes eMajorityReligion = GetReligions()->GetReligionInMostCities();
-				if (eMajorityReligion >= RELIGION_PANTHEON) 
-				{
-					const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eMajorityReligion, GetID());
-					if (pMyReligion) 
+					if (pHolyCity == NULL)
 					{
-						const CvCity* pCity = getCapitalCity();
-						if(pCity && pCity->GetCityReligions()->GetNumFollowers(eMajorityReligion) > 0)
-						{
-							iValue += pMyReligion->m_Beliefs.GetYieldFromKills(eYield, GetID());
+						pHolyCity = getCapitalCity();
+					}
 
-							if (bWasBarbarian) 
-							{
-								iValue += pMyReligion->m_Beliefs.GetYieldFromBarbarianKills(eYield, GetID());
-							}
-						}
+					iValue += pMyReligion->m_Beliefs.GetYieldFromKills(eYield, GetID(), pHolyCity, true);
+
+					if (bWasBarbarian) 
+					{
+						iValue += pMyReligion->m_Beliefs.GetYieldFromBarbarianKills(eYield, GetID(), pHolyCity, true);
 					}
 				}
 			}
@@ -18741,6 +18868,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 				}
 			}
 			artChoices.SortItems();
+			int iNotificationArtwork = -1;
 			if (artChoices.size() > 0)
 			{
 				int iPlunder = GC.getGame().getJonRandNum(max(1, (iOpenSlots / 5)), "Art Plunder Value");
@@ -18802,6 +18930,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 													iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
 													if (iGreatWorkIndex == artChoices.GetElement(iGrab))
 													{
+														iNotificationArtwork = iGreatWorkIndex;
 														// and create great work at home
 														BuildingClassTypes eGWBuildingClass;
 														int iGWSlot;
@@ -18853,7 +18982,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					CvNotifications* pNotification = GetNotifications();
 					if (pNotification)
 					{
-						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int)pCity->GetID(), GetID());
+						pNotification->Add(NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), iNotificationArtwork, GET_PLAYER(ePlayer).GetID());
 					}
 				}
 				if (ePlayer == GC.getGame().getActivePlayer())
@@ -18868,7 +18997,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					CvNotifications* pNotification = GET_PLAYER(ePlayer).GetNotifications();
 					if (pNotification)
 					{
-						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int)pCity->GetID(), pCity->getOwner());
+						pNotification->Add(NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), iNotificationArtwork, pCity->getOwner());
 					}
 				}
 			}
@@ -18921,12 +19050,12 @@ void CvPlayer::DoWarVictoryBonuses()
 		changeGoldenAgeTurns(iTurns, iValue);
 	}
 
-	int iTourism = GetHistoricEventTourism();
+	int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_WAR);
 	ChangeNumHistoricEvents(1);
 	// Culture boost based on previous turns
 	if(iTourism > 0)
 	{
-		GetCulture()->AddTourismAllKnownCivs(iTourism);
+		GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			CvCity* pCity = getCapitalCity();
@@ -20696,20 +20825,31 @@ int CvPlayer::GetHappinessFromReligion()
 		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 		if(pReligion)
 		{
-			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
-			iHappinessFromReligion += pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace, GetID());
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 
-			float iHappinessPerFollowingCity = pReligion->m_Beliefs.GetHappinessPerFollowingCity(GetID());
+			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
+			iHappinessFromReligion += pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace, GetID(), pHolyCity, true);
+
+			float iHappinessPerFollowingCity = pReligion->m_Beliefs.GetHappinessPerFollowingCity(GetID(), pHolyCity, true);
 			iHappinessFromReligion += (int)((float)pReligions->GetNumCitiesFollowing(eFoundedReligion) * iHappinessPerFollowingCity);
 
-			int iHappinessPerXPeacefulForeignFollowers = pReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers(GetID());
+			int iHappinessPerXPeacefulForeignFollowers = pReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers(GetID(), pHolyCity, true);
 			if (iHappinessPerXPeacefulForeignFollowers > 0)
 			{
 				iHappinessFromReligion += GetReligions()->GetNumForeignFollowers(true, /*bAtPeace */eFoundedReligion) / iHappinessPerXPeacefulForeignFollowers;
 			}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			int iPantheon = 0;
-			int iHappiness = pReligion->m_Beliefs.GetHappinessPerPantheon(GetID());
+			if (pHolyCity == NULL)
+			{
+				pHolyCity = getCapitalCity();
+			}
+			int iHappiness = pReligion->m_Beliefs.GetHappinessPerPantheon(GetID(), pHolyCity, true);
 			if(iHappiness > 0)
 			{
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
@@ -20974,18 +21114,10 @@ int CvPlayer::getCurrentTotalPop() const
 	int iTotalPop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		//Venice should get a boost here.
-		if(GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
-		{
-			if(pLoopCity != NULL)
-			{
-				iTotalPop += pLoopCity->getPopulation();
-			}
-		}
-		else if(pLoopCity != NULL && !pLoopCity->IsPuppet())
-		{
-			iTotalPop += pLoopCity->getPopulation();
-		}
+		if (pLoopCity == NULL)
+			continue;
+
+		iTotalPop += pLoopCity->getPopulation();
 	}
 	return iTotalPop;
 }
@@ -21109,7 +21241,7 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 	iUnhappiness += GetCulture()->GetPublicOpinionUnhappiness();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS && !isMinorCiv() && !isBarbarian())
 	{
 		iUnhappiness += GetCulture()->GetWarWeariness();
 
@@ -23277,6 +23409,23 @@ void CvPlayer::ChangeCultureBonusTurnsConquest(int iChange)
 		m_iCultureBonusTurnsConquest += iChange;
 	}
 }
+
+//	--------------------------------------------------------------------------------
+// Get Culture Bonus for a certain period of time
+int CvPlayer::GetProductionBonusTurnsConquest() const
+{
+	return m_iProductionBonusTurnsConquest;
+}
+
+//	--------------------------------------------------------------------------------
+// Set Culture Bonus for a certain period of time
+void CvPlayer::ChangeProductionBonusTurnsConquest(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iProductionBonusTurnsConquest += iChange;
+	}
+}
 #endif
 //	--------------------------------------------------------------------------------
 // Get Tourism Bonus for a certain period of time
@@ -23371,7 +23520,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			if(pReligion)
 			{
-				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID());
+				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity);
 				if(iReligionYieldChange > 0)
 				{
 					iGreatGeneralPoints += iReligionYieldChange;
@@ -23438,7 +23587,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			if(pReligion)
 			{
-				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID());
+				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity);
 				if(iReligionYieldChange > 0)
 				{
 					iGreatAdmiralPoints += iReligionYieldChange;
@@ -23649,6 +23798,10 @@ void CvPlayer::SetGoldenAgeProgressMeter(int iValue)
 /// Changes what is our progress towards the next GA
 void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 {
+	if (MOD_BALANCE_NO_GAP_DURING_GA && isGoldenAge())
+	{
+		return;
+	}
 	SetGoldenAgeProgressMeter(GetGoldenAgeProgressMeter() + iChange);
 
 }
@@ -23739,69 +23892,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 		m_iGoldenAgeTurns = (m_iGoldenAgeTurns + iChange);
 		CvAssert(getGoldenAgeTurns() >= 0);
-#if defined(MOD_BALANCE_CORE)
-		if(iChange > 0 && GetGoldenAgeTourism() > 0)
-		{
-			int iTourism = GetGoldenAgeTourism();
-			ChangeNumHistoricEvents(1);
-			// Culture boost based on previous turns
-			int iPreviousTurnsToCount = 10;
-			// Calculate boost
-			iTourism *= (GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
-			iTourism /= 100;
-			GetCulture()->AddTourismAllKnownCivs(iTourism);
-			CvCity* pCapitalCity = getCapitalCity();
-			if(iTourism > 0)
-			{
-				if(GetID() == GC.getGame().getActivePlayer())
-				{
-					if(pCapitalCity != NULL)
-					{
-						char text[256] = {0};
-						float fDelay = 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-						DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
-						CvNotifications* pNotification = GetNotifications();
-						if(pNotification)
-						{
-							CvString strMessage;
-							CvString strSummary;
-							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
-							strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-							pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
-						}
-					}
-				}
-			}
-		}
-		if(iChange > 0 && GetPlayerTraits()->GetWLTKDGATimer() > 0)
-		{
-			int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
-			iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iValue2 /= 100;
-			int iLoop;
-			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				if(pLoopCity != NULL)
-				{				
-					pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
-				}
-			}
-			CvNotifications* pNotification = GetNotifications();
-			if(pNotification)
-			{
-				CvString strMessage;
-				CvString strSummary;
-				strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
-				strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
-				pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
-			}
-		}
-		if(iChange > 0 && GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() > 0)
-		{
-			ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * 1);
-		}
-#endif
+
 		if(bOldGoldenAge != isGoldenAge())
 		{
 			GC.getMap().updateYield();	// Do the entire map, so that any potential golden age bonus is reflected in the yield icons.
@@ -23815,6 +23906,67 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				if(pCapitalCity != NULL)
 				{
 					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pCapitalCity);
+				}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+				if (GetGoldenAgeTourism() > 0)
+				{
+					int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
+					ChangeNumHistoricEvents(1);
+					// Culture boost based on previous turns
+					if (iTourism > 0)
+					{
+						GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+						CvCity* pCapitalCity = getCapitalCity();
+
+						if (GetID() == GC.getGame().getActivePlayer())
+						{
+							if (pCapitalCity != NULL)
+							{
+								char text[256] = { 0 };
+								float fDelay = 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+								DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
+								CvNotifications* pNotification = GetNotifications();
+								if (pNotification)
+								{
+									CvString strMessage;
+									CvString strSummary;
+									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
+									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
+								}
+							}
+						}
+					}
+				}
+				if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
+				{
+					int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
+					iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iValue2 /= 100;
+					int iLoop;
+					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if (pLoopCity != NULL)
+						{
+							pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
+						}
+					}
+					CvNotifications* pNotification = GetNotifications();
+					if (pNotification)
+					{
+						CvString strMessage;
+						CvString strSummary;
+						strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
+						strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
+						pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
+					}
+				}
+				if (GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() > 0)
+				{
+					ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * 1);
 				}
 #endif
 
@@ -24792,7 +24944,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true);
 					}
 					break;
 				}
@@ -24801,7 +24953,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromPolicyUnlock(eYield);
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true);
 					}
 					break;
 				}
@@ -24858,7 +25010,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromBorderGrowth(eYield) + getYieldFromBorderGrowth(eYield) + GetPlayerTraits()->GetYieldFromTileEarn(eYield);
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID());
+						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
 					}
 					for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 					{
@@ -24877,7 +25029,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromProposal(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldFromProposal(eYield, GetID(), pLoopCity, true);
 					}
 					break;
 				}
@@ -24899,14 +25051,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity);
+							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true);
 						}
 					}
 					if(eYield == YIELD_FAITH)
 					{
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity);
+							iValue += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
 						}
 					}
 					break;
@@ -24927,7 +25079,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
 					}
 					if(iPassYield != 0 && iValue != 0)
 					{
@@ -25003,7 +25155,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity);
+					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
 					break;
 				}
 				case INSTANT_YIELD_TYPE_DEATH:
@@ -25032,14 +25184,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity);
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true);
 							}
 							if(eYield == YIELD_SCIENCE && iPassYield > 0)
 							{
 								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
 								if(eCurrentReligion != eReligion && eCurrentReligion != NO_RELIGION)
 								{
-									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity));
+									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity, true));
 								}
 							}
 						}
@@ -25056,7 +25208,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity);
+							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
 						}
 					}
 					if(iPassYield != 0)
@@ -25237,7 +25389,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						else
 						{
-							GetCulture()->AddTourismAllKnownCivs(iValue);
+							GetCulture()->AddTourismAllKnownCivsWithModifiers(iValue);
 						}
 					}
 					break;
@@ -26292,8 +26444,10 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 				if (pCity != NULL && pCity->getOwner() == GetID())
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
+
 					if (iWLTKD > 0)
 					{
 						pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -26318,8 +26472,10 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 					if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
 					{
 						int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 						iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iWLTKD /= 100;
+
 						if (iWLTKD > 0)
 						{
 							pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -28505,13 +28661,6 @@ void CvPlayer::ChangeNumHistoricEvents(int iChange)
 		return;
 	}
 	m_iNumHistoricEvent += iChange;
-	int iValue = m_iNumHistoricEvent;
-	if(GC.getLogging() && GC.getAILogging())
-	{
-		CvString strLogString;
-		strLogString.Format("Historic Event completed. Total: %d.", iValue);
-		GetHomelandAI()->LogHomelandMessage(strLogString);
-	}
 	CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -28645,16 +28794,142 @@ int CvPlayer::GetNumHistoricEvents() const
 {
 	return m_iNumHistoricEvent;
 }
-int CvPlayer::GetHistoricEventTourism()
+int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity)
 {
-	int iTourism = GetEventTourism();
-	int iPreviousTurnsToCount = 10;
-	// Calculate boost
-	int iBonusPerTurn = (GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) + GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount) / 2);
-	iTourism *= iBonusPerTurn;
-	iTourism /= 100;
 
-	return iTourism;
+	int iTourism = 0;
+
+	CvString strLogString; 
+	
+	switch (eHistoricEvent)
+	{
+	case HISTORIC_EVENT_GP:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Great Person Historic Event triggered.");
+		}
+		iTourism = GetEventTourism();
+		break;
+	case HISTORIC_EVENT_ERA:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Era Change Historic Event triggered.");
+		}
+		iTourism = GetEventTourism();
+		break;
+	case HISTORIC_EVENT_WAR:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("War Historic Event triggered.");
+		}
+		iTourism = GetEventTourism();
+		break;
+	case HISTORIC_EVENT_WONDER:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Wonder Historic Event triggered.");
+		}
+		iTourism = GetEventTourism();
+		break;
+	case HISTORIC_EVENT_DIG:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Archaeological Dig Historic Event triggered.");
+		}
+		iTourism = GetArchaeologicalDigTourism();
+		break;
+	case HISTORIC_EVENT_TRADE_CS:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("City-State Trade Historic Event triggered.");
+		}
+		iTourism = GetEventTourismCS();
+		break;
+	case HISTORIC_EVENT_GA:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Golden Age Historic Event triggered.");
+		}
+		iTourism = GetGoldenAgeTourism();
+		break;
+	case HISTORIC_EVENT_TRADE_LAND:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Land Trade Specific Event triggered.");
+		}
+		if (pCity != NULL)
+		{
+			iTourism = pCity->GetSeaTourismBonus();
+		}
+		break;
+	case HISTORIC_EVENT_TRADE_SEA:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Sea Trade Specific Event triggered.");
+		}
+		if (pCity != NULL)
+		{
+			iTourism = pCity->GetLandTourismBonus();
+		}
+		break;
+	}
+
+	if (iTourism <= 0)
+		return 0;
+
+	int iPreviousTurnsToCount = iTourism;
+
+	// Calculate boost
+	int iTotalBonus = GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+	iTotalBonus += GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+
+	// Mod for City Count
+	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+	int iNumCities = GetMaxEffectiveCities();
+
+	iMod *= (iNumCities - 1);
+
+	if (iMod <= 0)
+		return iTotalBonus;
+	else if (iMod >= 75)
+		iMod = 75;
+
+	int iSubtraction = (iTotalBonus * iMod);
+	iSubtraction /= 100;
+
+	iTotalBonus -= iSubtraction;
+
+	iTotalBonus /= 8;
+
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strTemp;
+
+		CvString strFileName = "HistoricEventLog.csv";
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+		CvString strPlayerName;
+		strPlayerName = getCivilizationShortDescription();
+		strTemp += strPlayerName;
+		strTemp += ", ";
+
+		CvString strTurn;
+ 
+		strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+		strTemp += strTurn;
+
+		strTemp += strLogString;
+
+		CvString strData;
+		strData.Format(" --- Total Events: %d. Tourism bonus with all civs (before modifiers): %d", GetNumHistoricEvents(), iTotalBonus);
+		strTemp += strData;
+		
+		pLog->Msg(strTemp);
+	}
+
+	return iTotalBonus;
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeSingleVotes(int iChange)
@@ -28952,6 +29227,18 @@ int CvPlayer::GetWarWearinessModifier() const
 void CvPlayer::ChangeWarWearinessModifier(int iChange)
 {
 	m_iWarWearinessModifier += iChange;
+}
+
+void CvPlayer::SetProductionRoutesAllCities(bool bValue)
+{
+	if (m_bAllowsProductionTradeRoutesGlobal != bValue)
+	{
+		m_bAllowsProductionTradeRoutesGlobal = bValue;
+	}
+}
+bool CvPlayer::IsProductionRoutesAllCities() const
+{
+	return m_bAllowsProductionTradeRoutesGlobal;
 }
 #endif
 
@@ -29780,7 +30067,7 @@ int CvPlayer::getPower() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetMilitaryMight() const
+int CvPlayer::GetMilitaryMight(bool bForMinor) const
 {
 	// more lazy evaluation
 	if (m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
@@ -29792,6 +30079,13 @@ int CvPlayer::GetMilitaryMight() const
 		const_cast<CvPlayer*>(this)->m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
 		const_cast<CvPlayer*>(this)->m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
 #endif
+	}
+	if (bForMinor && GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
+	{
+		int iBonus = m_iMilitaryMight;
+		iBonus *= (100 + GetPlayerTraits()->GetBullyMilitaryStrengthModifier());
+		iBonus /= 100;
+		return iBonus;
 	}
 
 	return m_iMilitaryMight;
@@ -34257,10 +34551,24 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 #if defined(MOD_BALANCE_CORE)
 	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
+	if (eFounder == NO_RELIGION)
+	{
+		eFounder = GetReligions()->GetReligionInMostCities();
+	}
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
 	if (pReligion)
 	{
-		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID());
+		CvCity* pHolyCity = NULL;
+		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+		if (pHolyCityPlot)
+		{
+			pHolyCity = pHolyCityPlot->getPlotCity();
+		}
+		if (pHolyCity == NULL)
+		{
+			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+		}
+		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
 		if (iQuantityMod != 0)
 		{
 			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
@@ -39888,6 +40196,39 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
 		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), true);
+
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pPolicy->GetNewCityFreeBuilding());
+		if (pkBuildingClassInfo)
+		{
+			const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+			if (NO_BUILDING != eBuilding)
+			{
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pkBuildingInfo)
+				{
+					int iLoopTwo;
+					for (pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
+					{
+						if (pLoopCity->isValidBuildingLocation(eBuilding))
+						{
+							if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+							{
+								pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+							}
+
+							pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+
+							if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+							{
+								pLoopCity->clearOrderQueue();
+								pLoopCity->chooseProduction();
+								// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 #endif
 
@@ -40070,8 +40411,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 											if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
 											{
 												int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 												iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 												iWLTKD /= 100;
+
 												if (iWLTKD > 0)
 												{
 													pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -40147,6 +40490,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else if(pNewUnit->getUnitInfo().IsFoundReligion())
 									{
 										ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+										if (eReligion == NO_RELIGION)
+										{
+											eReligion = GetReligions()->GetReligionInMostCities();
+										}
 										int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
 										int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
 										if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
@@ -41498,8 +41845,10 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
+
 			if (iWLTKD > 0)
 			{
 				pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -41524,8 +41873,10 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
 			{
 				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iWLTKD /= 100;
+
 				if (iWLTKD > 0)
 				{
 					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -41631,29 +41982,6 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		CvAchievementUnlocker::Check_PSG();
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if(GetPlayerTraits()->IsInspirationalLeader() && IsAtWar() && !bIsFree)
-	{
-		int iLoop;
-		CvUnit* pLoopUnit = NULL;
-		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-		{
-			if (!pLoopUnit)
-			{
-				continue;
-			}
-			if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
-			{
-				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
-#if defined(MOD_UNITS_XP_TIMES_100)
-				pLoopUnit->changeExperienceTimes100(10 * 100);
-#else
-				pLoopUnit->changeExperience(10);
-#endif
-			}
-		}
-	}
-#endif
 	// Notification
 	if(GetNotifications())
 	{
@@ -41683,8 +42011,10 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
+
 			if (iWLTKD > 0)
 			{
 				pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
@@ -41709,8 +42039,10 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
 			{
 				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iWLTKD /= 100;
+
 				if (iWLTKD > 0)
 				{
 					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);

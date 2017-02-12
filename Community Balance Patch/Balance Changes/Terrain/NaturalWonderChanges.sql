@@ -34,7 +34,6 @@ UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 10 WHERE OccurrenceFre
 UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 20 WHERE NaturalWonderType IN (
 	'FEATURE_GIBRALTAR'		,
 	'FEATURE_REEF'			,
-	'FEATURE_VOLCANO'		,
 	'FEATURE_GEYSER'		,
 	'FEATURE_MESA'			,
 	'FEATURE_FOUNTAIN_YOUTH',

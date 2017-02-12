@@ -389,6 +389,7 @@
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 #define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
+#define MOD_BALANCE_NO_GAP_DURING_GA				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_NO_GAP_DURING_GA())
 #endif
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -562,6 +563,8 @@
 
 #endif
 
+//
+//	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
 // Events sent when terraforming occurs (v33)
 //   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end)
 //   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end)
@@ -752,7 +755,7 @@
 //   GameEvents.PlayerCanPropose.Add(function(iPlayer, iResolution, iChoice, bEnact) return true end)
 //   GameEvents.ResolutionProposing.Add(function(iPlayer, iLeague) return false; end) (v88)
 //   GameEvents.ResolutionVoting.Add(function(iPlayer, iLeague) return false; end) (v88)
-//   GameEvents.ResolutionResult.Add(function(iResolution, iChoice, bEnact, bPassed) end)
+//   GameEvents.ResolutionResult.Add(function(iResolution, iProposer, iChoice, bEnact, bPassed) end)
 #define MOD_EVENTS_RESOLUTIONS                      gCustomMods.isEVENTS_RESOLUTIONS()
 
 // Events sent about ideologies and tenets (v51)
@@ -1229,6 +1232,9 @@ enum BattleTypeTypes
 #define GAMEEVENT_ContractStarted			"ContractStarted", "iiii"
 #define GAMEEVENT_ContractEnded				"ContractEnded", "ii"
 #define GAMEEVENT_ContractsRefreshed		"ContractsRefreshed", ""
+//CID
+#define GAMEEVENT_ProvinceLevelChanged      "ProvinceLevelChanged", "iiii"
+#define GAMEEVENT_LoyaltyStateChanged       "LoyaltyStateChanged", "iiii"
 //Other
 #define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
@@ -1462,6 +1468,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
+	MOD_OPT_DECL(BALANCE_NO_GAP_DURING_GA);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

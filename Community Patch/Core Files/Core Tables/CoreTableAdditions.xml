@@ -40,7 +40,7 @@
 	<Table name="Policy_FreeBuilding">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
-		<Column name="Count" type="integer" notnull="true"/>
+		<Column name="Count" type="integer" default="0"/>
 	</Table>
 	<!-- Allows you to define an instant yield granted when a building is constructed. -->
 	<Table name="Building_InstantYield">
@@ -513,6 +513,13 @@
 	
 	<!-- TRAIT: Allows you to define a yield that is gained from converted GAP when you start a Golden Age. Value is a % (so 100 = 100% of GAP). -->
 	<Table name="Trait_GAPToYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- TRAIT: Allows you to define a yield that is gained permanently in every city each time you have a WLTKD in the city. -->
+	<Table name="Trait_PermanentYieldChangeWLTKD">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>

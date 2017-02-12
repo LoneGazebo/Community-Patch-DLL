@@ -686,6 +686,31 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 						pkAttacker->UnitMove(pkTargetPlot, true, pkAttacker);
 
 					pkAttacker->PublishQueuedVisualizationMoves();
+#if defined(MOD_BALANCE_CORE)
+					if (pkAttacker->getAOEDamageOnKill() != 0)
+					{
+						CvPlot* pAdjacentPlot = NULL;
+						CvPlot* pPlot = GC.getMap().plot(pkAttacker->getX(), pkAttacker->getY());
+
+						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+							if (pAdjacentPlot != NULL)
+							{
+								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
+								{
+									CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+									if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(pkAttacker->getTeam()))
+									{
+										CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE");
+										pEnemyUnit->changeDamage(pkAttacker->getAOEDamageOnKill(), pkAttacker->getOwner(), 0.0, &strAppendText);
+									}
+								}
+							}
+						}
+					}
+#endif
 				}
 				else
 				{
@@ -3816,7 +3841,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateRangedCombatInfo(kAttacker, pDefender, *pPlot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
-		kAttacker.setMadeAttack(true);
+		
+		if (!kAttacker.isRangedSupportFire())
+		{
+			kAttacker.setMadeAttack(true);
+		}
 		kAttacker.changeMoves(-GC.getMOVE_DENOMINATOR());
 
 		uint uiParentEventID = 0;

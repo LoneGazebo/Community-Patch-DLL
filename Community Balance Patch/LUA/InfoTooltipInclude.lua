@@ -159,11 +159,17 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 		
 		-- CBP Num Social Policies
-		local iNumPolicies = pBuildingInfo.NumPoliciesNeeded;
-		if(pActivePlayer and iNumPolicies > 0) then
-			local iNumHave = pActivePlayer:GetNumPolicies(true);
-			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies, iNumHave));
+		if(pActivePlayer) then
+			local iNumPolicies = pBuildingInfo.NumPoliciesNeeded;
+			if(pCity ~= nil) then
+				iNumPolicies = pCity:GetNumPoliciesNeeded(iBuildingID)
+			end
+			if(iNumPolicies > 0) then
+				local iNumHave = pActivePlayer:GetNumPolicies(true);
+				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies, iNumHave));
+			end
 		end
+
 		--- National/Local Population
 		if(pActivePlayer) then
 			local iNumNationalPop = pActivePlayer:GetScalingNationalPopulationRequrired(iBuildingID);
@@ -834,6 +840,17 @@ function GetCultureTooltip(pCity)
 			end
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POPULATION", iYieldPerPop);
 		end
+
+		-- Base Yield from Misc
+		local iYieldFromMisc = pCity:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE);
+		if (iYieldFromMisc ~= 0) then
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
+		end
 -- END
 
 -- CBP -- Yield Increase from Piety
@@ -1205,16 +1222,20 @@ function GetCityHappinessTooltip(pCity)
 			iCapitalMod = Players[pCity:GetOwner()]:GetCapitalUnhappinessModCBP();
 		end
 
-		local iThresholdAdditions = (pCity:getThresholdAdditions() - iCapitalMod);
+		local iThresholdAdditionsGold = (pCity:getThresholdAdditions(YieldTypes.YIELD_GOLD) - iCapitalMod);
+		local iThresholdAdditionsDefense = (pCity:getThresholdAdditions(YieldTypes.YIELD_PRODUCTION) - iCapitalMod);
+		local iThresholdAdditionsScience = (pCity:getThresholdAdditions(YieldTypes.YIELD_SCIENCE) - iCapitalMod);
+		local iThresholdAdditionsCulture = (pCity:getThresholdAdditions(YieldTypes.YIELD_CULTURE) - iCapitalMod);
+
 		local iThresholdSubtractionsGold = pCity:getThresholdSubtractions(YieldTypes.YIELD_GOLD);
 		local iThresholdSubtractionsDefense = pCity:getThresholdSubtractions(YieldTypes.YIELD_PRODUCTION);
 		local iThresholdSubtractionsScience = pCity:getThresholdSubtractions(YieldTypes.YIELD_SCIENCE);
 		local iThresholdSubtractionsCulture = pCity:getThresholdSubtractions(YieldTypes.YIELD_CULTURE);
 
-		iThresholdSubtractionsGold = iThresholdAdditions + (iThresholdSubtractionsGold + (iPuppetMod * -1));
-		iThresholdSubtractionsDefense = iThresholdAdditions + (iThresholdSubtractionsDefense + (iPuppetMod * -1));
-		iThresholdSubtractionsScience = iThresholdAdditions + (iThresholdSubtractionsScience + (iPuppetMod * -1));
-		iThresholdSubtractionsCulture = iThresholdAdditions + (iThresholdSubtractionsCulture + (iPuppetMod * -1));
+		iThresholdSubtractionsGold = iThresholdAdditionsGold + (iThresholdSubtractionsGold + (iPuppetMod * -1));
+		iThresholdSubtractionsDefense = iThresholdAdditionsDefense + (iThresholdSubtractionsDefense + (iPuppetMod * -1));
+		iThresholdSubtractionsScience = iThresholdAdditionsScience + (iThresholdSubtractionsScience + (iPuppetMod * -1));
+		iThresholdSubtractionsCulture = iThresholdAdditionsCulture + (iThresholdSubtractionsCulture + (iPuppetMod * -1));
 
 		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
 		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;

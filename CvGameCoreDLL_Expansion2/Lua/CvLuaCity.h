@@ -116,6 +116,7 @@ protected:
 	LUAAPIEXTN(GetUnitInvestment, int);
 	LUAAPIEXTN(IsWorldWonder, int);
 	LUAAPIEXTN(GetWorldWonderCost, int);
+	LUAAPIEXTN(GetNumPoliciesNeeded, int);
 #endif
 	static int lGetProjectProductionNeeded(lua_State* L);
 	static int lGetProductionTurnsLeft(lua_State* L);
@@ -706,6 +707,48 @@ protected:
 	static int lGetCityEventChoiceCooldown(lua_State* L);
 	static int lSetCityEventChoiceCooldown(lua_State* L);
 	static int lIsCityEventChoiceValid(lua_State* L);
+#endif
+
+#if defined(MOD_BALANCE_CORE_JFD)
+	static int lIsColony(lua_State* L);
+	static int lSetColony(lua_State* L);
+
+	static int lGetProvinceLevel(lua_State* L);
+	static int lSetProvinceLevel(lua_State* L);
+	static int lHasProvinceLevel(lua_State* L);
+
+	static int lGetOrganizedCrime(lua_State* L);
+	static int lSetOrganizedCrime(lua_State* L);
+	static int lHasOrganizedCrime(lua_State* L);
+
+	static int lChangeResistanceCounter(lua_State* L);
+	static int lSetResistanceCounter(lua_State* L);
+	static int lGetResistanceCounter(lua_State* L);
+
+	static int lChangePlagueCounter(lua_State* L);
+	static int lSetPlagueCounter(lua_State* L);
+	static int lGetPlagueCounter(lua_State* L);
+
+	static int lGetPlagueTurns(lua_State* L);
+	static int lChangePlagueTurns(lua_State* L);
+	static int lSetPlagueTurns(lua_State* L);
+
+	static int lGetPlagueType(lua_State* L);
+	static int lSetPlagueType(lua_State* L);
+	static int lHasPlague(lua_State* L);
+
+	static int lChangeLoyaltyCounter(lua_State* L);
+	static int lSetLoyaltyCounter(lua_State* L);
+	static int lGetLoyaltyCounter(lua_State* L);
+
+	static int lChangeDisloyaltyCounter(lua_State* L);
+	static int lSetDisloyaltyCounter(lua_State* L);
+	static int lGetDisloyaltyCounter(lua_State* L);
+
+	static int lGetLoyaltyState(lua_State* L);
+	static int lSetLoyaltyState(lua_State* L);
+	static int lHasLoyaltyState(lua_State* L);
+
 #endif
 };
 

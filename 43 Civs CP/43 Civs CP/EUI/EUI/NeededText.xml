@@ -11,6 +11,9 @@
 		<Row Tag="TXT_KEY_CP_DIPLO_DP">
 			<Text>Defensive Pact</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CP_DIPLO_MARRIAGE">
+			<Text>Marriage</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CP_DIPLO_MASTER_OF">
 			<Text> [COLOR_POSITIVE_TEXT]Master of[ENDCOLOR]</Text>
 		</Row>
@@ -18,7 +21,7 @@
 			<Text> [COLOR_POSITIVE_TEXT]Vassal of[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_WARSCORE_CP">
-			<Text> [COLOR_NEGATIVE_TEXT]Warscore:[ENDCOLOR]</Text>
+			<Text>Warscore:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_AT_WAR_WITH_CP">
 			<Text> [COLOR_NEGATIVE_TEXT]At war with {1_enemy}[ENDCOLOR]</Text>

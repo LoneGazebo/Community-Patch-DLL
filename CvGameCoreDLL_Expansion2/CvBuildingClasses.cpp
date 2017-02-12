@@ -266,6 +266,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bEspionage(false),
 	m_bAllowsFoodTradeRoutes(false),
 	m_bAllowsProductionTradeRoutes(false),
+	m_bAllowsProductionTradeRoutesGlobal(false),
 	m_bNullifyInfluenceModifier(false),
 	m_piLockedBuildingClasses(NULL),
 	m_piPrereqAndTechs(NULL),
@@ -572,6 +573,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bEspionage = kResults.GetBool("Espionage");
 	m_bAllowsFoodTradeRoutes = kResults.GetBool("AllowsFoodTradeRoutes");
 	m_bAllowsProductionTradeRoutes = kResults.GetBool("AllowsProductionTradeRoutes");
+	m_bAllowsProductionTradeRoutesGlobal = kResults.GetBool("AllowsProductionTradeRoutesGlobal");
 	m_bNullifyInfluenceModifier = kResults.GetBool("NullifyInfluenceModifier");
 	m_iNumCityCostMod = kResults.GetInt("NumCityCostMod");
 	m_iHurryCostModifier = kResults.GetInt("HurryCostModifier");
@@ -2286,6 +2288,10 @@ bool CvBuildingEntry::AllowsFoodTradeRoutes() const
 bool CvBuildingEntry::AllowsProductionTradeRoutes() const
 {
 	return m_bAllowsProductionTradeRoutes;
+}
+bool CvBuildingEntry::AllowsProductionTradeRoutesGlobal() const
+{
+	return m_bAllowsProductionTradeRoutesGlobal;
 }
 
 bool CvBuildingEntry::NullifyInfluenceModifier() const
@@ -4802,7 +4808,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 		if(pReligion)
 		{
-			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner());
+			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
 			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{

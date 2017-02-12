@@ -4084,7 +4084,7 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 		return;
 	
 	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eEnemy);
-	if(eWarState >= WAR_STATE_CALM)
+	if (eWarState >= WAR_STATE_STALEMATE)
 		return;
 
 	int iOperationID;
@@ -4122,10 +4122,10 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 	}
 
 	bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
-	if(!m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pThreatenedCity->plot()))
+	if (bIsEnemyZone || !m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, eEnemy, pThreatenedCity->plot()))
 	{
 		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pThreatenedCity->plot(), pThreatenedCity->plot(), &iNumRequiredSlots);
-		if(iFilledSlots > 0 && (bIsEnemyZone || ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)))
+		if(iFilledSlots > 1 && (bIsEnemyZone || ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)))
 		{
 			m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eEnemy, pThreatenedCity->getArea(), pThreatenedCity, pThreatenedCity);
 		}
@@ -4138,7 +4138,7 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 		return;
 
 	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
-	if(eWarState >= WAR_STATE_CALM)
+	if (eWarState >= WAR_STATE_STALEMATE)
 		return;
 
 	m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer, true, AI_ABORT_WAR_STATE_CHANGE);
@@ -4169,11 +4169,12 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 	CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatenedCity->plot());
 	if(pCoastalPlot != NULL)
 	{
+		bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pThreatenedCity->plot());
-		if (!bHasOperationUnderway)
+		if (!bHasOperationUnderway || bIsEnemyZone)
 		{
 			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, false, pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
-			if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
+			if (iFilledSlots > 1 && (bIsEnemyZone || ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild)))
 			{
 				m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pCoastalPlot->getArea(), pThreatenedCity, pThreatenedCity, m_pPlayer->CanCrossOcean());
 			}

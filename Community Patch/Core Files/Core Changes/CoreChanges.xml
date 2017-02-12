@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 4/30/2015 12:34:58 PM -->
 <GameData>
+	<Natural_Wonder_Placement>
+		<Update>
+			<Where NaturalWonderType="FEATURE_VOLCANO"/>
+			<Set AdjacentTilesCareAboutTerrainTypes="true"
+				 RequiredNumberOfAdjacentShallowWater="4"
+				 CoreTileCanBeAnyTerrainType="false"
+				 CoreTileCanBeShallowWater="true"
+			/>
+		</Update>
+	</Natural_Wonder_Placement>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_NEUSCHWANSTEIN</BuildingType>
