@@ -10810,7 +10810,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 //	--------------------------------------------------------------------------------
 int CvPlot::getFoundValue(PlayerTypes eIndex)
 {
-	//this is just an indirection - the found values are not stored in the player class now
+	//this is just an indirection - the found values are stored in the player class now
 	return GET_PLAYER(eIndex).getPlotFoundValue(getX(), getY() );
 }
 
@@ -10849,7 +10849,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 {
-	//this is just an indirection - the found values are not stored in the player class now
+	//this is just an indirection - the found values are stored in the player class now
 	GET_PLAYER(eIndex).setPlotFoundValue(getX(), getY(), iNewValue);
 }
 

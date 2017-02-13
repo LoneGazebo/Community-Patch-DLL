@@ -45988,8 +45988,14 @@ int CvPlayer::getPlotFoundValue(int iX, int iY)
 
 void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
 {
-	size_t iIndex = (size_t)GC.getMap().plotNum(iX, iY);
+	//if setting the values manually, make sure the size is right
+	if (m_viPlotFoundValues.size() != GC.getMap().numPlots())
+		m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 
+	size_t iIndex = (size_t)GC.getMap().plotNum(iX, iY);
 	if (iIndex<m_viPlotFoundValues.size())
 		m_viPlotFoundValues[iIndex] = iValue;
+
+	//prevent lazy update from overwriting this
+	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();
 }

@@ -121,7 +121,7 @@ void CvStartPositioner::ComputeFoundValues()
 	}
 
 	int iAvg = (iSum / iValidPlots) * 1000;
-	OutputDebugString( CvString::format("Average city site value is %d\n",iAvg).c_str() );
+	OutputDebugString( CvString::format("Average city site value without flavor is %d\n",iAvg).c_str() );
 }
 
 /// Take into account handicaps to rank the "draft order" for start positions
