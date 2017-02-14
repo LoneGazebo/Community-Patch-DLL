@@ -2623,7 +2623,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			pBestPlot = NULL;
 #endif
 
-			if (isHuman())
+			if (true) //isHuman())
 			{
 				if (!(pkUnitInfo->IsFound()))
 				{
@@ -2638,7 +2638,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					{
 						bDirectionValid = true;
 
-						eDirection = (DirectionTypes)GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Placing Starting Units (Human)");
+						eDirection = (DirectionTypes)GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Placing Starting Units");
 
 						if (bDirectionValid)
 						{

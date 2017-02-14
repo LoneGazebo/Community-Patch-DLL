@@ -14389,7 +14389,8 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 		for (size_t i=0; i<MAX_TEAMS; i++)
 			SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
 
-	if(eTerrain != NO_TERRAIN)
+	//if it's passable, check for blocking terrain/features
+	if(eTerrain != NO_TERRAIN && !m_bIsImpassable)
 	{
 		if(eFeature == NO_FEATURE)
 		{
