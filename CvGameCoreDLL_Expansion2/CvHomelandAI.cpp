@@ -3246,7 +3246,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					pUnit->SetTurnProcessed(true);
-					pUnit->finishMoves();
 				}
 			}
 			else if(pUnit->getDomainType() == DOMAIN_SEA)
@@ -3254,7 +3253,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
 					pUnit->SetTurnProcessed(true);
-					pUnit->finishMoves();
 
 					CvString strTemp;
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -3351,7 +3349,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 		CvPlot* pTarget = FindUnassignedTarget(pUnit);
 		if (pTarget)
 		{
-			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, DOMAIN_LAND, 10))
+			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, DOMAIN_LAND, 42))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -7775,7 +7773,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 CvPlot* CvHomelandAI::FindUnassignedTarget(CvUnit *pUnit)
 {
 	CvPlot *pBestTarget = NULL;
-	int iBestTurns = 8;
+	int iBestDistance = 54;
 
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
 	std::vector<CvHomelandTarget>::iterator it;
@@ -7788,11 +7786,11 @@ CvPlot* CvHomelandAI::FindUnassignedTarget(CvUnit *pUnit)
 			break;
 		}
 
-		int iTurns = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
-		if (iTurns < iBestTurns)
+		int iDist = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
+		if (iDist < iBestDistance)
 		{
 			pBestTarget = pTarget;
-			iBestTurns = iTurns;
+			iBestDistance = iDist;
 		}
 	}
 
