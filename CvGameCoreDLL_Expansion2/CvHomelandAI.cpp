@@ -3396,25 +3396,29 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				{
 					iInitialPlotValue = pUnit->canFound(pUnit->plot()) ? pUnit->plot()->getFoundValue(m_pPlayer->GetID()) : 0;
 
-					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					if (GC.getGame().getElapsedGameTurns()<3 || iInitialPlotValue==0) //first two turns or we're in a bad spot
 					{
-						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-						if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
+						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 						{
-							iAdjacentValue = pAdjacentPlot->getFoundValue(m_pPlayer->GetID());
-							if(iAdjacentValue > iInitialPlotValue*1.05f) //should be at least five percent better to justify the hassle
+							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+							if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
 							{
-								if(GC.getLogging() && GC.getAILogging())
+								iAdjacentValue = pAdjacentPlot->getFoundValue(m_pPlayer->GetID());
+								if(iAdjacentValue > iInitialPlotValue*1.1f) //should be at least ten percent better to justify the hassle
 								{
-									CvString strLogString;
-									strLogString.Format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue);
-									LogHomelandMessage(strLogString);
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue);
+										LogHomelandMessage(strLogString);
+									}
+									iInitialPlotValue = iAdjacentValue;
+									pBestAdjacentPlot = pAdjacentPlot;
 								}
-								iInitialPlotValue = iAdjacentValue;
-								pBestAdjacentPlot = pAdjacentPlot;
 							}
 						}
 					}
+
 					if(pBestAdjacentPlot != NULL)
 					{
 						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());

@@ -784,8 +784,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	// AI only
-	if (pPlayer && !pPlayer->isHuman())
+	// AI only (and not for initial city)
+	if (pPlayer && !pPlayer->isHuman() && pPlayer->getNumCities()>0)
 	{
 		int iOwnCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
 

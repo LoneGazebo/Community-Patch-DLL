@@ -24467,7 +24467,8 @@ void CvCity::updateStrengthValue()
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		iStrengthFromUnits = ((pGarrisonedUnit->GetBaseCombatStrength() * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
+		iStrengthFromUnits = max(pGarrisonedUnit->GetBaseCombatStrength(),pGarrisonedUnit->GetBaseRangedCombatStrength());
+		iStrengthFromUnits = (iStrengthFromUnits * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR();
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY)
