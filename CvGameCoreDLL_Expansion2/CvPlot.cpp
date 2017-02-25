@@ -15375,7 +15375,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
 		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
 		{
 			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 

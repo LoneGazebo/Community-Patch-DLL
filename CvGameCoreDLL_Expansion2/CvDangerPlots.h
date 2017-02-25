@@ -67,6 +67,7 @@ struct CvDangerPlotContents
 		m_pCitadel = NULL;
 		m_apUnits.clear();
 		m_apCities.clear();
+		m_fogDanger.clear();
 
 		//reset cache
 		m_lastResults.clear();
@@ -91,6 +92,7 @@ struct CvDangerPlotContents
 	CvPlot* m_pCitadel;
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;
+	std::vector<int> m_fogDanger;
 
 	//caching ...
 	std::vector< std::pair<SUnitInfo,int> > m_lastResults;

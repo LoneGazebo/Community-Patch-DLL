@@ -23,6 +23,8 @@
 
 REMARK_GROUP("CvDangerPlots");
 
+#define FOG_DEFAULT_DANGER (8)
+
 /// Constructor
 CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
@@ -173,6 +175,26 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		for(pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
 			UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility, true);
+
+			//if there are invisible plots next to this unit, other enemies might be hiding there
+			if (!bIgnoreVisibility)
+			{
+				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
+				for (int i = 0; i < 6; i++)
+				{
+					CvPlot* pNeighbor = aNeighbors[i];
+					if (pNeighbor && !pNeighbor->isVisible(thisTeam))
+					{
+						//only ring 1 for now
+						for (int j=RING0_PLOTS; j<RING1_PLOTS; j++)
+						{
+							CvPlot* pPlot = iterateRingPlots(pNeighbor,j);
+							if (pPlot)
+								m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
+						}
+					}
+				}
+			}
 		}
 
 		// for each city
@@ -1019,6 +1041,10 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 
 		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
 	}
+
+	// Damage from fog
+	for (size_t i=0; i<m_fogDanger.size(); i++)
+		iPlotDamage += FOG_DEFAULT_DANGER;
 
 	// Damage from surrounding features (citadel) and the plot itself
 	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());

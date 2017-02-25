@@ -3573,7 +3573,7 @@ void CvTacticalAI::PlotHealMoves()
 			if (pUnitPlot->getOwner() != pUnit->getOwner())
 				iAcceptableDamage = 20;
 
-			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID()==-1 && FindNearbyTarget(pUnit,7)==NULL)
+			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID()==-1 && FindNearbyTarget(pUnit,5)==NULL)
 				m_HealingUnits.insert(pUnit->GetID());
 		}
 	}
@@ -7094,7 +7094,11 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			// LAND MOVES
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
+				//try offensive first, then defensive
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
+				if (!pBestPlot)
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, true);
+
 				if(pBestPlot)
 				{
 					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, pUnit->getDomainType(), 12))
@@ -7112,37 +7116,18 @@ void CvTacticalAI::ExecuteRepositionMoves()
 						}
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				else
-				{
-					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, NULL, true, false);
-					if(pBestPlot)
-					{
-						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, pUnit->getDomainType(), 12))
-						{
-							pUnit->finishMoves();
-							UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("%s moving to empty space near defensive target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-													pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
-						}
-					}
-				}
-
 				//do not automatically end the turn ... unit might be useful for homeland. at least homeland patrol move will apply and find a nice spot for it
-#endif
 			}
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			else if (pUnit->getDomainType() == DOMAIN_SEA)
 			{
 				bool bMoveMade = false;
+
 				//Let's find an offensive target first.
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
+				if (!pBestPlot)
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, true);
+
 				if(pBestPlot)
 				{
 					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
@@ -7156,25 +7141,6 @@ void CvTacticalAI::ExecuteRepositionMoves()
 							strLogString.Format("%s moving to empty space near offensive naval target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
 												pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strLogString);
-						}
-					}
-				}
-				else
-				{
-					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, NULL, true, false);
-					if(pBestPlot)
-					{
-						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
-						{
-							bMoveMade = true;
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("%s moving to empty space near defensive naval target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
-													pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
 						}
 					}
 				}
@@ -7225,6 +7191,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 							}
 						}
 					}
+				
 				}
 				if(bMoveMade)
 				{
@@ -10056,11 +10023,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 #endif
 
 /// Find a multi-turn target for a land unit to wander towards
-#if defined(MOD_BALANCE_CORE_MILITARY)
-CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType, CvUnit* pNoLikeUnit, bool bAllowDefensiveTargets, bool bHighPriorityOnly)
-#else
-CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType, CvUnit* pNoLikeUnit)
-#endif
+CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType, bool bAllowDefensiveTargets)
 {
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = 0;
@@ -10078,41 +10041,21 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 		bool bTypeMatch = false;
 		if(eType == AI_TACTICAL_TARGET_NONE)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(bHighPriorityOnly)
-			{
-				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || 
-					target.GetTargetType() == AI_TACTICAL_TARGET_CITY)
-				{
-					bTypeMatch = true;
-				}
-			}
-			else if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
-			{
-				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
-					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
-				{
-					bTypeMatch = true;
-				}
-			}
-			else
-			{
-#endif
 			if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
-			        target.GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP ||
-					target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
+			    target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+			    target.GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+			    target.GetTargetType() == AI_TACTICAL_TARGET_CITY ||
+				target.GetTargetType() == AI_TACTICAL_TARGET_IMPROVEMENT)
+			{
+				bTypeMatch = true;
+			}
+			
+			//only majors go after barb camps
+			if(target.GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
 			{
 				bTypeMatch = true;
 			}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			}
 			if (bAllowDefensiveTargets || m_pPlayer->isMinorCiv())
 			{
 				if(target.GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND ||
@@ -10122,8 +10065,6 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 					bTypeMatch = true;
 				}
 			}
-#endif
-
 		}
 		else if(target.GetTargetType() ==  eType)
 		{
@@ -10141,7 +10082,8 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 			if (pUnit->plot()==pPlot)
 				return pPlot;
 
-			if(pNoLikeUnit && pPlot->getMaxFriendlyUnitsOfType(pNoLikeUnit)>0)
+			//can't do anything if we would need to embark
+			if (pPlot->needsEmbarkation(pUnit))
 				continue;
 
 			//Ranged naval unit? Let's get a water plot (naval melee can enter cities, don't care for others)
@@ -12781,8 +12723,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	
 	//extra penalty for high danger plots
 	//todo: take into account self damage from previous attacks
-	if (iDanger > pUnit->GetCurrHitPoints()*2)
-		iDanger += 20;
+	iDanger += 60*(iDanger/pUnit->GetCurrHitPoints());
 
 	//todo: take into account mobility at the proposed plot
 	//todo: take into account ZOC when ending the turn
