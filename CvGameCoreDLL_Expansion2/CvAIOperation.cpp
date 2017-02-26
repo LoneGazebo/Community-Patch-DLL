@@ -3584,7 +3584,7 @@ AIOperationAbortReason CvAIOperationCivilian::VerifyOrAdjustTarget(CvArmyAI* pAr
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (GET_PLAYER(m_eOwner).GetPlotDanger(*pTarget, pCivilian) < INT_MAX && GET_PLAYER(m_eOwner).IsAtPeaceWith(pTarget->getOwner()))
+	if (pCivilian->GetDanger(pTarget) < INT_MAX && GET_PLAYER(m_eOwner).IsAtPeaceWith(pTarget->getOwner()))
 	{
 		return NO_ABORT_REASON;
 	}

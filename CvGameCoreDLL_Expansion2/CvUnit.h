@@ -304,7 +304,8 @@ public:
 	int healTurns(const CvPlot* pPlot) const;
 	void doHeal();
 	void DoAttrition();
-	int GetDanger(CvPlot* pAtPlot=NULL) const;
+	int GetDanger(const CvPlot* pAtPlot=NULL) const;
+	int GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;

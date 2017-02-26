@@ -1128,7 +1128,8 @@ protected:
 	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
 	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
-	set<int> eliminatedEnemies; //plot indices for killed enemy units, to be ignored for ZOC
+	set<int> freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
+	set<int> killedEnemies; //enemy units which were killed, to be ignored for danger 
 	size_t nTotalEnemies; //termination condition
 
 	//set in constructor, constant afterwards
@@ -1190,6 +1191,7 @@ public:
 	const CvTacticalPosition* getParent() const { return parentPosition; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
+	const set<int>& getKilledEnemies() const { return killedEnemies; }
 
 	//sort descending
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }

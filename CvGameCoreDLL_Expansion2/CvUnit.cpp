@@ -7777,13 +7777,22 @@ void CvUnit::DoAttrition()
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::GetDanger(CvPlot* pAtPlot) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,set<int>());
 }
+
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const
+{
+	if (!pAtPlot)
+		pAtPlot = plot();
+
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore);
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::canAirlift(const CvPlot* pPlot) const
 #if defined(MOD_GLOBAL_RELOCATION)
@@ -27629,7 +27638,7 @@ void CvUnit::DumpDangerInNeighborhood()
 		if (!pPlot)
 			continue;
 
-		int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pPlot,this);
+		int iDanger = GetDanger(pPlot);
 		bool bVisible = pPlot->isVisible( GET_PLAYER(m_eOwner).getTeam() );
 		bool bHasVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(this);
 		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this);

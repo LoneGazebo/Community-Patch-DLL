@@ -1450,7 +1450,7 @@ void CvHomelandAI::PlotMovesToSafety()
 			else
 				continue;
 
-			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit);
+			int iDangerLevel = pUnit->GetDanger(pPlot);
 #else
 			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
 #endif
@@ -1919,7 +1919,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 					if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 						continue;
 
-					if (m_pPlayer->GetPlotDanger(*pTarget,pUnit)>0)
+					if (pUnit->GetDanger(pTarget)>0)
 						continue;
 				}
 				else if(MOD_AI_SECONDARY_WORKERS && !pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
@@ -1951,7 +1951,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				if (!pUnit->canBuild(pTarget, (BuildTypes)m_TargetedNavalResources[iI].GetAuxIntData()))
 					continue;
 
-				if (m_pPlayer->GetPlotDanger(*pTarget,pUnit)>0)
+				if (pUnit->GetDanger(pTarget)>0)
 					continue;
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			}
@@ -3707,7 +3707,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 				//careful with plots that are too dangerous
 				int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
-				int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit);
+				int iDanger = pUnit->GetDanger(pEvalPlot);
 				if(iDanger > iAcceptableDanger)
 					continue;
 				if(iDanger > iAcceptableDanger/2)
@@ -5339,7 +5339,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe
 				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
-				int iGeneralDanger = m_pPlayer->GetPlotDanger(*pCandidate,pDefender);
+				int iGeneralDanger = pDefender->GetDanger(pCandidate);
 				//careful with overflow, we expect a lot of INT_MAX value here ...
 				iGeneralDanger = min(100000,iGeneralDanger);
 
@@ -5356,7 +5356,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					if (!pSupportedUnit)
 						continue;
 
-					iSupportedDanger += m_pPlayer->GetPlotDanger(*pLoopPlot,pSupportedUnit);
+					iSupportedDanger += pSupportedUnit->GetDanger(pLoopPlot);
 				}
 
 				int iScore = (100*iSupportedDanger)/(iGeneralDanger+1);
@@ -5411,7 +5411,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe
 				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
-				int iGeneralDanger = m_pPlayer->GetPlotDanger(*pCandidate,pDefender);
+				int iGeneralDanger = pDefender->GetDanger(pCandidate);
 				//careful with overflow, we expect a lot of INT_MAX value here ...
 				iGeneralDanger = min(100000,iGeneralDanger);
 
@@ -5431,7 +5431,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					if(pLoopPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
 						iScore += 5000;
 
-					iSupportedDanger += m_pPlayer->GetPlotDanger(*pLoopPlot,pSupportedUnit);
+					iSupportedDanger += pSupportedUnit->GetDanger(pLoopPlot);
 				}
 
 				//don't forget adjacency bonus for the candidate plot itself
@@ -6899,7 +6899,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				}
 			}
 
-			if (m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)==INT_MAX)
+			if (pUnit->GetDanger(pLoopPlot)==INT_MAX)
 				continue;
 
 			iValue -= m_pPlayer->GetPlotDanger(*pLoopPlot);
@@ -8380,7 +8380,7 @@ void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)
 			OutputDebugString( CvString::format("turn %03d: using %s %s %d for homeland move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
 				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentHomelandUnitToTrack,
 				homelandMoveNames[(int)m_currentHomelandMove+1], 
-				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), owner.GetPlotDanger(*(pUnit->plot()),pUnit) ) );
+				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
 		}
 	}
 }

@@ -73,7 +73,7 @@ struct CvDangerPlotContents
 		m_lastResults.clear();
 	};
 
-	int GetDanger(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 
@@ -139,7 +139,7 @@ public:
 	void Reset();
 
 	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false);
-	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
 

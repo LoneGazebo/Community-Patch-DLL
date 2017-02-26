@@ -2341,7 +2341,7 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);

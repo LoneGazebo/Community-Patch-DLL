@@ -341,16 +341,16 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* p
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction)
+int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
 {
 	if(!m_bArrayAllocated)
 		return 0;
 
 	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
+
 	if (pUnit)
-	{
-		return m_DangerPlots[idx].GetDanger(pUnit, iAirAction);
-	}
+		return m_DangerPlots[idx].GetDanger(pUnit, unitsToIgnore, iAirAction);
+
 	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
 }
 
@@ -879,7 +879,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 }
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirAction)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -953,7 +953,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 					// If there is a defender and it might be killed, high danger
 					if (pBestDefender && (pBestDefender->isWaiting() || !pBestDefender->canMove()))
 					{
-						if (GetDanger(pBestDefender) > pBestDefender->GetCurrHitPoints())
+						if (GetDanger(pBestDefender,unitsToIgnore,iAirAction) > pBestDefender->GetCurrHitPoints())
 						{
 							return INT_MAX;
 						}
@@ -1026,6 +1026,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	{
 		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
 		if (!pAttacker || pAttacker->isDelayedDeath() || pAttacker->IsDead())
+			continue;
+
+		if (unitsToIgnore.find(it->second) != unitsToIgnore.end())
 			continue;
 
 		int iAttackerDamage = 0; //ignore this

@@ -2095,7 +2095,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if(m_pPlayer->GetPlotDanger(*pPlot,pUnit) > 0)
+	if(pUnit->GetDanger(pPlot) > 0)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
