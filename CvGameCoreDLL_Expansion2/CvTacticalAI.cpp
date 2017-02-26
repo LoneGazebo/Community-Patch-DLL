@@ -12599,6 +12599,10 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		if (iDistanceScore<0)
 			return result;
 
+		//parthian moves: no use staying close after we made our attack
+		if (iMaxAttacks==0 && pUnit->canMoveAfterAttacking())
+			iDistanceScore = currentPlot.getNumAdjacentEnemies() > 0 ? 1 : 2;
+
 		//check all plots we could possibly attack from here
 		std::vector<int> vDamageRatios;
 		std::vector<CvPlot*> vAttackPlots;
@@ -12625,7 +12629,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					if (enemyPlot.isEnemyCity() && assumedPosition.getTarget()!=pLoopPlot)
 						continue;
 
-					//we just care for the score here but let's reuse the scoring function
+					//we don't care for damage here but let's reuse the scoring function
 					STacticalAssignment temp; 
 					ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getUnitNumberRatio(), temp);
 					if (temp.iScore>0)
@@ -12710,6 +12714,10 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	//will we end the turn here?
 	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
 
+	//try to close the lines (todo: make sure the friendlies intend to stay there ...)
+	if (bEndTurn && currentPlot.getNumAdjacentFriendlies()>0)
+		result.iScore++;
+
 	//the danger value reflects any defensive terrain bonuses
 	//todo: danger calculation must take into account killed units
 	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot) : 0;
@@ -12729,8 +12737,8 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	//todo: take into account ZOC when ending the turn
 
 	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker 
-	result.iScore = result.iScore*10 - iDanger/4;
-
+	//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
+	result.iScore = result.iScore*10 - iDanger/4 + 12;
 	return result;
 }
 
@@ -13089,7 +13097,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmen
 		{
 			CvTacticalPlot& currentPlot = getTactPlot( itUnit->iPlotIndex );
 			currentPlot.changeNeighboringSupportUnitCount( *this, -1 );
-			getPreferredAssignmentsForUnit(*itUnit,8);
+			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit,8);
 			currentPlot.changeNeighboringSupportUnitCount( *this, +1 );
 		}
 		else

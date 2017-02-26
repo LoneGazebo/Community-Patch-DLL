@@ -183,13 +183,14 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 				for (int i = 0; i < 6; i++)
 				{
 					CvPlot* pNeighbor = aNeighbors[i];
-					if (pNeighbor && !pNeighbor->isVisible(thisTeam))
+					if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
 					{
 						//only ring 1 for now
 						for (int j=RING0_PLOTS; j<RING1_PLOTS; j++)
 						{
 							CvPlot* pPlot = iterateRingPlots(pNeighbor,j);
 							if (pPlot)
+								//note: we accept duplicate indices in m_fogDanger by design
 								m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
 						}
 					}
@@ -1042,9 +1043,10 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
 	}
 
-	// Damage from fog
+	// Damage from fog (check visibility again, might have changed ...)
 	for (size_t i=0; i<m_fogDanger.size(); i++)
-		iPlotDamage += FOG_DEFAULT_DANGER;
+		if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(pUnit->getTeam()))
+			iPlotDamage += FOG_DEFAULT_DANGER;
 
 	// Damage from surrounding features (citadel) and the plot itself
 	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
