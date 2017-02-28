@@ -4004,7 +4004,7 @@ int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAd
 		iCost /= 100;
 
 		// Adjust for difficulty
-		if(!m_pPlayer->isHuman() && !m_pPlayer->IsAITeammateOfHuman() && !m_pPlayer->isBarbarian())
+		if(!MOD_BALANCE_CORE_BELIEFS && !m_pPlayer->isHuman() && !m_pPlayer->IsAITeammateOfHuman() && !m_pPlayer->isBarbarian())
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
 			iCost /= 100;
@@ -8605,7 +8605,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
-			iTotalRtnValue += (pEntry->GetYieldFromWLTKD(iI) * pCity->getPopulation()) / 6;
+			iTotalRtnValue += pEntry->GetYieldFromWLTKD(iI) / 4;
 			if (m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
 				iTotalRtnValue += m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() * 5;
@@ -8626,21 +8626,21 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			{
 				iTotalRtnValue *= 2;
 			}
-			if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD() != 0)
+			if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 			{
 				iTotalRtnValue *= 2;
 			}
-			if (m_pPlayer->GetPlayerTraits()->IsExpansionWLTKD() != 0)
+			if (m_pPlayer->GetPlayerTraits()->IsExpansionWLTKD())
 			{
 				iTotalRtnValue *= 2;
 			}
 			if (pCity->GetWeLoveTheKingDayCounter() > 0)
 			{
-				iTotalRtnValue += pCity->GetWeLoveTheKingDayCounter();
+				iTotalRtnValue += (pCity->GetWeLoveTheKingDayCounter() / 2);
 			}
 			if (pCity->GetYieldFromWLTKD((YieldTypes)iI) > 0)
 			{
-				iTotalRtnValue += pCity->GetYieldFromWLTKD((YieldTypes)iI);
+				iTotalRtnValue += pCity->GetYieldFromWLTKD((YieldTypes)iI) / 2;
 			}
 		}
 		for (int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
@@ -9093,12 +9093,12 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 
 		if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionOwnLands() * m_pPlayer->getNumCities() * iNumNeighbors) / 3;
+			iWarTemp += (pEntry->GetCombatVersusOtherReligionOwnLands() * m_pPlayer->getNumCities() * iNumNeighbors) / 4;
 		}
 
 		if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionTheirLands() * iNumNeighbors) * 3;
+			iWarTemp += (pEntry->GetCombatVersusOtherReligionTheirLands() * iNumNeighbors) * 2;
 		}
 
 		MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -9123,23 +9123,23 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 				}
 				if (pReligion->m_Beliefs.GetFaithFromKills(-1, m_pPlayer->GetID(), pHolyCity) > 0)
 				{
-					iWarTemp *= 4;
+					iWarTemp *= 2;
 				}
 				if (pReligion->m_Beliefs.GetCombatModifierEnemyCities(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
-					iWarTemp *= 4;
+					iWarTemp *= 2;
 				}
 				if (pReligion->m_Beliefs.GetCombatModifierFriendlyCities(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
-					iWarTemp *= 4;
+					iWarTemp *= 2;
 				}
 				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
-					iWarTemp *= 4;
+					iWarTemp *= 2;
 				}
 				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
-					iWarTemp *= 4;
+					iWarTemp *= 2;
 				}
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
@@ -9148,7 +9148,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 					{
 						if (pReligion->m_Beliefs.GetYieldFromKills(eYield, m_pPlayer->GetID()) > 0)
 						{
-							iWarTemp *= 3;
+							iWarTemp *= 2;
 						}
 					}
 				}
@@ -9555,11 +9555,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 			{
 				if (m_pPlayer->GetPlayerTraits()->GetGreatPersonExpendedYield((GreatPersonTypes)iK, (YieldTypes)iI) != 0)
 				{
-					iGPTemp *= 2;
+					iGPTemp *= 3;
 				}
 				if (m_pPlayer->GetPlayerTraits()->GetGreatPersonBornYield((GreatPersonTypes)iK, (YieldTypes)iI) != 0)
 				{
-					iGPTemp *= 2;
+					iGPTemp *= 3;
 				}
 			}
 		}
@@ -9691,7 +9691,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		}
 #endif
 
-		iGPTemp += (iTemp * 10);
+		iGPTemp += (iTemp * 20);
 	}
 
 	if (eReligion != NO_RELIGION)
@@ -9707,7 +9707,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 			}
 			if (pReligion->m_Beliefs.GetGreatPersonExpendedFaith(m_pPlayer->GetID(), pHolyCity) > 0)
 			{
-				iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedFaith(m_pPlayer->GetID(), pHolyCity) / 5);
+				iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedFaith(m_pPlayer->GetID(), pHolyCity) / 2);
 			}
 			for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 			{
@@ -9729,7 +9729,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 
 					if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, m_pPlayer->GetID(), pHolyCity) > 0)
 					{
-						iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, m_pPlayer->GetID(), pHolyCity) / 5);
+						iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, m_pPlayer->GetID(), pHolyCity) / 2);
 					}
 				}
 			}
@@ -9910,22 +9910,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 				{
 					if (pEntry->GetYieldFromHost(iI) != 0)
 					{
-						iDiploTemp += (pEntry->GetYieldFromHost(iI) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 4;
+						iDiploTemp += (pEntry->GetYieldFromHost(iI) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 2;
 					}
 					if (pLeague->GetHostMember() == m_pPlayer->GetID())
 					{
-						iDiploTemp *= 5;
-					}
-					else
-					{
-						iDiploTemp /= 2;
+						iDiploTemp *= 10;
 					}
 				}
 				else
 				{
 					if (pEntry->GetYieldFromHost(iI) != 0)
 					{
-						iDiploTemp += ((pEntry->GetYieldFromHost(iI) * m_pPlayer->GetNumCSAllies()) / 2);
+						iDiploTemp += (pEntry->GetYieldFromHost(iI) * m_pPlayer->GetNumCSFriends());
 					}
 				}
 			}
@@ -9934,27 +9930,35 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 				if (pLeague != NULL)
 				{
-					iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 5) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 4;
+					iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 2;
 				}
 				else
 				{
-					iDiploTemp += (((pEntry->GetYieldFromProposal(iI) / 5)  * m_pPlayer->GetNumCSAllies()) / 2);
+					iDiploTemp += (((pEntry->GetYieldFromProposal(iI) / 2)  * m_pPlayer->GetNumCSFriends()) / 2);
 				}
 			}
 		}
 		if (pEntry->GetCSYieldBonus() > 0)
 		{
-			iDiploTemp += (pEntry->GetCSYieldBonus() * m_pPlayer->GetNumCSAllies()) / 4;
+			iDiploTemp += (pEntry->GetCSYieldBonus() * m_pPlayer->GetNumCSFriends()) / 4;
 		}
 
 		if (pEntry->GetCityStateInfluenceModifier() > 0)
 		{
-			iDiploTemp += (pEntry->GetCityStateInfluenceModifier() * m_pPlayer->GetNumCSAllies()) / 2;
+			iDiploTemp += (pEntry->GetCityStateInfluenceModifier() * m_pPlayer->GetNumCSFriends()) / 2;
 		}
 
 		if (pEntry->GetExtraVotes() > 0)
 		{
-			iDiploTemp += (pEntry->GetExtraVotes() * m_pPlayer->GetNumCSAllies() * 2);
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL)
+			{
+				iDiploTemp += (pEntry->GetExtraVotes() * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID()) * 2);
+			}
+			else
+			{
+				iDiploTemp += (pEntry->GetExtraVotes() * m_pPlayer->GetNumCSFriends() * 2);
+			}
 		}
 	}
 

@@ -10255,7 +10255,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 					if(iBonus > 0)
 					{
-						if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
+						if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
 						{
 							int iScale = 0;
 							int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -10810,7 +10810,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 //	--------------------------------------------------------------------------------
 int CvPlot::getFoundValue(PlayerTypes eIndex)
 {
-	//this is just an indirection - the found values are not stored in the player class now
+	//this is just an indirection - the found values are stored in the player class now
 	return GET_PLAYER(eIndex).getPlotFoundValue(getX(), getY() );
 }
 
@@ -10849,7 +10849,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 //	--------------------------------------------------------------------------------
 void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 {
-	//this is just an indirection - the found values are not stored in the player class now
+	//this is just an indirection - the found values are stored in the player class now
 	GET_PLAYER(eIndex).setPlotFoundValue(getX(), getY(), iNewValue);
 }
 
@@ -14389,7 +14389,8 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 		for (size_t i=0; i<MAX_TEAMS; i++)
 			SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
 
-	if(eTerrain != NO_TERRAIN)
+	//if it's passable, check for blocking terrain/features
+	if(eTerrain != NO_TERRAIN && !m_bIsImpassable)
 	{
 		if(eFeature == NO_FEATURE)
 		{
@@ -15374,7 +15375,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
 		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
 		{
 			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
@@ -15588,27 +15589,34 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			{
 				iAdjacentUnowned++;
 			}
+
 			else if(pLoopAdjacentPlot->getOwner() != eOwner && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
-				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
-				if(pNeighborAdjacent != NULL)
+				if (!GET_PLAYER(eOwner).isHuman())
 				{
-					if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) <= MAJOR_CIV_OPINION_NEUTRAL)
+					pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
+					if (pNeighborAdjacent != NULL)
 					{
-						iBadAdjacent++;
+						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) <= MAJOR_CIV_OPINION_NEUTRAL)
+						{
+							iBadAdjacent++;
+						}
 					}
 				}
 			}
 			else if(pLoopAdjacentPlot->getOwner() != eOwner && (GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
-				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
-				if(pNeighborAdjacent != NULL)
+				if (!GET_PLAYER(eOwner).isHuman())
 				{
-					if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborAdjacent) >= MINOR_CIV_APPROACH_CONQUEST)
+					pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
+					if (pNeighborAdjacent != NULL)
 					{
-						iBadAdjacent++;
+						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborAdjacent) >= MINOR_CIV_APPROACH_CONQUEST)
+						{
+							iBadAdjacent++;
+						}
 					}
 				}
 			}
@@ -15673,6 +15681,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this);
 
 		iScore += defenseModifier(eTeam, true, true);
+
+		ImprovementTypes eCurrentImprovement = getImprovementType();
+
+		if (eCurrentImprovement != NO_IMPROVEMENT)
+		{
+			if (GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() > 0)
+			{
+				iScore -= GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() * 2;
+			}
+		}
 
 		//Bonus for nearby owned tiles
 		iScore += (iNearbyOwned * 3);

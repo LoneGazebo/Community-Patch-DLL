@@ -537,88 +537,106 @@ void CvCityCitizens::DoTurn()
 						}
 					}
 				}
-				if(IsNoAutoAssignSpecialists())
+
+				if (IsNoAutoAssignSpecialists())
 				{
 					SetNoAutoAssignSpecialists(false);
 				}
-				if(IsForcedAvoidGrowth())
+				if (IsForcedAvoidGrowth())
 				{
 					SetForcedAvoidGrowth(false);
 				}
 
-				CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
-				if(eSpecialization != -1)
+				if (bCultureBlock)
 				{
-					CvCitySpecializationXMLEntry* pCitySpecializationEntry =  GC.getCitySpecializationInfo(eSpecialization);
-					if(pCitySpecializationEntry)
+					if (GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
 					{
-						YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
-						if(eYield == YIELD_FOOD)
+						SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+					}
+				}
+				else
+				{
+					CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
+					if (eSpecialization != -1)
+					{
+						CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
+						if (pCitySpecializationEntry)
 						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD)
+							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
+							if (eYield == YIELD_FOOD)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+								}
 							}
-						}
-						else if(eYield == YIELD_PRODUCTION && bNeedFood)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+							else if (eYield == YIELD_PRODUCTION && bNeedFood)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+								}
 							}
-						}
-						else if(eYield == YIELD_PRODUCTION && !bNeedFood)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+							else if (eYield == YIELD_PRODUCTION && !bNeedFood)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+								}
 							}
-						}
-						else if(eYield == YIELD_GOLD && bNeedFood)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+							else if (eYield == YIELD_GOLD && bNeedFood)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+								}
 							}
-						}
-						else if(eYield == YIELD_GOLD && !bNeedFood)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
+							else if (eYield == YIELD_GOLD && !bNeedFood)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+								}
 							}
-						}
-						else if(eYield == YIELD_SCIENCE)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_SCIENCE)
+							else if (eYield == YIELD_SCIENCE)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_SCIENCE)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+								}
 							}
-						}
-						else if(eYield == YIELD_FAITH && bBuildingReligion)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+							else if (eYield == YIELD_FAITH && bBuildingReligion)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+								}
 							}
-						}
-						else if(eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
+							else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+								}
 							}
-						}
-						else if(eYield == YIELD_CULTURE && bGPCity)
-						{
-							if(GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+							else if (eYield == YIELD_CULTURE && bGPCity)
 							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
+								if (GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+								{
+									SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
+								}
+							}
+							else
+							{
+								if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+								{
+									SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+								}
 							}
 						}
 						else
 						{
-							if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+							if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
 							{
 								SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 							}
@@ -626,17 +644,10 @@ void CvCityCitizens::DoTurn()
 					}
 					else
 					{
-						if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+						if (GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
 						{
 							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 						}
-					}
-				}
-				else
-				{
-					if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
-					{
-						SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 					}
 				}
 			}
@@ -677,6 +688,10 @@ void CvCityCitizens::DoTurn()
 			if(!IsForcedAvoidGrowth())
 			{
 				SetForcedAvoidGrowth(true);
+				if (GetFocusType() == CITY_AI_FOCUS_TYPE_FOOD)
+				{
+					SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+				}
 			}
 			if(!IsNoAutoAssignSpecialists())
 			{
@@ -1602,7 +1617,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		//Increase penalty based on function of excess food value and growth thresholds. 
 		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
 		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max(iExcessFoodTimes100, 1));
+		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 2), 1));
 		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
 			iPenalty += iRemainder * 3;
@@ -1722,6 +1737,37 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			else
 			{
 				iYield *= GC.getAI_CITIZEN_VALUE_FAITH();
+			}
+
+			if (iYield > 0)
+			{
+				switch (eYield)
+				{
+				case YIELD_GOLD:
+					if (m_pCity->getUnhappinessFromGold() > 0)
+					{
+						iYield *= 2;
+					}
+					break;
+				case YIELD_SCIENCE:
+					if (m_pCity->getUnhappinessFromScience() > 0)
+					{
+						iYield *= 2;
+					}
+					break;
+				case YIELD_CULTURE:
+					if (m_pCity->getUnhappinessFromScience() > 0)
+					{
+						iYield *= 2;
+					}
+					break;
+				case YIELD_FAITH:
+					if (m_pCity->getUnhappinessFromReligion() > 0)
+					{
+						iYield *= 2;
+					}
+					break;
+				}
 			}
 			iValue += iYield;
 		}
@@ -4038,14 +4084,14 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined(MOD_BALANCE_CORE)
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
-			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
 
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
 
 			if(iWLTKD > 0)
 			{
-				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
 				if(pNotifications)
 				{
@@ -4065,14 +4111,14 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			{
 				if(pLoopCity != NULL)
 				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
 
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
 
 					if (iWLTKD > 0)
 					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if (pNotifications)
 						{
@@ -4252,14 +4298,14 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined(MOD_BALANCE_CORE)
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
-			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
 
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
 
 			if(iWLTKD > 0)
 			{
-				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
 				if(pNotifications)
 				{
@@ -4279,14 +4325,14 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			{
 				if(pLoopCity != NULL)
 				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
 
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iWLTKD /= 100;
 
 					if (iWLTKD > 0)
 					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if (pNotifications)
 						{

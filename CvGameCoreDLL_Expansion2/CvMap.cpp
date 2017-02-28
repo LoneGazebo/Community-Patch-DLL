@@ -1419,6 +1419,7 @@ void CvMap::recalculateAreas()
 	for(iI = 0; iI < iNumPlots; iI++)
 	{
 		plotByIndexUnchecked(iI)->setArea(-1);
+		plotByIndexUnchecked(iI)->updateImpassable();
 	}
 
 	m_areas.RemoveAll();

@@ -59,7 +59,15 @@
 	SET Text = 'I am glad you agreed to stop spying on my people.'
 	WHERE Tag = 'TXT_KEY_GENERIC_HUMAN_CAUGHT_YOUR_SPY_GOOD_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+-- Citadel Stuff
 
+	UPDATE Language_en_US
+	SET Text = 'A Citadel is a mighty fortification that can only be constructed by a Great General, usually near a city or on a particularly defensible piece of terrain. The Acropolis in Athens, Greece, is an example of an early powerful Citadel. Such structures were almost impossible to take by direct attack, and they were capable of withstanding protracted sieges before they fell. You can construct a Citadel anywhere within your territory, or directly adjacent to your territory. Upon constructing the Citadel, your Military Unit Supply Cap will increase by 2, and your Culture borders will also expand to surround the Citadel on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Any unit stationed within a Citadel receives a 100% defensive strength bonus. Additionally, any enemy unit which ends its turn next to a Citadel takes 30 damage (damage does not stack with other Citadels).'
+	WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CITADEL_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Any enemy unit which ends its turn next to the Citadel takes 30 damage (damage does not stack with other Citadels). Constructing the Citadel will expand your Culture borders to surround the Citadel, increase your Military Unit Supply Cap by 2, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.'
+	WHERE Tag = 'TXT_KEY_BUILD_CITADEL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 -- NW Stuff
 
@@ -114,6 +122,10 @@
 	UPDATE Language_en_US
 	SET Text = '[ICON_CULTURE] Culture from this Natural Wonder increases every Era after the Classical Era.[NEWLINE][NEWLINE]Composed of three volcanic cones, the highest reaching 19,340 feet - making it the highest point in Africa and the highest free-standing mountain in the world - the Kilimanjaro massif lies in northeastern Tanzania. Considered a strato-volcano, two of its peaks (Mawenzi and Shira) are extinct, while its highest (Kibo) is dormant; its last eruption dates back approximately 150 thousand years. According to Johann Krapf in 1860 the mountain was called "Kilimanjaro" by the Swahilis along the coast, meaning either "mountain of greatness" or "mountain of caravans."'
 	WHERE Tag = 'TXT_KEY_CIV5_FEATURES_KILIMANJARO_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	
+	UPDATE Language_en_US
+	SET Text = 'All Military Units gain the [COLOR_POSITIVE_TEXT]Altitude Training[ENDCOLOR] Promotion, doubling movement speed through Hills and granting a combat bonus on Hills for the rest of the game.'
+	WHERE Tag = 'TXT_KEY_CIV5_FEATURES_KILIMANJARO_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 	
 	UPDATE Language_en_US
 	SET Text = '[ICON_PRODUCTION] Production from this Natural Wonder increases every Era after the Classical Era.[NEWLINE][NEWLINE]King Solomon''s Mines exerted a pull on European explorers in 19th Century Africa akin to that of El Dorado on Spanish conquistadors in the 16th Century New World. When Europeans first encountered the mysterious ruins of the ancient city of Zimbabwe in East Africa, they were baffled by its location. Numerous explanations were put forth for its existence, but the one that captured the popular imagination was that Great Zimbabwe served to shelter and protect the workers in King Solomon''s mines in the nearby Chimanimani Mountains. Here, it was believed, could be found the source of the Biblical king''s legendary treasure of precious metals and gems. For several decades adventurers and fortune hunters sought the legendary mines without success.'

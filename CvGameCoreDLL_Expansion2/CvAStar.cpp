@@ -948,7 +948,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	//special for approximate pathfinding - don't hang around on dangerous plots
 	if (finder->DestinationReached(node->m_iX,node->m_iY) && !bIsDestination && !bIsInitialNode)
 	{
-		int iPlotDanger = pCacheData->isAIControl() && pCacheData->doDanger() ? GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit) : 0;
+		int iPlotDanger = pCacheData->isAIControl() && pCacheData->doDanger() ? pUnit->GetDanger(pPlot) : 0;
 	
 		if (iPlotDanger>pUnit->GetCurrHitPoints()*2) //always include some headroom!
 			kToNodeCacheData.bCanEnterTerrainPermanent = false;

@@ -288,7 +288,7 @@ public:
 #endif
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false);
+	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false, bool bNoImprovement = false);
 #endif
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
 
@@ -738,6 +738,12 @@ public:
 	int GetMaxAirUnits() const;
 	void ChangeMaxAirUnits(int iChange);
 
+	int getCitySupplyModifier() const;
+	void changeCitySupplyModifier(int iChange);
+
+	int getCitySupplyFlat() const;
+	void changeCitySupplyFlat(int iChange);
+
 	int getNukeModifier() const;
 	void changeNukeModifier(int iChange);
 
@@ -882,7 +888,7 @@ public:
 
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
-	void ChangeWeLoveTheKingDayCounter(int iChange);
+	void ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger = false);
 
 	int GetLastTurnGarrisonAssigned() const;
 	int GetNumThingsProduced() const;
@@ -1554,6 +1560,29 @@ public:
 	int GetLoyaltyState() const;
 	void SetLoyaltyState(int iLoyalty);
 
+	void SetYieldModifierFromHappiness(YieldTypes eYield, int iValue);
+	int GetYieldModifierFromHappiness(YieldTypes eYield) const;
+
+	void SetYieldModifierFromHealth(YieldTypes eYield, int iValue);
+	int GetYieldModifierFromHealth(YieldTypes eYield) const;
+
+	void SetYieldModifierFromCrime(YieldTypes eYield, int iValue);
+	int GetYieldModifierFromCrime(YieldTypes eYield) const;
+
+	void SetYieldModifierFromDevelopment(YieldTypes eYield, int iValue);
+	int GetYieldModifierFromDevelopment(YieldTypes eYield) const;
+
+	void SetYieldFromHappiness(YieldTypes eYield, int iValue);
+	int GetYieldFromHappiness(YieldTypes eYield) const;
+
+	void SetYieldFromHealth(YieldTypes eYield, int iValue);
+	int GetYieldFromHealth(YieldTypes eYield) const;
+
+	void SetYieldFromCrime(YieldTypes eYield, int iValue);
+	int GetYieldFromCrime(YieldTypes eYield) const;
+
+	void SetYieldFromDevelopment(YieldTypes eYield, int iValue);
+	int GetYieldFromDevelopment(YieldTypes eYield) const;
 #endif
 
 	int iScratch; // know the scope of your validity
@@ -1609,6 +1638,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iPlotBuyCostModifier;
 #if defined(MOD_BUILDINGS_CITY_WORKING)
 	FAutoVariable<int, CvCity> m_iCityWorkingChange;
+	FAutoVariable<int, CvCity> m_iCitySupplyModifier;
+	FAutoVariable<int, CvCity> m_iCitySupplyFlat;
 #endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;
@@ -1881,6 +1912,14 @@ protected:
 	FAutoVariable<int, CvCity> m_iLoyaltyCounter;
 	FAutoVariable<int, CvCity> m_iDisloyaltyCounter;
 	FAutoVariable<int, CvCity> m_iLoyaltyStateType;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromHappiness;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromHealth;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromCrime;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldModifierFromDevelopment;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromHappiness;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromHealth;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromCrime;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromDevelopment;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;

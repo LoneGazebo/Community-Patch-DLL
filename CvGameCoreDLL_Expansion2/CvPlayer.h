@@ -405,6 +405,10 @@ public:
 	void UpdateUnitProductionMaintenanceMod();
 	int calculateUnitProductionMaintenanceMod() const;
 
+	int GetUnitGrowthMaintenanceMod() const;
+	void UpdateUnitGrowthMaintenanceMod();
+	int calculateUnitGrowthMaintenanceMod() const;
+
 	int GetNumUnitsSupplied() const;
 	int GetNumUnitsSuppliedByHandicap() const;
 	int GetNumUnitsSuppliedByCities() const;
@@ -682,6 +686,7 @@ public:
 	void ChangeExtraHappinessPerCity(int iChange);
 	int GetExtraHappinessPerXPolicies() const;
 	void ChangeExtraHappinessPerXPolicies(int iChange);
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetHappinessFromResourceMonopolies() const;
 #endif
@@ -711,6 +716,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int getCurrentTotalPop() const;
+	int GetUnhappinessFromWarWeariness() const;
 #endif
 
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
@@ -773,6 +779,9 @@ public:
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
+
+	void ChangePositiveWarScoreTourismMod(int iValue);
+	int GetPositiveWarScoreTourismMod() const;
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -1608,6 +1617,13 @@ public:
 #endif
 	bool IsHasLostCapital() const;
 	void SetHasLostCapital(bool bValue, PlayerTypes eConqueror);
+
+	bool IsHasLostHolyCity() const;
+	void SetHasLostHolyCity(bool bValue, PlayerTypes eConqueror);
+	void SetLostHolyCityXY(int iX, int iY);
+	int GetLostHolyCityX();
+	int GetLostHolyCityY();
+	PlayerTypes GetHolyCityConqueror();
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
 	void disassembleSpaceship(CvPlot* pPlot);
 #endif
@@ -2341,7 +2357,7 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
@@ -2375,6 +2391,12 @@ public:
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
+
+	int getCitySupplyModifierGlobal() const;
+	void changeCitySupplyModifierGlobal(int iChange);
+
+	int getCitySupplyFlatGlobal() const;
+	void changeCitySupplyFlatGlobal(int iChange);
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2793,6 +2815,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
 	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
+	FAutoVariable<int, CvPlayer> m_iPositiveWarScoreTourismMod;
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -2991,6 +3014,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iSettlerProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iCapitalSettlerProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iUnitProductionMaintenanceMod;
+	FAutoVariable<int, CvPlayer> m_iUnitGrowthMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostBuildingModifier;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostMinorCivModifier;
 	FAutoVariable<int, CvPlayer> m_iInfluenceSpreadModifier;
@@ -3102,6 +3126,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abNWOwned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitClassProductionModifiers;
 	FAutoVariable<int, CvPlayer> m_iExtraSupplyPerPopulation;
+	FAutoVariable<int, CvPlayer> m_iCitySupplyFlatGlobal;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;
@@ -3154,6 +3179,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityDistanceHighwaterMark; // this is used to determine camera zoom
 	FAutoVariable<int, CvPlayer> m_iOriginalCapitalX;
 	FAutoVariable<int, CvPlayer> m_iOriginalCapitalY;
+	FAutoVariable<int, CvPlayer> m_iHolyCityX;
+	FAutoVariable<int, CvPlayer> m_iHolyCityY;
 	FAutoVariable<int, CvPlayer> m_iNumWonders;
 	FAutoVariable<int, CvPlayer> m_iNumPolicies;
 	FAutoVariable<int, CvPlayer> m_iNumGreatPeople;
@@ -3193,6 +3220,8 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bCramped;
 	FAutoVariable<bool, CvPlayer> m_bLostCapital;
 	FAutoVariable<PlayerTypes, CvPlayer> m_eConqueror;
+	FAutoVariable<bool, CvPlayer> m_bLostHolyCity;
+	FAutoVariable<PlayerTypes, CvPlayer> m_eHolyCityConqueror;
 	FAutoVariable<bool, CvPlayer> m_bHasAdoptedStateReligion;
 	FAutoVariable<bool, CvPlayer> m_bAlliesGreatPersonBiasApplied;
 

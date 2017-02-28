@@ -485,48 +485,49 @@ function getBuildings()
 	-- Get all non-override, non-Wonder buildings with at least 1 Great Work slot.
 
 	for row in DB.Query([[
-		SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount, 
-		CivilizationType, t.GridX, t.GridY,
-		EXISTS (
-			SELECT 1
-			FROM Building_ThemingBonuses
-			WHERE BuildingType = b.Type
-			LIMIT 1 
-		) AS HasThemeBonusInt
-		FROM BuildingClasses AS bc
-		JOIN Buildings AS b ON bc.Type = b.BuildingClass
-		LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
-		LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
-		WHERE	MaxPlayerInstances = -1 AND
-				MaxTeamInstances = -1 AND
-				MaxGlobalInstances = -1 AND
-				GreatWorkCount > 0 AND
-				CivilizationType IS NULL
-	]]) do
-		gwBuildings[row.BuildingType] = row;
+							SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount, 
+							CivilizationType, t.GridX, t.GridY,
+							EXISTS (
+								SELECT 1
+								FROM Building_ThemingBonuses
+								WHERE BuildingType = b.Type
+								LIMIT 1 
+							) AS HasThemeBonusInt
+							FROM BuildingClasses AS bc
+							JOIN Buildings AS b ON bc.Type = b.BuildingClass
+							LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
+							LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
+							WHERE	MaxPlayerInstances = -1 AND
+									MaxTeamInstances = -1 AND
+									MaxGlobalInstances = -1 AND
+									GreatWorkCount > 0 AND
+									CivilizationType IS NULL
+						]]) do
+		gwBuildings[row.BuildingClass] = row;
 		dprint(row.BuildingType);
 	end
 	
 	-- If you get overrides after normal buildings it'll effectively replace the previous buildings so it all works out pretty nicely.
 	for row in DB.Query([[
-		SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount,
-		CivilizationType, t.GridX, t.GridY, 
-		EXISTS (
-			SELECT 1
-			FROM Building_ThemingBonuses
-			WHERE BuildingType = b.Type
-			LIMIT 1 
-		) AS HasThemeBonusInt
-		FROM BuildingClasses AS bc
-		JOIN Buildings AS b ON bc.Type = b.BuildingClass
-		LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
-		LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
-		WHERE	MaxPlayerInstances = -1 AND
-				MaxTeamInstances = -1 AND
-				MaxGlobalInstances = -1 AND
-				GreatWorkCount > 0 
-	]]) do
-		gwBuildings[row.BuildingType] = row;
+							SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount,
+							CivilizationType, t.GridX, t.GridY, 
+							EXISTS (
+								SELECT 1
+								FROM Building_ThemingBonuses
+								WHERE BuildingType = b.Type
+								LIMIT 1 
+							) AS HasThemeBonusInt
+							FROM BuildingClasses AS bc
+							JOIN Buildings AS b ON bc.Type = b.BuildingClass
+							LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
+							LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
+							WHERE	MaxPlayerInstances = -1 AND
+									MaxTeamInstances = -1 AND
+									MaxGlobalInstances = -1 AND
+									GreatWorkCount > 0 AND
+									CivilizationType = ?
+						]], GameInfo.Civilizations[Game.GetActiveCivilizationType()].Type) do
+		gwBuildings[row.BuildingClass] = row;
 		dprint(row.BuildingType);
 	end
 
@@ -754,8 +755,8 @@ function RefreshYourCulture()
 	for building in GameInfo.Buildings() do
 		local buildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 		-- Kyte
-		local GreatWorks = building.GreatWorkCount;
-		if(GreatWorks > 0 and not BuildingClassIsAColumn(buildingClass.Type, buildings)) then
+		if(building.GreatWorkCount > 0 
+			and not BuildingClassIsAColumn(buildingClass.Type, buildings)) then
 			table.insert(WorldWonders, {
 				BuildingID = building.ID,
 				BuildingClassID = buildingClass.ID,
@@ -2000,10 +2001,7 @@ function RefreshCultureVictory()
 				row.strPublicOpinionToolTip = pPlayer:GetPublicOpinionTooltip();
 				
 				local iUnhappiness = -1 * pPlayer:GetPublicOpinionUnhappiness();
--- CBP
-				local iPublicOpinionUnhappiness = -1 * pPlayer:GetUnhappinessFromWarWeariness();
-				iUnhappiness = iUnhappiness + iPublicOpinionUnhappiness;
--- END
+
 				local strPublicOpinionUnhappiness = tostring(0);
 				if (iUnhappiness < 0) then
 					strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);

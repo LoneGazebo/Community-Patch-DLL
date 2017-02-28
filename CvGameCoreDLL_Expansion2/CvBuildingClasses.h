@@ -235,6 +235,10 @@ public:
 	int GetLocalUnhappinessModifier() const;
 	int GetGlobalBuildingGoldMaintenanceMod() const;
 	int GetBuildingDefenseModifier() const;
+	int GetCitySupplyModifier() const;
+	int GetCitySupplyModifierGlobal() const;
+	int GetCitySupplyFlat() const;
+	int GetCitySupplyFlatGlobal() const;
 #endif
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPolicies() const;
@@ -625,6 +629,10 @@ private:
 	int m_iLocalUnhappinessModifier;
 	int m_iGlobalBuildingGoldMaintenanceMod;
 	int m_iBuildingDefenseModifier;
+	int m_iCitySupplyModifier;
+	int m_iCitySupplyModifierGlobal;
+	int m_iCitySupplyFlat;
+	int m_iCitySupplyFlatGlobal;
 #endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;

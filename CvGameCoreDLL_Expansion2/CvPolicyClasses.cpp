@@ -98,6 +98,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
+	m_iTRSpeedBoost(0),
+	m_iTRVisionBoost(0),
+	m_iHappinessPerXPolicies(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -165,6 +168,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInternalTradeRouteYieldModifier(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeRouteYieldModifierCapital(0),
+	m_iPositiveWarScoreTourismMod(0),
 #endif
 	m_iSharedReligionTourismModifier(0),
 	m_iTradeRouteTourismModifier(0),
@@ -498,6 +502,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
+	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
+	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -591,6 +598,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iThemingBonusMultiplier = kResults.GetInt("ThemingBonusMultiplier");
 	m_iInternalTradeRouteYieldModifier = kResults.GetInt("InternalTradeRouteYieldModifier");
 #if defined(MOD_BALANCE_CORE)
+	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
 #endif
 	m_iSharedReligionTourismModifier = kResults.GetInt("SharedReligionTourismModifier");
@@ -1624,6 +1632,19 @@ int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {
 	return m_iXCSAlliesLowersPolicyNeedWonders;
 }
+
+int CvPolicyEntry::GetTRVisionBoost() const
+{
+	return m_iTRVisionBoost;
+}
+int CvPolicyEntry::GetTRSpeedBoost() const
+{
+	return m_iTRSpeedBoost;
+}
+int CvPolicyEntry::GetHappinessPerXPolicies() const
+{
+	return m_iHappinessPerXPolicies;
+}
 #endif
 /// Happiness from each connected Luxury Resource
 int CvPolicyEntry::GetExtraHappinessPerLuxury() const
@@ -1988,6 +2009,11 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifierCapital() const
 {
 	return m_iInternalTradeRouteYieldModifierCapital;
 }
+int CvPolicyEntry::GetPositiveWarScoreTourismMod() const
+{
+	return m_iPositiveWarScoreTourismMod;
+}
+
 #endif
 
 /// Boost to tourism bonus for shared religion
@@ -4394,6 +4420,39 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	// Handicap Mod
 	iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
 	iCost /= 100;
+
+#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	{
+		int iTier1 = 0;
+		int iTier2 = 0;
+		int iTier3 = 0;
+		PolicyBranchTypes eLoopBranch;
+		for (int iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
+		{
+			eLoopBranch = (PolicyBranchTypes)iBranchLoop;
+
+			if (eLoopBranch != NO_POLICY_BRANCH_TYPE)
+			{
+				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eLoopBranch);
+				if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
+				{
+					iTier1 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 1);
+					iTier2 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 2);
+					iTier3 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 3);
+				}
+			}
+		}
+
+		//% cost increases.
+		iTier1 *= 3;
+		iTier2 *= 5;
+		iTier3 *= 7;
+			
+		iCost *= (100 + iTier1 + iTier2 + iTier3);
+		iCost /= 100;
+	}
+#endif
 
 	// Make the number nice and even
 	int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();

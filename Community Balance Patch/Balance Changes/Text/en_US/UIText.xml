@@ -30,6 +30,24 @@
 			<Advisor>MILITARY</Advisor>
 			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
 		</Row>
+		<Row>
+			<Type>CONCEPT_HAPPINESS_WAR_WEARINESS</Type>
+			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
+			<Description>TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE</Description>
+			<Summary>TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_HAPPINESS_WAR_WEARINESS_ADV_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_HAPPINESS_MILITARY_SUPPLY</Type>
+			<Topic>TXT_KEY_TOPIC_UNITS</Topic>
+			<Description>TXT_KEY_MILITARY_SUPPLY_HEADING3_TITLE</Description>
+			<Summary>TXT_KEYMILITARY_SUPPLY_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_MILITARY_SUPPLY_ADV_QUEST</AdvisorQuestion>
+			<Advisor>MILITARY</Advisor>
+			<CivilopediaHeaderType>HEADER_UNITS</CivilopediaHeaderType>
+		</Row>
 	</Concepts>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT">
@@ -61,6 +79,26 @@
 			<Text>What are Partisans?</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE">
+			<Text>War Weariness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY">
+			<Text>War, war never changes. Well, actually, it does. As the game progresses, the citizens of your empire will become more and more aware of the dangers of prolonged conflict, and will begin to develop [COLOR_NEGATIVE_TEXT]War Weariness[ENDCOLOR]. War Weariness is calculated based on two factors: the length of your longest current war (however long that may be), and the largest amount of damage your cities and armies have sustained in a single combat against an opponent you are currently fighting. Every City lost or unit destroyed will increase your War Weariness, leading to three major effects:[NEWLINE][ICON_BULLET] Unhappiness from War Weariness[NEWLINE][ICON_BULLET] Increased Production and Gold costs for Military Units[NEWLINE][ICON_BULLET] Reduced maximum Military Unit Supply Cap.[NEWLINE]The latter two cap at 75%. Be careful of overextending during a single conflict!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_ADV_QUEST">
+			<Text>What is War Weariness?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_HEADING3_TITLE">
+			<Text>Military Supply</Text>
+		</Row>
+		<Row Tag="TXT_KEYMILITARY_SUPPLY_HEADING3_BODY">
+			<Text>The maximum number of Military Units you can field at any one time is called your Military Unit Supply Cap. This number, indicated on the Top Panel next to the [ICON_WAR] Symbol, increases based on two factors: the total population of all of your cities, and the number of buildings or policies you have that increase your Military Unit Supply Cap. Some buildings, such as the Barracks, increase your Supply Cap by a fixed amount. Others, like Walls, increase your Supply cap by a percentage of the city's population.[NEWLINE][NEWLINE]Military Unit Supply Cap increases from static elements, like Barracks, never go away. Percentage bonuses from population, however, decline over time based on your empire's technological level. You will need more and more percentage bonuses to overcome this and field large armies![NEWLINE][NEWLINE]If, for any reason, you exceed your Military Unit Supply Cap, you will be penalized 5% Production and Food in all Cities (per unit over the cap).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
+			<Text>What is Military Supply?</Text>
+		</Row>
+			
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
 			<Text>Withdraw Chance</Text>
 		</Row>
@@ -160,7 +198,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Married[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT">
-			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] While at peace with this City-State, your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] Your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<!-- America! -->
 		<Row Tag="TXT_KEY_NOTIFICATION_UA_STOLE_PLOT">
@@ -247,8 +285,27 @@
 
 
 		<!-- Tooltip for War Weariness-->
-		<Row Tag="TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS">
-			<Text>[NEWLINE][NEWLINE]War Weariness is generating {1_Num} [ICON_HAPPINESS_4][NEWLINE][NEWLINE]</Text>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS">
+			<Text>{1_Num} from [ICON_WAR] War Weariness.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_WEARINESS_SUPPLY_TT">
+			<Text>Reduced to due your current wars</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_WEARINESS_SUPPLY">
+			<Text>War Weariness</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
+			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%.[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Information:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_HAPPINESS_3] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_HAPPINESS_3] War Weariness</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">
+			<Text>Expending a {1_UnitName} increased your Military Unit Supply Cap by {2_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY_S">
+			<Text>Military Unit Supply Cap Increased!</Text>
 		</Row>
 
 		<!-- Tooltip for Defensive Pacts -->
@@ -375,7 +432,7 @@
 		<!-- New -->
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE">
-			<Text>Entering a new Era has lead to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_CULTURE] Culture from Mandate of Heaven are reduced by {1_Num} in all Cities.</Text>
+			<Text>Entering a new Era has lead to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_CULTURE] Culture from Mandate of Heaven are reduced by up to {1_Num} in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE">
 			<Text>Dynastic Transition...</Text>
@@ -389,7 +446,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
-			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Food by +{4_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Food by +{4_Num}%!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE">
 			<Text>Mandate of Heaven</Text>
@@ -413,13 +470,13 @@
 			<Text>[NEWLINE][ICON_BULLET]We Love the Empress Day Modifier: +{1_Num}% [ICON_FOOD] Food</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA">
-			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day," causing all Cities to gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA">
 			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Food modifier!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA">
-			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day", causing all Cities to gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture!</Text>
+			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA">
 			<Text>We Love The Empress Day! ({1_Num})</Text>
@@ -992,10 +1049,6 @@
 			<Text>[COLOR_POSITIVE_TEXT]Tech unlocks remaining until free Social Policy: {1_Num}[ENDCOLOR]</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]This action is only possible if you are in the top 60% of the world in terms of Military Power. Your Military Power is currently ranked as {1_Num}% of world Military Power.[ENDCOLOR]</Text>
-		</Row>
-
 		<!-- Great Work Text-->
 		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_FLOOD_TABLET">
 			<Text>"The sea calmed and the whirlwind and flood stopped.[NEWLINE]Utnapishtim opened a window and felt fresh air on his face.[NEWLINE]He looked for coastlines at the horizon and saw a region of land.[NEWLINE]The boat lodged firmly on mount Nimush which held the boat for several days, allowing no swaying.[NEWLINE]He released a raven which was able to eat and scratch, and did not circle back to the boat.[NEWLINE]He then sent his livestock out in various directions."</Text>
@@ -1003,5 +1056,18 @@
 		<Row Tag="TXT_KEY_GREAT_WORK_FLOOD_TABLET">
 			<Text>The Flood Tablet</Text>
 		</Row>
+		
+		<!-- Warscore Autocracy UI -->
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_BONUS">
+			<Text>+{1_Num}% of current Warscore with:[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_WARSCORE">
+			<Text>+{1_Num}% Bonus from Warscore[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_VALUE">
+			<Text>Warscore: {1_Num}</Text>
+		</Row>
+
+		
 	</Language_en_US>
 </GameData>

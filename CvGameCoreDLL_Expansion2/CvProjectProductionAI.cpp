@@ -169,9 +169,9 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 1000)
+	if(iTempWeight > 3000)
 	{
-		iTempWeight = 1000;
+		iTempWeight = 3000;
 	}
 
 	if(kPlayer.isMinorCiv())
@@ -187,7 +187,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if(pkProjectInfo->IsAllowsNukes())
 		{
-			iTempWeight *= 10;
+			iTempWeight *= 25;
 		}
 	}
 	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
@@ -203,7 +203,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight *= 15;
 			if(pkProjectInfo->IsSpaceship())
 			{
-				iTempWeight *= 2;
+				iTempWeight *= 10;
 			}
 
 			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
@@ -211,23 +211,23 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			{
 				if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
 				{
-					iTempWeight /= 10;
+					iTempWeight /= 2;
 				}
 				else if(kPlayer.GetDiplomacyAI()->IsGoingForWorldConquest())
 				{
-					iTempWeight /= 10;
+					iTempWeight /= 2;
 				}
 				else if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
 				{
-					iTempWeight /= 10;
+					iTempWeight /= 2;
 				}
 				else
 				{
-					iTempWeight *= 25;
+					iTempWeight *= 50;
 				}
 				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
 				{
-					iTempWeight *= 25;
+					iTempWeight *= 50;
 				}
 
 			}

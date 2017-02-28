@@ -43,6 +43,12 @@ UPDATE Policies
 SET Level = '2'
 WHERE Type = 'POLICY_CIVIL_SOCIETY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+-- Treaty Organization
+
+UPDATE Policies
+SET FreeWCVotes = '4'
+WHERE Type = 'POLICY_TREATY_ORGANIZATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
 
 -- Creative Expression
 
@@ -107,6 +113,12 @@ INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
 VALUES
 	('POLICY_MEDIA_CULTURE', 'BUILDINGCLASS_BROADCAST_TOWER', 1);
+
+INSERT INTO Policy_BuildingClassYieldModifiers
+	(PolicyType, BuildingClassType, YieldType, YieldMod)
+VALUES
+	('POLICY_MEDIA_CULTURE', 'BUILDINGCLASS_STADIUM', 'YIELD_CULTURE', 20),
+	('POLICY_SPACE_PROCUREMENTS', 'BUILDINGCLASS_LABORATORY', 'YIELD_SCIENCE', 20);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)

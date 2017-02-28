@@ -604,13 +604,21 @@ function UpdateScreen()
 	
 	-- Public Opinion
 	local iUnhappinessPublicOpinion =  pPlayer:GetUnhappinessFromPublicOpinion();
-	iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + pPlayer:GetUnhappinessFromWarWeariness();
 	if (iUnhappinessPublicOpinion ~= 0) then
 		Controls.PoblicOpinionUnhappinessValue:SetText(iUnhappinessPublicOpinion);
 		Controls.PoblicOpinionUnhappinessValue:LocalizeAndSetToolTip("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);
 		Controls.PublicOpinionUnhappiness:SetHide(false);
 	else
 		Controls.PublicOpinionUnhappiness:SetHide(true);
+	end	
+
+	local iUnhappinessWar =  pPlayer:GetUnhappinessFromWarWeariness();
+	if (iUnhappinessWar ~= 0) then
+		Controls.PublicOpinionWarValue:SetText(iUnhappinessWar);
+		Controls.PublicOpinionWarValue:LocalizeAndSetToolTip("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessWar);
+		Controls.PublicOpinionWar:SetHide(false);
+	else
+		Controls.PublicOpinionWar:SetHide(true);
 	end	
 
 	-- City Breakdown

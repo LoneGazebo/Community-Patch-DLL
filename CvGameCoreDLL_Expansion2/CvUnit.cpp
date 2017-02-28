@@ -1742,7 +1742,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 #endif
 #if defined(MOD_BALANCE_CORE)
 			bool bFree = false;
-			if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
+			if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
 			{
 				//Can't embark yet, or the unit should auto get it?
 				if(pUnit->isHasPromotion(ePromotion))
@@ -2028,6 +2028,17 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
+
+			//Human killed me?
+			if (MOD_BALANCE_CORE_DIFFICULTY && !kPlayer.isHuman() && GET_PLAYER(ePlayer).isHuman())
+			{
+				int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonus() * (getUnitInfo().GetPower());
+				iHandicap /= 10;
+				if (getOriginCity() != NULL && getOwner() == getOriginCity()->getOwner())
+				{
+					getOriginCity()->changeProduction(iHandicap);
+				}
+			}
 		}
 #endif
 		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
@@ -2187,6 +2198,31 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		startDelayedDeath();
 		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (ePlayer == NO_PLAYER && getUnitInfo().GetSupplyCapBoost() != 0)
+	{
+		if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+		{
+			GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(getUnitInfo().GetSupplyCapBoost());
+			if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = { 0 };
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", getUnitInfo().GetSupplyCapBoost());
+				DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+				CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+				if (pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), getUnitInfo().GetSupplyCapBoost());
+					strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
+					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, getX(), getY(), getOwner());
+				}
+			}
+		}
+	}
+#endif
 
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	if(MOD_GLOBAL_NO_LOST_GREATWORKS && !bDelay)
@@ -7777,13 +7813,22 @@ void CvUnit::DoAttrition()
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::GetDanger(CvPlot* pAtPlot) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,set<int>());
 }
+
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const
+{
+	if (!pAtPlot)
+		pAtPlot = plot();
+
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore);
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::canAirlift(const CvPlot* pPlot) const
 #if defined(MOD_GLOBAL_RELOCATION)
@@ -9010,7 +9055,7 @@ bool CvUnit::createGreatWork()
 #if defined(MOD_BALANCE_CORE)
 		if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
-			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
 
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iWLTKD /= 100;
@@ -9025,7 +9070,7 @@ bool CvUnit::createGreatWork()
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 					}
 				}
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
@@ -12837,6 +12882,13 @@ bool CvUnit::build(BuildTypes eBuild)
 
 		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
 
+#if defined(MOD_BALANCE_CORE)
+		if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER)
+		{
+			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(getOwner(), 5);
+		}
+#endif
+
 	}
 
 	bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
@@ -15703,9 +15755,10 @@ int CvUnit::GetEmbarkedUnitDefense() const
 //	--------------------------------------------------------------------------------
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
+	int iResistance = 0;
 	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 	{
-		int iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
+		iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
 
 		if(GET_PLAYER(pOtherUnit->getOwner()).isHuman())
 		{
@@ -15713,10 +15766,10 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 			iResistance *= (100 + iHandicap);
 			iResistance /= 100;
 		}
-		return iResistance;
+		
 	}
 
-	return 0;
+	return iResistance;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -27629,7 +27682,7 @@ void CvUnit::DumpDangerInNeighborhood()
 		if (!pPlot)
 			continue;
 
-		int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pPlot,this);
+		int iDanger = GetDanger(pPlot);
 		bool bVisible = pPlot->isVisible( GET_PLAYER(m_eOwner).getTeam() );
 		bool bHasVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(this);
 		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this);
@@ -28896,7 +28949,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if(pkPromotionInfo->IsRangeAttackIgnoreLOS() && isRanged())
 	{
-		iValue += 75 + iFlavorRanged * 2;
+		iValue += 75 + iFlavorRanged * 10;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackWoundedMod();
@@ -28905,13 +28958,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraAttackWoundedMod() * 3;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 3;
+		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
 	}
 
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
 	if(iTemp > 0)
 	{
-		iExtra = (4 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra = (8 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
 		iExtra *= iTemp;
 		iExtra /= 100;
 		iValue += iExtra;
@@ -28934,11 +28987,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			(AI_getUnitAIType() == UNITAI_ATTACK) ||
 			(AI_getUnitAIType() == UNITAI_PARADROP))
 	{
-		iValue += iTemp * (50 + iFlavorMobile * 2);
+		iValue += iTemp * (50 + iFlavorMobile * 5);
 	}
 	else
 	{
-		iValue += iTemp * (30 + iFlavorMobile * 2);
+		iValue += iTemp * (30 + iFlavorMobile * 3);
 	}
 
 	if(pkPromotionInfo->IsAlwaysHeal())
@@ -28971,11 +29024,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
 				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
-			iValue += 50 + (iFlavorMobile + iFlavorOffense) * 2;
+			iValue += 50 + (iFlavorMobile + iFlavorOffense) * 5;
 		}
 		else
 		{
-			iValue += 20 + (iFlavorMobile + iFlavorOffense) * 2;
+			iValue += 20 + (iFlavorMobile + iFlavorOffense) * 3;
 		}
 	}
 
@@ -29001,13 +29054,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetExtraAttacks();
 	if(iTemp != 0)
 	{
-		iValue += (iTemp * 200);
+		iValue += (iTemp * 500);
 	}
 
 	iTemp = pkPromotionInfo->GetRangeChange();
 	if(isRanged())
 	{
-		iValue += (iTemp * 200);
+		iValue += (iTemp * 500);
 	}
 
 	iTemp = pkPromotionInfo->GetInterceptionCombatModifier();
@@ -29282,7 +29335,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iValue > 0)
 	{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		iValue += GC.getGame().getSmallFakeRandNum(11, iValue);
+		iValue += GC.getGame().getSmallFakeRandNum(30, iValue);
 #else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
 #endif

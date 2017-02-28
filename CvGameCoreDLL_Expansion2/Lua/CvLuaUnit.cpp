@@ -5773,11 +5773,7 @@ int CvLuaUnit::lGetMissionInfo(lua_State* L)
 int CvLuaUnit::lGetDanger(lua_State* L)
 {
 	CvUnit* pUnit = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes)pUnit->getOwner();
-	int iDanger = 0;
-
-	if (ePlayer!=NO_PLAYER)
-		iDanger = CvPlayerAI::getPlayer(ePlayer).GetPlotDanger(*(pUnit->plot()),pUnit);
+	int iDanger = pUnit->GetDanger();
 
 	lua_pushinteger(L, iDanger);
 	return 1;

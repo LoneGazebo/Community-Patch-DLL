@@ -121,7 +121,7 @@ void CvStartPositioner::ComputeFoundValues()
 	}
 
 	int iAvg = (iSum / iValidPlots) * 1000;
-	OutputDebugString( CvString::format("Average city site value is %d\n",iAvg).c_str() );
+	OutputDebugString( CvString::format("Average city site value without flavor is %d\n",iAvg).c_str() );
 }
 
 /// Take into account handicaps to rank the "draft order" for start positions
@@ -666,6 +666,8 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 					//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 					//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 					uiPlotFoundValue = pLoopPlot->getFoundValue((PlayerTypes)1);
+					if (uiPlotFoundValue<1)
+						continue;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||

@@ -751,6 +751,29 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetLoyaltyState);
 	Method(HasLoyaltyState);
 
+	Method(GetYieldModifierFromHappiness);
+	Method(SetYieldModifierFromHappiness);
+
+	Method(GetYieldModifierFromHealth);
+	Method(SetYieldModifierFromHealth);
+
+	Method(GetYieldModifierFromCrime);
+	Method(SetYieldModifierFromCrime);
+
+	Method(GetYieldModifierFromDevelopment);
+	Method(SetYieldModifierFromDevelopment);
+
+	Method(GetYieldFromHappiness);
+	Method(SetYieldFromHappiness);
+
+	Method(GetYieldFromHealth);
+	Method(SetYieldFromHealth);
+
+	Method(GetYieldFromCrime);
+	Method(SetYieldFromCrime);
+
+	Method(GetYieldFromDevelopment);
+	Method(SetYieldFromDevelopment);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -6144,6 +6167,143 @@ int CvLuaCity::lHasLoyaltyState(lua_State* L)
 	const bool bValue = (pkCity->GetLoyaltyState() == iValue);
 	lua_pushboolean(L, bValue);
 
+	return 1;
+}
+
+int CvLuaCity::lGetYieldModifierFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromHappiness(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromHappiness(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldModifierFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromHealth(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromHealth(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldModifierFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromCrime(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromCrime(eYield, iValue);
+	return 1;
+}
+
+
+int CvLuaCity::lGetYieldModifierFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromDevelopment(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromDevelopment(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromHappiness(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromHappiness(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromHealth(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromHealth(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromCrime(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromCrime(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromDevelopment(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromDevelopment(eYield, iValue);
 	return 1;
 }
 

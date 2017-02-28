@@ -428,6 +428,11 @@ void CvGrandStrategyAI::DoTurn()
 		else
 		{
 			ChangeNumTurnsSinceActiveSet(1);
+			if (GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
+			{
+				//Reset to zero.
+				SetNumTurnsSinceActiveSet(0);
+			}
 		}
 
 		LogGrandStrategies(viGrandStrategyChangeForLogging);
@@ -435,6 +440,11 @@ void CvGrandStrategyAI::DoTurn()
 	else
 	{
 		ChangeNumTurnsSinceActiveSet(1);
+		if (GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
+		{
+			//Reset to zero.
+			SetNumTurnsSinceActiveSet(0);
+		}
 	}
 }
 
@@ -529,7 +539,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iNum = GetPlayer()->GetNumCapitalCities();
 	if(iNum > 1)
 	{
-		iPriority *= (iNum * 50);
+		iPriority += (iNum * 100);
 	}
 #endif
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
@@ -779,7 +789,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((iEra * iFlavorCulture * 200) / 100);
+	iPriority += ((iEra * iFlavorCulture * 100) / 100);
 #else
 	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
 #endif
@@ -829,6 +839,10 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		iPriority += (GC.getAI_GS_CULTURE_TOURISM_AHEAD_WEIGHT() * (iNumCivsAheadTourism - iNumCivsBehindTourism) / iNumCivsAlive);
 	}
+	if (iNumCivsAlive > 0 && iNumCivsAheadTourism < iNumCivsBehindTourism)
+	{
+		iPriority -= (GC.getAI_GS_CULTURE_TOURISM_AHEAD_WEIGHT() * (iNumCivsBehindTourism - iNumCivsAheadTourism) / iNumCivsAlive);
+	}
 
 	// for every civ we are Influential over increase this
 	int iNumInfluential = m_pPlayer->GetCulture()->GetNumCivsInfluentialOn();
@@ -837,7 +851,10 @@ int CvGrandStrategyAI::GetCulturePriority()
 	int iPriorityBonus = 0;
 
 	//Add in our base culture value.
-	iPriorityBonus += (m_pPlayer->getJONSCulture() / 15);
+	iPriorityBonus += (m_pPlayer->getJONSCulture() / 30);
+	iPriorityBonus += (m_pPlayer->GetCulture()->GetTourism() / 30);
+
+	iPriorityBonus += (m_pPlayer->GetMaxEffectiveCities() * -10);
 
 	//Add priority value based on flavors of policies we've acquired.
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
@@ -1014,7 +1031,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 				{
 					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
 					{
-						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 2;
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
 					{
@@ -1022,11 +1039,11 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 					}
 					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
 					{
-						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 3;
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
 					{
-						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 3;
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 				}
 			}
@@ -1053,19 +1070,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 						{
 							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
 							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 3;
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
 							}
 							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 3;
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
 							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 3;
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
 						}
 					}
@@ -1139,7 +1156,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			}
 		}
 	}
-	iPriorityBonus /= 5;
+	iPriorityBonus /= 14;
 	iPriority += iPriorityBonus;
 #endif
 #if !defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
@@ -1224,11 +1241,11 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		int iPotentialVotesDelta = iPotentialCityStateVotes + iVotesControlledDelta;
 		if (iPotentialVotesDelta > 0)
 		{
-			iPriority += MAX(20, iPotentialVotesDelta * 6);
+			iPriority += MAX(20, iPotentialVotesDelta * 10);
 		}
 		else if (iPotentialVotesDelta < 0)
 		{
-			iPriority += MIN(-40, iPotentialVotesDelta * -6);
+			iPriority += MIN(-40, iPotentialVotesDelta * -25);
 		}
 	}
 
@@ -1301,7 +1318,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	// the later the game the greater the chance
 #if defined(MOD_AI_SMART_GRAND_STRATEGY)
 	int iEraBias = MOD_AI_SMART_GRAND_STRATEGY ? 4 : 0;
-	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 150 / 100;
+	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 200 / 100;
 #else
 	iPriority += m_pPlayer->GetCurrentEra() * iFlavorScience * 150 / 100;
 #endif
@@ -1334,6 +1351,11 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		iPriority += ((GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * (iNumCivsAheadScience - iNumCivsBehindScience)) / iNumCivsAlive);
 	}
 #endif
+	//Are we in first overall? Bump it!
+	if (iNumCivsAheadScience == iNumCivsAlive)
+	{
+		iPriority += (GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * iNumCivsAlive);
+	}
 	// if I already built the Apollo Program I am very likely to follow through
 	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
 	if(eApolloProgram != NO_PROJECT)
@@ -1449,7 +1471,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 				{
 					if(pEntry->GetSciencePerOtherReligionFollower() > 0)
 					{
-						iPriorityBonus += pEntry->GetSciencePerOtherReligionFollower();
+						iPriorityBonus += pEntry->GetSciencePerOtherReligionFollower() * 10;
 					}
 					
 					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -1871,7 +1893,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 		//More than half of all Capitals?
 		if(GET_PLAYER(ePlayer).GetNumCapitalCities() >= 1 && (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
 		{
-			iConquestPriority *= (GET_PLAYER(ePlayer).GetNumCapitalCities() * 5);
+			iConquestPriority *= (GET_PLAYER(ePlayer).GetNumCapitalCities() * 20);
 		}
 		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
 		{

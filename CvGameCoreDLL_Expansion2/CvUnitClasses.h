@@ -151,6 +151,8 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int IsGPExtra() const;
+	int GetGoodyModifier() const;
+	int GetSupplyCapBoost() const;
 #endif
 	int GetCultureBombRadius() const;
 	int GetGoldenAgeTurns() const;
@@ -369,6 +371,8 @@ private:
 	bool m_bFoundLate;
 	bool m_bIsCityAttackSupport;
 	int m_iGPExtra;
+	int m_iGoodyModifier;
+	int m_iSupplyCapBoost;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;

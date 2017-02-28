@@ -389,6 +389,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPublicOpinion);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetUnhappinessFromWarWeariness);
+	Method(GetWarWeariness);
+	Method(SetWarWeariness);
+	Method(GetWarWearinessSupplyReduction);
 #endif
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
@@ -740,6 +743,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetBullyUnit);
 	Method(GetBullyUnit);
 	Method(GetYieldTheftAmount);
+	Method(GetPledgeProtectionInvalidReason);
 #endif
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
@@ -908,7 +912,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(Units);
 	Method(GetNumUnits);
 #if defined(MOD_BALANCE_CORE)
-	Method(GetNumUnitsNoCivlian);
+	Method(GetNumUnitsNoCivilian);
 #endif
 	Method(GetUnitByID);
 
@@ -3920,10 +3924,45 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
+	const int iResult = pkPlayer->GetUnhappinessFromWarWeariness();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lGetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
+	lua_pushinteger(L, min(75, iResult));
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lSetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = lua_tointeger(L, 2);
+	pkPlayer->GetCulture()->SetWarWeariness(iResult);
+	return 0;
+}
+int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness();
+	int iSupply = pkPlayer->GetNumUnitsSuppliedByHandicap();
+	iSupply += pkPlayer->GetNumUnitsSuppliedByCities();
+	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
+	int iMod = iSupply;
+	iMod *= (100 - iWarWeariness);
+	iMod /= 100;
+
+	iSupply -= iMod;
+
+	lua_pushinteger(L, min(75, iSupply));
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
@@ -8148,6 +8187,18 @@ int CvLuaPlayer::lGetYieldTheftAmount(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetPledgeProtectionInvalidReason(PlayerTypes eMajor);
+int CvLuaPlayer::lGetPledgeProtectionInvalidReason(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+
+	const CvString sResult = pkPlayer->GetMinorCivAI()->GetPledgeProtectionInvalidReason(eMajor);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);
@@ -9321,10 +9372,11 @@ int CvLuaPlayer::lGetNumUnits(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int getNumUnits();
-int CvLuaPlayer::lGetNumUnitsNoCivlian(lua_State* L)
+int CvLuaPlayer::lGetNumUnitsNoCivilian(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumUnitsNoCivilian);
 }
+
 #endif
 //------------------------------------------------------------------------------
 //void AI_updateFoundValues(bool bStartingLoc);
@@ -12908,6 +12960,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAPTURED_CAPITAL");
+		aOpinions.push_back(kOpinion);
+	}
+	
+	iValue = pDiploAI->GetHolyCityCapturedByScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAPTURED_HOLY_CITY");
 		aOpinions.push_back(kOpinion);
 	}
 

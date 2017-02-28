@@ -108,6 +108,9 @@ public:
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageModifier() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
+	int GetTRSpeedBoost() const;
+	int GetTRVisionBoost() const;
+	int GetHappinessPerXPolicies() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -174,6 +177,7 @@ public:
 	int GetThemingBonusMultiplier() const;
 	int GetInternalTradeRouteYieldModifier() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
 #endif
@@ -516,6 +520,7 @@ private:
 	int m_iThemingBonusMultiplier;
 	int m_iInternalTradeRouteYieldModifier;
 #if defined(MOD_BALANCE_CORE)
+	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	BuildingClassTypes m_eNewCityFreeBuilding;
 #endif
@@ -675,6 +680,9 @@ private:
 	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
 	int m_iXCSAlliesLowersPolicyNeedWonders;
+	int m_iTRSpeedBoost;
+	int m_iTRVisionBoost;
+	int m_iHappinessPerXPolicies;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

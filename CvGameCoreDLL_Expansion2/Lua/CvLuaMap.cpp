@@ -391,9 +391,13 @@ int CvLuaMap::lPlotDirection(lua_State* L)
 {
 	int iX = lua_tointeger(L, 1);
 	int iY = lua_tointeger(L, 2);
-	DirectionTypes eDirection = (DirectionTypes)lua_tointeger(L, 3);
+	DirectionTypes eDirection = (DirectionTypes) abs(lua_tointeger(L, 3) % 6);
 
-	CvPlot* pkPlot = plotDirection(iX, iY, eDirection);
+	//safety first
+	int iMapX = coordRange(iX, GC.getMap().getGridWidth(), GC.getMap().isWrapX());
+	int iMapY = coordRange(iY, GC.getMap().getGridHeight(), GC.getMap().isWrapY());
+
+	CvPlot* pkPlot = plotDirection(iMapX, iMapY, eDirection);
 
 	CvLuaPlot::Push(L, pkPlot);
 	return 1;

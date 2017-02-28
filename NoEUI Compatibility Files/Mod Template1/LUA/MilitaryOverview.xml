@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha">
+	<Box Style="BGBlock_ClearTopBar"/>
+	<Grid Size="960,658" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" ConsumeMouse="1">
+		<!-- Upper Treatment -->
+		<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+			<Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" TextureOffset="77,0" Texture="CivIconBGSizes.dds"/>
+			<Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="0,0" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+			<Image ID="Icon" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
+		</Image>
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+		<!-- Panel Header Text -->
+		<Label String="TXT_KEY_MILITARY_OVERVIEW" ID="Title" Anchor="C,T" Offset="0,19" Font="TwCenMT20" Color0="30.50.80.255" Color1="133.184.186.255" Color2="133.184.186.255" FontStyle="SoftShadow"/>
+		<!-- Main Container -->
+		<Box Offset="18,43" Anchor="L,T" Size="805,565" Color="255.255.200.0">
+			<!-- Column Headers -->
+			<Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
+				<Box Anchor="C,C" Size="200,24" Offset="0.-3" String="TXT_KEY_SUPPLY_TITLE" Color="White.0">
+					<Label Anchor="C,C" String="TXT_KEY_SUPPLY_TITLE"/>
+					<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5.24"/>
+					<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5.500"/>
+				</Box>
+				<Button Anchor="C,C" Size="200,27" Offset="0.-3" String="TXT_KEY_NAME" ToolTip="TXT_KEY_MO_SORT_NAME" ID="SortName">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="220,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="220,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+				<Button Anchor="C,C" Size="300,24" Offset="0.-3" String="TXT_KEY_STATUS" ToolTip="TXT_KEY_MO_SORT_STATUS" ID="SortStatus">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="320,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="320,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+				<Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_MOVEMENT" ID="SortMovement">
+					<Image Anchor="C,C" Offset="0,0" Texture="assets/UI/Art/Icons/MarcPips.dds" TextureOffset="0.96" Size="32.32"/>
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+				<Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_MAX_MOVES" ID="SortMoves">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+					<Label Anchor="C.C" Offset="0,-1" String="[ICON_MOVES]"/>
+				</Button>
+				<Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_STRENGTH" ID="SortStrength">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+					<Label Anchor="C.C" Offset="0,-1" String="[ICON_STRENGTH]"/>
+				</Button>
+				<Button Anchor="C,C" Size="54,24" Offset="0.-3" ToolTip="TXT_KEY_MO_SORT_RANGED" ID="SortRanged">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="74,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="74,27" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+					<Label Anchor="C.C" Offset="0,-1" String="[ICON_RANGE_STRENGTH]"/>
+				</Button>
+			</Stack>
+			<!-- Supply Information -->
+			<Stack Growth="Bottom" Offset="0,29" Padding="1" ID="SupplyStack">
+				<Box Size="200,24" Color="0.0.0.0" ID="HandicapSupply" ToolTip="TXT_KEY_HANDICAP_SUPPLY_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HANDICAP_SUPPLY"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="HandicapSupplyValue"/>
+				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="CitiesSupply" ToolTip="TXT_KEY_CITIES_SUPPLY_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_CITIES_SUPPLY"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="CitiesSupplyValue"/>
+				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="PopulationSupply" ToolTip="TXT_KEY_POPULATION_SUPPLY_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_POPULATION_SUPPLY"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="PopulationSupplyValue"/>
+				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="WarWearinessReduction" ToolTip="TXT_KEY_WAR_WEARINESS_SUPPLY_TT" >
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_WAR_WEARINESS_SUPPLY"  />
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="WarWearinessReductionValue" />
+				</Box>
+				<Image Anchor="C,B" Offset="-2,0" TextureOffset="55.0" Texture="bar300x2.dds" Size="190.1"/>
+				<Box Size="200,24" Color="0.0.0.0" ID="SupplyCap" ToolTip="TXT_KEY_SUPPLY_CAP_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_SUPPLY_CAP"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="SupplyCapValue"/>
+				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="SupplyUse" ToolTip="TXT_KEY_SUPPLY_USE_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_SUPPLY_USE"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="SupplyUseValue"/>
+				</Box>
+				<Image Anchor="C,B" Offset="-2,0" TextureOffset="55.0" Texture="bar300x2.dds" Size="190.1"/>
+				<Box Size="200,24" Color="0.0.0.0" ID="SupplyRemaining" ToolTip="TXT_KEY_SUPPLY_REMAINING_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_SUPPLY_REMAINING"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="SupplyRemainingValue"/>
+				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="SupplyDeficit" ToolTip="TXT_KEY_SUPPLY_DEFICIT_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_SUPPLY_DEFICIT"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="SupplyDeficitValue"/>
+				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="DeficitPenalty" ToolTip="TXT_KEY_SUPPLY_DEFICIT_PENALTY_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_SUPPLY_DEFICIT_PENALTY"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="SupplyDeficitPenaltyValue"/>
+				</Box>
+			</Stack>
+			<!-- Unit Information -->
+			<ScrollPanel Anchor="L,T" Offset="200,29" Size="724,474" Vertical="1" ID="ScrollPanel">
+				<ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="434" ID="ScrollBar"/>
+				<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="UpButton"/>
+				<DownButton Offset="0,452" Style="ScrollBarDown" Anchor="R,T" ID="DownButton"/>
+				<Stack Anchor="L,T" StackGrowth="B" Padding="0" ID="MainStack">
+					<Stack Anchor="L,T" StackGrowth="Bottom" Padding="0" ID="MilitaryStack">
+                    </Stack>
+					<Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1" ID="CivilianSeperator"/>
+					<Stack Anchor="L,T" StackGrowth="Bottom" Padding="0" ID="CivilianStack">
+                    </Stack>
+				</Stack>
+			</ScrollPanel>
+		</Box>
+		<Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="927,56" Color="255,255,255,0">
+			<!-- Close Button  -->
+			<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" ID="CloseButton">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			</GridButton>
+		</Box>
+		<Image Anchor="C,T" Offset="0,66" Texture="HorizontalTrim.dds" Size="927.5"/>
+		<Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="927.5"/>
+		<!-- Great General Meter -->
+		<Box Anchor="R,B" Color="255.255.255.0" Offset="24,36" Size="254,70" Hidden="0" ID="GPBox" ToolTip="">
+			<Image Anchor="C,C" Size="214,29" Offset="-20,4" Texture="MeterBarGreatPersonBack.dds">
+				<TextureBar Anchor="L,C" Size="214.29" Texture="MeterBarGreatPersonGold.dds" Direction="Right" ID="GPMeter" Hidden="0"/>
+				<Image Anchor="L,C" Size="214,29" Offset="0,0" Texture="MeterBarFrame.dds"/>
+				<Label Anchor="L,T" Offset="12,-15" String="TXT_KEY_CITYVIEW_GG_PROGRGRESS" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonLabel" Hidden="0"/>
+			</Image>
+			<Image Anchor="R,C" Size="64,64" Offset="0,-2" Texture="64x64FrameButtons.dds">
+				<Button NoStateChange="1" Anchor="C,C" TextureOffset="0,384" Texture="UnitPortraitsRenaissanceIndustrial512.dds" Size="64,64" ID="GPImage"/>
+			</Image>
+		</Box>
+		<!-- Great Admiral Meter -->
+		<Box Anchor="R,B" Color="255.255.255.0" Offset="350,36" Size="254,70" Hidden="0" ID="GABox" ToolTip="">
+			<Image Anchor="C,C" Size="214,29" Offset="-20,4" Texture="MeterBarGreatPersonBack.dds">
+				<TextureBar Anchor="L,C" Size="214.29" Texture="MeterBarGreatPersonGold.dds" Direction="Right" ID="GAMeter" Hidden="0"/>
+				<Image Anchor="L,C" Size="214,29" Offset="0,0" Texture="MeterBarFrame.dds"/>
+				<Label Anchor="L,T" Offset="12,-15" String="TXT_KEY_MO_GA_PROGRESS" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatAdmiralLabel" Hidden="0"/>
+			</Image>
+			<Image Anchor="R,C" Size="64,64" Offset="0,-2" Texture="64x64FrameButtons.dds">
+				<Button NoStateChange="1" Anchor="C,C" TextureOffset="64,128" Texture="UnitPortraits64_Expansion.dds" Size="64,64" ID="GAImage"/>
+			</Image>
+		</Box>
+	</Grid>
+	<Instance Name="UnitInstance">
+		<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="564,24" ID="Root">
+			<Button Size="564,24" Anchor="L,C" ID="Button">
+				<!-- Selected State -->
+				<Grid Anchor="L,C" Size="724,24" Style="Grid9FrameTurns" ID="SelectionFrame" Hidden="1"/>
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="l,C" Offset="0,0" Size="724,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="724,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="200,24">
+					<!-- HealthBar -->
+					<Box Anchor="C,B" Offset="0,1" Size="140,5" Color="0,0,0,255" Hidden="1">
+						<Bar Anchor="C,C" Offset="0,0" Size="138,3" Direction="Right" FGColor="Green,255" Hidden="0" ID="HealthBar"/>
+						<!--Box Anchor="C,T" Offset="0,1" Size="138,1" Color="255,255,255,64" Hidden="0" /-->
+						<!--Box Anchor="C,B" Offset="0,0" Size="138,2" Color="0,0,0,64" Hidden="0" /-->
+					</Box>
+					<Label Anchor="C,C" ID="UnitName" Offset="-2,0" String="Unit Name" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+			</Button>
+			<Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
+				<Box Anchor="C,C" Size="38,24" Color="0.0.0.0">
+					<AlphaAnim Anchor="C,C" Size="24,24" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".3" Hidden="0" ID="PromotionIndicator">
+						<Image Texture="assets/UI/Art/Icons/Promotions24Gold.dds" Size="24.24"/>
+					</AlphaAnim>
+				</Box>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="162,24">
+                </Box>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="300,24">
+					<Label Anchor="C,C" Hidden="1" ID="Status"/>
+				</Box>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+					<Image Anchor="C,C" Texture="assets/UI/Art/Icons/MarcPips.dds" Size="32.32" ID="MovementPip"/>
+				</Box>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+					<Label Anchor="C,C" ID="Movement"/>
+				</Box>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+					<Label Anchor="C,C" ID="Strength"/>
+				</Box>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="54,24">
+					<Label Anchor="C,C" ID="RangedAttack"/>
+				</Box>
+			</Stack>
+		</Box>
+	</Instance>
+</Context>

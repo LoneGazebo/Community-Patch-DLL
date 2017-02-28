@@ -389,11 +389,11 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_OBSOLETE_ERA">
-			<Text>[NEWLINE] [ICON_BULLET] Obsoleted by leaving the {1_Desc} Era</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Obsoleted by leaving the {1_Desc}</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NEED_ERA">
-			<Text>[NEWLINE] [ICON_BULLET] Requires you to be in at least the {1_Desc} Era</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Requires you to be in at least the {1_Desc}</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_OBSOLETE_TECH">

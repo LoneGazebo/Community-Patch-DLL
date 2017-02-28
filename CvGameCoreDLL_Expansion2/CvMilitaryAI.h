@@ -348,7 +348,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void MinorAttackTest();
-	int GetWarType();
+	int GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -437,6 +437,7 @@ private:
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
 	int* m_aiTempFlavors;
+	int* m_aiWarFocus;
 
 	// Archived state of threats/wars from last turn
 	int* m_paeLastTurnWarState;
@@ -475,7 +476,6 @@ private:
 	int m_iNumLandAttacksRequested;
 	int m_iNumNavalAttacksRequested;
 #if defined(MOD_BALANCE_CORE)
-	int m_iCurrentWarFocus;
 	int m_iFreeCarrier;
 	int m_iFreeCargo;
 #endif

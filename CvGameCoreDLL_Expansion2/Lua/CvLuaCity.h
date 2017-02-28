@@ -749,6 +749,31 @@ protected:
 	static int lSetLoyaltyState(lua_State* L);
 	static int lHasLoyaltyState(lua_State* L);
 
+	static int lGetYieldModifierFromHappiness(lua_State* L);
+	static int lSetYieldModifierFromHappiness(lua_State* L);
+
+	static int lGetYieldModifierFromHealth(lua_State* L);
+	static int lSetYieldModifierFromHealth(lua_State* L);
+
+	static int lGetYieldModifierFromCrime(lua_State* L);
+	static int lSetYieldModifierFromCrime(lua_State* L);
+
+	static int lGetYieldModifierFromDevelopment(lua_State* L);
+	static int lSetYieldModifierFromDevelopment(lua_State* L);
+
+	static int lGetYieldFromHappiness(lua_State* L);
+	static int lSetYieldFromHappiness(lua_State* L);
+
+	static int lGetYieldFromHealth(lua_State* L);
+	static int lSetYieldFromHealth(lua_State* L);
+
+	static int lGetYieldFromCrime(lua_State* L);
+	static int lSetYieldFromCrime(lua_State* L);
+
+	static int lGetYieldFromDevelopment(lua_State* L);
+	static int lSetYieldFromDevelopment(lua_State* L);
+
+	
 #endif
 };
 

@@ -167,12 +167,18 @@
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="OPopulationUnhappinessTitle" String="t"/>
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="OPopulationUnhappinessValue"/>
 							</Box>
-              <!-- Public Opinion -->
-              <Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="PublicOpinionUnhappiness">
-                <Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="PublicOpinionUnhappinessTitle" String="TXT_KEY_EO_PUBLIC_OPINION_UNHAPPINESS"/>
-                <Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="PoblicOpinionUnhappinessValue"/>
-              </Box>
-              
+							<!-- Public Opinion -->
+							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="PublicOpinionUnhappiness">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="PublicOpinionUnhappinessTitle" String="TXT_KEY_EO_PUBLIC_OPINION_UNHAPPINESS"/>
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="PoblicOpinionUnhappinessValue"/>
+							</Box>
+							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="PublicOpinionWar">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="PublicOpinionWarTitle" String="TXT_KEY_WAR_WEARINESS_SUPPLY"/>
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="PublicOpinionWarValue"/>
+							</Box>
+
+							
+
 							<!-- Spacer -->
 							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0"/>
 							<!-- City Unhappiness -->

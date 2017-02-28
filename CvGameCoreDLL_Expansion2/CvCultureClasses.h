@@ -277,6 +277,7 @@ public:
 	int GetPublicOpinionUnhappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int GetWarWeariness() const;
+	void SetWarWeariness(int iValue);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetTourismModifierVassal() const;

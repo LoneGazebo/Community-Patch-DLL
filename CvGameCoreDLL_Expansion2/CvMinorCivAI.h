@@ -565,6 +565,7 @@ public:
 	void SetTurnLiberated(int iValue);
 	int GetTurnLiberated();
 	void TestChangeProtectionFromMajor(PlayerTypes eMajor);
+	CvString GetPledgeProtectionInvalidReason(PlayerTypes eMajor);
 #endif
 	// Protection
 	void DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken = false);

@@ -3168,6 +3168,10 @@ local function GetMoodInfo( playerID )
 				end
 			end
 			if otherPlayer:IsMinorCiv() then
+				
+				if otherPlayer:IsMarried(playerID) then
+					marriage:insert( otherPlayerName )
+				end
 				-- Alliances
 				if otherPlayer:IsAllies(playerID) then
 					allied:insert( otherPlayerName )
@@ -3201,10 +3205,6 @@ local function GetMoodInfo( playerID )
 
 				if player:IsHasDefensivePactWithPlayer(otherPlayerID) then
 					pacts:insert( otherPlayerName )
-				end
-
-				if otherPlayer:IsMarried(playerID) then
-					marriage:insert( otherPlayerName )
 				end
 
 				--C4df
