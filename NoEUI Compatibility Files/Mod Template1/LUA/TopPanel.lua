@@ -175,6 +175,19 @@ function UpdateData()
 				strFaithStr = "[ICON_PEACE]" .. strFaithStr;
 			end
 			Controls.FaithString:SetText(strFaithStr);
+
+			local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+			local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+
+			local strSupplyStr = "";
+			if(iUnitsTotal > iUnitsSupplied) then
+				strSupplyStr = string.format(" [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iUnitsTotal, iUnitsSupplied);
+			else
+				strSupplyStr = string.format(" (%i/%i)", iUnitsTotal, iUnitsSupplied);
+			end
+			strSupplyStr = "[ICON_WAR]" .. strSupplyStr;
+
+			Controls.UnitSupplyString:SetText(strSupplyStr);
 	
 			-----------------------------
 			-- Update Resources
@@ -237,19 +250,6 @@ function UpdateData()
 		-- Update turn counter
 		local turn = Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", Game.GetGameTurn());
 		Controls.CurrentTurn:SetText(turn);
-		
-		-- Update Unit Supply
-		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
-		if (iUnitSupplyMod ~= 0) then
-			local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-			local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
-			local strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
-			
-			Controls.UnitSupplyString:SetToolTipString(strUnitSupplyToolTip);
-			Controls.UnitSupplyString:SetHide(false);
-		else
-			Controls.UnitSupplyString:SetHide(true);
-		end
 		
 		-- Update date
 		local date;
@@ -341,6 +341,17 @@ Controls.FaithString:RegisterCallback( Mouse.eLClick, OnFaithClicked );
 
 -------------------------------------------------
 -------------------------------------------------
+function OnSupplyClicked()
+	
+	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW } );
+
+end
+Controls.UnitSupplyString:RegisterCallback( Mouse.eLClick, OnSupplyClicked );
+
+
+
+-------------------------------------------------
+-------------------------------------------------
 function OnGoldClicked()
 	
 	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW } );
@@ -374,6 +385,7 @@ function DoInitTooltips()
 	Controls.FaithString:SetToolTipCallback( FaithTipHandler );
 	Controls.ResourceString:SetToolTipCallback( ResourcesTipHandler );
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
+	Controls.UnitSupplyString:SetToolTipCallback( UnitSupplyHandler );
 end
 
 -- Science Tooltip
@@ -745,7 +757,7 @@ function GoldTipHandler( control )
 
 	-- Gold from Vassal Tax
 	if (iExpenseFromVassalTaxes > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TOP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
 	end
 --  END
 	strText = strText .. "[/COLOR]";
@@ -981,7 +993,8 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
 		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 -- COMMUNITY PATCH CHANGES BELOW
-		iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + pPlayer:GetUnhappinessFromWarWeariness();
+		iUnhappinessPublicOpinion = iUnhappinessPublicOpinion;
+		local iUnhappinessFromWarWeariness = pPlayer:GetUnhappinessFromWarWeariness();
 		local iUnhappinessFromStarving = pPlayer:GetUnhappinessFromCityStarving();
 		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
 		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
@@ -1040,6 +1053,10 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);
 		end
 --COMMUNITY PATCH CHANGES
+		if (iUnhappinessFromWarWeariness > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWarWeariness);
+		end
 		if (iUnhappinessFromStarving > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving);
@@ -1536,6 +1553,52 @@ function FaithTipHandler( control )
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
 	
+end
+
+function UnitSupplyHandler(control)
+
+	local strUnitSupplyToolTip = "";
+	local iPlayerID = Game.GetActivePlayer();
+	local pPlayer = Players[iPlayerID];
+
+	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
+	if (iUnitSupplyMod ~= 0) then
+		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+		local iWarWearinessReduction = pPlayer:GetWarWeariness();
+		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+
+		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+		strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
+
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction);
+
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
+	else
+		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+		local iWarWearinessReduction = pPlayer:GetWarWeariness();
+		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessReduction);
+	end
+
+	if(strUnitSupplyToolTip ~= "") then
+		tipControlTable.TopPanelMouseover:SetHide(false);
+		tipControlTable.TooltipLabel:SetText( strUnitSupplyToolTip );
+	else
+		tipControlTable.TopPanelMouseover:SetHide(true);
+	end
+    
+    -- Autosize tooltip
+    tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
 -- Resources Tooltip

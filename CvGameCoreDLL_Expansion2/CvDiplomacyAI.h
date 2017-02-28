@@ -434,6 +434,7 @@ public:
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer);
 	bool IsNukedBy(PlayerTypes ePlayer);
 	bool IsCapitalCapturedBy(PlayerTypes ePlayer);
+	bool IsHolyCityCapturedBy(PlayerTypes ePlayer);
 	bool IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer);
 	bool IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer);
 	bool IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer);
@@ -1348,6 +1349,7 @@ public:
 	int GetPolicyScore(PlayerTypes ePlayer);
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
+	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
 	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
 	int GetPaidTributeToScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);

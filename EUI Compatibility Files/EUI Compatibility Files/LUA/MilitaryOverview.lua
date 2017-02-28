@@ -102,9 +102,10 @@ function UpdateScreen()
     Controls.HandicapSupplyValue:SetText(   pPlayer:GetNumUnitsSuppliedByHandicap() );
     Controls.CitiesSupplyValue:SetText(     pPlayer:GetNumUnitsSuppliedByCities() );
     Controls.PopulationSupplyValue:SetText( pPlayer:GetNumUnitsSuppliedByPopulation() );
+	Controls.WarWearinessReductionValue:SetText( -pPlayer:GetWarWearinessSupplyReduction() );
     Controls.SupplyCapValue:SetText(        pPlayer:GetNumUnitsSupplied() );
 	-- CBP
-	Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnitsNoCivlian() );
+	Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnitsNoCivilian() );
 	--Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnits() );
 	-- END
     local iSupplyDeficit = pPlayer:GetNumUnitsOutOfSupply();
@@ -112,7 +113,7 @@ function UpdateScreen()
     
     if( not bInDeficit ) then
 	--CBP
-		Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnitsNoCivlian() );
+		Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnitsNoCivilian() );
 		--Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnits() );
 	-- END
     else

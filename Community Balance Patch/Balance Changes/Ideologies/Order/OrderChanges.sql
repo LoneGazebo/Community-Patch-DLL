@@ -31,7 +31,7 @@ WHERE Type = 'POLICY_HERO_OF_THE_PEOPLE' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Party Leadership
 UPDATE Policy_CityYieldChanges
-SET Yield = '2'
+SET Yield = '5'
 WHERE PolicyType = 'POLICY_PARTY_LEADERSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Patriotic War
@@ -103,6 +103,22 @@ UPDATE Policies
 SET OneShot = '1'
 WHERE Type = 'POLICY_YOUNG_PIONEERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+-- Iron Curtain
+
+UPDATE Policies
+SET InternalTradeRouteYieldModifier = '200'
+WHERE Type = 'POLICY_IRON_CURTAIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+-- Dictatorship Proletariat
+-- Iron Curtain
+
+UPDATE Policies
+SET LessHappyTourismModifier = '75'
+WHERE Type = 'POLICY_DICTATORSHIP_PROLETARIAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+-- Spaceflight Engineers
+
+
 -- NEW
 
 INSERT INTO Policy_BuildingClassCultureChanges
@@ -128,7 +144,13 @@ VALUES
 INSERT INTO Policy_YieldChangeTradeRoute
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_IRON_CURTAIN', 'YIELD_GOLD', 3);
+	('POLICY_IRON_CURTAIN', 'YIELD_GOLD', 5),
+	('POLICY_IRON_CURTAIN', 'YIELD_PRODUCTION', 5);
+
+INSERT INTO Policy_YieldGPExpend
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_SPACEFLIGHT_PIONEERS', 'YIELD_SCIENCE', 100);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)

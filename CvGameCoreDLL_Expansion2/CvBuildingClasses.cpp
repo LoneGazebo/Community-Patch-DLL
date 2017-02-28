@@ -114,6 +114,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLocalUnhappinessModifier(0),
 	m_iGlobalBuildingGoldMaintenanceMod(0),
 	m_iBuildingDefenseModifier(0),
+	m_iCitySupplyModifier(0),
+	m_iCitySupplyModifierGlobal(0),
+	m_iCitySupplyFlat(0),
+	m_iCitySupplyFlatGlobal(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -604,6 +608,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iLocalUnhappinessModifier = kResults.GetInt("LocalUnhappinessModifier");
 	m_iGlobalBuildingGoldMaintenanceMod = kResults.GetInt("GlobalBuildingGoldMaintenanceMod");
 	m_iBuildingDefenseModifier = kResults.GetInt("BuildingDefenseModifier");
+	m_iCitySupplyModifier = kResults.GetInt("CitySupplyModifier");
+	m_iCitySupplyModifierGlobal = kResults.GetInt("CitySupplyModifierGlobal");
+	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
+	m_iCitySupplyFlatGlobal = kResults.GetInt("CitySupplyFlatGlobal");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -1850,6 +1858,23 @@ bool CvBuildingEntry::IsAllowsRangeStrike() const
 int CvBuildingEntry::GetBuildingDefenseModifier() const
 {
 	return m_iBuildingDefenseModifier;
+}
+int CvBuildingEntry::GetCitySupplyModifier() const
+{
+	return m_iCitySupplyModifier;
+}
+int CvBuildingEntry::GetCitySupplyModifierGlobal() const
+{
+	return m_iCitySupplyModifierGlobal;
+}
+int CvBuildingEntry::GetCitySupplyFlat() const
+{
+	return m_iCitySupplyFlat;
+
+}
+int CvBuildingEntry::GetCitySupplyFlatGlobal() const
+{
+	return m_iCitySupplyFlatGlobal;
 }
 #endif
 

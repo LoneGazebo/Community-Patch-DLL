@@ -1724,68 +1724,68 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					//This would give us a huge excess.
 					if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 4))
 					{
-						iItemValue *= (50 + iNumTurns);
+						iItemValue *= (25 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us a huge excess.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 					{
-						iItemValue *= (75 + iNumTurns);
+						iItemValue *= (50 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us a mild excess.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 					{
-						iItemValue *= (150 + iNumTurns);
+						iItemValue *= (125 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us a little extra
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 					{
-						iItemValue *= (200 + iNumTurns);
+						iItemValue *= (175 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us enough to meet our needs.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 					{
-						iItemValue *= (250 + iNumTurns);
+						iItemValue *= (200 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us almost enough to meet our needs.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 					{
-						iItemValue *= (300 + iNumTurns);
+						iItemValue *= (250 + iNumTurns);
 						iItemValue /= 100;
 					}
 				}
 				//We have it via trade but we aren't using it.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (75 + iNumTurns);
+					iItemValue *= (50 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We have it at home but we aren't using it.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (75 + iNumTurns);
+					iItemValue *= (50 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We don't have any, trade or not, and we don't use any.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (150 + iNumTurns);
+					iItemValue *= (125 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We don't have any at home and we don't use any.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (150 + iNumTurns);
+					iItemValue *= (125 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//Unaccounted for situation?
 				else
 				{
-					iItemValue *= (100 + iNumTurns);
+					iItemValue *= (75 + iNumTurns);
 					iItemValue /= 100;
 				}
 				// Approach is important
@@ -8655,7 +8655,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	}
 
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
-	iItemValue = iTurnsLeft * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
+	iItemValue = max(15, iTurnsLeft) * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
 	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra + 1)), (double) /*0.7*/ GC.getTECH_COST_ERA_EXPONENT() ) );
 	iItemValue = (int)(iItemValue * fItemMultiplier);
 

@@ -530,18 +530,8 @@ function OnDisplay()
 				bEnablePledgeButton = true;
 			else
 				bEnablePledgeButton = false;
-				strProtectButton = "[COLOR_WARNING_TEXT]" .. strProtectButton .. "[ENDCOLOR]"
-				local iLastTurnPledgeBroken = pPlayer:GetTurnLastPledgeBrokenByMajor(iActivePlayer)
-				local iMilitaryPower = activePlayer:GetMilitaryMightForCS(minorPlayerID)
-				if (iLastTurnPledgeBroken >= 0) then -- (-1) means never happened
-					local iTurnsUntilRecovered = (iLastTurnPledgeBroken + 20) - Game.GetGameTurn()
-					strProtectTT = strProtectTT .. Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_MISTRUST_TT", iTurnsUntilRecovered)
-				elseif(iMilitaryPower < 60) then
-					strProtectTT = strProtectTT .. Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT", iMilitaryPower);
-				else
-					local iMinimumInfForPledge = GameDefines["FRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT"]
-					strProtectTT = strProtectTT .. Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_INFLUENCE_TT", iMinimumInfForPledge)
-				end
+				strProtectTT = strProtectTT .. pPlayer:GetPledgeProtectionInvalidReason(iActivePlayer);
+				strProtectButton = "[COLOR_WARNING_TEXT]" .. strProtectButton .. "[ENDCOLOR]";
 			end
 		end
 	end

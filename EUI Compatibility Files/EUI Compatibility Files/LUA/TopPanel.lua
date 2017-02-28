@@ -532,52 +532,25 @@ local function UpdateTopPanelNow()
 		end
 
 		-----------------------------
+		-- Update Military
+		-----------------------------
+		local iUnitsSupplied = g_activePlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = g_activePlayer:GetNumUnitsNoCivilian();
+
+		if(iUnitsTotal > iUnitsSupplied)then
+			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+		else
+			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] (%i/%i)", iUnitsTotal, iUnitsSupplied ) )
+		end
+
+		Controls.UnitSupplyString:SetHide(false);
+		Controls.UnitSupplyIcon:SetHide(false);
+
+		-----------------------------
 		-- Update Alerts
 		-----------------------------
 
-		local unitSupplyProductionModifier = g_activePlayer:GetUnitProductionMaintenanceMod()
-		local globalProductionModifier = unhappyProductionModifier + unitSupplyProductionModifier
-
-		if globalProductionModifier < 0
-			or unhappyFoodModifier < 0
-			or unhappyGoldModifier < 0
-		then
-			local tips = table()
-
-			if g_activePlayer:IsEmpireVeryUnhappy() then
-				tips:insert( L"TXT_KEY_TP_EMPIRE_VERY_UNHAPPY" )
-
-			elseif g_activePlayer:IsEmpireUnhappy() then
-				tips:insert( L"TXT_KEY_TP_EMPIRE_UNHAPPY" )
-			end
-
-			if unitSupplyProductionModifier < 0 then
-				tips:insert( L("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", g_activePlayer:GetNumUnitsSupplied(), g_activePlayer:GetNumUnitsOutOfSupply(), -unitSupplyProductionModifier ) )
-			end
-
-			local warningText = ""
-			if unhappyFoodModifier < 0 then
-				warningText = S("%+g%%[ICON_FOOD]", unhappyFoodModifier )
-			end
-			if globalProductionModifier < 0 then
-				warningText = warningText .. S("%+g%%[ICON_PRODUCTION]", globalProductionModifier )
-			end
-			if unhappyGoldModifier < 0 then
-				if globalProductionModifier == unhappyGoldModifier then
-					warningText = warningText .. g_currencyIcon
-				else
-					warningText = warningText .. S("%+g%%%s", unhappyGoldModifier, g_currencyIcon )
-				end
-			end
-			Controls.WarningString:SetText( " [COLOR:255:60:60:255]" .. warningText .. "[ENDCOLOR]" )
-
-			Controls.WarningString:SetToolTipString( tips:concat( "[NEWLINE][NEWLINE]" ) )
-			Controls.WarningString:SetHide(false)
-			Controls.UnitSupplyString:SetHide(false)
-		else
-			Controls.WarningString:SetHide(true)
-			Controls.UnitSupplyString:SetHide(true)
-		end
+		Controls.WarningString:SetHide(true)
 
 		-----------------------------
 		-- Update date
@@ -1099,7 +1072,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TILE_MAINT", g_currencyString), improvementMaintenance )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TOP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
 -- CBP
@@ -1317,8 +1290,8 @@ if civ5_mode then
 			
 -- COMMUNITY PATCH CHANGES BELOW
 			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
-			iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + g_activePlayer:GetUnhappinessFromWarWeariness();
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", g_activePlayer:GetUnhappinessFromWarWeariness())		
 			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
 			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
 			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
@@ -2133,6 +2106,61 @@ if civ5_mode and gk_mode then
 	Controls.FaithIcon:RegisterCallback( Mouse.eRClick, OnFaithRClick )
 	Controls.FaithIcon:SetToolTipCallback( requestTextToolTip )
 	Controls.FaithIcon:SetHide( false )
+end
+
+-------------------------------------------------
+-- Military Tooltip & Click Actions
+-------------------------------------------------
+if civ5_mode and gk_mode then
+	g_toolTipHandler.UnitSupplyString = function()-- control )
+
+		local iPlayerID = Game.GetActivePlayer();
+		local pPlayer = Players[iPlayerID];
+
+		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
+		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+		local iWarWearinessReduction = pPlayer:GetWarWeariness();
+		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+	
+		local strUnitSupplyToolTip = "";
+		if(iUnitsOver > 0) then
+			strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
+			strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
+			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
+		end
+
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction);
+
+		if(strUnitSupplyToolTip ~= "") then
+			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
+		else
+			strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
+		end
+
+		local tips = table()
+
+		tips:insert( strUnitSupplyToolTip )	
+
+		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+	end
+
+	g_toolTipHandler.UnitSupplyIcon = g_toolTipHandler.UnitSupplyString
+
+	local function OnUnitSupplyLClick()
+		return GamePopup( ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW )
+	end
+
+	Controls.UnitSupplyString:RegisterCallback( Mouse.eLClick, OnUnitSupplyLClick )
+	Controls.UnitSupplyString:SetToolTipCallback( requestTextToolTip )
+	Controls.UnitSupplyString:SetHide( false )
+	Controls.UnitSupplyIcon:RegisterCallback( Mouse.eLClick, OnUnitSupplyLClick )
+	Controls.UnitSupplyIcon:SetToolTipCallback( requestTextToolTip )
+	Controls.UnitSupplyIcon:SetHide( false )
 end
 
 -------------------------------------------------

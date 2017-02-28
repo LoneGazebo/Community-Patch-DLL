@@ -172,6 +172,9 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 /// Choose a player's next tech research project
 TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 {
+	if (pPlayer->isMinorCiv())
+		return NO_TECH;
+
 	RandomNumberDelegate fcn;
 	TechTypes rtnValue = NO_TECH;
 	int iTechLoop;

@@ -262,7 +262,8 @@ CvMilitaryAI::CvMilitaryAI():
 	m_paeLastTurnTargetValue(NULL),
 	m_iTotalThreatWeight(1),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
-	m_eArmyTypeBeingBuilt(NO_ARMY_TYPE)
+	m_eArmyTypeBeingBuilt(NO_ARMY_TYPE),
+	m_aiWarFocus(NULL)
 {
 }
 
@@ -302,6 +303,9 @@ void CvMilitaryAI::Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	CvAssertMsg(m_paeLastTurnTargetValue==NULL, "about to leak memory, CvMilitaryAI::m_paeLastTurnTargetValue");
 	m_paeLastTurnTargetValue = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
 
+	CvAssertMsg(m_aiWarFocus == NULL, "about to leak memory, CvMilitaryAI::m_aiWarFocus");
+	m_aiWarFocus = FNEW(int[MAX_MAJOR_CIVS], c_eCiv5GameplayDLL, 0);
+
 	Reset();
 }
 
@@ -315,6 +319,7 @@ void CvMilitaryAI::Uninit()
 	SAFE_DELETE_ARRAY(m_paeLastTurnMilitaryThreat);
 	SAFE_DELETE_ARRAY(m_paeLastTurnMilitaryStrength);
 	SAFE_DELETE_ARRAY(m_paeLastTurnTargetValue);
+	SAFE_DELETE_ARRAY(m_aiWarFocus);
 }
 
 /// Reset AIStrategy status array to all false
@@ -345,7 +350,10 @@ void CvMilitaryAI::Reset()
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iCurrentWarFocus = 0;
+	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		m_aiWarFocus[iI] = 0;
+	}
 	m_iRecNavySize = 0;
 	m_iFreeCarrier = 0;
 	m_iFreeCargo = 0;
@@ -385,7 +393,6 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	kStream >> m_iNumNavalUnits;
 	kStream >> m_iRecommendedMilitarySize;
 	kStream >> m_iRecNavySize;
-	kStream >> m_iCurrentWarFocus;
 	kStream >> m_iFreeCarrier;
 	kStream >> m_iFreeCargo;
 	//first get how many entries we have
@@ -433,6 +440,9 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> wrapm_paeLastTurnTargetValue(MAX_CIV_PLAYERS, m_paeLastTurnTargetValue);
 	kStream >> wrapm_paeLastTurnTargetValue;
+
+	ArrayWrapper<int> wrapm_aiWarFocus(MAX_MAJOR_CIVS, m_aiWarFocus);
+	kStream >> wrapm_aiWarFocus;
 }
 
 /// Serialization write
@@ -454,7 +464,6 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << m_iNumNavalUnits;
 	kStream << m_iRecommendedMilitarySize;
 	kStream << m_iRecNavySize;
-	kStream << m_iCurrentWarFocus;
 	kStream << m_iFreeCarrier;
 	kStream << m_iFreeCargo;
 
@@ -500,6 +509,7 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnMilitaryThreat);
 	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnMilitaryStrength);
 	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeLastTurnTargetValue);
+	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_aiWarFocus);
 }
 
 /// Returns the Player object the Strategies are associated with
@@ -5900,18 +5910,117 @@ void CvMilitaryAI::MinorAttackTest()
 	}
 }
 //Gets the type of war the player is, overall, facing (used to decide production). 1 is land, 2 is sea (thanks, Paul Revere).
-int CvMilitaryAI::GetWarType()
+int CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 {
-	return m_iCurrentWarFocus;
+	int iLand = 0;
+	int iSea = 0;
+	//No player? Let's get majority.
+	if (ePlayer == NO_PLAYER)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				int iWar = GetWarType(eLoopPlayer);
+				if (iWar == 1)
+				{
+					iLand++;
+				}
+				else if (iWar == 2)
+				{
+					iSea++;
+				}
+			}
+
+		}
+		if (iLand >= iSea)
+		{
+			return 1;
+		}
+		else
+		{
+			return 2;
+		}
+	}
+	return m_aiWarFocus[ePlayer];
 }
 void CvMilitaryAI::UpdateWarType()
 {
 	int iEnemyWater = 0;
 	int iEnemyLand = 0;
-	m_iCurrentWarFocus = 0;
 	int iLoop;
 
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	int iFriendlyLand = 0;
+	int iFriendlySea = 0;
+
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
+		{
+			if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+			{
+				if (pLoopUnit->isRanged())
+				{
+					iFriendlySea += pLoopUnit->GetBaseRangedCombatStrength();
+				}
+				else
+				{
+					iFriendlySea += pLoopUnit->GetBaseCombatStrength();
+				}
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+			{
+				if (pLoopUnit->isRanged())
+				{
+					iFriendlyLand += pLoopUnit->GetBaseRangedCombatStrength();
+				}
+				else
+				{
+					iFriendlyLand += pLoopUnit->GetBaseCombatStrength();
+				}
+			}
+		}
+	}
+
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		if (pLoopCity != NULL)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+				{
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+					{
+						if (pLoopCity->isCoastal())
+						{
+							iFriendlySea += 50;
+						}
+						else
+						{
+							iFriendlyLand += 50;
+						}
+						if (pLoopCity->IsInDanger(eLoopPlayer))
+						{
+							if (pLoopCity->isCoastal())
+							{
+								iFriendlySea += 50;
+							}
+							else
+							{
+								iFriendlyLand += 50;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//And now theirs...
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{	
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
@@ -5924,18 +6033,52 @@ void CvMilitaryAI::UpdateWarType()
 					{
 						if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
-							iEnemyWater++;
-							if(pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
+							if (pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
 							{
-								iEnemyWater++;
+								if (pLoopUnit->isRanged())
+								{
+									iEnemyWater += pLoopUnit->GetBaseRangedCombatStrength() * 2;
+								}
+								else
+								{
+									iEnemyWater += pLoopUnit->GetBaseCombatStrength() * 2;
+								}
 							}
+							else
+							{
+								if (pLoopUnit->isRanged())
+								{
+									iEnemyWater += pLoopUnit->GetBaseRangedCombatStrength();
+								}
+								else
+								{
+									iEnemyWater += pLoopUnit->GetBaseCombatStrength();
+								}
+							}				
 						}
 						else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 						{
-							iEnemyLand++;
-							if(pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
+							if (pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
 							{
-								iEnemyLand++;
+								if (pLoopUnit->isRanged())
+								{
+									iEnemyLand += pLoopUnit->GetBaseRangedCombatStrength() * 2;
+								}
+								else
+								{
+									iEnemyLand += pLoopUnit->GetBaseCombatStrength() * 2;
+								}
+							}
+							else
+							{
+								if (pLoopUnit->isRanged())
+								{
+									iEnemyLand += pLoopUnit->GetBaseRangedCombatStrength();
+								}
+								else
+								{
+									iEnemyLand += pLoopUnit->GetBaseCombatStrength();
+								}
 							}
 						}
 					}
@@ -5946,26 +6089,55 @@ void CvMilitaryAI::UpdateWarType()
 				{
 					if(pLoopCity != NULL)
 					{
+						if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
+						{
+							if (pLoopCity->isCoastal())
+							{
+								iFriendlySea += 50;
+							}
+							else
+							{
+								iFriendlyLand += 50;
+							}
+						}
 						if(pLoopCity->isCoastal())
 						{
-							iEnemyWater += 3;
+							iEnemyWater += 50;
 						}
 						else
 						{
-							iEnemyLand += 3;
+							iEnemyLand += 50;
 						}
 					}
 				}
 			}
+			if (iEnemyWater > iFriendlySea && m_aiWarFocus[eLoopPlayer] != 2)
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strTemp;
+					CvString strLogString;
+					strLogString.Format("War Type versus %s now WATER. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
+					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
+				}
+				m_aiWarFocus[eLoopPlayer] = 2;
+			}
+			else if (iEnemyLand > iFriendlyLand && (iEnemyLand != 0) && m_aiWarFocus[eLoopPlayer] != 1)
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strTemp;
+					CvString strLogString;
+					strLogString.Format("War Type versus %s now LAND. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
+					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
+				}
+				m_aiWarFocus[eLoopPlayer] = 1;
+			}
+			else
+			{
+				m_aiWarFocus[eLoopPlayer] = 0;
+			}		
 		}
-	}
-	if(iEnemyWater > iEnemyLand)
-	{
-		m_iCurrentWarFocus = 2;
-	}
-	else if(iEnemyLand >= iEnemyWater)
-	{
-		m_iCurrentWarFocus = 1;
 	}
 }
 void CvMilitaryAI::SetNumFreeCargo(int iValue)

@@ -312,7 +312,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		return;
 	}
 	//Don't burn down gifts, that makes you look ungrateful.
-	if(bGift)
+	if (bGift && eOriginalOwner != GetID())
 	{
 		pCity->DoCreatePuppet();
 		return;

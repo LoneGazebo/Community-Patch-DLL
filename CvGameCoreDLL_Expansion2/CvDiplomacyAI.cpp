@@ -3940,8 +3940,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	if((m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy()) || m_pPlayer->IsEmpireVeryUnhappy())
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -10;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -10;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -(m_pPlayer->GetCulture()->GetWarWeariness() / 2);
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -(m_pPlayer->GetCulture()->GetWarWeariness() / 2);
 	}
 
 	////////////////////////////////////
@@ -4078,6 +4078,20 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						case MAJOR_CIV_APPROACH_GUARDED:
 							viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL];
 							break;
+					}
+					//Has a defensive pact with him? Let's reduce our war interest.
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+					{
+						// Approaches already assigned to other higher-priority Majors
+						switch (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false))
+						{
+						case MAJOR_CIV_APPROACH_HOSTILE:
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3;
+							break;
+						case MAJOR_CIV_APPROACH_WAR:
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3;
+							break;
+						}
 					}
 				}
 			}
@@ -7458,7 +7472,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 				// If we're out for conquest then no peace!
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				//Correction - we want conquest, but if the war has stalled out and/or we're losing all our wars, let's consider peace.
-				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST || GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE || GetStateAllWars() == STATE_ALL_WARS_LOSING)
+				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST || GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE || GetStateAllWars() == STATE_ALL_WARS_LOSING || GetPlayer()->IsEmpireVeryUnhappy())
 #else
 				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST)
 #endif
@@ -7472,11 +7486,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					{
 						if (iWarScore <= 0)
 						{
-							iWillingToOfferScore += GetPlayer()->GetCulture()->GetWarWeariness();
+							iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
 						}
 						else
 						{
-							iWillingToAcceptScore -= GetPlayer()->GetCulture()->GetWarWeariness();
+							iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
 						}
 					}
 #endif
@@ -7726,6 +7740,12 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #endif
 
 #if defined(MOD_BALANCE_CORE)
+	if (!GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95)
+			return true;
+	}
+
 	if (GET_PLAYER(ePlayer).HasCityAboutToBeConquered() && !m_pPlayer->HasCityAboutToBeConquered())
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -7890,9 +7910,19 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		int iRequestPeaceTurnThreshold = /*10*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		iRequestPeaceTurnThreshold -= m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
+		int iWantPeace = 0;
 		//negative warscore means we're losing - so peace desire is higher!
-		int iWantPeace = -(m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 10);
-		
+		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) < 0)
+		{
+			iWantPeace += ((m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 10) * -1);
+		}
+		else
+		{
+			iWantPeace -= (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 15);
+		}
+
+		iWantPeace += (m_pPlayer->GetCulture()->GetWarWeariness() / 5);
+
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
 		int iTheirDanger = 0;
@@ -7955,7 +7985,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 
 		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
-			iWantPeace += (m_pPlayer->GetCulture()->GetWarWeariness() / 5);
+			iWantPeace += (m_pPlayer->GetCulture()->GetWarWeariness() / 2);
 		}
 
 		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
@@ -8972,7 +9002,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	if(bUsePeacetimeCalculation)
 	{
 		// Their Military Strength compared to us
-		switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+		switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
 			case STRENGTH_PATHETIC:
 				iWarScore += 50;
@@ -9085,7 +9115,7 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		int iWarDurationUs = GetPlayerNumTurnsSinceCityCapture(ePlayer);
 		int iWarDurationThem = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID());
 		int iWarDuration = min(iWarDurationUs, iWarDurationThem);
-		iWarDuration /= 8;
+		iWarDuration /= 5;
 		if(iWarDuration > 0)
 		{	
 			if(iAverageScore > 0)
@@ -9345,7 +9375,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 
 						// If we think the war will go well, we can aim for conquest, which means we will not make peace
 #if defined(MOD_BALANCE_CORE)
-						if(eProjection > WAR_PROJECTION_UNKNOWN)
+						if (eProjection > WAR_PROJECTION_UNKNOWN)
 #else
 						if(eProjection >= WAR_PROJECTION_UNKNOWN)
 #endif
@@ -9360,11 +9390,11 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 						}
 #if defined(MOD_BALANCE_CORE)
 						// Let's consider peace if we've been fighting for a long time.
-						else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+						if(GetPlayerNumTurnsAtWar(eLoopPlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							if( GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(eLoopPlayer).getTeam()))
 							{
-								if (GetPlayer()->GetCulture()->GetWarWeariness() > 10 || GetPlayer()->IsEmpireVeryUnhappy())
+								if ((GetPlayer()->GetCulture()->GetWarWeariness() > GetPlayerNumTurnsAtWar(eLoopPlayer)) || GetPlayer()->IsEmpireVeryUnhappy())
 								{
 									if (GC.getLogging() && GC.getAILogging())
 									{
@@ -9396,7 +9426,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 										otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
 										strBaseString += playerName + " VS. " + otherPlayerName;
 
-										strOutBuf.Format("Unhappy or War Weary, we want peace!");
+										strOutBuf.Format("Unhappy or Very War Weary, we want peace!");
 										strBaseString += strOutBuf;
 										pLog->Msg(strBaseString);
 									}
@@ -9410,7 +9440,7 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 										int iWarScoreWeWantPeace = ((GetMeanness()) * -9);
 										iWarScoreWeWantPeace += GetPlayerNumTurnsAtWar(eLoopPlayer); // -30, but at war for 10 turns? -20 works.
 
-										//Want -30, at -20?
+										//Want -20, at -30?
 										if (iWarScoreWeWantPeace >= iWarScore)
 										{
 											if (GC.getLogging() && GC.getAILogging())
@@ -10303,6 +10333,49 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 					iThirdPartyValue *= /* 200*/ GC.getTARGET_MINOR_BACKUP_NEIGHBORS();
 
 				iThirdPartyValue /= 150;
+
+				// Add the strength of this friend in to the overall eval
+				iOtherPlayerMilitaryStrength += iThirdPartyValue;
+			}
+		}
+		//Grab their DPs
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+
+			if (IsPlayerValid(eMajor) && GET_TEAM(GET_PLAYER(eMajor).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+			{
+				iThirdPartyValue = 0;
+				eThirdPartyStrength = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eMajor);
+				eThirdPartyProximity = GET_PLAYER(ePlayer).GetProximityToPlayer(eMajor);
+
+				// How strong is this friend?
+				if (eThirdPartyStrength == STRENGTH_PATHETIC)
+					iThirdPartyValue += /* 0*/ GC.getTARGET_MINOR_BACKUP_PATHETIC();
+				else if (eThirdPartyStrength == STRENGTH_WEAK)
+					iThirdPartyValue += /* 0*/ GC.getTARGET_MINOR_BACKUP_WEAK();
+				else if (eThirdPartyStrength == STRENGTH_POOR)
+					iThirdPartyValue += /* 5*/ GC.getTARGET_MINOR_BACKUP_POOR();
+				else if (eThirdPartyStrength == STRENGTH_AVERAGE)
+					iThirdPartyValue += /* 15*/ GC.getTARGET_MINOR_BACKUP_AVERAGE();
+				else if (eThirdPartyStrength == STRENGTH_STRONG)
+					iThirdPartyValue += /* 25*/ GC.getTARGET_MINOR_BACKUP_STRONG();
+				else if (eThirdPartyStrength == STRENGTH_POWERFUL)
+					iThirdPartyValue += /* 35*/ GC.getTARGET_MINOR_BACKUP_POWERFUL();
+				else if (eThirdPartyStrength == STRENGTH_IMMENSE)
+					iThirdPartyValue += /* 50*/ GC.getTARGET_MINOR_BACKUP_IMMENSE();
+
+				// How close is this guy to us?
+				if (eThirdPartyProximity == PLAYER_PROXIMITY_DISTANT)
+					iThirdPartyValue *= /* 100*/ GC.getTARGET_MINOR_BACKUP_DISTANT();
+				else if (eThirdPartyProximity == PLAYER_PROXIMITY_FAR)
+					iThirdPartyValue *= /* 115*/ GC.getTARGET_MINOR_BACKUP_FAR();
+				else if (eThirdPartyProximity == PLAYER_PROXIMITY_CLOSE)
+					iThirdPartyValue *= /* 150*/ GC.getTARGET_MINOR_BACKUP_CLOSE();
+				else if (eThirdPartyProximity == PLAYER_PROXIMITY_NEIGHBORS)
+					iThirdPartyValue *= /* 200*/ GC.getTARGET_MINOR_BACKUP_NEIGHBORS();
+
+				iThirdPartyValue /= 100;
 
 				// Add the strength of this friend in to the overall eval
 				iOtherPlayerMilitaryStrength += iThirdPartyValue;
@@ -12148,6 +12221,15 @@ bool CvDiplomacyAI::IsNukedBy(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer)
 {
 	if(m_pPlayer->IsHasLostCapital() && m_pPlayer->GetCapitalConqueror() == ePlayer)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer)
+{
+	if (m_pPlayer->IsHasLostHolyCity() && m_pPlayer->GetHolyCityConqueror() == ePlayer)
 	{
 		return true;
 	}
@@ -18695,7 +18777,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #endif
 
 	// Do we want peace with ePlayer?
-	else if(eStatement == DIPLO_STATEMENT_REQUEST_PEACE)
+	else if (eStatement == DIPLO_STATEMENT_REQUEST_PEACE)
 	{
 		if(bHuman)
 		{
@@ -22791,6 +22873,10 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	if (!IsAtWar(ePlayer))
+	{
+		return;
+	}
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 #if !defined(MOD_BALANCE_CORE)
@@ -22805,7 +22891,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		if(IsWantsPeaceWithPlayer(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST_PEACE;
-			int iTurnsBetweenStatements = 10;
+			int iTurnsBetweenStatements = 5;
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 			{
@@ -32836,7 +32922,7 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetHasAdoptedHisReligionScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(m_pPlayer->GetReligions()->HasOthersReligionInMostCities(ePlayer))
+	if(m_pPlayer->GetReligions()->HasOthersReligionInMostCities(ePlayer) && !IsHolyCityCapturedBy(ePlayer))
 	{
 		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
 	}
@@ -33778,6 +33864,14 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
+int CvDiplomacyAI::GetHolyCityCapturedByScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	if (IsHolyCityCapturedBy(ePlayer))
+		iOpinionWeight += /*80*/ GC.getOPINION_WEIGHT_CAPTURED_CAPITAL();
+	return iOpinionWeight;
+}
+
 int CvDiplomacyAI::GetGaveAssistanceToScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
@@ -34155,17 +34249,56 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 		ProjectTypes boosterID = (ProjectTypes) GC.getSPACESHIP_BOOSTER();
 		ProjectTypes stasisID = (ProjectTypes) GC.getSPACESHIP_STASIS();
 		ProjectTypes engineID = (ProjectTypes) GC.getSPACESHIP_ENGINE();
+		ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
 
 		int iValue = GET_TEAM(GetPlayer()->getTeam()).getProjectCount(capsuleID);
 		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(boosterID);
 		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(stasisID);
 		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(engineID);
-		
+		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(ApolloProgram);
+
+		int iTotalTechs = GC.getNumTechInfos();
+		iTotalTechs *= 8;
+		iTotalTechs /= 10;
 		if(iValue >= 2)
 		{
 			return true;
 		}
+		
+		else if(GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() >= iTotalTechs)
+		{
+			PlayerTypes eLoopPlayer;
+			int iNumCivsAheadScience = 0;
+			int iNumCivsBehindScience = 0;
+			int iNumCivsAlive = 0;
+
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
+
+				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != m_pPlayer->GetID())
+				{
+					if (GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() > GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown())
+					{
+						iNumCivsAheadScience++;
+					}
+					else
+					{
+						iNumCivsBehindScience++;
+					}
+					iNumCivsAlive++;
+				}
+			}
+			if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
+			{
+				return true;
+			}
+		}
 	}
+
+	
+
 	return false;
 }
 bool CvDiplomacyAI::IsCloseToDominationVictory()
@@ -36764,6 +36897,9 @@ void CvDiplomacyAI::LogWarStatus()
 						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetWarScore(eLoopPlayer));
 						strOutBuf += ", " + strTemp;
 					}
+
+					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetCulture()->GetWarWeariness(), m_pPlayer->GetNumUnitsSupplied());
+					strOutBuf += ", " + strTemp;
 #endif
 					pLog->Msg(strOutBuf);
 				}

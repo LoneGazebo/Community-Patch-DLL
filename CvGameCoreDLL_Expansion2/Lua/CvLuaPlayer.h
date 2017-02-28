@@ -372,6 +372,9 @@ protected:
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
+	LUAAPIEXTN(GetWarWeariness, int);
+	LUAAPIEXTN(SetWarWeariness, int);
+	LUAAPIEXTN(GetWarWearinessSupplyReduction, int);
 #endif
 	static int lGetUnhappinessFromUnits(lua_State* L);
 	static int lChangeUnhappinessFromUnits(lua_State* L);
@@ -836,6 +839,7 @@ protected:
 	static int lSetBullyUnit(lua_State* L);
 	static int lGetBullyUnit(lua_State* L);
 	static int lGetYieldTheftAmount(lua_State* L);
+	static int lGetPledgeProtectionInvalidReason(lua_State* L);
 #endif
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
@@ -970,7 +974,7 @@ protected:
 	static int lGetUnits(lua_State* L);
 	static int lGetNumUnits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
-	static int lGetNumUnitsNoCivlian(lua_State* L);
+	static int lGetNumUnitsNoCivilian(lua_State* L);
 #endif
 	static int lGetUnitByID(lua_State* L);
 

@@ -510,7 +510,7 @@
 			<PromotionPrereqOr2>PROMOTION_TARGETING_3</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
 			<ExtraAttacks>1</ExtraAttacks>
-			<RangedAttackModifier>-20</RangedAttackModifier>
+			<RangedAttackModifier>-30</RangedAttackModifier>
 			<PortraitIndex>30</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>

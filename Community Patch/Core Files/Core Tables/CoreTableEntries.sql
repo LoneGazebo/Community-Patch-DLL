@@ -553,6 +553,15 @@ ALTER TABLE Buildings ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 -- Allows you to define an amount that a unit will heal in a city whether or not it took an action this turn.
 ALTER TABLE Buildings ADD COLUMN 'AlwaysHeal' INTEGER DEFAULT 0;
 
+-- Allows you to define an amount that a city will increase your unit supply cap by x% per pop.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyModifier' INTEGER DEFAULT 0;
+-- Allows you to define an amount that a city will increase your unit supply cap by x% per pop globally.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyModifierGlobal' INTEGER DEFAULT 0;
+-- Allows you to define an amount that a city will increase your unit supply cap by a flat value.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlat' INTEGER DEFAULT 0;
+-- Allows you to define an amount that a city will increase your unit supply cap by a flat value globally.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlatGlobal' INTEGER DEFAULT 0;
+
 -- Tourism Mod, global, from WC
 ALTER TABLE Resolutions ADD COLUMN 'TourismMod' integer default 0;
 
@@ -590,8 +599,16 @@ ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
 -- Allows you to set whether or not partisans spawn from razing cities (via policy)
 ALTER TABLE Policies ADD COLUMN 'NoPartisans' BOOLEAN DEFAULT 0;
 
+-- Allows you to set a % of warscore that is added to a tourism bonus against a civ
+ALTER TABLE Policies ADD COLUMN 'PositiveWarScoreTourismMod' INTEGER DEFAULT 0;
+
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
+
+-- Allows for Unit to gain more yields and experience from a ruin
+ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
+-- Allows for Unit to increase your supply cap.
+ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
 
 
 -- Grants resource to improvement
@@ -841,6 +858,10 @@ ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 -- Resources
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
+
+ALTER TABLE Policies ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'HappinessPerXPolicies' INTEGER DEFAULT 0;
 
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;

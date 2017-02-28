@@ -404,7 +404,9 @@ VALUES
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_CEILIDH_HALL', 'YIELD_FAITH', 1);
+	('BUILDING_CEILIDH_HALL', 'YIELD_FAITH', 1),
+	('BUILDING_BASILICA', 'YIELD_CULTURE', 2),
+	('BUILDING_BASILICA', 'YIELD_FAITH', 3);
 
 INSERT INTO Building_InstantYield
 	(BuildingType, YieldType, Yield)

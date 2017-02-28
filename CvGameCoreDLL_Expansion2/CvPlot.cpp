@@ -10255,7 +10255,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 					if(iBonus > 0)
 					{
-						if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
+						if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
 						{
 							int iScale = 0;
 							int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -15589,27 +15589,34 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			{
 				iAdjacentUnowned++;
 			}
+
 			else if(pLoopAdjacentPlot->getOwner() != eOwner && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
-				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
-				if(pNeighborAdjacent != NULL)
+				if (!GET_PLAYER(eOwner).isHuman())
 				{
-					if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) <= MAJOR_CIV_OPINION_NEUTRAL)
+					pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
+					if (pNeighborAdjacent != NULL)
 					{
-						iBadAdjacent++;
+						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) <= MAJOR_CIV_OPINION_NEUTRAL)
+						{
+							iBadAdjacent++;
+						}
 					}
 				}
 			}
 			else if(pLoopAdjacentPlot->getOwner() != eOwner && (GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
-				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
-				if(pNeighborAdjacent != NULL)
+				if (!GET_PLAYER(eOwner).isHuman())
 				{
-					if(GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborAdjacent) >= MINOR_CIV_APPROACH_CONQUEST)
+					pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
+					if (pNeighborAdjacent != NULL)
 					{
-						iBadAdjacent++;
+						if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetMinorCivApproach(pNeighborAdjacent) >= MINOR_CIV_APPROACH_CONQUEST)
+						{
+							iBadAdjacent++;
+						}
 					}
 				}
 			}
@@ -15674,6 +15681,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this);
 
 		iScore += defenseModifier(eTeam, true, true);
+
+		ImprovementTypes eCurrentImprovement = getImprovementType();
+
+		if (eCurrentImprovement != NO_IMPROVEMENT)
+		{
+			if (GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() > 0)
+			{
+				iScore -= GC.getImprovementInfo(eCurrentImprovement)->GetDefenseModifier() * 2;
+			}
+		}
 
 		//Bonus for nearby owned tiles
 		iScore += (iNearbyOwned * 3);

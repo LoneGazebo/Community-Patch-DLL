@@ -668,7 +668,7 @@ bool CvCityStrategyAI::IsYieldDeficient(YieldTypes eYieldType)
 	double fYieldAverage = GetYieldAverage(eYieldType);
 
 	int iDesiredYield = (int)citystrategyround(fDesiredYield * 100);
-	int iYieldAverage = (int)citystrategyround(fYieldAverage * 100);
+	int iYieldAverage = (int)citystrategyround(fYieldAverage);
 
 	if(iYieldAverage < iDesiredYield)
 	{
@@ -692,7 +692,7 @@ YieldTypes CvCityStrategyAI::GetMostDeficientYield()
 		double fYieldAverage = GetYieldAverage(yield);
 
 		int iDesiredYield = (int)citystrategyround(fDesiredYield * 100);
-		int iYieldAverage = (int)citystrategyround(fYieldAverage * 100);
+		int iYieldAverage = (int)citystrategyround(fYieldAverage);
 		
 		int iDiff = iDesiredYield - iYieldAverage;
 
@@ -714,7 +714,7 @@ YieldTypes CvCityStrategyAI::GetHighestYield()
 		YieldTypes yield = (YieldTypes)ui;
 		double fYieldAverage = GetYieldAverage(yield);
 
-		int iYieldAverage = (int)citystrategyround(fYieldAverage * 100);
+		int iYieldAverage = (int)citystrategyround(fYieldAverage);
 		
 		if(iYieldAverage > iBestDiff)
 		{
@@ -763,10 +763,10 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 		{
 			return;
 		}
-		int iYield = m_pCity->getYieldRate(eYield, false);
+		int iYield = m_pCity->getYieldRateTimes100(eYield, false);
 		if(eYield == YIELD_FOOD)
 		{
-			iYield -= m_pCity->foodConsumption();
+			iYield -= (m_pCity->foodConsumption() * 100);
 		}
 		
 		iYield /= max(1, m_pCity->getPopulation());
@@ -4301,7 +4301,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if (iTotalGPPChange >= 1500)
+	if (iTotalGPPChange >= 2000)
 #else
 	if (iTotalGPPChange >= 800)
 #endif
@@ -4660,6 +4660,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += (pkBuildingInfo->GetThemingYieldBonus(eYield) * 5);
 	}
 
+	if (pCity->GetEventBuildingClassCityYield((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
+	{
+		iFlatYield += (pCity->GetEventBuildingClassCityYield((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
+	}
+
 	if (pCity->plot()->isRiver() && pkBuildingInfo->GetRiverPlotYieldChange(eYield) > 0)
 	{
 		iFlatYield += (pkBuildingInfo->GetRiverPlotYieldChange(eYield) * pCity->countNumRiverPlots());
@@ -4924,6 +4929,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 		}
 	}
+	if (pkBuildingInfo->GetYieldPerAlly(eYield) > 0)
+	{
+		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * kPlayer.GetNumCSAllies());
+	}
+	if (pkBuildingInfo->GetYieldPerFriend(eYield) > 0)
+	{
+		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * kPlayer.GetNumCSFriends());
+	}
 
 	///////////////
 	// Instant Yields
@@ -5065,6 +5078,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				}
 			}
 		}
+	}
+
+	if (pCity->GetEventBuildingClassCityYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
+	{
+		iModifier += (pCity->GetEventBuildingClassCityYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 2);
 	}
 
 	if (pkBuildingInfo->GetYieldFromWLTKD(eYield) > 0)
@@ -5239,7 +5257,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			AICityStrategyTypes eNeedFaith = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_FAITH_BUILDING");
 			if (eNeedFaith != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFaith))
 			{
-				iYieldValue *= 20;
+				iYieldValue *= 4;
 			}
 			EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
