@@ -7088,7 +7088,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			strTemp = pUnit->getUnitInfo().GetDescription();
 
 			// LAND MOVES
-			if(pUnit->getDomainType() == DOMAIN_LAND && !pUnit->isEmbarked())
+			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				//try offensive first, then defensive
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
@@ -9175,10 +9175,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 			if(iMinHitpoints>0 && pLoopUnit->GetCurrHitPoints()<iMinHitpoints)
 				continue;
 
-			if (!bMustPillage && iMaxHitpoints>0 && pLoopUnit->GetCurrHitPoints()>iMaxHitpoints)
-				continue;
-
-			if (bMustPillage && pLoopUnit->getDamage() <= 0)
+			if(iMaxHitpoints>0 && pLoopUnit->GetCurrHitPoints()>iMaxHitpoints)
 				continue;
 
 			//performance optimization
@@ -12352,6 +12349,15 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC) 
 
+//Unbelievable bad logic but taken like this from CvUnitCombat
+bool AttackEndsTurn(const CvUnit* pUnit, int iNumAttacksLeft)
+{
+	if(!pUnit->canMoveAfterAttacking() && !pUnit->isRangedSupportFire() && iNumAttacksLeft<1)
+		return true;
+
+	return false;
+}
+
 int NumAttacksForUnit(int iMovesLeft, int iMaxAttacks)
 {
 	return max(0, min( (iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR(), iMaxAttacks ));
@@ -12457,12 +12463,6 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	else
 		result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEATTACK : STacticalAssignment::A_MELEEATTACK;
 
-	//what happens next?
-	if (pUnit->canMoveAfterAttacking())
-		result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
-	else
-		result.iRemainingMoves = 0;
-
 	//finally the almighty score
 	float fAggFactor = -1;
 	int iHPbelowHalf = pUnit->GetMaxHitPoints()/2 - (pUnit->GetCurrHitPoints() - iDamageReceived);
@@ -12507,8 +12507,6 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		
 	//how often can we attack this turn
 	int iMaxAttacks = unit.iAttacksLeft;
-	if (!pUnit->canMoveAfterAttacking())
-		iMaxAttacks = min(1, iMaxAttacks);
 	if (unit.iMovesLeft == 0)
 		iMaxAttacks = 0;
 
@@ -12542,6 +12540,12 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				ScoreAttack(currentPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getUnitNumberRatio(), result);
 				if (result.iScore<0)
 					return result;
+
+				//what happens next?
+				if (AttackEndsTurn(pUnit,iMaxAttacks-1))
+					result.iRemainingMoves = 0;
+				else
+					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
 				//don't break formation if there are many enemies around
 				if (result.eType == STacticalAssignment::A_MELEEKILL && currentPlot.getNumAdjacentEnemies()>3)
@@ -12599,7 +12603,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			return result;
 
 		//parthian moves: no use staying close after we made our attack
-		if (iMaxAttacks==0 && pUnit->canMoveAfterAttacking())
+		if (plot.iMovesLeft>0 && iMaxAttacks==0)
 			iDistanceScore = currentPlot.getNumAdjacentEnemies() > 0 ? 1 : 2;
 
 		//check all plots we could possibly attack from here
@@ -12631,6 +12635,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					//we don't care for damage here but let's reuse the scoring function
 					STacticalAssignment temp; 
 					ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getUnitNumberRatio(), temp);
+
 					if (temp.iScore>0)
 					{
 						//don't break formation if there are many enemies around
@@ -12703,7 +12708,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 		//does it make sense to pillage here?
 		if (result.eType == STacticalAssignment::A_ENDTURN && unit.iMovesLeft > 0 && 
-			pUnit->canPillage(pAssumedUnitPlot) && ((pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT()) || kPlayer.GetDiplomacyAI()->GetWarGoal(pCurrentPlot->getOwner()) == WAR_GOAL_DAMAGE))
+			pUnit->canPillage(pAssumedUnitPlot) && pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT())
 		{
 			result.iScore += 2;
 			result.eType = STacticalAssignment::A_PILLAGE;
@@ -13035,6 +13040,12 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 					ScoreAttack(currentPlot, pUnit, assumedUnitPlot, getAggressionLevel(), getUnitNumberRatio(), move);
 					if (move.iScore<0)
 						continue;
+
+					//what happens next?
+					if (AttackEndsTurn(pUnit,unit.iAttacksLeft-1))
+						move.iRemainingMoves = 0;
+					else
+						move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
 					if ( *it==getTarget()->GetPlotIndex() )
 						move.iScore += 10; //a slight boost for attacking the "real" target

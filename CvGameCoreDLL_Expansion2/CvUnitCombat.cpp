@@ -3582,10 +3582,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	// Unit that attacks loses his Fort bonus
 	kAttacker.setFortifyTurns(0);
 
-	CvUnit* pDefender;
-	pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
-
-	// JAR - without pDefender, nothing in here is going to work, just crash
+	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
 	if(!pDefender)
 	{
 		return eResult;
