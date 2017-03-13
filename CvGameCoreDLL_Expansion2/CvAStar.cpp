@@ -2885,7 +2885,6 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
-	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
 	if (pToPlot->isCity())
 	{
@@ -2893,11 +2892,6 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 	}
 
 	if (pToPlot->isWater() || !pToPlot->isRevealed(pCacheData->GetTeam()))
-	{
-		return FALSE;
-	}
-
-	if(pFromPlot->getArea() != pToPlot->getArea())
 	{
 		return FALSE;
 	}

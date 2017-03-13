@@ -6612,7 +6612,6 @@ void CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	//todos:
 	//
 	// - embarked units are ignored. too much hassle
-	// - danger calc not updated after killing an enemy
 	// - defensive variant
 	// - improve danger calc by applying simulation to enemy
 	// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
