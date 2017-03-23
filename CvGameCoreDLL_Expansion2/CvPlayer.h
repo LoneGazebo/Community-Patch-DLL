@@ -410,9 +410,9 @@ public:
 	int calculateUnitGrowthMaintenanceMod() const;
 
 	int GetNumUnitsSupplied() const;
-	int GetNumUnitsSuppliedByHandicap() const;
-	int GetNumUnitsSuppliedByCities() const;
-	int GetNumUnitsSuppliedByPopulation() const;
+	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
+	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
+	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
 
 	int GetNumUnitsOutOfSupply() const;
 #if defined(MOD_BALANCE_CORE)

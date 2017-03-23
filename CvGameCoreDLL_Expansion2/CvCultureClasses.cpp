@@ -5291,7 +5291,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	//but if we have a war going, it will generate rising unhappiness	
 	if(iMostWarTurns > 0)
 	{
-		int iInfluenceModifier = max(1, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 5));
+		int iInfluenceModifier = max(3, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 5));
 
 		int iWarValue = 0;
 
@@ -5299,6 +5299,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
 		
 		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iTechProgress *= 2;
 
 		iWarValue *= (100 + iTechProgress);
 		iWarValue /= 100;

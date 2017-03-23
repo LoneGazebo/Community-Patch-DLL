@@ -13172,9 +13172,6 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		if(pBestCity != NULL)
 		{
-			// Game Speed Mod
-			iFreeTiles *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-			iFreeTiles /= 100;
 
 			if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
 			{
@@ -14312,7 +14309,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(MOD_BALANCE_CORE_MILITARY && !isHuman())
 	{
-		if (((pUnitInfo.GetCombat() > 0) || (pUnitInfo.GetRangedCombat() > 0)) && !isBarbarian() && GetNumUnitsOutOfSupply() > 0)
+		if (((pUnitInfo.GetCombat() > 0) || (pUnitInfo.GetRangedCombat() > 0)) && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
 		{
 			return false;
 		}
@@ -14461,7 +14458,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(!bTestVisible)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY && pUnitInfo.GetCombat() > 0 && !isBarbarian() && GetNumUnitsOutOfSupply() > 0)
+		if (MOD_BALANCE_CORE_MILITARY && pUnitInfo.GetCombat() > 0 && !isBarbarian() && GetNumUnitsOutOfSupply() > 15)
 		{
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 			if(toolTipSink == NULL)
@@ -17112,15 +17109,18 @@ int CvPlayer::GetNumUnitsSupplied() const
 
 //	--------------------------------------------------------------------------------
 /// Units supplied from Difficulty Level
-int CvPlayer::GetNumUnitsSuppliedByHandicap() const
+int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 {
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
 	int iSupply = getHandicapInfo().getProductionFreeUnits() + m_pTraits->GetExtraSupply();
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	{
-		iSupply -= GetCurrentEra();
-		if (iSupply <= 0)
-			iSupply = 0;
+		if (!bIgnoreReduction)
+		{
+			iSupply -= GetCurrentEra();
+			if (iSupply <= 0)
+				iSupply = 0;
+		}
 	}
 	// Don't need a test here for MOD_TRAITS_EXTRA_SUPPLY being enabled, as if it isn't GetExtraSupply() will return 0
 	return iSupply;
@@ -17131,7 +17131,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap() const
 
 //	--------------------------------------------------------------------------------
 /// Units supplied from Difficulty Level
-int CvPlayer::GetNumUnitsSuppliedByCities() const
+int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 {
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
 	{
@@ -17139,12 +17139,28 @@ int CvPlayer::GetNumUnitsSuppliedByCities() const
 		
 		int iValue = m_pTraits->GetExtraSupply();
 		const CvCity* pLoopCity;
+		int iNumCities = 0;
 		int iLoop;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			int iSupply = (iStartingSupply + pLoopCity->getCitySupplyFlat() + getCitySupplyFlatGlobal());
 			iValue += iSupply;
+			iNumCities++;
 		}
+
+
+		if (!bIgnoreReduction)
+		{
+			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			iTechProgress *= 2;
+
+			iNumCities *= (iTechProgress);
+			iNumCities /= 100;
+
+			iValue -= iNumCities;
+		}
+		if (iValue < 0)
+			return 0;
 
 		return iValue;
 	}
@@ -17158,7 +17174,7 @@ int CvPlayer::GetNumUnitsSuppliedByCities() const
 
 //	--------------------------------------------------------------------------------
 /// Units supplied from Difficulty Level
-int CvPlayer::GetNumUnitsSuppliedByPopulation() const
+int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 {
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
 	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
@@ -17168,16 +17184,12 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation() const
 		int iValue = 0;
 		const CvCity* pLoopCity;
 		int iLoop;
-
-		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-
-		iTechProgress *= 5;
 		
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			int iPopulation = 0;
 			int iSupply = (iStartingSupply + pLoopCity->getCitySupplyModifier() + m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation());
-			if (pLoopCity->IsPuppet())
+			if (pLoopCity->IsPuppet() && !GetPlayerTraits()->IsNoAnnexing())
 			{
 				iPopulation = (pLoopCity->getPopulation() / 2) * 100;
 			}
@@ -17186,19 +17198,22 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation() const
 				iPopulation = pLoopCity->getPopulation() * 100;
 			}
 
-			if (iTechProgress > 0)
-			{
-				iSupply *= 100;
-				iSupply /= (100 + iTechProgress);
-			}
+			iValue += ((iPopulation * iSupply) / 100);
+		}
 
-			if (iSupply <= 5)
-				iSupply = 5;
-
-			iValue += ((iPopulation * iSupply) / (100 + getNumCities()));
+		if (!bIgnoreReduction)
+		{
+			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			iTechProgress *= 6;
+				
+			iValue *= 100;
+			iValue /= (100 + iTechProgress);
 		}
 
 		iValue /= 100;
+
+		if (iValue < 0)
+			return 0;
 
 		return iValue; 
 	}
@@ -21353,7 +21368,7 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 	iTechProgress /= 2;
 
-	int iPop = getCurrentTotalPop();
+	int iPop = (getCurrentTotalPop() / 2);
 
 	iWarWeariness *= (iTechProgress + iPop);
 	iWarWeariness /= 100;

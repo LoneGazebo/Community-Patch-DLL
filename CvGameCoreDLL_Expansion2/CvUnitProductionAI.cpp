@@ -1143,11 +1143,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
 					if (pkResourceInfo != NULL && pkResourceInfo->isTerrain(TERRAIN_COAST))
 					{
-						iUnimprovedAround += m_pCity->GetNumResourceLocal(eResourceLoop, false, true);
+						iUnimprovedAround += m_pCity->GetNumResourceLocal(eResourceLoop, true, true);
 					}
 				}
 			}
-			iBonus += (1000 * iUnimprovedAround);
+			iBonus += (3000 * iUnimprovedAround);
 		}
 	}
 	//Make sure we need workers in this city.
@@ -1360,6 +1360,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus -= 100;
 		}
+	}
+
+	if (m_pCity->isInDangerOfFalling())
+	{
+		iBonus *= 5;
+	}
+	if (m_pCity->isUnderSiege())
+	{
+		iBonus *= 2;
 	}
 
 	if (bCombat)

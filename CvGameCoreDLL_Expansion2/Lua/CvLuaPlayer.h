@@ -375,6 +375,7 @@ protected:
 	LUAAPIEXTN(GetWarWeariness, int);
 	LUAAPIEXTN(SetWarWeariness, int);
 	LUAAPIEXTN(GetWarWearinessSupplyReduction, int);
+	LUAAPIEXTN(GetTechSupplyReduction, int);
 #endif
 	static int lGetUnhappinessFromUnits(lua_State* L);
 	static int lChangeUnhappinessFromUnits(lua_State* L);

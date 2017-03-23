@@ -2690,6 +2690,19 @@ void CvCity::doTurn()
 			iHitsHealed *= 2;
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+		{
+			int iPile = getCurrentProductionDifferenceTimes100(false, true);
+			iPile *= 20;
+			iPile /= 100;
+
+			iPile /= 100;
+
+			iHitsHealed *= (100 + iPile);
+			iHitsHealed /= 100;
+		}
+#endif
 		changeDamage(-iHitsHealed);
 	}
 
@@ -15423,7 +15436,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 #if defined(MOD_BALANCE_CORE)
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && ((eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities()) || (eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer())))
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && ((eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities()) || (eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true))))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 					iReligionGrowthMod += (iFollowers * GC.getMOD_BALANCE_FOLLOWER_GROWTH_BONUS());
@@ -21227,8 +21240,8 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 			}
 
-			int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
-			if (iLuxCulture > 0)
+			int iLuxYield = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
+			if (iLuxYield > 0)
 			{
 				int iNumHappinessResources = 0;
 				ResourceTypes eResource;
@@ -21243,8 +21256,8 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 				if (iNumHappinessResources > 0)
 				{
-					iLuxCulture *= iNumHappinessResources;
-					iYieldValue += iLuxCulture;
+					iLuxYield *= iNumHappinessResources;
+					iYieldValue += iLuxYield;
 				}
 			}
 
@@ -24645,6 +24658,21 @@ void CvCity::updateStrengthValue()
 	iStrengthValue *= (100 + iStrengthMod);
 	iStrengthValue /= 100;
 
+#if defined(MOD_BALANCE_CORE)
+	if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	{
+		int iPile = getCurrentProductionDifferenceTimes100(false, true);
+
+		iPile *= 20;
+		iPile /= 100;
+
+		iPile /= 100;
+
+		iStrengthValue *= (100 + iPile);
+		iStrengthValue /= 100;
+	}
+#endif
+
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
 	{
@@ -25848,7 +25876,7 @@ void CvCity::clearOrderQueue()
 void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush)
 {
 	VALIDATE_OBJECT
-	OrderData order;
+OrderData order;
 	bool bValid;
 
 	if(bPop)
@@ -25962,6 +25990,13 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 		startHeadOrder();
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	{
+		updateStrengthValue();
+	}
+#endif
+
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
 		if(isCitySelected())
@@ -26035,6 +26070,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	{
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
 	}
+#if defined(MOD_BALANCE_CORE)
+	bool bUpdateStrength = false;
+#endif
 
 	eTrainUnit = NO_UNIT;
 	eConstructBuilding = NO_BUILDING;
@@ -26427,6 +26465,12 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		break;
 
 	case ORDER_MAINTAIN:
+#if defined(MOD_BALANCE_CORE)
+		if ((ProcessTypes)pOrderNode->iData1 == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+		{
+			bUpdateStrength = true;
+		}
+#endif
 		break;
 
 	default:
@@ -26526,6 +26570,12 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8()/*, szSound, MESSAGE_TYPE_MINOR_EVENT, szIcon, (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (bUpdateStrength)
+	{
+		updateStrengthValue();
+	}
+#endif
 
 	if((getTeam() == GC.getGame().getActiveTeam()) || GC.getGame().isDebugMode())
 	{
@@ -28653,7 +28703,7 @@ void CvCity::doProcess()
 			}
 		}
 	}
-	
+
 #if defined(MOD_PROCESS_STOCKPILE)
 	if (MOD_PROCESS_STOCKPILE && eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE"))
 	{

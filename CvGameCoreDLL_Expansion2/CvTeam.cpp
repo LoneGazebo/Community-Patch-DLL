@@ -1550,7 +1550,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(bAggressor && !bDefensivePact)
 				{
 					//Do we have a defensive pact with the target team?
-					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
+					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) && !!isMinorCiv())
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ true);
@@ -6896,37 +6896,63 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}		
 							if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
 							{
-								int iReduction = max(2, ((kPlayer.getNumCities() * GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod()) / 15));
 								bool bChange = false;
-								if (iReduction > 0)
+								// Look at all Cities
+								int iLoop;
+								int iValue = 0;
+								int iBiggestValue = 0;
+								for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 								{
-									// Look at all Cities
-									int iLoop;
-									for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+									for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 									{
-										for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-										{
-											if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
-												continue;
+										float fDelay = 0.0f;
+										if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
+											continue;
 
-											if (pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ) >= iReduction)
+										iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
+										iValue /= 2;
+
+										if (iValue > iBiggestValue)
+										{
+											iBiggestValue = iValue;
+										}
+
+										if (iValue <= 0)
+										{
+											iValue = 1;
+										}
+										if (pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ) >= iValue)
+										{
+											pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
+
+											if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 											{
-												pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iReduction);
-												bChange = true;
+												CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
+												if (pYieldInfo)
+												{
+													char text[256] = { 0 };
+													fDelay += 0.5f;
+
+													CvString yieldString = "";
+													yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+													sprintf_s(text, yieldString, -iValue);
+													DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+												}
 											}
+											bChange = true;
 										}
 									}
-									if (bChange)
+								}
+								if (bChange)
+								{
+									CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
+									if (pNotification)
 									{
-										CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
-										if (pNotification)
-										{
-											CvString strMessage;
-											CvString strSummary;
-											strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE", iReduction);
-											strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE");
-											pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, eLoopPlayer);
-										}
+										CvString strMessage;
+										CvString strSummary;
+										strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE", iBiggestValue);
+										strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE");
+										pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, eLoopPlayer);
 									}
 								}
 							}
@@ -7137,6 +7163,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
 														continue;
 
+													float fDelay = 0.0f;
+
 													iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
 													iValue /= 2;
 
@@ -7152,6 +7180,19 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													if (pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ) >= iValue)
 													{
 														pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
+														if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+														{
+															CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
+															if (pYieldInfo)
+															{
+																char text[256] = { 0 };
+																fDelay += 0.5f;
+																CvString yieldString = "";
+																yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+																sprintf_s(text, yieldString, -iValue);
+																DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+															}
+														}
 														bChange = true;
 													}
 												}

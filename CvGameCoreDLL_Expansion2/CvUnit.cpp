@@ -2033,7 +2033,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			if (MOD_BALANCE_CORE_DIFFICULTY && !kPlayer.isHuman() && GET_PLAYER(ePlayer).isHuman())
 			{
 				int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonus() * (getUnitInfo().GetPower());
-				iHandicap /= 10;
+				iHandicap /= 25;
 				if (getOriginCity() != NULL && getOwner() == getOriginCity()->getOwner())
 				{
 					getOriginCity()->changeProduction(iHandicap);
@@ -12883,7 +12883,7 @@ bool CvUnit::build(BuildTypes eBuild)
 		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
 
 #if defined(MOD_BALANCE_CORE)
-		if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER)
+		if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && pkBuildInfo && pkBuildInfo->GetID() == 29)
 		{
 			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(getOwner(), 5);
 		}
@@ -20468,15 +20468,17 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 							GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPromoted, getOwner(), GetID(), eNewPromotion);
 						}
 #endif
-
-						CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
-						Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
+						if (kPlayer.GetID() == GC.getGame().getActivePlayer())
+						{
+							CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
+							Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
 #if defined(SHOW_PLOT_POPUP)
-						SHOW_PLOT_POPUP(plot(), getOwner(), localizedText.toUTF8(), 0.0f);
+							SHOW_PLOT_POPUP(plot(), getOwner(), localizedText.toUTF8(), 0.0f);
 #else
-						float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
+							float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+							DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
 #endif
+						}
 					}
 				}
 			}

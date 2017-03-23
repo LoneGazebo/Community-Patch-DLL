@@ -3209,7 +3209,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (
 #if defined(MOD_BALANCE_CORE)
 		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
 		{
-			if(eReligion > RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
+			if(eReligion >= RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
 			{
 				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 8);
 				if(iPopReligionModifer > 300)
@@ -4243,6 +4243,9 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 
 	// Over half?
 #if defined(MOD_BALANCE_CORE)
+	if (m_pPlayer->getNumCities() == iNumFollowingCities)
+		return true;
+
 	// Equal to make OCC/Venice possible.
 	return (iNumFollowingCities * 2 >= m_pPlayer->getNumCities());
 #else
@@ -5764,11 +5767,25 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	// safety check - if pressure was wiped out somehow, just rebuild pressure of 1 atheist
 	if (iTotalPressure <= 0)
 	{
-		m_ReligionStatus.clear();
 
 		CvReligionInCity religion;
+		
 		religion.m_bFoundedHere = false;
 		religion.m_eReligion = NO_RELIGION;
+
+		ReligionInCityList::iterator it;
+		for (it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+		{
+			if (it->m_bFoundedHere)
+			{
+				religion.m_bFoundedHere = true;
+				religion.m_eReligion = it->m_eReligion;
+				break;
+			}
+		}
+
+		m_ReligionStatus.clear();
+
 #if defined(MOD_BALANCE_CORE)
 		if(eReason == FOLLOWER_CHANGE_ADOPT_FULLY)
 		{
@@ -8559,6 +8576,10 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		if (pEntry->GetYieldPerPop(iI) > 0)
 		{
 			iTotalRtnValue += (pEntry->GetYieldPerPop(iI) / max(1, pCity->getPopulation())) * 2;
+			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			{
+				iTotalRtnValue *= 10;
+			}
 		}
 		if (bIsHolyCity)
 		{
@@ -8590,6 +8611,10 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		if (pEntry->GetYieldPerBorderGrowth(iI) > 0)
 		{
 			iTotalRtnValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iCulture) / max(3, pCity->GetJONSCultureLevel() * 3));
+			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			{
+				iTotalRtnValue *= 10;
+			}
 		}
 	}
 	////////////////////
@@ -8602,6 +8627,10 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		if (pEntry->GetYieldPerBirth(iI) > 0)
 		{
 			iTotalRtnValue += (pEntry->GetYieldPerBirth(iI) * (pCity->foodDifferenceTimes100() / 300));
+			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			{
+				iTotalRtnValue *= 10;
+			}
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
