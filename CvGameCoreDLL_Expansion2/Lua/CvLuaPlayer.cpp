@@ -392,6 +392,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarWeariness);
 	Method(SetWarWeariness);
 	Method(GetWarWearinessSupplyReduction);
+	Method(GetTechSupplyReduction);
 #endif
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
@@ -3963,6 +3964,23 @@ int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
 	return 1;
 }
 
+int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iTotalSupplyWithoutReduction = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
+	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByCities(true);
+	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByPopulation(true);
+
+	int iTotalSupplyWithReduction = pkPlayer->GetNumUnitsSuppliedByHandicap();
+	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByCities();
+	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
+
+	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
+
+	lua_pushinteger(L, iTotalSupply);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
@@ -7016,19 +7034,28 @@ int CvLuaPlayer::lGetNumUnitsSupplied(lua_State* L)
 //int GetNumUnitsSuppliedByHandicap();
 int CvLuaPlayer::lGetNumUnitsSuppliedByHandicap(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSuppliedByHandicap);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsSuppliedByCities();
 int CvLuaPlayer::lGetNumUnitsSuppliedByCities(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSuppliedByCities);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSuppliedByCities(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsSuppliedByPopulation();
 int CvLuaPlayer::lGetNumUnitsSuppliedByPopulation(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSuppliedByPopulation);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSuppliedByPopulation(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsOutOfSupply();

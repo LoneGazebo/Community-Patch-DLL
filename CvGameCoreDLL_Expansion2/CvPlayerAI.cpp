@@ -2231,6 +2231,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	{
 		return 0;
 	}
+	if (pMinorCivAI->IsNoAlly())
+		return 0;
+
 	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
 	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
 	{
@@ -2464,7 +2467,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
 			if(iDifference >= 60) 
 			{
-				iScore /= 5;
+				iScore /= max(1, (iDifference / 2));
 			}
 			// Are we close to losing our status? If so, obsess away!
 			else if(iDifference <= 30 || pMinorCivAI->IsCloseToNotBeingAllies(GetID()))

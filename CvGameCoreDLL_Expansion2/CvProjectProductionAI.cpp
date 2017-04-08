@@ -169,9 +169,9 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 3000)
+	if(iTempWeight > 5000)
 	{
-		iTempWeight = 3000;
+		iTempWeight = 5000;
 	}
 
 	if(kPlayer.isMinorCiv())

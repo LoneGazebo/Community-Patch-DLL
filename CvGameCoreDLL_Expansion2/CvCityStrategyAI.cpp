@@ -984,8 +984,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			if (m_pCity->canMaintain(eProcess))
 			{		
 				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
-				
-				if(iTempWeight > 0)
+				if (eProcess == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+				{
+					iTempWeight = 100;
+				}
+				if (iTempWeight > 0)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_PROCESS;
 					buildable.m_iIndex = iProcessLoop;
@@ -5152,7 +5155,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (iDelta <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iFlatYield *= 10;
+			iFlatYield *= 3;
 		}
 
 		//And here's what the value represents.
@@ -5234,21 +5237,21 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			if (kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iYieldValue *= 10;
+				iYieldValue *= 2;
 			}
 		}
 		if (eYield == YIELD_PRODUCTION)
 		{
 			if (kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iYieldValue *= 10;
+				iYieldValue *= 2;
 			}
 		}
 		if (eYield == YIELD_TOURISM)
 		{
 			if (kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
-				iYieldValue *= 10;
+				iYieldValue *= 2;
 			}
 		}
 
@@ -5257,7 +5260,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			AICityStrategyTypes eNeedFaith = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_FAITH_BUILDING");
 			if (eNeedFaith != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFaith))
 			{
-				iYieldValue *= 4;
+				iYieldValue *= 3;
 			}
 			EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))

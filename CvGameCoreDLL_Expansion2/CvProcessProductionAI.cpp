@@ -150,47 +150,98 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	//////
 	//WAR
 	///////
-	//Fewer processes while at war.
-	if (!m_pCity->IsPuppet())
+	if (eProcess != GC.getInfoTypeForString("PROCESS_DEFENSE"))
 	{
-		int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-		if (iNumWar > 0)
+		//Fewer processes while at war.
+		if (!m_pCity->IsPuppet())
 		{
-			iModifier -= (iNumWar * 15);
-			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
+			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+			if (iNumWar > 0)
 			{
-				//More cities = more threat.
-				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 25;
-				if (iThreat > 0)
+				iModifier -= (iNumWar * 15);
+				if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 				{
-					iModifier -= iThreat;
+					//More cities = more threat.
+					int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank()) * 25;
+					if (iThreat > 0)
+					{
+						iModifier -= iThreat;
+					}
+				}
+				if (m_pCity->IsBastion())
+				{
+					iModifier -= 100;
+				}
+				if (m_pCity->IsBlockaded(true))
+				{
+					iModifier -= 100;
+				}
+				if (m_pCity->IsBlockadedWaterAndLand())
+				{
+					iModifier -= 100;
 				}
 			}
-			if (m_pCity->IsBastion())
-			{
-				iModifier -= 100;
-			}
-			if (m_pCity->IsBlockaded(true))
-			{
-				iModifier -= 100;
-			}
-			if (m_pCity->IsBlockadedWaterAndLand())
-			{
-				iModifier -= 100;
-			}
+		}
+		//Tiny army? Eek!
+		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
+		{
+			iModifier -= 100;
+		}
+
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		// scale based on flavor and world size
+		if (eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+		{
+			iModifier -= 50;
 		}
 	}
-	//Tiny army? Eek!
-	if(kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
+	else
 	{
-		iModifier -= 100;
-	}
+		//Unless it is defense.
+		if (!m_pCity->IsPuppet())
+		{
+			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+			if (iNumWar > 0)
+			{		
+				if (m_pCity->isUnderSiege())
+				{
+					iModifier += 1000;
+				}
+				else if (m_pCity->getDamage() > 0)
+				{
+					iModifier += m_pCity->getDamage() * 100;
+				}
+				else if (m_pCity->isInDangerOfFalling())
+				{
+					iModifier += 1000;
+				}
+				else if (m_pCity->IsBlockaded(true))
+				{
+					iModifier += 200;
+				}
+				else if (m_pCity->IsBlockadedWaterAndLand())
+				{
+					iModifier += 200;
+				}
+			}
+		}
+		//Tiny army? Eek!
+		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
+		{
+			iModifier -= 500;
+		}
 
-	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-	// scale based on flavor and world size
-	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-	{
-		iModifier -= 50;
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		// scale based on flavor and world size
+		if (eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+		{
+			iModifier -= 500;
+		}
+
+		if (m_pCity->getUnhappinessFromDefense() > 0)
+		{
+			iModifier += (m_pCity->getUnhappinessFromDefense() * 15);
+		}
 	}
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
@@ -304,7 +355,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		{
 			if (m_pCity->getProductionProcess() == eProcess)
 			{
-				iModifier += 5000;
+				iModifier += 10000;
 			}
 			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
 			{

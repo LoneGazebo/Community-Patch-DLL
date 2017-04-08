@@ -8548,6 +8548,9 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	int iItemValue = 100;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 
+	if (pkTechInfo == NULL)
+		return INT_MAX;
+
 	//important, don't want to recalculate for every potential tech
 	UpdateResearchRateCache(eOtherPlayer);
 
