@@ -113,8 +113,12 @@ void CvHomelandAI::RecruitUnits()
 	// Loop through our units
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
+		// Sanity check
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>0)
+			OutputDebugString("undefended general found!\n");
+
 		// Never want immobile/dead units or ones that have already moved
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove())
 		{
 			continue;
 		}
@@ -5220,12 +5224,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
 			continue;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//might have been used in tactical AI already
-		if (!pUnit->canMove())
-			continue;
-#endif
 
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)

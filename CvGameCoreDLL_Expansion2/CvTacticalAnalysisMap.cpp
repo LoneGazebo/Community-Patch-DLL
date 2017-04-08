@@ -1219,52 +1219,40 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 	else
 	{
 		// Otherwise compute it by strength
-		if(pZone->GetEnemyStrength()+pZone->GetEnemyRangedStrength()<=0)
+		if(pZone->GetEnemyStrength()+pZone->GetEnemyRangedStrength()<=0) //make sure the denominator is valid later on
 		{
 			pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
+		}
+		else if (pZone->GetEnemyUnitCount()==1 && pZone->GetFriendlyUnitCount()<=1) //both are weak, one unit might tip the balance
+		{
+			pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
 		}
 		else
 		{
 			if ((pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isCoastal()) || pZone->IsWater())
 			{
-				if (pZone->GetEnemyNavalUnitCount() <= pZone->GetFriendlyNavalUnitCount())
+				if (pZone->GetEnemyNavalUnitCount() < pZone->GetFriendlyNavalUnitCount())
 				{
-					pZone->SetNavalInvasion(true);
+					pZone->SetNavalInvasion(true); //only true if we actually have naval units
 				}
 				else
 				{
 					pZone->SetNavalInvasion(false);
 				}
+			}
 
-				int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
-				if (iRatio > 100 + m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
-				}
-				else if (iRatio < 100 - m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
-				}
-				else
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
-				}
+			int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
+			if (iRatio > 100 + m_iDominancePercentage)
+			{
+				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
+			}
+			else if (iRatio < 100 - m_iDominancePercentage)
+			{
+				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
 			}
 			else
 			{
-				int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
-				if (iRatio > 100 + m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
-				}
-				else if (iRatio < 100 - m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
-				}
-				else
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
-				}
+				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
 			}
 		}
 	}

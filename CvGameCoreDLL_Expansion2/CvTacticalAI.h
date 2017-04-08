@@ -1153,7 +1153,6 @@ protected:
 	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const;
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
-	int findBlockingUnitAtPlot(int iPlotIndex) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible, vector<int>& madeInvisible) const;
 
 	//finding a particular unit
@@ -1179,6 +1178,7 @@ public:
 	int countChildren() const;
 	float getUnitNumberRatio() const;
 	void updateUnitNumberRatio();
+	STacticalAssignment findBlockingUnitAtPlot(int iPlotIndex) const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
 	CvTacticalPlot& getTactPlot(int plotindex);

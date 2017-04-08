@@ -975,7 +975,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			bTemporaryZone = IsTemporaryZoneCity(pClosestCity);
 		}
 		// Withdraw if enemy dominant overall or we have nothing but ranged left
-		if (!bTemporaryZone && !pZone->IsNavalInvasion() && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyRangedUnitCount() == pZone->GetFriendlyUnitCount()))
+		if (!bTemporaryZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyRangedUnitCount() == pZone->GetFriendlyUnitCount()))
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 		}
@@ -1217,7 +1217,7 @@ AITacticalPosture CvTacticalAI::SelectNavalPosture(CvTacticalDominanceZone* pZon
 			bTemporaryZone = IsTemporaryZoneCity(pClosestCity);
 		}
 		// Withdraw if enemy dominant overall or we have nothing but ranged left
-		if (!bTemporaryZone && !pZone->IsNavalInvasion() && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyNavalRangedStrength() == pZone->GetFriendlyNavalUnitCount()))
+		if (!bTemporaryZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyNavalRangedStrength() == pZone->GetFriendlyNavalUnitCount()))
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 		}
@@ -2758,7 +2758,7 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 				continue;
 			}
 
-			if (pZone && !pZone->IsNavalInvasion() && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
+			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -11943,9 +11943,9 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iDanger = pUnit->GetDanger(pPlot);
 
 		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot);
-		//when in doubt, prefer to move - being stuck looks stupid
+		//when in doubt, prefer to move, even in the wrong direction - being stuck looks stupid
 		if (pUnit->atPlot(*pPlot) && iDanger>GC.getENEMY_HEAL_RATE())
-			iCityDistance++;
+			iCityDistance+=2;
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
@@ -12485,7 +12485,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
-	if (fAggFactor>0)
+	if (fAggFactor>0 && iDamageReceived<pUnit->GetCurrHitPoints())
 	{
 		result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
 		result.iDamage = iDamageDealt;
@@ -12686,11 +12686,11 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					//try to stay away from enemies if we can attack from afar
 					//the reverse works automatically, range 1 units only get points if they close in
 					if (currentPlot.getNumAdjacentEnemies()>0)
-						iDamageScore /= 2;
+						iDamageScore /= 3;
 
 					//ranged units are vulnerable without melee
 					if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
-						iDamageScore /= 2;
+						iDamageScore /= 3;
 				}
 				else if (currentPlot.getNumAdjacentEnemies()>0 || currentPlot.getNumAdjacentFirstlineFriendlies()==0)
 					//ranged units don't like to park next to enemies at all if we cannot attack
@@ -12765,11 +12765,11 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 		iScore = -1; //don't ever go there, wouldn't work anyway
 		break;
 	case CvTacticalPlot::TP_FRONTLINE:
-		iScore = 1; //very dangerous, only in emergencies
+		iScore = 2; //dangerous, only in emergencies
 		break;
 	case CvTacticalPlot::TP_SECONDLINE:
 	case CvTacticalPlot::TP_THIRDLINE:
-		iScore = 22; //nice
+		iScore = 23; //nice. different to first line is worth more than two adjacent units
 		break;
 	case CvTacticalPlot::TP_FARAWAY:
 		iScore = 1;	//possible but not really useful
@@ -12790,12 +12790,17 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 	{
 		iScore += 10*tactPlot.getNumAdjacentFriendlies();
 
-		//this works only because we eliminated our own aura before calling this function!
+		//avoid overlap. this works only because we eliminated our own aura before calling this function!
 		if (tactPlot.hasSupportBonus())
 			iScore/=2;
 
-		if (!tactPlot.isFriendlyCombatUnit())
-			iScore=1;
+		//if we intend to stay there, there must be a defender which intends to stay
+		if (plot.iMovesLeft == 0 || plot.iPlotIndex == unit.iPlotIndex)
+		{
+			STacticalAssignment defenderAssignment = assumedPosition.findBlockingUnitAtPlot(tactPlot.getPlotIndex());
+			if (defenderAssignment.iUnitID==0 || defenderAssignment.iRemainingMoves>0)
+				iScore = 0;
+		}
 	}
 
 	result.iScore = iScore;
@@ -13136,7 +13141,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmen
 
 		if (isMoveBlockedByOtherUnit(*itMove))
 		{
-			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex);
+			int iUnitID = findBlockingUnitAtPlot(itMove->iToPlotIndex).iUnitID;
 			if (iUnitID==0 || iUnitID==itMove->iUnitID)
 			{
 				OutputDebugString("invalid block!\n");
@@ -13315,7 +13320,7 @@ void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen
 	{
 		if (isMoveBlockedByOtherUnit(*itChoice))
 		{
-			int iBlockingUnitID = findBlockingUnitAtPlot(itChoice->iToPlotIndex);
+			int iBlockingUnitID = findBlockingUnitAtPlot(itChoice->iToPlotIndex).iUnitID;
 			if (iBlockingUnitID==0 || iBlockingUnitID==itChoice->iUnitID)
 				continue; //shouldn't happen
 
@@ -13365,8 +13370,9 @@ bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& mov
 	return false; //no info, assume it's ok
 }
 
-int CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) const
+STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) const
 {
+	//start with the last move!
 	for (int i=(int)assignedMoves.size()-1; i>=0; i--)
 	{
 		//only combat units are blocking
@@ -13379,7 +13385,7 @@ int CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) const
 			if (assignedMoves[i].eType == STacticalAssignment::A_MOVE ||
 				assignedMoves[i].eType == STacticalAssignment::A_MELEEKILL)
 			{
-				return 0;
+				return STacticalAssignment();
 			}
 		}
 
@@ -13387,15 +13393,16 @@ int CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) const
 		if (assignedMoves[i].iToPlotIndex == iPlotIndex)
 		{
 			if (assignedMoves[i].eType == STacticalAssignment::A_INITIAL ||
+				assignedMoves[i].eType == STacticalAssignment::A_ENDTURN ||
 				assignedMoves[i].eType == STacticalAssignment::A_MOVE ||
 				assignedMoves[i].eType == STacticalAssignment::A_MELEEKILL)
 			{
-				return assignedMoves[i].iUnitID;
+				return assignedMoves[i];
 			}
 		}
 	}
 
-	return 0;
+	return STacticalAssignment();
 }
 
 //are there units left or all enemies gone?
@@ -13563,11 +13570,11 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			int iUnitID;
 
 			//plausi checks
-			iUnitID = newAssignment.bIsCombat ? findBlockingUnitAtPlot(newAssignment.iFromPlotIndex) : 0;
+			iUnitID = newAssignment.bIsCombat ? findBlockingUnitAtPlot(newAssignment.iFromPlotIndex).iUnitID : 0;
 			if (iUnitID != 0 && iUnitID != newAssignment.iUnitID)
 				OutputDebugString("inconsistent origin\n");
 
-			iUnitID = newAssignment.bIsCombat ? findBlockingUnitAtPlot(newAssignment.iToPlotIndex) : 0;
+			iUnitID = newAssignment.bIsCombat ? findBlockingUnitAtPlot(newAssignment.iToPlotIndex).iUnitID : 0;
 			if (iUnitID != 0)
 				OutputDebugString("inconsistent destination\n");
 
