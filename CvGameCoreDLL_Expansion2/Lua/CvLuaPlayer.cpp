@@ -286,6 +286,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
+	Method(GetFractionOriginalCapitalsUnderControl);
+	Method(GetTourismPenalty);
+	Method(GetTechsToFreePolicy);
 #endif
 	Method(GetInfluenceCityStateSpyRankBonus);
 	Method(GetInfluenceMajorCivSpyRankBonus);
@@ -386,6 +389,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPublicOpinion);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetUnhappinessFromWarWeariness);
+	Method(GetWarWeariness);
+	Method(SetWarWeariness);
+	Method(GetWarWearinessSupplyReduction);
+	Method(GetTechSupplyReduction);
 #endif
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
@@ -620,6 +627,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetPower);
 	Method(GetMilitaryMight);
+	Method(GetMilitaryMightForCS);
 	Method(GetTotalTimePlayed);
 
 	Method(GetScore);
@@ -670,6 +678,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivFriendshipLevelWithMajor);
 	Method(GetActiveQuestForPlayer);
 	Method(IsMinorCivActiveQuestForPlayer);
+	Method(SetMinorCivActiveQuestForPlayer);
 	Method(GetMinorCivNumActiveQuestsForPlayer);
 	Method(IsMinorCivDisplayedQuestForPlayer);
 	Method(GetMinorCivNumDisplayedQuestsForPlayer);
@@ -735,6 +744,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetBullyUnit);
 	Method(GetBullyUnit);
 	Method(GetYieldTheftAmount);
+	Method(GetPledgeProtectionInvalidReason);
 #endif
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
@@ -903,7 +913,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(Units);
 	Method(GetNumUnits);
 #if defined(MOD_BALANCE_CORE)
-	Method(GetNumUnitsNoCivlian);
+	Method(GetNumUnitsNoCivilian);
 #endif
 	Method(GetUnitByID);
 
@@ -3105,6 +3115,74 @@ int CvLuaPlayer::lGetNoUnhappinessExpansion(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetFractionOriginalCapitalsUnderControl(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iOCCount = luaL_optint(L, 2, 0);
+
+	if (pkPlayer == NULL)
+		return 0;
+
+	int iTotal = 0;
+
+	if (iOCCount > 0)
+	{
+		int iCivCount = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
+		{
+			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			if (kPlayer.isEverAlive() && kPlayer.isMajorCiv() && !kPlayer.isObserver())
+				iCivCount++;
+		}
+
+		iTotal = iOCCount * 100 / iCivCount;
+	}
+
+	lua_pushinteger(L, iTotal);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTourismPenalty(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer == NULL)
+		return 0;
+
+	// Mod for City Count
+	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 15, gets smaller on larger maps
+
+	lua_pushinteger(L, iMod);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTechsToFreePolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer == NULL)
+		return 0;
+
+	if (pkPlayer->GetPlayerTraits()->GetFreePolicyPerXTechs() <= 0)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+
+	int iTechMultiplier = (GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() / pkPlayer->GetPlayerTraits()->GetFreePolicyPerXTechs()) + 1;
+
+	int iTechsNeeded =  pkPlayer->GetPlayerTraits()->GetFreePolicyPerXTechs() * iTechMultiplier;
+	int iTechsWeHave = GET_TEAM(pkPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+
+	iTechsNeeded -= iTechsWeHave;
+
+	lua_pushinteger(L, iTechsNeeded);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int GetInfluenceTradeRouteScienceBonus();
@@ -3527,7 +3605,7 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
 				if(pReligion)
 				{
-					iRtnValue = pReligion->m_Beliefs.GetCombatModifierEnemyCities();
+					iRtnValue = pReligion->m_Beliefs.GetCombatModifierEnemyCities(pkPlayer->GetID(), pPlotCity);
 				}
 			}
 		}
@@ -3558,7 +3636,7 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
 				if(pReligion)
 				{
-					iRtnValue = pReligion->m_Beliefs.GetCombatModifierFriendlyCities();
+					iRtnValue = pReligion->m_Beliefs.GetCombatModifierFriendlyCities(pkPlayer->GetID(), pPlotCity);
 				}
 			}
 		}
@@ -3847,10 +3925,62 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
+	const int iResult = pkPlayer->GetUnhappinessFromWarWeariness();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lGetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
+	lua_pushinteger(L, min(75, iResult));
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lSetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = lua_tointeger(L, 2);
+	pkPlayer->GetCulture()->SetWarWeariness(iResult);
+	return 0;
+}
+int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness();
+	int iSupply = pkPlayer->GetNumUnitsSuppliedByHandicap();
+	iSupply += pkPlayer->GetNumUnitsSuppliedByCities();
+	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
+	int iMod = iSupply;
+	iMod *= (100 - iWarWeariness);
+	iMod /= 100;
+
+	iSupply -= iMod;
+
+	lua_pushinteger(L, min(75, iSupply));
+	return 1;
+}
+
+int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iTotalSupplyWithoutReduction = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
+	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByCities(true);
+	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByPopulation(true);
+
+	int iTotalSupplyWithReduction = pkPlayer->GetNumUnitsSuppliedByHandicap();
+	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByCities();
+	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
+
+	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
+
+	lua_pushinteger(L, iTotalSupply);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
@@ -6904,19 +7034,28 @@ int CvLuaPlayer::lGetNumUnitsSupplied(lua_State* L)
 //int GetNumUnitsSuppliedByHandicap();
 int CvLuaPlayer::lGetNumUnitsSuppliedByHandicap(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSuppliedByHandicap);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsSuppliedByCities();
 int CvLuaPlayer::lGetNumUnitsSuppliedByCities(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSuppliedByCities);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSuppliedByCities(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsSuppliedByPopulation();
 int CvLuaPlayer::lGetNumUnitsSuppliedByPopulation(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSuppliedByPopulation);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSuppliedByPopulation(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsOutOfSupply();
@@ -7096,6 +7235,37 @@ int CvLuaPlayer::lGetMilitaryMight(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetMilitaryMight);
 }
+//------------------------------------------------------------------------------
+//int GetMilitaryMight();
+int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+	PlayerTypes eMajorLoop;
+
+	int iRankRatio = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		eMajorLoop = (PlayerTypes)iMajorLoop;
+		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		{
+			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
+		}
+	}
+	veMilitaryRankings.SortItems();
+	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	{
+		if (veMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+		{
+			iRankRatio = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
+			break;
+		}
+	}
+	lua_pushinteger(L, iRankRatio);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int getTotalTimePlayed();
 int CvLuaPlayer::lGetTotalTimePlayed(lua_State* L)
@@ -7490,6 +7660,20 @@ int CvLuaPlayer::lIsMinorCivActiveQuestForPlayer(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetMinorCivActiveQuestForPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes)lua_tointeger(L, 3);
+	const int iTurn = lua_tointeger(L, 4);
+	const PlayerTypes eCallingPlayer = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
+
+	pkPlayer->GetMinorCivAI()->AddQuestForPlayer(ePlayer, eType, iTurn, eCallingPlayer);
+	return 0;
+}
+
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetMinorCivNumActiveQuestsForPlayer(lua_State* L)
 {
@@ -8030,6 +8214,18 @@ int CvLuaPlayer::lGetYieldTheftAmount(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetPledgeProtectionInvalidReason(PlayerTypes eMajor);
+int CvLuaPlayer::lGetPledgeProtectionInvalidReason(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+
+	const CvString sResult = pkPlayer->GetMinorCivAI()->GetPledgeProtectionInvalidReason(eMajor);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);
@@ -9203,10 +9399,11 @@ int CvLuaPlayer::lGetNumUnits(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int getNumUnits();
-int CvLuaPlayer::lGetNumUnitsNoCivlian(lua_State* L)
+int CvLuaPlayer::lGetNumUnitsNoCivilian(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumUnitsNoCivilian);
 }
+
 #endif
 //------------------------------------------------------------------------------
 //void AI_updateFoundValues(bool bStartingLoc);
@@ -11313,10 +11510,17 @@ int CvLuaPlayer::lIsDiplomaticMarriage(lua_State* L)
 int CvLuaPlayer::lIsGPWLTKD(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	if(pkPlayer)
+	if (pkPlayer && pkPlayer->GetPlayerTraits()->IsGPWLTKD())
 	{
-		lua_pushboolean(L, pkPlayer->GetPlayerTraits()->IsGPWLTKD());
+		lua_pushboolean(L, true);
+		return 1;
 	}
+	else if (pkPlayer && pkPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+	{
+		lua_pushboolean(L, true);
+		return 1;
+	}
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12783,6 +12987,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		Opinion kOpinion;
 		kOpinion.m_iValue = iValue;
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAPTURED_CAPITAL");
+		aOpinions.push_back(kOpinion);
+	}
+	
+	iValue = pDiploAI->GetHolyCityCapturedByScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_CAPTURED_HOLY_CITY");
 		aOpinions.push_back(kOpinion);
 	}
 

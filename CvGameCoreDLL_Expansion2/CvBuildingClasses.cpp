@@ -60,6 +60,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bRequiresRail(false),
 	m_bDummy(false),
 	m_iResourceQuantityToPlace(0),
+	m_iLandmarksTourismPercentGlobal(0),
+	m_iGreatWorksTourismModifierGlobal(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -112,6 +114,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLocalUnhappinessModifier(0),
 	m_iGlobalBuildingGoldMaintenanceMod(0),
 	m_iBuildingDefenseModifier(0),
+	m_iCitySupplyModifier(0),
+	m_iCitySupplyModifierGlobal(0),
+	m_iCitySupplyFlat(0),
+	m_iCitySupplyFlatGlobal(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -264,6 +270,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bEspionage(false),
 	m_bAllowsFoodTradeRoutes(false),
 	m_bAllowsProductionTradeRoutes(false),
+	m_bAllowsProductionTradeRoutesGlobal(false),
 	m_bNullifyInfluenceModifier(false),
 	m_piLockedBuildingClasses(NULL),
 	m_piPrereqAndTechs(NULL),
@@ -335,6 +342,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pbBuildingClassNeededNowhere(NULL),
 	m_piNumSpecFreeUnits(NULL),
 	m_piNumResourceToPlace(NULL),
+	m_piYieldPerFriend(NULL),
+	m_piYieldPerAlly(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -443,6 +452,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 	SAFE_DELETE_ARRAY(m_piNumResourceToPlace);
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
+	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
+	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -566,6 +577,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bEspionage = kResults.GetBool("Espionage");
 	m_bAllowsFoodTradeRoutes = kResults.GetBool("AllowsFoodTradeRoutes");
 	m_bAllowsProductionTradeRoutes = kResults.GetBool("AllowsProductionTradeRoutes");
+	m_bAllowsProductionTradeRoutesGlobal = kResults.GetBool("AllowsProductionTradeRoutesGlobal");
 	m_bNullifyInfluenceModifier = kResults.GetBool("NullifyInfluenceModifier");
 	m_iNumCityCostMod = kResults.GetInt("NumCityCostMod");
 	m_iHurryCostModifier = kResults.GetInt("HurryCostModifier");
@@ -596,6 +608,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iLocalUnhappinessModifier = kResults.GetInt("LocalUnhappinessModifier");
 	m_iGlobalBuildingGoldMaintenanceMod = kResults.GetInt("GlobalBuildingGoldMaintenanceMod");
 	m_iBuildingDefenseModifier = kResults.GetInt("BuildingDefenseModifier");
+	m_iCitySupplyModifier = kResults.GetInt("CitySupplyModifier");
+	m_iCitySupplyModifierGlobal = kResults.GetInt("CitySupplyModifierGlobal");
+	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
+	m_iCitySupplyFlatGlobal = kResults.GetInt("CitySupplyFlatGlobal");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -741,6 +757,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
 	m_iResourceQuantityToPlace = kResults.GetInt("ResourceQuantityToPlace");
+	m_iLandmarksTourismPercentGlobal = kResults.GetInt("GlobalLandmarksTourismPercent");
+	m_iGreatWorksTourismModifierGlobal = kResults.GetInt("GlobalGreatWorksTourismModifier");
 #endif
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
@@ -884,6 +902,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
+
+	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
+
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
 	//ResourceYieldChanges
@@ -1455,6 +1477,14 @@ int CvBuildingEntry::GetResourceQuantityToPlace() const
 {
 	return m_iResourceQuantityToPlace;
 }
+int CvBuildingEntry::GetLandmarksTourismPercentGlobal() const
+{
+	return m_iLandmarksTourismPercentGlobal;
+}
+int CvBuildingEntry::GetGreatWorksTourismModifierGlobal() const
+{
+	return m_iGreatWorksTourismModifierGlobal;
+}
 #endif
 
 /// Does this building give all units a promotion for free instantly?
@@ -1828,6 +1858,23 @@ bool CvBuildingEntry::IsAllowsRangeStrike() const
 int CvBuildingEntry::GetBuildingDefenseModifier() const
 {
 	return m_iBuildingDefenseModifier;
+}
+int CvBuildingEntry::GetCitySupplyModifier() const
+{
+	return m_iCitySupplyModifier;
+}
+int CvBuildingEntry::GetCitySupplyModifierGlobal() const
+{
+	return m_iCitySupplyModifierGlobal;
+}
+int CvBuildingEntry::GetCitySupplyFlat() const
+{
+	return m_iCitySupplyFlat;
+
+}
+int CvBuildingEntry::GetCitySupplyFlatGlobal() const
+{
+	return m_iCitySupplyFlatGlobal;
 }
 #endif
 
@@ -2266,6 +2313,10 @@ bool CvBuildingEntry::AllowsFoodTradeRoutes() const
 bool CvBuildingEntry::AllowsProductionTradeRoutes() const
 {
 	return m_bAllowsProductionTradeRoutes;
+}
+bool CvBuildingEntry::AllowsProductionTradeRoutesGlobal() const
+{
+	return m_bAllowsProductionTradeRoutesGlobal;
 }
 
 bool CvBuildingEntry::NullifyInfluenceModifier() const
@@ -3001,6 +3052,19 @@ int CvBuildingEntry::GetNumResourcesToPlace(int i) const
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumResourceToPlace ? m_piNumResourceToPlace[i] : -1;
+}
+int CvBuildingEntry::GetYieldPerFriend(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerFriend ? m_piYieldPerFriend[i] : -1;
+}
+
+int CvBuildingEntry::GetYieldPerAlly(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
 }
 #endif
 /// Free units which appear near the capital
@@ -4737,21 +4801,25 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	if(iArt > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getArtYieldBonus(eYield) * iArt);
 	}
 	int iArtifact = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), true);
 	if(iArtifact > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getArtifactYieldBonus(eYield) * iArtifact);
 	}
 	int iLit = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 	if(iLit > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getLitYieldBonus(eYield) * iLit);
 	}
 	int iMusic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
 	if(iMusic > 0)
 	{
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getMusicYieldBonus(eYield) * iMusic);
 	}
 	
 	//Now grab the base yields.
@@ -4765,7 +4833,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 		if(pReligion)
 		{
-			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner());
+			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
 			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{

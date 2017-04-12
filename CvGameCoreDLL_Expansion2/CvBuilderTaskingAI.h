@@ -125,7 +125,7 @@ protected:
 	void LogDirectives(CvUnit* pUnit);
 	void LogDirective(BuilderDirective directive, CvUnit* pUnit, int iWeight, bool bChosen = false);
 
-	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute);
+	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100);
 	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
 	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
 

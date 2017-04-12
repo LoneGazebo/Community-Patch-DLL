@@ -2912,7 +2912,7 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
 	if(iOtherPlayer ~= -1) then
 		if( TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE == itemType ) then
 			--print( "Displaying Peace" );
-			local otherPlayerButton = g_OtherPlayersButtons[iLoopPlayer];
+			local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
 			if(otherPlayerButton ~= nil) then
 				if( bFromUs ) then
 					--print( "    from us" );
@@ -2931,7 +2931,7 @@ function DisplayOtherPlayerItem( bFromUs, itemType, duration, iOtherTeam )
 
 		elseif( TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR == itemType ) then
 			--print( "Displaying War" );
-			local otherPlayerButton = g_OtherPlayersButtons[iLoopPlayer];
+			local otherPlayerButton = g_OtherPlayersButtons[iOtherPlayer];
 			if(otherPlayerButton ~= nil) then
 				if( bFromUs ) then
 					--print( "    from us" );
@@ -4244,7 +4244,7 @@ function ShowOtherPlayerChooser( isUs, type )
 							-- Can't force third party peace with a loser. Has to be a sizeable difference
 							local iFromWarScore = Players[iFromPlayer]:GetWarScore(iLoopPlayer);
 
-							if(iFromWarScore <= 0) then
+							if(iFromWarScore < 75) then
 								if(strToolTip ~= "") then
 									strToolTip = strToolTip .. "[NEWLINE]";
 								end

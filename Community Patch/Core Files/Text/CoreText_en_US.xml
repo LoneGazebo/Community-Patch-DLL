@@ -2371,13 +2371,13 @@
 			<Text>Coup failed!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COUP_FAILED_B_S">
-			<Text>Your coup has failed, either because your spy has died or the is no longer a valid target. As such, the quest from {@1_Civname} was withdrawn.</Text>
+			<Text>Your coup has failed, either because your spy has died or the city is no longer a valid target. As such, the quest from {@1_Civname} was withdrawn.</Text>
 		</Row>
 
 
 		<!-- Steal -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM">
-			<Text>Rogue agents in {@2_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions {1_Civ} (Advanced Actions or Technology Theft), you will be greatly rewarded.</Text>
+			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions against {@1_Civ} (Advanced Actions or Technology Theft), you will be greatly rewarded.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_STEAL_FROM">
 			<Text>Intelligence update from {@1_Civ}</Text>
@@ -5249,7 +5249,7 @@
 		
 		<!-- Brazil LUA-->
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD">
-			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +20% [ICON_CULTURE] Culture instead of the normal 25% [ICON_FOOD] Growth bonus.</Text>
+			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +20% [ICON_CULTURE] Culture in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD_S">
 			<Text>Carnaval begins!</Text>
@@ -5788,51 +5788,51 @@
 			<Text>Historic Event</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_ERA">
-			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_WAR">
-			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP">
-			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_WW">
-			<Text>Because your Civilization constructed a [ICON_GOLDEN_AGE] World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization constructed a [ICON_GOLDEN_AGE] World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_CS">
-			<Text>Because your Civilization completed a Global [ICON_CITY_STATE] City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed a Global [ICON_CITY_STATE] City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY">
-			<Text>Because your Civilization completed an [ICON_RES_ARTIFACTS] Archaeological Dig, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed an [ICON_RES_ARTIFACTS] Archaeological Dig, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GOLDEN_AGE">
-			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 
 		<!-- Arabia -->
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS">
-			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
+			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST">
-			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
+			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER">
-			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
+			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST">
-			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
+			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN">
-			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
+			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT">
-			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
+			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER">
-			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
+			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT">
-			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
+			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS">
@@ -5843,17 +5843,17 @@
 			<Text>Tourism and Trade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num} (before Tourism modifiers)!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS">
 			<Text>City-State Tourism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS">
-			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 
 		<!-- Religion Majority Est. -->
@@ -5867,19 +5867,19 @@
 			<Text>{1_ReligionName} now your [ICON_RELIGION] primary Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION">
-			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Reformation Beliefs related to {1_ReligionName}, and any Founder or Reformation Beliefs related to prior [ICON_RELIGION] Religions are no longer valid.</Text>
+			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Enhancer Beliefs related to {1_ReligionName}, and any Founder or Enhancer Beliefs related to prior [ICON_RELIGION] Religions are no longer valid.</Text>
 		</Row>
 
 		<!-- Holy City Lost/Gained-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_LOST_HOLY">
-			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eliigble, {3_Religion} may become their primary Religion, thus giving them access to its Founder and Reformation Bonuses. If {3_Religion} was your primary Religion, you will lose access to its Beliefs until you retake it.</Text>
+			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eliigble, {3_Religion} may become their primary Religion, thus giving them access to its Founder and Enhancer Bonuses. If {3_Religion} was your primary Religion, you will lose access to its Beliefs until you retake it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY">
 			<Text>Holy City of {1_CityName:textkey} captured!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY">
-			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your primary relgion, thus giving you access to the Founder and Reformation Belief bonuses associated with it (so long as you retain control of the City).</Text>
+			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your primary relgion, thus giving you access to the Founder and Enhancer Belief bonuses associated with it (so long as you retain control of the City).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY">
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
@@ -5887,6 +5887,10 @@
 
 		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS">
 			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DIPLO_CAPTURED_HOLY_CITY">
+			<Text>[COLOR_NEGATIVE_TEXT]You captured their Holy City![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Great Work Gold (LUA)-->
@@ -6036,6 +6040,9 @@
 		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
 			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
+			<Text>[NEWLINE][ICON_BULLET][ICON_FOOD] Growth Penalty (Over Military Unit Supply Cap): {1_Num}%</Text>
+		</Row>
 
 
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
@@ -6096,14 +6103,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING">
-			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase the size of your military within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase your Military Ranking by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT">
 			<Text>Pledge of Protection warning!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER">
-			<Text>If you do not improve your global military standing in {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+			<Text>If you do not improve your Military Ranking by {3_Num}% within {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
 			<Text>Pledge of Protection in jeopardy!</Text>
@@ -6113,6 +6120,64 @@
 			<Text>Your military status in the world has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
+			<Text>Pledge of Protection secured.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must be in the top 60% of the world in terms of Military Power. Yours is ranked at {1_Num}% of world Military Power.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
+			<Text>[NEWLINE]   [ICON_BULLET] Allied with City-State.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NOT_CLOSE_ENOUGH_TT">
+			<Text>[NEWLINE]   [ICON_BULLET] Can trade with City-State.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NO_TRADE_TT">
+			<Text>[NEWLINE]   [ICON_BULLET] City-State connected via trade.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_ACHIEVED">
+			<Text>  [ICON_CHECKBOX]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PTP_ALL_CORRECT">
+			<Text>[ENDCOLOR][NEWLINE][NEWLINE]You cannot Pledge to Protect because:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PTP_ANY_CORRECT">
+			<Text>[ENDCOLOR][NEWLINE][NEWLINE]One of these attributes must have a [ICON_CHECKBOX] next to it:</Text>
+		</Row>
+
+
+
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL">
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL">
+			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL">
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to distance. Ally {1_CSName} or make sure you are within Trade Route range within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL">
+			<Text>Pledge of Protection warning!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL">
+			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range before {2_Num} turns pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL">
+			<Text>Pledge of Protection in jeopardy!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_OPTIONAL">
+			<Text>Your alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT_OPTIONAL">
 			<Text>Pledge of Protection secured.</Text>
 		</Row>
 
@@ -6426,12 +6491,19 @@
 		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
 			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_UNIT">
-			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Unit reduces its [ICON_PRODUCTION] Production cost by {1_Num}%.[ENDCOLOR]</Text>
-		</Row>
+
 		<Row Tag="TXT_KEY_INVESTED">
 			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_UNIT">
+			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Unit reduces its [ICON_PRODUCTION] Production cost by {1_Num}%.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WONDER_COST_INCREASE_METRIC">
+			<Text>Additional [ICON_PRODUCTION] Production cost due to owned World Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].[NEWLINE][ICON_PRODUCTION] Production cost increase metric:[NEWLINE][ICON_BULLET] Wonders from the same Era: [COLOR_POSITIVE_TEXT]25%.[ENDCOLOR][NEWLINE][ICON_BULLET] Wonders from the previous Era: [COLOR_POSITIVE_TEXT]15%[ENDCOLOR].[NEWLINE][ICON_BULLET] Wonders from earlier Eras: [COLOR_POSITIVE_TEXT]10%.[ENDCOLOR]</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS">
 			<Text>Enable Events System</Text>
 		</Row>
@@ -6477,6 +6549,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP">
 			<Text>Barbarian spawn rates reduced slightly, and camps do not spawn two units when created. Groovy, man.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY">
+			<Text>Randomized Victories</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP">
+			<Text>One random Victory Type (Domination, Culture, Diplomatic, or Spaceship) is enabled when any player enters the Information Era. All other victories are disabled (note: Score and Domination Victories are always possible).</Text>
 		</Row>
 
 		<!-- Egypt CBO-->
@@ -6813,6 +6892,24 @@
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD">
 			<Text>Golden Age Conquest Of The World Bonus</Text>
+		</Row>
+
+		<!-- Randomization Victory Data-->
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
+			<Text>Victory Condition Enabled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_DIPLO">
+			<Text>Human history is a history of violence, yet a new era dawns, and with it, a chance at human redemption. The World Congress is the battleground of the future; the prize is leadership over all other nations as the first World Leader.[NEWLINE][COLOR_POSITIVE_TEXT]Secure power as the Global Hegemon via a Diplomatic Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CULTURE">
+			<Text>The survival of humanity depends on the creation of a single, unifying cultural entity, a monolith of ideas, ideologies, and values. The world's cultural powers will each strive to define this monolith themselves - it is up to you to show the world what a truly unifed culture should look like.[NEWLINE][COLOR_POSITIVE_TEXT]Unify the world via a Cultural Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_SPACERACE">
+			<Text>Modernity has not been kind to planet earth. The very vessel upon which we depend - Spaceship Earth - may soon perish. Our first flights took us to the edge of space; we must harness this power and be the first to discover a new home for humanity.[NEWLINE][COLOR_POSITIVE_TEXT]Be the first to escape a dying planet via a Spaceship Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CONQUEST">
+			<Text>An age of eternal war has fallen upon humanity. Bitter rivalries, unsolved through diplomacy, look to the battlefield for resolution.To be second place in this contest is to be condemnded to the ash heap of history. Harness the weapons of war and bring glory to your empire![NEWLINE][COLOR_POSITIVE_TEXT]Conquer or be conquered via a Domination Victory![ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

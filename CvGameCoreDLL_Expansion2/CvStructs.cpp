@@ -378,13 +378,6 @@ int CvCombatInfo::getDamageInflicted(BattleUnitTypes unitType) const
 				}
 				
 				iDamage += iValue;
-	
-// Fuck fucking C const, it should have been fucking banned fucking years ago!
-//				if (unitType == BATTLE_UNIT_ATTACKER) {
-//					m_iFinalDamage[BATTLE_UNIT_DEFENDER] += iValue;
-//				} else {
-//					m_iFinalDamage[BATTLE_UNIT_ATTACKER] += iValue;
-//				}
 			}
 		}
 	}

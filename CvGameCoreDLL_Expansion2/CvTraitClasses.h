@@ -111,10 +111,14 @@ public:
 	bool IsBuyOwnedTiles() const;
 	bool IsReconquista() const;
 	bool IsForeignReligionSpreadImmune() const;
-	bool IsInspirationalLeader() const;
+	int GetInspirationalLeader() const;
+	int GetBullyMilitaryStrengthModifier() const;
+	int GetBullyValueModifier() const;
 	bool IsDiplomaticMarriage() const;
 	bool IsAdoptionFreeTech() const;
 	bool IsGPWLTKD() const;
+	bool IsGreatWorkWLTKD() const;
+	bool IsExpansionWLTKD() const;
 	bool IsTradeRouteOnly() const;
 	bool IsKeepConqueredBuildings() const;
 	bool IsMountainPass() const;
@@ -122,7 +126,8 @@ public:
 	bool IsNoNaturalReligionSpread() const;
 	bool IsNoOpenTrade() const;
 	bool IsGoldenAgeOnWar() const;
-	int  GetGrowthBoon() const;
+	int GetWLTKDGPImprovementModifier() const;
+	int GetGrowthBoon() const;
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
 	int GetTourismGABonus() const;
@@ -148,6 +153,7 @@ public:
 	bool IsFreeUpgrade() const;
 	bool IsWarsawPact() const;
 	bool IsFreeZuluPikemanToImpi() const;
+	bool IsPermanentYieldsDecreaseEveryEra() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -246,6 +252,8 @@ public:
 	bool IsNoReligiousStrife() const;
 	bool IsOddEraScaler() const;
 	int GetWonderProductionModGA() const;
+	int GetCultureBonusModifierConquest() const;
+	int GetProductionBonusModifierConquest() const;
 #endif
 
 	// Arrays
@@ -300,11 +308,13 @@ public:
 	bool IsFreeGreatWorkOnConquest() const;
 	bool IsPopulationBoostReligion() const;
 	bool IsCombatBoostNearNaturalWonder() const;
+	int GetFreePolicyPerXTechs() const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	int GetCapitalYieldChanges(int i) const;
 	int GetCityYieldChanges(int i) const;
+	int GetPermanentYieldChangeWLTKD(int i) const;
 	int GetCoastalCityYieldChanges(int i) const;
 	int GetGreatWorkYieldChanges(int i) const;
 	int GetArtifactYieldChanges(int i) const;
@@ -416,15 +426,20 @@ protected:
 	bool m_bBuyOwnedTiles;
 	bool m_bReconquista;
 	bool m_bNoSpread;
-	bool m_bInspirationalLeader;
+	int m_iInspirationalLeader;
+	int m_iBullyMilitaryStrengthModifier;
+	int m_iBullyValueModifier;
 	bool m_bDiplomaticMarriage;
 	bool m_bAdoptionFreeTech;
 	bool m_bGPWLTKD;
+	bool m_bGreatWorkWLTKD;
+	bool m_bExpansionWLTKD;
 	bool m_bTradeRouteOnly;
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	int m_iGrowthBoon;
+	int m_iWLTKDGPImprovementModifier;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
@@ -447,6 +462,7 @@ protected:
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
 	bool m_bFreeZuluPikemanToImpi;
+	bool m_bPermanentYieldsDecreaseEveryEra;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -544,6 +560,8 @@ protected:
 	bool m_bIsNoReligiousStrife;
 	bool m_bIsOddEraScaler;
 	int m_iWonderProductionModGA;
+	int m_iCultureBonusModifierConquest;
+	int m_iProductionBonusModifierConquest;
 #endif
 
 	CvString m_strShortDescription;
@@ -587,6 +605,7 @@ protected:
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
+	int m_iFreePolicyPerXTechs;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
@@ -597,6 +616,7 @@ protected:
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piCapitalYieldChanges;
 	int* m_piCityYieldChanges;
+	int* m_piPermanentYieldChangeWLTKD;
 	int* m_piCoastalCityYieldChanges;
 	int* m_piGreatWorkYieldChanges;
 	int* m_piArtifactYieldChanges;
@@ -899,9 +919,17 @@ public:
 	{
 		return m_bNoSpread;
 	};
-	bool IsInspirationalLeader() const
+	int GetInspirationalLeader() const
 	{
-		return m_bInspirationalLeader;
+		return m_iInspirationalLeader;
+	};
+	int GetBullyMilitaryStrengthModifier() const
+	{
+		return m_iBullyMilitaryStrengthModifier;
+	};
+	int GetBullyValueModifier() const
+	{
+		return m_iBullyValueModifier;
 	};
 	bool IsDiplomaticMarriage() const
 	{
@@ -914,6 +942,14 @@ public:
 	bool IsGPWLTKD() const
 	{
 		return m_bGPWLTKD;
+	};
+	bool IsGreatWorkWLTKD() const
+	{
+		return m_bGreatWorkWLTKD;
+	};
+	bool IsExpansionWLTKD() const
+	{
+		return m_bExpansionWLTKD;
 	};
 	bool IsTradeRouteOnly() const
 	{
@@ -942,6 +978,10 @@ public:
 	bool IsGoldenAgeOnWar() const
 	{
 		return m_bGoldenAgeOnWar;
+	};
+	int GetWLTKDGPImprovementModifier() const
+	{
+		return m_iWLTKDGPImprovementModifier;
 	};
 	int GetGrowthBoon() const
 	{
@@ -1046,6 +1086,10 @@ public:
 	bool IsFreeZuluPikemanToImpi() const
 	{
 		return m_bFreeZuluPikemanToImpi;
+	};
+	bool IsPermanentYieldsDecreaseEveryEra() const
+	{
+		return m_bPermanentYieldsDecreaseEveryEra;
 	};
 	bool IsWarsawPact() const
 	{
@@ -1313,6 +1357,14 @@ public:
 	{
 		return m_iWonderProductionModGA;
 	}
+	int GetCultureBonusModifierConquest() const
+	{
+		return m_iCultureBonusModifierConquest;
+	};
+	int GetProductionBonusModifierConquest() const
+	{
+		return m_iProductionBonusModifierConquest;
+	};
 #endif
 
 	int GetExtraYieldThreshold(YieldTypes eYield) const
@@ -1449,6 +1501,10 @@ public:
 	{
 		return m_iGoldenAgeFromVictory;
 	};
+	int GetFreePolicyPerXTechs() const
+	{
+		return m_iFreePolicyPerXTechs;
+	};
 	bool IsFreeGreatWorkOnConquest() const
 	{
 		return m_bFreeGreatWorkOnConquest;
@@ -1479,6 +1535,10 @@ public:
 	int GetCityYieldChanges(YieldTypes eYield) const
 	{
 		return m_iCityYieldChanges[(int)eYield];
+	};
+	int GetPermanentYieldChangeWLTKD(YieldTypes eYield) const
+	{
+		return m_iPermanentYieldChangeWLTKD[(int)eYield];
 	};
 	int GetCoastalCityYieldChanges(YieldTypes eYield) const
 	{
@@ -1674,10 +1734,14 @@ private:
 	bool m_bBuyOwnedTiles;
 	bool m_bReconquista;
 	bool m_bNoSpread;
-	bool m_bInspirationalLeader;
+	int m_iInspirationalLeader;
+	int m_iBullyMilitaryStrengthModifier;
+	int m_iBullyValueModifier;
 	bool m_bDiplomaticMarriage;
 	bool m_bAdoptionFreeTech;
 	bool m_bGPWLTKD;
+	bool m_bGreatWorkWLTKD;
+	bool m_bExpansionWLTKD;
 	bool m_bTradeRouteOnly;
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
@@ -1687,6 +1751,7 @@ private:
 	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
 	int m_iEventTourismBoost;
+	int m_iWLTKDGPImprovementModifier;
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
 	int m_iAllianceCSStrength;
@@ -1711,6 +1776,7 @@ private:
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
 	bool m_bFreeZuluPikemanToImpi;
+	bool m_bPermanentYieldsDecreaseEveryEra;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1857,13 +1923,17 @@ private:
 	int m_iVotePerXCSFollowingFollowingYourReligion;
 	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
+	int m_iFreePolicyPerXTechs;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
+	int m_iCultureBonusModifierConquest;
+	int m_iProductionBonusModifierConquest;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	int m_iCityYieldChanges[NUM_YIELD_TYPES];
+	int m_iPermanentYieldChangeWLTKD[NUM_YIELD_TYPES];
 	int m_iCapitalYieldChanges[NUM_YIELD_TYPES];
 	int m_iCoastalCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iGreatWorkYieldChanges[NUM_YIELD_TYPES];

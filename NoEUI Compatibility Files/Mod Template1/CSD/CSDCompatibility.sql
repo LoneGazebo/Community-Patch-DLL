@@ -1,11 +1,12 @@
 -- Units
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ENVOY','BUILDINGCLASS_CHANCERY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DIPLOMAT','BUILDINGCLASS_CHANCERY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_AMBASSADOR','BUILDINGCLASS_WIRE_SERVICE';
 
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_EMISSARY';
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_ENVOY';
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_DIPLOMAT';
-UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_AMBASSADOR';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_EMISSARY';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_ENVOY';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_DIPLOMAT';
+UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_AMBASSADOR';
 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
 
@@ -39,18 +40,13 @@ INSERT INTO Policy_FaithPurchaseUnitClasses
 VALUES
 	('POLICY_PATRONAGE_FINISHER', 'UNITCLASS_GREAT_DIPLOMAT');
 
-INSERT INTO Trait_GreatPersonBornYield
-	(TraitType, GreatPersonType, YieldType, Yield)
-VALUES
-	('TRAIT_ART_OF_WAR', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLDEN_AGE_POINTS', 50);
-
 INSERT INTO Belief_GreatPersonExpendedYield
 	(BeliefType, GreatPersonType, YieldType, Yield)
 VALUES
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_SCIENCE', 30),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 30),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 30),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 30);
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_SCIENCE', 20),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 20),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 20),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 20);
 
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
@@ -68,10 +64,15 @@ VALUES
 	('POLICY_LEGALISM', 'BUILDINGCLASS_FINANCE_CENTER', 2),
 	('POLICY_LEGALISM', 'BUILDINGCLASS_EHRENHALLE', 2);
 
+INSERT INTO Trait_GreatPersonBornYield
+	(TraitType, GreatPersonType, YieldType, Yield)
+VALUES
+	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLDEN_AGE_POINTS', 50);
+
 INSERT INTO Trait_GoldenAgeGreatPersonRateModifier
 	(TraitType, GreatPersonType, Modifier)
 VALUES
-	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 50);
+	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 30);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
@@ -128,11 +129,14 @@ UPDATE Buildings SET RAToVotes = '0' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTU
 
 -- Building Costs
 
-UPDATE Buildings SET Cost = '125' WHERE Type = 'BUILDING_COURT_SCRIBE';
-UPDATE Buildings SET Cost = '250' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET GoldMaintenance = '2' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET Cost = '700' WHERE Type = 'BUILDING_WIRE_SERVICE';
-UPDATE Buildings SET GoldMaintenance = '4' WHERE Type = 'BUILDING_WIRE_SERVICE';
+UPDATE Buildings SET Cost = '150' WHERE Type = 'BUILDING_COURT_SCRIBE';
+UPDATE Buildings SET Cost = '300' WHERE Type = 'BUILDING_CHANCERY';
+UPDATE Buildings SET GoldMaintenance = '3' WHERE Type = 'BUILDING_CHANCERY';
+UPDATE Buildings SET Cost = '1800' WHERE Type = 'BUILDING_WIRE_SERVICE';
+UPDATE Buildings SET GoldMaintenance = '6' WHERE Type = 'BUILDING_WIRE_SERVICE';
+
+UPDATE Buildings SET Cost = '200' WHERE Type = 'BUILDING_FORUM';
+UPDATE Buildings SET Cost = '900' WHERE Type = 'BUILDING_SUMMER_PALACE';
 
 INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
 SELECT 'BUILDING_COURT_SCRIBE' , 'UNIT_EMISSARY' , '1'

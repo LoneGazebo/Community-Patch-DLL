@@ -45,10 +45,10 @@
 			<Gender>neuter:an</Gender>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_TEXT">
-			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.[NEWLINE][NEWLINE]A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.</Text>
+			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.[NEWLINE][NEWLINE]A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_SHOSHONE_HELP">
-			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.</Text>
+			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Encampments provide a small defense modifier to units stationed on them, and damage nearby enemy units (5) if they end their turn on or next to an Encampment. Must be built in Shoshone territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE">
 			<Text>Construct an [LINK=IMPROVEMENT_ENCAMPMENT_SHOSHONE]Encampment[\LINK]</Text>
@@ -203,10 +203,13 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_FOOD] Food from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_CULTURE] Culture from Resource tiles.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_CULTURE] Culture from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PEACE] Faith from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_PRODUCTION] Production in all owned Cities.</Text>
@@ -232,10 +235,10 @@
 			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_OIL">
-			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_HORSE">
-			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION_IRON">
 			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_PRODUCTION] Production from Resource tiles.</Text>

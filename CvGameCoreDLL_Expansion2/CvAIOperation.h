@@ -1126,9 +1126,10 @@ namespace OperationalAIHelpers
 	int GetGatherRangeForXUnits(int iTotalUnits);
 	CvPlot* FindBestCoastalBombardmentTarget(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot** ppMuster);
 	CvPlot* FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppMuster);
-	CvPlot* FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
+	CvPlot* FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
-	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation = NULL, CvArmyAI* pThisArmy = NULL);
+	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, 
+				bool bMustNaval, bool bMustBeDeepWaterNaval, int& iTurnDistance, CvMultiUnitFormationInfo* thisFormation = NULL, CvArmyAI* pThisArmy = NULL);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, CvPlot* pRefPlot);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, PlayerTypes eEnemy);
 	CvCity* GetNearestCoastalCityEnemy(PlayerTypes ePlayer, PlayerTypes eEnemy);

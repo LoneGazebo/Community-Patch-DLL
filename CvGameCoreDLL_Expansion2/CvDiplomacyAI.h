@@ -378,7 +378,7 @@ public:
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
 
-	int GetNumDefensivePactsWanted() const;
+	int GetNumDefensivePactsWanted(PlayerTypes ePlayer = NO_PLAYER) const;
 
 	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
@@ -434,6 +434,7 @@ public:
 	bool IsHasPaidTributeTo(PlayerTypes ePlayer);
 	bool IsNukedBy(PlayerTypes ePlayer);
 	bool IsCapitalCapturedBy(PlayerTypes ePlayer);
+	bool IsHolyCityCapturedBy(PlayerTypes ePlayer);
 	bool IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer);
 	bool IsAngryAboutProtectedMinorAttacked(PlayerTypes ePlayer);
 	bool IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer);
@@ -471,6 +472,17 @@ public:
 	BlockLevelTypes GetVictoryBlockLevel(PlayerTypes ePlayer) const;
 	void SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel);
 	void DoUpdateVictoryBlockLevels();
+
+	void DoRelationshipPairing();
+	
+	int GetDefensivePactValue(PlayerTypes ePlayer);
+	PlayerTypes GetMostValuableDefensivePact(bool bIgnoreDPs);
+
+	int GetDoFValue(PlayerTypes ePlayer);
+	PlayerTypes GetMostValuableDoF(bool bIgnoreDoFs);
+
+	int GetCompetitorValue(PlayerTypes ePlayer);
+	PlayerTypes GetBiggestCompetitor();
 #endif
 
 	// Victory Dispute
@@ -1337,6 +1349,7 @@ public:
 	int GetPolicyScore(PlayerTypes ePlayer);
 #endif
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
+	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
 	int GetGaveAssistanceToScore(PlayerTypes ePlayer);
 	int GetPaidTributeToScore(PlayerTypes ePlayer);
 	int GetLikedTheirProposalScore(PlayerTypes ePlayer);
@@ -1391,6 +1404,7 @@ public:
 	int GetNumTurnsSinceSomethingSent(PlayerTypes ePlayer);
 #endif
 	// Minor Civ Log
+	void LogMinorCivGiftTile(PlayerTypes ePlayer);
 	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
 	void LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, int iGold, bool bSuccess, int iBullyMetricScore);
 	void LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, UnitTypes eUnit, bool bSuccess, int iBullyMetricScore);
@@ -1576,6 +1590,10 @@ private:
 		short m_aiPlayerStopSpyingRequestCounter[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE)
 		short m_aiPlayerBackstabCounter[MAX_MAJOR_CIVS];
+
+		short m_aiDefensivePactValue[MAX_MAJOR_CIVS];
+		short m_aiDoFValue[MAX_MAJOR_CIVS];
+		short m_aiCompetitorValue[MAX_MAJOR_CIVS];
 #endif
 
 		short m_aiDemandCounter[MAX_MAJOR_CIVS];
@@ -1845,6 +1863,10 @@ private:
 #if defined(MOD_BALANCE_CORE_DEALS)
 	bool* m_pabWantsDefensivePactWithPlayer;
 	bool* m_pabWantsSneakAttack;
+
+	short* m_paiDefensivePactValue;
+	short* m_paiDoFValue;
+	short* m_paiCompetitorValue;
 #endif
 	bool* m_pabWantToRouteToMinor;
 

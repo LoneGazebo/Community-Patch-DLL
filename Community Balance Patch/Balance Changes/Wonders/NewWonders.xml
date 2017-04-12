@@ -101,7 +101,7 @@
 		<Row>
 			<Type>BUILDING_SLATER_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_SLATER_MILL</BuildingClass>
-			<Cost>900</Cost>
+			<Cost>1000</Cost>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Description>TXT_KEY_BUILDING_SLATER_MILL</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT</Civilopedia>
@@ -125,14 +125,14 @@
 		<Row>
 			<Type>BUILDING_MOTHERLAND_STATUE</Type>
 			<BuildingClass>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClass>
-			<Cost>1300</Cost>
+			<Cost>1600</Cost>
 			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
 			<Description>TXT_KEY_BUILDING_MOTHERLAND_STATUE</Description>
 			<Quote>TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE</Quote>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT</Civilopedia>
 			<Help>TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP</Help>
-			<ArtDefineTag>ART_DEF_BUILDING_MOTHERLAND_STATUE</ArtDefineTag>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -148,7 +148,7 @@
 		<Row>
 			<Type>BUILDING_BLETCHLEY_PARK</Type>
 			<BuildingClass>BUILDINGCLASS_BLETCHLEY_PARK</BuildingClass>
-			<Cost>1750</Cost>
+			<Cost>2150</Cost>
 			<PrereqTech>TECH_COMPUTERS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BLETCHLEY_PARK</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT</Civilopedia>
@@ -174,7 +174,7 @@
 		<Row>
 			<Type>BUILDING_EMPIRE_STATE_BUILDING</Type>
 			<BuildingClass>BUILDINGCLASS_EMPIRE_STATE_BUILDING</BuildingClass>
-			<Cost>1300</Cost>
+			<Cost>1600</Cost>
 			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<Description>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING</Description>
@@ -195,13 +195,14 @@
 		<Row>
 			<Type>BUILDING_CERN</Type>
 			<BuildingClass>BUILDINGCLASS_CERN</BuildingClass>
-			<Cost>2750</Cost>
+			<Cost>3250</Cost>
 			<PrereqTech>TECH_PARTICLE_PHYSICS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_CERN</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CERN_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_CERN_HELP</Help>
 			<Quote>TXT_KEY_WONDER_CERN_QUOTE</Quote>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<FreeTechs>2</FreeTechs>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

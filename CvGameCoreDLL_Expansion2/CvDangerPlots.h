@@ -43,6 +43,7 @@ struct SUnitInfo
 	int m_damage;
 };
 
+#define DANGER_MAX_CACHE_SIZE 5
 struct CvDangerPlotContents
 {
 	CvDangerPlotContents()
@@ -66,13 +67,13 @@ struct CvDangerPlotContents
 		m_pCitadel = NULL;
 		m_apUnits.clear();
 		m_apCities.clear();
+		m_fogDanger.clear();
 
 		//reset cache
-		m_lastUnit = SUnitInfo(NULL);
-		m_lastResult = 0;
+		m_lastResults.clear();
 	};
 
-	int GetDanger(const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
 
@@ -91,10 +92,10 @@ struct CvDangerPlotContents
 	CvPlot* m_pCitadel;
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;
+	std::vector<int> m_fogDanger;
 
 	//caching ...
-	SUnitInfo m_lastUnit;
-	int m_lastResult;
+	std::vector< std::pair<SUnitInfo,int> > m_lastResults;
 };
 
 inline FDataStream & operator >> (FDataStream & kStream, CvDangerPlotContents & kStruct)
@@ -138,7 +139,7 @@ public:
 	void Reset();
 
 	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false);
-	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
 

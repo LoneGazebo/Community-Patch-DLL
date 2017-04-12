@@ -329,6 +329,11 @@ public:
 	VictoryTypes getVictory() const;
 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 
+#if defined(MOD_BALANCE_CORE)
+	bool isVictoryRandomizationDone() const;
+	void setVictoryRandomizationDone(bool bValue);
+#endif
+
 	bool isVictoryAvailable(VictoryTypes eVictory) const;
 	int GetNextAvailableVictoryCompetitionRank(VictoryTypes eVictory) const;
 	void DoPlaceTeamInVictoryCompetition(VictoryTypes eNewVictory, TeamTypes eTeam);
@@ -490,6 +495,10 @@ public:
 
 	void testVictory();
 	bool testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScore = NULL) const;
+
+#if defined(MOD_BALANCE_CORE)
+	void doVictoryRandomization();
+#endif
 
 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;
 	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iCost);
@@ -775,6 +784,7 @@ protected:
 	char /*TeamTypes*/ m_eTeamThatCircumnavigated;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	bool m_bVictoryRandomization;
 	int m_iCultureAverage;
 	int m_iScienceAverage;
 	int m_iDefenseAverage;

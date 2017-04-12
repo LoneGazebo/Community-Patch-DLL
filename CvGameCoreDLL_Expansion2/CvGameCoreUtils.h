@@ -199,7 +199,6 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex);
 int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot);
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);
-bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam);
 
 CvCity* getCity(IDInfo city);
 CvUnit* getUnit(const IDInfo& unit);
@@ -260,12 +259,10 @@ bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_isVisible(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_isVisibleDebug(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_canSiege(const CvUnit* pUnit, int iData1, int iData2 = -1);
-bool PUF_isPotentialEnemy(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
 bool PUF_canDefend(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
 bool PUF_cannotDefend(const CvUnit* pUnit, int iData1 = -1, int iData2 = -1);
 bool PUF_canDefendEnemy(const CvUnit* pUnit, int iData1, int iData2 = -1);
-bool PUF_canDefendPotentialEnemy(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_isFighting(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_isUnitType(const CvUnit* pUnit, int iData1, int iData2 = -1);
 bool PUF_isDomainType(const CvUnit* pUnit, int iData1, int iData2 = -1);

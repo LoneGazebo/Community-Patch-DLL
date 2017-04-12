@@ -175,6 +175,19 @@ function UpdateData()
 				strFaithStr = "[ICON_PEACE]" .. strFaithStr;
 			end
 			Controls.FaithString:SetText(strFaithStr);
+
+			local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+			local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+
+			local strSupplyStr = "";
+			if(iUnitsTotal > iUnitsSupplied) then
+				strSupplyStr = string.format(" [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iUnitsTotal, iUnitsSupplied);
+			else
+				strSupplyStr = string.format(" (%i/%i)", iUnitsTotal, iUnitsSupplied);
+			end
+			strSupplyStr = "[ICON_WAR]" .. strSupplyStr;
+
+			Controls.UnitSupplyString:SetText(strSupplyStr);
 	
 			-----------------------------
 			-- Update Resources
@@ -237,19 +250,6 @@ function UpdateData()
 		-- Update turn counter
 		local turn = Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", Game.GetGameTurn());
 		Controls.CurrentTurn:SetText(turn);
-		
-		-- Update Unit Supply
-		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
-		if (iUnitSupplyMod ~= 0) then
-			local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-			local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
-			local strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
-			
-			Controls.UnitSupplyString:SetToolTipString(strUnitSupplyToolTip);
-			Controls.UnitSupplyString:SetHide(false);
-		else
-			Controls.UnitSupplyString:SetHide(true);
-		end
 		
 		-- Update date
 		local date;
@@ -341,6 +341,17 @@ Controls.FaithString:RegisterCallback( Mouse.eLClick, OnFaithClicked );
 
 -------------------------------------------------
 -------------------------------------------------
+function OnSupplyClicked()
+	
+	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW } );
+
+end
+Controls.UnitSupplyString:RegisterCallback( Mouse.eLClick, OnSupplyClicked );
+
+
+
+-------------------------------------------------
+-------------------------------------------------
 function OnGoldClicked()
 	
 	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW } );
@@ -374,6 +385,7 @@ function DoInitTooltips()
 	Controls.FaithString:SetToolTipCallback( FaithTipHandler );
 	Controls.ResourceString:SetToolTipCallback( ResourcesTipHandler );
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
+	Controls.UnitSupplyString:SetToolTipCallback( UnitSupplyHandler );
 end
 
 -- Science Tooltip
@@ -880,7 +892,8 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
 		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 -- COMMUNITY PATCH CHANGES BELOW
-		iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + pPlayer:GetUnhappinessFromWarWeariness();
+		iUnhappinessPublicOpinion = iUnhappinessPublicOpinion;
+		local iUnhappinessFromWarWeariness = pPlayer:GetUnhappinessFromWarWeariness();
 		local iUnhappinessFromStarving = pPlayer:GetUnhappinessFromCityStarving();
 		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
 		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
@@ -939,6 +952,10 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);
 		end
 --COMMUNITY PATCH CHANGES
+		if (iUnhappinessFromWarWeariness > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWarWeariness);
+		end
 		if (iUnhappinessFromStarving > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving);
@@ -992,7 +1009,7 @@ end
 -- Golden Age Tooltip
 function GoldenAgeTipHandler( control )
 
-	local strText;
+	local strText = "";
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)) then
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP");
@@ -1004,34 +1021,39 @@ function GoldenAgeTipHandler( control )
 	
 		if (pPlayer:GetGoldenAgeTurns() > 0) then
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_NOW", pPlayer:GetGoldenAgeTurns());
-		else
-			local iHappiness = pPlayer:GetExcessHappiness();
-
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
-			strText = strText .. "[NEWLINE]";
+		end
 		
-			if (iHappiness >= 0) then
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION", iHappiness);
-			else
-				strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
-			end
-			-- CBP
-			local iGAPReligion = pPlayer:GetGAPFromReligion();
-			if (iGAPReligion > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
-			end
-			local iGAPTrait = pPlayer:GetGAPFromTraits();
-			if (iGAPTrait > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
-			end
-			local iGAPCities = pPlayer:GetGAPFromCities();
-			if (iGAPCities > 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
-			end
-			-- END
+		local iHappiness = pPlayer:GetExcessHappiness();
+
+		if(strText ~= "") then
+			strText = strText .. "[NEWLINE][NEWLINE]";
+		end
+
+		strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. "[NEWLINE]";
+		
+		if (iHappiness >= 0) then
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION", iHappiness);
+		else
+			strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
+		end
+		-- CBP
+		local iGAPReligion = pPlayer:GetGAPFromReligion();
+		if (iGAPReligion > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
+		end
+		local iGAPTrait = pPlayer:GetGAPFromTraits();
+		if (iGAPTrait > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
+		end
+		local iGAPCities = pPlayer:GetGAPFromCities();
+		if (iGAPCities > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
+		end
+		-- END
 		end
 	
 		strText = strText .. "[NEWLINE][NEWLINE]";
@@ -1230,6 +1252,13 @@ function CultureTipHandler( control )
 		end
 -- END
 
+-- CBP
+		if(pPlayer:GetTechsToFreePolicy() >= 0)then
+			strText = strText .. "[NEWLINE][NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY", pPlayer:GetTechsToFreePolicy());
+		end
+--END 
+
 		-- Let people know that building more cities makes policies harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
@@ -1269,6 +1298,12 @@ function TourismTipHandler( control )
 		
 		strText = strText .. "[NEWLINE][NEWLINE]" .. strText3;
 	end	
+
+	--CBP
+	local iTourismPenalty = pPlayer:GetTourismPenalty();
+	local strTextTourism = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty);
+	strText = strText .. "[NEWLINE][NEWLINE]" .. strTextTourism;
+	--END
 
 	tipControlTable.TooltipLabel:SetText( strText );
 	tipControlTable.TopPanelMouseover:SetHide(false);
@@ -1398,6 +1433,52 @@ function FaithTipHandler( control )
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
 	
+end
+
+function UnitSupplyHandler(control)
+
+	local strUnitSupplyToolTip = "";
+	local iPlayerID = Game.GetActivePlayer();
+	local pPlayer = Players[iPlayerID];
+
+	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
+	if (iUnitSupplyMod ~= 0) then
+		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+		local iWarWearinessReduction = pPlayer:GetWarWeariness();
+		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+
+		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+		strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
+
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction);
+
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
+	else
+		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+		local iWarWearinessReduction = pPlayer:GetWarWeariness();
+		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessReduction);
+	end
+
+	if(strUnitSupplyToolTip ~= "") then
+		tipControlTable.TopPanelMouseover:SetHide(false);
+		tipControlTable.TooltipLabel:SetText( strUnitSupplyToolTip );
+	else
+		tipControlTable.TopPanelMouseover:SetHide(true);
+	end
+    
+    -- Autosize tooltip
+    tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
 -- Resources Tooltip

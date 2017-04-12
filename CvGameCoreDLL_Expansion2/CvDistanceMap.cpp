@@ -47,13 +47,14 @@ void CvDistanceMap::Reset()
 /// Updates the lookup table
 void CvDistanceMapTurns::Update()
 {
-	//we consciously ignore plots which are more than X turns away
-	int iMaxTurns = 42;
+	//performance optimization, reduce pathfinding range
+	int iMaxTurns = GC.getGame().getElapsedGameTurns() == 0 ? 7 : 12;
+	int iVeryFar = iMaxTurns * 6;
 
 	const CvMap& map = GC.getMap();
 	int nPlots = map.numPlots();
 
-	m_vDistance = std::vector<int>(nPlots, iMaxTurns);
+	m_vDistance = std::vector<int>(nPlots, iVeryFar);
 	m_vClosestFeature = std::vector<int>(nPlots,0);
 	m_bArrayAllocated = true;
 		
@@ -68,17 +69,18 @@ void CvDistanceMapTurns::Update()
 		int iCityIndex = 0;
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
+			//slow update only for plots close to the city
 			ReachablePlots turnsFromCity;
 			SPathFinderUserData data(m_ePlayer, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
 			turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
 			{
-				int iDistance = it->iTurns;
-				bool bUpdate = (iDistance < m_vDistance[it->iPlotIndex]);
+				int iTurns = it->iTurns;
+				bool bUpdate = (iTurns < m_vDistance[it->iPlotIndex]);
 					
 				//in case of equal distance, take care not to prefer the player with the lower ID
-				if (iDistance == m_vDistance[it->iPlotIndex])
+				if (iTurns == m_vDistance[it->iPlotIndex])
 				{
 					PlayerTypes currentOwner = (PlayerTypes)UNPACK_OWNER(m_vClosestFeature[it->iPlotIndex]);
 					CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity(UNPACK_ID(m_vClosestFeature[it->iPlotIndex]));
@@ -88,7 +90,7 @@ void CvDistanceMapTurns::Update()
 
 				if (bUpdate)
 				{
-					m_vDistance[it->iPlotIndex] = iDistance;
+					m_vDistance[it->iPlotIndex] = iTurns;
 					m_vClosestFeature[it->iPlotIndex] = PACK(pLoopCity->getOwner(), pLoopCity->GetID());
 				}
 			}

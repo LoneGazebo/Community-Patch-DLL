@@ -7,7 +7,7 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(11-10) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
+    <Teaser>(2-27) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
     <Description>LUA and mod compatibility files for CBO if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -114,6 +114,12 @@
       </Association>
     </ModDependencies>
     <ModContent>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>AssignStartingPlots</Name>
+        <Description>AssignStartingPlots</Description>
+        <FileName>LUA/AssignStartingPlots.lua</FileName>
+      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -169,6 +175,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\ActionInfoPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\AssignStartingPlots.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -360,6 +370,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\MilitaryOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\NaturalWonderPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -377,6 +391,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\ProductionPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\ProductionPopup.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -409,6 +427,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\TopPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\TopPanel.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

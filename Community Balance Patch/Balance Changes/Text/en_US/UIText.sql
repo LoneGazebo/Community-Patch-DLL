@@ -1,3 +1,28 @@
+-- Misc text update
+-- Puppet TT TopPanel
+UPDATE Language_en_US
+SET Text = '{1_Num} {2_IconString} from Traits and Other Sources'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_MISC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Puppet TT TopPanel
+UPDATE Language_en_US
+SET Text = 'Each ([ICON_PUPPET] non-Puppet) City you own will increase Technology costs by {1_Num}%.'
+WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Puppet TT TopPanel
+UPDATE Language_en_US
+SET Text = 'Each ([ICON_PUPPET] non-Puppet) City you own will increase Social Policy costs by {1_Num}%.'
+WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Supply Info
+UPDATE Language_en_US
+SET Text = 'Your empire can support {1_Num} Units. You are over that limit by {2_Num}, which decreases [ICON_PRODUCTION] Production and [ICON_FOOD] Growth in your Cities by {3_Num}%.'
+WHERE Tag = 'TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[ICON_FOOD]/[ICON_PRODUCTION] Supply Penalty'
+WHERE Tag = 'TXT_KEY_SUPPLY_DEFICIT_PENALTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Wonders
 UPDATE Language_en_US
 SET Text = 'Wonders are the remarkable, one-of-a-kind buildings that ensure that a civilization will be remembered throughout all of history. Wonders engage the mind and lift the spirits.[NEWLINE][NEWLINE]The Pyramids, Notre Dame Cathedral, and Stonehenge are examples of wonders. Wonders require much time and energy from your cities to construct, but once completed, they provide your civilization with many benefits.[NEWLINE][NEWLINE]There are three basic types of wonders: World Wonders, National Wonders and Project Wonders. Only one copy of a World Wonder may be constructed anywhere in the world in a given game. National Wonders are less exclusive: each nation may construct one (but only one) copy of a National Wonder.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Modifiers[ENDCOLOR]: In addition to certain Traits and Policies, [ICON_RES_MARBLE] Marble and [ICON_RES_STONE] Stone increase the production modifier of cities with these resources nearby. Marble increases Wonder production by 15% for all pre-Industrial Wonders, whereas Stone increases Wonder production by 10% for all pre-Medieval Wonders.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Costs[ENDCOLOR]: For every Wonder you control, the cost of future Wonders goes up. This cost varies based on the Era of the Wonder.[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder of the same Era: 25%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from the previous Era: 15%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from Eras prior to your previous Era: 10%.[NEWLINE][NEWLINE]If you build too many Wonders during an Era, your ability to gain future Wonders will be compromised, so don''t be too greedy!'
@@ -130,7 +155,7 @@ WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 -- Public Opinion
 
 UPDATE Language_en_US
-SET Text = '{1_Num} from Public Opinion (Ideological Pressure or War Weariness).'
+SET Text = '{1_Num} from Public Opinion due to Ideological Pressure.'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 -- Building Purchased
@@ -175,6 +200,10 @@ WHERE Tag = 'TXT_KEY_HIDDEN_SITES_TO_EXCAVATE' AND EXISTS (SELECT * FROM COMMUNI
 UPDATE Language_en_US
 SET Text = '+{1_Num}% Bonus from Diplomat[NEWLINE]'
 WHERE Tag = 'TXT_KEY_CO_PLAYER_TOURISM_PROPAGANDA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Do you want this spy to be a diplomat? A spy can be a diplomat if they are placed in the capital of another civilization you are not at war with. (If war is declared, your spy will escape the city.) A diplomat will not attempt to steal technology from the other player but will still provide intrigue. Once the World Congress convenes, you will be able to determine their opinion on proposals and trade for their support if needed. Diplomats automatically provide a boost to [ICON_TOURISM] Tourism output to the target civilization.'
+WHERE Tag = 'TXT_KEY_SPY_BE_DIPLOMAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 -- Update text for tooltips based on what you changed above.
 INSERT INTO Language_en_US (
@@ -224,7 +253,7 @@ SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes
 WHERE Tag = 'TXT_KEY_DIPLO_VOTE_TRADE_REPEAL_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +1 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +3 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_ARTIFACT_RESULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -245,13 +274,16 @@ WHERE Tag = 'TXT_KEY_IMPROVEMENT_BARBARIAN_CAMP_PEDIA' AND EXISTS (SELECT * FROM
 
 -- CS Protection Tooltip for new influence perk
 UPDATE Language_en_US
-SET Text = 'Pledging to protect a City-State lets the other major powers in the game know that you will protect the City-State from attacks and tribute demands. This action is only possible if you are in the top [COLOR_POSITIVE_TEXT]60%[ENDCOLOR] of the world in terms of Military Power.[NEWLINE][NEWLINE]During protection, your resting point for [ICON_INFLUENCE] Influence with this City-State is increased by {1_InfluenceMinimum}, and you will earn [COLOR_POSITIVE_TEXT]{3_InfluenceBoost}%[ENDCOLOR] [ICON_INFLUENCE] Influence from quests completed for this City-State. The City-State [ICON_CAPITAL] Capital''s base [ICON_STRENGTH] Combat Strength will be increased by [COLOR_POSITIVE_TEXT]{4_DefenseBoost}%[ENDCOLOR], up to a global maximum of [COLOR_POSITIVE_TEXT]{5_DefenseTotal}%[ENDCOLOR]. [NEWLINE][NEWLINE]Protection cannot be revoked until {2_TurnsMinimum} turns after the pledge is made.'
+SET Text = 'Pledging to protect a City-State lets the other major powers in the game know that you will protect the City-State from attacks and tribute demands.[NEWLINE][NEWLINE]During protection, your resting point for [ICON_INFLUENCE] Influence with this City-State is increased by {1_InfluenceMinimum}, and you will earn [COLOR_POSITIVE_TEXT]{3_InfluenceBoost}%[ENDCOLOR] [ICON_INFLUENCE] Influence from quests completed for this City-State. The City-State [ICON_CAPITAL] Capital''s base [ICON_STRENGTH] Combat Strength will be increased by [COLOR_POSITIVE_TEXT]{4_DefenseBoost}%[ENDCOLOR], up to a global maximum of [COLOR_POSITIVE_TEXT]{5_DefenseTotal}%[ENDCOLOR]. [NEWLINE][NEWLINE]Protection cannot be revoked until {2_TurnsMinimum} turns after the pledge is made.'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 	
+UPDATE Language_en_US
+SET Text = '[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] You must have {1_InfluenceNeededToPledge} or more [ICON_INFLUENCE] Influence to pledge.'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_INFLUENCE_TT';
 	
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be at peace, have {1_InfluenceNeededToPledge} or more [ICON_INFLUENCE] Influence to pledge, and be in the top 60% (in terms of military power) of major civilizations.[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_INFLUENCE_TT';
+SET Text = '[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] {1_TurnsUntilPledgeAvailable} turns must pass before you can pledge again.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_MISTRUST_TT';
 
 UPDATE Language_en_US
 SET Text = '[ICON_INFLUENCE] Influence too high'
@@ -498,7 +530,7 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONA
 -- Text for city view tooltip.
 INSERT INTO Language_en_US (
 Text, Tag)
-SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] due to due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS'
+SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Text for city view tooltip.
@@ -542,7 +574,7 @@ WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_TITLE';
 
 	
 UPDATE Language_en_US
-SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on mountains: +2 [ICON_PRODUCTION] Production. [NEWLINE][ICON_BULLET] Cities on hills: +1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on fresh water: +1 [ICON_FOOD] Food. [NEWLINE][ICON_BULLET] Cities without fresh water or hills: +1 [ICON_GOLD] Gold.'
+SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on mountains: +2 [ICON_PRODUCTION] Production. [NEWLINE][ICON_BULLET] Cities on hills: +1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on fresh water: +1 [ICON_FOOD] Food. [NEWLINE][ICON_BULLET] Cities without fresh water or hills: +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Many Yields, especially those from Policies, Beliefs, and Buildings, state that they [COLOR_POSITIVE_TEXT]''Scale with Era''[ENDCOLOR]. This means that, as the game progresses, indicated Yield values increase in a linear fashion based on the current Era:[NEWLINE]1x in the Ancient and Classical Eras.[NEWLINE]2x in the Medieval Era.[NEWLINE]3x in the Renaissance Era.[NEWLINE]4x in the Industrial Era.[NEWLINE]5x in the Modern Era.[NEWLINE]6x in the Atomic Era.[NEWLINE]7x in the Information Era.'
 WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_BODY';
 
 -- Trade Routes
@@ -558,3 +590,9 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_HELP';
 UPDATE Language_en_US
 SET Text = 'Moai can only be built on the coast.  If built next to another Moai, it provides additional [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production. Gains additional yields from unlocking technologies. If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE]Perhaps better known as the "Easter Island Statues", the Moai are large, humanoid figures carved mostly from volcanic rocks like tuff. 887 of these statues dot Easter Island, and are believed to have been created sometime between 1250 and 1500 AD.  Almost half still remain at the original quarry site, but the rest were transported and erected around the island''s coastline.  Easily recognizable by their large heads and elongated features, it is believed that they were individual depictions of deceased ancestors and powerful chiefs.[NEWLINE][NEWLINE]While most scholars agree on why and how the statues were created, the method of their transportation still remains a mystery.  Weighing from 9 to 86 tons a piece, they would have required an amazing feat of engineering to move from quarry to final resting place.[NEWLINE][NEWLINE]In 1994, the Moai statues were given official protection on the UNESCO World Heritage site list.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_TEXT';
+
+-- Warscore Diplo
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]At war with {1_enemy} (Warscore: {2_Num})[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_AT_WAR_WITH';

@@ -161,6 +161,7 @@ public:
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
 	bool IsMountainsDoubleMove() const;
+	int GetAOEDamageOnKill() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -448,6 +449,7 @@ protected:
 	int m_iNearbyUnitClassBonusRange;
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
 	int m_iWonderProductionModifier;
+	int m_iAOEDamageOnKill;
 	bool m_bMountainsDoubleMove;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)

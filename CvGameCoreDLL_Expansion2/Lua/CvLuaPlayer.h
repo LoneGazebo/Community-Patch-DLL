@@ -271,6 +271,9 @@ protected:
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
+	LUAAPIEXTN(GetFractionOriginalCapitalsUnderControl, int);
+	LUAAPIEXTN(GetTourismPenalty, int);
+	LUAAPIEXTN(GetTechsToFreePolicy, int);
 #endif
 	static int lGetInfluenceTradeRouteScienceBonus(lua_State* L);
 	static int lGetInfluenceCityStateSpyRankBonus(lua_State* L);
@@ -369,6 +372,10 @@ protected:
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
+	LUAAPIEXTN(GetWarWeariness, int);
+	LUAAPIEXTN(SetWarWeariness, int);
+	LUAAPIEXTN(GetWarWearinessSupplyReduction, int);
+	LUAAPIEXTN(GetTechSupplyReduction, int);
 #endif
 	static int lGetUnhappinessFromUnits(lua_State* L);
 	static int lChangeUnhappinessFromUnits(lua_State* L);
@@ -684,6 +691,7 @@ protected:
 
 	static int lGetPower(lua_State* L);
 	static int lGetMilitaryMight(lua_State* L);
+	static int lGetMilitaryMightForCS(lua_State* L);
 	static int lGetTotalTimePlayed(lua_State* L);
 
 	static int lGetScore(lua_State* L);
@@ -769,6 +777,7 @@ protected:
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
 	static int lIsMinorCivActiveQuestForPlayer(lua_State* L);
+	static int lSetMinorCivActiveQuestForPlayer(lua_State* L);
 	static int lGetMinorCivNumActiveQuestsForPlayer(lua_State* L);
 	static int lIsMinorCivDisplayedQuestForPlayer(lua_State* L);
 	static int lGetMinorCivNumDisplayedQuestsForPlayer(lua_State* L);
@@ -831,6 +840,7 @@ protected:
 	static int lSetBullyUnit(lua_State* L);
 	static int lGetBullyUnit(lua_State* L);
 	static int lGetYieldTheftAmount(lua_State* L);
+	static int lGetPledgeProtectionInvalidReason(lua_State* L);
 #endif
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
@@ -965,7 +975,7 @@ protected:
 	static int lGetUnits(lua_State* L);
 	static int lGetNumUnits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
-	static int lGetNumUnitsNoCivlian(lua_State* L);
+	static int lGetNumUnitsNoCivilian(lua_State* L);
 #endif
 	static int lGetUnitByID(lua_State* L);
 

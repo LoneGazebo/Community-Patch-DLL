@@ -118,6 +118,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingProductionNeeded);
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetBuildingInvestment);
+	Method(IsWorldWonder);
+	Method(GetWorldWonderCost);
+	Method(GetNumPoliciesNeeded);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetUnitInvestment);
@@ -705,6 +708,72 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityEventChoiceCooldown);
 	Method(SetCityEventChoiceCooldown);
 	Method(IsCityEventChoiceValid);
+#endif
+
+
+#if defined(MOD_BALANCE_CORE_JFD)
+	Method(IsColony);
+	Method(SetColony);
+
+	Method(GetProvinceLevel);
+	Method(SetProvinceLevel);
+	Method(HasProvinceLevel);
+
+	Method(GetOrganizedCrime);
+	Method(SetOrganizedCrime);
+	Method(HasOrganizedCrime);
+
+	Method(ChangeResistanceCounter);
+	Method(SetResistanceCounter);
+	Method(GetResistanceCounter);
+
+	Method(ChangePlagueCounter);
+	Method(SetPlagueCounter);
+	Method(GetPlagueCounter);
+
+	Method(GetPlagueTurns);
+	Method(ChangePlagueTurns);
+	Method(SetPlagueTurns);
+
+	Method(GetPlagueType);
+	Method(SetPlagueType);
+	Method(HasPlague);
+
+	Method(ChangeLoyaltyCounter);
+	Method(SetLoyaltyCounter);
+	Method(GetLoyaltyCounter);
+
+	Method(ChangeDisloyaltyCounter);
+	Method(SetDisloyaltyCounter);
+	Method(GetDisloyaltyCounter);
+
+	Method(GetLoyaltyState);
+	Method(SetLoyaltyState);
+	Method(HasLoyaltyState);
+
+	Method(GetYieldModifierFromHappiness);
+	Method(SetYieldModifierFromHappiness);
+
+	Method(GetYieldModifierFromHealth);
+	Method(SetYieldModifierFromHealth);
+
+	Method(GetYieldModifierFromCrime);
+	Method(SetYieldModifierFromCrime);
+
+	Method(GetYieldModifierFromDevelopment);
+	Method(SetYieldModifierFromDevelopment);
+
+	Method(GetYieldFromHappiness);
+	Method(SetYieldFromHappiness);
+
+	Method(GetYieldFromHealth);
+	Method(SetYieldFromHealth);
+
+	Method(GetYieldFromCrime);
+	Method(SetYieldFromCrime);
+
+	Method(GetYieldFromDevelopment);
+	Method(SetYieldFromDevelopment);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1653,6 +1722,173 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//bool IsWorldWonder();
+int CvLuaCity::lIsWorldWonder(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	bool bResult = false;
+	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+	const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+	if (::isWorldWonderClass(kBuildingClassInfo))
+	{
+		bResult = true;
+	}
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaCity::lGetWorldWonderCost(lua_State* L)
+{
+	int iNumWorldWonderPercent = 0;
+	CvCity* pkCity = GetInstance(L);
+
+	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+	const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && ::isWorldWonderClass(kBuildingClassInfo))
+	{
+		const CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
+		{
+			if (pLoopCity->getNumWorldWonders() > 0)
+			{
+				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				{
+					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+					// Has this Building
+					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						{
+							if (pkeBuildingInfo->GetPrereqAndTech() != NO_TECH)
+							{
+								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+								if (pkTechInfo)
+								{
+									// Loop through all eras and apply Building production mod based on how much time has passed
+									EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+									if (eBuildingUnlockedEra == GET_PLAYER(pkCity->getOwner()).GetCurrentEra())
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+									}
+									else if ((GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra) == 1)
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+									}
+									else if ((GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra) > 1)
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	lua_pushinteger(L, iNumWorldWonderPercent);
+	return 1;
+}
+int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
+{
+	int iNumPoliciesReduced = 0;
+	int iTotalPoliciesNeeded = 0;
+	CvCity* pkCity = GetInstance(L);
+
+	bool bIgnoreRequirements = false;
+	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pBuildingInfo)
+		{
+			//If # of policies will do it, then we need to see the either/or here.
+			iTotalPoliciesNeeded = pBuildingInfo->GetNumPoliciesNeeded();
+			if (iTotalPoliciesNeeded > 0)
+			{
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkCity->getOwner());
+				if (eFoundedReligion == NO_RELIGION)
+				{
+					eFoundedReligion = GET_PLAYER(pkCity->getOwner()).GetReligions()->GetReligionInMostCities();
+				}
+				if (eFoundedReligion != NO_RELIGION)
+				{
+					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkCity->getOwner());
+					if (pReligion)
+					{
+						CvCity* pHolyCity = NULL;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							pHolyCity = pHolyCityPlot->getPlotCity();
+						}
+						if (pHolyCity == NULL)
+						{
+							pHolyCity = GET_PLAYER(pkCity->getOwner()).getCapitalCity();
+						}
+						// Depends on era of wonder
+						EraTypes eEra;
+						TechTypes eTech = (TechTypes)pBuildingInfo->GetPrereqAndTech();
+						if (eTech != NO_TECH)
+						{
+							CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+							if (pEntry)
+							{
+								eEra = (EraTypes)pEntry->GetEra();
+								if (eEra != NO_ERA)
+								{
+									bIgnoreRequirements = pReligion->m_Beliefs.IsIgnorePolicyRequirements(eEra, pkCity->getOwner(), pHolyCity);
+								}
+							}
+						}
+						if (!bIgnoreRequirements)
+						{
+							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
+							if (iReligionPolicyReduction > 0)
+							{
+								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+								if (iNumFollowerCities > 0)
+								{
+									iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
+								}
+							}
+						}
+					}
+				}
+				if (!bIgnoreRequirements)
+				{
+					int iCSPolicyReduction = GET_PLAYER(pkCity->getOwner()).GetCSAlliesLowersPolicyNeedWonders();
+					if (iCSPolicyReduction > 0)
+					{
+						int iNumAllies = GET_PLAYER(pkCity->getOwner()).GetNumCSAllies();
+						iNumPoliciesReduced += (iNumAllies / iCSPolicyReduction);
+					}
+				}
+			}
+		}
+	}
+	if (bIgnoreRequirements)
+	{
+		iTotalPoliciesNeeded = 0;
+	}
+	else
+	{
+		iTotalPoliciesNeeded -= iNumPoliciesReduced;
+	}
+
+	lua_pushinteger(L, iTotalPoliciesNeeded);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //bool IsUnitInvestment();
 int CvLuaCity::lGetUnitInvestment(lua_State* L)
@@ -2891,7 +3127,7 @@ int CvLuaCity::lGetFaithBuildingTourism(lua_State* L)
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 	if(pReligion)
 	{
-		iRtnValue = pReligion->m_Beliefs.GetFaithBuildingTourism(pkCity->getOwner());
+		iRtnValue = pReligion->m_Beliefs.GetFaithBuildingTourism(pkCity->getOwner(), pkCity);
 	}
 	lua_pushinteger(L, iRtnValue);
 	return 1;
@@ -3105,7 +3341,7 @@ int CvLuaCity::lGetReligionBuildingClassHappiness(lua_State* L)
 		if(pReligion)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
-			iHappinessFromBuilding += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
+			iHappinessFromBuilding += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers, pkCity->getOwner(), pkCity);
 		}
 	}
 	lua_pushinteger(L, iHappinessFromBuilding);
@@ -3128,7 +3364,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 		if(pReligion)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
-			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers);
+			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers, pkCity->getOwner(), pkCity);
 			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
@@ -3357,7 +3593,8 @@ int CvLuaCity::lgetThresholdSubtractions(lua_State* L)
 int CvLuaCity::lgetThresholdAdditions(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getThresholdAdditions());
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkCity->getThresholdAdditions(eYield));
 	return 1;
 }
 //int getUnhappinessFromCultureYield();
@@ -5137,7 +5374,7 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkCity->getOwner());
 	if(eReligion != NO_RELIGION)
 	{
-		 iRtnValue = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield);
+		iRtnValue = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, pkCity->getOwner(), pkCity);
 	}
 	BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 	if (eSecondaryPantheon != NO_BELIEF)
@@ -5166,7 +5403,7 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, ePlayer);
-			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield);
+			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield, ePlayer, pkCity);
 		}
 		iRtnValue += GET_PLAYER(ePlayer).GetYieldFromWLTKD((YieldTypes)eYield);
 		iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
@@ -5204,7 +5441,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 			if(pkCity->GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
-				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield);
+				iRtnValue = pReligion->m_Beliefs.GetYieldBonusGoldenAge((YieldTypes)eYield, ePlayer, pkCity);
 			}
 		}
 		iRtnValue += pkCity->GetGoldenAgeYieldMod((YieldTypes)eYield);
@@ -5400,7 +5637,7 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 		if(pReligion)
 		{
-			iReligionRangeStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier();
+			iReligionRangeStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(pkCity->getOwner(), pkCity);
 			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
@@ -5721,4 +5958,353 @@ int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
 
 	return 1;
 }
+#endif
+
+#if defined(MOD_BALANCE_CORE_JFD)
+int CvLuaCity::lIsColony(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->IsColony());
+
+	return 1;
+}
+int CvLuaCity::lSetColony(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const bool bValue = lua_toboolean(L, 2);
+	pkCity->SetColony(bValue);
+	return 1;
+}
+int CvLuaCity::lGetProvinceLevel(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetProvinceLevel());
+	return 1;
+}
+int CvLuaCity::lSetProvinceLevel(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetProvinceLevel(iValue);
+	return 1;
+}
+
+int CvLuaCity::lHasProvinceLevel(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	const bool bValue = (pkCity->GetProvinceLevel() == iValue);
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
+
+int CvLuaCity::lGetOrganizedCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetOrganizedCrime());
+	return 1;
+}
+int CvLuaCity::lSetOrganizedCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetOrganizedCrime(iValue);
+	return 1;
+}
+int CvLuaCity::lHasOrganizedCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->HasOrganizedCrime());
+
+	return 1;
+}
+
+int CvLuaCity::lChangeResistanceCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeResistanceCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetResistanceCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetResistanceCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetResistanceCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetResistanceCounter());
+	return 1;
+}
+int CvLuaCity::lChangePlagueCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangePlagueCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetPlagueCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetPlagueCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetPlagueCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetPlagueCounter());
+	return 1;
+}
+int CvLuaCity::lGetPlagueTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetPlagueTurns());
+	return 1;
+}
+int CvLuaCity::lChangePlagueTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangePlagueTurns(iValue);
+	return 1;
+}
+int CvLuaCity::lSetPlagueTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetPlagueTurns(iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetPlagueType(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetPlagueType());
+	return 1;
+}
+int CvLuaCity::lSetPlagueType(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetPlagueType(iValue);
+	return 1;
+}
+int CvLuaCity::lHasPlague(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+
+	lua_pushboolean(L, pkCity->HasPlague());
+
+	return 1;
+}
+
+int CvLuaCity::lChangeLoyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeLoyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetLoyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetLoyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetLoyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetLoyaltyCounter());
+	return 1;
+}
+int CvLuaCity::lChangeDisloyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeDisloyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lSetDisloyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetDisloyaltyCounter(iValue);
+	return 1;
+}
+int CvLuaCity::lGetDisloyaltyCounter(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetDisloyaltyCounter());
+	return 1;
+}
+int CvLuaCity::lGetLoyaltyState(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int eLoyalty = pkCity->GetLoyaltyState();
+	lua_pushinteger(L, (LoyaltyStateTypes)eLoyalty);
+	return 1;
+}
+int CvLuaCity::lSetLoyaltyState(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const LoyaltyStateTypes eLoyalty = (LoyaltyStateTypes)lua_tointeger(L, 2);
+	pkCity->SetLoyaltyState((int)eLoyalty);
+	return 1;
+}
+
+int CvLuaCity::lHasLoyaltyState(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	const bool bValue = (pkCity->GetLoyaltyState() == iValue);
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
+
+int CvLuaCity::lGetYieldModifierFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromHappiness(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromHappiness(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldModifierFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromHealth(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromHealth(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldModifierFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromCrime(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromCrime(eYield, iValue);
+	return 1;
+}
+
+
+int CvLuaCity::lGetYieldModifierFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldModifierFromDevelopment(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldModifierFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldModifierFromDevelopment(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromHappiness(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromHappiness(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromHappiness(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromHealth(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromHealth(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromHealth(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromCrime(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromCrime(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromCrime(eYield, iValue);
+	return 1;
+}
+
+int CvLuaCity::lGetYieldFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = pkCity->GetYieldFromDevelopment(eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaCity::lSetYieldFromDevelopment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 3);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	pkCity->SetYieldFromDevelopment(eYield, iValue);
+	return 1;
+}
+
 #endif

@@ -907,8 +907,11 @@
     <Row Class="1" Name="BUGFIX_NO_HOVERING_REBELS" Value="1"/>
     <!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->  
     <Row Class="1" Name="BUGFIX_HOVERING_PATHFINDER" Value="1"/>
-		
-		<!-- Changes for the Community Patch  -->	
+	 
+	<!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->
+	<Row Class="1" Name="BUGFIX_MINOR_CIV_STRATEGIES" Value="1"/>
+
+	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>
 	<!-- The core sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE" Value="0"/>
@@ -1032,12 +1035,19 @@
 	<Row Class="6" Name="NO_RANDOM_TEXT_CIVS" Value="0"/>
 	<!-- Promotions from buildings now retroactive for all units made from that city. -->
 	<Row Class="6" Name="BALANCE_RETROACTIVE_PROMOS" Value="0"/>
-	
-	<!-- Roads are built automatically whne a trade route end. -->
+	<!-- Enable to disable Golden Age Point acquisition during Golden Ages. -->
+	<Row Class="6" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
+	<!-- Enable to allow war score and time to affect unit supply during wars. -->
+	<Row Class="6" Name="BALANCE_DYNAMIC_UNIT_SUPPLY" Value="0"/>
+
+	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
-	
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->
 	<Row Class="6" Name="CIV6_TYPE_WORKER" Value="0"/>
+	<!-- City-state influence and yields scale with era and number of cities. -->
+	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
+	<!-- Pantheons can be picked even if they are already picked by someone else. -->
+	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
 	
   </CustomModOptions>
 
@@ -1058,6 +1068,7 @@
 	<!--   GameEvents.GreatWorkCreated.Add(function(iPlayer, iUnit, iGreatWork) end) -->
 	<!--   GameEvents.CityInvestedBuilding.Add(function(iPlayer, iCity, iBuildingClass, bValue) end) -->
 	<!--   GameEvents.CityInvestedUnit.Add(function(iPlayer, iCity, iUnitClass, bValue) end) -->
+	<!--   GameEvents.CityPuppeted.Add(function(playerID, cityID) end) -->
 	
 	<!-- Events System -->
 	<!-- GameEvents.EventActivated(iPlayer, iEvent, iChoice)-->

@@ -361,6 +361,12 @@
 		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
 			<Text>+{1_Num}% [ICON_CULTURE] from Corporation</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATIONS">
+			<Text>+{1_Num} [ICON_CULTURE] from Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_CORPORATIONS">
+			<Text>+{1_Num} [ICON_PEACE] from Corporation</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
 			<Text>Corporation [ICON_RESEARCH] Science Bonus: +{1_Num}%</Text>
@@ -658,7 +664,7 @@
 			<Text>Provides bonuses that enhance your ability to wage late-game warfare and amass Strategic Resources. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production for all Units that require [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium, or [ICON_RES_ALUMINUM] Aluminum to build. +3 [ICON_PRODUCTION] Production on all Coal, Nuclear, and Solar Plants.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY">
-			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Office.</Text>
+			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, and [ICON_RES_BRAZILWOOD] Brazilwood provide +1 [ICON_PRODUCTION] Production in cities with Hexxon Refineries Office.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_HEXXON_REFINERY">
 			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises. +1 [ICON_PRODUCTION] Production on Hexxon Refineries Monopoly Resources, and +15% [ICON_PRODUCTION] Production towards Military Units.</Text>

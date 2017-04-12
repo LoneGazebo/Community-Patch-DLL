@@ -108,6 +108,9 @@ public:
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageModifier() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
+	int GetTRSpeedBoost() const;
+	int GetTRVisionBoost() const;
+	int GetHappinessPerXPolicies() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -174,6 +177,7 @@ public:
 	int GetThemingBonusMultiplier() const;
 	int GetInternalTradeRouteYieldModifier() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
 #endif
@@ -340,6 +344,18 @@ public:
 	int* GetYieldFromMinorDemandArray() const;
 	int GetYieldFromWLTKD(int i) const;
 	int* GetYieldFromWLTKDArray() const;
+
+	int GetArtifactYieldChanges(int i) const;
+	int* GetArtifactYieldChangesArray() const;
+
+	int GetArtYieldChanges(int i) const;
+	int* GetArtYieldChangesArray() const;
+
+	int GetMusicYieldChanges(int i) const;
+	int* GetMusicYieldChangesArray() const;
+
+	int GetLitYieldChanges(int i) const;
+	int* GetLitYieldChangesArray() const;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
@@ -370,6 +386,8 @@ public:
 	int GetNoUnhappfromXSpecialistsCapital() const;
 
 	int GetWarWearinessModifier() const;
+
+	int GetGreatGeneralExtraBonus() const;
 #endif
 private:
 	int m_iTechPrereq;
@@ -502,6 +520,7 @@ private:
 	int m_iThemingBonusMultiplier;
 	int m_iInternalTradeRouteYieldModifier;
 #if defined(MOD_BALANCE_CORE)
+	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	BuildingClassTypes m_eNewCityFreeBuilding;
 #endif
@@ -570,6 +589,8 @@ private:
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iWarWearinessModifier;
+
+	int m_iGreatGeneralExtraBonus;
 #endif
 
 	CvString m_strWeLoveTheKingKey;
@@ -659,6 +680,9 @@ private:
 	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
 	int m_iXCSAlliesLowersPolicyNeedWonders;
+	int m_iTRSpeedBoost;
+	int m_iTRVisionBoost;
+	int m_iHappinessPerXPolicies;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -686,6 +710,10 @@ private:
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldFromMinorDemand;
 	int* m_piYieldFromWLTKD;
+	int* m_piArtifactYieldChanges;
+	int* m_piArtYieldChanges;
+	int* m_piLitYieldChanges;
+	int* m_piMusicYieldChanges;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;

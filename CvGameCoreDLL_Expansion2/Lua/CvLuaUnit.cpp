@@ -1455,24 +1455,26 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	if(pkUnit && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
-		if(eFoundedReligion == NO_RELIGION)
-		{
-			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-		}
+		ReligionTypes eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
 		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
 		if(eTheirReligion == NO_RELIGION)
 		{
-			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 		} 
-		if(eFoundedReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
+		if(eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
 			{
+				CvCity* pHolyCity = NULL;
+				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+				if (pHolyCityPlot)
+				{
+					pHolyCity = pHolyCityPlot->getPlotCity();
+				}
 				if(eTheirReligion != eFoundedReligion)
 				{			
-					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner());
+					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
 					// Bonus in own land
 					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 					{
@@ -1481,7 +1483,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 				}
 				else
 				{
-					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner());
+					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
 					// Bonus in own land
 					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 					{
@@ -1507,23 +1509,25 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
-		if(eFoundedReligion == NO_RELIGION)
-		{
-			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-		}
 		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
 		if(eTheirReligion == NO_RELIGION)
 		{
-			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 		} 
-		if(eFoundedReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
+		if(eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
 			{
+				CvCity* pHolyCity = NULL;
+				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+				if (pHolyCityPlot)
+				{
+					pHolyCity = pHolyCityPlot->getPlotCity();
+				}
 				if(eTheirReligion != eFoundedReligion)
 				{			
-					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner());
+					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
 					//Bonus in their land
 					if((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 					{
@@ -1532,7 +1536,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 				}
 				else
 				{
-					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner());
+					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
 					//Bonus in their land
 					if((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 					{
@@ -5769,11 +5773,7 @@ int CvLuaUnit::lGetMissionInfo(lua_State* L)
 int CvLuaUnit::lGetDanger(lua_State* L)
 {
 	CvUnit* pUnit = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes)pUnit->getOwner();
-	int iDanger = 0;
-
-	if (ePlayer!=NO_PLAYER)
-		iDanger = CvPlayerAI::getPlayer(ePlayer).GetPlotDanger(*(pUnit->plot()),pUnit);
+	int iDanger = pUnit->GetDanger();
 
 	lua_pushinteger(L, iDanger);
 	return 1;

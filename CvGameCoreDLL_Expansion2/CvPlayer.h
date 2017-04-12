@@ -133,7 +133,7 @@ public:
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
-	CvCity* GetThreatenedCityRank(int iValue = 0);
+	CvCity* GetThreatenedCityByRank(int iRank = 0);
 
 	void UpdateBestMilitaryCities();
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
@@ -405,10 +405,14 @@ public:
 	void UpdateUnitProductionMaintenanceMod();
 	int calculateUnitProductionMaintenanceMod() const;
 
+	int GetUnitGrowthMaintenanceMod() const;
+	void UpdateUnitGrowthMaintenanceMod();
+	int calculateUnitGrowthMaintenanceMod() const;
+
 	int GetNumUnitsSupplied() const;
-	int GetNumUnitsSuppliedByHandicap() const;
-	int GetNumUnitsSuppliedByCities() const;
-	int GetNumUnitsSuppliedByPopulation() const;
+	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
+	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
+	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
 
 	int GetNumUnitsOutOfSupply() const;
 #if defined(MOD_BALANCE_CORE)
@@ -645,6 +649,12 @@ public:
 
 	int GetMinorityUnhappinessGlobal() const;
 	void ChangeMinorityUnhappinessGlobal(int iChange);
+
+	void ChangeLandmarksTourismPercentGlobal(int iChange);
+	int GetLandmarksTourismPercentGlobal() const;
+
+	void ChangeGreatWorksTourismModifierGlobal(int iChange);
+	int GetGreatWorksTourismModifierGlobal() const;
 #endif
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -676,6 +686,7 @@ public:
 	void ChangeExtraHappinessPerCity(int iChange);
 	int GetExtraHappinessPerXPolicies() const;
 	void ChangeExtraHappinessPerXPolicies(int iChange);
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetHappinessFromResourceMonopolies() const;
 #endif
@@ -705,6 +716,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int getCurrentTotalPop() const;
+	int GetUnhappinessFromWarWeariness() const;
 #endif
 
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
@@ -767,6 +779,9 @@ public:
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
+
+	void ChangePositiveWarScoreTourismMod(int iValue);
+	int GetPositiveWarScoreTourismMod() const;
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -903,6 +918,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetCultureBonusTurnsConquest() const;
 	void ChangeCultureBonusTurnsConquest(int iChange);
+
+	int GetProductionBonusTurnsConquest() const;
+	void ChangeProductionBonusTurnsConquest(int iChange);
 #endif
 	int GetTourismBonusTurns() const;
 	void ChangeTourismBonusTurns(int iChange);
@@ -1116,6 +1134,7 @@ public:
 
 	int GetGreatGeneralCombatBonus() const;
 	void SetGreatGeneralCombatBonus(int iValue);
+	void ChangeGreatGeneralCombatBonus(int iValue);
 
 	// Unit Killed in Combat
 #if defined(MOD_API_EXTENSIONS)
@@ -1514,6 +1533,8 @@ public:
 	int GetNumHistoricEvents() const;
 	void SetNumHistoricEvents(int iValue);
 
+	int GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity = NULL);
+
 	void ChangeSingleVotes(int iValue);
 	int GetSingleVotes() const;
 	void SetSingleVotes(int iValue);
@@ -1572,6 +1593,9 @@ public:
 	void ChangeNoUnhappfromXSpecialistsCapital(int iChange);
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
+
+	void SetProductionRoutesAllCities(bool bValue);
+	bool IsProductionRoutesAllCities() const;
 #endif
 
 	int getCultureBombTimer() const;
@@ -1593,6 +1617,13 @@ public:
 #endif
 	bool IsHasLostCapital() const;
 	void SetHasLostCapital(bool bValue, PlayerTypes eConqueror);
+
+	bool IsHasLostHolyCity() const;
+	void SetHasLostHolyCity(bool bValue, PlayerTypes eConqueror);
+	void SetLostHolyCityXY(int iX, int iY);
+	int GetLostHolyCityX();
+	int GetLostHolyCityY();
+	PlayerTypes GetHolyCityConqueror();
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
 	void disassembleSpaceship(CvPlot* pPlot);
 #endif
@@ -1603,7 +1634,7 @@ public:
 
 	//power is military + economic
 	int getPower() const;
-	int GetMilitaryMight() const;
+	int GetMilitaryMight(bool bForMinor = false) const;
 	int GetEconomicMight() const;
 	int GetProductionMight() const;
 
@@ -1804,6 +1835,18 @@ public:
 
 	int getFounderYield(YieldTypes eIndex) const;
 	void changeFounderYield(YieldTypes eIndex, int iChange);
+
+	int getArtifactYieldBonus(YieldTypes eIndex) const;
+	void changeArtifactYieldBonus(YieldTypes eYield, int iChange);
+
+	int getArtYieldBonus(YieldTypes eIndex) const;
+	void changeArtYieldBonus(YieldTypes eYield, int iChange);
+
+	int getMusicYieldBonus(YieldTypes eIndex) const;
+	void changeMusicYieldBonus(YieldTypes eYield, int iChange);
+
+	int getLitYieldBonus(YieldTypes eIndex) const;
+	void changeLitYieldBonus(YieldTypes eYield, int iChange);
 
 	int getReligionYieldRateModifier(YieldTypes eIndex)	const;
 	void changeReligionYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -2237,11 +2280,7 @@ public:
 	bool IsPlotTargetedForExplorer(const CvPlot* pPlot, const CvUnit* pIgnoreUnit=NULL) const;
 #endif
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
-#else
-	bool IsPlotTargetedForCity(CvPlot *pPlot) const;
-#endif
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
@@ -2318,12 +2357,12 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK) const;
-	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL) const;
-	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
-	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
+	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
 
-	bool IsKnownAttacker(const CvUnit* pAttacker) const;
+	bool IsKnownAttacker(const CvUnit* pAttacker);
 	void AddKnownAttacker(const CvUnit* pAttacker);
 
 	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
@@ -2337,9 +2376,11 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
-	void UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell=true);
-	const std::vector<int>& GetAreaEffectPositiveUnits() const;
-	const std::vector<int>& GetAreaEffectNegativeUnits() const;
+	void UpdateAreaEffectUnits();
+	void UpdateAreaEffectUnit(CvUnit* pUnit);
+	void UpdateAreaEffectPlots();
+	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
+	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
@@ -2350,6 +2391,12 @@ public:
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
+
+	int getCitySupplyModifierGlobal() const;
+	void changeCitySupplyModifierGlobal(int iChange);
+
+	int getCitySupplyFlatGlobal() const;
+	void changeCitySupplyFlatGlobal(int iChange);
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2362,10 +2409,8 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
-	int GetFoundValueOfCapital() const;
-	void SetFoundValueOfCapital(int iValue);
+	int GetBestSettleAreas(int& iFirstArea, int& iSecondArea);
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool bNeedSafe, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	bool HaveGoodSettlePlot(int iAreaID);
 
 	// New Victory Stuff
@@ -2591,7 +2636,8 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void updatePlotFoundValues(bool bOverrideRevealedCheck=false);
+	virtual void setAveragePlotFoundValue();
+	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
@@ -2743,8 +2789,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iChangeMinorityUnhappinessGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iLandmarksTourismPercentGlobal;
+	FAutoVariable<int, CvPlayer> m_iGreatWorksTourismModifierGlobal;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
+	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -2766,6 +2815,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
 	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
+	FAutoVariable<int, CvPlayer> m_iPositiveWarScoreTourismMod;
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -2809,6 +2859,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iStrikeTurns;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeModifier;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	FAutoVariable<int, CvPlayer> m_iProductionBonusTurnsConquest;
 	FAutoVariable<int, CvPlayer> m_iCultureBonusTurnsConquest;
 	FAutoVariable<int, CvPlayer> m_iFreeGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iFreeGreatGeneralsCreated;
@@ -2963,6 +3014,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iSettlerProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iCapitalSettlerProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iUnitProductionMaintenanceMod;
+	FAutoVariable<int, CvPlayer> m_iUnitGrowthMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostBuildingModifier;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostMinorCivModifier;
 	FAutoVariable<int, CvPlayer> m_iInfluenceSpreadModifier;
@@ -3074,6 +3126,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abNWOwned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitClassProductionModifiers;
 	FAutoVariable<int, CvPlayer> m_iExtraSupplyPerPopulation;
+	FAutoVariable<int, CvPlayer> m_iCitySupplyFlatGlobal;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;
@@ -3126,6 +3179,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityDistanceHighwaterMark; // this is used to determine camera zoom
 	FAutoVariable<int, CvPlayer> m_iOriginalCapitalX;
 	FAutoVariable<int, CvPlayer> m_iOriginalCapitalY;
+	FAutoVariable<int, CvPlayer> m_iHolyCityX;
+	FAutoVariable<int, CvPlayer> m_iHolyCityY;
 	FAutoVariable<int, CvPlayer> m_iNumWonders;
 	FAutoVariable<int, CvPlayer> m_iNumPolicies;
 	FAutoVariable<int, CvPlayer> m_iNumGreatPeople;
@@ -3165,6 +3220,8 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bCramped;
 	FAutoVariable<bool, CvPlayer> m_bLostCapital;
 	FAutoVariable<PlayerTypes, CvPlayer> m_eConqueror;
+	FAutoVariable<bool, CvPlayer> m_bLostHolyCity;
+	FAutoVariable<PlayerTypes, CvPlayer> m_eHolyCityConqueror;
 	FAutoVariable<bool, CvPlayer> m_bHasAdoptedStateReligion;
 	FAutoVariable<bool, CvPlayer> m_bAlliesGreatPersonBiasApplied;
 
@@ -3186,12 +3243,17 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiConquerorYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiFounderYield;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiArtifactYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiArtYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiMusicYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiLitYieldBonus;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCivsConstructingWonder;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
+	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
@@ -3422,8 +3484,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	FAutoVariable<int, CvPlayer> m_iFractionOriginalCapitalsUnderControl;
-	std::vector<int> m_unitsAreaEffectPositive;
-	std::vector<int> m_unitsAreaEffectNegative;
+	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
+	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;

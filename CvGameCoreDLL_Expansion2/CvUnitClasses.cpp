@@ -144,6 +144,8 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bFoundLate(false),
 	m_bIsCityAttackSupport(false),
 	m_iGPExtra(0),
+	m_iGoodyModifier(0),
+	m_iSupplyCapBoost(0),
 #endif
 	m_iCultureBombRadius(0),
 	m_iGoldenAgeTurns(0),
@@ -171,6 +173,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iResourceType(NO_RESOURCE),
 	m_bPuppetPurchaseOverride(false),
 	m_bMinorCivGift(false),
+	m_bNoMinorCivGift(false),
 	m_bIsMounted(false),
 	m_iCooldown(0),
 	m_iGlobalFaithCooldown(0),
@@ -341,6 +344,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bFoundLate = kResults.GetBool("FoundLate");
 	m_bIsCityAttackSupport = kResults.GetBool("CityAttackOnly");
 	m_iGPExtra = kResults.GetInt("GPExtra");
+	m_iGoodyModifier = kResults.GetInt("GoodyModifier");
+	m_iSupplyCapBoost = kResults.GetInt("SupplyCapBoost");
 #endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
@@ -397,6 +402,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bMinorCivGift = kResults.GetBool("MinorCivGift");
+	m_bNoMinorCivGift = kResults.GetBool("NoMinorCivGift");
 
 	m_iCooldown = kResults.GetInt("PurchaseCooldown");
 	m_iGlobalFaithCooldown = kResults.GetInt("GlobalFaithPurchaseCooldown");
@@ -1220,6 +1226,16 @@ int CvUnitEntry::IsGPExtra() const
 {
 	return m_iGPExtra;
 }
+
+int CvUnitEntry::GetGoodyModifier() const
+{
+	return m_iGoodyModifier;
+}
+int CvUnitEntry::GetSupplyCapBoost() const
+{
+	return m_iSupplyCapBoost;
+}
+
 #endif
 
 /// Distance this unit steals
@@ -1651,6 +1667,10 @@ bool CvUnitEntry::IsPuppetPurchaseOverride() const
 bool CvUnitEntry::IsMinorCivGift() const
 {
 	return m_bMinorCivGift;
+}
+bool CvUnitEntry::IsInvalidMinorCivGift() const
+{
+	return m_bNoMinorCivGift;
 }
 /// Is mounted
 bool CvUnitEntry::IsMounted() const

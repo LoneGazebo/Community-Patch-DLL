@@ -98,6 +98,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
+	m_iTRSpeedBoost(0),
+	m_iTRVisionBoost(0),
+	m_iHappinessPerXPolicies(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -165,6 +168,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInternalTradeRouteYieldModifier(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeRouteYieldModifierCapital(0),
+	m_iPositiveWarScoreTourismMod(0),
 #endif
 	m_iSharedReligionTourismModifier(0),
 	m_iTradeRouteTourismModifier(0),
@@ -226,6 +230,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iWarWearinessModifier(0),
+	m_iGreatGeneralExtraBonus(0),
 #endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -317,6 +322,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldFromMinorDemand(NULL),
 	m_piYieldFromWLTKD(NULL),
+	m_piArtifactYieldChanges(NULL),
+	m_piArtYieldChanges(NULL),
+	m_piLitYieldChanges(NULL),
+	m_piMusicYieldChanges(NULL),
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
@@ -393,6 +402,10 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
+	SAFE_DELETE_ARRAY(m_piArtifactYieldChanges);
+	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
+	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
+	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -489,6 +502,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
+	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
+	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -582,6 +598,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iThemingBonusMultiplier = kResults.GetInt("ThemingBonusMultiplier");
 	m_iInternalTradeRouteYieldModifier = kResults.GetInt("InternalTradeRouteYieldModifier");
 #if defined(MOD_BALANCE_CORE)
+	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
 #endif
 	m_iSharedReligionTourismModifier = kResults.GetInt("SharedReligionTourismModifier");
@@ -614,6 +631,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
+	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
@@ -1036,6 +1054,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Policy_YieldFromMinorDemand", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Policy_WLTKDYieldMod", "PolicyType", szPolicyType);
+
+	kUtility.SetYields(m_piArtifactYieldChanges, "Policy_ArtifactYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piArtYieldChanges, "Policy_ArtYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piLitYieldChanges, "Policy_LitYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piMusicYieldChanges, "Policy_MusicYieldChanges", "PolicyType", szPolicyType);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
@@ -1609,6 +1632,19 @@ int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {
 	return m_iXCSAlliesLowersPolicyNeedWonders;
 }
+
+int CvPolicyEntry::GetTRVisionBoost() const
+{
+	return m_iTRVisionBoost;
+}
+int CvPolicyEntry::GetTRSpeedBoost() const
+{
+	return m_iTRSpeedBoost;
+}
+int CvPolicyEntry::GetHappinessPerXPolicies() const
+{
+	return m_iHappinessPerXPolicies;
+}
 #endif
 /// Happiness from each connected Luxury Resource
 int CvPolicyEntry::GetExtraHappinessPerLuxury() const
@@ -1973,6 +2009,11 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifierCapital() const
 {
 	return m_iInternalTradeRouteYieldModifierCapital;
 }
+int CvPolicyEntry::GetPositiveWarScoreTourismMod() const
+{
+	return m_iPositiveWarScoreTourismMod;
+}
+
 #endif
 
 /// Boost to tourism bonus for shared religion
@@ -2256,6 +2297,11 @@ int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
 int CvPolicyEntry::GetWarWearinessModifier() const
 {
 	return m_iWarWearinessModifier;
+}
+
+int CvPolicyEntry::GetGreatGeneralExtraBonus() const
+{
+	return m_iGreatGeneralExtraBonus;
 }
 #endif
 
@@ -2966,6 +3012,55 @@ int* CvPolicyEntry::GetYieldFromWLTKDArray() const
 {
 	return m_piYieldFromWLTKD;
 }
+
+int CvPolicyEntry::GetArtifactYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piArtifactYieldChanges ? m_piArtifactYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetArtifactYieldChangesArray() const
+{
+	return m_piArtifactYieldChanges;
+}
+
+int CvPolicyEntry::GetArtYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piArtYieldChanges ? m_piArtYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetArtYieldChangesArray() const
+{
+	return m_piArtYieldChanges;
+}
+
+int CvPolicyEntry::GetLitYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piLitYieldChanges ? m_piLitYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetLitYieldChangesArray() const
+{
+	return m_piLitYieldChanges;
+}
+
+int CvPolicyEntry::GetMusicYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetMusicYieldChangesArray() const
+{
+	return m_piMusicYieldChanges;
+}
+
 #endif
 
 /// Yield modifier for a specific BuildingClass by yield type
@@ -4325,6 +4420,39 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	// Handicap Mod
 	iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
 	iCost /= 100;
+
+#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	{
+		int iTier1 = 0;
+		int iTier2 = 0;
+		int iTier3 = 0;
+		PolicyBranchTypes eLoopBranch;
+		for (int iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
+		{
+			eLoopBranch = (PolicyBranchTypes)iBranchLoop;
+
+			if (eLoopBranch != NO_POLICY_BRANCH_TYPE)
+			{
+				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eLoopBranch);
+				if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
+				{
+					iTier1 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 1);
+					iTier2 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 2);
+					iTier3 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 3);
+				}
+			}
+		}
+
+		//% cost increases.
+		iTier1 *= 3;
+		iTier2 *= 5;
+		iTier3 *= 7;
+			
+		iCost *= (100 + iTier1 + iTier2 + iTier3);
+		iCost /= 100;
+	}
+#endif
 
 	// Make the number nice and even
 	int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();
@@ -5838,7 +5966,7 @@ void CvPlayerPolicies::DoPolicyAI()
 	m_pPolicyAI->DoConsiderIdeologySwitch(m_pPlayer);
 
 	// Do we have enough points to buy a new policy?
-	if(m_pPlayer->getNextPolicyCost() > 0)
+	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 	{
 		// Adopt new policies until we run out of freebies and culture (usually only one per turn)
 		while(m_pPlayer->getJONSCulture() >= m_pPlayer->getNextPolicyCost() || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
@@ -5901,24 +6029,6 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 		iFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
 
 //		Boost flavor even further based on in-game conditions
-#if defined(MOD_BALANCE_CORE)
-		if (m_pPlayer->GetCurrentEra() < eMedieval)
-		{
-			if (m_pPlayer->GetDiplomacyAI()->GetMeanness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_OFFENSE"))
-			{
-				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetMeanness();
-			}
-			if (m_pPlayer->GetDiplomacyAI()->GetBoldness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_EXPANSION"))
-			{
-				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetBoldness();
-			}
-			if (m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_WONDER"))
-			{
-				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness();
-			}
-		}
-#endif
-
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
 		if (eStrategyLosingMoney == NO_ECONOMICAISTRATEGY)
 		{

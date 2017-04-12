@@ -171,28 +171,8 @@ struct SCachedTarget
 };
 
 typedef std::map<PlayerTypes,std::map<AIOperationTypes,SCachedTarget>> CachedTargetsMap;
+typedef std::map<CvCity*, std::map<CvCity*, int>> CachedDistancesMap;
 
-struct SCachedWaterDistance
-{
-	SCachedWaterDistance() :
-		iWaterDistance(0)
-	{
-	}
-	int iWaterDistance;
-};
-
-typedef std::map<CvCity*, std::map<CvCity*, SCachedWaterDistance>> CachedWaterDistancesMap;
-
-struct SCachedLandDistance
-{
-	SCachedLandDistance() :
-		iLandDistance(0)
-	{
-	}
-	int iLandDistance;
-};
-
-typedef std::map<CvCity*, std::map<CvCity*, SCachedLandDistance>> CachedLandDistancesMap;
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -368,7 +348,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void MinorAttackTest();
-	int GetWarType();
+	int GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -426,8 +406,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void DoNuke(PlayerTypes ePlayer);
 	void DoBarbs();
-	void CheckLandDefenses(PlayerTypes ePlayer);
-	void CheckSeaDefenses(PlayerTypes ePlayer);
+	void CheckLandDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
+	void CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void DoLandAttacks(PlayerTypes ePlayer);
 	void DoSeaAttacks(PlayerTypes ePlayer);
 	void DoMinorCivAttacks(PlayerTypes ePlayer);
@@ -457,6 +437,7 @@ private:
 	bool* m_pabUsingStrategy;
 	int* m_paiTurnStrategyAdopted;
 	int* m_aiTempFlavors;
+	int* m_aiWarFocus;
 
 	// Archived state of threats/wars from last turn
 	int* m_paeLastTurnWarState;
@@ -471,8 +452,8 @@ private:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CachedTargetsMap m_cachedTargets;
-	CachedWaterDistancesMap m_cachedWaterDistances;
-	CachedLandDistancesMap m_cachedLandDistances;
+	CachedDistancesMap m_cachedWaterDistances;
+	CachedDistancesMap m_cachedLandDistances;
 #endif
 
 	// Data recomputed each turn (no need to serialize)
@@ -495,7 +476,6 @@ private:
 	int m_iNumLandAttacksRequested;
 	int m_iNumNavalAttacksRequested;
 #if defined(MOD_BALANCE_CORE)
-	int m_iCurrentWarFocus;
 	int m_iFreeCarrier;
 	int m_iFreeCargo;
 #endif

@@ -500,12 +500,12 @@ function OnDisplay()
 	local bEnableRevokeButton = false;
 	local strProtectButton = Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_TO_PROTECT");
 -- CBP
+	
 	local strProtectTT = Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_TT", GameDefines.MINOR_FRIENDSHIP_ANCHOR_MOD_PROTECTED, GameDefines.BALANCE_MINOR_PROTECTION_MINIMUM_DURATION, GameDefines.BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR, GameDefines.BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS, GameDefines.BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX);
 	--local strProtectTT = Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_TT", GameDefines.MINOR_FRIENDSHIP_ANCHOR_MOD_PROTECTED, 10); --antonjs: todo: xml
 --END
 	local strRevokeProtectButton = Locale.Lookup("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION");
 	local strRevokeProtectTT = Locale.Lookup("TXT_KEY_POP_CSTATE_REVOKE_PROTECTION_TT");
-	
 	if (not bWar) then
 		-- PtP in effect
 		if (pPlayer:IsProtectedByMajor(iActivePlayer)) then
@@ -530,15 +530,8 @@ function OnDisplay()
 				bEnablePledgeButton = true;
 			else
 				bEnablePledgeButton = false;
+				strProtectTT = strProtectTT .. pPlayer:GetPledgeProtectionInvalidReason(iActivePlayer);
 				strProtectButton = "[COLOR_WARNING_TEXT]" .. strProtectButton .. "[ENDCOLOR]";
-				local iLastTurnPledgeBroken = pPlayer:GetTurnLastPledgeBrokenByMajor(iActivePlayer);
-				if (iLastTurnPledgeBroken >= 0) then -- (-1) means never happened
-					local iTurnsUntilRecovered = (iLastTurnPledgeBroken + 20) - Game.GetGameTurn(); --antonjs: todo: xml
-					strProtectTT = strProtectTT .. Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_MISTRUST_TT", iTurnsUntilRecovered);
-				else
-					local iMinimumInfForPledge = GameDefines["FRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT"];
-					strProtectTT = strProtectTT .. Locale.Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_INFLUENCE_TT", iMinimumInfForPledge);
-				end
 			end
 		end
 	end
@@ -593,9 +586,9 @@ function OnDisplay()
 	-- CBP
 	if(not pPlayer:IsMarried(iActivePlayer)) then
 		iBuyoutCost = pPlayer:GetMarriageCost(iActivePlayer);
-			local strButtonLabel = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_BUYOUT");
-			local strToolTip = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_MARRIAGE_TT", iBuyoutCost );
-		if(pPlayer:CanMajorMarry(iActivePlayer) and not bWar ) then	
+		local strButtonLabel = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_BUYOUT");
+		local strToolTip = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_MARRIAGE_TT", iBuyoutCost );
+		if(pPlayer:CanMajorMarry(iActivePlayer) and not bWar) then	
 			Controls.MarriageButton:SetHide(false);
 			Controls.MarriageAnim:SetHide(false);
 		elseif (pActivePlayer:IsDiplomaticMarriage() and not bWar) then

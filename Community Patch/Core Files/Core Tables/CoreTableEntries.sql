@@ -179,6 +179,9 @@ ALTER TABLE Traits ADD COLUMN 'GAGarrisonCityRangeStrikeModifier' INTEGER DEFAUL
 -- Player enters a golden age on a declaration of war, either as attacking or defending
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 
+-- Player gains a free policy after unlocking x number of technologies from the tech tree.
+ALTER TABLE Traits ADD COLUMN 'FreePolicyPerXTechs' INTEGER default 0;
+
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
 ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
@@ -314,7 +317,10 @@ ALTER TABLE Policies ADD COLUMN 'HappinessPerXPopulationGlobal' INTEGER DEFAULT 
 -- War Weariness Mod - Positive values make it harder to accumulate war weariness.
 ALTER TABLE Policies ADD COLUMN 'WarWearinessModifier' INTEGER DEFAULT 0;
 
--- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
+-- GG Mod - boosts strength modifier of GGs
+ALTER TABLE Policies ADD COLUMN 'GreatGeneralExtraBonus' INTEGER DEFAULT 0;
+
+-- % boosts to city yield for happiness sources (traits) - Values should be negative to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' INTEGER DEFAULT 0;
@@ -356,8 +362,14 @@ ALTER TABLE Traits ADD COLUMN 'Reconquista' BOOLEAN DEFAULT 0;
 -- New Traits - No Foreign Religious Spread in cities or allied CSs
 ALTER TABLE Traits ADD COLUMN 'NoSpread' BOOLEAN DEFAULT 0;
 
--- New Traits - GG bonus when spawned
-ALTER TABLE Traits ADD COLUMN 'InspirationalLeader' BOOLEAN DEFAULT 0;
+-- New Traits - GG XP bonus when spawned and removes damage from all owned units
+ALTER TABLE Traits ADD COLUMN 'XPBonusFromGGBirth' INTEGER DEFAULT 0;
+
+-- New Traits - Military x% better at intimidating CSs
+ALTER TABLE Traits ADD COLUMN 'CSBullyMilitaryStrengthModifier' INTEGER DEFAULT 0;
+
+-- New Traits - Gain %x more yields from bullying CSs
+ALTER TABLE Traits ADD COLUMN 'CSBullyValueModifier' INTEGER DEFAULT 0;
 
 -- New Traits - Diplomatic Marriage bonus (Austria UA - CBP)
 ALTER TABLE Traits ADD COLUMN 'DiplomaticMarriage' BOOLEAN DEFAULT 0;
@@ -365,11 +377,24 @@ ALTER TABLE Traits ADD COLUMN 'DiplomaticMarriage' BOOLEAN DEFAULT 0;
 -- New Traits - Adoption of Policies/Beliefs/Ideology = free tech
 ALTER TABLE Traits ADD COLUMN 'IsAdoptionFreeTech' BOOLEAN DEFAULT 0;
 
--- New Traits - Extra Growth from GA/WLTKD
+-- New Traits - Extra Growth from WTLKD
 ALTER TABLE Traits ADD COLUMN 'GrowthBoon' INTEGER DEFAULT 0;
+
+-- New Traits - Extra GI yields from WTLKD
+ALTER TABLE Traits ADD COLUMN 'WLTKDGPImprovementModifier' INTEGER DEFAULT 0;
 
 -- New Traits - WLTKD from GP birth
 ALTER TABLE Traits ADD COLUMN 'GPWLTKD' BOOLEAN DEFAULT 0;
+
+-- New Traits - WLTKD from GP expansion - global
+ALTER TABLE Traits ADD COLUMN 'ExpansionWLTKD' BOOLEAN DEFAULT 0;
+
+-- New Traits - WLTKD from GWs - global
+ALTER TABLE Traits ADD COLUMN 'GreatWorkWLTKD' BOOLEAN DEFAULT 0;
+
+-- New Traits - permanent yield decrease at new era, scaling with empire size. Ties to permanent yields XML table.
+ALTER TABLE Traits ADD COLUMN 'PermanentYieldsDecreaseEveryEra' BOOLEAN DEFAULT 0;
+
 
 -- New Traits - Extra Terrain When Conquering a City
 ALTER TABLE Traits ADD COLUMN 'ExtraConqueredCityTerritoryClaimRange' INTEGER DEFAULT 0;
@@ -462,8 +487,12 @@ ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' INTEGER DEFAULT 0;
 -- Extra Votes from Belief
 ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' INTEGER DEFAULT 0;
 
--- Extra Votes from Belief
-ALTER TABLE Beliefs ADD COLUMN 'HalvedFollowers' BOOLEAN DEFAULT 0;
+-- Ignore Policy Requirements (number) for wonders up to a set era
+ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirementsUpToEra' BOOLEAN DEFAULT 0;
+
+-- Increase yields from friendship/alliance for CS sharing your religion by x%
+ALTER TABLE Beliefs ADD COLUMN 'CSYieldBonusFromSharedReligion' INTEGER DEFAULT 0;
+
 
 -- New Buildings
 
@@ -524,6 +553,15 @@ ALTER TABLE Buildings ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 -- Allows you to define an amount that a unit will heal in a city whether or not it took an action this turn.
 ALTER TABLE Buildings ADD COLUMN 'AlwaysHeal' INTEGER DEFAULT 0;
 
+-- Allows you to define an amount that a city will increase your unit supply cap by x% per pop.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyModifier' INTEGER DEFAULT 0;
+-- Allows you to define an amount that a city will increase your unit supply cap by x% per pop globally.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyModifierGlobal' INTEGER DEFAULT 0;
+-- Allows you to define an amount that a city will increase your unit supply cap by a flat value.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlat' INTEGER DEFAULT 0;
+-- Allows you to define an amount that a city will increase your unit supply cap by a flat value globally.
+ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlatGlobal' INTEGER DEFAULT 0;
+
 -- Tourism Mod, global, from WC
 ALTER TABLE Resolutions ADD COLUMN 'TourismMod' integer default 0;
 
@@ -561,8 +599,16 @@ ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
 -- Allows you to set whether or not partisans spawn from razing cities (via policy)
 ALTER TABLE Policies ADD COLUMN 'NoPartisans' BOOLEAN DEFAULT 0;
 
+-- Allows you to set a % of warscore that is added to a tourism bonus against a civ
+ALTER TABLE Policies ADD COLUMN 'PositiveWarScoreTourismMod' INTEGER DEFAULT 0;
+
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
+
+-- Allows for Unit to gain more yields and experience from a ruin
+ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
+-- Allows for Unit to increase your supply cap.
+ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
 
 
 -- Grants resource to improvement
@@ -608,6 +654,8 @@ ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
 -- Example: <GPExtra>1</GPExtra> in a unit's XML table will put all of its GPP into a unique meter and a faith buy track.
 
 -- Promotions
+
+ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 
@@ -690,6 +738,9 @@ ALTER TABLE Improvements ADD WonderProductionModifier INTEGER DEFAULT 0;
 -- Unit stuff for minor civs
 ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT 0;
 
+-- Forbids unit from being a CS UU
+ALTER TABLE Units ADD COLUMN 'NoMinorCivGift' BOOLEAN DEFAULT 0;
+
 -- Alters monopoly values below (except for strategic elements, like attack/defense/heal/etc.)
 ALTER TABLE Policies ADD COLUMN 'MonopolyModFlat' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'MonopolyModPercent' INTEGER DEFAULT 0;
@@ -743,6 +794,12 @@ ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
 
 -- Boost CS Quest Value
 ALTER TABLE Traits ADD COLUMN 'MinorQuestYieldModifier' INTEGER DEFAULT 0;
+
+-- % culture bonus from conquering cities
+ALTER TABLE Traits ADD COLUMN 'CultureBonusModifierConquest' INTEGER DEFAULT 0;
+
+-- % production bonus in all cities from conquering cities
+ALTER TABLE Traits ADD COLUMN 'ProductionBonusModifierConquest' INTEGER DEFAULT 0;
 
 -- Limits the amount that can be built of a Unit class per city
 ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
@@ -801,6 +858,10 @@ ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 -- Resources
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
+
+ALTER TABLE Policies ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'HappinessPerXPolicies' INTEGER DEFAULT 0;
 
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
@@ -929,10 +990,16 @@ ALTER TABLE Traits ADD COLUMN 'ConquestOfTheWorldCityAttack' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'ConquestOfTheWorld' BOOLEAN DEFAULT 0;
 
 -- Start a GoldenAge when this unit is born or gained. GP's only.
-ALTER TABLE Units ADD GoldenAgeFromBirth BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD 'GoldenAgeFromBirth' BOOLEAN DEFAULT 0;
 
 -- Define a defense modifier to a building, like GlobalDefenseModifier (but only local).
-ALTER TABLE Buildings ADD BuildingDefenseModifier INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD 'BuildingDefenseModifier' INTEGER DEFAULT 0;
+
+-- Define a modifier for all tile/building based tourism in all cities.
+ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
+
+-- Define a modifier for all great work tourism in all cities.
+ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
 -- Promotion grants additional combat strength if on a pillaged improvement
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
@@ -941,13 +1008,13 @@ ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAUL
 ALTER TABLE Traits ADD COLUMN 'FreeUpgrade' BOOLEAN DEFAULT 0;
 
 -- Gain a culture boost equal to 4X the culture per turn when this unit is born. GP's only
-ALTER TABLE Units ADD CultureBoost BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD 'CultureBoost' BOOLEAN DEFAULT 0;
 
 -- Unit gets extra attacks and partial health is restored upon killing an enemy unit.
-ALTER TABLE Units ADD ExtraAttackHealthOnKill BOOLEAN DEFAULT 0;
+ALTER TABLE Units ADD 'ExtraAttackHealthOnKill' BOOLEAN DEFAULT 0;
 
 -- Kills Improvement if set to 1 (use this to reveal a resource on the map, when build is finished etc.)
-ALTER TABLE Builds ADD KillImprovement BOOLEAN DEFAULT 0;
+ALTER TABLE Builds ADD 'KillImprovement' BOOLEAN DEFAULT 0;
 
 -- Trait allows player to have every unit upgraded once tech is reached.
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSFollowingYourReligion' INTEGER DEFAULT 0;
@@ -987,6 +1054,9 @@ ALTER TABLE Traits ADD COLUMN 'FreeZuluPikemanToImpi' BOOLEAN DEFAULT 0;
 
 -- Improvement grants new Ownership if plot is not owned.
 ALTER TABLE Improvements ADD COLUMN 'NewOwner' BOOLEAN DEFAULT 0;
+
+-- Improvement grants promotion if plot is owned by the player.
+ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 
 -- CSD
 

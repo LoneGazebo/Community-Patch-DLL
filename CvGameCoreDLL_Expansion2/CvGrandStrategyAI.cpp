@@ -261,175 +261,191 @@ void CvGrandStrategyAI::DoTurn()
 	CvAIGrandStrategyXMLEntry* pGrandStrategy;
 	CvString strGrandStrategyName;
 
-	// Loop through all GrandStrategies to set their Priorities
-	for(iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
+	//Only run this on turns we need it.
+	if ((GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY && GetNumTurnsSinceActiveSet() > /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE()) || (GetActiveGrandStrategy() == NO_AIGRANDSTRATEGY))
 	{
-		eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategiesLoop;
-		pGrandStrategy = GetAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
-		strGrandStrategyName = (CvString) pGrandStrategy->GetType();
-
-		// Base Priority looks at Personality Flavors (0 - 10) and multiplies * the Flavors attached to a Grand Strategy (0-10),
-		// so expect a number between 0 and 100 back from this
-		int iPriority = GetBaseGrandStrategyPriority(eGrandStrategy);
-
-		if(strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
+		// Loop through all GrandStrategies to set their Priorities
+		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 		{
-			iPriority += GetConquestPriority();
-		}
-		else if(strGrandStrategyName == "AIGRANDSTRATEGY_CULTURE")
-		{
-			iPriority += GetCulturePriority();
-		}
-		else if(strGrandStrategyName == "AIGRANDSTRATEGY_UNITED_NATIONS")
-		{
-			iPriority += GetUnitedNationsPriority();
-		}
-		else if(strGrandStrategyName == "AIGRANDSTRATEGY_SPACESHIP")
-		{
-			iPriority += GetSpaceshipPriority();
-		}
+			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+			pGrandStrategy = GetAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
+			strGrandStrategyName = (CvString)pGrandStrategy->GetType();
 
-		// Random element
-#if !defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
-		iPriority += GC.getGame().getJonRandNum(/*50*/ GC.getAI_GS_RAND_ROLL(), "Grand Strategy AI: GS rand roll.");
-#endif
-		// Give a boost to the current strategy so that small fluctuation doesn't cause a big change
-		if(GetActiveGrandStrategy() == eGrandStrategy && GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY)
-		{
-			iPriority += /*50*/ GC.getAI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT();
-		}
+			// Base Priority looks at Personality Flavors (0 - 10) and multiplies * the Flavors attached to a Grand Strategy (0-10),
+			// so expect a number between 0 and 100 back from this
+			int iPriority = GetBaseGrandStrategyPriority(eGrandStrategy);
 
-		SetGrandStrategyPriority(eGrandStrategy, iPriority);
-	}
-	// Now look at what we think the other players in the game are up to - we might have an opportunity to capitalize somewhere
-#if !defined(MOD_BALANCE_CORE)
-	int iNumPlayersAliveAndMet = 0;
-
-	int iMajorLoop;
-
-	for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		if(GET_PLAYER((PlayerTypes) iMajorLoop).isAlive())
-		{
-			if(GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam()))
+			if (strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
 			{
-				iNumPlayersAliveAndMet++;
+				iPriority += GetConquestPriority();
 			}
-		}
-	}
-#else
-	int iMajorLoop;
+			else if (strGrandStrategyName == "AIGRANDSTRATEGY_CULTURE")
+			{
+				iPriority += GetCulturePriority();
+			}
+			else if (strGrandStrategyName == "AIGRANDSTRATEGY_UNITED_NATIONS")
+			{
+				iPriority += GetUnitedNationsPriority();
+			}
+			else if (strGrandStrategyName == "AIGRANDSTRATEGY_SPACESHIP")
+			{
+				iPriority += GetSpaceshipPriority();
+			}
+
+			// Random element
+#if !defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+			iPriority += GC.getGame().getJonRandNum(/*50*/ GC.getAI_GS_RAND_ROLL(), "Grand Strategy AI: GS rand roll.");
 #endif
+			// Give a boost to the current strategy so that small fluctuation doesn't cause a big change
+			if (GetActiveGrandStrategy() == eGrandStrategy && GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY)
+			{
+				iPriority += /*50*/ GC.getAI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT();
+			}
 
-	FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viNumGrandStrategiesAdopted;
-	int iNumPlayers = 0;
+			SetGrandStrategyPriority(eGrandStrategy, iPriority);
+		}
+		// Now look at what we think the other players in the game are up to - we might have an opportunity to capitalize somewhere
+#if !defined(MOD_BALANCE_CORE)
+		int iNumPlayersAliveAndMet = 0;
 
-	// Init vector
-	for(iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
-	{
-		iNumPlayers = 0;
+		int iMajorLoop;
 
-		// Tally up how many players we think are pusuing each Grand Strategy
 		for(iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-#if defined(MOD_BALANCE_CORE)
-			PlayerTypes ePlayer = (PlayerTypes) iMajorLoop;
-			if(ePlayer == NO_PLAYER || ePlayer == GetPlayer()->GetID())
-				continue;
-
-			if(GET_PLAYER(ePlayer).isAlive())
+			if(GET_PLAYER((PlayerTypes) iMajorLoop).isAlive())
 			{
-				if(GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				if(GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam()))
 				{
-					if(GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == (AIGrandStrategyTypes) iGrandStrategiesLoop)
-					{
-						if(OtherPlayerDoingBetterThanUs(ePlayer, (AIGrandStrategyTypes) iGrandStrategiesLoop))
-						{
-							iNumPlayers++;
-						}
-					}
+					iNumPlayersAliveAndMet++;
 				}
 			}
 		}
 #else
-			if(GetGuessOtherPlayerActiveGrandStrategy((PlayerTypes) iMajorLoop) == (AIGrandStrategyTypes) iGrandStrategiesLoop)
+		int iMajorLoop;
+#endif
+
+		FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viNumGrandStrategiesAdopted;
+		int iNumPlayers = 0;
+
+		// Init vector
+		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
+		{
+			iNumPlayers = 0;
+
+			// Tally up how many players we think are pusuing each Grand Strategy
+			for (iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				iNumPlayers++;
+#if defined(MOD_BALANCE_CORE)
+				PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
+				if (ePlayer == NO_PLAYER || ePlayer == GetPlayer()->GetID())
+					continue;
+
+				if (GET_PLAYER(ePlayer).isAlive())
+				{
+					if (GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+					{
+						if (GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == (AIGrandStrategyTypes)iGrandStrategiesLoop)
+						{
+							if (OtherPlayerDoingBetterThanUs(ePlayer, (AIGrandStrategyTypes)iGrandStrategiesLoop))
+							{
+								iNumPlayers++;
+							}
+						}
+					}
+				}
 			}
-		}
-#endif
-		viNumGrandStrategiesAdopted.push_back(iNumPlayers);
-	}
-
-	FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viGrandStrategyChangeForLogging;
-
-	int iChange;
-
-	// Now modify our preferences based on how many people are going for stuff
-	for(iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
-	{
-		eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategiesLoop;
-		
-#if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
-		//Get half.
-		int iFraction = (GetGrandStrategyPriority(eGrandStrategy) * /*50*/ GC.getAI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER());
-		iFraction /= 100;
-		int iNumPursuing = viNumGrandStrategiesAdopted[eGrandStrategy];
-		iChange = 0;
-		if(iNumPursuing > 0)
-		{
-			//Modified to only reduce based on known and if we're doing better/worse than them.
-			//If 3+ are doing better than us at this GS, we need to move on.
-			iChange = (iFraction * iNumPursuing);
-		}
-		if(iChange > GetGrandStrategyPriority(eGrandStrategy))
-		{
-			iChange = GetGrandStrategyPriority(eGrandStrategy);
-		}
 #else
-		// If EVERYONE else we know is also going for this Grand Strategy, reduce our Priority by 50%
-		iChange = GetGrandStrategyPriority(eGrandStrategy) * /*50*/ GC.getAI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER();
-		iChange = iChange * viNumGrandStrategiesAdopted[eGrandStrategy] / iNumPlayersAliveAndMet;
-
-		iChange /= 100;
+				if(GetGuessOtherPlayerActiveGrandStrategy((PlayerTypes) iMajorLoop) == (AIGrandStrategyTypes) iGrandStrategiesLoop)
+				{
+					iNumPlayers++;
+				}
+		}
 #endif
-		ChangeGrandStrategyPriority(eGrandStrategy, -iChange);
+			viNumGrandStrategiesAdopted.push_back(iNumPlayers);
+		}
 
-		viGrandStrategyChangeForLogging.push_back(-iChange);
-	}
+		FStaticVector< int, 5, true, c_eCiv5GameplayDLL > viGrandStrategyChangeForLogging;
 
-	ChangeNumTurnsSinceActiveSet(1);
+		int iChange;
 
-	// Now see which Grand Strategy should be active, based on who has the highest Priority right now
-	// Grand Strategy must be run for at least 10 turns
-	if(GetActiveGrandStrategy() == NO_AIGRANDSTRATEGY || GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
-	{
+		// Now modify our preferences based on how many people are going for stuff
+		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
+		{
+			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
+
+#if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+			//Get half.
+			int iFraction = (GetGrandStrategyPriority(eGrandStrategy) * /*50*/ GC.getAI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER());
+			iFraction /= 100;
+			int iNumPursuing = viNumGrandStrategiesAdopted[eGrandStrategy];
+			iChange = 0;
+			if (iNumPursuing > 0)
+			{
+				//Modified to only reduce based on known and if we're doing better/worse than them.
+				//If 3+ are doing better than us at this GS, we need to move on.
+				iChange = (iFraction * iNumPursuing);
+			}
+			if (iChange > GetGrandStrategyPriority(eGrandStrategy))
+			{
+				iChange = GetGrandStrategyPriority(eGrandStrategy);
+			}
+#else
+			// If EVERYONE else we know is also going for this Grand Strategy, reduce our Priority by 50%
+			iChange = GetGrandStrategyPriority(eGrandStrategy) * /*50*/ GC.getAI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER();
+			iChange = iChange * viNumGrandStrategiesAdopted[eGrandStrategy] / iNumPlayersAliveAndMet;
+
+			iChange /= 100;
+#endif
+			ChangeGrandStrategyPriority(eGrandStrategy, -iChange);
+
+			viGrandStrategyChangeForLogging.push_back(-iChange);
+		}
+		// Now see which Grand Strategy should be active, based on who has the highest Priority right now
+		// Grand Strategy must be run for at least 10 turns
 		int iBestPriority = -1;
 		int iPriority;
 
 		AIGrandStrategyTypes eBestGrandStrategy = NO_AIGRANDSTRATEGY;
 
-		for(iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
+		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
 		{
-			eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategiesLoop;
+			eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategiesLoop;
 
 			iPriority = GetGrandStrategyPriority(eGrandStrategy);
 
-			if(iPriority > iBestPriority)
+			if (iPriority > iBestPriority)
 			{
 				iBestPriority = iPriority;
 				eBestGrandStrategy = eGrandStrategy;
 			}
 		}
 
-		if(eBestGrandStrategy != GetActiveGrandStrategy())
+		if (eBestGrandStrategy != GetActiveGrandStrategy())
 		{
 			SetActiveGrandStrategy(eBestGrandStrategy);
 			m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY);
 		}
-	}
+		else
+		{
+			ChangeNumTurnsSinceActiveSet(1);
+			if (GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
+			{
+				//Reset to zero.
+				SetNumTurnsSinceActiveSet(0);
+			}
+		}
 
-	LogGrandStrategies(viGrandStrategyChangeForLogging);
+		LogGrandStrategies(viGrandStrategyChangeForLogging);
+	}
+	else
+	{
+		ChangeNumTurnsSinceActiveSet(1);
+		if (GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
+		{
+			//Reset to zero.
+			SetNumTurnsSinceActiveSet(0);
+		}
+	}
 }
 
 /// Returns Priority for Conquest Grand Strategy
@@ -460,7 +476,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier) * iEra); // make a little less likely as time goes on
+	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (12 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
 #else
 	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier) * (12 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
 #endif
@@ -523,7 +539,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iNum = GetPlayer()->GetNumCapitalCities();
 	if(iNum > 1)
 	{
-		iPriority *= (iNum * 5);
+		iPriority += (iNum * 100);
 	}
 #endif
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
@@ -621,11 +637,27 @@ int CvGrandStrategyAI::GetConquestPriority()
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
+					if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MOBILE")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
 					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_NAVAL")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_RECON")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RANGED")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_AIR")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -686,13 +718,19 @@ int CvGrandStrategyAI::GetConquestPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->GetCombatModifierEnemyCities() > 0)
 					{
@@ -751,7 +789,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((iEra * iFlavorCulture * 200) / 100);
+	iPriority += ((iEra * iFlavorCulture * 100) / 100);
 #else
 	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
 #endif
@@ -801,6 +839,10 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		iPriority += (GC.getAI_GS_CULTURE_TOURISM_AHEAD_WEIGHT() * (iNumCivsAheadTourism - iNumCivsBehindTourism) / iNumCivsAlive);
 	}
+	if (iNumCivsAlive > 0 && iNumCivsAheadTourism < iNumCivsBehindTourism)
+	{
+		iPriority -= (GC.getAI_GS_CULTURE_TOURISM_AHEAD_WEIGHT() * (iNumCivsBehindTourism - iNumCivsAheadTourism) / iNumCivsAlive);
+	}
 
 	// for every civ we are Influential over increase this
 	int iNumInfluential = m_pPlayer->GetCulture()->GetNumCivsInfluentialOn();
@@ -809,7 +851,10 @@ int CvGrandStrategyAI::GetCulturePriority()
 	int iPriorityBonus = 0;
 
 	//Add in our base culture value.
-	iPriorityBonus += (m_pPlayer->getJONSCulture() / 15);
+	iPriorityBonus += (m_pPlayer->getJONSCulture() / 30);
+	iPriorityBonus += (m_pPlayer->GetCulture()->GetTourism() / 30);
+
+	iPriorityBonus += (m_pPlayer->GetMaxEffectiveCities() * -10);
 
 	//Add priority value based on flavors of policies we've acquired.
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
@@ -831,6 +876,10 @@ int CvGrandStrategyAI::GetCulturePriority()
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_WONDER")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_HAPPINESS")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -869,6 +918,10 @@ int CvGrandStrategyAI::GetCulturePriority()
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
+							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_HAPPINESS")
+							{
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+							}
 						}
 					}
 				}
@@ -888,13 +941,19 @@ int CvGrandStrategyAI::GetCulturePriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->FaithPurchaseAllGreatPeople())
 					{
@@ -972,11 +1031,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 				{
 					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
 					{
-						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 2;
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 3;
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 				}
 			}
@@ -1003,11 +1070,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 						{
 							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
 							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 3;
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
+							}
+							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
+							{
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+							}
+							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
+							{
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
 						}
 					}
@@ -1028,13 +1103,19 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->GetExtraVotes())
 					{
@@ -1075,7 +1156,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			}
 		}
 	}
-	iPriorityBonus /= 5;
+	iPriorityBonus /= 14;
 	iPriority += iPriorityBonus;
 #endif
 #if !defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
@@ -1160,11 +1241,11 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		int iPotentialVotesDelta = iPotentialCityStateVotes + iVotesControlledDelta;
 		if (iPotentialVotesDelta > 0)
 		{
-			iPriority += MAX(20, iPotentialVotesDelta * 6);
+			iPriority += MAX(20, iPotentialVotesDelta * 10);
 		}
 		else if (iPotentialVotesDelta < 0)
 		{
-			iPriority += MIN(-40, iPotentialVotesDelta * -6);
+			iPriority += MIN(-40, iPotentialVotesDelta * -25);
 		}
 	}
 
@@ -1237,7 +1318,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	// the later the game the greater the chance
 #if defined(MOD_AI_SMART_GRAND_STRATEGY)
 	int iEraBias = MOD_AI_SMART_GRAND_STRATEGY ? 4 : 0;
-	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 150 / 100;
+	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 200 / 100;
 #else
 	iPriority += m_pPlayer->GetCurrentEra() * iFlavorScience * 150 / 100;
 #endif
@@ -1270,6 +1351,11 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		iPriority += ((GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * (iNumCivsAheadScience - iNumCivsBehindScience)) / iNumCivsAlive);
 	}
 #endif
+	//Are we in first overall? Bump it!
+	if (iNumCivsAheadScience == iNumCivsAlive)
+	{
+		iPriority += (GC.getAI_GS_CULTURE_AHEAD_WEIGHT() * iNumCivsAlive);
+	}
 	// if I already built the Apollo Program I am very likely to follow through
 	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
 	if(eApolloProgram != NO_PROJECT)
@@ -1304,6 +1390,10 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
 					else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
+					{
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+					}
+					else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
 					{
 						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
 					}
@@ -1342,6 +1432,10 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 							{
 								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 							}
+							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
+							{
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+							}
 						}
 					}
 				}
@@ -1361,17 +1455,23 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if(pReligion)
 		{
+			CvCity* pHolyCity = NULL;
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+			if (pHolyCityPlot)
+			{
+				pHolyCity = pHolyCityPlot->getPlotCity();
+			}
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
 			for(int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
+				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
 					if(pEntry->GetSciencePerOtherReligionFollower() > 0)
 					{
-						iPriorityBonus += pEntry->GetSciencePerOtherReligionFollower();
+						iPriorityBonus += pEntry->GetSciencePerOtherReligionFollower() * 10;
 					}
 					
 					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -1793,7 +1893,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 		//More than half of all Capitals?
 		if(GET_PLAYER(ePlayer).GetNumCapitalCities() >= 1 && (GET_PLAYER(ePlayer).GetNumCapitalCities() >= (GC.getGame().countMajorCivsEverAlive() / 2)))
 		{
-			iConquestPriority *= (GET_PLAYER(ePlayer).GetNumCapitalCities() * 5);
+			iConquestPriority *= (GET_PLAYER(ePlayer).GetNumCapitalCities() * 20);
 		}
 		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
 		{

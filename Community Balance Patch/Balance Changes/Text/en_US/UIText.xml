@@ -30,13 +30,31 @@
 			<Advisor>MILITARY</Advisor>
 			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
 		</Row>
+		<Row>
+			<Type>CONCEPT_HAPPINESS_WAR_WEARINESS</Type>
+			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
+			<Description>TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE</Description>
+			<Summary>TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_HAPPINESS_WAR_WEARINESS_ADV_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_HAPPINESS_MILITARY_SUPPLY</Type>
+			<Topic>TXT_KEY_TOPIC_UNITS</Topic>
+			<Description>TXT_KEY_MILITARY_SUPPLY_HEADING3_TITLE</Description>
+			<Summary>TXT_KEYMILITARY_SUPPLY_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_MILITARY_SUPPLY_ADV_QUEST</AdvisorQuestion>
+			<Advisor>MILITARY</Advisor>
+			<CivilopediaHeaderType>HEADER_UNITS</CivilopediaHeaderType>
+		</Row>
 	</Concepts>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT">
 			<Text>Historic Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
-			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture per turn over the past 10 turns. As a rule, standard civilizations, at standard speed, gain around 40% of their current culture per turn as tourism. The amount of tourism you receive may be modified by a few social policies and ideological tenets, as well as leader traits or buildings.</Text>
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Trade with a [ICON_CITY_STATE] City-State ('Cultural Diplomacy' Policy Only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire and your tourism modifier with the target civ. Finally, the amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
 			<Text>What is a Historic Event?</Text>
@@ -61,6 +79,26 @@
 			<Text>What are Partisans?</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE">
+			<Text>War Weariness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY">
+			<Text>War, war never changes. Well, actually, it does. As the game progresses, the citizens of your empire will become more and more aware of the dangers of prolonged conflict, and will begin to develop [COLOR_NEGATIVE_TEXT]War Weariness[ENDCOLOR]. War Weariness is calculated based on two factors: the length of your longest current war (however long that may be), and the largest amount of damage your cities and armies have sustained in a single combat against an opponent you are currently fighting. Every City lost or unit destroyed will increase your War Weariness, leading to three major effects:[NEWLINE][ICON_BULLET] Unhappiness from War Weariness[NEWLINE][ICON_BULLET] Increased Production and Gold costs for Military Units[NEWLINE][ICON_BULLET] Reduced maximum Military Unit Supply Cap.[NEWLINE]The latter two cap at 75%. Be careful of overextending during a single conflict!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_ADV_QUEST">
+			<Text>What is War Weariness?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_HEADING3_TITLE">
+			<Text>Military Supply</Text>
+		</Row>
+		<Row Tag="TXT_KEYMILITARY_SUPPLY_HEADING3_BODY">
+			<Text>The maximum number of Military Units you can field at any one time is called your Military Unit Supply Cap. This number, indicated on the Top Panel next to the [ICON_WAR] Symbol, increases based on two factors: the total population of all of your cities, and the number of buildings or policies you have that increase your Military Unit Supply Cap. Some buildings, such as the Barracks, increase your Supply Cap by a fixed amount. Others, like Walls, increase your Supply cap by a percentage of the city's population.[NEWLINE][NEWLINE]Military Unit Supply Cap increases from static elements, like Barracks, never go away. Percentage bonuses from population, however, decline over time based on your empire's technological level. You will need more and more percentage bonuses to overcome this and field large armies![NEWLINE][NEWLINE]If, for any reason, you exceed your Military Unit Supply Cap, you will be penalized 5% Production and Food in all Cities (per unit over the cap).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
+			<Text>What is Military Supply?</Text>
+		</Row>
+			
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
 			<Text>Withdraw Chance</Text>
 		</Row>
@@ -160,7 +198,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Married[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT">
-			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] While at peace with this City-State, your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] Your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<!-- America! -->
 		<Row Tag="TXT_KEY_NOTIFICATION_UA_STOLE_PLOT">
@@ -219,10 +257,24 @@
 			<Text>[ICON_BULLET]{1_Num} is added per turn from [ICON_CAPITAL] Cities</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING">
+			<Text>Every owned city (not including your [ICON_CAPITAL] Capital) decreases the [ICON_TOURISM] Tourism you produce from Cities and Historic Events by {1_Num}% (up to 75%).</Text>
+		</Row>
+		
+		<!-- City-State Protection Prompt -->
+		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
+			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR].</Text>
+		</Row>
+
 		<!-- Aesthetics -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
 			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
+			<Text>{1_Num}% [ICON_TOURISM] Tourism from number of Cities</Text>
+		</Row>
+		
 		<!-- Resource Monopoly Text-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY">
 			<Text>(You) {1_Monopoly}%</Text>
@@ -233,8 +285,27 @@
 
 
 		<!-- Tooltip for War Weariness-->
-		<Row Tag="TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS">
-			<Text>[NEWLINE][NEWLINE]War Weariness is generating {1_Num} [ICON_HAPPINESS_4][NEWLINE][NEWLINE]</Text>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS">
+			<Text>{1_Num} from [ICON_WAR] War Weariness.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_WEARINESS_SUPPLY_TT">
+			<Text>Reduced to due your current wars</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_WEARINESS_SUPPLY">
+			<Text>War Weariness</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
+			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%.[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Information:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Handicap[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_HAPPINESS_3] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_PRODUCTION]/[ICON_GOLD] Costs increased by {6_Num}% due to [ICON_HAPPINESS_3] War Weariness</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY">
+			<Text>Expending a {1_UnitName} increased your Military Unit Supply Cap by {2_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EXPENDED_SUPPLY_S">
+			<Text>Military Unit Supply Cap Increased!</Text>
 		</Row>
 
 		<!-- Tooltip for Defensive Pacts -->
@@ -323,6 +394,12 @@
 		<Row Tag="TXT_KEY_BUILD_GAP_STRING">
 			<Text>{1_Num}[ENDCOLOR] [ICON_GOLDEN_AGE] Golden Age Points</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILD_GGP_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_GAP2_STRING">
+			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_ADMIRAL] Great Admiral Points</Text>
+		</Row>
 
 		<!-- Assyria UA Text -->
 		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST">
@@ -344,46 +421,77 @@
 			<Text>You have adopted a Belief! Choose a free technology...</Text>
 		</Row>
 
-		<!--China UA Text-->
-		<Row Tag="TXT_KEY_FOODMOD_PLAYER_UA_GOLDEN_AGE">
-			<Text>[NEWLINE][ICON_BULLET]Mandarin Bureaucracy ([ICON_GOLDEN_AGE]): {1_Num}%[ENDCOLOR]</Text>
-		</Row>
+		<!--Old China UA Text-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA">
-			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +75% [ICON_FOOD] growth bonus!</Text>
+			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day.' All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
 		</Row>
+		
+		<!-- New -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE">
+			<Text>Entering a new Era has lead to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_CULTURE] Culture from Mandate of Heaven are reduced by up to {1_Num} in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE">
+			<Text>Dynastic Transition...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK">
+			<Text>The creation of a [ICON_GREAT_WORK] Great Work causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture permanently.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK">
+			<Text>Mandate of Heaven</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
-			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +75% [ICON_FOOD] growth bonus!</Text>
+			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Food by +{4_Num}%!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE">
-			<Text>{1_CityName:textkey} loves the Empress!</Text>
+			<Text>Mandate of Heaven</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING">
+			<Text>The founding of a new City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_SETTLING">
+			<Text>Mandate of Heaven</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST">
+			<Text>The conquest of a City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST">
+			<Text>Mandate of Heaven</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_FOODMOD_WLTKD_UA">
-			<Text>[NEWLINE][ICON_BULLET]We Love the Empress Day Modifier: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]We Love the Empress Day Modifier: +{1_Num}% [ICON_FOOD] Food</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA">
-			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day," increasing its [ICON_FOOD] Growth rate by 75%!</Text>
+			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA">
-			<Text>This City is in "We Love the Empress Day", which increases [ICON_FOOD] growth!</Text>
+			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Food modifier!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA">
-			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day", which increases [ICON_FOOD] growth!</Text>
+			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA">
 			<Text>We Love The Empress Day! ({1_Num})</Text>
 		</Row>
+		
+		
 		<!-- Brazil -->
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL">
 			<Text>Carnaval! ({1_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL">
-			<Text>This City is celebrating Carnaval, which increases [ICON_CULTURE] Culture!</Text>
+			<Text>This City is celebrating Carnaval, which increases [ICON_CULTURE] Culture and [ICON_FOOD] Growth, and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL">
-			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnaval, which increases [ICON_CULTURE] Culture!</Text>
+			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnaval, which increases [ICON_CULTURE] Culture and [ICON_FOOD] Growth, and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 
 		<!-- Bully Metric Values -->
@@ -612,7 +720,7 @@
 			<Text>{1_Num} [ICON_PEACE] from following the [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_PEACE] from City-State Alliances</Text>
+			<Text>{1_Num} [ICON_PEACE] from City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
 			<Text>{1_Num} [ICON_CULTURE] from following the [ICON_RELIGION] Majority Religion</Text>
@@ -632,10 +740,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_CULTURE] from Realpolitik</Text>
+			<Text>{1_Num} [ICON_CULTURE] from City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
-			<Text>{1_Num} {2_IconString} from Realpolitik</Text>
+			<Text>{1_Num} {2_IconString} from City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
@@ -769,7 +877,7 @@
 
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>Based on your current [ICON_CITIZEN] Population ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]), acquiring a new Luxury Resource will increase your [ICON_HAPPINESS_1] Happiness by [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]. To increase the [ICON_HAPPINESS_1] Happiness you gain from all owned Luxuries, raise your [ICON_CITIZEN] Population in [ICON_PUPPET] non-Puppet Cities to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+			<Text>Based on your current [ICON_CITIZEN] Population ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]), acquiring a new Luxury Resource will increase your [ICON_HAPPINESS_1] Happiness by [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]. To increase the [ICON_HAPPINESS_1] Happiness you gain from all owned Luxuries, raise your total [ICON_CITIZEN] Population to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
@@ -927,7 +1035,7 @@
 			<Text>Brazilwood</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_HELP">
-			<Text>Luxury resource unique to Brazil. Can only be acquired through the creation of Brazilwood Camps.</Text>
+			<Text>Luxury resource unique to Brazil. Can only be acquired through the creation of Brazilwood Camps.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_CULTURE] Culture from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_RESOURCE_BRAZILWOOD">
 			<Text>Brazilwood</Text>
@@ -935,6 +1043,31 @@
 		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_TEXT">
 			<Text>Brazilwood is a dense, compact dyewood from any of various tropical trees whose extracts yield bright crimson and deep purple colours. Brazilwood is also used in cabinetwork and the creation of musical instruments. In ancient and medieval times, the brazilwood imported to Europe from the Middle East was Caesalpinia braziliensis and other species of Caesalpinia. Caesalpinia echinata (called pau-brasil in Portuguese) is indigenous to the Brazilian coast and played a role in the naming of that country.</Text>
 		</Row>
+
+		<!-- New Poland UA TT -->
+		<Row Tag="TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY">
+			<Text>[COLOR_POSITIVE_TEXT]Tech unlocks remaining until free Social Policy: {1_Num}[ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Great Work Text-->
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_FLOOD_TABLET">
+			<Text>"The sea calmed and the whirlwind and flood stopped.[NEWLINE]Utnapishtim opened a window and felt fresh air on his face.[NEWLINE]He looked for coastlines at the horizon and saw a region of land.[NEWLINE]The boat lodged firmly on mount Nimush which held the boat for several days, allowing no swaying.[NEWLINE]He released a raven which was able to eat and scratch, and did not circle back to the boat.[NEWLINE]He then sent his livestock out in various directions."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_FLOOD_TABLET">
+			<Text>The Flood Tablet</Text>
+		</Row>
+		
+		<!-- Warscore Autocracy UI -->
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_BONUS">
+			<Text>+{1_Num}% of current Warscore with:[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_WARSCORE">
+			<Text>+{1_Num}% Bonus from Warscore[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_VALUE">
+			<Text>Warscore: {1_Num}</Text>
+		</Row>
+
 		
 	</Language_en_US>
 </GameData>

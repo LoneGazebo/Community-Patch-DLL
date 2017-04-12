@@ -85,12 +85,17 @@ CvTraitEntry::CvTraitEntry() :
 	m_bBuyOwnedTiles(false),
 	m_bReconquista(false),
 	m_bNoSpread(false),
-	m_bInspirationalLeader(false),
+	m_iInspirationalLeader(0),
+	m_iBullyMilitaryStrengthModifier(0),
+	m_iBullyValueModifier(0),
 	m_bDiplomaticMarriage(false),
 	m_bAdoptionFreeTech(false),
 	m_bGPWLTKD(false),
+	m_bGreatWorkWLTKD(false),
+	m_bExpansionWLTKD(false),
 	m_bTradeRouteOnly(false),
 	m_bKeepConqueredBuildings(false),
+	m_iWLTKDGPImprovementModifier(0),
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
 	m_bUniqueBeliefsOnly(false),
@@ -122,6 +127,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bFreeUpgrade(false),
 	m_bWarsawPact(false),
 	m_bFreeZuluPikemanToImpi(false),
+	m_bPermanentYieldsDecreaseEveryEra(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -234,6 +240,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iVotePerXCSFollowingFollowingYourReligion(0),
 	m_iChanceToConvertReligiousUnits(0),
 	m_iGoldenAgeFromVictory(0),
+	m_iFreePolicyPerXTechs(0),
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
 	m_bCombatBoostNearNaturalWonder(false),
@@ -245,6 +252,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piCapitalYieldChanges(NULL),
 	m_piCityYieldChanges(NULL),
+	m_piPermanentYieldChangeWLTKD(NULL),
 	m_piCoastalCityYieldChanges(NULL),
 	m_piGreatWorkYieldChanges(NULL),
 	m_piArtifactYieldChanges(NULL),
@@ -628,9 +636,18 @@ bool CvTraitEntry::IsForeignReligionSpreadImmune() const
 	return m_bNoSpread;
 }
 
-bool CvTraitEntry::IsInspirationalLeader() const
+int CvTraitEntry::GetInspirationalLeader() const
 {
-	return m_bInspirationalLeader;
+	return m_iInspirationalLeader;
+}
+
+int CvTraitEntry::GetBullyMilitaryStrengthModifier() const
+{
+	return m_iBullyMilitaryStrengthModifier;
+}
+int CvTraitEntry::GetBullyValueModifier() const
+{
+	return m_iBullyValueModifier;
 }
 
 bool CvTraitEntry::IsDiplomaticMarriage() const
@@ -645,6 +662,14 @@ bool CvTraitEntry::IsGPWLTKD() const
 {
 	return m_bGPWLTKD;
 }
+bool CvTraitEntry::IsGreatWorkWLTKD() const
+{
+	return m_bGreatWorkWLTKD;
+}
+bool CvTraitEntry::IsExpansionWLTKD() const
+{
+	return m_bExpansionWLTKD;
+}
 bool CvTraitEntry::IsTradeRouteOnly() const
 {
 	return m_bTradeRouteOnly;
@@ -656,6 +681,10 @@ bool CvTraitEntry::IsKeepConqueredBuildings() const
 bool CvTraitEntry::IsMountainPass() const
 {
 	return m_bMountainPass;
+}
+int CvTraitEntry::GetWLTKDGPImprovementModifier() const
+{
+	return m_iWLTKDGPImprovementModifier;
 }
 int CvTraitEntry::GetGrowthBoon() const
 {
@@ -756,6 +785,10 @@ bool CvTraitEntry::IsWarsawPact() const
 bool CvTraitEntry::IsFreeZuluPikemanToImpi() const
 {
 	return m_bFreeZuluPikemanToImpi;
+}
+bool CvTraitEntry::IsPermanentYieldsDecreaseEveryEra() const
+{
+	return m_bPermanentYieldsDecreaseEveryEra;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1181,6 +1214,14 @@ int CvTraitEntry::GetWonderProductionModGA() const
 {
 	return m_iWonderProductionModGA;
 }
+int CvTraitEntry::GetCultureBonusModifierConquest() const
+{
+	return m_iCultureBonusModifierConquest;
+}
+int CvTraitEntry::GetProductionBonusModifierConquest() const
+{
+	return m_iProductionBonusModifierConquest;
+}
 #endif
 
 /// Accessor:: 1 extra yield comes all tiles with a base yield of this
@@ -1340,6 +1381,10 @@ int CvTraitEntry::GetGoldenAgeFromVictory() const
 {
 	return m_iGoldenAgeFromVictory;
 }
+int CvTraitEntry::GetFreePolicyPerXTechs() const
+{
+	return m_iFreePolicyPerXTechs;
+}
 int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 {
 	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
@@ -1371,6 +1416,10 @@ int CvTraitEntry::GetCapitalYieldChanges(int i) const
 int CvTraitEntry::GetCityYieldChanges(int i) const
 {
 	return m_piCityYieldChanges ? m_piCityYieldChanges[i] : -1;
+}
+int CvTraitEntry::GetPermanentYieldChangeWLTKD(int i) const
+{
+	return m_piPermanentYieldChangeWLTKD ? m_piPermanentYieldChangeWLTKD[i] : -1;
 }
 
 int CvTraitEntry::GetCoastalCityYieldChanges(int i) const
@@ -1851,14 +1900,19 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 	m_bReconquista							= kResults.GetBool("Reconquista");
 	m_bNoSpread								= kResults.GetBool("NoSpread");
-	m_bInspirationalLeader					= kResults.GetBool("InspirationalLeader");
+	m_iInspirationalLeader					= kResults.GetInt("XPBonusFromGGBirth");
 	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
+	m_iBullyMilitaryStrengthModifier		= kResults.GetInt("CSBullyMilitaryStrengthModifier");
+	m_iBullyValueModifier					= kResults.GetInt("CSBullyValueModifier");
 	m_bAdoptionFreeTech						= kResults.GetBool("IsAdoptionFreeTech");
+	m_iWLTKDGPImprovementModifier			= kResults.GetInt("WLTKDGPImprovementModifier");
 	m_iGrowthBoon							= kResults.GetInt("GrowthBoon");
 	m_iAllianceCSDefense					= kResults.GetInt("AllianceCSDefense");
 	m_iAllianceCSStrength					= kResults.GetInt("AllianceCSStrength");
 	m_iTourismGABonus						= kResults.GetInt("TourismGABonus");
 	m_bGPWLTKD								= kResults.GetBool("GPWLTKD");
+	m_bGreatWorkWLTKD						= kResults.GetBool("GreatWorkWLTKD");
+	m_bExpansionWLTKD						= kResults.GetBool("ExpansionWLTKD");
 	m_bTradeRouteOnly						= kResults.GetBool("TradeRouteOnly");
 	m_bKeepConqueredBuildings				= kResults.GetBool("KeepConqueredBuildings");
 	m_bMountainPass							= kResults.GetBool("MountainPass");
@@ -1887,6 +1941,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bFreeUpgrade							= kResults.GetBool("FreeUpgrade");
 	m_bWarsawPact							= kResults.GetBool("WarsawPact");
 	m_bFreeZuluPikemanToImpi				= kResults.GetBool("FreeZuluPikemanToImpi");
+	m_bPermanentYieldsDecreaseEveryEra		= kResults.GetBool("PermanentYieldsDecreaseEveryEra");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2079,7 +2134,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
 	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
 	m_bIsOddEraScaler = kResults.GetBool("IsOddEraScaler");
-	m_iWonderProductionModGA = kResults.GetBool("WonderProductionModGA");
+	m_iWonderProductionModGA = kResults.GetInt("WonderProductionModGA");
+	m_iCultureBonusModifierConquest = kResults.GetInt("CultureBonusModifierConquest");
+	m_iProductionBonusModifierConquest = kResults.GetInt("ProductionBonusModifierConquest");
 #endif
 
 	//Arrays
@@ -2372,6 +2429,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iVotePerXCSFollowingFollowingYourReligion = kResults.GetInt("VotePerXCSFollowingYourReligion");
 	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
 	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
+	m_iFreePolicyPerXTechs = kResults.GetInt("FreePolicyPerXTechs");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
 	m_bCombatBoostNearNaturalWonder = kResults.GetBool("CombatBoostNearNaturalWonder");
@@ -2404,6 +2462,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 	kUtility.SetYields(m_piCapitalYieldChanges, "Trait_CapitalYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piCityYieldChanges, "Trait_CityYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piPermanentYieldChangeWLTKD, "Trait_PermanentYieldChangeWLTKD", "TraitType", szTraitType);
 	kUtility.SetYields(m_piCoastalCityYieldChanges, "Trait_CoastalCityYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piGreatWorkYieldChanges, "Trait_GreatWorkYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piArtifactYieldChanges, "Trait_ArtifactYieldChanges", "TraitType", szTraitType);
@@ -2880,9 +2939,17 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoSpread = true;
 			}
-			if(trait->IsInspirationalLeader())
+			if(trait->GetInspirationalLeader() != 0)
 			{
-				m_bInspirationalLeader = true;
+				m_iInspirationalLeader += trait->GetInspirationalLeader();
+			}
+			if (trait->GetBullyMilitaryStrengthModifier() != 0)
+			{
+				m_iBullyMilitaryStrengthModifier += trait->GetBullyMilitaryStrengthModifier();
+			}
+			if (trait->GetBullyValueModifier() != 0)
+			{
+				m_iBullyValueModifier += trait->GetBullyValueModifier();
 			}
 			if(trait->IsDiplomaticMarriage())
 			{
@@ -2895,6 +2962,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			if(trait->IsGPWLTKD())
 			{
 				m_bGPWLTKD = true;
+			}
+			if (trait->IsGreatWorkWLTKD())
+			{
+				m_bGreatWorkWLTKD = true;
+			}
+			if (trait->IsExpansionWLTKD())
+			{
+				m_bExpansionWLTKD = true;
 			}
 			if(trait->IsTradeRouteOnly())
 			{
@@ -2952,9 +3027,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bFreeZuluPikemanToImpi = true;
 			}
+			if (trait->IsPermanentYieldsDecreaseEveryEra())
+			{
+				m_bPermanentYieldsDecreaseEveryEra = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
-			m_iGrowthBoon += trait->GetGrowthBoon();
+			m_iGrowthBoon += trait->GetGrowthBoon();		
+			m_iWLTKDGPImprovementModifier += trait->GetWLTKDGPImprovementModifier();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
 			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
 			m_iTourismGABonus += trait->GetTourismGABonus();
@@ -3135,6 +3215,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bIsOddEraScaler= true;
 			}
 			m_iWonderProductionModGA += trait->GetWonderProductionModGA();
+			m_iCultureBonusModifierConquest += trait->GetCultureBonusModifierConquest();
+			m_iProductionBonusModifierConquest += trait->GetProductionBonusModifierConquest();
 #endif
 
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3222,6 +3304,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
 				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
+				m_iFreePolicyPerXTechs = trait->GetFreePolicyPerXTechs();
 				if(trait->IsFreeGreatWorkOnConquest())
 				{
 					m_bFreeGreatWorkOnConquest = true;
@@ -3249,6 +3332,7 @@ void CvPlayerTraits::InitPlayerTraits()
 
 				m_iCapitalYieldChanges[iYield] = trait->GetCapitalYieldChanges(iYield);
 				m_iCityYieldChanges[iYield] = trait->GetCityYieldChanges(iYield);
+				m_iPermanentYieldChangeWLTKD[iYield] = trait->GetPermanentYieldChangeWLTKD(iYield);
 				m_iCoastalCityYieldChanges[iYield] = trait->GetCoastalCityYieldChanges(iYield);
 				m_iGreatWorkYieldChanges[iYield] = trait->GetGreatWorkYieldChanges(iYield);
 				m_iArtifactYieldChanges[iYield] = trait->GetArtifactYieldChanges(iYield);
@@ -3510,10 +3594,13 @@ void CvPlayerTraits::Reset()
 	m_bBuyOwnedTiles = false;
 	m_bReconquista = false;
 	m_bNoSpread = false;
-	m_bInspirationalLeader = false;
+	m_iInspirationalLeader = 0;
+	m_iBullyMilitaryStrengthModifier = 0;
+	m_iBullyValueModifier = 0;
 	m_bDiplomaticMarriage = false;
 	m_bAdoptionFreeTech = false;
 	m_iGrowthBoon = 0;
+	m_iWLTKDGPImprovementModifier = 0;
 	m_iAllianceCSDefense = 0;
 	m_iAllianceCSStrength = 0;
 	m_iTourismGABonus = 0;
@@ -3525,6 +3612,8 @@ void CvPlayerTraits::Reset()
 	m_iStartingSpyRank = 0;
 	m_iQuestYieldModifier = 0;
 	m_bGPWLTKD = false;
+	m_bGreatWorkWLTKD = false;
+	m_bExpansionWLTKD = false;
 	m_bTradeRouteOnly = false;
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
@@ -3547,6 +3636,7 @@ void CvPlayerTraits::Reset()
 	m_bFreeUpgrade = false;
 	m_bWarsawPact = false;
 	m_bFreeZuluPikemanToImpi = false;
+	m_bPermanentYieldsDecreaseEveryEra = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -3628,6 +3718,8 @@ void CvPlayerTraits::Reset()
 	m_bIsNoReligiousStrife = false;
 	m_bIsOddEraScaler = false;
 	m_iWonderProductionModGA = 0;
+	m_iCultureBonusModifierConquest = 0;
+	m_iProductionBonusModifierConquest = 0;
 #endif
 
 
@@ -3712,6 +3804,7 @@ void CvPlayerTraits::Reset()
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
 		m_iGoldenAgeFromVictory = 0;
+		m_iFreePolicyPerXTechs;
 		m_bFreeGreatWorkOnConquest = false;
 		m_bPopulationBoostReligion = false;
 		m_bCombatBoostNearNaturalWonder = false;
@@ -3723,6 +3816,7 @@ void CvPlayerTraits::Reset()
 		}
 		m_iCapitalYieldChanges[iYield] = 0;
 		m_iCityYieldChanges[iYield] = 0;
+		m_iPermanentYieldChangeWLTKD[iYield] = 0;
 		m_iCoastalCityYieldChanges[iYield] = 0;
 		m_iGreatWorkYieldChanges[iYield] = 0;
 		m_iArtifactYieldChanges[iYield] = 0;
@@ -4378,8 +4472,12 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 #endif
 					{
-						if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						if(pLoopPlot->getResourceType() == NO_RESOURCE)
 						{
+							if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+							{
+								pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+							}
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResourceToGive, 1, false);
 							iNumResourceGiven++;
@@ -5396,10 +5494,14 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bReconquista, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bNoSpread, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bInspirationalLeader, false);
+	MOD_SERIALIZE_READ(66, kStream, m_iInspirationalLeader, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBullyMilitaryStrengthModifier, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBullyValueModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_bDiplomaticMarriage, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bGreatWorkWLTKD, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bExpansionWLTKD, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bTradeRouteOnly, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
@@ -5407,6 +5509,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bNoNaturalReligionSpread, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bNoOpenTrade, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGoldenAgeOnWar, false);
+	MOD_SERIALIZE_READ(66, kStream, m_iWLTKDGPImprovementModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
@@ -5433,6 +5536,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeUpgrade, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bWarsawPact, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5660,6 +5764,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(54, kStream, m_bIsNoReligiousStrife, false);
 	MOD_SERIALIZE_READ(65, kStream, m_bIsOddEraScaler, false);
 	MOD_SERIALIZE_READ(65, kStream, m_iWonderProductionModGA, 0);
+	MOD_SERIALIZE_READ(65, kStream, m_iCultureBonusModifierConquest, 0);
+	MOD_SERIALIZE_READ(65, kStream, m_iProductionBonusModifierConquest, 0);
 #endif
 
 	kStream >> m_eCampGuardType;
@@ -5807,6 +5913,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
@@ -5819,6 +5926,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> kCityYieldChangesWrapper(NUM_YIELD_TYPES, m_iCityYieldChanges);
 	kStream >> kCityYieldChangesWrapper;
+
+	ArrayWrapper<int> kPermanentYieldChangeWLTKDWrapper(NUM_YIELD_TYPES, m_iPermanentYieldChangeWLTKD);
+	kStream >> kPermanentYieldChangeWLTKDWrapper;
 
 	ArrayWrapper<int> kCoastalCityYieldChangesWrapper(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
 	kStream >> kCoastalCityYieldChangesWrapper;
@@ -5946,10 +6056,14 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
 	MOD_SERIALIZE_WRITE(kStream, m_bReconquista);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoSpread);
-	MOD_SERIALIZE_WRITE(kStream, m_bInspirationalLeader);
+	MOD_SERIALIZE_WRITE(kStream, m_iInspirationalLeader);
+	MOD_SERIALIZE_WRITE(kStream, m_iBullyMilitaryStrengthModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iBullyValueModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_bDiplomaticMarriage);
 	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
 	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);
+	MOD_SERIALIZE_WRITE(kStream, m_bGreatWorkWLTKD);
+	MOD_SERIALIZE_WRITE(kStream, m_bExpansionWLTKD);
 	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteOnly);
 	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
@@ -5957,6 +6071,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bNoNaturalReligionSpread);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoOpenTrade);
 	MOD_SERIALIZE_WRITE(kStream, m_bGoldenAgeOnWar);
+	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDGPImprovementModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
@@ -5983,6 +6098,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeUpgrade);
 	MOD_SERIALIZE_WRITE(kStream, m_bWarsawPact);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
+	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -6075,6 +6191,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bIsNoReligiousStrife);
 	MOD_SERIALIZE_WRITE(kStream, m_bIsOddEraScaler);
 	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModGA);
+	MOD_SERIALIZE_WRITE(kStream, m_iCultureBonusModifierConquest);
+	MOD_SERIALIZE_WRITE(kStream, m_iProductionBonusModifierConquest);
 #endif
 
 	kStream << m_eCampGuardType;
@@ -6157,6 +6275,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
+	MOD_SERIALIZE_WRITE(kStream, m_iFreePolicyPerXTechs);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSFollowingFollowingYourReligion);
 	MOD_SERIALIZE_WRITE(kStream, m_iChanceToConvertReligiousUnits);
 #endif
@@ -6165,6 +6284,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiBuildingClassYieldChange;
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iPermanentYieldChangeWLTKD);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtifactYieldChanges);

@@ -277,6 +277,7 @@ public:
 	int GetPublicOpinionUnhappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int GetWarWeariness() const;
+	void SetWarWeariness(int iValue);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetTourismModifierVassal() const;
@@ -289,6 +290,7 @@ public:
 	void SetTurnIdeologyAdopted(int iTurn);
 	int GetTourismBlastStrength(int iMultiplier);
 	void AddTourismAllKnownCivs(int iTourism);
+	void AddTourismAllKnownCivsWithModifiers(int iTourism);
 	void DoPublicOpinion();
 	int ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTypes eBranch);
 	bool WantsDiplomatDoingPropaganda(PlayerTypes ePlayer) const;
@@ -311,7 +313,7 @@ public:
 	PolicyBranchTypes m_ePreferredIdeology;
 	int m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int m_iWarWeariness;
+	int m_iRawWarWeariness; //without modifier
 	int m_iLastUpdate;
 	int m_iLastThemUpdate;
 #endif

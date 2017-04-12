@@ -488,20 +488,20 @@ void CvCitySpecializationAI::WeightSpecializations()
 
 		//iFlavorExpansion = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 		//if(iFlavorExpansion < 0) iFlavorExpansion = 0;
-		iFlavorWonder = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+		iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 		if(iFlavorWonder < 0) iFlavorWonder = 0;
-		iFlavorGold = 10 * m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 		if(iFlavorGold < 0) iFlavorGold = 0;
-		iFlavorScience = 10 * m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 		if(iFlavorScience < 0) iFlavorScience = 0;
-		iFlavorSpaceship = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
+		iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
 		if(iFlavorSpaceship < 0) iFlavorSpaceship = 0;
 #if defined(MOD_BALANCE_CORE)
-		int iFlavorGrowth = 10 * m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		if(iFlavorGrowth < 0) iFlavorGrowth = 0;
 		int iFlavorCulture = 10 * (m_pPlayer->GetCulture()->GetNumCivsInfluentialOn() + m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
 		if(iFlavorCulture < 0) iFlavorCulture = 0;
-		int iFlavorFaith = 10 * m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 		if(iFlavorFaith < 0) iFlavorFaith = 0;
 #endif
 
@@ -519,7 +519,7 @@ void CvCitySpecializationAI::WeightSpecializations()
 			
 			//Highest First
 			YieldTypes eHighestYield = pLoopCity->GetCityStrategyAI()->GetHighestYield();
-			int iYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eHighestYield) * 100);
+			int iYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eHighestYield));
 
 			if(eHighestYield == YIELD_FOOD)
 			{
@@ -550,7 +550,7 @@ void CvCitySpecializationAI::WeightSpecializations()
 
 			//Then Lowest
 			YieldTypes eLowestYield = pLoopCity->GetCityStrategyAI()->GetMostDeficientYield();
-			int iLowestYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eLowestYield) * 100);
+			int iLowestYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eLowestYield));
 
 			int iDelta = iYieldAverage - iLowestYieldAverage;
 
@@ -1118,7 +1118,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		{
 			cityData = *cityIter;
 
-			if(bCoastal && !m_pPlayer->getCity(cityData.m_eID)->isCoastal(100))
+			if(bCoastal && !m_pPlayer->getCity(cityData.m_eID)->isCoastal())
 			{
 				continue;
 			}

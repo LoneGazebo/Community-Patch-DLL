@@ -251,7 +251,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 				if(pReligion)
 				{
-					iValue += pReligion->m_Beliefs.GetGreatWorkYieldChange(pCity->getPopulation(), eYield);
+					iValue += pReligion->m_Beliefs.GetGreatWorkYieldChange(pCity->getPopulation(), eYield, pCity->getOwner(), pCity);
 					BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
@@ -261,7 +261,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 			}
 		}
 
-		if (iValue > 0) {
+		if (iValue != 0) {
 			cultureString.Format("%s%s+%d %s", cultureString.c_str(), sPrefix, iValue, GC.getYieldInfo(eYield)->getIconString());
 			sPrefix = ", ";
 		}
@@ -962,7 +962,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	m_iLastTurnLifetimeCulture = 0;
 	m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	m_iWarWeariness = 0;
+	m_iRawWarWeariness = 0;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
 #endif
@@ -3167,6 +3167,38 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				}
 				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
 				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
+#if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
+
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+
+					if (iWLTKD > 0)
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+
+						// Loop through owner's cities.
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if (pLoopCity != NULL)
+							{
+								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
+							}
+						}
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+							strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+						}
+					}
+				}
+#endif
 				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -3201,6 +3233,38 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
 #if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
+
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+
+					if (iWLTKD > 0)
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+
+						// Loop through owner's cities.
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if (pLoopCity != NULL)
+							{
+								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
+							}
+						}
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+							strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+						}
+					}
+				}
+#endif
+#if defined(MOD_BALANCE_CORE)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes) iI;
@@ -3228,6 +3292,40 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+#endif
+#if defined(MOD_BALANCE_CORE)
+				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
+
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+
+					if (iWLTKD > 0)
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+
+						// Loop through owner's cities.
+						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if (pLoopCity != NULL)
+							{
+								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
+							}
+						}
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+							strText << iWLTKD;
+							strText << m_pPlayer->GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+							strText << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+						}
+					}
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -3280,14 +3378,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #if defined(MOD_BALANCE_CORE)
 		if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
 		{
-			int iTourism = m_pPlayer->GetArchaeologicalDigTourism();
+			int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
 			m_pPlayer->ChangeNumHistoricEvents(1);
-			// Culture boost based on previous turns
-			int iPreviousTurnsToCount = 10;
-			// Calculate boost
-			iTourism *= m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-			iTourism /= 100;
-			m_pPlayer->GetCulture()->AddTourismAllKnownCivs(iTourism);
+			m_pPlayer->GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(iTourism > 0)
 			{
 				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
@@ -3336,6 +3429,12 @@ void CvPlayerCulture::DoTurn()
 	}
 	
 	DoPublicOpinion();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		ComputeWarWeariness();
+	}
+#endif
 
 	CvString strSummary;
 	CvString strInfo;
@@ -3868,6 +3967,14 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflu
             iInfluence = iInfluence * (100 + iModifier) / 100;
         }
     }
+
+#if defined(MOD_BALANCE_CORE)
+	if (eOtherPlayer != m_pPlayer->GetID() && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
+	{
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, m_pPlayer->GetID(), true))
+			iInfluence /= 2;
+	}
+#endif
     
     if (iInfluence != 0) {
 		ChangeInfluenceOn(eOtherPlayer, iInfluence);
@@ -3905,7 +4012,7 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 
 		// only check for firewall if the internet influence spread modifier is > 0
 		int iTechSpreadModifier = m_pPlayer->GetInfluenceSpreadModifier();
-		if (iTechSpreadModifier > 0) 
+		if (iTechSpreadModifier != 0) 
 		{
 			for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity))
 			{
@@ -3957,7 +4064,7 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 
 			// if we have the internet online, check to see if the opponent has the firewall
 			// if they have the firewall, deduct the internet bonus from them
-			if (iTechSpreadModifier > 0 && bTargetHasGreatFirewall)
+			if (iTechSpreadModifier != 0 && bTargetHasGreatFirewall)
 			{
 #if defined(MOD_BALANCE_CORE)
 				int iInfluenceWithoutModifier = pLoopCity->GetBaseTourismBeforeModifiers();
@@ -3980,11 +4087,11 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 		// Trait bonus which adds Tourism for trade partners? 
 		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM);
 		
-		if (iExtraInfluenceToAdd > 0)
+		if (iExtraInfluenceToAdd != 0)
 		{
 			// if we have the internet online, check to see if the opponent has the firewall
 			// if they have the firewall, deduct the internet bonus from them
-			if (iTechSpreadModifier > 0 && bTargetHasGreatFirewall)
+			if (iTechSpreadModifier != 0 && bTargetHasGreatFirewall)
 			{
 				iExtraInfluenceToAdd -= ((iExtraInfluenceToAdd * iTechSpreadModifier) / 100);
 			}
@@ -4066,7 +4173,7 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 
 	if (kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() > 0 && kOtherPlayer.GetJONSCultureEverGenerated() > 0)
 	{
-		if (iLHS > iRHS)
+		if (iLHS > iRHS && kOtherPlayer.GetTotalJONSCulturePerTurn() < GetInfluencePerTurn(ePlayer))
 		{
 			eRtnValue = INFLUENCE_TREND_RISING;
 		}
@@ -4099,7 +4206,7 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
 		int iNumerator = (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCulture / 100) -  iInfluence;
 		int iDivisor = iInflPerTurn - (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCultPerTurn / 100);
 
-		if (iDivisor > 0)
+		if (iDivisor != 0)
 		{
 			iRtnValue = iNumerator / iDivisor;
 
@@ -4108,6 +4215,9 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
 			{
 				iRtnValue++;
 			}
+
+			if (iRtnValue <= 0)
+				return 0;
 		}
 	}
 
@@ -4489,6 +4599,11 @@ CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(CvString szName, CvString s
 		CvString strIntrigue = "";
 		for (int i = pkPlayerEspionage->m_aIntrigueNotificationMessages.size(); i > 0; i--)
 		{
+			if (pkPlayerEspionage->m_aIntrigueNotificationMessages[i - 1].m_iTurnNum < (GC.getGame().getGameTurn() - 10))
+			{
+				continue;
+			}
+
 			if (pkPlayerEspionage->m_aIntrigueNotificationMessages[i - 1].iSpyID == iSpyID)
 			{
 				if (strIntrigue != "")
@@ -4630,7 +4745,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		if(iTheirCities > iMyCities)
 		{
 			int iMod = iTheirCities - iMyCities;
-			if(iMod > 0)
+			if(iMod != 0)
 			{
 				iMultiplier += (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() * iMod);
 			}
@@ -4639,11 +4754,27 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if(iBoredom > 0)
+		if(iBoredom != 0)
 		{
 			iMultiplier += (iBoredom * 3);
 		}
 	}
+
+	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
+	{
+		if (m_pPlayer->IsAtWarWith(ePlayer))
+		{
+			int iWarScore = m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer);
+			iWarScore *= m_pPlayer->GetPositiveWarScoreTourismMod();
+			iWarScore /= 100;
+
+			if (iWarScore > 0)
+			{
+				iMultiplier += iWarScore;
+			}
+		}
+	}
+
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{
@@ -4674,7 +4805,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	}
 
 	int iLessHappyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
-	if (iLessHappyMod > 0)
+	if (iLessHappyMod != 0)
 	{
 		if (m_pPlayer->GetExcessHappiness() > kPlayer.GetExcessHappiness())
 		{
@@ -4682,7 +4813,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		}
 	}
 	int iCommonFoeMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
-	if (iCommonFoeMod > 0)
+	if (iCommonFoeMod != 0)
 	{
 		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -4703,7 +4834,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		}
 	}
 	int iSharedIdeologyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY);
-	if (iSharedIdeologyMod > 0)
+	if (iSharedIdeologyMod != 0)
 	{
 		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
 		{
@@ -4792,7 +4923,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 #endif
 	int iSharedIdeologyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY);
-	if (iSharedIdeologyMod > 0)
+	if (iSharedIdeologyMod != 0)
 	{
 		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
 		{
@@ -4801,7 +4932,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	int iCommonFoeMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
-	if (iCommonFoeMod > 0)
+	if (iCommonFoeMod != 0)
 	{
 		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -4820,7 +4951,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	int iLessHappyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
-	if (iLessHappyMod > 0)
+	if (iLessHappyMod != 0)
 	{
 		if (m_pPlayer->GetExcessHappiness() > kPlayer.GetExcessHappiness())
 		{
@@ -4835,10 +4966,10 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		if(iTheirCities > iMyCities)
 		{
 			int iMod = iTheirCities - iMyCities;
-			if(iMod > 0)
+			if(iMod != 0)
 			{
 				iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() * iMod);
-				if(iMod > 0)
+				if(iMod != 0)
 				{
 					szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_EMPIRE_SIZE", iMod) + "[ENDCOLOR]";
 				}
@@ -4848,9 +4979,23 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = (kPlayer.getUnhappinessFromCityCulture() * 3);
-		if(iBoredom > 0)
+		if(iBoredom != 0)
 		{
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iBoredom) + "[ENDCOLOR]";
+		}
+	}
+	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
+	{
+		if (m_pPlayer->IsAtWarWith(ePlayer))
+		{
+			int iWarScore = m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer);
+			iWarScore *= m_pPlayer->GetPositiveWarScoreTourismMod();
+			iWarScore /= 100;
+
+			if (iWarScore > 0)
+			{
+				szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_WARSCORE", iWarScore) + "[ENDCOLOR]";
+			}
 		}
 	}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -4964,13 +5109,15 @@ int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 {
 	return m_iOpinionUnhappiness;
 }
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 /// Unhappiness generated from public opinion
 int CvPlayerCulture::GetWarWeariness() const
 {
-	return m_iWarWeariness;
+	return m_iRawWarWeariness;
 }
 #endif
+
 /// Tooltip breaking down public opinion unhappiness
 CvString CvPlayerCulture::GetPublicOpinionUnhappinessTooltip() const
 {
@@ -5054,13 +5201,42 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 	}
 }
 
+/// Add tourism with all known civs
+void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
+{
+#if defined(MOD_BALANCE_CORE)
+	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	{
+		return;
+	}
+#endif
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
+		}
+	}
+}
+
 // PRIVATE METHODS
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
+	int iCurrentWeary = m_iRawWarWeariness;
+	if (iCurrentWeary == 0 && !m_pPlayer->IsAtWarAnyMajor())
+		return 0;
+
+	PlayerTypes eMostWarTurnsPlayer = NO_PLAYER;
 	int iMostWarTurns = -1;
 	int iLeastPeaceTurns = MAX_INT;
+	int iLeastWarTurns = MAX_INT;
+
+	int iHighestWarDamage = 0;
 	// Look at each civ and get longest war and shortest peace
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
@@ -5069,10 +5245,25 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
 			{
+				int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(kPlayer.GetID());
+
 				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
+
 				if(iWarTurns > iMostWarTurns)
 				{
 					iMostWarTurns = iWarTurns;
+					eMostWarTurnsPlayer = kPlayer.GetID();
+				}
+				//Let's also get our most recent wars.
+				if ((iWarTurns < iLeastWarTurns) && iWarTurns > 0)
+				{
+					iLeastWarTurns = iWarTurns;
+				}
+				
+				//Warscore matters.
+				if (iWarDamage > iHighestWarDamage)
+				{
+					iHighestWarDamage = iWarDamage;
 				}
 			}
 			else
@@ -5086,52 +5277,125 @@ int CvPlayerCulture::ComputeWarWeariness()
 		}
 	}
 
-	//war weariness sets in gradually after selecting an ideology
-	if (GetTurnIdeologyAdopted()>-1)
-	{
-		iMostWarTurns = min(iMostWarTurns,GC.getGame().getGameTurn()-GetTurnIdeologyAdopted());
-	}
-	else
-		return 0;
-
 	//by default, war weariness is slowly falling over time
 	int iFallingWarWeariness = 0;
-	if (iLeastPeaceTurns==1)
-	{
-		//signed peace last turn - halve value for immediate relief
-		//if we eliminate another player, this won't apply!
-		iFallingWarWeariness = m_iWarWeariness / 2;
-	}
-	else if (iLeastPeaceTurns>1)
+	int iRisingWarWeariness = 0;
+
+	if (iLeastPeaceTurns>1)
 	{
 		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = GC.getGame().getSmallFakeRandNum(4, iLeastPeaceTurns);
-		iFallingWarWeariness = max(m_iWarWeariness-iReduction, 0);
+		int iReduction = max(3, GC.getGame().getSmallFakeRandNum(max(6, (iLeastPeaceTurns / 3)), iLeastPeaceTurns));
+		iFallingWarWeariness = max(m_iRawWarWeariness-iReduction, 0);
 	}
 
-	//but if we have a war going, it will generate rising unhappiness
-	int iRisingWarWeariness = 0;
+	//but if we have a war going, it will generate rising unhappiness	
 	if(iMostWarTurns > 0)
 	{
-		//war weariness is asymptotic. for Delay turns nothing happens, then after TimeConstant more turns it affects max/2 % of the population, then asymptotically approaches max %
-		int iDelay = 8; 
-		int iTimeConstant = 32;
-		int iMaxPercent = 20;
-		
-		//simple asymptotic function x/(1+x) mapped to interval [0;100]
-		int iX = max(0, iMostWarTurns - iDelay);
-		int iScale = (100 * iX) / (iTimeConstant + iX);
+		int iInfluenceModifier = max(3, (GET_PLAYER(eMostWarTurnsPlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(eMostWarTurnsPlayer) * 5));
 
-		iRisingWarWeariness = (m_pPlayer->getTotalPopulation() * iScale * iMaxPercent) / (100 * 100);
+		int iWarValue = 0;
+
+		//War damage should influence this.
+		iWarValue = (iHighestWarDamage * iInfluenceModifier) / 100;
+		
+		int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iTechProgress *= 2;
+
+		iWarValue *= (100 + iTechProgress);
+		iWarValue /= 100;
+
+		int iX = (iMostWarTurns * iWarValue);
+		
+		iRisingWarWeariness = iX / 100;
+
+		if (iRisingWarWeariness > 100)
+		{
+			iRisingWarWeariness = 100;
+		}
+
+		iRisingWarWeariness *= (100 - m_pPlayer->GetWarWearinessModifier());
+		iRisingWarWeariness /= 100;
 	}
 
-	//see which one is worse
-	if (iRisingWarWeariness>=iFallingWarWeariness)
-		m_iWarWeariness = iRisingWarWeariness;
-	else
-		m_iWarWeariness = iFallingWarWeariness;
+	int iNewWarWeariness = 0;
 
-	return m_iWarWeariness;
+	//see which one is worse
+	if (iRisingWarWeariness >= iFallingWarWeariness)
+	{
+		iNewWarWeariness = iRisingWarWeariness;
+	}
+	else
+	{
+		iNewWarWeariness = iFallingWarWeariness;
+	}
+
+	int iOldWarWeariness = m_iRawWarWeariness;
+
+	//Going up?
+	if (m_iRawWarWeariness < iNewWarWeariness)
+	{
+		float fAlpha = 0.30f;
+		m_iRawWarWeariness = int(0.5f + (iNewWarWeariness * fAlpha) + (m_iRawWarWeariness * (1 - fAlpha)));
+	}
+	//Going down?
+	else
+	{
+		float fAlpha = 0.50f;
+		m_iRawWarWeariness = int(0.5f + (iNewWarWeariness * fAlpha) + (m_iRawWarWeariness * (1 - fAlpha)));
+	}
+
+	if (iLeastPeaceTurns == 1 || iLeastWarTurns == 1)
+	{
+		//signed peace last turn - halve value for immediate relief
+		//If we just started a war, half our weariness. Enthusiasm!
+		//if we eliminate another player, this won't apply!
+		m_iRawWarWeariness /= 2;
+	}
+
+
+	//Not changing, but should be?
+	if (m_iRawWarWeariness == iOldWarWeariness)
+	{
+		if (iNewWarWeariness > m_iRawWarWeariness)
+		{
+			m_iRawWarWeariness++;
+		}
+		else if (iNewWarWeariness < m_iRawWarWeariness)
+		{
+			m_iRawWarWeariness--;
+		}
+	}
+
+	if (GC.getLogging() && GC.getAILogging() && m_iRawWarWeariness > 0)
+	{
+		CvString strTemp;
+
+		CvString strFileName = "WarWearinessLog.csv";
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+		CvString strPlayerName;
+		strPlayerName = m_pPlayer->getCivilizationShortDescription();
+		strTemp += strPlayerName;
+		strTemp += ", ";
+
+		CvString strTurn;
+
+		strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+		strTemp += strTurn;
+
+		CvString strData;
+		strData.Format(" --- War Weariness: %d. Longest War: %d. Rising: %d. Falling: %d. Current Supply Cap: %d", m_iRawWarWeariness, iMostWarTurns, iRisingWarWeariness, iFallingWarWeariness, m_pPlayer->GetNumUnitsSupplied());
+		strTemp += strData;
+
+		pLog->Msg(strTemp);
+	}
+
+	return GetWarWeariness(); //return the modified value
+}
+void CvPlayerCulture::SetWarWeariness(int iValue)
+{
+	m_iRawWarWeariness = iValue;
 }
 #endif
 
@@ -5380,10 +5644,6 @@ void CvPlayerCulture::DoPublicOpinion()
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
-			ComputeWarWeariness();
-#endif
 
 		// Build tooltip
 		if (strFreedomPressureString.size() > 0)
@@ -5431,15 +5691,6 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText << GC.getPolicyBranchInfo(m_ePreferredIdeology)->GetDescription();
 			m_strOpinionTooltip += locText.toUTF8();
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS && m_iWarWeariness > 0)
-		{
-			Localization::String locText;
-			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS");
-			locText << m_iWarWeariness;
-			m_strOpinionUnhappinessTooltip += locText.toUTF8();
-		}
-#endif
 		if (m_iOpinionUnhappiness > 0)
 		{
 			Localization::String locText;
@@ -6055,7 +6306,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 		loadFrom >> writeTo.m_ePreferredIdeology;
 		loadFrom >> writeTo.m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		loadFrom >> writeTo.m_iWarWeariness;
+		loadFrom >> writeTo.m_iRawWarWeariness;
 		loadFrom >> writeTo.m_iLastUpdate;
 		loadFrom >> writeTo.m_iLastThemUpdate;
 #endif
@@ -6067,7 +6318,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 		writeTo.m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
 		writeTo.m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		writeTo.m_iWarWeariness = 0;
+		writeTo.m_iRawWarWeariness = 0;
 #endif
 		writeTo.m_strOpinionTooltip = "";
 	}
@@ -6143,7 +6394,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 	saveTo << readFrom.m_ePreferredIdeology;
 	saveTo << readFrom.m_iOpinionUnhappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	saveTo << readFrom.m_iWarWeariness;
+	saveTo << readFrom.m_iRawWarWeariness;
 	saveTo << readFrom.m_iLastUpdate;
 	saveTo << readFrom.m_iLastThemUpdate;
 #endif
@@ -6284,7 +6535,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	int iBonus = (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() * iBase / 100);
+	int iBonus = ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iBase / 100);
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6303,7 +6554,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 		if(m_pCity->isCapital())
 		{
 			int iPercent = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetTourismGABonus();
-			if(iPercent > 0)
+			if(iPercent != 0)
 			{
 				int iCulture = m_pCity->getJONSCulturePerTurn();
 				iBase += ((iCulture * iPercent) / 100);
@@ -6312,8 +6563,8 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	}
 #endif
 
-	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
-	if (iPercent > 0)
+	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
+	if (iPercent != 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
@@ -6326,8 +6577,8 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
-		if (iFaithBuildingTourism > 0)
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner(), m_pCity);
+		if (iFaithBuildingTourism != 0)
 		{
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
@@ -6350,7 +6601,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 				}
 			}
 		}
@@ -6376,7 +6627,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			if(pkEntry && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				int iTourism = pkEntry->GetTechEnhancedTourism();
-				if (iTourism > 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
+				if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
 				{
 					iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 				}
@@ -6398,18 +6649,33 @@ void CvCityCulture::CalculateBaseTourism()
 
 	CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
 	int iTechSpreadModifier = kPlayer.GetInfluenceSpreadModifier();
-	if (iTechSpreadModifier > 0)
+	if (iTechSpreadModifier != 0)
 	{
 		iModifier += iTechSpreadModifier;
 	}
 
-	if (kPlayer.GetTourismBonusTurns() > 0)
+	if (kPlayer.GetTourismBonusTurns() != 0)
 	{
 		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
+	int iNumCities = kPlayer.GetMaxEffectiveCities();
+	if (iNumCities != 0)
+	{
+		// Mod for City Count
+		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+		iMod *= (iNumCities - 1);
+
+		if (iMod >= 75)
+			iMod = 75;
+
+		iMod *= -1;
+		iModifier += iMod;
+	}
+
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
-	if (iLeagueCityModifier > 0)
+	if (iLeagueCityModifier != 0)
 	{
 		iModifier += iLeagueCityModifier;
 	}
@@ -6439,7 +6705,7 @@ void CvCityCulture::CalculateBaseTourism()
 		}
 	}
 
-	if (iModifier > 0)
+	if (iModifier != 0)
 	{
 		iBase *= (100 + iModifier);
 		iBase /= 100;
@@ -6462,7 +6728,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	int iBonus = (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() * iBase / 100);
+	int iBonus = ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iBase / 100);
 	iBase += iBonus;
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6478,18 +6744,18 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 #if defined(MOD_BALANCE_CORE)
 	//Buildings with Tourism
 	int iTourismFromWW = GET_PLAYER(m_pCity->getOwner()).GetYieldChangeWorldWonder(YIELD_TOURISM);
-	if(iTourismFromWW > 0)
+	if(iTourismFromWW != 0)
 	{
 		iTourismFromWW *= m_pCity->getNumWorldWonders();
-		if(iTourismFromWW > 0)
+		if(iTourismFromWW != 0)
 		{
 			iBase += iTourismFromWW;
 		}
 	}
 #endif
 
-	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
-	if (iPercent > 0)
+	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
+	if (iPercent != 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
@@ -6506,8 +6772,8 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
-		if (iFaithBuildingTourism > 0)
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner(), m_pCity);
+		if (iFaithBuildingTourism != 0)
 		{
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
@@ -6531,7 +6797,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 #if defined(MOD_BUGFIX_MINOR)
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 #else
 					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
 #endif
@@ -6560,7 +6826,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 			if(pkEntry && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				int iTourism = pkEntry->GetTechEnhancedTourism();
-				if (iTourism > 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
+				if (iTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
 				{
 #if defined(MOD_BUGFIX_MINOR)
 					iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
@@ -6587,18 +6853,33 @@ int CvCityCulture::GetBaseTourism()
 
 	CvPlayer &kPlayer = GET_PLAYER(m_pCity->getOwner());
 	int iTechSpreadModifier = kPlayer.GetInfluenceSpreadModifier();
-	if (iTechSpreadModifier > 0)
+	if (iTechSpreadModifier != 0)
 	{
 		iModifier += iTechSpreadModifier;
 	}
 
-	if (kPlayer.GetTourismBonusTurns() > 0)
+	if (kPlayer.GetTourismBonusTurns() != 0)
 	{
 		iModifier += GC.getTEMPORARY_TOURISM_BOOST_MOD();
 	}
 
+	int iNumCities = kPlayer.GetMaxEffectiveCities();
+	if (iNumCities != 0)
+	{
+		// Mod for City Count
+		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+		iMod *= (iNumCities - 1);
+
+		if (iMod >= 75)
+			iMod = 75;
+
+		iMod *= -1;
+		iModifier += iMod;
+	}
+
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
-	if (iLeagueCityModifier > 0)
+	if (iLeagueCityModifier != 0)
 	{
 		iModifier += iLeagueCityModifier;
 	}
@@ -6632,7 +6913,7 @@ int CvCityCulture::GetBaseTourism()
 		}
 	}
 
-	if (iModifier > 0)
+	if (iModifier != 0)
 	{
 		iBase *= (100 + iModifier);
 		iBase /= 100;
@@ -6725,7 +7006,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if (!bIgnorePolicies)
 	{
 		int iLessHappyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
-		if (iLessHappyMod > 0)
+		if (iLessHappyMod != 0)
 		{
 			if (kCityPlayer.GetExcessHappiness() > kPlayer.GetExcessHappiness())
 			{
@@ -6733,7 +7014,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 			}
 		}
 		int iCommonFoeMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
-		if (iCommonFoeMod > 0)
+		if (iCommonFoeMod != 0)
 		{
 			PlayerTypes eLoopPlayer;
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -6751,7 +7032,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 			}
 		}
 		int iSharedIdeologyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY);
-		if (iSharedIdeologyMod > 0)
+		if (iSharedIdeologyMod != 0)
 		{
 			if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
 			{
@@ -6771,7 +7052,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		if(iTheirCities > iMyCities)
 		{
 			int iMod = iTheirCities - iMyCities;
-			if(iMod > 0)
+			if(iMod != 0)
 			{
 				iMultiplier += (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() * iMod);
 			}
@@ -6780,7 +7061,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if(iBoredom > 0)
+		if(iBoredom != 0)
 		{
 			iMultiplier += (iBoredom * 3);
 		}
@@ -6788,9 +7069,23 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{
-		if(pLeague->GetTourismMod() != 0)
+		if (pLeague->GetTourismMod() != 0)
 		{
 			iMultiplier += (pLeague->GetTourismMod());
+		}
+	}
+	if (kCityPlayer.GetPositiveWarScoreTourismMod() != 0)
+	{
+		if (kCityPlayer.IsAtWarWith(ePlayer))
+		{
+			int iWarScore = kCityPlayer.GetDiplomacyAI()->GetWarScore(ePlayer);
+			iWarScore *= kCityPlayer.GetPositiveWarScoreTourismMod();
+			iWarScore /= 100;
+
+			if (iWarScore > 0)
+			{
+				iMultiplier += iWarScore;
+			}
 		}
 	}
 #endif
@@ -6804,7 +7099,6 @@ CvString CvCityCulture::GetTourismTooltip()
 {
 	CvString szRtnValue = "";
 	CvString szTemp;
-#if !defined(MOD_BALANCE_CORE)
  	CvString sharedReligionCivs = "";
 	CvString openBordersCivs = "";
 	CvString tradeRouteCivs = "";
@@ -6812,13 +7106,11 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvString commonFoeCivs = "";
 	CvString sharedIdeologyCivs = "";
 	CvString differentIdeologyCivs = "";
+	CvString warscoreCivs = "";
 	TeamTypes eTeam = m_pCity->getTeam();
-#endif
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
-#if !defined(MOD_BALANCE_CORE)
 	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 	ReligionTypes ePlayerReligion = kCityPlayer.GetReligions()->GetReligionInMostCities();
-#endif
 	// Great Works
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	// Ignore those Great Works in storage, ie not generating a yield
@@ -6826,7 +7118,7 @@ CvString CvCityCulture::GetTourismTooltip()
 #else
 	int iGWTourism = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
-	iGWTourism += (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() * iGWTourism / 100);
+	iGWTourism += ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + +GET_PLAYER(m_pCity->getOwner()).GetGreatWorksTourismModifierGlobal()) * iGWTourism / 100);
 	szRtnValue = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GREAT_WORKS", iGWTourism, m_pCity->GetCityCulture()->GetNumGreatWorks());
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6834,14 +7126,14 @@ CvString CvCityCulture::GetTourismTooltip()
 #else
 	int iThemingBonuses = m_pCity->GetCityBuildings()->GetThemingBonuses();
 #endif
-	if (iThemingBonuses > 0)
+	if (iThemingBonuses != 0)
 	{
 		szRtnValue += "[NEWLINE][NEWLINE]";
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_THEMING_BONUSES", iThemingBonuses);
 	}
 #if defined(MOD_BALANCE_CORE)
 	int iTraitBonuses = m_pCity->GetYieldPerTurnFromTraits(YIELD_TOURISM);
-	if (iTraitBonuses > 0)
+	if (iTraitBonuses != 0)
 	{
 		szRtnValue += "[NEWLINE][NEWLINE]";
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES", iTraitBonuses);
@@ -6850,8 +7142,8 @@ CvString CvCityCulture::GetTourismTooltip()
 
 	// Landmarks, Wonders, Natural Wonders, Improvements
 	int iTileTourism = 0;
-	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
-	if (iPercent > 0)
+	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
+	if (iPercent != 0)
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
@@ -6873,7 +7165,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		// Landmarks, Wonders, Natural Wonders, Improvements
 		int iGATourism = 0;
 		int iPercent = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetTourismGABonus();
-		if (iPercent > 0)
+		if (iPercent != 0)
 		{
 			int iCulture = m_pCity->getJONSCulturePerTurn();
 			iGATourism = ((iCulture * iPercent) / 100);
@@ -6892,8 +7184,8 @@ CvString CvCityCulture::GetTourismTooltip()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
-		if (iFaithBuildingTourism > 0)
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner(), m_pCity);
+		if (iFaithBuildingTourism != 0)
 		{
 			iSacredSitesTourism = m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
 		}
@@ -6921,7 +7213,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 #if defined(MOD_BUGFIX_MINOR)
-					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner(), m_pCity) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 #else
 					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
 #endif
@@ -6929,7 +7221,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(iReligiousArtTourism > 0)
+		if(iReligiousArtTourism != 0)
 		{
 #endif
 		if (szRtnValue.length() > 0)
@@ -6958,10 +7250,10 @@ CvString CvCityCulture::GetTourismTooltip()
 
 		if(eBuilding != NO_BUILDING)
 		{
-			if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) != 0)
 			{
 				int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
-				if (iTechEnhancedTourism > 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
+				if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
 				{
 #if defined(MOD_BUGFIX_MINOR)
 					iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
@@ -6978,10 +7270,10 @@ CvString CvCityCulture::GetTourismTooltip()
 #if defined(MOD_BALANCE_CORE)
 	//Buildings with Tourism
 	int iTourismFromWW = kCityPlayer.GetYieldChangeWorldWonder(YIELD_TOURISM);
-	if(iTourismFromWW > 0)
+	if(iTourismFromWW != 0)
 	{
 		iTourismFromWW *= m_pCity->getNumWorldWonders();
-		if(iTourismFromWW > 0)
+		if(iTourismFromWW != 0)
 		{
 			if (szRtnValue.length() > 0)
 			{
@@ -6991,7 +7283,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 	}
 	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW);
-	if(iRemainder > 0)
+	if(iRemainder != 0)
 	{
 		if (szRtnValue.length() > 0)
 		{
@@ -7027,14 +7319,13 @@ CvString CvCityCulture::GetTourismTooltip()
 			}
 		}
 	}
-#if !defined(MOD_BALANCE_CORE)
 	// Get policy bonuses
 	int iLessHappyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
 	int iCommonFoeMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE);
 	int iSharedIdeologyMod = kCityPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY);
 
 	// If generating any, itemize which players we have bonuses with
-	if (iGWTourism > 0 || iTileTourism > 0)
+	if (iGWTourism != 0 || iTileTourism != 0)
 	{
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
@@ -7077,8 +7368,27 @@ CvString CvCityCulture::GetTourismTooltip()
 					tradeRouteCivs += kPlayer.getCivilizationShortDescription();
 				}
 
+				if (kCityPlayer.GetPositiveWarScoreTourismMod() != 0)
+				{
+					if (kCityPlayer.IsAtWarWith((PlayerTypes)iLoopPlayer))
+					{
+						int iWarScore = kCityPlayer.GetDiplomacyAI()->GetWarScore((PlayerTypes)iLoopPlayer);
+						if (iWarScore > 0)
+						{
+							if (warscoreCivs.length() > 0)
+							{
+								warscoreCivs += ", ";
+							}
+							warscoreCivs += kPlayer.getCivilizationShortDescription();
+							warscoreCivs += " (";
+							warscoreCivs += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_WARSCORE_VALUE", iWarScore);
+							warscoreCivs += ") ";
+						}
+					}
+				}
+
 				// POLICY BONUSES
-				if (iLessHappyMod > 0)
+				if (iLessHappyMod != 0)
 				{
 					if (kCityPlayer.GetExcessHappiness() > kPlayer.GetExcessHappiness())
 					{
@@ -7089,7 +7399,7 @@ CvString CvCityCulture::GetTourismTooltip()
 						lessHappyCivs += kPlayer.getCivilizationShortDescription();
 					}
 				}
-				if (iCommonFoeMod > 0)
+				if (iCommonFoeMod != 0)
 				{
 					PlayerTypes eLoopPlayer;
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -7112,7 +7422,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				}
 
 				// Shared ideology bonus (comes from a policy)
-				if (iSharedIdeologyMod > 0)
+				if (iSharedIdeologyMod != 0)
 				{
 					if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
 					{
@@ -7164,6 +7474,16 @@ CvString CvCityCulture::GetTourismTooltip()
 			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTE_BONUS", kCityPlayer.GetCulture()->GetTourismModifierTradeRoute());
 			szRtnValue += szTemp + tradeRouteCivs;
 		}
+		
+		if (warscoreCivs.length() > 0)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_WARSCORE_BONUS", kCityPlayer.GetPositiveWarScoreTourismMod());
+			szRtnValue += szTemp + warscoreCivs;
+		}
 		if (lessHappyCivs.length() > 0)
 		{
 			if (szRtnValue.length() > 0)
@@ -7203,7 +7523,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 
 	int iTechSpreadModifier = kCityPlayer.GetInfluenceSpreadModifier();
-	if (iTechSpreadModifier > 0)
+	if (iTechSpreadModifier != 0)
 	{
 		if (szRtnValue.length() > 0)
 		{
@@ -7213,7 +7533,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += szTemp;
 	}
 	int iLeagueCityModifier = GC.getGame().GetGameLeagues()->GetCityTourismModifier(m_pCity->getOwner(), m_pCity);
-	if (iLeagueCityModifier > 0)
+	if (iLeagueCityModifier != 0)
 	{
 		if (szRtnValue.length() > 0)
 		{
@@ -7232,7 +7552,34 @@ CvString CvCityCulture::GetTourismTooltip()
 		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CARNIVAL_BONUS", kCityPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier());
 		szRtnValue += szTemp;
 	}
-#endif
+
+	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES && kCityPlayer.GetMaxEffectiveCities() > 0)
+	{
+		int iNumCities = kCityPlayer.GetMaxEffectiveCities();
+		int iMod = 0;
+		if (iNumCities != 0)
+		{
+			// Mod for City Count
+			iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+
+			iMod *= (iNumCities - 1);
+
+			if (iMod >= 75)
+				iMod = 75;
+
+			iMod *= -1;
+		}
+		if (iMod != 0)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod);
+			szRtnValue += szTemp;
+		}
+	}
+
 	return szRtnValue;
 }
 
@@ -7311,7 +7658,7 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 				if (m_pCity->isCapital())
 				{
 					iModifier = kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
-					if (iModifier > 0)
+					if (iModifier != 0)
 					{
 						iRtnValue = iRtnValue * (100 + iModifier) / 100;
 
@@ -7358,37 +7705,43 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 				else
 				{
 					int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, 0);
-					CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
-					CvString szEraString = GC.getEraInfo(work.m_eEra)->getShortDesc();
-					CvString szCivAdj = GET_PLAYER(m_pCity->getOwner()).getCivilizationAdjectiveKey();
-					switch (iIndex)
+					if (iGreatWork != -1)
 					{
-					case 0:
-					case 2:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
-						break;
-					case 1:
-					case 3:
-						szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
-						break;
-					case 4:
-					case 5:
-					case 7:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString);
-						break;
-					case 6:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj, szEraString);
-						break;
-					case 8:
-					case 10:
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
-						break;
-					case 9:
-					case 11:
-						szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
-						szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
-						break;
+						CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
+						if (work.m_ePlayer > -1 && work.m_eEra > -1)
+						{
+							CvString szEraString = GC.getEraInfo(work.m_eEra)->getShortDesc();
+							CvString szCivAdj = GET_PLAYER(m_pCity->getOwner()).getCivilizationAdjectiveKey();
+							switch (iIndex)
+							{
+							case 0:
+							case 2:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
+								break;
+							case 1:
+							case 3:
+								szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString, szCivAdj);
+								break;
+							case 4:
+							case 5:
+							case 7:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szEraString);
+								break;
+							case 6:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj, szEraString);
+								break;
+							case 8:
+							case 10:
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
+								break;
+							case 9:
+							case 11:
+								szCivAdj = "TXT_KEY_CO_WORLD_MUSEUM";
+								szThemeDescription = GetLocalizedText(pkBuilding->GetThemingBonusInfo(iIndex)->GetDescription(), szCivAdj);
+								break;
+							}
+						}
 					}
 				}
 				szRtnValue = szBonusString + szThemeDescription;
@@ -7400,7 +7753,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 					if(eYield != NO_YIELD)
 					{
 						int iYieldBonus = pkBuilding->GetThemingYieldBonus(eYield);
-						if(iYieldBonus > 0)
+						if(iYieldBonus != 0)
 						{
 							szRtnValue += "[NEWLINE]";
 							szRtnBonus = GetLocalizedText("TXT_KEY_CO_TOURISM_THEME_BONUS", pkBuilding->GetThemingYieldBonus(eYield), GC.getYieldInfo(eYield)->getIconString(), GC.getYieldInfo(eYield)->GetDescription());
@@ -7423,7 +7776,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 					if(eYield != NO_YIELD)
 					{
 						int iYieldBonus = pkBuilding->GetThemingYieldBonus(eYield);
-						if(iYieldBonus > 0)
+						if(iYieldBonus != 0)
 						{
 							szRtnValue += "[NEWLINE]";
 							szRtnBonus = GetLocalizedText("TXT_KEY_CO_TOURISM_THEME_BONUS_NEEDED", pkBuilding->GetThemingYieldBonus(eYield), GC.getYieldInfo(eYield)->getIconString(), GC.getYieldInfo(eYield)->GetDescription());
@@ -7518,14 +7871,14 @@ int CvCityCulture::GetCultureFromImprovements() const
 			iRtnValue += pLoopPlot->calculateYield(eYield);
 
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
+			if(pImprovement && pImprovement->GetYieldChange(eYield) != 0)
 			{
 #if defined(MOD_API_UNIFIED_YIELDS)
 				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
 #else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
 #endif
-				if(iAdjacentCulture > 0)
+				if(iAdjacentCulture != 0)
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iRtnValue += pLoopPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);

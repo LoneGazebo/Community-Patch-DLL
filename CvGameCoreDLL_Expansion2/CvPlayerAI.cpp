@@ -43,8 +43,6 @@
 #include <queue>
 #endif
 
-#define DANGER_RANGE				(6)
-
 // statics
 
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
@@ -276,34 +274,27 @@ void CvPlayerAI::AI_unitUpdate()
 		return;
 	}
 
+	//do this only after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
+	//despite the name, the tactical map is used by homeland AI as well.
+	GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+
+	//so that workers know where to build roads
+	GetBuilderTaskingAI()->Update();
+
 	if(isHuman())
 	{
-		//useful for debugging
-		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
-
 		CvUnit::dispatchingNetMessage(true);
-		// The homeland AI goes first.
-		GetHomelandAI()->FindAutomatedUnits();
+		//no tactical AI for human
 		GetHomelandAI()->Update();
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else
 	{
-		// Update tactical AI
-		GetTacticalAI()->CommandeerUnits();
-
 		// Now let the tactical AI run.  Putting it after the operations update allows units who have
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
-		// AI subsystems
+		// AI subsystems. Tactical map has already been refreshed above.
 		GetTacticalAI()->Update();
-
-		// Skip homeland AI processing if a barbarian
-		if(m_eID != BARBARIAN_PLAYER)
-		{
-			// Now its the homeland AI's turn.
-			GetHomelandAI()->RecruitUnits();
-			GetHomelandAI()->Update();
-		}
+		GetHomelandAI()->Update();
 	}
 }
 
@@ -321,7 +312,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		return;
 	}
 	//Don't burn down gifts, that makes you look ungrateful.
-	if(bGift)
+	if (bGift && eOriginalOwner != GetID())
 	{
 		pCity->DoCreatePuppet();
 		return;
@@ -394,7 +385,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
 		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
-		if (IsEmpireVeryUnhappy() || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
+		if (IsEmpireVeryUnhappy() || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= (GetDiplomacyAI()->GetBoldness() + GetDiplomacyAI()->GetMeanness() + (GC.getGame().getGameTurn() / 100))) )
 #else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
 #endif
@@ -404,22 +395,27 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		}
 
 #if defined(MOD_BALANCE_CORE)
-		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
+		if(IsEmpireVeryUnhappy() && !pCity->HasAnyWonder())
 		{
-			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-			if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+			//Only raze if this isn't a beachhead city.
+			CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+			if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) > 1)
 			{
-				pCity->doTask(TASK_RAZE);
-				return;
-			}
-			else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
-			{
-				if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner);
+				if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
 				{
-					if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+					pCity->doTask(TASK_RAZE);
+					return;
+				}
+				else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
+				{
+					if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
 					{
-						pCity->doTask(TASK_RAZE);
-						return;
+						if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+						{
+							pCity->doTask(TASK_RAZE);
+							return;
+						}
 					}
 				}
 			}
@@ -438,6 +434,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	else if(pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoAnnex();
+		pCity->ChangeNoOccupiedUnhappinessCount(1);
 		return;
 	}
 #endif
@@ -719,6 +716,27 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 	}
 
+	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
+	// find courthouse
+	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
+		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if (buildingInfo)
+		{
+			if (buildingInfo->IsNoOccupiedUnhappiness() && canConstruct(eBuilding))
+			{
+				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
+				break;
+			}
+		}
+	}
+
+	//Can't build a courthouse? Abort!
+	if (eCourthouseType == NO_BUILDINGCLASS)
+		return;
+
 	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
 	pCity = NULL;
@@ -745,22 +763,6 @@ void CvPlayerAI::AI_considerAnnex()
 	
 	CvCity* pTargetCity = NULL;
 	float fCutoffValue = GC.getNORMAL_ANNEX();
-	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
-	// find courthouse
-	for(int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
-	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
-		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
-
-		if(buildingInfo)
-		{
-			if (buildingInfo->IsNoOccupiedUnhappiness())
-			{
-				eCourthouseType = (BuildingClassTypes)buildingInfo->GetBuildingClassType();
-				break;
-			}
-		}
-	}
 
 	bool bCourthouseImprovement = false;
 	if (eCourthouseType != NO_BUILDINGCLASS)
@@ -1034,12 +1036,16 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			}				
 #endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
+			
+			if (thisSlot.m_iOperationID == -1)
+				continue;
+
 			if (thisSlot.IsValid() && OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
 			{
 				bestSlot = thisSlot;
 			}
 
-			if (pCity == pMusterPlot->getWorkingCity())
+			if (pCity == pMusterPlot->getWorkingCity() && bestSlot == thisSlot)
 			{
 				bCitySameAsMuster = true;
 				break;
@@ -1488,6 +1494,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
 	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_ENGINEER));
 	// Build manufactories up to your flavor.
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
@@ -1541,6 +1548,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_MERCHANT));
 	// build custom houses up to your flavor.
 	bool bConstructImprovement = !bTheVeniceException;
@@ -1610,6 +1618,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	{
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		iFlavor += (GetPlayerTraits()->GetWLTKDGPImprovementModifier() / 5);
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		//This is to prevent a buildup of scientists if the AI is having a hard time planting them.
 		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));
@@ -1685,7 +1694,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
@@ -1727,10 +1736,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
 	// CASE 2: I have a religion that hasn't yet been enhanced
 	else if (pMyReligion)
 	{
-#if defined(MOD_BALANCE_CORE)
 		//always enhance
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-#else
 		// Spread religion if there is a city that needs it CRITICALLY
 		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
 		{
@@ -1740,7 +1747,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
-#endif
 	}
 
 	// CASE 3: No religion for me yet
@@ -1761,6 +1767,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* /*pUnit*/)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
+	}
+
+	if ((GC.getGame().getGameTurn() - pUnit->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 	}
 
 	return eDirective;
@@ -2220,6 +2231,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	{
 		return 0;
 	}
+	if (pMinorCivAI->IsNoAlly())
+		return 0;
+
 	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
 	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
 	{
@@ -2453,7 +2467,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
 			if(iDifference >= 60) 
 			{
-				iScore /= 5;
+				iScore /= max(1, (iDifference / 2));
 			}
 			// Are we close to losing our status? If so, obsess away!
 			else if(iDifference <= 30 || pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
@@ -2465,7 +2479,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	else
 	{
 		// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
+#if defined(MOD_CITY_STATE_SCALE)
+		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold(GetID()))
+#else
 		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+#endif
 		{
 			iScore *= 4;
 		}
@@ -2557,7 +2575,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 				continue;
 			}
 			// Don't be captured
-			if(GetPlotDanger(*pLoopPlot,pUnit)>0)
+			if(pUnit->GetDanger(pLoopPlot)>0)
 				continue;
 
 			int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -2601,7 +2619,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit)
 		}
 
 #if defined(MOD_BALANCE_CORE)
-		if(GetPlotDanger(*pLoopPlot,pUnit)>0)
+		if(pUnit->GetDanger(pLoopPlot)>0)
 			continue;
 #endif
 
@@ -2863,6 +2881,12 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 				iWeightFactor += 3;
 			}
 
+			//Let's grab embassies if we can!
+			if (pAdjacentPlot->IsImprovementEmbassy())
+			{
+				iWeightFactor += 5;
+			}
+
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
 			if (eOtherPlayer != NO_PLAYER)
 			{
@@ -2924,7 +2948,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 			iScore += iDefenseScore * 2;
 
 			//danger is bad
-			int iDanger = GetPlotDanger(*pAdjacentPlot,pGeneral);
+			int iDanger = pGeneral->GetDanger(pAdjacentPlot);
 			if (iDanger == INT_MAX)
 			{
 				iScore = 0;

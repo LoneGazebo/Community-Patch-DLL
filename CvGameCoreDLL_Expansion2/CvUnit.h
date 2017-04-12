@@ -109,7 +109,7 @@ public:
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
-		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
+		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
 		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
 		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile
@@ -124,10 +124,7 @@ public:
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
+	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, bool bSkipNaming = false);
 #else
 	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #endif
@@ -307,7 +304,8 @@ public:
 	int healTurns(const CvPlot* pPlot) const;
 	void doHeal();
 	void DoAttrition();
-	int GetDanger(CvPlot* pAtPlot=NULL) const;
+	int GetDanger(const CvPlot* pAtPlot=NULL) const;
+	int GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
@@ -952,6 +950,9 @@ public:
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
+
+	int getAOEDamageOnKill() const;
+	void changeAOEDamageOnKill(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1412,7 +1413,6 @@ public:
 	int getSubUnitsAlive(int iDamage) const;
 
 	bool isEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
-	bool isPotentialEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
 
 	bool canRangeStrike() const;
 	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const;
@@ -1732,6 +1732,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;

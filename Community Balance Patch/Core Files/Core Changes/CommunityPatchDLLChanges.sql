@@ -226,6 +226,10 @@ UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_VICTORY_GAME_CHANGES';
 
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_DYNAMIC_UNIT_SUPPLY';
+
 UPDATE GameOptions SET "Default" = 1 WHERE Type = 'GAMEOPTION_EVENTS';
 
 UPDATE CustomModOptions SET Value=1 WHERE Name='GLOBAL_CS_GIFTS';  

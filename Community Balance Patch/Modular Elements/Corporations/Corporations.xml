@@ -285,6 +285,12 @@
 			<Yield>1</Yield>
 		</Row>
 		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_BRAZILWOOD</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
 			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
 			<ResourceType>RESOURCE_GOLD</ResourceType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
@@ -505,6 +511,10 @@
 		<Row>
 			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
 			<ResourceType>RESOURCE_URANIUM</ResourceType>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_BRAZILWOOD</ResourceType>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>

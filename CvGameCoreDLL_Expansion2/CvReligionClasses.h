@@ -396,6 +396,7 @@ public:
 #endif
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
+	int GetCityStateYieldModifier(PlayerTypes ePlayer) const;
 	int GetSpyPressure(PlayerTypes ePlayer) const;
 	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
@@ -629,7 +630,9 @@ public:
 	BeliefTypes ChooseBonusBelief(int iExcludeBelief1, int iExcludeBelief2, int iExcludeBelief3);
 	BeliefTypes ChooseReformationBelief();
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION);
+#endif
 	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, int* piTurns = NULL);
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns = NULL);
 	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, CvUnit* pUnit = NULL, int* piTurns = NULL) const;
@@ -665,8 +668,9 @@ private:
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter) const;
 	bool HaveEnoughInquisitors(ReligionTypes eReligion) const;
-	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion) const;
+	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL) const;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	bool IsProphetGainRateAcceptable();
 	bool CanBuyNonFaithUnit() const;
 #endif
 	bool CanBuyNonFaithBuilding() const;

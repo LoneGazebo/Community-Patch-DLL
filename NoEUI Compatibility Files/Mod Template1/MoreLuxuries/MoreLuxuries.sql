@@ -8,7 +8,7 @@ VALUES
 	('RESOURCE_TEA', 'YIELD_PRODUCTION', 3),
 	('RESOURCE_CORAL', 'YIELD_GOLD', 3),
 	('RESOURCE_AMBER', 'YIELD_SCIENCE', 3),
-	('RESOURCE_JADE', 'YIELD_CULTURE', 3),
+	('RESOURCE_JADE', 'YIELD_CULTURE', 2),
 	('RESOURCE_OLIVE', 'YIELD_FOOD', 3);
 
 -- Temple -- Amber
@@ -113,17 +113,23 @@ SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '2';
 
 
 -- Monopoly Information
-	
+
+INSERT INTO Resource_YieldChangeFromMonopoly
+	(ResourceType, YieldType, Yield)
+VALUES
+	('RESOURCE_TOBACCO', 'YIELD_FAITH', 2);
+
+	INSERT INTO Resource_CityYieldModFromMonopoly
+	(ResourceType, YieldType, Yield)
+VALUES
+	('RESOURCE_COFFEE', 'YIELD_PRODUCTION', 10);
+
 	UPDATE Resources
 	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_AMBER';
 
 	UPDATE Resources
 	SET IsMonopoly = '1'
-	WHERE Type = 'RESOURCE_COFFEE';
-
-	UPDATE Resources
-	SET MonopolyHappiness = '5'
 	WHERE Type = 'RESOURCE_COFFEE';
 
 	UPDATE Resources
@@ -170,10 +176,6 @@ SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '2';
 	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_TOBACCO';
 
-	UPDATE Resources
-	SET MonopolyHappiness = '5'
-	WHERE Type = 'RESOURCE_TOBACCO';
-
 	-- Text files for changes.
 
 	-- Other Text
@@ -205,6 +207,14 @@ SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '2';
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD'
 	WHERE Type = 'RESOURCE_OLIVE';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION'
+	WHERE Type = 'RESOURCE_COFFEE';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH'
+	WHERE Type = 'RESOURCE_TOBACCO';
 
 -- Reveals
 

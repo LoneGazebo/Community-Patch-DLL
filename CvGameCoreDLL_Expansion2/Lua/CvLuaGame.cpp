@@ -406,6 +406,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 	Method(DoEnactResolution);
 	Method(DoRepealResolution);
+	Method(IsBeliefValid);
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
@@ -3094,6 +3095,29 @@ int CvLuaGame::lDoRepealResolution(lua_State* L)
 	}
 	return 1;
 }
+
+int CvLuaGame::lIsBeliefValid(lua_State* L)
+{
+	const ReligionTypes iReligionType = static_cast<ReligionTypes>(luaL_checkint(L, 1));
+	const BeliefTypes iBeliefType = static_cast<BeliefTypes>(luaL_checkint(L, 2));
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	bool bHolyCityOnly = lua_toboolean(L, 4);
+
+	bool bResult = false;
+	
+	if (iReligionType != NO_RELIGION && iBeliefType != NO_BELIEF && pkCity != NULL)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligionType, pkCity->getOwner());
+		if (pReligion && pReligion->m_Beliefs.IsBeliefValid(iBeliefType, iReligionType, pkCity->getOwner(), pkCity, bHolyCityOnly))
+		{
+			bResult = true;
+		}
+	}
+	
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsProcessingMessages(lua_State* L)

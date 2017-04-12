@@ -45,7 +45,10 @@
 //////////////////////
 
 //If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
-#define MOD_BATTLE_ROYALE
+//#define MOD_BATTLE_ROYALE
+
+//If you enable this, the CS AI can settle more cities.
+//#define MOD_MINOR_CAN_SETTLE
 
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
@@ -58,8 +61,9 @@
 #define MOD_BALANCE_CORE_NEW_TACTICAL_AI
 #define MOD_CORE_NEW_DEPLOYMENT_LOGIC
 
-/// for testing
+/// for better multiplayer experience
 #define MOD_CORE_REDUCE_RANDOMNESS
+#define MOD_CORE_RESILIENT_PANTHEONS
 
 ///	air units take a flat amount of damage in each air strike (plus interceptions)
 #define MOD_CORE_AIRCOMBAT_SIMPLIFIED
@@ -385,15 +389,19 @@
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 #define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
-
+#define MOD_BALANCE_NO_GAP_DURING_GA				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_NO_GAP_DURING_GA())
+#define MOD_BALANCE_DYNAMIC_UNIT_SUPPLY				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_DYNAMIC_UNIT_SUPPLY())
+#endif
+// activate eureka for tech cost bonus 'quest'
+#define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
 #define MOD_CIV6_WORKER								gCustomMods.isCIV6_TYPE_WORKER()
 // Roads are created by trade routes.
 #define MOD_CIV6_ROADS								gCustomMods.isCIV6_ROADS()
-// activate eureka for tech cost bonus 'quest'
-#define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
-
-#endif
+// scale city-state yield per city owned
+#define MOD_CITY_STATE_SCALE						gCustomMods.isCITY_STATE_SCALE()
+// allow anyone to choose his panthon, even if an other player has already choosed it.
+#define MOD_ANY_PANTHEON						gCustomMods.isANY_PANTHEON()
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 #define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
@@ -556,6 +564,8 @@
 
 #endif
 
+//
+//	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
 // Events sent when terraforming occurs (v33)
 //   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end)
 //   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end)
@@ -746,7 +756,7 @@
 //   GameEvents.PlayerCanPropose.Add(function(iPlayer, iResolution, iChoice, bEnact) return true end)
 //   GameEvents.ResolutionProposing.Add(function(iPlayer, iLeague) return false; end) (v88)
 //   GameEvents.ResolutionVoting.Add(function(iPlayer, iLeague) return false; end) (v88)
-//   GameEvents.ResolutionResult.Add(function(iResolution, iChoice, bEnact, bPassed) end)
+//   GameEvents.ResolutionResult.Add(function(iResolution, iProposer, iChoice, bEnact, bPassed) end)
 #define MOD_EVENTS_RESOLUTIONS                      gCustomMods.isEVENTS_RESOLUTIONS()
 
 // Events sent about ideologies and tenets (v51)
@@ -930,6 +940,8 @@
 #define MOD_BUGFIX_UNIT_PREREQ_PROJECT              gCustomMods.isBUGFIX_UNIT_PREREQ_PROJECT()
 // Fixes a bug where hovering units can be chosen as rebels! (v39)
 #define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
+// Fixes some bugs/regressions that disable the effect of IsNoMinorCivs of some strategies
+#define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1173,7 +1185,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_ReligionFounded				"ReligionFounded",				"iiiiiiii"
 #define GAMEEVENT_ReligionReformed				"ReligionReformed",				"iiiiiii"
 #define GAMEEVENT_ResolutionProposing			"ResolutionProposing",			"ii"
-#define GAMEEVENT_ResolutionResult				"ResolutionResult",				"iibb"
+#define GAMEEVENT_ResolutionResult				"ResolutionResult",				"iiibb"
 #define GAMEEVENT_ResolutionVoting				"ResolutionVoting",				"ii"
 #define GAMEEVENT_TeamSetEra					"TeamSetEra",					"iib"
 #define GAMEEVENT_TerraformingMap				"TerraformingMap",				"ii"
@@ -1221,6 +1233,9 @@ enum BattleTypeTypes
 #define GAMEEVENT_ContractStarted			"ContractStarted", "iiii"
 #define GAMEEVENT_ContractEnded				"ContractEnded", "ii"
 #define GAMEEVENT_ContractsRefreshed		"ContractsRefreshed", ""
+//CID
+#define GAMEEVENT_ProvinceLevelChanged      "ProvinceLevelChanged", "iiii"
+#define GAMEEVENT_LoyaltyStateChanged       "LoyaltyStateChanged", "iiii"
 //Other
 #define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
@@ -1454,10 +1469,14 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
+	MOD_OPT_DECL(BALANCE_NO_GAP_DURING_GA);
+	MOD_OPT_DECL(BALANCE_DYNAMIC_UNIT_SUPPLY);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);
 	MOD_OPT_DECL(CIV6_EUREKAS);
+	MOD_OPT_DECL(CITY_STATE_SCALE);
+	MOD_OPT_DECL(ANY_PANTHEON);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);
@@ -1632,6 +1651,7 @@ public:
 	MOD_OPT_DECL(BUGFIX_NO_HOVERING_REBELS);
 	MOD_OPT_DECL(BUGFIX_HOVERING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
+	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
 
 protected:
 	bool m_bInit;

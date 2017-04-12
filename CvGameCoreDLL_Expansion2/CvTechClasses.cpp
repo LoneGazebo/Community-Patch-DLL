@@ -1754,7 +1754,18 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 
 	// Mod for City Count
 	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
+#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	{
+		iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+	}
+	else
+	{
+		iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+	}
+#else
 	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+#endif
 	iResearchCost = iResearchCost * (100 + iMod) / 100;
 
 	// We're going to round up so that the user wont get confused when the research progress seems to be equal to the research cost, but it is not acutally done.
@@ -2247,7 +2258,18 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
 		iResearchCost = (iResearchCost * 100) / iResearchMod;
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
+#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+		{
+			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ false);
+		}
+		else
+		{
+			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+		}
+#else
 		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetMaxEffectiveCities(/*bIncludePuppets*/ true);
+#endif
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
 		
 		int iOverflow = iResearchProgress - iResearchCost;
@@ -2371,7 +2393,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iCost /= 100;
 
 #if defined(MOD_CIV6_EUREKA)
-	iCost *= std::max(0, (1000000 - pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / 10000);
+	iCost *= std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000);
 	iCost /= 100;
 #endif
 

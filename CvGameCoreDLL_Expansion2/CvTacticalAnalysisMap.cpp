@@ -424,7 +424,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
 		//therefore we later do a dilation filter on the cells
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft,-1,set<int>());
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft);
 
 		for (ReachablePlots::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
@@ -818,6 +818,14 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 					if (bEnemy)
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						//CvString msg;
+						//msg.Format("Zone %d, Enemy %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
+						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength, pZone->GetEnemyStrength());
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+#endif
+
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
 							pZone->AddEnemyNavalStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
@@ -839,16 +847,18 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						//again only for enemies
 						if(pZone->GetRangeClosestEnemyUnit()<0 || iDistance<pZone->GetRangeClosestEnemyUnit())
 							pZone->SetRangeClosestEnemyUnit(iDistance);
-
-						//CvString msg;
-						//msg.Format("Zone %d, Enemy %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
-						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
-						//m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
-
 					}
 					else if (bFriendly)
 					{
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						//CvString msg;
+						//msg.Format("Zone %d, Friendly %s %d with %d hp at %d,%d - distance %d, strength %d, ranged strength %d (total %d)",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), pLoopUnit->GetCurrHitPoints(),
+						//	pLoopUnit->getX(), pLoopUnit->getY(), iDistance, iUnitStrength, iRangedStrength, pZone->GetFriendlyStrength());
+						//GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+#endif
+
 						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
 							pZone->AddFriendlyNavalStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
@@ -867,12 +877,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							else
 								pZone->AddFriendlyMeleeUnitCount(1);
 						}
-
-						//CvString msg;
-						//msg.Format("Zone %d, Friendly %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
-						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
-						//m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
 					}
 					else
 					{
@@ -1195,7 +1199,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(CvPlot* pPlot)
 	CvTacticalAnalysisCell* pCell = GetCell(iPlotIndex);
 	CvTacticalDominanceZone* pZone = GetZoneByID(pCell->GetDominanceZone());
 
-	if(pZone)
+	if(pZone && pZone->GetZoneCity()) //city check is to skip the potentially very large ocean zone
 		return (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY);
 
 	return false;
@@ -1223,7 +1227,7 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 		{
 			if ((pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isCoastal()) || pZone->IsWater())
 			{
-				if (pZone->GetEnemyNavalUnitCount() <= 0 || pZone->GetEnemyNavalUnitCount() < pZone->GetFriendlyNavalUnitCount())
+				if (pZone->GetEnemyNavalUnitCount() <= pZone->GetFriendlyNavalUnitCount())
 				{
 					pZone->SetNavalInvasion(true);
 				}

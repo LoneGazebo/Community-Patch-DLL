@@ -52,7 +52,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLISH_WINGED_HUSSAR','BUILDINGCLASS_STABLE'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLISH_WINGED_HUSSAR','BUILDINGCLASS_ARMORY'; 
 -- Industrial
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ARTILLERY','BUILDINGCLASS_ARMORY'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_FIELD_GUN','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BERBER_CAVALRY','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BERBER_CAVALRY','BUILDINGCLASS_STABLE'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SWEDISH_CAROLEAN','BUILDINGCLASS_ARMORY'; 
@@ -68,6 +68,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CRUISER','BUILDINGCLASS_SEAPORT'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ETHIOPIAN_MEHAL_SEFARI','BUILDINGCLASS_ARMORY'; 
 -- Modern
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ARTILLERY','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ANTI_AIRCRAFT_GUN','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_WWI_BOMBER','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DESTROYER','BUILDINGCLASS_SEAPORT'; 

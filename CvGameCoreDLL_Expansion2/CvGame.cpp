@@ -830,6 +830,10 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
+
+			// To have an orientation which plots are relatively good or bad
+			if (GET_PLAYER(ePlayer).isMajorCiv())
+				GET_PLAYER(ePlayer).setAveragePlotFoundValue();
 		}
 	}
 
@@ -1136,6 +1140,7 @@ void CvGame::uninit()
 	m_eTeamThatCircumnavigated = NO_TEAM;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	m_bVictoryRandomization = false;
 	m_iCultureAverage = 0;
 	m_iScienceAverage = 0;
 	m_iDefenseAverage = 0;
@@ -1640,6 +1645,7 @@ void CvGame::update()
 		{
 			sendPlayerOptions();
 
+			//this creates the initial autosave
 			if(getTurnSlice() == 0 && !isPaused())
 			{
 				gDLL->AutoSave(true);
@@ -3710,10 +3716,6 @@ void CvGame::doControl(ControlTypes eControl)
 		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-			if (!isNetworkMultiPlayer() && kActivePlayer.isHuman() && GC.GetPostTurnAutosaves())
-			{
-				gDLL->AutoSave(false, true);
-			}
 #if defined(MOD_EVENTS_RED_TURN)
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<
@@ -6272,6 +6274,16 @@ VictoryTypes CvGame::getVictory() const
 {
 	return m_eVictory;
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvGame::isVictoryRandomizationDone() const
+{
+	return m_bVictoryRandomization;
+}
+void CvGame::setVictoryRandomizationDone(bool bValue)
+{
+	m_bVictoryRandomization = bValue;
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -8031,10 +8043,9 @@ void CvGame::doTurn()
 	int iLoopPlayer;
 	int iI;
 
-	if(getAIAutoPlay())
-	{
-		gDLL->AutoSave(false);
-	}
+	//create an autosave
+	if(!isNetworkMultiPlayer())
+		gDLL->AutoSave(false, false);
 
 	// END OF TURN
 
@@ -8191,6 +8202,12 @@ void CvGame::doTurn()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (isOption(GAMEOPTION_RANDOM_VICTORY))
+	{
+		doVictoryRandomization();
+	}
+#endif
 	// Victory stuff
 	testVictory();
 
@@ -8229,21 +8246,9 @@ void CvGame::doTurn()
 
 	LogGameState();
 
+	//autosave after doing a turn
 	if(isNetworkMultiPlayer())
-	{//autosave after doing a turn
-#if defined(MOD_BALANCE_CORE)
-		if (GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
-		{
-			gDLL->AutoSave(false, true);
-		}
-		else
-		{
-#endif
-		gDLL->AutoSave(false);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-	}
+		gDLL->AutoSave(false, true);
 
 	gDLL->PublishNewGameTurn(getGameTurn());
 }
@@ -8743,7 +8748,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 							bUnitCreated = true;
 						}
 					}
-					}
+				}
 			}
 			while(iNumber > 0);
 		}
@@ -8858,6 +8863,10 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			}
 		}
 		if(!bValid)
+			continue;
+
+		//Not valid?
+		if (pkUnitInfo->IsInvalidMinorCivGift())
 			continue;
 
 		// Avoid Recon units
@@ -9725,6 +9734,10 @@ void CvGame::testVictory()
 	updateScore();
 
 	bool bEndGame = false;
+#if defined(MOD_BALANCE_CORE)
+	bool bIsDomination = false;
+	bool bIsScore = false;
+#endif
 
 	std::vector<std::vector<int> > aaiGameWinners;
 	int iTeamLoop = 0;
@@ -9762,6 +9775,12 @@ void CvGame::testVictory()
 							aaiGameWinners.push_back(aWinner);
 
 							bEndGame = true;
+#if defined(MOD_BALANCE_CORE)
+							if (pkVictoryInfo->isConquest())
+							{
+								bIsDomination = true;
+							}
+#endif
 						}
 						// Non game-ending Competition winner placement
 						else
@@ -9868,6 +9887,9 @@ void CvGame::testVictory()
 					if(pkVictoryInfo->isEndScore())
 					{
 						eScoreVictory = eVictory;
+#if defined(MOD_BALANCE_CORE)
+						bIsScore = true;
+#endif
 						break;
 					}
 				}
@@ -9904,6 +9926,14 @@ void CvGame::testVictory()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//Not already defined? Skip!
+	if (isOption(GAMEOPTION_RANDOM_VICTORY) && !isVictoryRandomizationDone() && !bIsDomination && !bIsScore)
+	{
+		aaiGameWinners.clear();
+		bEndGame = false;
+	}
+#endif
 
 	// Two things can set this to true: either someone has finished an insta-win victory, or the game-ending tech has been researched and we're now tallying VPs
 	if(bEndGame && !aaiGameWinners.empty())
@@ -9934,6 +9964,180 @@ void CvGame::testVictory()
 		}
 	}
 }
+
+#if defined(MOD_BALANCE_CORE)
+void CvGame::doVictoryRandomization()
+{
+	//Already done?
+	if (isVictoryRandomizationDone())
+		return;
+
+	//no one in final era?
+	bool bFinalEra = false;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		{
+			if (GET_PLAYER(eLoopPlayer).GetCurrentEra() == (EraTypes) GC.getInfoTypeForString("ERA_FUTURE"))
+			{
+				bFinalEra = true;
+			}
+		}
+	}
+	if (!bFinalEra)
+	{
+		return;
+	}
+	//Okay, let's do this!
+
+	VictoryTypes eBestVictory = NO_VICTORY;
+	int iBestVictoryScore = 0;
+	// Look at each Victory Competition
+	for (int iVictoryLoop = 0; iVictoryLoop < GC.getNumVictoryInfos(); iVictoryLoop++)
+	{
+		const VictoryTypes eVictory = static_cast<VictoryTypes>(iVictoryLoop);
+		CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
+		if (pkVictoryInfo == NULL)
+			continue;
+
+		//Skip score, always valid.
+		if (pkVictoryInfo->isEndScore())
+			continue;
+
+		int iScore = getJonRandNum(100, "Victory Score");
+		
+		if (pkVictoryInfo->isDiploVote())
+		{
+			iScore += GC.getGame().GetNumMinorCivsAlive() * 3;
+		}
+		else if (pkVictoryInfo->isInfluential())
+		{
+			iScore += GC.getGame().GetGameCulture()->GetNumGreatWorks() / 5;
+		}
+		else if (pkVictoryInfo->isConquest())
+		{
+			iScore += countTotalNukeUnits() * 15;
+		}
+		else if (eVictory == (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true))
+		{
+			for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+			{
+				TeamTypes eTeam = (TeamTypes)iTeamLoop;
+				if (eTeam == NO_TEAM)
+					continue;
+
+				if (GET_TEAM(eTeam).isMinorCiv() || GET_TEAM(eTeam).isBarbarian())
+					continue;
+
+				iScore += (GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown() / 20);
+			}
+		}
+		else
+		{
+			continue;
+		}
+		if (iScore > iBestVictoryScore)
+		{
+			iBestVictoryScore = iScore;
+			eBestVictory = eVictory;
+		}
+	}
+
+	if (eBestVictory != NO_VICTORY)
+	{
+		CvVictoryInfo* pkBestVictoryInfo = GC.getVictoryInfo(eBestVictory);
+		if (pkBestVictoryInfo == NULL)
+			return;
+
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutput;
+
+			CvString playerName;
+			CvString otherPlayerName;
+			CvString strMinorString;
+			CvString strDesc;
+			CvString strLogName;
+			CvString strTemp;
+
+			strLogName = "RandomVictory_Log.csv";
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strOutput.Format("%03d", GC.getGame().getElapsedGameTurns());
+
+			strTemp.Format("Random Victory Chosen: %s", pkBestVictoryInfo->GetDescription());
+			strOutput += ", " + strTemp;
+
+			pLog->Msg(strOutput);
+		}
+
+		// Look at each Victory Competition
+		for (int iVictoryLoop = 0; iVictoryLoop < GC.getNumVictoryInfos(); iVictoryLoop++)
+		{
+			const VictoryTypes eVictory = static_cast<VictoryTypes>(iVictoryLoop);
+			CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
+			if (pkVictoryInfo == NULL)
+				continue;
+
+			if (!isVictoryValid(eVictory))
+				continue;
+
+			//Skip conquest, always valid.
+			if (pkVictoryInfo->isConquest())
+				continue;
+
+			//Skip score, always valid.
+			if (pkVictoryInfo->isEndScore())
+				continue;
+
+			//Skip our best selection.
+			if (eBestVictory == eVictory)
+				continue;
+
+			//Disable all victories
+			setVictoryValid(eVictory, false);
+		}
+
+		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+		{
+			TeamTypes eTeam = (TeamTypes)iTeamLoop;
+			if (eTeam == NO_TEAM)
+				continue;
+
+			if (!GET_TEAM(eTeam).isHuman())
+				continue;
+
+			if (pkBestVictoryInfo->isDiploVote())
+			{
+				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 100);
+				DLLUI->AddPopup(kPopupInfo);
+			}
+			else if (pkBestVictoryInfo->isInfluential())
+			{
+				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 99);
+				DLLUI->AddPopup(kPopupInfo);
+			}
+			else if (eBestVictory == (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true))
+			{
+				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 98);
+				DLLUI->AddPopup(kPopupInfo);
+			}
+			else if (pkBestVictoryInfo->isConquest())
+			{
+				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 97);
+				DLLUI->AddPopup(kPopupInfo);
+			}
+		}
+
+		setVictoryRandomizationDone(true);
+	}
+	
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 CvRandom& CvGame::getMapRand()
@@ -10024,22 +10228,24 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
+	int iFake = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + getGameTurn();
 	
+	//watch out, iFake^2 may turn negative because of overflow!
 	if (iNum>0)
-		return (iFake*iFake) % iNum; 
+		return abs(iFake*iFake) % iNum; 
 	else
-		return (-1) * ((iFake*iFake) % (-iNum));
+		return (-1) * (abs(iFake*iFake) % (-iNum));
 }
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
 	int iFake = getGameTurn() + abs(iExtraSeed);
 
+	//watch out, iFake^2 may turn negative because of overflow!
 	if (iNum>0)
-		return (iFake*iFake) % iNum;
+		return abs(iFake*iFake) % iNum;
 	else
-		return (-1) * ((iFake*iFake) % (-iNum));
+		return (-1) * (abs(iFake*iFake) % (-iNum));
 }
 
 #endif
@@ -10667,6 +10873,7 @@ void CvGame::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(39, kStream, m_eTeamThatCircumnavigated, NO_TEAM);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	MOD_SERIALIZE_READ(55, kStream, m_bVictoryRandomization, false);
 	MOD_SERIALIZE_READ(55, kStream, m_iCultureAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iScienceAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
@@ -10920,6 +11127,7 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_eTeamThatCircumnavigated);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	MOD_SERIALIZE_WRITE(kStream, m_bVictoryRandomization);
 	MOD_SERIALIZE_WRITE(kStream, m_iCultureAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iScienceAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
@@ -11737,13 +11945,7 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
-#if defined(MOD_BALANCE_CORE)
-	if(eMajor != NO_PLAYER && GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage())
-	{
-		GET_PLAYER(eMinor).GetMinorCivAI()->DoMarriage(eMajor);
-		return;
-	}
-#endif
+
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
 #if defined(MOD_BALANCE_CORE)
