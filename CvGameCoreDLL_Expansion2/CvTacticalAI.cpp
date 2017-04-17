@@ -8319,14 +8319,13 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 {
 	CvOperationUnit unit;
 	int iDistance;
-	CvPlot* pTargetPlot;
 	int iRangedUnits = 0;
 	int iMeleeUnits = 0;
 	int iGenerals = 0;
 	list<int>::iterator it;
 	int iTacticalRadius = GetTacticalAnalysisMap()->GetTacticalRange();
 
-	pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
+	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
 
@@ -8343,6 +8342,10 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
 				if(iDistance <= iTacticalRadius || (iDistance <= iTacticalRadius*2 && pUnit->IsRecentlyDeployedFromOperation()))
 				{
+					//don't run away if there's work to do (will eventually be handled by ExecuteAttackWithUnits)
+					if (pUnit->plot()->GetNumEnemyUnitsAdjacent(pUnit->getTeam(),pUnit->getDomainType()) > 1)
+						continue;
+
 					unit.SetUnitID(pUnit->GetID());
 
 					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
@@ -10997,8 +11000,8 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 
 			//don't walk into traps
 			int iEnemies = pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),pTarget->getDomain());
-			int iFriendlies = pPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pTarget->getDomain());
-			if (iEnemies>2+iFriendlies)
+			int iInvisible = pPlot->getNumAdjacentNonvisible(m_pPlayer->getTeam());
+			if (iEnemies>2 || iInvisible>3)
 				continue;
 
 			int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
@@ -11017,7 +11020,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 				for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 				{
-					if (!aPlotsToCheck[iI])
+					if (!aPlotsToCheck[iI] || !aPlotsToCheck[iI]->isVisible(m_pPlayer->getTeam()))
 						continue;
 
 					CvTacticalAnalysisCell* pAdjCell = GetTacticalAnalysisMap()->GetCell(aPlotsToCheck[iI]->GetPlotIndex());
@@ -11046,7 +11049,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 
 				// Top priority is hexes to bombard from (within range but not adjacent)
 				pCell->SetTargetDistance(iDistance);
-				if (iDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain(), NULL, false)==0)
+				if (iDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain(), NULL, false)==0 && iInvisible<2)
 					bChoiceBombardSpot = true;
 
 				if (pPlot->canSeePlot(pTarget,m_pPlayer->getTeam(),iDistance,NO_DIRECTION))
