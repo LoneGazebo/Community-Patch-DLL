@@ -6742,12 +6742,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 		{
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
-
-			int iMin = GC.getEVENT_MIN_DURATION_BETWEEN();
-			iMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iMin /= 100;
-			ChangePlayerEventCooldown(iMin);
-			
+	
 			//Set oneshot stuff so this event can't fire ever again.
 			if(pkEventInfo->isOneShot())
 			{

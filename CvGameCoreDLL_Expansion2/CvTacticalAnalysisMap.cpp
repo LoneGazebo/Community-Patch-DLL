@@ -916,14 +916,9 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 			{
 				iBaseValue += (1 + (int)sqrt((float)pClosestCity->getPopulation()));
 
-				if(pClosestCity->isCapital() && !pClosestCity->GetPlayer()->isMinorCiv())
-				{
-					iBaseValue *= 2;
-				}
-
 				if(GET_PLAYER(m_ePlayer).GetTacticalAI()->IsTemporaryZoneCity(pClosestCity))
 				{
-					iBaseValue *= 10;
+					iBaseValue *= 2;
 				}
 
 				else if (pClosestCity->isVisible( GET_PLAYER(m_ePlayer).getTeam(), false))
@@ -942,8 +937,9 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 #if defined(MOD_BALANCE_CORE)
 				if (GET_PLAYER(m_ePlayer).IsCityAlreadyTargeted(pClosestCity) || GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsCurrentAttackTarget(pClosestCity) )
 				{
-					iBaseValue *= 10;
+					iBaseValue *= 2;
 				}
+
 				if (pClosestCity->GetPlayer()->isMinorCiv())
 				{
 					//At war with ally of this minor? Greatly reduce priority.
@@ -966,19 +962,11 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 			{
 				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
 				{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 					iMultiplier = 1;
-#else
-					iMultiplier = 2;
-#endif
 				}
 				else if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
 				{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 					iMultiplier = 8;
-#else
-					iMultiplier = 6;
-#endif
 				}
 			}
 			else if(eDominance == TACTICAL_DOMINANCE_EVEN)
@@ -1219,52 +1207,40 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 	else
 	{
 		// Otherwise compute it by strength
-		if(pZone->GetEnemyStrength()+pZone->GetEnemyRangedStrength()<=0)
+		if(pZone->GetEnemyStrength()+pZone->GetEnemyRangedStrength()<=0) //make sure the denominator is valid later on
 		{
 			pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
+		}
+		else if (pZone->GetEnemyUnitCount()==1 && pZone->GetFriendlyUnitCount()<=1) //both are weak, one unit might tip the balance
+		{
+			pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
 		}
 		else
 		{
 			if ((pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isCoastal()) || pZone->IsWater())
 			{
-				if (pZone->GetEnemyNavalUnitCount() <= pZone->GetFriendlyNavalUnitCount())
+				if (pZone->GetEnemyNavalUnitCount() < pZone->GetFriendlyNavalUnitCount())
 				{
-					pZone->SetNavalInvasion(true);
+					pZone->SetNavalInvasion(true); //only true if we actually have naval units
 				}
 				else
 				{
 					pZone->SetNavalInvasion(false);
 				}
+			}
 
-				int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
-				if (iRatio > 100 + m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
-				}
-				else if (iRatio < 100 - m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
-				}
-				else
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
-				}
+			int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
+			if (iRatio > 100 + m_iDominancePercentage)
+			{
+				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
+			}
+			else if (iRatio < 100 - m_iDominancePercentage)
+			{
+				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
 			}
 			else
 			{
-				int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
-				if (iRatio > 100 + m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
-				}
-				else if (iRatio < 100 - m_iDominancePercentage)
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
-				}
-				else
-				{
-					pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
-				}
+				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_EVEN);
 			}
 		}
 	}

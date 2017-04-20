@@ -6508,11 +6508,16 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	if (iPercentGPTToGive > 0)
 	{
 		iGPT = pLosingPlayer->calculateGoldRate();
-		iGPT = ((iGPT * iPercentGPTToGive) / 100);
+		int iGPTToGive = ((iGPT * iPercentGPTToGive) / 100);
 
-		if(iGPT > 0)
+		if (iGPTToGive >= iGPT-2)
 		{
-			pDeal->AddGoldPerTurnTrade(eLosingPlayer, iGPT, iDuration);
+			iGPTToGive -= 2;
+		}
+
+		if (iGPTToGive > 0)
+		{
+			pDeal->AddGoldPerTurnTrade(eLosingPlayer, iGPTToGive, iDuration);
 		}
 	}
 
@@ -7670,6 +7675,12 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 
 	// Don't ask for war if we are in a DoF (we'll do the 'free' method instead)
 	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
+	{
+		return false;
+	}
+
+	//Don't offer if we have a DP.
+	if (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
 	{
 		return false;
 	}

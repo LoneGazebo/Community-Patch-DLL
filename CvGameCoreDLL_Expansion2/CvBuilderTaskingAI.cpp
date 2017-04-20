@@ -1559,7 +1559,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		iWeight += iBuildTimeWeight;
 
 		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
-			iWeight /= 4;
+			iWeight /= 10;
 
 #if defined(MOD_BALANCE_CORE)
 		iWeight = min(iWeight,0x7FFF);

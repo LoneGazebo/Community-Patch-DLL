@@ -158,11 +158,6 @@
 			<Cost>-1</Cost>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
-			<ExtraMissionarySpreads>0</ExtraMissionarySpreads>
-			<BlockGPDestructionSpies>0</BlockGPDestructionSpies>
-			<BlockUDestructionSpies>0</BlockUDestructionSpies>
-			<Defense>0</Defense>
-			<ExtraCityHitPoints>0</ExtraCityHitPoints>
 		</Row>
 		<!--Church -->
 		<Row>
@@ -571,7 +566,6 @@
 			<Civilopedia>TXT_KEY_BUILDING_JELLING_STONES_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_JELLING_STONES_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
-			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
 			<AllowsWaterRoutes>true</AllowsWaterRoutes>
 			<HurryCostModifier>25</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

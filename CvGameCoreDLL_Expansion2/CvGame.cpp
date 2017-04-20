@@ -8412,7 +8412,10 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			continue;
 		}
 
-		bool bValid = (pkUnitInfo->GetCombat() > 0);
+		if (pkUnitInfo->GetCombat() <= 0)
+			continue;
+
+		bool bValid = true;
 
 		if(bNoResource)
 		{

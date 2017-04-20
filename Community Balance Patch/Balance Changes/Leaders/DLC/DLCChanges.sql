@@ -162,7 +162,8 @@ VALUES
 INSERT INTO Trait_YieldFromConquest
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 150);
+	('TRAIT_SEVEN_CITIES', 'YIELD_FAITH', 150),
+	('TRAIT_SEVEN_CITIES', 'YIELD_FOOD', 75);
 
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)
@@ -224,9 +225,9 @@ VALUES
 
 INSERT INTO Building_YieldFromVictory
 	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 5),
-	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 5);
+VALUES 
+	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 3),
+	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 3);
 
 INSERT INTO Building_InstantYield
 	(BuildingType, YieldType, Yield)

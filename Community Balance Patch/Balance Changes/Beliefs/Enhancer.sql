@@ -14,8 +14,13 @@ SET GreatPersonExpendedFaith = '0'
 WHERE Type = 'BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET GoldPerFirstCityConversion = '200'
+SET GoldPerFirstCityConversion = '0'
 WHERE Type = 'BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+INSERT INTO Belief_YieldFromConversion
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_RELIQUARY', 'YIELD_SCIENCE', 100);
 
 -- Just War (Now Martyrdom)
 UPDATE Beliefs

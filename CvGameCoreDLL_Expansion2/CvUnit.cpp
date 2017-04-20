@@ -173,6 +173,7 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
+	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
 #endif
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
@@ -223,6 +224,7 @@ CvUnit::CvUnit() :
 	, m_iExtraRoughRangedAttackMod("CvUnit::m_iExtraRoughRangedAttackMod", m_syncArchive)
 	, m_iExtraAttackFortifiedMod("CvUnit::m_iExtraAttackFortifiedMod", m_syncArchive)
 	, m_iExtraAttackWoundedMod("CvUnit::m_iExtraAttackWoundedMod", m_syncArchive)
+	, m_iExtraFullyHealedMod("CvUnit::m_iExtraFullyHealedMod", m_syncArchive)
 	, m_iFlankAttackModifier("CvUnit::m_iFlankAttackModifier", m_syncArchive)
 	, m_iExtraOpenDefensePercent("CvUnit::m_iExtraOpenDefensePercent", m_syncArchive)
 	, m_iExtraRoughDefensePercent("CvUnit::m_iExtraRoughDefensePercent", m_syncArchive)
@@ -1282,6 +1284,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
 	m_iAOEDamageOnKill = 0;
+	m_iSplashDamage = 0;
 #endif
 	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
@@ -1332,6 +1335,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraRoughRangedAttackMod= 0;
 	m_iExtraAttackFortifiedMod= 0;
 	m_iExtraAttackWoundedMod= 0;
+	m_iExtraFullyHealedMod = 0;
 	m_iFlankAttackModifier=0;
 	m_iExtraOpenDefensePercent = 0;
 	m_iExtraRoughDefensePercent = 0;
@@ -13882,7 +13886,13 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit) - kPlayer.getProductionNeeded(getUnitType()))) * /*2*/ GC.getUNIT_UPGRADE_COST_PER_PRODUCTION());
+	int iProductionBase = kPlayer.getProductionNeeded(getUnitType());
+	if (iProductionBase == 0)
+	{
+		iProductionBase = kPlayer.getProductionNeeded(eUnit) / 2;
+	}
+
+	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit) - iProductionBase)) * /*2*/ GC.getUNIT_UPGRADE_COST_PER_PRODUCTION());
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
@@ -15180,7 +15190,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL)
+		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
 		{
 			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
@@ -15570,8 +15580,10 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackFortifiedModifier();
 
 		// Bonus VS wounded
-		if(pDefender->getDamage() > 0)
+		if (pDefender->getDamage() > 0)
 			iModifier += attackWoundedModifier();
+		else
+			iModifier += attackFullyHealedModifier();
 	}
 
 	// Unit can't drop below 10% strength
@@ -16080,6 +16092,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Bonus VS wounded
 		if(pOtherUnit->getDamage() > 0)
 			iModifier += attackWoundedModifier();
+		else
+			iModifier += attackFullyHealedModifier();
 
 		// Bonus against city states?
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
@@ -16368,7 +16382,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreAdjacency) const
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreAdjacency, bool bConsiderSplash) const
 {
 	VALIDATE_OBJECT
 	if (pFromPlot == NULL)
@@ -16419,6 +16433,12 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		else
 			//this considers embarkation implicitly
 			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
+
+		//Splash damage? Add up adjacent units.
+		if (bConsiderSplash && getSplashDamage() > 0)
+		{
+			iAttackerStrength += getSplashDamage() * pDefender->plot()->GetNumEnemyUnitsAdjacent(getTeam(), pDefender->getDomainType(), pDefender);
+		}
 	}
 	else
 	{
@@ -18163,6 +18183,13 @@ int CvUnit::attackWoundedModifier() const
 {
 	VALIDATE_OBJECT
 	return (getExtraAttackWoundedMod());
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::attackFullyHealedModifier() const
+{
+	VALIDATE_OBJECT
+		return (getExtraAttackFullyHealedMod());
 }
 
 //	--------------------------------------------------------------------------------
@@ -21136,6 +21163,22 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 	m_iAOEDamageOnKill = (m_iAOEDamageOnKill + iChange);
 	CvAssert(getAOEDamageOnKill() >= 0);
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getSplashDamage() const
+{
+	VALIDATE_OBJECT
+		return m_iSplashDamage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeSplashDamage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iSplashDamage = (m_iSplashDamage + iChange);
+	CvAssert(getSplashDamage() >= 0);
+}
+
+
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getImmuneToFirstStrikesCount() const
@@ -21849,6 +21892,28 @@ void CvUnit::changeExtraAttackWoundedMod(int iChange)
 		setInfoBarDirty(true);
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraAttackFullyHealedMod() const
+{
+	VALIDATE_OBJECT
+		return m_iExtraFullyHealedMod;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraAttackFullyHealedMod(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			m_iExtraFullyHealedMod = (m_iExtraFullyHealedMod + iChange);
+
+			setInfoBarDirty(true);
+		}
+}
+
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetFlankAttackModifier() const
@@ -24918,6 +24983,13 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 		return false;
 	}
 
+	//Out-ranged?
+	if (pkPromotionInfo->GetMinRange() != 0 && pkPromotionInfo->GetMinRange() > GetRange())
+		return false;
+
+	if (pkPromotionInfo->GetMaxRange() != 0 && GetRange() > 0 && pkPromotionInfo->GetMaxRange() < GetRange())
+		return false;
+
 	// AND prereq
 	if(pkPromotionInfo->GetPrereqPromotion() != NO_PROMOTION)
 	{
@@ -25319,6 +25391,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
+		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
@@ -25413,6 +25486,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraRoughRangedAttackMod(thisPromotion.GetRoughRangedAttackMod() * iChange);
 		changeExtraAttackFortifiedMod(thisPromotion.GetAttackFortifiedMod() * iChange);
 		changeExtraAttackWoundedMod(thisPromotion.GetAttackWoundedMod() * iChange);
+		changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
 		ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
 		changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
 		changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
@@ -28955,12 +29029,39 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetAttackWoundedMod();
-	if(iTemp != 0 && isRanged())
+	if(iTemp != 0)
 	{
 		iExtra = getExtraAttackWoundedMod() * 3;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+		if (isRanged())
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+		else
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+	}
+
+	iTemp = pkPromotionInfo->GetAttackFullyHealedMod();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraAttackFullyHealedMod() * 3;
+		iTemp *= (100 + iExtra);
+		iTemp /= 100;
+		if (isRanged())
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+		else
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+	}
+
+	iTemp = pkPromotionInfo->GetSplashDamage();
+	if (iTemp != 0)
+	{
+		iExtra = getSplashDamage() * 10;
+		iTemp *= (100 + iExtra);
+		iTemp /= 100;
+		if (isRanged())
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 10;
+		else
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 10;
 	}
 
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
@@ -29101,10 +29202,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetDefenseMod();
 	if(iTemp != 0)
 	{
-		iExtra = getDefenseModifier() * 3;
+		iExtra = getDefenseModifier() * 2;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorDefense * 4;
+		iValue += iTemp + iFlavorDefense * 3;
 	}
 
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)

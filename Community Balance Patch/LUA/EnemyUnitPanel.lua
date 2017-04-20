@@ -1292,6 +1292,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_WOUND_UNITS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
+			else
+				iModifier = pMyUnit:AttackFullyHealedModifier();
+
+				if (iModifier ~= 0) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_FULLY_HEALED_UNITS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
 			end
 
 			-- HillsAttackModifier

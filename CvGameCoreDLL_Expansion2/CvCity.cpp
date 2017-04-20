@@ -3838,11 +3838,6 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
 
-			int iMin = GC.getEVENT_MIN_DURATION_BETWEEN();
-			iMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iMin /= 100;
-			ChangeCityEventCooldown(iMin);
-
 			//Set oneshot stuff so this event can't fire ever again.
 			if(pkEventInfo->isOneShot())
 			{
@@ -8682,6 +8677,10 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 
 	// Loop through all plots near this City to see if we can find eResource - tests are ordered to optimize performance
 	CvPlot* pLoopPlot;
+
+	//Settled on it? We good.
+	if (this->plot()->getResourceType() == eResource)
+		return true;
 
 	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
@@ -21218,17 +21217,21 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			//Only useable in religions!
 			if (eYield == YIELD_GOLD)
 			{
-				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this, true);
-				iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
+				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this);
+				if (eReligion == RELIGION_PANTHEON)
+					iYieldValue += iGoldPerFollowingCity;
 
 				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner(), this, true);
 				if (iGoldPerXFollowers > 0)
 				{
-					iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+					if (eReligion == RELIGION_PANTHEON)
+						iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iGoldPerXFollowers);
+					else
+						iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
 
-			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this, true);
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this);
 			if (iYieldPerFollowingCity > 0)
 			{
 				iYieldValue += iYieldPerFollowingCity;

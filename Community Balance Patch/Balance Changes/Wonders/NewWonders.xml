@@ -136,7 +136,7 @@
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<DisplayPosition>2</DisplayPosition>
+			<DisplayPosition>1</DisplayPosition>
 			<FreePolicies>1</FreePolicies>
 			<ConquestProb>100</ConquestProb>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>

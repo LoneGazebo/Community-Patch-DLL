@@ -1129,6 +1129,32 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 				if(pkAttacker)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if (pkAttacker->getSplashDamage() != 0)
+					{
+						CvPlot* pAdjacentPlot = NULL;
+						CvPlot* pPlot = GC.getMap().plot(pkDefender->getX(), pkDefender->getY());
+
+						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+							if (pAdjacentPlot != NULL)
+							{
+								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
+								{
+									CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+									if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(pkAttacker->getTeam()))
+									{
+										CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+										pEnemyUnit->changeDamage(pkAttacker->getSplashDamage(), pkAttacker->getOwner(), 0.0, &strAppendText);
+									}
+								}
+							}
+						}
+					}
+#endif
+
 					// Defender died
 #if defined(MOD_UNITS_MAX_HP)
 					if(iDamage + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
@@ -3582,10 +3608,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	// Unit that attacks loses his Fort bonus
 	kAttacker.setFortifyTurns(0);
 
-	CvUnit* pDefender;
-	pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
-
-	// JAR - without pDefender, nothing in here is going to work, just crash
+	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
 	if(!pDefender)
 	{
 		return eResult;
@@ -4470,9 +4493,9 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldPlundered /= 100;
 
-			if(iGoldPlundered > pkDefender->getPopulation() * 100)
+			if(iGoldPlundered > pkDefender->getPopulation() * 500)
 			{
-				 iGoldPlundered = (pkDefender->getPopulation() * 100);
+				 iGoldPlundered = (pkDefender->getPopulation() * 500);
 			}
 #endif
 			GET_PLAYER(pkAttacker->getOwner()).GetTreasury()->ChangeGold(iGoldPlundered);

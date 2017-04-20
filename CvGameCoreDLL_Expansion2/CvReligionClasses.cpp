@@ -2123,6 +2123,26 @@ int CvGameReligions::GetNumCitiesFollowing(ReligionTypes eReligion) const
 	return iRtnValue;
 }
 
+int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	// Loop through each of their cities
+	int iLoop;
+	CvCity* pLoopCity;
+	for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+		{
+			iRtnValue++;
+		}
+	}
+	return iRtnValue;
+}
+
+
+
 /// Has this player created a religion?
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal) const
@@ -3308,7 +3328,7 @@ int CvGameReligions::GetFaithGreatPersonNumber(int iNum) const
 int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, PlayerTypes eWinningPlayer)
 {
 	int iRtnValue = 0;
-	int iMultiplier;
+	int iMultiplier = 0;
 	int iLoop;
 	CvCity* pLoopCity;
 
@@ -3329,7 +3349,19 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 			int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
 
 			// Do we have a yield from this?
-			iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			if (MOD_BALANCE_CORE_BELIEFS)
+			{
+				if (eReligion == GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(eWinningPlayer) || eReligion == GET_PLAYER(eWinningPlayer).GetReligions()->GetReligionInMostCities())
+					iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
+			}
+			else
+			{
+#endif
+				iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			}
+#endif
 			if(iMultiplier > 0)
 			{
 				// Just looking for one city providing this
@@ -5970,29 +6002,29 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				iGoldBonus /= 100;
 			}
 
-			if(iGoldBonus > 0)
+			if (eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetCurrentReligion(false) == eMajority)
 			{
-				GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
+				if (iGoldBonus > 0)
+				{
+					GET_PLAYER(eReligionController).GetTreasury()->ChangeGold(iGoldBonus);
 #if defined(MOD_BALANCE_CORE)
-				m_pCity->SetPaidAdoptionBonus(eMajority, true);
+					m_pCity->SetPaidAdoptionBonus(eMajority, true);
 #else
-				SetPaidAdoptionBonus(true);
+					SetPaidAdoptionBonus(true);
 #endif
 
-				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
+					if (eReligionController == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
 #if defined(SHOW_PLOT_POPUP)
-					SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
+						SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
 #else
-					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+						GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
 #endif
+					}
 				}
-			}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-			if(eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetCurrentReligion() == eMajority)
-			{
 				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
