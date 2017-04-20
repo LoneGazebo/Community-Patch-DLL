@@ -610,7 +610,6 @@ ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap.
 ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
 
-
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResourceQuantity' INTEGER DEFAULT 0;
@@ -654,6 +653,13 @@ ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
 -- Example: <GPExtra>1</GPExtra> in a unit's XML table will put all of its GPP into a unique meter and a faith buy track.
 
 -- Promotions
+
+ALTER TABLE UnitPromotions ADD 'MinimumRangeRequired' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'MaximumRangeRequired' INTEGER DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD 'SplashDamage' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
 

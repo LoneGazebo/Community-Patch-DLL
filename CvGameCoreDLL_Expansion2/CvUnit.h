@@ -576,7 +576,7 @@ public:
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false, bool bConsiderSplash = false) const;
 
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
@@ -783,6 +783,7 @@ public:
 	int roughRangedAttackModifier() const;
 	int attackFortifiedModifier() const;
 	int attackWoundedModifier() const;
+	int attackFullyHealedModifier() const;
 	int openDefenseModifier() const;
 	int roughDefenseModifier() const;
 	int terrainAttackModifier(TerrainTypes eTerrain) const;
@@ -953,6 +954,9 @@ public:
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
+
+	int getSplashDamage() const;
+	void changeSplashDamage(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1082,6 +1086,9 @@ public:
 
 	int getExtraAttackWoundedMod() const;
 	void changeExtraAttackWoundedMod(int iChange);
+
+	int getExtraAttackFullyHealedMod() const;
+	void changeExtraAttackFullyHealedMod(int iChange);
 
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
@@ -1733,6 +1740,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
+	FAutoVariable<int, CvUnit> m_iSplashDamage;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
@@ -1783,6 +1791,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraRoughRangedAttackMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackFortifiedMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackWoundedMod;
+	FAutoVariable<int, CvUnit> m_iExtraFullyHealedMod;
 	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
 	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
 	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;

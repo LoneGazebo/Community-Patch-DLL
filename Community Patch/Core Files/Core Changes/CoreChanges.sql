@@ -1,25 +1,7 @@
 -- Adjusted for Religion Spread Rework
 UPDATE Defines
-SET Value = '13'
+SET Value = '9'
 WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '30'
-WHERE Type = 'GAMESPEED_MARATHON';
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '50'
-WHERE Type = 'GAMESPEED_EPIC';
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '70'
-WHERE Type = 'GAMESPEED_STANDARD';
-
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '100'
-WHERE Type = 'GAMESPEED_QUICK';
-
 
 -- For CBO
 INSERT INTO Defines (Name, Value)

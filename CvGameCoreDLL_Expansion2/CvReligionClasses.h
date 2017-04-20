@@ -230,6 +230,7 @@ public:
 	int GetNumFollowers(ReligionTypes eReligion) const;
 #endif
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
+	int GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;
 #else

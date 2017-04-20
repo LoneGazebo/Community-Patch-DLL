@@ -2696,7 +2696,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">
-			<Text>Warscore must be above zero. Current Warscore: {1_Num}.</Text>
+			<Text>Warscore must be above 75. Current Warscore: {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT">
 			<Text>Cannot add to non-surrendering party in Peace Deal</Text>

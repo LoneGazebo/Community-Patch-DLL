@@ -65,6 +65,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iRoughRangedAttackMod(0),
 	m_iAttackFortifiedMod(0),
 	m_iAttackWoundedMod(0),
+	m_iAttackFullyHealedMod(0),
 	m_iFlankAttackModifier(0),
 	m_iNearbyEnemyCombatMod(0),
 	m_iNearbyEnemyCombatRange(0),
@@ -160,6 +161,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iCombatBonusFromNearbyUnitClass(NO_UNITCLASS),
 	m_iWonderProductionModifier(0),
 	m_iAOEDamageOnKill(0),
+	m_iSplashDamage(0),
+	m_iMinRange(0),
+	m_iMaxRange(0),
 	m_bMountainsDoubleMove(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -373,6 +377,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyUnitClassBonus = kResults.GetInt("NearbyUnitClassBonus");
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
 	m_iAOEDamageOnKill = kResults.GetInt("AOEDamageOnKill");
+	m_iSplashDamage = kResults.GetInt("SplashDamage");
+	m_iMinRange = kResults.GetInt("MinimumRangeRequired");
+	m_iMaxRange = kResults.GetInt("MaximumRangeRequired");
 	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -491,6 +498,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iRoughRangedAttackMod = kResults.GetInt("RoughRangedAttackMod");
 	m_iAttackFortifiedMod = kResults.GetInt("AttackFortifiedMod");
 	m_iAttackWoundedMod = kResults.GetInt("AttackWoundedMod");
+	m_iAttackFullyHealedMod = kResults.GetInt("AttackFullyHealedMod");
 	m_iFlankAttackModifier = kResults.GetInt("FlankAttackModifier");
 	m_iNearbyEnemyCombatMod = kResults.GetInt("NearbyEnemyCombatMod");
 	m_iNearbyEnemyCombatRange = kResults.GetInt("NearbyEnemyCombatRange");
@@ -1350,6 +1358,12 @@ int CvPromotionEntry::GetAttackWoundedMod() const
 	return m_iAttackWoundedMod;
 }
 
+int CvPromotionEntry::GetAttackFullyHealedMod() const
+{
+	return m_iAttackFullyHealedMod;
+}
+
+
 /// Accessor: Bonus when making a flank attack
 int CvPromotionEntry::GetFlankAttackModifier() const
 {
@@ -1817,6 +1831,18 @@ int CvPromotionEntry::GetWonderProductionModifier() const
 int CvPromotionEntry::GetAOEDamageOnKill() const
 {
 	return m_iAOEDamageOnKill;
+}
+int CvPromotionEntry::GetSplashDamage() const
+{
+	return m_iSplashDamage;
+}
+int CvPromotionEntry::GetMinRange() const
+{
+	return m_iMinRange;
+}
+int CvPromotionEntry::GetMaxRange() const
+{
+	return m_iMaxRange;
 }
 /// Accessor: Double movement in hills
 bool CvPromotionEntry::IsMountainsDoubleMove() const

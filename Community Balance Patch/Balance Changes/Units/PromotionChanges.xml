@@ -107,7 +107,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<CityAttack>10</CityAttack>
+			<AttackFullyHealedMod>10</AttackFullyHealedMod>
 			<PortraitIndex>0</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -121,7 +121,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<CityAttack>10</CityAttack>
+			<AttackFullyHealedMod>10</AttackFullyHealedMod>
 			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -135,7 +135,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<CityAttack>10</CityAttack>
+			<AttackFullyHealedMod>10</AttackFullyHealedMod>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -362,6 +362,7 @@
 			<PromotionPrereqOr3>PROMOTION_ACCURACY_3</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_BARRAGE_3</PromotionPrereqOr4>
 			<OrderPriority>7</OrderPriority>
+			<MinimumRangeRequired>2</MinimumRangeRequired>
 			<RangedAttackModifier>-10</RangedAttackModifier>
 			<RangeAttackIgnoreLOS>true</RangeAttackIgnoreLOS>
 			<PortraitIndex>35</PortraitIndex>
@@ -524,6 +525,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
+			<MinimumRangeRequired>2</MinimumRangeRequired>
 			<RangeChange>1</RangeChange>
 			<RangedAttackModifier>-20</RangedAttackModifier>
 			<PortraitIndex>34</PortraitIndex>
@@ -3228,7 +3230,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<AttackWoundedMod>25</AttackWoundedMod>
+			<AttackFullyHealedMod>25</AttackFullyHealedMod>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3241,7 +3243,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
-			<FreePillageMoves>true</FreePillageMoves>
+			<OutsideFriendlyLandsModifier>15</OutsideFriendlyLandsModifier>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3347,6 +3349,60 @@
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL</PediaEntry>
-		</Row>	
+		</Row>
+		<Row>
+			<Type>PROMOTION_SPLASH</Type>
+			<Description>TXT_KEY_PROMOTION_SPLASH</Description>
+			<Help>TXT_KEY_PROMOTION_SPLASH_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr6>PROMOTION_BARRAGE_2</PromotionPrereqOr6>
+			<OrderPriority>3</OrderPriority>
+			<SplashDamage>5</SplashDamage>
+			<PortraitIndex>11</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SPLASH</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SPLASH_II</Type>
+			<Description>TXT_KEY_PROMOTION_SPLASH_II</Description>
+			<Help>TXT_KEY_PROMOTION_SPLASH_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_SPLASH</PromotionPrereqOr1>
+			<OrderPriority>3</OrderPriority>
+			<SplashDamage>5</SplashDamage>
+			<PortraitIndex>12</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SPLASH_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_MOBILITY</Type>
+			<Description>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY</Description>
+			<Help>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<OrderPriority>7</OrderPriority>
+			<MaximumRangeRequired>1</MaximumRangeRequired>
+			<MovesChange>1</MovesChange>
+			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_POWER</Type>
+			<Description>TXT_KEY_PROMOTION_SKIRMISHER_POWER</Description>
+			<Help>TXT_KEY_PROMOTION_SKIRMISHER_POWER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<OrderPriority>7</OrderPriority>
+			<MaximumRangeRequired>1</MaximumRangeRequired>
+			<SplashDamage>5</SplashDamage>
+			<PortraitIndex>34</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_POWER</PediaEntry>
+		</Row>
 	</UnitPromotions>
 </GameData>

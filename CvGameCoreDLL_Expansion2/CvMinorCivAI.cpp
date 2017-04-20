@@ -11070,7 +11070,7 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 	CvPlot* pBestPlot = NULL;
 
 	int iWorldWidth = GC.getMap().getGridWidth();
-	iWorldWidth /= 3;
+	iWorldWidth /= 5;
 	
 	int iBestValue = 0;
 	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
@@ -16086,7 +16086,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	{
 		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -150);
+			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -75);
 			iScore += iBulliedVeryRecentlyScore;
 			if (sTooltipSink)
 			{
@@ -16096,9 +16096,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if(iLastBullyTurn + 20 >= GC.getGame().getGameTurn())
+		if (iLastBullyTurn + 20 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedRecentlyScore = (((iLastBullyTurn + 20) - (GC.getGame().getGameTurn())) * -100);
+			int iBulliedRecentlyScore = (((iLastBullyTurn + 20) - (GC.getGame().getGameTurn())) * -25);
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
 			{

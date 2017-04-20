@@ -351,6 +351,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(RoughRangedAttackModifier);
 	Method(AttackFortifiedModifier);
 	Method(AttackWoundedModifier);
+	Method(AttackFullyHealedModifier);
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
 	Method(TerrainAttackModifier);
@@ -3514,6 +3515,15 @@ int CvLuaUnit::lAttackWoundedModifier(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->attackWoundedModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lAttackFullyHealedModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->attackFullyHealedModifier();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
