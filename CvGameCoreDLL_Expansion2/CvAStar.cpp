@@ -919,6 +919,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	//use the flags mostly as provided
 	//destination will be handled later once we know whether we would like to end the turn here
 	//attack only applies to the true (non-approximate) destination or to any plot if we don't have a destination (reachable plots)
+	//the flag NO_ATTACKING is only evaluated when the move mission is executed so we don't leak information before the enemy becomes visible
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
 	if (bIsDestination)
 	{

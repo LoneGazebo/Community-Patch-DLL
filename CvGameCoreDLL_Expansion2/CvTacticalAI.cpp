@@ -7871,9 +7871,13 @@ bool CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget,
 	}
 	else
 	{
-		if (pUnit->GeneratePath(pTarget,iFlags | CvUnit::MOVEFLAG_IGNORE_DANGER))
+		//don't attack accidentally
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
+		iFlags |= CvUnit::MOVEFLAG_NO_ATTACKING;
+
+		if (pUnit->GeneratePath(pTarget,iFlags))
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags | CvUnit::MOVEFLAG_IGNORE_DANGER);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
 			bResult = true;
 
 			//for inspection in GUI
@@ -7953,52 +7957,17 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 	CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 	if (pUnit)
 	{
-		if (pUnit->IsCanAttackRanged())
-		{
-			TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
-		}
-		else
-		{
-			CvUnit *pEnemy = pUnit->plot()->GetAdjacentEnemyUnit(pUnit->getTeam(), pUnit->getDomainType());
-			if (pEnemy && TacticalAIHelpers::IsAttackNetPositive(pUnit, pEnemy->plot()))
-			{
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("In position for blockade %d, %d, but %s found an enemy unit to attack at X: %d, Y: %d",
-						pUnit->plot()->getX(), pUnit->plot()->getY(), pUnit->getName().GetCString(), pEnemy->plot()->getX(), pEnemy->plot()->getY());
-					LogTacticalMessage(strMsg);
-				}
-				TacticalAIHelpers::PerformOpportunityAttack(pUnit, pEnemy->plot());
-			}
-		}
-		if (pUnit->getMoves() > 0)
-		{
+		TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+
+		if (pUnit->canMove())
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);		
-		}
-		if (pUnit->getMoves() > 0)
-		{
-			if (pUnit->IsCanAttackRanged())
-			{
-				TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
-			}
-			else
-			{
-				CvUnit *pEnemy = pUnit->plot()->GetAdjacentEnemyUnit(pUnit->getTeam(), pUnit->getDomainType());
-				if (pEnemy && TacticalAIHelpers::IsAttackNetPositive(pUnit, pEnemy->plot()))
-				{
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("In position for blockade %d, %d, but %s found an enemy unit to attack at X: %d, Y: %d",
-							pUnit->plot()->getX(), pUnit->plot()->getY(), pUnit->getName().GetCString(), pEnemy->plot()->getX(), pEnemy->plot()->getY());
-						LogTacticalMessage(strMsg);
-					}
-					TacticalAIHelpers::PerformOpportunityAttack(pUnit, pEnemy->plot());
-				}
-			}
-		}
-		pUnit->pillage();
+
+		if (pUnit->canMove())
+			TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+
+		if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
 		pUnit->finishMoves();
 		UnitProcessed(m_CurrentMoveUnits[0].GetID());
 		pUnit->SetTacticalAIPlot(NULL);
@@ -9649,7 +9618,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return false;
 
 	//first try to move to an adjacent plot
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_NO_ATTACKING;
 	if (eDomain==pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 	int iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
@@ -9657,7 +9626,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	//if not possible, try again with more leeway
 	if (iTurns==INT_MAX)
 	{
-		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+		iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
 		if (eDomain==pTarget->getDomain())
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
@@ -10447,103 +10416,85 @@ void CvTacticalAI::PerformChosenMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_ChosenBlocks[iI].GetUnitID());
 
-		if(!pUnit->isDelayedDeath())
+		if(!pUnit->isDelayedDeath() && pUnit->canMove())
 		{
-#if defined(MOD_BALANCE_CORE)
-			TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
-#endif
-			if (pUnit->getMoves() > 0)
+			if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
 			{
-				if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Already in position, will pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-							m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-						LogTacticalMessage(strMsg);
-					}
-
+					CvString strMsg;
+					strMsg.Format("Already in position, will pillage with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+					LogTacticalMessage(strMsg);
 				}
-
-#if defined(MOD_BALANCE_CORE)
-				CvUnit *pEnemy = pUnit->plot()->GetAdjacentEnemyUnit(pUnit->getTeam(),pUnit->getDomainType());
-				if (pEnemy && TacticalAIHelpers::IsAttackNetPositive(pUnit,pEnemy->plot()))
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Already in position at %d, %d, but %s found an enemy unit to attack at X: %d, Y: %d", 
-							m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(), pUnit->getName().GetCString(), pEnemy->plot()->getX(), pEnemy->plot()->getY() );
-						LogTacticalMessage(strMsg);
-					}
-					TacticalAIHelpers::PerformOpportunityAttack(pUnit,pEnemy->plot());
-				}
-
-				//check neighboring plots if we can steal a civilian
-				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(pUnit->plot());
-				for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-				{
-					const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-					if (pNeighborPlot)
-					{
-						CvUnit* pUnit2 = pNeighborPlot->getUnitByIndex(0);
-						if(pUnit2 && pUnit2->IsCivilianUnit() && GET_TEAM(pUnit2->getTeam()).isAtWar(pUnit->getTeam()))
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighborPlot->getX(), pNeighborPlot->getY());
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strMsg;
-								strMsg.Format("Already in position at %d, %d, but %s found an enemy civilan to capture at X: %d, Y: %d", 
-									m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(), pUnit->getName().GetCString(), pNeighborPlot->getX(), pNeighborPlot->getY() );
-								LogTacticalMessage(strMsg);
-							}
-							break;
-						}
-					}
-				}
-#endif
-				if(pUnit->canFortify(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Already in position, will fortify with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-							m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-						LogTacticalMessage(strMsg);
-					}
-				}
-#if defined(MOD_BALANCE_CORE)
-				else if(pUnit->getDamage() > 0 && pUnit->canHeal(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_HEAL());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Already in position, will heal up with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-							m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-						LogTacticalMessage(strMsg);
-					}
-				}
-#endif
-				else
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Already in position, no move for %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-							m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-						LogTacticalMessage(strMsg);
-					}
-				}
-				pUnit->finishMoves();
 			}
-			UnitProcessed(pUnit->GetID());
+			//check neighboring plots if we can steal a civilian
+			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(pUnit->plot());
+			for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+			{
+				const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+				if (pNeighborPlot)
+				{
+					CvUnit* pUnit2 = pNeighborPlot->getUnitByIndex(0);
+					if(pUnit2 && pUnit2->IsCivilianUnit() && GET_TEAM(pUnit2->getTeam()).isAtWar(pUnit->getTeam()))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighborPlot->getX(), pNeighborPlot->getY());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Already in position at %d, %d, but %s found an enemy civilan to capture at X: %d, Y: %d", 
+								m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(), pUnit->getName().GetCString(), pNeighborPlot->getX(), pNeighborPlot->getY() );
+							LogTacticalMessage(strMsg);
+						}
+						break;
+					}
+				}
+			}
+
+			//see if we can hit an enemy
+			TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+
+			if(pUnit->canFortify(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Already in position, will fortify with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
+			else if(pUnit->getDamage() > 0 && pUnit->canHeal(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_HEAL());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Already in position, will heal up with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
+			else
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Already in position, no move for %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
+
+			pUnit->finishMoves();
 		}
+
+		UnitProcessed(pUnit->GetID());
 	}
 }
+
 /// Move a great general with an operation
 void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 {
@@ -11007,6 +10958,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 			int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 			CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 
+			//if an enemy unit is revealed in the course of the turn, this might return true incorrectly!
 			if (pCell->CanUseForOperationGathering())
 			{
 				bool bChoiceBombardSpot = false;
@@ -11740,8 +11692,22 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 //attack the target plot with the given unit if possible this turn
 bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pTargetPlot)
 {
-	if (!pUnit || !pTargetPlot)
+	if (!pUnit)
 		return false;
+
+	//no target given - see if we can find one
+	if (!pTargetPlot)
+	{
+		if (pUnit->IsCanAttackRanged())
+			return TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+		//melee, need to see if a target is adjacent - what to do if there are multiple targets?
+		CvUnit *pEnemy = pUnit->plot()->GetAdjacentEnemyUnit(pUnit->getTeam(), pUnit->getDomainType());
+		if (!pEnemy)
+			return false;
+
+		pTargetPlot = pEnemy->plot();
+	}
 
 	//target can be city or a unit
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
@@ -11795,23 +11761,42 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 		{
 			if (pUnit->canSetUpForRangedAttack(vBasePlots[0].pPlot))
 				pUnit->setSetUpForRangedAttack(true);
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Performing ranged opportunity attack on (%d:%d) with %s at (%d:%d)",
+					pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+				GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
+			}
+
 			pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
 		else
 			return false;
 	}
-	else //melee
+	else if (!pTargetCity && TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot)) //melee attack - not against cities
 	{
 		int iTurns = pUnit->TurnsToReachTarget( pTargetPlot, CvUnit::MOVEFLAG_ATTACK, 1);
 		if (iTurns <=1 )
 		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Performing melee opportunity attack on (%d:%d) with %s at (%d:%d)",
+					pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+				GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
+			}
+
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
 		else
 			return false;
 	}
+
+	return false;
 }
 
 //see if we can hit anything from our current plot - without moving
@@ -11860,6 +11845,14 @@ bool TacticalAIHelpers::PerformRangedAttackWithoutMoving(CvUnit* pUnit)
 
 	if (pBestTarget)
 	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Performing ranged opportunity attack on (%d:%d) with %s at (%d:%d)",
+				pBestTarget->getX(), pBestTarget->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
+		}
+
 		pUnit->PushMission(bIsAirUnit ? CvTypes::getMISSION_MOVE_TO() : CvTypes::getMISSION_RANGE_ATTACK(), pBestTarget->getX(), pBestTarget->getY());
 		return true;
 	}

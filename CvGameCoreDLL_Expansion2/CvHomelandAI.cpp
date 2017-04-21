@@ -3738,7 +3738,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		}
 
 		//if we made an opportunity attack, we're done
-		if(!pUnit->canMove() || pUnit->isOutOfAttacks())
+		if(!pUnit->canMove())
 		{
 			UnitProcessed(pUnit->GetID());
 			continue;
@@ -3777,7 +3777,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		if(pBestPlot && pBestPlot != pUnit->plot())
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 
+				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING,
+				false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			// Only mark as done if out of movement - we'll do a second pass later
 			if (!pUnit->canMove())
@@ -8294,7 +8296,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return true;
 	}
 
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
 	if (eDomain == pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 
