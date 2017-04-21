@@ -6287,6 +6287,16 @@ void CvTacticalAI::UpdateTargetScores()
 	TacticalList::iterator it;
 	for(it = m_AllTargets.begin(); it != m_AllTargets.end(); ++it)
 	{
+		CvPlot* pPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
+
+		//try to attack units close to us first
+		if (pPlot->IsFriendlyUnitAdjacent(m_pPlayer->getTeam(), true))
+			it->SetAuxIntData(it->GetAuxIntData() + 8);
+
+		//try to attack units close to our cities first
+		if (m_pPlayer->GetCityDistanceInPlots(pPlot)<4)
+			it->SetAuxIntData(it->GetAuxIntData() + 3);
+
 		if(it->GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
 		{
 			//initially all targets were low prio, if it's higher now we give it a boost
@@ -13999,7 +14009,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
 
 	vector<CvTacticalPosition*> openPositionsHeap;
-	vector<CvTacticalPosition*> closedPositions;
+	vector<CvTacticalPosition*> finishedPositions;
 	vector<CvTacticalPosition*> discardedPositions;
 
 	//don't need to call make_heap for a single element
@@ -14022,7 +14032,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	};
 
 	int iMaxAssignmentsPerBranch = max(ourUnits.size() / 3, 1u);
-	while (!openPositionsHeap.empty() && (int)closedPositions.size()<iMaxFinishedPositions)
+	while (!openPositionsHeap.empty() && (int)finishedPositions.size()<iMaxFinishedPositions)
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
@@ -14036,9 +14046,9 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 				push_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 			}
 		}
-		//is this a completed position or did we run into a dead end?
-		else if (current->isComplete() && current->isOffensive())
-			closedPositions.push_back(current);
+		//if we cannot add further moves, throw away positions without offensive moves
+		else if (current->isOffensive())
+			finishedPositions.push_back(current);
 		else
 			discardedPositions.push_back(current);
 
@@ -14049,16 +14059,13 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		}
 	}
 
-	if (closedPositions.empty())
-		closedPositions = discardedPositions;
-
-	if (!closedPositions.empty())
+	if (!finishedPositions.empty())
 	{
-		sort(closedPositions.begin(), closedPositions.end(), PrPositionIsBetter());
-		result = closedPositions.front()->getAssignments();
+		sort(finishedPositions.begin(), finishedPositions.end(), PrPositionIsBetter());
+		result = finishedPositions.front()->getAssignments();
 
 		if (0)
-			closedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+			finishedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
 
 	//debugging
@@ -14074,7 +14081,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 
 	//this deletes the whole tree with all child positions
 	delete initialPosition;
-	return !closedPositions.empty();
+	return !finishedPositions.empty();
 }
 
 bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments)
