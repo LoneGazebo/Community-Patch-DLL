@@ -3355,7 +3355,7 @@
 			<Description>TXT_KEY_PROMOTION_SPLASH</Description>
 			<Help>TXT_KEY_PROMOTION_SPLASH_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr6>PROMOTION_BARRAGE_2</PromotionPrereqOr6>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
 			<OrderPriority>3</OrderPriority>
 			<SplashDamage>5</SplashDamage>
 			<PortraitIndex>11</PortraitIndex>

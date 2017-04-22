@@ -27139,6 +27139,10 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	if ( !bIsEnemyCity && !pBestDefender )
 		return 0;
 
+	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
+	if (iFlags & MOVEFLAG_NO_ATTACKING)
+		return -1;
+
 	//can we even attack?
 	if(!IsCanAttackWithMove() || isOutOfAttacks())
 		return -1;
