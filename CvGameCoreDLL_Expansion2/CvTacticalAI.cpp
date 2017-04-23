@@ -10444,7 +10444,7 @@ void CvTacticalAI::PerformChosenMoves()
 			for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 			{
 				const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-				if (pNeighborPlot)
+				if (pNeighborPlot && !pNeighborPlot->isCity())
 				{
 					CvUnit* pUnit2 = pNeighborPlot->getUnitByIndex(0);
 					if(pUnit2 && pUnit2->IsCivilianUnit() && GET_TEAM(pUnit2->getTeam()).isAtWar(pUnit->getTeam()))
@@ -11936,7 +11936,13 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-		if(!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION ))
+
+		// allow capturing civilians!
+		if (!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_ATTACK))
+			continue;
+
+		// don't attack though
+		if (pPlot->getNumVisibleEnemyDefenders(pUnit) > 0)
 			continue;
 
 		//   prefer being in a city with the lowest danger value

@@ -26982,22 +26982,9 @@ bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 		for (size_t iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
 		{
 			CvPathNode& kNode = m_kLastPath[iIndex];
-			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
+			CvPlot* pkPlot = kMap.plot(kNode.m_iX, kNode.m_iY);
 			if (pkPlot && !pkPlot->isVisible(eTeam))
-			{
 				kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
-				if (iIndex > 0)
-					m_kLastPath[iIndex-1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
-
-				// Also determine the destination visibility.  
-				// This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
-				// This will help a unit to stop early in its pathing if the destination is blocked.
-				CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
-				if (pkPathDest != NULL && !pkPathDest->isVisible(eTeam))
-					m_kLastPath.back().SetFlag(CvPathNode::PLOT_INVISIBLE);
-
-				break;	// Anything after is 'in the dark' and should be re-evaluated if trying to move a unit into it.
-			}
 		}
 	}
 
@@ -27042,9 +27029,10 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 
 		bHaveValidPath = canMoveInto(*pkNextPlot,iModifiedFlags);
 
+		//AI chugs along, human gets a chance to reconsider
 		//don't recompute for the destination plot because it's pointless and because it could succeed 
 		//(the pathfinder dynamically sets the attack flag for the destination)
-		if (!bHaveValidPath && pkNextPlot!=pDestPlot)
+		if (!bHaveValidPath && pkNextPlot!=pDestPlot && !GET_PLAYER(m_eOwner).isHuman())
 			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
 	}
 	else
