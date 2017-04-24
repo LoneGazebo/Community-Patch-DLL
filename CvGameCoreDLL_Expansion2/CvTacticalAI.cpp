@@ -12717,6 +12717,10 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		//temporary score
 		result.iScore = iDamageScore + iDistanceScore;
 
+		//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
+		if (pCurrentPlot->isHills() || pCurrentPlot->isMountain())
+			result.iScore++;
+
 		//does it make sense to pillage here?
 		if (result.eType == STacticalAssignment::A_ENDTURN && unit.iMovesLeft > 0 && 
 			pUnit->canPillage(pAssumedUnitPlot) && pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT())
@@ -13718,16 +13722,30 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		rangeAttackPlotLookup[itUnit->iUnitID] = set<int>();
 	}
 
-	//finally
+	//finally store it
 	assignedMoves.push_back(newAssignment);
-	iTotalScore += newAssignment.iScore;
+	//intermediate moves don't affect the score
+	if (newAssignment.eType != STacticalAssignment::A_MOVE)
+		iTotalScore += newAssignment.iScore;
 
-	//can we do further moves?
+	//are we done or can we do further moves with this unit?
 	if (iUnitEndTurnPlot>0)
 	{
-		availableUnits.erase( itUnit );
+		if (newAssignment.eType != STacticalAssignment::A_BLOCKED)
+		{
+			//since we will end the turn here, add the score of the position to the total
+			int iEndTurnScore = newAssignment.bIsCombat ?
+				ScorePlotForCombatUnit(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore :
+				ScorePlotForSupportUnit(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
+			iTotalScore += iEndTurnScore;
+		}
+
+		//add an explicit end turn if necessary
 		if (newAssignment.eType != STacticalAssignment::A_ENDTURN && newAssignment.eType != STacticalAssignment::A_BLOCKED)
-			assignedMoves.push_back( STacticalAssignment(iUnitEndTurnPlot,iUnitEndTurnPlot,newAssignment.iUnitID,0,newAssignment.bIsCombat,0,STacticalAssignment::A_ENDTURN) );
+			assignedMoves.push_back(STacticalAssignment(iUnitEndTurnPlot, iUnitEndTurnPlot, newAssignment.iUnitID, 0, newAssignment.bIsCombat, 0, STacticalAssignment::A_ENDTURN));
+
+		//now we can invalidate the iterator!
+		availableUnits.erase( itUnit );
 	}
 
 	return true;
