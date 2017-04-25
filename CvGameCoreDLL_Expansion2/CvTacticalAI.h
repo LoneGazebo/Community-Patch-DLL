@@ -789,9 +789,6 @@ private:
 	// Internal turn update routines - commandeered unit processing
 	void UpdatePostures();
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
-#if defined(MOD_BALANCE_CORE)
-	AITacticalPosture SelectNavalPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
-#endif
 	void EstablishTacticalPriorities();
 	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();

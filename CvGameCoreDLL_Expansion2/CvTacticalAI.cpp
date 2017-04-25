@@ -617,9 +617,9 @@ CvCity* CvTacticalAI::GetNearestTargetCity(CvPlot* pPlot)
 				int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), pPlot->getX(), pPlot->getY());
 				iValue -= (iDistance * 3);
 
-				if(pZone->GetFriendlyStrength() > 0)
+				if(pZone->GetOverallFriendlyStrength() > 0)
 				{
-					iValue += pZone->GetFriendlyStrength();
+					iValue += pZone->GetOverallFriendlyStrength();
 				}
 				if(IsTemporaryZoneCity(pClosestCity))
 				{
@@ -851,18 +851,7 @@ void CvTacticalAI::UpdatePostures()
 			}
 
 			eLastPosture = FindPosture(pZone);
-#if defined(MOD_BALANCE_CORE)
-			if (pZone->IsWater())
-			{
-				eNewPosture = SelectNavalPosture(pZone, eLastPosture);
-			}
-			else
-			{
-#endif
-				eNewPosture = SelectPosture(pZone, eLastPosture);
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
+			eNewPosture = SelectPosture(pZone, eLastPosture);
 			newPostures.push_back(CvTacticalPosture(pZone->GetOwner(), pZone->IsWater(), iCityID, eNewPosture));
 
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
@@ -911,54 +900,16 @@ void CvTacticalAI::UpdatePostures()
 }
 
 /// Select a posture for a specific zone
-AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture)
+AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture /*eLastPosture*/)
 {
 	AITacticalPosture eChosenPosture = AI_TACTICAL_POSTURE_NONE;
+	if (!pZone)
+		return eChosenPosture;
+
 	int iDominancePercentage = GetTacticalAnalysisMap()->GetDominancePercentage();
-	eTacticalDominanceFlags eRangedDominance = TACTICAL_DOMINANCE_EVEN;
-	eTacticalDominanceFlags eUnitCountDominance = TACTICAL_DOMINANCE_EVEN;
-	int iRatio;
-
-	// Compute who is dominant in various areas
-	//   Ranged strength
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if (((pZone->GetEnemyRangedStrength() <= 0) || (pZone->GetEnemyRangedUnitCount() <= 0)) && ((pZone->GetFriendlyRangedStrength() > 0) || (pZone->GetFriendlyRangedUnitCount() > 0)))
-#else
-	if(pZone->GetEnemyRangedStrength() <= 0)
-#endif
-	{
-		eRangedDominance = TACTICAL_DOMINANCE_FRIENDLY;
-	}
-	else
-	{
-		iRatio = (pZone->GetFriendlyRangedStrength() * 100) / max(1, pZone->GetEnemyRangedStrength());
-		if(iRatio > 100 + iDominancePercentage)
-		{
-			eRangedDominance = TACTICAL_DOMINANCE_FRIENDLY;
-		}
-		else if(iRatio < 100 - iDominancePercentage)
-		{
-			eRangedDominance = TACTICAL_DOMINANCE_ENEMY;
-		}
-	}
-
-	//   Number of units
-	if(pZone->GetEnemyUnitCount() <= 0 && pZone->GetFriendlyUnitCount() > 0)
-	{
-		eUnitCountDominance = TACTICAL_DOMINANCE_FRIENDLY;
-	}
-	else
-	{
-		iRatio = (pZone->GetFriendlyUnitCount()  * 100) / max(1, pZone->GetEnemyUnitCount());
-		if(iRatio > 100 + iDominancePercentage)
-		{
-			eUnitCountDominance = TACTICAL_DOMINANCE_FRIENDLY;
-		}
-		else if(iRatio < 100 - iDominancePercentage)
-		{
-			eUnitCountDominance = TACTICAL_DOMINANCE_ENEMY;
-		}
-	}
+	eTacticalDominanceFlags eOverallDominance = pZone->GetOverallDominanceFlag(); //this one is precomputed
+	eTacticalDominanceFlags eRangedDominance = pZone->IsWater() ? pZone->GetNavalRangedDominanceFlag(iDominancePercentage) : pZone->GetRangedDominanceFlag(iDominancePercentage);
+	//eTacticalDominanceFlags eUnitCountDominance = pZone->IsWater() ? pZone->GetNavalUnitCountDominanceFlag(iDominancePercentage) : pZone->GetUnitCountDominanceFlag(iDominancePercentage);
 
 	// Choice based on whose territory this is
 	switch(pZone->GetTerritoryType())
@@ -966,329 +917,31 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	case TACTICAL_TERRITORY_ENEMY:
 	case TACTICAL_TERRITORY_TEMP_ZONE:
 	{
-		bool bTemporaryZone = false;
+		// Default for this zone
+		eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+
 		CvCity *pClosestCity = pZone->GetZoneCity();
 
-		// Always push again for a few turns after each operation reaches destination
-		if (pClosestCity)
+		// Temporary zone: Attack if possible, if defenses are strong try to wear them down first
+		if (pClosestCity && IsTemporaryZoneCity(pClosestCity))
 		{
-			bTemporaryZone = IsTemporaryZoneCity(pClosestCity);
+			eChosenPosture = (eOverallDominance == TACTICAL_DOMINANCE_ENEMY) ? AI_TACTICAL_POSTURE_SIT_AND_BOMBARD : AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
 		}
-		// Withdraw if enemy dominant overall or we have nothing but ranged left
-		if (!bTemporaryZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyRangedUnitCount() == pZone->GetFriendlyUnitCount()))
+		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
+		else if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || (pZone->GetEnemyMeleeUnitCount()>0 && pZone->GetFriendlyRangedStrength()>pZone->GetFriendlyMeleeStrength()))
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
-		}
-		// Temporary zone: want Steamroll or Surgical Strike so we close in on city
-		else if (bTemporaryZone)
-		{
-			if (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-			}
-			else
-			{
+			//try to grab it ...
+			if (pClosestCity && pClosestCity->isInDangerOfFalling())
 				eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-			}
-		}
-
-		// Destroy units then assault - for first time need dominance in total strength but not enemy dominance in ranged units OR just double total strength
-		else if(pZone->GetEnemyUnitCount() > 0 && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY &&
-		        (eRangedDominance != TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() * 2))
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_STEAMROLL && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-		}
-
-		// Sit and bombard - for first time need dominance in ranged strength and total unit count
-#if defined(MOD_BALANCE_CORE)
-		//We need to have plenty of ranged units in order for this to make sense.
-		else if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetFriendlyRangedStrength() >= (pZone->GetFriendlyStrength() / 2))
-#else
-		else if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
-#endif
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-#if defined(MOD_BALANCE_CORE)
-		//We need to have plenty of ranged units in order for this to make sense.
-		else if(eLastPosture == AI_TACTICAL_POSTURE_SIT_AND_BOMBARD && eRangedDominance != TACTICAL_DOMINANCE_ENEMY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetFriendlyRangedStrength() >= (pZone->GetFriendlyStrength() / 2))
-#else
-		else if(eLastPosture == AI_TACTICAL_POSTURE_SIT_AND_BOMBARD && eRangedDominance != TACTICAL_DOMINANCE_ENEMY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
-#endif
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-		}
-
-		// Go right after the city - need tactical dominance
-		else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-		}
-
-		// Exploit flanks - for first time need dominance in unit count
-		else if(eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyUnitCount() > 1)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_EXPLOIT_FLANKS && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyUnitCount() > 1)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		// Default for this zone
-		else
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-		break;
-	}
-
-	case TACTICAL_TERRITORY_NEUTRAL:
-	case TACTICAL_TERRITORY_NO_OWNER:
-	{
-		if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE && eRangedDominance != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		// Exploit flanks - for first time need dominance in unit count
-		else if(eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_EXPLOIT_FLANKS && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		// Default for this zone
-		else
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-		break;
-	}
-	case TACTICAL_TERRITORY_FRIENDLY:
-	{
-#if defined(MOD_BALANCE_CORE)
-		if(m_pPlayer->isMinorCiv())
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-		}
-		else if(eLastPosture == AI_TACTICAL_POSTURE_HEDGEHOG && pZone->GetEnemyUnitCount() >= pZone->GetFriendlyUnitCount())
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-		}
-		else
-#endif
-		if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetFriendlyRangedUnitCount() > pZone->GetFriendlyMeleeUnitCount())
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE && pZone->GetFriendlyRangedUnitCount() > pZone->GetEnemyRangedUnitCount() && eRangedDominance != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		// Exploit flanks - for first time need dominance in unit count
-		else if(eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_EXPLOIT_FLANKS && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		else if (eUnitCountDominance >= TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-		}	
-
-		// Counterattack - for first time must be stronger or even with enemy having a ranged advantage
-		else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY ||
-		        pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_EVEN && eRangedDominance == TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_COUNTERATTACK && pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-		}
-
-		// Default for this zone
-		else
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-		}
-		break;
-	}
-	}
-
-	return eChosenPosture;
-}
-#if defined(MOD_BALANCE_CORE)
-//Postures for naval zones!
-AITacticalPosture CvTacticalAI::SelectNavalPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture)
-{
-	AITacticalPosture eChosenPosture = AI_TACTICAL_POSTURE_NONE;
-	int iDominancePercentage = GetTacticalAnalysisMap()->GetDominancePercentage();
-	eTacticalDominanceFlags eRangedDominance = TACTICAL_DOMINANCE_EVEN;
-	eTacticalDominanceFlags eUnitCountDominance = TACTICAL_DOMINANCE_EVEN;
-	int iRatio;
-
-	// Compute who is dominant in various areas
-	//   Ranged strength
-	if ((pZone->GetEnemyNavalRangedStrength() <= 0) && (pZone->GetFriendlyNavalRangedStrength() > 0))
-	{
-		eRangedDominance = TACTICAL_DOMINANCE_FRIENDLY;
-	}
-	else
-	{
-		iRatio = (pZone->GetFriendlyNavalRangedStrength() * 100) / max(1, pZone->GetEnemyNavalRangedStrength());
-		if (iRatio > 100 + iDominancePercentage)
-		{
-			eRangedDominance = TACTICAL_DOMINANCE_FRIENDLY;
-		}
-		else if (iRatio < 100 - iDominancePercentage)
-		{
-			eRangedDominance = TACTICAL_DOMINANCE_ENEMY;
-		}
-	}
-
-	//   Number of units
-	if (pZone->GetEnemyNavalUnitCount() <= 0 && pZone->GetFriendlyNavalUnitCount() > 0)
-	{
-		eUnitCountDominance = TACTICAL_DOMINANCE_FRIENDLY;
-	}
-	else
-	{
-		iRatio = (pZone->GetFriendlyNavalUnitCount() * 100) / max(1, pZone->GetEnemyNavalUnitCount());
-		if (iRatio > 100 + iDominancePercentage)
-		{
-			eUnitCountDominance = TACTICAL_DOMINANCE_FRIENDLY;
-		}
-		else if (iRatio < 100 - iDominancePercentage)
-		{
-			eUnitCountDominance = TACTICAL_DOMINANCE_ENEMY;
-		}
-		else
-		{
-			eUnitCountDominance = TACTICAL_DOMINANCE_EVEN;
-		}
-	}
-
-	// Choice based on whose territory this is
-	switch (pZone->GetTerritoryType())
-	{
-	case TACTICAL_TERRITORY_ENEMY:
-	case TACTICAL_TERRITORY_TEMP_ZONE:
-	{
-		bool bTemporaryZone = false;
-		CvCity *pClosestCity = pZone->GetZoneCity();
-
-		// Always push again for a few turns after each operation reaches destination
-		if (pClosestCity)
-		{
-			bTemporaryZone = IsTemporaryZoneCity(pClosestCity);
-		}
-		// Withdraw if enemy dominant overall or we have nothing but ranged left
-		if (!bTemporaryZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyNavalRangedStrength() == pZone->GetFriendlyNavalUnitCount()))
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
-		}
-		// Temporary zone: want Steamroll or Surgical Strike so we close in on city
-		else if (bTemporaryZone)
-		{
-			if (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-			}
 			else
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-			}
+				eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 		}
-
-		// Destroy units then assault - for first time need dominance in total strength but not enemy dominance in ranged units OR just double total strength
-		else if (pZone->GetEnemyNavalUnitCount() > 0 && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY &&
-			(eRangedDominance != TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyNavalStrength() > pZone->GetEnemyNavalStrength() * 2))
+		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+			//if we have ranged dominance, keep our risk lower
+			eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_STEAMROLL && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyNavalUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-		}
-
-		// Sit and bombard - for first time need dominance in ranged strength and total unit count
-#if defined(MOD_BALANCE_CORE)
-		//We need to have plenty of ranged units in order for this to make sense.
-		else if (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetFriendlyNavalRangedStrength() >= (pZone->GetFriendlyNavalStrength() / 2))
-#else
-		else if (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
-#endif
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-#if defined(MOD_BALANCE_CORE)
-		//We need to have plenty of ranged units in order for this to make sense.
-		else if (eLastPosture == AI_TACTICAL_POSTURE_SIT_AND_BOMBARD && eRangedDominance != TACTICAL_DOMINANCE_ENEMY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetFriendlyNavalRangedStrength() >= (pZone->GetFriendlyNavalStrength() / 2))
-#else
-		else if (eLastPosture == AI_TACTICAL_POSTURE_SIT_AND_BOMBARD && eRangedDominance != TACTICAL_DOMINANCE_ENEMY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
-#endif
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
-		}
-
-		// Go right after the city - need tactical dominance
-		else if (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
-		}
-
-		// Exploit flanks - for first time need dominance in unit count
-		else if (eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyNavalUnitCount() > 1)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_EXPLOIT_FLANKS && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyNavalUnitCount() > 1)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		// Default for this zone
-		else
+		else if (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 		}
@@ -1298,85 +951,36 @@ AITacticalPosture CvTacticalAI::SelectNavalPosture(CvTacticalDominanceZone* pZon
 	case TACTICAL_TERRITORY_NEUTRAL:
 	case TACTICAL_TERRITORY_NO_OWNER:
 	{
-		if (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE && eRangedDominance != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		// Exploit flanks - for first time need dominance in unit count
-		else if (eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyNavalUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_EXPLOIT_FLANKS && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyNavalUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
 		// Default for this zone
-		else
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
+		eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+
+		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY)
+			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+
 		break;
 	}
 	case TACTICAL_TERRITORY_FRIENDLY:
 	{
-		if (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetFriendlyNavalRangedStrength() > pZone->GetFriendlyNavalStrength())
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE && pZone->GetFriendlyNavalRangedStrength() > pZone->GetEnemyNavalRangedStrength() && eRangedDominance != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
-		}
-
-		// Exploit flanks - for first time need dominance in unit count
-		else if (eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyNavalUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_EXPLOIT_FLANKS && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetEnemyNavalUnitCount() > 0)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
-
-		// Counterattack - for first time must be stronger or even with enemy having a ranged advantage
-		else if (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY ||
-			pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_EVEN && eRangedDominance == TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-		}
-
-		//                 - less stringent if continuing this from a previous turn
-		else if (eLastPosture == AI_TACTICAL_POSTURE_COUNTERATTACK && pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_ENEMY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-		}
-
 		// Default for this zone
-		else
+		eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+
+		if(eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 		}
+		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
+		{
+			//if we have ranged dominance, keep our risk lower
+			eChosenPosture = (eRangedDominance==TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+		}
+
 		break;
 	}
 	}
+
 	return eChosenPosture;
 }
-#endif
+
 /// Find last posture for a specific zone
 AITacticalPosture CvTacticalAI::FindPosture(CvTacticalDominanceZone* pZone)
 {
@@ -1656,7 +1260,7 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 				// ... undefended camp? But just because there's no visible defender doesn't mean it's undefended
-				else if (pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !m_pPlayer->isMinorCiv())
+				else if (pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !m_pPlayer->isMinorCiv())
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
 
@@ -2088,7 +1692,7 @@ void CvTacticalAI::ProcessDominanceZones()
 						CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 						//no units -> nothing to do
-						if (pZone->GetFriendlyStrength()+pZone->GetFriendlyRangedStrength()==0)
+						if (pZone->GetOverallFriendlyStrength()+pZone->GetFriendlyRangedStrength()==0)
 							continue;
 
 						AITacticalPosture ePosture = FindPosture(pZone);
@@ -2113,11 +1717,11 @@ void CvTacticalAI::ProcessDominanceZones()
 						{
 							bMatch = true;
 						}
-						else if(pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && strMoveName == "TACTICAL_EMERGENCY_PURCHASES")
+						else if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && strMoveName == "TACTICAL_EMERGENCY_PURCHASES")
 						{
 							bMatch = true;
 						}
-						else if(pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && strMoveName == "TACTICAL_DEFENSIVE_AIRLIFT")
+						else if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && strMoveName == "TACTICAL_DEFENSIVE_AIRLIFT")
 						{
 							bMatch = true;
 						}
@@ -2539,7 +2143,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			CvCity* pCity = pPlot->getPlotCity();
 
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !pCity->isInDangerOfFalling())
+			if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !pCity->isInDangerOfFalling())
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2633,7 +2237,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				continue;
 			}
 
-			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
+			if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2652,7 +2256,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			}
 
 			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
-			if (pZone && pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !IsTemporaryZoneCity(pCity) && 
+			if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !IsTemporaryZoneCity(pCity) && 
 				!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),4,2))
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -2758,7 +2362,7 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 				continue;
 			}
 
-			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
+			if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -3643,15 +3247,27 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		if (pGarrison && pGarrison->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		{
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
-			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
+			for (int i=RING0_PLOTS; i<RING2_PLOTS; i++)
 			{
 				CvPlot* pNeighbor = iterateRingPlots( pPlot,i ); //todo: randomize order? but the chance of multiple potential victims is low
 				if (pNeighbor)
 				{
 					CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pGarrison,true);
+
 					//attacker will not advance ...
-					if (pEnemy && TacticalAIHelpers::KillUnitIfPossible(pGarrison, pEnemy))
+					if (pEnemy && i<RING1_PLOTS && TacticalAIHelpers::KillUnitIfPossible(pGarrison, pEnemy))
 						break;
+
+					//can we maybe capture a lone civilian
+					if (!pEnemy && pNeighbor->isVisibleEnemyUnit(m_pPlayer->GetID()) &&
+						pGarrison->TurnsToReachTarget(pNeighbor, 0, 1) < 2 &&
+						pGarrison->GetDanger(pNeighbor) == 0 &&
+						pGarrison->GetDanger() == 0 &&
+						pCity->getDamage() == 0)
+					{
+						pGarrison->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighbor->getX(), pNeighbor->getY());
+						break;
+					}
 				}
 			}
 
@@ -3841,7 +3457,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 					int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, m_iRecruitRange, false/*bCountFighters*/, true/*bCountBombers*/);
 
 					// On a carrier or in a city where we are not dominant and near some enemy bombers?
-					if (!pCity || !pZone || pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+					if (!pCity || !pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 					{
 						if (iNumNearbyBombers > 0)
 						{
@@ -3903,7 +3519,7 @@ void CvTacticalAI::PlotAirSweepMoves()
 				if (pCity)
 					pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 
-				if (!pCity || !pZone || pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				if (!pCity || !pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 				{
 					unit.SetID(pUnit->GetID());
 					m_CurrentMoveUnits.push_back(unit);
@@ -4470,7 +4086,7 @@ void CvTacticalAI::PlotShoreBombardmentMoves()
 void CvTacticalAI::PlotCloseOnTarget(bool bCheckDominance)
 {
 	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
-	if (bCheckDominance && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+	if (bCheckDominance && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 	{
 		return;
 	}
@@ -4493,7 +4109,7 @@ void CvTacticalAI::PlotCloseOnTarget(bool bCheckDominance)
 
 		// If we can't see the city, be careful advancing on it.  We want to be sure we're not heavily outnumbered
 		//Exception for temporary targets - we need to press the offensive here.
-		if(IsTemporaryZoneCity(pZone->GetZoneCity()) || bCanSeeCity || pZone->GetFriendlyStrength()*3 > pZone->GetEnemyStrength()*2)
+		if(IsTemporaryZoneCity(pZone->GetZoneCity()) || bCanSeeCity || pZone->GetOverallFriendlyStrength()*3 > pZone->GetOverallEnemyStrength()*2)
 		{
 			target.SetTargetType(AI_TACTICAL_TARGET_CITY);
 			target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
@@ -6750,7 +6366,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		last = remove_if( choices.begin(), choices.end(), PrPlotMatch(next.pPlot) ); choices.erase(last,choices.end());
 		last = remove_if( choices.begin(), choices.end(), PrUnitMatch(next.pUnit) ); choices.erase(last,choices.end());
 
-		next.pUnit->PushMission( CvTypes::getMISSION_MOVE_TO(), next.pPlot->getX(), next.pPlot->getY(), next.bAttack ? CvUnit::MOVEFLAG_ATTACK : 0 );
+		next.pUnit->PushMission( CvTypes::getMISSION_MOVE_TO(), next.pPlot->getX(), next.pPlot->getY() );
 		if (!next.pUnit->canMove()) //not all units end their turn after disembark - they can still be used for other moves!
 			UnitProcessed(next.pUnit->GetID());
 	}
@@ -7321,6 +6937,16 @@ void CvTacticalAI::ExecuteHeals()
 				}
 			}
 
+			//ranged attack before fleeing
+			if (pUnit->isRanged())
+				for (int i = 1; i < RING1_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pUnit->plot(), i);
+
+					if (pLoopPlot && pLoopPlot->isEnemyUnit(pUnit->getOwner(), true, true))
+						pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pLoopPlot->getX(), pLoopPlot->getY());
+				}
+
 			//find a suitable spot for healing
 			if (pUnit->getDomainType()==DOMAIN_LAND)
 			{
@@ -7328,25 +6954,18 @@ void CvTacticalAI::ExecuteHeals()
 				if (pUnit->GetDanger()>0 && !pUnit->isEmbarked() && !pUnit->IsGarrisoned())
 				{
 					//unless we can eliminate the danger!
-					bool bFlee = true;
 					std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
-					if (vAttackers.size()==1)
+					if (vAttackers.size()==1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
 					{
-						//try to turn the tables on him
-						if (TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
+						if(GC.getLogging() && GC.getAILogging())
 						{
-							bFlee = false;
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d", 
-									pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
-								LogTacticalMessage(strLogString);
-							}
+							CvString strLogString;
+							strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d", 
+								pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
+							LogTacticalMessage(strLogString);
 						}
 					}
-
-					if (bFlee)
+					else //flee
 					{
 						//todo: allow suitably occupied plots here and do a swap
 						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
@@ -7389,19 +7008,34 @@ void CvTacticalAI::ExecuteHeals()
 			{
 				if (pUnit->GetDanger()>0 || !pUnit->canHeal(pUnit->plot()))
 				{
-					//find a friendly sea tile
-					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,true);
-					if (!pBetterPlot)
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,false);
-					if (!pBetterPlot || pBetterPlot==pUnit->plot())
+					std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
+					//try to turn the tables on him
+					if (vAttackers.size() == 1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
 					{
-						if (pUnit->canHeal(pUnit->plot()))
-							pUnit->PushMission(CvTypes::getMISSION_HEAL());
-						else
-							pUnit->PushMission(CvTypes::getMISSION_SKIP());
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d",
+								pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
+							LogTacticalMessage(strLogString);
+						}
 					}
 					else
-						ExecuteMoveToPlotIgnoreDanger( pUnit, pBetterPlot );
+					{
+						//find a friendly sea tile
+						pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, true);
+						if (!pBetterPlot)
+							pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, false);
+						if (!pBetterPlot || pBetterPlot == pUnit->plot())
+						{
+							if (pUnit->canHeal(pUnit->plot()))
+								pUnit->PushMission(CvTypes::getMISSION_HEAL());
+							else
+								pUnit->PushMission(CvTypes::getMISSION_SKIP());
+						}
+						else
+							ExecuteMoveToPlotIgnoreDanger(pUnit, pBetterPlot);
+					}
 				}
 				else if (pUnit->canHeal(pUnit->plot()))
 				{
@@ -10100,18 +9734,16 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 /// Am I within range of an enemy?
 bool CvTacticalAI::NearVisibleEnemy(CvUnit* pUnit, int iRange)
 {
-	CvUnit* pLoopUnit;
-	CvCity* pLoopCity = NULL;
 	int iLoop;
 
 	// Loop through enemies
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && !kPlayer.isBarbarian() && atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
+		if(kPlayer.isAlive() && atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
 		{
 			// Loop through their units
-			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
 				// Make sure this tile is visible to us
 				if(pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
@@ -10125,7 +9757,7 @@ bool CvTacticalAI::NearVisibleEnemy(CvUnit* pUnit, int iRange)
 			}
 
 			// Loop through their cities
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				// Cities can't move, revealed is good enough
@@ -10143,7 +9775,9 @@ bool CvTacticalAI::NearVisibleEnemy(CvUnit* pUnit, int iRange)
 				}
 			}
 		}
-		else if(kPlayer.isBarbarian())
+		
+		//additionally check barb camps
+		if(kPlayer.isBarbarian())
 		{
 			for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			{
@@ -10151,10 +9785,7 @@ bool CvTacticalAI::NearVisibleEnemy(CvUnit* pUnit, int iRange)
 				if(pLoopPlot == NULL)
 					continue;
 
-				if(pLoopPlot->getImprovementType() != GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
-					continue;
-
-				if(!pLoopPlot->isVisible(m_pPlayer->getTeam()))
+				if(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != GC.getBARBARIAN_CAMP_IMPROVEMENT())
 					continue;
 
 				if(plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -11316,7 +10947,7 @@ bool CvTacticalAI::UseThisDominanceZone(CvTacticalDominanceZone* pZone)
 		bTempZone = IsTemporaryZoneCity(pZone->GetZoneCity());
 	}
 	bool bWeHaveUnitsNearEnemy = pZone->GetFriendlyUnitCount() > 0 && pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY;
-	bool bTheyHaveUnitsNearUs = pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_NO_UNITS_VISIBLE && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY;
+	bool bTheyHaveUnitsNearUs = pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_NO_UNITS_VISIBLE && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY;
 	bool bBothHaveUnits = pZone->GetFriendlyUnitCount() > 0 && pZone->GetEnemyUnitCount() > 0;
 
 	return (bTempZone || bIsOurCapital || bWeHaveUnitsNearEnemy || bTheyHaveUnitsNearUs || bBothHaveUnits);
@@ -11788,7 +11419,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 	}
 	else if (!pTargetCity && TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot)) //melee attack - not against cities
 	{
-		int iTurns = pUnit->TurnsToReachTarget( pTargetPlot, CvUnit::MOVEFLAG_ATTACK, 1);
+		int iTurns = pUnit->TurnsToReachTarget( pTargetPlot, 0, 1);
 		if (iTurns <=1 )
 		{
 			if (GC.getLogging() && GC.getAILogging())
@@ -11937,8 +11568,12 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
+		int iFlags = CvUnit::MOVEFLAG_DESTINATION;
+		if (!pPlot->isVisibleEnemyDefender(pUnit) && pPlot->isVisibleEnemyUnit(pUnit))
+			iFlags |= CvUnit::MOVEFLAG_ATTACK;
+
 		// allow capturing civilians!
-		if (!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION|CvUnit::MOVEFLAG_ATTACK))
+		if (!pUnit->canMoveInto(*pPlot,iFlags))
 			continue;
 
 		// don't attack though
@@ -12296,7 +11931,7 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 		{
 			if (pAttacker->TurnsToReachTarget(pDefender->plot(),false,false,1)<=1)
 			{
-				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_ATTACK );
+				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 				return true;
 			}
 		}
@@ -14153,13 +13788,13 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		case STacticalAssignment::A_MELEEATTACK:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present
 			if (bPrecondition)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_ATTACK);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());
 			bPostcondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy still present
 			break;
 		case STacticalAssignment::A_MELEEKILL:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present
 			if (bPrecondition)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_ATTACK);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());
 			bPostcondition = (pUnit->plot() == pToPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy gone
 			break;
 		case STacticalAssignment::A_PILLAGE:
