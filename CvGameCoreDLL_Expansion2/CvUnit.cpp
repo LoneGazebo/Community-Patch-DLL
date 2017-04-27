@@ -13074,25 +13074,6 @@ bool CvUnit::build(BuildTypes eBuild)
 						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
 				}
-				if(pkBuildInfo->IsKillImprovement())
-				{
-					if(pPlot != NULL && pPlot->getResourceType() == NO_RESOURCE)
-					{
-						ResourceTypes eResourceFromImprovement = (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement();
-						int iQuantity = pkImprovementInfo->GetResourceQuantityFromImprovement();
-						if(iQuantity <= 0)
-						{
-							iQuantity = 1;
-						}
-						if(eResourceFromImprovement != NO_RESOURCE)
-						{
-							pPlot->setResourceType(eResourceFromImprovement, iQuantity);
-							if(pPlot->GetResourceLinkedCity() != NULL && !pPlot->IsResourceLinkedCityActive())
-								pPlot->SetResourceLinkedCityActive(true);
-						}
-					}
-					pPlot->setImprovementType(NO_IMPROVEMENT);
-				}
 #endif
 			}
 #if defined(GLOBAL_ALPINE_PASSES)
@@ -14175,7 +14156,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater() || IsHoveringUnit() || isCargo();
+		return !pPlot->isWater() || IsHoveringUnit() || isCargo() || (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater());
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -24982,7 +24963,14 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
+	{
+		return false;
+	}
+#endif
 	//Out-ranged?
 	if (pkPromotionInfo->GetMinRange() != 0 && pkPromotionInfo->GetMinRange() > GetRange())
 		return false;
