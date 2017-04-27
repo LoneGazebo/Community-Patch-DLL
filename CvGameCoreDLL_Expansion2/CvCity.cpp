@@ -974,7 +974,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				changeOverflowProduction(GC.getINITIAL_AI_CITY_PRODUCTION());
 #if defined(ACHIEVEMENT_HACKS)
-			} else {
+			}
+			else
+			{
 				CvAchievementUnlocker::UnlockFromDatabase();
 #endif
 			}
@@ -13464,6 +13466,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
+										pLoopPlot->DoFindCityToLinkResourceTo();
 										iNumResourceGiven++;
 										if(iNumResourceGiven >= iNumResourceTotal)
 										{
@@ -13489,6 +13492,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
+											pLoopPlot->DoFindCityToLinkResourceTo();
 											iNumResourceGiven++;
 											if(iNumResourceGiven >= iNumResourceTotal)
 											{
@@ -13876,6 +13880,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						{
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResource, pBuildingInfo->GetResourceQuantityToPlace(), false);
+							pLoopPlot->DoFindCityToLinkResourceTo();
 							iNumResourcePlotsGiven++;
 							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 							{
@@ -13889,10 +13894,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										}
 									}
 								}
-							}
-							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-							{
-								break;
 							}
 							if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 							{
@@ -13925,6 +13926,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 									}
 								}
+							}
+							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+							{
+								break;
 							}
 						}
 					}
@@ -30906,7 +30911,8 @@ bool CvCity::HasResource(ResourceTypes iResourceType) const
 		// 	continue;
 		// }
 
-		if (pLoopPlot->HasResource(iResourceType)) {
+		if (pLoopPlot->HasResource(iResourceType))
+		{
 			return true;
 		}
 	}

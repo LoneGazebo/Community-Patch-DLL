@@ -4449,6 +4449,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 					{
 						pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 						pLoopPlot->setResourceType(eResourceToGive, 1, false);
+						pLoopPlot->DoFindCityToLinkResourceTo();
 						iNumResourceGiven++;
 						if(iNumResourceGiven >= iNumResourceTotal)
 						{
@@ -4480,6 +4481,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 							}
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResourceToGive, 1, false);
+							pLoopPlot->DoFindCityToLinkResourceTo();
 							iNumResourceGiven++;
 							if(iNumResourceGiven >= iNumResourceTotal)
 							{
