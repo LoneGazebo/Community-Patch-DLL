@@ -559,8 +559,8 @@ public:
 	int GetBaseCombatStrength() const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
-	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
-	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreAdjacencyBonus = false) const;
+	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL) const;
+	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreUnitAdjacencyBoni = false) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -574,9 +574,10 @@ public:
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false, bool bConsiderSplash = false) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
+	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
@@ -754,7 +755,7 @@ public:
 
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
-	int GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
+	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
 
 	int GetAdjacentModifier() const;

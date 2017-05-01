@@ -14971,7 +14971,7 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
-int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot) const
+int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot) const
 {
 	VALIDATE_OBJECT
 
@@ -15016,10 +15016,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		pFromPlot = plot();
 	}
+
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
-	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit() && !bIgnoreUnitAdjacency)
+	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
 #else
 	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
 #endif
@@ -15296,21 +15297,25 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		CvAssertMsg(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
 
-		if(!bIgnoreUnitAdjacency)
+		// Flanking
+		if(!bIgnoreUnitAdjacencyBoni && GetFlankAttackModifier()>0 && pBattlePlot && plotDistance(*pFromPlot,*pBattlePlot)==1)
 		{
-			// Flanking
-			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent(this);
+			DirectionTypes eForward = directionXY(pFromPlot,pBattlePlot);
+			DirectionTypes eLeftHand = DirectionTypes((int(eForward) + 5) % 6);
+			DirectionTypes eRightHand = DirectionTypes((int(eForward) + 1) % 6);
+			const CvPlot* pLeftHand = pFromPlot->getNeighboringPlot(eLeftHand);
+			const CvPlot* pRightHand = pFromPlot->getNeighboringPlot(eRightHand);
+
+			int iNumAdjacentFriends = 0;
+			if (pLeftHand && pLeftHand->getBestDefender(getOwner()))
+				iNumAdjacentFriends++;
+			if (pRightHand && pRightHand->getBestDefender(getOwner()))
+				iNumAdjacentFriends++;
+
 			if(iNumAdjacentFriends > 0)
 			{
 				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
-
-				int iFlankModifier = GetFlankAttackModifier();
-				if(iFlankModifier > 0)
-				{
-					iTempModifier = iTempModifier * (100 + iFlankModifier) / 100;
-				}
-
-				iModifier += iTempModifier;
+				iModifier += iTempModifier * (100 + GetFlankAttackModifier()) / 100;
 			}
 		}
 
@@ -15403,13 +15408,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when attacking?
-int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreAdjacencyBonus) const
+int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreUnitAdjacencyBoni) const
 {
 	VALIDATE_OBJECT
 	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreAdjacencyBonus, pFromPlot);
+	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot);
 
 	// Generic Attack bonus
 	int iTempModifier = getAttackModifier();
@@ -15832,7 +15837,7 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreAdjacency) const
+int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni) const
 {
 	VALIDATE_OBJECT
 
@@ -15917,7 +15922,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
-	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit() && !bIgnoreAdjacency)
+	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
 #else
 	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
 #endif
@@ -16382,7 +16387,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreAdjacency, bool bConsiderSplash) const
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni) const
 {
 	VALIDATE_OBJECT
 	if (pFromPlot == NULL)
@@ -16401,7 +16406,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		}
 	}
 
-	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot, bIgnoreAdjacency);
+	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot, bIgnoreUnitAdjacencyBoni);
 	if (iAttackerStrength==0)
 		return 0;
 
@@ -16433,12 +16438,6 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		else
 			//this considers embarkation implicitly
 			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
-
-		//Splash damage? Add up adjacent units.
-		if (bConsiderSplash && getSplashDamage() > 0)
-		{
-			iAttackerStrength += getSplashDamage() * pDefender->plot()->GetNumEnemyUnitsAdjacent(getTeam(), pDefender->getDomainType(), pDefender);
-		}
 	}
 	else
 	{
@@ -16518,9 +16517,34 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	// Bring it back out of hundreds
 	iAttackerDamage /= 100;
 
-	iAttackerDamage = max(1,iAttackerDamage);
+	return max(1,iAttackerDamage);
+}
 
-	return iAttackerDamage;
+int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
+{
+	int iTotal = 0;
+
+	// Add splash damage, if any
+	if (getSplashDamage() != 0)
+	{
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pTargetPlot);
+		for (int i = 0; i < 6; i++)
+		{
+			CvPlot* pNeighbor = aNeighbors[i];
+			if (pNeighbor && canEverRangeStrikeAt(pNeighbor->getX(), pNeighbor->getY()))
+			{
+				for (int iUnitLoop = 0; iUnitLoop < pNeighbor->getNumUnits(); iUnitLoop++)
+				{
+					CvUnit* pOtherUnit = pNeighbor->getUnitByIndex(iUnitLoop);
+					//damage is applied to enemy civilians also, but it's collateral damage, don't count them here
+					if (pOtherUnit && pOtherUnit->IsCombatUnit() && pOtherUnit->isEnemy(getTeam()))
+						iTotal += getSplashDamage();
+				}
+			}
+		}
+	}
+
+	return iTotal;
 }
 
 //	--------------------------------------------------------------------------------
@@ -17968,7 +17992,7 @@ bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
+int CvUnit::GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
 {
 	return plot()->GetNumSpecificPlayerUnitsAdjacent(getOwner(), pUnitToExclude, pExampleUnitType, bCombatOnly);
 }

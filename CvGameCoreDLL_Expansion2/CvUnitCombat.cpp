@@ -1139,7 +1139,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
-							if (pAdjacentPlot != NULL)
+							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pPlot->getX(), pPlot->getY()))
 							{
 								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 								{
@@ -4443,7 +4443,7 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 		//Napoleon's Special Achievement
 		if(szUnitType == "UNIT_FRENCH_MUSKETEER")
 		{
-			if(pkLoser->GetNumSpecificPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
+			if(pkLoser->GetNumOwningPlayerUnitsAdjacent(pkLoser, pkWinner) >=3)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_MUSKETEERS);
 			}
