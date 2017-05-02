@@ -3168,8 +3168,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			{
 				//I've traded for? I don't want to give away again.
 				pCity->SetTraded(eAcceptedToPlayer, true);
+				bool bWar = kDeal.IsPeaceTreatyTrade(eAcceptedFromPlayer);
 #endif
-				GET_PLAYER(eAcceptedToPlayer).acquireCity(pCity, false, true);
+				GET_PLAYER(eAcceptedToPlayer).acquireCity(pCity, bWar, !bWar);
 #if defined(MOD_BALANCE_CORE)
 			}
 #endif

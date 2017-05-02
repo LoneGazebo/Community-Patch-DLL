@@ -1624,7 +1624,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						//Will we get a WLTKD from this? We want it a bit more, please.
 						if(eResourceDemanded == eResource)
 						{
-							iItemValue *= 12;
+							iItemValue *= 11;
 							iItemValue /= 10;
 							break;
 						}
@@ -1736,56 +1736,56 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					//This would give us a mild excess.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 					{
-						iItemValue *= (125 + iNumTurns);
+						iItemValue *= (75 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us a little extra
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 					{
-						iItemValue *= (175 + iNumTurns);
+						iItemValue *= (100 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us enough to meet our needs.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 					{
-						iItemValue *= (200 + iNumTurns);
+						iItemValue *= (125 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//This would give us almost enough to meet our needs.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 					{
-						iItemValue *= (250 + iNumTurns);
+						iItemValue *= (150 + iNumTurns);
 						iItemValue /= 100;
 					}
 				}
 				//We have it via trade but we aren't using it.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (50 + iNumTurns);
+					iItemValue *= (25 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We have it at home but we aren't using it.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (50 + iNumTurns);
+					iItemValue *= (25 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We don't have any, trade or not, and we don't use any.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (125 + iNumTurns);
+					iItemValue *= (100 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We don't have any at home and we don't use any.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 				{
-					iItemValue *= (125 + iNumTurns);
+					iItemValue *= (100 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//Unaccounted for situation?
 				else
 				{
-					iItemValue *= (75 + iNumTurns);
+					iItemValue *= (50 + iNumTurns);
 					iItemValue /= 100;
 				}
 				// Approach is important
@@ -1921,50 +1921,50 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					//We would still have a huge domestic excess after losing this.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 					{
-						iItemValue *= (75 + iNumTurns);
+						iItemValue *= (100 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would only have a mild domestic reserve after losing this
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 					{
-						iItemValue *= (125 + iNumTurns);
+						iItemValue *= (150 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would only have a little domestic reserve after losing this.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 					{
-						iItemValue *= (150 + iNumTurns);
+						iItemValue *= (200 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would be under our need that we can provide for ourselves, which is really bad.
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 					{
-						iItemValue *= (400 + iNumTurns);
+						iItemValue *= (300 + iNumTurns);
 						iItemValue /= 100;
 					}
 					//We would be way under our need that we can provide for ourselves, which is terrible
 					else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 					{
-						iItemValue *= (600 + iNumTurns);
+						iItemValue *= (400 + iNumTurns);
 						iItemValue /= 100;
 					}
 				}
 				//We have it, via trade or domestic, but we aren't using it (be careful about trading this, as we don't want to wind up with nothing).
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 				{
-					iItemValue *= (150 + iNumTurns);
+					iItemValue *= (200 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//We have it domestically, but we aren't using it.
 				else if(((GetPlayer()->getNumResourceAvailable(eResource, false)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 				{
-					iItemValue *= (150 + iNumTurns);
+					iItemValue *= (200 + iNumTurns);
 					iItemValue /= 100;
 				}
 				//Unaccounted for situation? Flat value.
 				else
 				{
-					iItemValue *= (100 + iNumTurns);
+					iItemValue *= (150 + iNumTurns);
 					iItemValue /= 100;
 				}
 			}
@@ -2044,7 +2044,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		}
 	}
 	int iResult = 0;
-	int iFlavors = 1;
+	int iFlavors = 0;
 	if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && eResource != NO_RESOURCE)
 	{
 		//Let's look at flavors for resources
@@ -4013,12 +4013,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 				{
 					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 30;
+						iItemValue *= 10;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 75;
+						iItemValue *= 25;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 200;
+						iItemValue *= 150;
 						break;
 					case PLAYER_PROXIMITY_NEIGHBORS:
 						iItemValue *= 300;
@@ -4035,9 +4035,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 				{
 					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 40;
+						iItemValue *= 10;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 90;
+						iItemValue *= 25;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
 						iItemValue *= 200;
@@ -4225,7 +4225,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						case PLAYER_PROXIMITY_DISTANT:
 						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 20;
+							iItemValue *= 5;
 						case PLAYER_PROXIMITY_CLOSE:
 							iItemValue *= 125;
 							break;
@@ -4244,9 +4244,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 					{
 						case PLAYER_PROXIMITY_DISTANT:
-							iItemValue *= 20;
+							iItemValue *= 5;
 						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 50;
+							iItemValue *= 10;
 							break;
 						case PLAYER_PROXIMITY_CLOSE:
 							iItemValue *= 125;
@@ -4268,16 +4268,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 				{
 					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 70;
+						iItemValue *= 10;
 						break;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 90;
+						iItemValue *= 15;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 100;
+						iItemValue *= 110;
 						break;
 					case PLAYER_PROXIMITY_NEIGHBORS:
-						iItemValue *= 125;
+						iItemValue *= 130;
 						break;
 					default:
 						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");

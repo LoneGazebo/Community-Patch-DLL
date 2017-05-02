@@ -20,7 +20,7 @@ WHERE Type = 'BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='
 INSERT INTO Belief_YieldFromConversion
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_RELIQUARY', 'YIELD_SCIENCE', 100);
+	('BELIEF_RELIQUARY', 'YIELD_GOLD', 100);
 
 -- Just War (Now Martyrdom)
 UPDATE Beliefs

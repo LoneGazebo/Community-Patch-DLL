@@ -25154,7 +25154,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			if(eLocalReligion != eReligion)
 			{
 				pReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
+				eReligion = eLocalReligion;
 			}
+		}
+
+		int iNumFollowerCities = 0;
+		int iNumFollowers = 0;
+		if (eReligion > RELIGION_PANTHEON)
+		{
+			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
+			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+		}
+		else if (eReligion == RELIGION_PANTHEON)
+		{
+			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
+			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
 		}
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
@@ -25182,7 +25196,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iValue += getYieldFromBirthCapital(eYield);
 					}
 					//Scale it here to avoid scaling the growth yield below.
-					if(bEraScale)
+					if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
 					{
 						iValue *= iEra;
 					}
@@ -25216,7 +25230,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true);
+						
+						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 					}
 					break;
 				}
@@ -25225,7 +25240,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromPolicyUnlock(eYield);
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true);
+						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowers;
 					}
 					break;
 				}
@@ -25323,7 +25338,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true);
+							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 						}
 					}
 					if(eYield == YIELD_FAITH)
@@ -25427,7 +25442,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
+					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_DEATH:
@@ -25456,7 +25471,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true);
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * iNumFollowers;
 							}
 							if(eYield == YIELD_SCIENCE && iPassYield > 0)
 							{
@@ -25480,13 +25495,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
+							int iTempValue = pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
+							if (iPassYield != 0)
+							{
+								iTempValue *= (100 + iPassYield);
+								iTempValue /= 100;
+							}
+
+							iValue += iTempValue;
 						}
 					}
-					if(iPassYield != 0)
-					{
-						iValue *= iPassYield;
-					}
+					
 					break;
 				}	
 				case INSTANT_YIELD_TYPE_TR_MOVEMENT:
@@ -44124,9 +44143,6 @@ void CvPlayer::SetBestWonderCities()
 		// Look at all of our Cities to see which is the best.
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
-			//Reset here.
-			pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
-
 			if (!pLoopCity->canConstruct(eBuilding))
 				continue;
 
@@ -44163,9 +44179,19 @@ void CvPlayer::SetBestWonderCities()
 				pBestCity = pLoopCity;
 			}
 		}
-		if (pBestCity != NULL)
+		if (pBestCity != NULL && !pBestCity->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
 		{
 			pBestCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+
+			int iLoopCity;
+			CvCity* pLoopCity = NULL;
+			// Remove from all other cities.
+			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			{
+				if (pLoopCity != pBestCity)
+					pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
+			}
+
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;
@@ -44183,9 +44209,19 @@ void CvPlayer::SetBestWonderCities()
 			}
 		}
 		//No city? Set capital as best.
-		else if (getCapitalCity() != NULL && iValidCities > 0)
+		else if (getCapitalCity() != NULL && iValidCities > 0 && !getCapitalCity()->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
 		{
 			getCapitalCity()->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+
+			int iLoopCity;
+			CvCity* pLoopCity = NULL;
+			// Remove from all other cities.
+			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			{
+				if (pLoopCity != getCapitalCity())
+					pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
+			}
+
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;

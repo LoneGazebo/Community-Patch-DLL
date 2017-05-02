@@ -138,7 +138,7 @@ public:
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
-	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
+	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bConvert = false);
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
@@ -785,6 +785,8 @@ public:
 	int attackFortifiedModifier() const;
 	int attackWoundedModifier() const;
 	int attackFullyHealedModifier() const;
+	int attackAbove50HealthModifier() const;
+	int attackBelow50HealthModifier() const;
 	int openDefenseModifier() const;
 	int roughDefenseModifier() const;
 	int terrainAttackModifier(TerrainTypes eTerrain) const;
@@ -795,6 +797,9 @@ public:
 	int unitClassDefenseModifier(UnitClassTypes eUnitClass) const;
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
+
+	int getyieldModifier(YieldTypes eYield) const;
+	void setyieldmodifier(YieldTypes eYield, int iValue);
 
 	bool IsHasNoValidMove() const;
 
@@ -1090,6 +1095,13 @@ public:
 
 	int getExtraAttackFullyHealedMod() const;
 	void changeExtraAttackFullyHealedMod(int iChange);
+
+
+	int getExtraAttackAboveHealthMod() const;
+	void changeExtraAttackAboveHealthMod(int iChange);
+
+	int getExtraAttackBelowHealthMod() const;
+	void changeExtraAttackBelowHealthMod(int iChange);
 
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
@@ -1793,6 +1805,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraAttackFortifiedMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackWoundedMod;
 	FAutoVariable<int, CvUnit> m_iExtraFullyHealedMod;
+	FAutoVariable<int, CvUnit> m_iExtraAttackAboveHealthMod;
+	FAutoVariable<int, CvUnit> m_iExtraAttackBelowHealthMod;
 	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
 	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
 	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;
@@ -1932,6 +1946,7 @@ protected:
 	IDInfo m_transportUnit;
 
 	std::vector<int> m_extraDomainModifiers;
+	std::vector<int> m_yieldModifier;
 
 	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;

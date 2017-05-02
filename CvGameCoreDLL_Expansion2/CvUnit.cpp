@@ -225,6 +225,8 @@ CvUnit::CvUnit() :
 	, m_iExtraAttackFortifiedMod("CvUnit::m_iExtraAttackFortifiedMod", m_syncArchive)
 	, m_iExtraAttackWoundedMod("CvUnit::m_iExtraAttackWoundedMod", m_syncArchive)
 	, m_iExtraFullyHealedMod("CvUnit::m_iExtraFullyHealedMod", m_syncArchive)
+	, m_iExtraAttackAboveHealthMod("CvUnit::m_iExtraAttackAboveHealthMod", m_syncArchive)
+	, m_iExtraAttackBelowHealthMod("CvUnit::m_iExtraAttackBelowHealthMod", m_syncArchive)
 	, m_iFlankAttackModifier("CvUnit::m_iFlankAttackModifier", m_syncArchive)
 	, m_iExtraOpenDefensePercent("CvUnit::m_iExtraOpenDefensePercent", m_syncArchive)
 	, m_iExtraRoughDefensePercent("CvUnit::m_iExtraRoughDefensePercent", m_syncArchive)
@@ -327,6 +329,7 @@ CvUnit::CvUnit() :
 	, m_combatUnit()
 	, m_transportUnit()
 	, m_extraDomainModifiers()
+	, m_yieldModifier()
 	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvUnit::m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility", m_syncArchive, "")
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
 	, m_iScenarioData("CvUnit::m_iScenarioData", m_syncArchive)
@@ -1336,6 +1339,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraAttackFortifiedMod= 0;
 	m_iExtraAttackWoundedMod= 0;
 	m_iExtraFullyHealedMod = 0;
+	m_iExtraAttackAboveHealthMod = 0;
+	m_iExtraAttackBelowHealthMod = 0;
 	m_iFlankAttackModifier=0;
 	m_iExtraOpenDefensePercent = 0;
 	m_iExtraRoughDefensePercent = 0;
@@ -1493,6 +1498,12 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		m_extraDomainModifiers.push_back(0);
+	}
+
+	m_yieldModifier.clear();
+	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		m_yieldModifier.push_back(0);
 	}
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -1859,10 +1870,21 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
-	SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
+	if (pUnit->GetTourismBlastStrength() > GetTourismBlastStrength())
+		SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
+	else
+		SetTourismBlastStrength(GetTourismBlastStrength());
 #if defined(MOD_BALANCE_CORE)
-	SetScienceBlastStrength(pUnit->getDiscoverAmount());
-	SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
+	if (pUnit->getDiscoverAmount() > getDiscoverAmount())
+		SetScienceBlastStrength(pUnit->getDiscoverAmount());
+	else
+		SetScienceBlastStrength(getDiscoverAmount());
+
+	if (pUnit->getGivePoliciesCulture() > getGivePoliciesCulture())
+		SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
+	else
+		SetCultureBlastStrength(getGivePoliciesCulture());
+
 	if (pUnit->getOriginCity() == NULL)
 	{
 		if (plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
@@ -1924,7 +1946,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
-	pUnit->kill(true);
+	pUnit->kill(true, NO_PLAYER, true);
 }
 
 //	----------------------------------------------------------------------------
@@ -1932,7 +1954,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
-void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
+void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConvert)
 {
 	VALIDATE_OBJECT
 	CvUnit* pTransportUnit;
@@ -2203,7 +2225,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		return;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if (ePlayer == NO_PLAYER && getUnitInfo().GetSupplyCapBoost() != 0)
+	if (!bConvert && ePlayer == NO_PLAYER && getUnitInfo().GetSupplyCapBoost() != 0)
 	{
 		if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
@@ -10787,7 +10809,7 @@ bool CvUnit::DoSpreadReligion()
 					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, true, pCity->getOwner(), plot());
 					if(pCity->getOwner() != m_eOwner)
 					{
-						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, 0, true, pCity->getOwner(), plot());
+						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 2), true, pCity->getOwner(), plot());
 					}
 #else
 					iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
@@ -13074,25 +13096,6 @@ bool CvUnit::build(BuildTypes eBuild)
 						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
 				}
-				if(pkBuildInfo->IsKillImprovement())
-				{
-					if(pPlot != NULL && pPlot->getResourceType() == NO_RESOURCE)
-					{
-						ResourceTypes eResourceFromImprovement = (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement();
-						int iQuantity = pkImprovementInfo->GetResourceQuantityFromImprovement();
-						if(iQuantity <= 0)
-						{
-							iQuantity = 1;
-						}
-						if(eResourceFromImprovement != NO_RESOURCE)
-						{
-							pPlot->setResourceType(eResourceFromImprovement, iQuantity);
-							if(pPlot->GetResourceLinkedCity() != NULL && !pPlot->IsResourceLinkedCityActive())
-								pPlot->SetResourceLinkedCityActive(true);
-						}
-					}
-					pPlot->setImprovementType(NO_IMPROVEMENT);
-				}
 #endif
 			}
 #if defined(GLOBAL_ALPINE_PASSES)
@@ -14175,7 +14178,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater() || IsHoveringUnit() || isCargo();
+		return !pPlot->isWater() || IsHoveringUnit() || isCargo() || (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater());
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -15298,24 +15301,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		CvAssertMsg(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
 
 		// Flanking
-		if(!bIgnoreUnitAdjacencyBoni && GetFlankAttackModifier()>0 && pBattlePlot && plotDistance(*pFromPlot,*pBattlePlot)==1)
+		if(!bIgnoreUnitAdjacencyBoni)
 		{
-			DirectionTypes eForward = directionXY(pFromPlot,pBattlePlot);
-			DirectionTypes eLeftHand = DirectionTypes((int(eForward) + 5) % 6);
-			DirectionTypes eRightHand = DirectionTypes((int(eForward) + 1) % 6);
-			const CvPlot* pLeftHand = pFromPlot->getNeighboringPlot(eLeftHand);
-			const CvPlot* pRightHand = pFromPlot->getNeighboringPlot(eRightHand);
-
-			int iNumAdjacentFriends = 0;
-			if (pLeftHand && pLeftHand->getBestDefender(getOwner()))
-				iNumAdjacentFriends++;
-			if (pRightHand && pRightHand->getBestDefender(getOwner()))
-				iNumAdjacentFriends++;
-
+			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent();
 			if(iNumAdjacentFriends > 0)
 			{
 				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
-				iModifier += iTempModifier * (100 + GetFlankAttackModifier()) / 100;
+				iModifier += iTempModifier * ((100 + GetFlankAttackModifier()) / 100);
 			}
 		}
 
@@ -15589,6 +15581,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackWoundedModifier();
 		else
 			iModifier += attackFullyHealedModifier();
+
+		//More than half?
+		if (pDefender->getDamage() > (pDefender->GetMaxHitPoints() * .5))
+			iModifier += attackAbove50HealthModifier();
+		else
+			iModifier += attackBelow50HealthModifier();
 	}
 
 	// Unit can't drop below 10% strength
@@ -16099,6 +16097,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += attackWoundedModifier();
 		else
 			iModifier += attackFullyHealedModifier();
+
+		//More than half?
+		if (pOtherUnit->getDamage() > (pOtherUnit->GetMaxHitPoints() * .5))
+			iModifier += attackAbove50HealthModifier();
+		else
+			iModifier += attackBelow50HealthModifier();
 
 		// Bonus against city states?
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
@@ -18217,6 +18221,18 @@ int CvUnit::attackFullyHealedModifier() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::attackAbove50HealthModifier() const
+{
+	VALIDATE_OBJECT
+		return (getExtraAttackAboveHealthMod());
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::attackBelow50HealthModifier() const
+{
+	VALIDATE_OBJECT
+		return (getExtraAttackBelowHealthMod());
+}
+//	--------------------------------------------------------------------------------
 int CvUnit::openDefenseModifier() const
 {
 	VALIDATE_OBJECT
@@ -18305,6 +18321,23 @@ int CvUnit::domainModifier(DomainTypes eDomain) const
 	CvAssertMsg(eDomain >= 0, "eDomain is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eDomain is expected to be within maximum bounds (invalid Index)");
 	return (getExtraDomainModifier(eDomain));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getyieldModifier(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	return m_yieldModifier[eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::setyieldmodifier(YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	m_yieldModifier[eYield] = (m_yieldModifier[eYield] + iValue);
 }
 
 
@@ -21937,6 +21970,46 @@ void CvUnit::changeExtraAttackFullyHealedMod(int iChange)
 		}
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraAttackAboveHealthMod() const
+{
+	VALIDATE_OBJECT
+		return m_iExtraAttackAboveHealthMod;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraAttackAboveHealthMod(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			m_iExtraAttackAboveHealthMod = (m_iExtraAttackAboveHealthMod + iChange);
+
+			setInfoBarDirty(true);
+		}
+}
+\
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraAttackBelowHealthMod() const
+{
+	VALIDATE_OBJECT
+		return m_iExtraAttackBelowHealthMod;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraAttackBelowHealthMod(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			m_iExtraAttackBelowHealthMod = (m_iExtraAttackBelowHealthMod + iChange);
+
+			setInfoBarDirty(true);
+		}
+}
+
 
 
 //	--------------------------------------------------------------------------------
@@ -25006,7 +25079,14 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
+	{
+		return false;
+	}
+#endif
 	//Out-ranged?
 	if (pkPromotionInfo->GetMinRange() != 0 && pkPromotionInfo->GetMinRange() > GetRange())
 		return false;
@@ -25511,6 +25591,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraAttackFortifiedMod(thisPromotion.GetAttackFortifiedMod() * iChange);
 		changeExtraAttackWoundedMod(thisPromotion.GetAttackWoundedMod() * iChange);
 		changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
+		changeExtraAttackAboveHealthMod(thisPromotion.GetAttackAboveHealthMod() * iChange);
+		changeExtraAttackBelowHealthMod(thisPromotion.GetAttackBelowHealthMod() * iChange);	
 		ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
 		changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
 		changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
@@ -25614,6 +25696,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
+		}
+
+		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			setyieldmodifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
 		}
 
 		if(IsSelected())
@@ -25838,6 +25925,7 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_missionAIUnit.iID;
 	kStream >> m_extraDomainModifiers;
 #if defined(MOD_UNITS_MAX_HP)
+	kStream >> m_yieldModifier;
 	MOD_SERIALIZE_READ(78, kStream, m_iMaxHitPointsBase, m_pUnitInfo->GetMaxHitPoints());
 #endif
 
@@ -25917,6 +26005,7 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_missionAIUnit.eOwner;
 	kStream << m_missionAIUnit.iID;
 	kStream << m_extraDomainModifiers;
+	kStream << m_yieldModifier;
 #if defined(MOD_UNITS_MAX_HP)
 	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
 #endif
@@ -27150,6 +27239,10 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	//nothing to attack?
 	if ( !bIsEnemyCity && !pBestDefender )
 		return 0;
+
+	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
+	if (iFlags & MOVEFLAG_NO_ATTACKING)
+		return -1;
 
 	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
 	if (iFlags & MOVEFLAG_NO_ATTACKING)
@@ -29023,7 +29116,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetRangedDefenseMod();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraRangedDefenseModifier() * 3;
+		iExtra = getExtraRangedDefenseModifier() * 4;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		// likely not a ranged unit
@@ -29034,7 +29127,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		// a slow unit
 		if (maxMoves() / GC.getMOVE_DENOMINATOR() <= 2)
 		{
-			iTemp *= 4;
+			iTemp *= 5;
 		}
 		iValue += iTemp + iFlavorDefense * 4;
 	}
@@ -29067,6 +29160,31 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else
 			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
 	}
+
+	iTemp = pkPromotionInfo->GetAttackAboveHealthMod();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraAttackAboveHealthMod() * 3;
+		iTemp *= (100 + iExtra);
+		iTemp /= 100;
+		if (isRanged())
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+		else
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+	}
+	iTemp = pkPromotionInfo->GetAttackBelowHealthMod();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraAttackBelowHealthMod() * 3;
+		iTemp *= (100 + iExtra);
+		iTemp /= 100;
+		if (isRanged())
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+		else
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+	}
+
+	
 
 	iTemp = pkPromotionInfo->GetSplashDamage();
 	if (iTemp != 0)
@@ -29221,7 +29339,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getDefenseModifier() * 2;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorDefense * 3;
+		iValue += iTemp + iFlavorDefense * 5;
 	}
 
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)

@@ -92,4 +92,12 @@
 			<Where AIMilitaryStrategyType="MILITARYAISTRATEGY_WAR_MOBILIZATION" FlavorType="FLAVOR_GROWTH" />
 		</Update>
 	</AIMilitaryStrategy_Player_Flavors>
+	<TacticalMoves>
+		<Row>
+			<Type>TACTICAL_BASTION_2_TURN</Type>
+			<OperationsCanRecruit>true</OperationsCanRecruit>
+			<DefenseFlavorWeight>100</DefenseFlavorWeight>
+			<Priority>30</Priority>
+		</Row>
+	</TacticalMoves>
 </GameData>

@@ -475,10 +475,10 @@
 			<Text>+35% [ICON_STRENGTH] Combat Strength when defending.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4">
-			<Text>Snipers</Text>
+			<Text>Firing Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4_HELP">
-			<Text>+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength versus [COLOR_POSITIVE_TEXT]Fully-Healed[ENDCOLOR] Units.</Text>
+			<Text>+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4">
 			<Text>Infiltrators</Text>
@@ -530,24 +530,24 @@
 			<Text>Splash Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit.</Text>
+			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE] Range).</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II">
 			<Text>Splash Damage II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit.</Text>
+			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE] Range).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_POWER">
-			<Text>Whirlwind</Text>
+			<Text>Coup de Grace</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_POWER_HELP">
-			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit.</Text>
+			<Text>+30% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY">
-			<Text>Parthians</Text>
+			<Text>Parthian Tactics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP">
 			<Text>+1 [ICON_MOVES] Movement.</Text>

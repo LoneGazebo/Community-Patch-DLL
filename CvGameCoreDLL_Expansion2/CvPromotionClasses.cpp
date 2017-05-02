@@ -66,6 +66,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAttackFortifiedMod(0),
 	m_iAttackWoundedMod(0),
 	m_iAttackFullyHealedMod(0),
+	m_iAttackAboveHealthMod(0),
+	m_iAttackBelowHealthMod(0),
 	m_iFlankAttackModifier(0),
 	m_iNearbyEnemyCombatMod(0),
 	m_iNearbyEnemyCombatRange(0),
@@ -499,6 +501,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAttackFortifiedMod = kResults.GetInt("AttackFortifiedMod");
 	m_iAttackWoundedMod = kResults.GetInt("AttackWoundedMod");
 	m_iAttackFullyHealedMod = kResults.GetInt("AttackFullyHealedMod");
+	m_iAttackAboveHealthMod = kResults.GetInt("AttackAbove50HealthMod");
+	m_iAttackBelowHealthMod = kResults.GetInt("AttackBelowEqual50HealthMod");
 	m_iFlankAttackModifier = kResults.GetInt("FlankAttackModifier");
 	m_iNearbyEnemyCombatMod = kResults.GetInt("NearbyEnemyCombatMod");
 	m_iNearbyEnemyCombatRange = kResults.GetInt("NearbyEnemyCombatRange");
@@ -1363,6 +1367,14 @@ int CvPromotionEntry::GetAttackFullyHealedMod() const
 	return m_iAttackFullyHealedMod;
 }
 
+int CvPromotionEntry::GetAttackAboveHealthMod() const
+{
+	return m_iAttackAboveHealthMod;
+}
+int CvPromotionEntry::GetAttackBelowHealthMod() const
+{
+	return m_iAttackBelowHealthMod;
+}
 
 /// Accessor: Bonus when making a flank attack
 int CvPromotionEntry::GetFlankAttackModifier() const

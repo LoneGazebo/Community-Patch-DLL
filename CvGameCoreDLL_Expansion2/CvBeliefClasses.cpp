@@ -2750,9 +2750,12 @@ int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePla
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->GetYieldPerXFollowers(eYield) > 0)
 		{
-			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXFollowers(eYield);
+			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			{
+				rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXFollowers(eYield);
+			}
 		}
 	}
 
@@ -2782,11 +2785,14 @@ int CvReligionBeliefs::GetResourceQuantityModifier(ResourceTypes eResource, Play
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
-	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->GetResourceQuantityModifier(eResource) != 0)
 		{
-			rtnValue += pBeliefs->GetEntry(*it)->GetResourceQuantityModifier(eResource);
+			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			{
+				rtnValue += pBeliefs->GetEntry(*it)->GetResourceQuantityModifier(eResource);
+			}
 		}
 	}
 
@@ -2974,9 +2980,12 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->GetTerrainYieldChange(eTerrain, eYieldType) > 0)
 		{
-			rtnValue += pBeliefs->GetEntry(*it)->GetTerrainYieldChange(eTerrain, eYieldType);
+			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			{
+				rtnValue += pBeliefs->GetEntry(*it)->GetTerrainYieldChange(eTerrain, eYieldType);
+			}
 		}
 	}
 
@@ -3151,9 +3160,12 @@ int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType
 	{
 		for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 		{
-			if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			if (pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType) > 0)
 			{
-				rtnValue += pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType);
+				if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+				{
+					rtnValue += pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType);
+				}
 			}
 		}
 	}
@@ -3401,9 +3413,9 @@ bool CvReligionBeliefs::RequiresImprovement(PlayerTypes ePlayer, bool bHolyCityO
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->RequiresImprovement())
 		{
-			if (pBeliefs->GetEntry(*it)->RequiresImprovement())
+			if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -3418,9 +3430,9 @@ bool CvReligionBeliefs::RequiresNoImprovement(PlayerTypes ePlayer, bool bHolyCit
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->RequiresNoImprovement())
 		{
-			if (pBeliefs->GetEntry(*it)->RequiresNoImprovement())
+			if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 				return true;
 			}
@@ -3436,10 +3448,11 @@ bool CvReligionBeliefs::RequiresNoFeature(PlayerTypes ePlayer, bool bHolyCityOnl
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->RequiresNoFeature())
 		{
-			if (pBeliefs->GetEntry(*it)->RequiresNoFeature())
+			if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
+			
 				return true;
 			}
 		}
@@ -3454,9 +3467,9 @@ bool CvReligionBeliefs::RequiresResource(PlayerTypes ePlayer, bool bHolyCityOnly
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (pBeliefs->GetEntry(*it)->RequiresResource())
 		{
-			if (pBeliefs->GetEntry(*it)->RequiresResource())
+			if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
 			{
 				return true;
 			}

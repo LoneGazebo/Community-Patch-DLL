@@ -3997,7 +3997,6 @@ CvBuildInfo::CvBuildInfo() :
 	m_iTechObsolete(NO_TECH),
 	m_bKillOnlyCivilian(false),
 	m_bFreeBestDomainUnit(false),
-	m_bKillImprovement(false),
 	m_bCultureBoost(false),
 #endif
 	m_iImprovement(NO_IMPROVEMENT),
@@ -4067,10 +4066,6 @@ int CvBuildInfo::getTechPrereq() const
 bool CvBuildInfo::IsFreeBestDomainUnit() const
 {
 	return m_bFreeBestDomainUnit;
-}
-bool CvBuildInfo::IsKillImprovement() const
-{
-	return m_bKillImprovement;
 }
 bool CvBuildInfo::IsCultureBoost() const
 {
@@ -4224,7 +4219,6 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iTechObsolete = GC.getInfoTypeForString(szObsoleteTech, true);
 	m_bFreeBestDomainUnit = kResults.GetBool("IsFreeBestDomainUnit");
-	m_bKillImprovement = kResults.GetBool("KillImprovement");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
 #endif
 
