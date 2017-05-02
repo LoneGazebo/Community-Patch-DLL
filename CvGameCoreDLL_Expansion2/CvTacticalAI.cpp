@@ -6852,12 +6852,25 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
 			if(pBestPlot != NULL)
 			{
+				//pillage before retreat, if we have movement points to spare
+				if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR())
+					if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+				//try to do some damage if we have movement points to spare
+				if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
 				// Move to the lowest danger value found
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 
 				//see if we can do damage after retreating
 				if (pUnit->canMove() && pUnit->canRangeStrike())
 					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+				//pillage after retreat, if we have movement points to spare
+				if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
@@ -11978,7 +11991,7 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())
 				return true;
 
-			if (pPlot->getImprovementType()==GC.getBARBARIAN_CAMP_IMPROVEMENT() && !GET_PLAYER(pUnit->getOwner()).IsAtWar())
+			if (pPlot->getImprovementType()==GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
 				CvUnit* pDefender = pPlot->getBestDefender(BARBARIAN_PLAYER);
 				if (!pDefender || TacticalAIHelpers::IsAttackNetPositive(pUnit,pPlot))
