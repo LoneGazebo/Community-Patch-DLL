@@ -3952,6 +3952,28 @@ bool CvPlot::HasDig()
 }
 #endif
 
+bool CvPlot::isVisible(TeamTypes eTeam, bool bDebug) const
+{
+	if (bDebug && GC.getGame().isDebugMode())
+		return true;
+	else
+		return isVisible(eTeam);
+}
+
+bool CvPlot::isVisible(TeamTypes eTeam) const
+{
+	if (eTeam == NO_TEAM)
+		return false;
+
+	/*
+	//experimental hack: observer visibility is determined by the player they will return as
+	if (GET_TEAM(eTeam).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
+		eTeam = GET_PLAYER(GC.getGame().GetAutoPlayReturnPlayer()).getTeam();
+	*/
+
+	return ((getVisibilityCount(eTeam) > 0));
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::isActiveVisible(bool bDebug) const
 {

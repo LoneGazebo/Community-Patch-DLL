@@ -1550,7 +1550,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(bAggressor && !bDefensivePact)
 				{
 					//Do we have a defensive pact with the target team?
-					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) && !!isMinorCiv())
+					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) && !isMinorCiv())
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ true);

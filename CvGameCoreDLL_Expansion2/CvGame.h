@@ -693,6 +693,7 @@ public:
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot);
 
 	//------------------------------------------------------------
+	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------
 	//------------------------------------------------------------
 

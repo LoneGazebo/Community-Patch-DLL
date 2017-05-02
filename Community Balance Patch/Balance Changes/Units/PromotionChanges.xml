@@ -107,12 +107,12 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackFullyHealedMod>10</AttackFullyHealedMod>
+			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
 			<PortraitIndex>0</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_1</PediaEntry>
-		</Replace>
+			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_1</PediaEntry>	
+	</Replace>
 		<Replace>
 			<Type>PROMOTION_ACCURACY_2</Type>
 			<Description>TXT_KEY_PROMOTION_ACCURACY_2</Description>
@@ -121,7 +121,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackFullyHealedMod>10</AttackFullyHealedMod>
+			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
 			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -135,7 +135,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackFullyHealedMod>10</AttackFullyHealedMod>
+			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -148,7 +148,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<RangedAttackModifier>5</RangedAttackModifier>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -162,7 +162,7 @@
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_1</PromotionPrereqOr1>
 			<RangedAttackModifier>5</RangedAttackModifier>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>7</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -176,7 +176,7 @@
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
 			<RangedAttackModifier>5</RangedAttackModifier>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -188,7 +188,7 @@
 			<Help>TXT_KEY_PROMOTION_TARGETING_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>52</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -201,7 +201,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_TARGETING_1</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>53</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -214,7 +214,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_TARGETING_2</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<AttackWoundedMod>10</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>54</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -3230,7 +3230,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
-			<AttackFullyHealedMod>25</AttackFullyHealedMod>
+			<AttackAbove50HealthMod>25</AttackAbove50HealthMod>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3398,7 +3398,7 @@
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<MaximumRangeRequired>1</MaximumRangeRequired>
-			<SplashDamage>5</SplashDamage>
+			<AttackBelowEqual50HealthMod>30</AttackBelowEqual50HealthMod>
 			<PortraitIndex>34</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>

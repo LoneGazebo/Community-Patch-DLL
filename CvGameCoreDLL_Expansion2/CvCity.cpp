@@ -21351,24 +21351,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	CvPlot* pCityPlot = plot();
 	for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getyieldModifier(eIndex);
+		if (iTempMod != 0)
 		{
-			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-			if(pkPromotionInfo != NULL)
+			iModifier += iTempMod;
+			if(toolTipSink && iTempMod)
 			{
-				if(pkPromotionInfo->GetYieldModifier(eIndex) > 0)
-				{
-					if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-					{
-						iTempMod = pkPromotionInfo->GetYieldModifier(eIndex);
-						iModifier += iTempMod;
-						if(toolTipSink && iTempMod)
-						{
-							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
-						}
-					}
-				}
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
 			}
 		}
 	}

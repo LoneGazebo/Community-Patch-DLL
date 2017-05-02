@@ -669,6 +669,7 @@ enum TacticalAIInfoTypes
 	eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE,
 	eTACTICAL_GARRISON_1_TURN,
 	eTACTICAL_BASTION_1_TURN,
+	eTACTICAL_BASTION_2_TURN,
 	eTACTICAL_GUARD_IMPROVEMENT_1_TURN,
 	eTACTICAL_AIR_INTERCEPT,
 	eTACTICAL_AIR_SWEEP,
@@ -789,9 +790,6 @@ private:
 	// Internal turn update routines - commandeered unit processing
 	void UpdatePostures();
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
-#if defined(MOD_BALANCE_CORE)
-	AITacticalPosture SelectNavalPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
-#endif
 	void EstablishTacticalPriorities();
 	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();
@@ -1223,8 +1221,8 @@ namespace TacticalAIHelpers
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
-	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreAdjacencyBonus=false, int iExtraDefenderDamage=0);
-	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreAdjacencyBonus=false, int iExtraDefenderDamage=0);
+	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
+	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	bool HaveAtLastXMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvPlot* pTarget, int iRange, int nMinUnits);
 	bool IsCaptureTargetInRange(CvUnit* pUnit);

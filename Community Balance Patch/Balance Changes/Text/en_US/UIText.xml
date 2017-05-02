@@ -375,6 +375,13 @@
 			<Text>Bonus VS Fully-Healed Units</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_MORE_50_HP_UNITS">
+			<Text>Target above 50 HP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_LESS_50_HP_UNITS">
+			<Text>Target below/at 50 HP</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
 		</Row>

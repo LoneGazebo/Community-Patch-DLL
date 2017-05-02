@@ -1970,7 +1970,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			}
 			else
 			{
-				iItemValue = (5 * max(1, iResourceQuantity));
+				iItemValue = (10 * max(1, iResourceQuantity));
 				iItemValue *= (100 + iNumTurns);
 				iItemValue /= 100;
 			}
@@ -2055,7 +2055,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			{
 				int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)i);
 				//Has to be above average to affect price. Will usually result in a x2-x3 modifier
-				iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 6);
+				iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 10);
 				iFlavors++;
 			}
 		}
@@ -4013,12 +4013,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 				{
 					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 30;
+						iItemValue *= 10;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 75;
+						iItemValue *= 25;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 200;
+						iItemValue *= 150;
 						break;
 					case PLAYER_PROXIMITY_NEIGHBORS:
 						iItemValue *= 300;
@@ -4035,9 +4035,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 				{
 					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 40;
+						iItemValue *= 10;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 90;
+						iItemValue *= 25;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
 						iItemValue *= 200;
@@ -4225,7 +4225,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						case PLAYER_PROXIMITY_DISTANT:
 						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 20;
+							iItemValue *= 5;
 						case PLAYER_PROXIMITY_CLOSE:
 							iItemValue *= 125;
 							break;
@@ -4244,9 +4244,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 					{
 						case PLAYER_PROXIMITY_DISTANT:
-							iItemValue *= 20;
+							iItemValue *= 5;
 						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 50;
+							iItemValue *= 10;
 							break;
 						case PLAYER_PROXIMITY_CLOSE:
 							iItemValue *= 125;
@@ -4268,16 +4268,16 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 				{
 					case PLAYER_PROXIMITY_DISTANT:
-						iItemValue *= 70;
+						iItemValue *= 10;
 						break;
 					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 90;
+						iItemValue *= 15;
 						break;
 					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 100;
+						iItemValue *= 110;
 						break;
 					case PLAYER_PROXIMITY_NEIGHBORS:
-						iItemValue *= 125;
+						iItemValue *= 130;
 						break;
 					default:
 						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");

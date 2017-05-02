@@ -225,26 +225,8 @@ public:
 	bool HasDig();
 #endif	
 
-	bool isVisible(TeamTypes eTeam, bool bDebug) const
-	{
-		if(bDebug && GC.getGame().isDebugMode())
-			return true;
-		else
-		{
-			if(eTeam == NO_TEAM)
-				return false;
-
-			return ((getVisibilityCount(eTeam) > 0));
-		}
-	}
-
-	bool isVisible(TeamTypes eTeam) const
-	{
-		if(eTeam == NO_TEAM)
-			return false;
-
-		return ((getVisibilityCount(eTeam) > 0));
-	}
+	bool isVisible(TeamTypes eTeam, bool bDebug) const;
+	bool isVisible(TeamTypes eTeam) const;
 
 	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;

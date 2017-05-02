@@ -90,6 +90,8 @@ public:
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
 	int  GetAttackFullyHealedMod() const;
+	int GetAttackAboveHealthMod() const;
+	int GetAttackBelowHealthMod() const;
 	int  GetFlankAttackModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
@@ -359,6 +361,8 @@ protected:
 	int m_iAttackFortifiedMod;
 	int m_iAttackWoundedMod;
 	int m_iAttackFullyHealedMod;
+	int m_iAttackAboveHealthMod;
+	int m_iAttackBelowHealthMod;
 	int m_iFlankAttackModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;

@@ -2183,7 +2183,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	//increase if a weak city
 	if (fStrengthRatio > 0.5f)
 	{
-		fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+		fDesirability *= 115;
 		fDesirability /= 100;
 	}
 
@@ -2293,7 +2293,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	//Closest City? Emphasize.
 	if(pBestCity == target.m_pTargetCity && !bMinorButMajorWar)
 	{
-		fDesirability *= 20;
+		fDesirability *= 150;
+		fDesirability /= 100;
 	}
 
 	//Venice special - prefer to attack cities between our far-flung bases
@@ -2316,12 +2317,14 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	{
 		if (eAIOperationType == AI_OPERATION_NAVAL_INVASION && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, eDomain, 0, -1, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK))
 		{
-			fDesirability *= 15;
+			fDesirability *= 150;
+			fDesirability /= 100;
 		}
 		//Same, but flipped.
 		else if (eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, eDomain, 0, -1, AI_OPERATION_NAVAL_INVASION))
 		{
-			fDesirability *= 15;
+			fDesirability *= 150;
+			fDesirability /= 100;
 		}
 	}
 	else
@@ -2331,11 +2334,13 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		{
 			if (eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, NO_DOMAIN, 50, -1, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK))
 			{
-				fDesirability *= 15;
+				fDesirability *= 150;
+				fDesirability /= 100;
 			}
 			else if (eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, NO_DOMAIN, 50, -1, AI_OPERATION_CITY_BASIC_ATTACK))
 			{
-				fDesirability *= 15;
+				fDesirability *= 150;
+				fDesirability /= 100;
 			}
 		}
 	}
@@ -2371,8 +2376,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 				int iBonus = (((m_pPlayer->getNumResourceTotal(eResource, false) + m_pPlayer->getResourceExport(eResource)) * 100) / GC.getMap().getNumResources(eResource));
 				if(iBonus > 0)
 				{
-					fDesirability *= 3;
-					fDesirability /= 2;
+					fDesirability *= 125;
+					fDesirability /= 100;
 					break;
 				}
 			}
@@ -2384,7 +2389,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	// Economic value of target
 	float fEconomicValue = 1.0;
 	fEconomicValue = (float)target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID() );
-	fEconomicValue = sqrt(fEconomicValue/150);
+	fEconomicValue = sqrt(fEconomicValue/250);
 
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
@@ -2650,9 +2655,9 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 			CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pLoopCity,true);
 
-			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iThreatValue += 50;
-			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iThreatValue += 50;
 		}
 

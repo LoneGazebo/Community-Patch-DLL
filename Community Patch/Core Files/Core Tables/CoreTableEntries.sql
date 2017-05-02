@@ -659,6 +659,9 @@ ALTER TABLE UnitPromotions ADD 'MaximumRangeRequired' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
 
+ALTER TABLE UnitPromotions ADD 'AttackAbove50HealthMod' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'AttackBelowEqual50HealthMod' INTEGER DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD 'SplashDamage' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;

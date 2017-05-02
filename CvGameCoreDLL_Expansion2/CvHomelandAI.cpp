@@ -1381,7 +1381,7 @@ void CvHomelandAI::PlotHealMoves()
 		if(pUnit && !pUnit->isHuman())
 		{
 #if defined(MOD_AI_SMART_HEALING)
-			int iHealingLimit = pUnit->GetMaxHitPoints() * 9 / 10;
+			int iHealingLimit = pUnit->GetMaxHitPoints() * 8 / 10;
 
 			if (MOD_AI_SMART_HEALING) 
 			{
@@ -3162,7 +3162,7 @@ void CvHomelandAI::PlotAirliftMoves()
 	for (it = aAirliftCities.begin(); it != aAirliftCities.end(); it++)
 	{
 		pZone = pTactMap->GetZoneByCity(*it, false);
-		if (pZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE))
+		if (pZone && (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE))
 		{
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
@@ -8143,7 +8143,12 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 		return false;
 	}
 
-	if(!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
+	// see if we can capture a civilian?
+	int iFlags = CvUnit::MOVEFLAG_DESTINATION;
+	if (!pPlot->isVisibleEnemyDefender(pUnit) && pPlot->isVisibleEnemyUnit(pUnit))
+		iFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+	if(!pUnit->canMoveInto(*pPlot, iFlags))
 	{
 		return false;
 	}
@@ -8550,8 +8555,8 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 		if (!pZoneCity)
 			continue;
 
-		int iFriendlyPower = pZone->GetFriendlyStrength();
-		int iEnemyPower = pZone->GetEnemyStrength();
+		int iFriendlyPower = pZone->GetOverallFriendlyStrength();
+		int iEnemyPower = pZone->GetOverallEnemyStrength();
 
 		if(bWater)
 		{
@@ -8587,9 +8592,9 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
-			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+			iEnemyPower += pOtherZone->GetOverallEnemyStrength() / iScale;
 
-			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
+			iFriendlyPower =+ pOtherZone->GetOverallFriendlyStrength();
 		}
 
 		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower);
@@ -8630,8 +8635,8 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		if (!pZoneCity)
 			continue;
 
-		int iFriendlyPower = pZone->GetFriendlyStrength();
-		int iEnemyPower = pZone->GetEnemyStrength();
+		int iFriendlyPower = pZone->GetOverallFriendlyStrength();
+		int iEnemyPower = pZone->GetOverallEnemyStrength();
 
 		if(bWater)
 			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
@@ -8663,9 +8668,9 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
-			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+			iEnemyPower += pOtherZone->GetOverallEnemyStrength() / iScale;
 
-			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
+			iFriendlyPower =+ pOtherZone->GetOverallFriendlyStrength();
 		}
 
 		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower);

@@ -352,6 +352,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AttackFortifiedModifier);
 	Method(AttackWoundedModifier);
 	Method(AttackFullyHealedModifier);
+	Method(AttackAbove50Modifier);
+	Method(AttackBelow50Modifier);
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
 	Method(TerrainAttackModifier);
@@ -1453,7 +1455,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
-	if(pkUnit && pkOtherUnit)
+	if(pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		ReligionTypes eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
@@ -1506,7 +1508,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
-	if(pkUnit && pkOtherUnit)
+	if (pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
@@ -3524,6 +3526,24 @@ int CvLuaUnit::lAttackFullyHealedModifier(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->attackFullyHealedModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lAttackAbove50Modifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->attackAbove50HealthModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lAttackBelow50Modifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->attackBelow50HealthModifier();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
