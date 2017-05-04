@@ -2905,11 +2905,11 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		}
 	}
 
-	if(iNumUnimprovedPlots > iNumWorkers)
+	if(iNumUnimprovedPlots > 0)
 	{
 		return;
 	}
-	else if(iNumWorkers > iNumUnimprovedPlots)
+	else if(iNumUnimprovedPlots > iNumWorkers)
 	{
 		m_iLastTurnWorkerDisbanded = GC.getGame().getGameTurn();
 

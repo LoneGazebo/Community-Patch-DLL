@@ -1278,7 +1278,7 @@ void CvTacticalAI::FindTacticalTargets()
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_ANCIENT_RUINS);
 					newTarget.SetAuxData((void*)pLoopPlot);
 #if defined(MOD_BALANCE_CORE)
-					newTarget.SetAuxIntData(50);
+					newTarget.SetAuxIntData(150);
 #endif
 					m_AllTargets.push_back(newTarget);
 				}
@@ -1372,9 +1372,18 @@ void CvTacticalAI::FindTacticalTargets()
 					CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
 					if (!pTargetUnit->isDelayedDeath() && atWar(m_pPlayer->getTeam(), pTargetUnit->getTeam()))
 					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
 						newTarget.SetTargetPlayer(pTargetUnit->getOwner());
 						newTarget.SetAuxData((void*)pTargetUnit);
+
+						if (pTargetUnit->IsCivilianUnit())
+							newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN);
+						else
+						{
+							newTarget.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
+							newTarget.SetAuxIntData(25);
+							m_AllTargets.push_back(newTarget);
+							continue;
+						}
 
 						if (pTargetUnit->isEmbarked())
 						{
@@ -10975,7 +10984,7 @@ bool CvTacticalAI::IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 {
 	bool bRtnValue = false;
 	CvUnit* pUnit = (CvUnit*)pTarget->GetAuxData();
-	if(pUnit)
+	if (pUnit && pUnit->IsCivilianUnit())
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 		int iEstimatedEndTurn = GC.getGame().getEstimateEndTurn();
