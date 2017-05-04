@@ -1279,6 +1279,7 @@ protected:
 	bool m_bKillOnlyCivilian;
 	int m_iTechObsolete;
 	bool m_bFreeBestDomainUnit;
+	bool m_bKillImprovement;
 	bool m_bCultureBoost;
 #endif
 	int m_iImprovement;

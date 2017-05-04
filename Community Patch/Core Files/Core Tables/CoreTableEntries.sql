@@ -1022,6 +1022,9 @@ ALTER TABLE Units ADD 'CultureBoost' BOOLEAN DEFAULT 0;
 -- Unit gets extra attacks and partial health is restored upon killing an enemy unit.
 ALTER TABLE Units ADD 'ExtraAttackHealthOnKill' BOOLEAN DEFAULT 0;
 
+-- Kills Improvement if set to 1 (use this to reveal a resource on the map, when build is finished etc.)
+ALTER TABLE Builds ADD 'KillImprovement' BOOLEAN DEFAULT 0;
+
 -- Trait allows player to have every unit upgraded once tech is reached.
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSFollowingYourReligion' INTEGER DEFAULT 0;
 

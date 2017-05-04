@@ -2053,7 +2053,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			int iResourceFlavor = pkResourceInfo->getFlavorValue((FlavorTypes)i);
 			if(iResourceFlavor > 0)
 			{
-				int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)i);
+				int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 				//Has to be above average to affect price. Will usually result in a x2-x3 modifier
 				iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 10);
 				iFlavors++;

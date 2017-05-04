@@ -481,7 +481,6 @@ void CvPlot::doImprovement()
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
-								this->DoFindCityToLinkResourceTo();
 								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
@@ -2588,6 +2587,12 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			return false;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(thisBuildInfo.IsKillImprovement() && getResourceType() != NO_RESOURCE)
+	{
+		return false;
+	}
+#endif
 	if(thisBuildInfo.IsRemoveRoute())
 	{
 		if(!getPlotCity() && getRouteType() != NO_ROUTE)
@@ -2657,11 +2662,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 			if(GC.getImprovementInfo(getImprovementType())->IsPermanent())
 			{
-				ImprovementTypes eArchaeologicalDig = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ARCHAEOLOGICAL_DIG");
-				if(eImprovement != eArchaeologicalDig)
-				{
-					return false;
-				}
+				return false;
 			}
 
 			if(getImprovementType() == eImprovement)
@@ -8390,8 +8391,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 		
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-		if (MOD_EVENTS_TILE_IMPROVEMENTS)
-		{
+		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileImprovementChanged, getX(), getY(), getOwner(), eOldImprovement, eNewValue, IsImprovementPillaged());
 		}
 #endif
@@ -12115,7 +12115,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 											// Good we passed. Now let's add a resource.
 											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 											setResourceType((ResourceTypes)iI, iResourceNum);
-											this->DoFindCityToLinkResourceTo();
+											if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+												SetResourceLinkedCityActive(true);
 											if(getOwner() == GC.getGame().getActivePlayer())
 											{
 												pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
@@ -14411,7 +14412,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 			SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
 
 	//if it's passable, check for blocking terrain/features
-	if(eTerrain != NO_TERRAIN)
+	if(eTerrain != NO_TERRAIN && !m_bIsImpassable)
 	{
 		if(eFeature == NO_FEATURE)
 		{
