@@ -9,42 +9,22 @@ local g_ItemManagers = {
 	InstanceManager:new( "ItemInstance", "Button", Controls.RecentEventsStack ),
 }
 
-local bHidden = true;
-
-local screenSizeX, screenSizeY = UIManager:GetScreenSizeVal()
-local spWidth, spHeight = Controls.ItemScrollPanel:GetSizeVal();
-
--- Original UI designed at 1050px 
-local heightOffset = screenSizeY - 1020;
-
-spHeight = spHeight + heightOffset;
--- Controls.ItemScrollPanel:SetSizeVal(spWidth, spHeight); 
--- Controls.ItemScrollPanel:CalculateInternalSize();
--- Controls.ItemScrollPanel:ReprocessAnchoring();
-
-local bpWidth, bpHeight = Controls.BottomPanel:GetSizeVal();
---bpHeight = bpHeight * heightRatio;
---print(heightOffset);
---print(bpHeight);
-bpHeight = bpHeight + heightOffset 
---print(bpHeight);
-
 -------------------------------------------------
 -- On Popup
 -------------------------------------------------
 function RefreshData()
-	
+
 	local iActivePlayer = Game.GetActivePlayer();
-	local pPlayer = Players[iActivePlayer];	
-	
+	local pPlayer = Players[iActivePlayer];
+
 	g_Model = {};
 
 	local map = Map;
 
-	local iTotal = 0;	
+	local iTotal = 0;
 	local activeRecentEventChoices = pPlayer:GetRecentPlayerEventChoices();
 	for i,v in ipairs(activeRecentEventChoices) do
-		
+
 		print("found an event choice")
 		local eventChoice = {
 			EventChoice = v.EventChoice,
@@ -60,7 +40,7 @@ function RefreshData()
 
 		szChoiceDescString = Locale.Lookup(pEventChoiceInfo.Description);
 		szChoiceHelpString = Locale.ConvertTextKey(pPlayer:GetScaledEventChoiceValue(pEventChoiceInfo.ID));
-		
+
 		if(eventChoice.ParentEvent ~= -1) then
 			local pParentEventInfo = GameInfo.Events[eventChoice.ParentEvent];
 			szParentDescString = Locale.Lookup(pParentEventInfo.Description);
@@ -72,7 +52,7 @@ function RefreshData()
 		end
 
 		eventChoice.EventChoiceDescription = szChoiceHelpString;
-			
+
 		iTotal = iTotal + 1;
 		table.insert(g_Model, eventChoice);
 	end
@@ -101,18 +81,18 @@ function SortData()
 	table.sort(g_Model, g_SortOptions[g_CurrentSortOption][2]);
 end
 
-function Initialize()	
+function Initialize()
 	local sortByPulldown = Controls.SortByPullDown;
 	sortByPulldown:ClearEntries();
 	for i, v in ipairs(g_SortOptions) do
 		local controlTable = {};
 		sortByPulldown:BuildEntry( "InstanceOne", controlTable );
 		controlTable.Button:LocalizeAndSetText(v[1]);
-		
+
 		controlTable.Button:RegisterCallback(Mouse.eLClick, function()
 			sortByPulldown:GetButton():LocalizeAndSetText(v[1]);
 			g_CurrentSortOption = i;
-			
+
 			SortData();
 			DisplayData();
 		end);
@@ -122,15 +102,15 @@ function Initialize()
 end
 
 function DisplayData()
-	
+
 	for _, itemManager in ipairs(g_ItemManagers) do
 		itemManager:ResetInstances();
 	end
-		
+
 	for _, eventChoice in ipairs(g_Model) do
-		
+
 		local itemInstance = g_ItemManagers[1]:GetInstance();
-		
+
 		if(eventChoice.EventParentName ~= "") then
 			itemInstance.RecentParentEventTitle:SetText("[COLOR_CYAN]" .. eventChoice.EventParentName .. "[ENDCOLOR]");
 			itemInstance.RecentEventChoiceTitle:SetText(eventChoice.EventChoiceName);
@@ -147,8 +127,8 @@ function DisplayData()
 		local buttonWidth, buttonHeight = itemInstance.Button:GetSizeVal();
 		local descWidth, descHeight = itemInstance.RecentEventInfoStack:GetSizeVal();
 
-		local newHeight = math.max(100, descHeight + 0);	
-		
+		local newHeight = math.max(100, descHeight + 0);
+
 		itemInstance.Button:SetSizeVal(buttonWidth, newHeight);
 		itemInstance.Box:SetSizeVal(buttonWidth, newHeight);
 		itemInstance.BounceAnim:SetSizeVal(buttonWidth, newHeight + 5);
@@ -165,23 +145,11 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler( bIsHide, bInitState )
-
-	bHidden = bIsHide;
-    if( not bInitState ) then
-        if( not bIsHide ) then
-        	UI.incTurnTimerSemaphore();
-        	Events.SerialEventGameMessagePopupShown(g_PopupInfo);
-        	
-        	Initialize();
-        	RefreshData();
-        	SortData();
-        	DisplayData();             	
-        else			
-			if(g_PopupInfo ~= nil) then
-				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
-			end
-            UI.decTurnTimerSemaphore();
-        end
+    if ( not bInitState and not bIsHide ) then
+      	Initialize();
+      	RefreshData();
+      	SortData();
+      	DisplayData();
     end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
