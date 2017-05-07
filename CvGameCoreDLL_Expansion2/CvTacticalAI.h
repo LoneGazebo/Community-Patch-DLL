@@ -885,7 +885,6 @@ private:
 	bool ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false, int iFlags=0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
-	void ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves=false);
 	void ExecuteAirInterceptMoves();
 	void ExecuteAirSweepMoves();
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);

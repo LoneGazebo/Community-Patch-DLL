@@ -1184,6 +1184,7 @@ void CvTacticalAI::FindTacticalTargets()
 	m_AllTargets.clear();
 
 	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn();
+	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
 	// Look at every tile on map
 	for (iI = 0; iI < GC.getMap().numPlots(); iI++)
@@ -1354,14 +1355,12 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... enemy trade route? (city connection - not caravan)
 				// checking for city connection is not enough, some people (iroquois) don't need roads, so there isn't anything to pillage 
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
-					pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged() && pLoopPlot->IsCityConnection()/* && !bEnemyDominatedPlot*/)
+					pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged() && pLoopPlot->IsCityConnection())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT);
 					newTarget.SetTargetPlayer(pLoopPlot->getOwner());
 					newTarget.SetAuxData((void*)pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
-					newTarget.SetAuxIntData(10);
-#endif
+					newTarget.SetAuxIntData(10 - bEnemyDominatedPlot ? 2 : 0 );
 					m_AllTargets.push_back(newTarget);
 				}
 
@@ -1443,34 +1442,35 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... defensive bastion?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 ||
-					m_pPlayer->GetPlotDanger(*pLoopPlot) > 0))
+					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 || pLoopPlot->IsChokePoint()) &&
+					(pLoopPlot->getImprovementType()==eCitadel || pLoopPlot->getBestDefender(m_pPlayer->GetID())==NULL)
+					)
 				{
 					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);
-					if (pDefenseCity || pLoopPlot->IsChokePoint() || pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20)
+					if (pDefenseCity || pLoopPlot->IsChokePoint())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 						newTarget.SetAuxData((void*)pLoopPlot);
 #if defined(MOD_BALANCE_CORE_MILITARY)
 						if (pDefenseCity)
 						{
-							int iValue = pDefenseCity->getThreatValue() + m_pPlayer->GetPlotDanger(*pLoopPlot) + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
+							int iValue = pDefenseCity->getThreatValue() + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
 							if (pDefenseCity->isUnderSiege())
 							{
-								iValue *= 25;
+								iValue *= 5;
 							}
-							if (bEnemyDominatedPlot || pLoopPlot->IsChokePoint() || pDefenseCity->isInDangerOfFalling())
+							if (pLoopPlot->IsChokePoint() || pDefenseCity->isInDangerOfFalling())
 							{
-								iValue *= 100;
+								iValue *= 10;
 							}
 							newTarget.SetAuxIntData(iValue);
 						}
 						else
 						{
-							int iValue = (m_pPlayer->GetPlotDanger(*pLoopPlot) + pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false));
-							if (bEnemyDominatedPlot || pLoopPlot->IsChokePoint())
+							int iValue = pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false);
+							if (pLoopPlot->IsChokePoint())
 							{
-								iValue *= 100;
+								iValue *= 10;
 							}
 							newTarget.SetAuxIntData(iValue);
 						}
@@ -1484,7 +1484,8 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... friendly improvement?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
-					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody())
+					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody() &&
+					pLoopPlot->getBestDefender(m_pPlayer->GetID()))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 					newTarget.SetAuxData((void*)pLoopPlot);
@@ -3018,7 +3019,10 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		}
 		else if (!bFirstPass && FindUnitsCloseToPlot(pPlot,2,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
 		{
-			ExecuteMoveToTarget(pPlot);
+			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+
+			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+				ExecuteMoveToPlotIgnoreDanger(pUnit,pPlot);
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -3302,9 +3306,11 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 			// Grab units that make sense for this move type
 			FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE], pPlot, iNumTurnsAway, bMustAllowRangedAttack);
 
-			if(m_CurrentMoveUnits.size() > 0)
+			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+
+			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
-				ExecuteMoveToTarget(pPlot);
+				ExecuteMoveToPlotIgnoreDanger(pUnit, pPlot);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -3342,11 +3348,14 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE], pPlot, iNumTurnsAway);
+		CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
-		if(m_CurrentMoveUnits.size() > 0)
+		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
+		if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
-			ExecuteMoveToTarget(pPlot);
-			if(GC.getLogging() && GC.getAILogging())
+			ExecuteMoveToPlotIgnoreDanger(pUnit, pPlot);
+
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
 				strLogString.Format("Bastion, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
@@ -3367,10 +3376,12 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE], pPlot, iNumTurnsAway);
+		CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
-		if(m_CurrentMoveUnits.size() > 0)
+		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
+		if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
-			ExecuteMoveToTarget(pPlot);
+			ExecuteMoveToPlotIgnoreDanger(pUnit, pPlot);
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -3392,10 +3403,12 @@ void CvTacticalAI::PlotAncientRuinMoves(int iNumTurnsAway)
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_ANCIENT_RUINS], pPlot, iNumTurnsAway);
+		CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
-		if(m_CurrentMoveUnits.size() > 0)
+		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
+		if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
-			ExecuteMoveToTarget(pPlot);
+			ExecuteMoveToPlotIgnoreDanger(pUnit, pPlot,true);
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -6733,10 +6746,12 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			// LAND MOVES
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
-				//try offensive first, then defensive
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
+				//defensive only - don't send lonesome units into danger
+				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 				if (!pBestPlot)
-					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, true);
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
+				if (!pBestPlot)
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 
 				if(pBestPlot)
 				{
@@ -6749,7 +6764,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("%s moving to empty space near offensive target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
+							strLogString.Format("%s moving to empty space near defensive target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
 							                    pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strLogString);
 						}
@@ -6762,10 +6777,12 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			{
 				bool bMoveMade = false;
 
-				//Let's find an offensive target first.
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
+				//defensive only - don't send lonesome units into danger
+				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 				if (!pBestPlot)
-					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, true);
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
+				if (!pBestPlot)
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 
 				if(pBestPlot)
 				{
@@ -6777,7 +6794,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("%s moving to empty space near offensive naval target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
+							strLogString.Format("%s moving to empty space near defensive naval target (RepositionMoves), X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(),
 												pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
 							LogTacticalMessage(strLogString);
 						}
@@ -7647,15 +7664,6 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 		UnitProcessed(m_CurrentMoveUnits[0].GetID());
 		pUnit->SetTacticalAIPlot(NULL);
 	}
-}
-
-/// Find one unit to move to target, starting with high priority list
-void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves)
-{
-	CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
-
-	if (pUnit)
-		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget,bSaveMoves);
 }
 
 /// Set up fighters to intercept enemy air units

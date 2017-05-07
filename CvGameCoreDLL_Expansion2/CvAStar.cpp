@@ -2012,12 +2012,17 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 			return PATH_BASE_COST/2;
 
 		//should we prefer rough terrain because the gain in movement points is greater?
+		int iCost = PATH_BASE_COST;
+
+		//can't build anything on mountain
+		if (pPlot->isMountain())
+			iCost++;
 
 		//prefer plots without resources so we can build more villages
-		if(pPlot->getResourceType()==NO_RESOURCE)
-			return PATH_BASE_COST;
-		else
-			return PATH_BASE_COST+1;
+		if(pPlot->getResourceType()!=NO_RESOURCE)
+			iCost++;
+
+		return iCost;
 	}
 }
 
