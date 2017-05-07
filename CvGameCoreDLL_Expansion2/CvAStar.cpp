@@ -1433,7 +1433,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) )
+				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) )
 					return FALSE;
 			}
 
