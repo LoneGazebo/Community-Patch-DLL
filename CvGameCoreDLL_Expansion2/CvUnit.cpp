@@ -1981,10 +1981,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 	}
 
 //---------------------------------
+// statistics
+//---------------------------------
 	if (ePlayer!=NO_PLAYER)
 	{
 		TacticalAIMoveTypes move = getTacticalMove();
 		saiTaskWhenKilled[ (int)move+1 ]++;
+
+		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
+			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
 	}
 //---------------------------------
 

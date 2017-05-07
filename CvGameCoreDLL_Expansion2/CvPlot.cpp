@@ -574,13 +574,7 @@ void CvPlot::updateFog(bool bDefer)
 	}
 	else
 	{
-		CvMap::DeferredPlotArray& plotList = GC.getMap().m_vDeferredFogPlots;
-		for (CvMap::DeferredPlotArray::const_iterator itr = plotList.begin(); itr != plotList.end(); ++itr)
-		{
-			if((*itr) == this)
-				return;	// Already in
-		}
-		plotList.push_back(this);
+		GC.getMap().deferredFogPlots().insert(this);
 	}
 }
 

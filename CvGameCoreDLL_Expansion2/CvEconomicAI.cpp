@@ -1270,18 +1270,14 @@ double CvEconomicAI::GetWorkersToCitiesRatio()
 /// What is the ratio of our improved plots to all the plots we are able to improve?
 double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 {
-	const CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
 	int iNumValidPlots = 0;
 	int iNumImprovedPlots = 0;
-	for(uint ui = 0; ui < aiPlots.size(); ui++)
+	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		if(aiPlots[ui] == -1)
-		{
-			continue;
-		}
-
-		const CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
-		if(!pPlot)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
 			continue;
 		}
@@ -1442,23 +1438,16 @@ void CvEconomicAI::LogMonitor(void)
 	FFastVector<int, true> m_aiNumImprovements;
 	m_aiNumImprovements.push_back_copy(-1, GC.getNumImprovementInfos());
 
-	// go through all the plots the player has under their control
-	CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
-
 	// worked tiles
 	int iTiles = 0;
 	int iWorkedTiles = 0;
 	int iImprovedTiles = 0;
-	for(uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		// when we encounter the first plot that is invalid, the rest of the list will be invalid
-		if(aiPlots[uiPlotIndex] == -1)
-		{
-			break;
-		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-		if(!pPlot)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
 			continue;
 		}
@@ -1545,9 +1534,6 @@ void CvEconomicAI::LogCityMonitor()
 		bFirstRun = false;
 		bBuildHeader = true;
 	}
-
-	// go through all the plots the player has under their control
-	CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
 
 	CvString strLog;
 
@@ -1773,16 +1759,12 @@ void CvEconomicAI::LogCityMonitor()
 		int iTiles = 0;
 		int iWorkedTiles = 0;
 		int iImprovedTiles = 0;
-		for(uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+		const set<int>& aiPlots = m_pPlayer->GetPlots();
+		// go through all the plots the player has under their control
+		for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 		{
-			// when we encounter the first plot that is invalid, the rest of the list will be invalid
-			if(aiPlots[uiPlotIndex] == -1)
-			{
-				break;
-			}
-
-			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-			if(!pPlot)
+			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+			if (!pPlot)
 			{
 				continue;
 			}
@@ -2877,18 +2859,14 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		return;
 	}
 
-	const CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
 	int iNumValidPlots = 0;
 	int iNumUnimprovedPlots = 0;
-	for(uint ui = 0; ui < aiPlots.size(); ui++)
+	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		if(aiPlots[ui] == -1)
-		{
-			continue;
-		}
-
-		const CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
-		if(!pPlot)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
 			continue;
 		}
@@ -3033,18 +3011,14 @@ void CvEconomicAI::DisbandExtraWorkers()
 		return;
 	}
 
-	const CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
 	int iNumValidPlots = 0;
 	int iNumImprovedPlots = 0;
-	for(uint ui = 0; ui < aiPlots.size(); ui++)
+	const set<int>& aiPlots = m_pPlayer->GetPlots();
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		if(aiPlots[ui] == -1)
-		{
-			continue;
-		}
-
-		const CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
-		if(!pPlot)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
 			continue;
 		}
@@ -4445,16 +4419,16 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 				continue;
 			}
 
-			CvPlotsVector& aPlots = pPlayer->GetPlots();
 			bool bCanBuild = false;
-			for(uint ui = 0; ui < aPlots.size(); ui++)
+			const set<int>& aiPlots = pPlayer->GetPlots();
+			// go through all the plots the player has under their control
+			for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 			{
-				if(aPlots[ui] < 0)
+				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+				if (!pPlot)
 				{
-					break;
+					continue;
 				}
-
-				CvPlot* pPlot = GC.getMap().plotByIndex(aPlots[ui]);
 				if(pPlayer->canBuild(pPlot, eBuild, false /*test era*/, false /*test visible*/, false /*test gold*/))
 				{
 					bCanBuild = true;

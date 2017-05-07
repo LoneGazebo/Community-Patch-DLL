@@ -2743,16 +2743,11 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 	}
 
 	// loop through plots and wipe out ones that are invalid
-	CvPlotsVector& m_aiPlots = GetPlots();
-	const uint nPlots = m_aiPlots.size();
-	for(uint ui = 0; ui < nPlots; ui++)
+	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
-		if(m_aiPlots[ui] == -1)
-			continue;
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
-		CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[ui]);
-
-		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+		if(!pPlot || !pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 			continue;
 
 		if(!pGeneral->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))

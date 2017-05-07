@@ -94,6 +94,8 @@ inline int coordRange(int iCoord, int iRange, bool bWrap)
 }
 
 class CvPlotManager;
+typedef std::set<CvPlot*> DeferredFogPlots;
+typedef std::map<PlayerTypes, std::map<int, int>> UnitKillCount;
 
 //
 // CvMap
@@ -261,6 +263,7 @@ public:
 #endif
 
 	CvPlotManager& plotManager() { return m_kPlotManager; }
+	DeferredFogPlots& deferredFogPlots() { return m_vDeferredFogPlots; }
 
 	/// Areas
 	int getIndexAfterLastArea();
@@ -313,8 +316,10 @@ public:
 	int GetAIMapHint();
 	// End Natural Wonders stuff
 
-	typedef FStaticVector<CvPlot*, 1000, true, c_eCiv5GameplayDLL, 1> DeferredPlotArray;
-	DeferredPlotArray m_vDeferredFogPlots; // don't serialize me
+	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
+	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
+	void ExportUnitKillCount(PlayerTypes ePlayer);
+	void DoKillCountDecay(float fDecayFactor = 0.98);
 
 protected:
 
@@ -363,6 +368,11 @@ protected:
 	GUID m_guid;
 
 	CvPlotManager	m_kPlotManager;
+
+	DeferredFogPlots m_vDeferredFogPlots; // don't serialize me
+
+	// player -> plot index -> number of owned units killed
+	UnitKillCount killCount;
 };
 
 #endif

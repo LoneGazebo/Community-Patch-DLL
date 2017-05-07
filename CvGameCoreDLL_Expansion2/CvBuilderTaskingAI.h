@@ -134,7 +134,7 @@ protected:
 
 	CvPlayer* m_pPlayer;
 	BuildTypes m_eRepairBuild;
-	CvPlotsVector m_aiPlots;
+	set<int> m_aiPlots;
 	bool m_bLogging;
 	int m_iNumCities;
 
