@@ -81,14 +81,8 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyNavalRangedStrength = 0;
 	m_iFriendlyUnitCount = 0;
 	m_iEnemyUnitCount = 0;
-	m_iFriendlyRangedUnitCount = 0;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	m_iFriendlyMeleeUnitCount = 0;
-	m_iEnemyMeleeUnitCount = 0;
 	m_iNeutralUnitStrength = 0;
 	m_iNeutralUnitCount = 0;
-#endif
-	m_iEnemyRangedUnitCount = 0;
 	m_iEnemyNavalUnitCount = 0;
 	m_iFriendlyNavalUnitCount = 0;
 	m_iZoneValue = 0;
@@ -128,8 +122,7 @@ void CvTacticalDominanceZone::SetZoneCity(CvCity* pCity)
 
 eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDominancePercentage) const
 {
-	if ( ((GetEnemyRangedStrength() <= 0) || (GetEnemyRangedUnitCount() <= 0)) && 
-		 ((GetFriendlyRangedStrength() > 0) || (GetFriendlyRangedUnitCount() > 0)))
+	if ( GetEnemyRangedStrength() <= 0 && GetFriendlyRangedStrength() > 0)
 	{
 		return TACTICAL_DOMINANCE_FRIENDLY;
 	}
@@ -151,13 +144,13 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDom
 
 eTacticalDominanceFlags CvTacticalDominanceZone::GetUnitCountDominanceFlag(int iDominancePercentage) const
 {
-	if (GetEnemyUnitCount() <= 0 && GetFriendlyUnitCount() > 0)
+	if (GetTotalEnemyUnitCount() <= 0 && GetTotalFriendlyUnitCount() > 0)
 	{
 		return TACTICAL_DOMINANCE_FRIENDLY;
 	}
 	else
 	{
-		int iRatio = (GetFriendlyUnitCount() * 100) / max(1, GetEnemyUnitCount());
+		int iRatio = (GetTotalFriendlyUnitCount() * 100) / max(1, GetTotalEnemyUnitCount());
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -933,11 +926,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							pZone->AddEnemyMeleeStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
 							pZone->AddEnemyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
 							pZone->AddEnemyUnitCount(1);
-
-							if (pLoopUnit->isRanged())
-								pZone->AddEnemyRangedUnitCount(1);
-							else
-								pZone->AddEnemyMeleeUnitCount(1);
 						}
 
 						//again only for enemies
@@ -966,11 +954,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							pZone->AddFriendlyMeleeStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
 							pZone->AddFriendlyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
 							pZone->AddFriendlyUnitCount(1);
-
-							if (pLoopUnit->isRanged())
-								pZone->AddFriendlyRangedUnitCount(1);
-							else
-								pZone->AddFriendlyMeleeUnitCount(1);
 						}
 					}
 					else
@@ -1132,10 +1115,10 @@ void CvTacticalAnalysisMap::LogZones()
 			if ( pZone->GetOverallFriendlyStrength()==0 &&  pZone->GetOverallEnemyStrength()==0)
 				continue;
 
-			szLogMsg.Format("Zone ID: %d, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (%d), ENEMY Str: %d (%d), Ranged: %d (%d), Closest Enemy: %d",
+			szLogMsg.Format("Zone ID: %d, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
 			                pZone->GetDominanceZoneID(), pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
-			                pZone->GetOverallFriendlyStrength(), pZone->GetFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyRangedUnitCount(),
-			                pZone->GetOverallEnemyStrength(), pZone->GetEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyRangedUnitCount(), pZone->GetRangeClosestEnemyUnit());
+			                pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
+			                pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetRangeClosestEnemyUnit());
 			if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 			{
 				szLogMsg += ", Friendly";
@@ -1306,7 +1289,7 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 		{
 			pZone->SetOverallDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
 		}
-		else if (pZone->GetEnemyUnitCount()==1 && pZone->GetFriendlyUnitCount()<=1) //both are weak, one unit might tip the balance
+		else if (pZone->GetTotalEnemyUnitCount()==1 && pZone->GetTotalFriendlyUnitCount()<=1) //both are weak, one unit might tip the balance
 		{
 			pZone->SetOverallDominanceFlag(TACTICAL_DOMINANCE_EVEN);
 		}
@@ -1473,12 +1456,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iEnemyNavalRangedStrength;
 	saveTo << readFrom.m_iFriendlyUnitCount;
 	saveTo << readFrom.m_iEnemyUnitCount;
-	saveTo << readFrom.m_iFriendlyRangedUnitCount;
-	saveTo << readFrom.m_iFriendlyMeleeUnitCount;
-	saveTo << readFrom.m_iEnemyMeleeUnitCount;
+	saveTo << 0;
+	saveTo << 0;
+	saveTo << 0;
 	saveTo << readFrom.m_iNeutralUnitCount;
 	saveTo << readFrom.m_iNeutralUnitStrength;
-	saveTo << readFrom.m_iEnemyRangedUnitCount;
+	saveTo << 0;
 	saveTo << readFrom.m_iEnemyNavalUnitCount;
 	saveTo << readFrom.m_iFriendlyNavalUnitCount;
 	saveTo << readFrom.m_iZoneValue;
@@ -1515,12 +1498,12 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iEnemyNavalRangedStrength;
 	loadFrom >> writeTo.m_iFriendlyUnitCount;
 	loadFrom >> writeTo.m_iEnemyUnitCount;
-	loadFrom >> writeTo.m_iFriendlyRangedUnitCount;
-	loadFrom >> writeTo.m_iFriendlyMeleeUnitCount;
-	loadFrom >> writeTo.m_iEnemyMeleeUnitCount;
+	loadFrom >> tmp; //dummy for compatibility
+	loadFrom >> tmp; //dummy for compatibility
+	loadFrom >> tmp; //dummy for compatibility
 	loadFrom >> writeTo.m_iNeutralUnitCount;
 	loadFrom >> writeTo.m_iNeutralUnitStrength;
-	loadFrom >> writeTo.m_iEnemyRangedUnitCount;
+	loadFrom >> tmp; //dummy for compatibility
 	loadFrom >> writeTo.m_iEnemyNavalUnitCount;
 	loadFrom >> writeTo.m_iFriendlyNavalUnitCount;
 	loadFrom >> writeTo.m_iZoneValue;
