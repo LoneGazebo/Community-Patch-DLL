@@ -1456,12 +1456,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iEnemyNavalRangedStrength;
 	saveTo << readFrom.m_iFriendlyUnitCount;
 	saveTo << readFrom.m_iEnemyUnitCount;
-	saveTo << 0;
-	saveTo << 0;
-	saveTo << 0;
 	saveTo << readFrom.m_iNeutralUnitCount;
 	saveTo << readFrom.m_iNeutralUnitStrength;
-	saveTo << 0;
 	saveTo << readFrom.m_iEnemyNavalUnitCount;
 	saveTo << readFrom.m_iFriendlyNavalUnitCount;
 	saveTo << readFrom.m_iZoneValue;
@@ -1498,12 +1494,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iEnemyNavalRangedStrength;
 	loadFrom >> writeTo.m_iFriendlyUnitCount;
 	loadFrom >> writeTo.m_iEnemyUnitCount;
-	loadFrom >> tmp; //dummy for compatibility
-	loadFrom >> tmp; //dummy for compatibility
-	loadFrom >> tmp; //dummy for compatibility
 	loadFrom >> writeTo.m_iNeutralUnitCount;
 	loadFrom >> writeTo.m_iNeutralUnitStrength;
-	loadFrom >> tmp; //dummy for compatibility
 	loadFrom >> writeTo.m_iEnemyNavalUnitCount;
 	loadFrom >> writeTo.m_iFriendlyNavalUnitCount;
 	loadFrom >> writeTo.m_iZoneValue;

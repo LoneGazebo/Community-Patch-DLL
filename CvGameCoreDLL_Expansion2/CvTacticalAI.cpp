@@ -11738,7 +11738,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			return result;
 
 		//don't do it if it's a death trap
-		if (currentPlot.getNumAdjacentEnemies()>2)
+		if (currentPlot.getNumAdjacentEnemies()>3)
 			return result;
 
 		//lookup by unit strategy / plot type
@@ -11844,6 +11844,12 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				else if (currentPlot.getNumAdjacentEnemies()>0 || currentPlot.getNumAdjacentFirstlineFriendlies()==0)
 					//ranged units don't like to park next to enemies at all if we cannot attack
 					iDamageScore = 0;
+			}
+			else //melee
+			{
+				//we exclude plots with >3 enemies around anyway. three is a corner case
+				if (currentPlot.getNumAdjacentFriendlies() == 3)
+					iDamageScore /= 2;
 			}
 
 			//isolated unit? bad. chicken and egg problem for the algorithm though.
