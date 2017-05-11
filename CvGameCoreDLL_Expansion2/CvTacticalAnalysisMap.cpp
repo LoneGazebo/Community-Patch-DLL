@@ -862,8 +862,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 				//a little cheating for AI - invisible units still count with reduced strength
 				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
-				//embarked units count only partially
-				bool bReducedStrength = pLoopUnit->isEmbarked();
+				bool bZoneTypeMismatch = (pLoopUnit->getDomainType() == DOMAIN_LAND && pZone->IsWater()) || (pLoopUnit->getDomainType() == DOMAIN_SEA && !pZone->IsWater());
+
+				//embarked units and crossdomain count only partially
+				bool bReducedStrength = pLoopUnit->isEmbarked() || bZoneTypeMismatch;
 
 				//if there is a city, units in adjacent zones can also count
 				int iDistance = 0;
@@ -872,9 +874,13 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pClosestCity->getX(), pClosestCity->getY());
 					if (iDistance > m_iTacticalRange)
 						continue;
-
 					else if (iDistance > (m_iTacticalRange / 2))
-						bReducedStrength = true;
+					{
+						if (bZoneTypeMismatch)
+							continue;
+						else
+							bReducedStrength = true;
+					}
 					else
 					{
 						//if on another continent, they can't easily take part in the fight

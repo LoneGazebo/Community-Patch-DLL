@@ -791,9 +791,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		// can't build on plots others own
 		PlayerTypes eOwner = pUnit->plot()->getOwner();
 		if(eOwner == m_pPlayer->GetID())
-		{
-			m_aiPlots.push_back(pUnit->plot()->GetPlotIndex());
-		}
+			m_aiPlots.insert(pUnit->plot()->GetPlotIndex());
 	}
 	else
 	{
@@ -813,20 +811,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	}
 
 	// go through all the plots the player has under their control
-	for(uint uiPlotIndex = 0; uiPlotIndex < m_aiPlots.size(); uiPlotIndex++)
+	for(set<int>::iterator it=m_aiPlots.begin(); it!=m_aiPlots.end(); ++it)
 	{
-		// when we encounter the first plot that is invalid, the rest of the list will be invalid
-		if(m_aiPlots[uiPlotIndex] == -1)
-		{
-			if(m_bLogging)
-			{
-				CvString strLog = "end of plot list";
-				LogInfo(strLog, m_pPlayer);
-			}
-			break;
-		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[uiPlotIndex]);
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
 		if(!ShouldBuilderConsiderPlot(pUnit, pPlot))
 		{
@@ -962,19 +949,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	if(m_bEvaluateAdjacent)
 	{
 		//Let's grab our territory.
-		for(uint uiPlotIndex = 0; uiPlotIndex < m_aiPlots.size(); uiPlotIndex++)
+		for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 		{
-			// when we encounter the first plot that is invalid, the rest of the list will be invalid
-			if(m_aiPlots[uiPlotIndex] == -1)
-			{
-				if(m_bLogging)
-				{
-					CvString strLog = "end of plot list";
-					LogInfo(strLog, m_pPlayer);
-				}
-				break;
-			}
-			CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[uiPlotIndex]);
+			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
 			CvAssertMsg(pPlot != NULL, "Plot should not be NULL");
 			if(!pPlot)

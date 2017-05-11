@@ -1132,11 +1132,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Danger? Prioritize units!
 	if (m_pCity->isInDangerOfFalling())
 	{
-		iBonus /= 10;
+		iBonus /= 25;
 	}
 	if (m_pCity->isUnderSiege())
 	{
-		iBonus /= 2;
+		iBonus /= 25;
 	}
 
 	/////

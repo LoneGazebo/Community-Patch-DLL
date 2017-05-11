@@ -650,10 +650,9 @@ void CvMap::updateFog()
 //	--------------------------------------------------------------------------------
 void CvMap::updateDeferredFog()
 {
-	for(uint uiI=0; uiI < m_vDeferredFogPlots.size(); uiI++)
-	{
-		m_vDeferredFogPlots[uiI]->updateFog();
-	}
+	for(DeferredFogPlots::iterator it=m_vDeferredFogPlots.begin(); it!= m_vDeferredFogPlots.end(); ++it)
+		(*it)->updateFog();
+
 	m_vDeferredFogPlots.clear();
 }
 
@@ -2361,4 +2360,58 @@ int CvMap::GetAIMapHint()
 	return m_iAIMapHints;
 }
 
+int CvMap::GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex)
+{
+	if (killCount.find(ePlayer) != killCount.end())
+		if (killCount[ePlayer].find(iPlotIndex) != killCount[ePlayer].end())
+			return killCount[ePlayer][iPlotIndex];
 
+	return 0;
+}
+
+void CvMap::IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex)
+{
+	if (iPlotIndex >= numPlots())
+		return;
+
+	const int KILLCOUNT_GRANULARITY = 100;
+
+	if (killCount.find(ePlayer) != killCount.end())
+	{
+		if (killCount[ePlayer].find(iPlotIndex) != killCount[ePlayer].end())
+			killCount[ePlayer][iPlotIndex] += KILLCOUNT_GRANULARITY;
+		else
+			killCount[ePlayer][iPlotIndex] = KILLCOUNT_GRANULARITY;
+	}
+	else
+		killCount[ePlayer][iPlotIndex] = KILLCOUNT_GRANULARITY;
+}
+
+void CvMap::ExportUnitKillCount(PlayerTypes ePlayer)
+{
+	if (killCount.find(ePlayer) != killCount.end())
+	{
+		std::vector<int> v(numPlots(), 0);
+		for (UnitKillCount::value_type::second_type::iterator it = killCount[ePlayer].begin(); it != killCount[ePlayer].end(); ++it)
+			v[it->first] = it->second;
+
+		ofstream out(CvString::format("c:\\temp\\UnitKillCount_Player%d.csv", ePlayer).c_str());
+		if (out)
+		{
+			out << "#x,y,terrain,count\n";
+			for (int i=0; i<numPlots(); i++)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+				out << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << v[i] << "\n";
+			}
+		}
+		out.close();
+	}
+}
+
+void CvMap::DoKillCountDecay(float fDecayFactor)
+{
+	for (UnitKillCount::iterator itPlayer = killCount.begin(); itPlayer != killCount.end(); ++itPlayer)
+		for (UnitKillCount::value_type::second_type::iterator itPlot = itPlayer->second.begin(); itPlot != itPlayer->second.end(); ++itPlot)
+			itPlot->second = int(itPlot->second*fDecayFactor);
+}

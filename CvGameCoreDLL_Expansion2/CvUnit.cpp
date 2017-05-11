@@ -1981,10 +1981,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 	}
 
 //---------------------------------
+// statistics
+//---------------------------------
 	if (ePlayer!=NO_PLAYER)
 	{
 		TacticalAIMoveTypes move = getTacticalMove();
 		saiTaskWhenKilled[ (int)move+1 ]++;
+
+		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
+			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
 	}
 //---------------------------------
 
@@ -11444,6 +11449,12 @@ int CvUnit::getHurryProduction(const CvPlot* pPlot) const
 
 	iProduction = getMaxHurryProduction(pCity);
 
+	if (GET_PLAYER(getOwner()).GetGreatEngineerHurryMod() != 0)
+	{
+		iProduction += (iProduction * GET_PLAYER(getOwner()).GetGreatEngineerHurryMod()) / 100;
+		iProduction = MAX(iProduction, 0); // Cannot be negative
+	}
+
 	iProduction = std::min(pCity->productionLeft(), iProduction);
 
 	return std::max(0, iProduction);
@@ -12341,7 +12352,7 @@ bool CvUnit::goldenAge()
 						if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+							iTemp *= GET_PLAYER(getOwner()).GetMonopolyModPercent();
 							iLengthModifier += iTemp;
 						}
 					}
@@ -12417,7 +12428,7 @@ int CvUnit::GetGoldenAgeTurns() const
 					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp += kPlayer.GetMonopolyModPercent();
+						iTemp *= kPlayer.GetMonopolyModPercent();
 						iLengthModifier += iTemp;
 					}
 				}
@@ -13095,25 +13106,6 @@ bool CvUnit::build(BuildTypes eBuild)
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
 						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
-				}
-				if(pkBuildInfo->IsKillImprovement())
-				{
-					if(pPlot != NULL && pPlot->getResourceType() == NO_RESOURCE)
-					{
-						ResourceTypes eResourceFromImprovement = (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement();
-						int iQuantity = pkImprovementInfo->GetResourceQuantityFromImprovement();
-						if(iQuantity <= 0)
-						{
-							iQuantity = 1;
-						}
-						if(eResourceFromImprovement != NO_RESOURCE)
-						{
-							pPlot->setResourceType(eResourceFromImprovement, iQuantity);
-							if(pPlot->GetResourceLinkedCity() != NULL && !pPlot->IsResourceLinkedCityActive())
-								pPlot->SetResourceLinkedCityActive(true);
-						}
-					}
-					pPlot->setImprovementType(NO_IMPROVEMENT);
 				}
 #endif
 			}
@@ -14197,7 +14189,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater() || IsHoveringUnit() || isCargo();
+		return !pPlot->isWater() || IsHoveringUnit() || isCargo() || (pkImprovementInfo != NULL && pkImprovementInfo->IsAllowsWalkWater());
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -15320,7 +15312,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		CvAssertMsg(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
 
 		// Flanking
-		if(!bIgnoreUnitAdjacencyBoni && pBattlePlot && plotDistance(*pFromPlot,*pBattlePlot)==1)
+		if(!bIgnoreUnitAdjacencyBoni)
 		{
 			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent();
 			if(iNumAdjacentFriends > 0)
@@ -27251,6 +27243,10 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	//nothing to attack?
 	if ( !bIsEnemyCity && !pBestDefender )
 		return 0;
+
+	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
+	if (iFlags & MOVEFLAG_NO_ATTACKING)
+		return -1;
 
 	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
 	if (iFlags & MOVEFLAG_NO_ATTACKING)

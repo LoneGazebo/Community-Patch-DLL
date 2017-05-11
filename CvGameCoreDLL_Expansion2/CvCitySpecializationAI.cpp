@@ -426,6 +426,7 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 		{
 		case SPECIALIZATION_UPDATE_NOW_AT_WAR:
 		case SPECIALIZATION_UPDATE_MY_CITY_CAPTURED:
+		case SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE:
 			m_bInterruptWonders = true;
 #if defined(MOD_BALANCE_CORE)
 			m_bInterruptBuildings = true;

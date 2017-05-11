@@ -1433,7 +1433,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) )
+				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() && GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) )
 					return FALSE;
 			}
 
@@ -2012,12 +2012,17 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 			return PATH_BASE_COST/2;
 
 		//should we prefer rough terrain because the gain in movement points is greater?
+		int iCost = PATH_BASE_COST;
+
+		//can't build anything on mountain
+		if (pPlot->isMountain())
+			iCost++;
 
 		//prefer plots without resources so we can build more villages
-		if(pPlot->getResourceType()==NO_RESOURCE)
-			return PATH_BASE_COST;
-		else
-			return PATH_BASE_COST+1;
+		if(pPlot->getResourceType()!=NO_RESOURCE)
+			iCost++;
+
+		return iCost;
 	}
 }
 

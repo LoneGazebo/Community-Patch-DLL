@@ -10737,7 +10737,7 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 }
 
 /// Do we have a belief that allows a faith generating building to be constructed?
-BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity) const
+BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity, bool bEvaluateBestPurchase) const
 {
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
@@ -10779,8 +10779,30 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	//pick a random building class
-	if (choices.size()>1)
-		return choices[ GC.getGame().getJonRandNum(choices.size(),"Faith Building Class") ];
+	if (choices.size() > 1)
+	{
+		if (bEvaluateBestPurchase)
+		{
+			for (unsigned int iI = 0; iI < choices.size(); iI++)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+					if (pBuildingEntry && pBuildingEntry->GetExtraCityHitPoints() > 0 || pBuildingEntry->GetDefenseModifier() > 0)
+					{
+						if (pCity != NULL && pCity->IsBastion() || pCity->isUnderSiege() || pCity->isInDangerOfFalling())
+						{
+							return choices[iI];
+						}
+					}
+				}
+			}
+			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+		}
+		else
+			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+	}
 	else if (choices.size()==1)
 		return choices[0];
 #endif

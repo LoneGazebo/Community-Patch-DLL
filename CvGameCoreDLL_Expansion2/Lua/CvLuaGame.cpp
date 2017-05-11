@@ -2201,7 +2201,14 @@ int CvLuaGame::lGetNumCitiesPolicyCostMod(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesTechCostMod(lua_State* L)
 {
-	lua_pushinteger(L, GC.getMap().getWorldInfo().GetNumCitiesTechCostMod());
+	const PlayerTypes ePlayer = GC.getGame().getActivePlayer();
+	int iNormalValue = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();
+	if (ePlayer != NO_PLAYER)
+	{
+		iNormalValue -= GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
+	}
+
+	lua_pushinteger(L, iNormalValue);
 	return 1;
 }
 //------------------------------------------------------------------------------

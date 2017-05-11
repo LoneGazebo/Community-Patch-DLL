@@ -71,6 +71,12 @@ ALTER TABLE Beliefs ADD COLUMN 'PolicyReductionWonderXFollowerCities' INTEGER DE
 
 -- Policy - increases potency of beakers for GSs
 ALTER TABLE Policies ADD COLUMN 'GreatScientistBeakerModifier' INTEGER DEFAULT 0;
+-- and GE hurry
+ALTER TABLE Policies ADD COLUMN 'GreatEngineerHurryModifier' INTEGER DEFAULT 0;
+
+-- Reduce tech costs from cities:
+ALTER TABLE Policies ADD COLUMN 'TechCostXCitiesMod' INTEGER DEFAULT 0;
+
 
 -- Policy - reduces policy cost of Wonders by 1 for every x CS allies
 ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAULT 0;
@@ -1021,9 +1027,6 @@ ALTER TABLE Units ADD 'CultureBoost' BOOLEAN DEFAULT 0;
 
 -- Unit gets extra attacks and partial health is restored upon killing an enemy unit.
 ALTER TABLE Units ADD 'ExtraAttackHealthOnKill' BOOLEAN DEFAULT 0;
-
--- Kills Improvement if set to 1 (use this to reveal a resource on the map, when build is finished etc.)
-ALTER TABLE Builds ADD 'KillImprovement' BOOLEAN DEFAULT 0;
 
 -- Trait allows player to have every unit upgraded once tech is reached.
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSFollowingYourReligion' INTEGER DEFAULT 0;
