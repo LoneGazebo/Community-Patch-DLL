@@ -11848,7 +11848,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			else //melee
 			{
 				//we exclude plots with >3 enemies around anyway. three is a corner case
-				if (currentPlot.getNumAdjacentFriendlies() == 3)
+				if (currentPlot.getNumAdjacentEnemies() == 3)
 					iDamageScore /= 2;
 			}
 
