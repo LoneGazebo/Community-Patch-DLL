@@ -12352,7 +12352,7 @@ bool CvUnit::goldenAge()
 						if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp *= GET_PLAYER(getOwner()).GetMonopolyModPercent();
+							iTemp *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -12428,7 +12428,7 @@ int CvUnit::GetGoldenAgeTurns() const
 					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp *= kPlayer.GetMonopolyModPercent();
+						iTemp *= max(1, kPlayer.GetMonopolyModPercent());
 						iLengthModifier += iTemp;
 					}
 				}

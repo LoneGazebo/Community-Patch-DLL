@@ -3417,7 +3417,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 										if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 										{
 											int iTemp = pInfo->getMonopolyGALength();
-											iTemp *= GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
+											iTemp *= max(1, GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent());
 											iLengthModifier += iTemp;
 										}
 									}
@@ -3492,7 +3492,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 										if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 										{
 											int iTemp = pInfo->getMonopolyGALength();
-											iTemp *= GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
+											iTemp *= max(1, GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent());
 											iLengthModifier += iTemp;
 										}
 									}

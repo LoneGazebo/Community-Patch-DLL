@@ -9786,7 +9786,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
 				if(iTemp > 0)
 				{
-					iTemp *= GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat();
+					iTemp *= max(1, GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat());
 					iYield += iTemp;
 				}
 			}

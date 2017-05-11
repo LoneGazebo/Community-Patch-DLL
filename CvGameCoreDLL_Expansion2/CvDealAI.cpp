@@ -1453,7 +1453,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 15;
+	int iItemValue = 10;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
@@ -1474,7 +1474,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	{
 		iHappinessFromResource = 1;
 	}
-	iItemValue += (iHappinessFromResource * iNumTurns * 2);	// Ex: 1 Silk for 2 Happiness * 30 turns * 2 = 120
+	iItemValue += (iHappinessFromResource * iNumTurns);	// Ex: 1 Silk for 2 Happiness * 30 turns * 2 = 120
 
 	//Let's look at flavors for resources
 	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
@@ -1484,7 +1484,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 			//Has to be above average to affect price. Will usually result in a x2-x3 modifier
-			iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 5);
+			iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 6);
 			iFlavors++;
 		}
 	}
@@ -1538,7 +1538,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 		if (GetPlayer()->getNumResourceAvailable(eResource) == 1 && !GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention())
 		{
-			int iFactor = 3;
+			int iFactor = 1;
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetCurrentReligion(), GetPlayer()->GetID());
 			if (pReligion)
 			{
@@ -1546,12 +1546,14 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				{
 					if (pReligion->m_Beliefs.GetYieldPerLux((YieldTypes)iJ, GetPlayer()->GetID(), GetPlayer()->getCapitalCity()) > 0)
 					{
-						iFactor += 2;
+						iFactor += 1;
 					}
 				}
 			}
-
-			iItemValue *= iFactor; //last one is x as valuable
+			if (iFactor > 1)
+			{
+				iItemValue *= iFactor; //last one is x as valuable
+			}
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
@@ -1560,14 +1562,14 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		//He's happier than us?
 		if (iOtherHappiness >= iOurHappiness)
 		{
-			iItemValue *= 12;
-			iItemValue /= 10;
+			iItemValue *= 10;
+			iItemValue /= 12;
 		}
 		//He is less happy than we are?
 		else
 		{
-			iItemValue *= 10;
-			iItemValue /= 12;
+			iItemValue *= 12;
+			iItemValue /= 10;
 		}
 
 		//How much is OUR stuff worth?
@@ -1628,8 +1630,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					iFactor += 1;
 				}
 			}
-			iItemValue *= iFactor; //last one is x as valuable
-			iItemValue /= 2;
+			if (iFactor > 1)
+			{
+				iItemValue *= iFactor; //last one is x as valuable
+				iItemValue /= 2;
+			}
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
@@ -1652,11 +1657,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false))
 		{
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue *= 115;
+			iItemValue *= 110;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue *= 115;
+			iItemValue *= 110;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
@@ -1687,9 +1692,9 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 int CvDealAI::GetResourceRatio(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, ResourceTypes eResource)
 {
-	int iBase = (ePlayer == GetPlayer()->GetID()) ? 5 : 2;
+	int iBase = (ePlayer == GetPlayer()->GetID()) ? 4 : 1;
 	//Ratio between 0 and 100.
-	int iValue = max(100, (GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) * 100) / (max(1, GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource))));
+	int iValue = min(100, ((GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) * 100) / (max(1, GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource)))));
 
 	//I'm selling? Lower ratio means I have fewer (and mine are worth way more!)
 	if (ePlayer == GetPlayer()->GetID())
@@ -1705,7 +1710,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 75;
+	int iItemValue = 10;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);

@@ -2205,7 +2205,7 @@ int CvLuaGame::lGetNumCitiesTechCostMod(lua_State* L)
 	int iNormalValue = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();
 	if (ePlayer != NO_PLAYER)
 	{
-		iNormalValue -= GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
+		iNormalValue += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
 	}
 
 	lua_pushinteger(L, iNormalValue);

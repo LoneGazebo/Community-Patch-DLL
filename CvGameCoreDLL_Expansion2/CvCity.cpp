@@ -15462,7 +15462,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
 			if(iTempMod != 0)
 			{
-				iTempMod *= GET_PLAYER(getOwner()).GetMonopolyModPercent();
+				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 				iTotalMod += iTempMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
@@ -21517,7 +21517,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
 		if (iTempMod != 0)
 		{
-			iTempMod *= GET_PLAYER(getOwner()).GetMonopolyModPercent();
+			iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 			iModifier += iTempMod;
 			if(toolTipSink)
 			{

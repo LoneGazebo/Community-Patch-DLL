@@ -439,45 +439,21 @@ public:
 	{
 		m_iEnemyNavalRangedStrength += iRangedStrength;
 	};
-	inline int GetFriendlyUnitCount() const
+	inline int GetTotalFriendlyUnitCount() const
 	{
-		return m_iFriendlyUnitCount;
+		return m_iFriendlyUnitCount + m_iFriendlyNavalUnitCount;
 	};
 	inline void AddFriendlyUnitCount(int iUnitCount)
 	{
 		m_iFriendlyUnitCount += iUnitCount;
 	};
-	inline int GetEnemyUnitCount() const
+	inline int GetTotalEnemyUnitCount() const
 	{
-		return m_iEnemyUnitCount;
+		return m_iEnemyUnitCount + m_iEnemyNavalUnitCount;
 	};
 	inline void AddEnemyUnitCount(int iUnitCount)
 	{
 		m_iEnemyUnitCount += iUnitCount;
-	};
-	inline int GetFriendlyRangedUnitCount() const
-	{
-		return m_iFriendlyRangedUnitCount;
-	};
-	inline void AddFriendlyRangedUnitCount(int iUnitCount)
-	{
-		m_iFriendlyRangedUnitCount += iUnitCount;
-	};
-	inline void AddFriendlyMeleeUnitCount(int iUnitCount)
-	{
-		m_iFriendlyMeleeUnitCount += iUnitCount;
-	};
-	inline void AddEnemyMeleeUnitCount(int iUnitCount)
-	{
-		m_iEnemyMeleeUnitCount += iUnitCount;
-	};
-	inline int GetFriendlyMeleeUnitCount() const
-	{
-		return m_iFriendlyMeleeUnitCount;
-	};
-	inline int GetEnemyMeleeUnitCount() const
-	{
-		return m_iEnemyMeleeUnitCount;
 	};
 	inline void AddNeutralUnitCount(int iUnitCount)
 	{
@@ -494,14 +470,6 @@ public:
 	inline int GetNeutralStrength() const
 	{
 		return m_iNeutralUnitStrength;
-	};
-	inline int GetEnemyRangedUnitCount() const
-	{
-		return m_iEnemyRangedUnitCount;
-	};
-	inline void AddEnemyRangedUnitCount(int iUnitCount)
-	{
-		m_iEnemyRangedUnitCount += iUnitCount;
 	};
 	inline int GetEnemyNavalUnitCount() const
 	{

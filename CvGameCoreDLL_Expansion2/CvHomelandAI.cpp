@@ -1002,7 +1002,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pZone = pTactMap->GetZoneByCity(pLoopPlot->getWorkingCity(), false);
 				if (pZone)
 				{
-					int iValue = (10000 - pZone->GetFriendlyMeleeUnitCount() - pZone->GetFriendlyRangedUnitCount());
+					int iValue = 10000 - pZone->GetTotalFriendlyUnitCount();
 					if (iValue > 0)
 					{
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_UNASSIGNED);

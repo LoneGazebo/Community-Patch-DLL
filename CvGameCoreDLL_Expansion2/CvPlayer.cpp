@@ -19269,7 +19269,7 @@ void CvPlayer::DoWarVictoryBonuses()
 						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp *= GetMonopolyModPercent();
+							iTemp *= max(1, GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -20974,7 +20974,7 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 			if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
 				int iTemp = pInfo->getMonopolyHappiness();
-				iTemp *= GetMonopolyModFlat();
+				iTemp *= max(1, GetMonopolyModFlat());
 				iTotalHappiness += iTemp;
 			}
 		}
@@ -24366,7 +24366,7 @@ int CvPlayer::getGoldenAgeLength() const
 					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp *= GetMonopolyModPercent();
+						iTemp *= max(1, GetMonopolyModPercent());
 						iLengthModifier += iTemp;
 					}
 				}
@@ -29303,7 +29303,7 @@ void CvPlayer::SetMonopolyModFlat(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModFlat() const
 {
-	return m_iMonopolyModFlat;
+	return m_iMonopolyModFlat+1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29319,7 +29319,7 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModPercent() const
 {
-	return m_iMonopolyModPercent;
+	return m_iMonopolyModPercent + 1;
 }
 
 /// What are we willing to give/receive for peace with the active human player?
@@ -40668,7 +40668,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp *= GetMonopolyModPercent();
+							iTemp *= max(1, GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
