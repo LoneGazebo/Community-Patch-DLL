@@ -1475,7 +1475,8 @@ public:
 	int GetPower() const;
 
 	bool AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarked = false) const;
-	bool CanSwapWithUnitHere(CvPlot& pPlot) const;
+	bool CanSwapWithUnitHere(CvPlot& atPlot) const;
+	CvUnit* GetPotentialUnitToSwapWith(CvPlot& atPlot) const;
 
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;

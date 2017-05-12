@@ -25830,33 +25830,36 @@ bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarke
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {
-	VALIDATE_OBJECT
-	bool bSwapPossible = false;
+	return GetPotentialUnitToSwapWith(swapPlot) != NULL;
+}
 
-	if(getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
+CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
+{
+	VALIDATE_OBJECT
+	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
-		if(canEnterTerrain(swapPlot,CvUnit::MOVEFLAG_DESTINATION))
+		if (canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
 			// Can I get there this turn?
-			SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+			SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
 
 			//need to be careful here, this method may be called from GUI and gamecore, this can lead to a deadlock
 			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
 			if (!!path)
 			{
 				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
-				if(pEndTurnPlot == &swapPlot)
+				if (pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-					if(swapPlot.getMaxFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
+					if (swapPlot.getMaxFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
 #else
-					if(swapPlot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+					if (swapPlot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
 #endif
 					{
 						const IDInfo* pUnitNode;
 						CvUnit* pLoopUnit;
 						pUnitNode = swapPlot.headUnitNode();
-						while(pUnitNode != NULL)
+						while (pUnitNode != NULL)
 						{
 							pLoopUnit = (CvUnit*)::getUnit(*pUnitNode);
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
@@ -25868,24 +25871,21 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 							}
 
 							// Make sure units belong to the same player
-							if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
+							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
-								if(AreUnitsOfSameType(*pLoopUnit))
+								if (AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
+									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
 									{
 										// Can the unit I am swapping with get to me this turn?
-										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
 										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
 											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
-											if(pPathEndTurnPlot == plot())
-											{
-												bSwapPossible = true;
-												break;
-											}
+											if (pPathEndTurnPlot == plot())
+												return pLoopUnit;
 										}
 									}
 								}
@@ -25897,7 +25897,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 		}
 	}
 
-	return bSwapPossible;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------

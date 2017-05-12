@@ -459,7 +459,7 @@ void CvTacticalAI::CommandeerUnits()
 		//if we cannot heal in the capital, we can heal nowhere ...
 		CvCity* pCapital = m_pPlayer->getCapitalCity();
 		bool bCanHeal = pCapital ? pLoopUnit->healRate( pCapital->plot() ) > 0 : false;
-		bool bHasTarget = TacticalAIHelpers::IsCaptureTargetAdjacent(pLoopUnit);
+		bool bHasTarget = TacticalAIHelpers::IsCaptureTargetAdjacent(pLoopUnit) || (TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit,true)!=NULL);
 
 		// is the unit healing?
 		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
@@ -6422,28 +6422,39 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 				TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
 
 			//so easy
-			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
+			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,false,true);
 			if(pBestPlot != NULL)
 			{
-				//pillage before retreat, if we have movement points to spare
-				if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR())
-					if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBestPlot);
+				//melee units are there to soak damage ...
+				int iDangerLimit = pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2;
+				if (pSwapUnit && pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit);
+				{
+					pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
+					pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBestPlot->getX(), pBestPlot->getY());
+				}
+				else
+				{
+					//pillage before retreat, if we have movement points to spare
+					if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR())
+						if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+					//try to do some damage if we have movement points to spare
+					if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+					// Move to the lowest danger value found
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+
+					//see if we can do damage after retreating
+					if (pUnit->canMove() && pUnit->canRangeStrike())
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+					//pillage after retreat, if we have movement points to spare
+					if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
 						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-
-				//try to do some damage if we have movement points to spare
-				if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
-
-				// Move to the lowest danger value found
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-
-				//see if we can do damage after retreating
-				if (pUnit->canMove() && pUnit->canRangeStrike())
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
-
-				//pillage after retreat, if we have movement points to spare
-				if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
-						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				}
 
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
@@ -6517,144 +6528,110 @@ void CvTacticalAI::ExecuteHeals()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit( *it );
 		CvPlot* pBetterPlot = NULL;
-		if(pUnit)
-		{
-			//need to split from army?
-			if (pUnit->getArmyID() != -1)
-			{
-				CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
-				if (pArmy)
-				{
-					if (pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-					{
-						pArmy->RemoveUnit(pUnit->GetID());
-					}
-				}
-			}
-
-			//ranged attack before fleeing
-			if (pUnit->isRanged())
-				for (int i = 1; i < RING1_PLOTS; i++)
-				{
-					CvPlot* pLoopPlot = iterateRingPlots(pUnit->plot(), i);
-
-					if (pLoopPlot && pLoopPlot->isEnemyUnit(pUnit->getOwner(), true, true))
-						pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pLoopPlot->getX(), pLoopPlot->getY());
-				}
-
-			//find a suitable spot for healing
-			if (pUnit->getDomainType()==DOMAIN_LAND)
-			{
-				//land unit on land should move away from danger
-				if (pUnit->GetDanger()>0 && !pUnit->isEmbarked() && !pUnit->IsGarrisoned())
-				{
-					//unless we can eliminate the danger!
-					std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
-					if (vAttackers.size()==1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d", 
-								pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-					else //flee
-					{
-						//todo: allow suitably occupied plots here and do a swap
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
-						if (pBetterPlot)
-							ExecuteMoveToPlot( pUnit, pBetterPlot );
-					}
-				}
-				else if (pUnit->isEmbarked() || !pUnit->canHeal(pUnit->plot()))
-				{
-					//need to find land to heal
-					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit,false);
-					if (!pBetterPlot)
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,false);
-					if (!pBetterPlot || pBetterPlot==pUnit->plot())
-					{
-						if (pUnit->canHeal(pUnit->plot()))
-							//try to heal in spite of danger
-							pUnit->PushMission(CvTypes::getMISSION_HEAL());
-						else
-							pUnit->PushMission(CvTypes::getMISSION_SKIP());
-					}
-					else
-						ExecuteMoveToPlot( pUnit, pBetterPlot );
-				}
-				else if (pUnit->canFortify(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				}
-				else if (pUnit->canHeal(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_HEAL());
-				}
-				else
-				{
-					//good old skip is our last resort
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				}
-			}
-			else if (pUnit->getDomainType()==DOMAIN_SEA)
-			{
-				if (pUnit->GetDanger()>0 || !pUnit->canHeal(pUnit->plot()))
-				{
-					std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
-					//try to turn the tables on him
-					if (vAttackers.size() == 1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
-					{
-						if (GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d",
-								pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-					else
-					{
-						//find a friendly sea tile
-						pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, true);
-						if (!pBetterPlot)
-							pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, false);
-						if (!pBetterPlot || pBetterPlot == pUnit->plot())
-						{
-							if (pUnit->canHeal(pUnit->plot()))
-								pUnit->PushMission(CvTypes::getMISSION_HEAL());
-							else
-								pUnit->PushMission(CvTypes::getMISSION_SKIP());
-						}
-						else
-							ExecuteMoveToPlot(pUnit, pBetterPlot);
-					}
-				}
-				else if (pUnit->canHeal(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_HEAL());
-				}
-				else
-				{
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				}
-			}
-			else if (pUnit->getDomainType()==DOMAIN_AIR)
-			{
-				//nothing to do here. just stay in base
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			}
-
-			pUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_HEAL]);
-			UnitProcessed( *it );
-		}
-		else
+		if(!pUnit)
 		{
 			//unit does not seem to exist anymore
-			killedUnits.push_back( *it );
+			killedUnits.push_back(*it);
+			continue;
 		}
+
+		//need to split from army?
+		if (pUnit->getArmyID() != -1)
+		{
+			CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
+			if (pArmy)
+			{
+				if (pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+				{
+					pArmy->RemoveUnit(pUnit->GetID());
+				}
+			}
+		}
+
+		//ranged attack before fleeing
+		TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+		//find a suitable spot for healing
+		if (pUnit->getDomainType() == DOMAIN_LAND)
+		{
+			//land unit on land should move away from danger
+			if (pUnit->GetDanger() > 0 && !pUnit->isEmbarked() && !pUnit->IsGarrisoned())
+			{
+				//unless we can eliminate the danger!
+				std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
+				if (vAttackers.size() == 1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d",
+							pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
+						LogTacticalMessage(strLogString);
+					}
+				}
+				else //flee
+				{
+					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+				}
+			}
+			else
+			{
+				pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+			}
+		}
+		else if (pUnit->getDomainType()==DOMAIN_SEA)
+		{
+			if (pUnit->GetDanger()>0 || !pUnit->canHeal(pUnit->plot()))
+			{
+				std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
+				//try to turn the tables on him
+				if (vAttackers.size() == 1 && TacticalAIHelpers::KillUnitIfPossible(pUnit, vAttackers[0]))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Healing unit %s (%d) counterattacked pursuer at X: %d, Y: %d",
+							pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
+						LogTacticalMessage(strLogString);
+					}
+				}
+				else //flee
+				{
+					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+				}
+			}
+		}
+
+		//now finally do something
+		if (pBetterPlot && pBetterPlot != pUnit->plot())
+		{
+			CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBetterPlot);
+			if (pSwapUnit)
+			{
+				pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
+				pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBetterPlot->getX(), pBetterPlot->getY());
+			}
+			else //plot should be free
+				ExecuteMoveToPlot(pUnit, pBetterPlot);
+		}
+		else if (!pBetterPlot && pUnit->getDomainType()!=DOMAIN_AIR)
+		{
+			//apparently no chance to heal? try again
+			pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
+			if (pBetterPlot && pBetterPlot != pUnit->plot())
+				ExecuteMoveToPlot(pUnit, pBetterPlot);
+		}
+
+		//finish this up
+		if (pUnit->canHeal(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_HEAL());
+		else if (pUnit->canFortify(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+		else
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
+		pUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_HEAL]);
+		UnitProcessed( *it );
 	}
 
 	//erase the zombies
@@ -7180,24 +7157,38 @@ bool CvTacticalAI::ExecuteMoveOfBlockingUnit(CvUnit* pBlockingUnit, CvPlot* pPre
 /// Move unit to protect a specific tile
 void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 {
-	// Move first one to target
-	CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
-	if (pUnit)
+	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
-		TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
-
-		if (pUnit->canMove())
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);		
-
-		if (pUnit->canMove())
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if (pUnit)
+		{
 			TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
 
-		if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
-			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+			//safety check
+			if (pUnit->GetDanger() > pUnit->GetCurrHitPoints())
+				continue;
 
-		pUnit->finishMoves();
-		UnitProcessed(m_CurrentMoveUnits[0].GetID());
-		pUnit->SetTacticalAIPlot(NULL);
+			//don't get killed on the way
+			if (!pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+				continue;
+			if (pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot()) > pUnit->GetCurrHitPoints())
+				continue;
+
+			if (pUnit->canMove())
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+
+			if (pUnit->canMove())
+				TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+
+			if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+			pUnit->finishMoves();
+			UnitProcessed(m_CurrentMoveUnits[0].GetID());
+			pUnit->SetTacticalAIPlot(NULL);
+
+			return;
+		}
 	}
 }
 
@@ -10931,7 +10922,7 @@ bool TacticalAIHelpers::CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTar
 	return true;
 }
 
-CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly)
+CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly, bool bConsiderSwap)
 {
 	CvWeightedVector<CvPlot*, 8, true> aCityList;
 	CvWeightedVector<CvPlot*, 8, true> aZeroDangerList;
@@ -10945,17 +10936,20 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-		int iFlags = CvUnit::MOVEFLAG_DESTINATION;
-		if (!pPlot->isVisibleEnemyDefender(pUnit) && pPlot->isVisibleEnemyUnit(pUnit))
-			iFlags |= CvUnit::MOVEFLAG_ATTACK;
-
-		// allow capturing civilians!
-		if (!pUnit->canMoveInto(*pPlot,iFlags))
-			continue;
-
 		// don't attack though
 		if (pPlot->getNumVisibleEnemyDefenders(pUnit) > 0)
 			continue;
+
+		// allow capturing civilians!
+		int iFlags = CvUnit::MOVEFLAG_DESTINATION;
+		if (pPlot->isVisibleEnemyUnit(pUnit))
+			iFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+		if (!pUnit->canMoveInto(*pPlot, iFlags))
+		{
+			if (!bConsiderSwap || !pUnit->CanSwapWithUnitHere(*pPlot))
+				continue;
+		}
 
 		//   prefer being in a city with the lowest danger value
 		//   prefer being in a plot with no danger value
@@ -11066,7 +11060,7 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 	}
 }
 
-CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance)
+CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMaxDistance)
 {
 	if (!pUnit)
 		return NULL;
@@ -11080,31 +11074,35 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 		for (int iI=RING_PLOTS[iRing]; iI<RING_PLOTS[iRing+1]; iI++)
 		{
 			CvPlot* pPlot = iterateRingPlots(pUnit->getX(),pUnit->getY(),iI);
-			if (!pPlot)
+			if (!pPlot || !pPlot->isVisible(pUnit->getTeam()))
 				continue;
 
-			//can we go there?
-			if (!pUnit->canMoveInto(*pPlot))
+			if (pPlot->getOwner() != NO_PLAYER && !pUnit->canEnterTerritory(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				continue;
 
-			if (!pUnit->canHeal(pPlot))
+			if (pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
 				continue;
 
-			//this is for healing naval units
-			if (bWithinOwnTerritory && pPlot->getOwner()!=pUnit->getOwner() )
+			//don't check movement, don't need to heal right now
+			if (!pUnit->canHeal(pPlot, false, true))
 				continue;
 
-			//this is for healing land units
-			if (!bWithinOwnTerritory && pPlot->getOwner() != NO_PLAYER && !pUnit->canEnterTerritory( GET_PLAYER(pPlot->getOwner()).getTeam() ))
-				continue;
+			//can we stay there?
+			if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
+			{
+				//ok, maybe it's blocked by one of our own units
+				if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING))
+					continue;
+				
+				//can we swap?
+				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pPlot);
+				//melee units are there to soak damage ...
+				int iDangerLimit = pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2;
+				if (!pSwapUnit || pSwapUnit->GetDanger(pUnit->plot())>iDangerLimit)
+					continue;
+			}
 
-			if (pPlot->GetNumCombatUnits()>0)
-				continue;
-
-			if ( pUnit->GetDanger(pPlot) > 0)
-				continue;
-
-			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
+			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot) - pUnit->GetDanger(pPlot)/10;
 			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 
@@ -11370,10 +11368,10 @@ bool TacticalAIHelpers::IsCaptureTargetAdjacent(CvUnit * pUnit)
 	return false;
 }
 
-bool TacticalAIHelpers::IsEnemyUnitInRange(CvUnit * pUnit)
+CvPlot* TacticalAIHelpers::GetFirstEnemyUnitInRange(CvUnit * pUnit, bool bMustBeAbleToKill)
 {
 	if (!pUnit)
-		return false;
+		return NULL;
 
 	ReachablePlots plots;
 	GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), plots, true, true, false);
@@ -11384,7 +11382,20 @@ bool TacticalAIHelpers::IsEnemyUnitInRange(CvUnit * pUnit)
 
 		//works for melee
 		if (pPlot->isEnemyUnit(pUnit->getOwner(), true, true))
-			return true;
+		{
+			if (bMustBeAbleToKill)
+			{
+				//see how the attack would go
+				CvUnit* pDefender = pPlot->getVisibleEnemyDefender(pUnit->getOwner());
+				int iDamageDealt = 0, iDamageReceived = 0;
+				iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived);
+
+				if (iDamageDealt > iDamageReceived && iDamageDealt > pDefender->GetCurrHitPoints() && pUnit->GetCurrHitPoints() - iDamageReceived > pUnit->GetMaxHitPoints() / 2)
+					return pPlot;
+			}
+			else
+				return pPlot;
+		}
 
 		//special for ranged units who can't enter enemy occupied plots
 		//quite inefficient so only check the first ring
@@ -11394,12 +11405,25 @@ bool TacticalAIHelpers::IsEnemyUnitInRange(CvUnit * pUnit)
 			{
 				CvPlot* pPlot2 = iterateRingPlots(pPlot, i);
 				if (pPlot2 && pPlot2->isEnemyUnit(pUnit->getOwner(), true, true))
-					return true;
+				{
+					if (bMustBeAbleToKill)
+					{
+						//see how the attack would go
+						CvUnit* pDefender = pPlot2->getVisibleEnemyDefender(pUnit->getOwner());
+						int iDamageDealt = 0, iDamageReceived = 0;
+						iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pUnit, pDefender->plot(), pUnit->plot(), iDamageReceived);
+
+						if (iDamageDealt > pDefender->GetCurrHitPoints())
+							return pPlot2;
+					}
+					else
+						return pPlot2;
+				}
 			}
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC) 
