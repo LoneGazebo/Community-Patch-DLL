@@ -811,7 +811,7 @@ private:
 	void PlotCitadelMoves();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotPlunderTradePlotMoves(DomainTypes eDomain); // squat on trade plots to try to scoop up trade units
-	void PlotBlockadeImprovementMoves();
+	void PlotBlockadeMoves();
 	void PlotCivilianAttackMoves(AITacticalTargetType eTargetType);
 	void PlotSafeBombardMoves();
 	void PlotHealMoves();
@@ -1082,7 +1082,7 @@ public:
 	bool isValid() const { return bValid; }
 	void setValid(bool bState) { bValid=bState; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
-	void changeNeighboringSupportUnitCount(CvTacticalPosition& currentPosition, int iChange);
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, bool bCombat, int iChange);
 
 protected:
 	const CvPlot* pPlot;
