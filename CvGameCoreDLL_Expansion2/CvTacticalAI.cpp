@@ -6428,7 +6428,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 			{
 				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBestPlot);
 				//melee units are there to soak damage ...
-				int iDangerLimit = pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2;
+				int iDangerLimit = pSwapUnit ? (pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
 				if (pSwapUnit && pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit)
 				{
 					pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
@@ -11100,7 +11100,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMax
 				//can we swap?
 				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pPlot);
 				//melee units are there to soak damage ...
-				int iDangerLimit = pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2;
+				int iDangerLimit = pSwapUnit ? (pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
 				if (!pSwapUnit || pSwapUnit->GetDanger(pUnit->plot())>iDangerLimit)
 					continue;
 			}
