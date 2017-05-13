@@ -1143,7 +1143,8 @@ void CvTacticalAI::FindTacticalTargets()
 					newTarget.SetTargetPlayer(pCity->getOwner());
 					newTarget.SetAuxData((void*)pCity);
 #if defined(MOD_BALANCE_CORE)
-					newTarget.SetAuxIntData(100);
+					//barbarians don't care about cities so much
+					newTarget.SetAuxIntData( m_pPlayer->isBarbarian() ? 20 : 100);
 #endif
 					m_AllTargets.push_back(newTarget);
 				}
@@ -1210,7 +1211,7 @@ void CvTacticalAI::FindTacticalTargets()
 				}
 
 				// ... goody hut?
-				if (!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
+				if (m_pPlayer->isMajorCiv() && pLoopPlot->isGoody())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_ANCIENT_RUINS);
 					newTarget.SetAuxData((void*)pLoopPlot);
@@ -5775,11 +5776,11 @@ void CvTacticalAI::UpdateTargetScores()
 	{
 		CvPlot* pPlot = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 
-		//try to attack units close to us first
+		//try to attack target (no matter the type) close to us first
 		if (pPlot->IsFriendlyUnitAdjacent(m_pPlayer->getTeam(), true))
 			it->SetAuxIntData(it->GetAuxIntData() + 8);
 
-		//try to attack units close to our cities first
+		//try to attack targets close to our cities first
 		if (m_pPlayer->GetCityDistanceInPlots(pPlot)<4)
 			it->SetAuxIntData(it->GetAuxIntData() + 3);
 
@@ -6428,7 +6429,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBestPlot);
 				//melee units are there to soak damage ...
 				int iDangerLimit = pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2;
-				if (pSwapUnit && pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit);
+				if (pSwapUnit && pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit)
 				{
 					pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
 					pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBestPlot->getX(), pBestPlot->getY());
@@ -6695,7 +6696,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
 					{
 #if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformOpportunityAttack(pUnit,pBestPlot);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit,NULL);
 						if(pUnit->getMoves() > 0 && pUnit->canPillage(pUnit->plot()))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -8628,8 +8629,10 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	if (!pUnit || !pTarget)
 		return false;
 
-	//first try to move to an adjacent plot
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_NO_ATTACKING;
+	int iFlags = CvUnit::MOVEFLAG_NO_ATTACKING;
+	//can we move there directly? if not try to move to an adjacent plot
+	if (!pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
+		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 	if (eDomain==pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 	int iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
