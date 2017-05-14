@@ -1546,8 +1546,11 @@ void CvTacticalAI::ProcessDominanceZones()
 						m_iCurrentZoneIndex = iI;
 						CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
-						//no units -> nothing to do
-						if (pZone->GetOverallFriendlyStrength()+pZone->GetFriendlyRangedStrength()==0)
+						//no friendly presence -> nothing to do
+						if (pZone->GetOverallFriendlyStrength() == 0)
+							continue;
+						//no enemy presence -> nothing to do
+						if (pZone->GetOverallEnemyStrength() == 0)
 							continue;
 
 						AITacticalPosture ePosture = FindPosture(pZone);
@@ -10263,17 +10266,8 @@ int CvTacticalAI::ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pLoopPlot)
 	}
 
 	CvCity* pClosestEnemyCity = m_pPlayer->GetTacticalAI()->GetNearestTargetCity(pGeneral->plot());
-	if(pClosestEnemyCity != NULL)
-	{
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("Found a nearby city target for our General: X: %d, Y: %d", pClosestEnemyCity->getX(), pClosestEnemyCity->getY());
-			LogTacticalMessage(strLogString);
-		}
-		if (pDefender)
-			iTotalScore += (250 - (plotDistance(pDefender->getX(), pDefender->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 3));
-	}
+	if(pClosestEnemyCity && pDefender)
+		iTotalScore += (250 - (plotDistance(pDefender->getX(), pDefender->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 3));
 
 	return iTotalScore;
 }

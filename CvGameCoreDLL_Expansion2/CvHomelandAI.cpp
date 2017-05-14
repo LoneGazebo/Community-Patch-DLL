@@ -5440,15 +5440,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 				CvCity* pClosestEnemyCity = m_pPlayer->GetTacticalAI()->GetNearestTargetCity(pUnit->plot());
 				if(pClosestEnemyCity != NULL)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Found a nearby city target for our Siege Tower: X: %d, Y: %d", pClosestEnemyCity->getX(), pClosestEnemyCity->getY());
-						LogHomelandMessage(strLogString);
-					}
 					iScore += (1000 - (plotDistance(pCandidate->getX(), pCandidate->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 5));
-				}
 
 				iScore += (100*iSupportedDanger)/(iGeneralDanger+1);
 				if (iScore>iBestScore && iScore>100)
