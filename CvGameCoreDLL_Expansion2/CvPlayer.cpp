@@ -224,6 +224,8 @@ CvPlayer::CvPlayer() :
 	, m_iGreatDiplomatRateModifier("CvPlayer::m_iGreatDiplomatRateModifier", m_syncArchive)
 	, m_iGreatScientistRateModifier("CvPlayer::m_iGreatScientistRateModifier", m_syncArchive)
 	, m_iGreatScientistBeakerModifier("CvPlayer::m_iGreatScientistBeakerModifier", m_syncArchive)
+	, m_iGreatEngineerHurryMod("CvPlayer::m_iGreatEngineerHurryMod", m_syncArchive)
+	, m_iTechCostXCitiesModifier("CvPlayer::m_iTechCostXCitiesModifier", m_syncArchive)
 	, m_iGreatEngineerRateModifier("CvPlayer::m_iGreatEngineerRateModifier", m_syncArchive)
 	, m_iGreatPersonExpendGold("CvPlayer::m_iGreatPersonExpendGold", m_syncArchive)
 	, m_iMaxGlobalBuildingProductionModifier("CvPlayer::m_iMaxGlobalBuildingProductionModifier", m_syncArchive)
@@ -760,6 +762,11 @@ CvPlayer::CvPlayer() :
 //	--------------------------------------------------------------------------------
 CvPlayer::~CvPlayer()
 {
+#if defined(MOD_BALANCE_CORE)
+	if (isMajorCiv() && GC.getAILogging())
+		GC.getMap().ExportUnitKillCount(GetID());
+#endif
+
 	uninit();
 
 	SAFE_DELETE(m_pDangerPlots);
@@ -1432,6 +1439,8 @@ void CvPlayer::uninit()
 #endif
 	m_iGreatScientistRateModifier = 0;
 	m_iGreatScientistBeakerModifier = 0;
+	m_iGreatEngineerHurryMod = 0;
+	m_iTechCostXCitiesModifier = 0;
 	m_iGreatEngineerRateModifier = 0;
 	m_iGreatPersonExpendGold = 0;
 	m_iMaxGlobalBuildingProductionModifier = 0;
@@ -2242,7 +2251,6 @@ void CvPlayer::gameStartInit()
 
 	if(!GC.GetEngineUserInterface()->IsLoadedGame())
 	{
-		InitPlots();
 		UpdatePlots();
 	}
 }
@@ -6742,12 +6750,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 		{
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
-
-			int iMin = GC.getEVENT_MIN_DURATION_BETWEEN();
-			iMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iMin /= 100;
-			ChangePlayerEventCooldown(iMin);
-			
+	
 			//Set oneshot stuff so this event can't fire ever again.
 			if(pkEventInfo->isOneShot())
 			{
@@ -8051,13 +8054,14 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		if(eImprovement != NO_IMPROVEMENT)
 		{
 			bool bHas = false;
-			const CvPlotsVector& aiPlots = GetPlots();
-			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			// go through all the plots the player has under their control
+			for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 			{
-				if (aiPlots[uiPlotIndex] == -1)
+				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+				if (!pPlot)
+				{
 					continue;
-
-				CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				}
 
 				if(pPlot->getOwner() == GetID() && pPlot->getImprovementType() == eImprovement)
 				{
@@ -19265,7 +19269,7 @@ void CvPlayer::DoWarVictoryBonuses()
 						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += GetMonopolyModPercent();
+							iTemp *= max(1, GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -20970,7 +20974,7 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 			if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
 				int iTemp = pInfo->getMonopolyHappiness();
-				iTemp += GetMonopolyModFlat();
+				iTemp *= max(1, GetMonopolyModFlat());
 				iTotalHappiness += iTemp;
 			}
 		}
@@ -24362,7 +24366,7 @@ int CvPlayer::getGoldenAgeLength() const
 					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp += GetMonopolyModPercent();
+						iTemp *= max(1, GetMonopolyModPercent());
 						iLengthModifier += iTemp;
 					}
 				}
@@ -25159,7 +25163,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			if(eLocalReligion != eReligion)
 			{
 				pReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
+				eReligion = eLocalReligion;
 			}
+		}
+
+		int iNumFollowerCities = 0;
+		int iNumFollowers = 0;
+		if (eReligion > RELIGION_PANTHEON)
+		{
+			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
+			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+		}
+		else if (eReligion == RELIGION_PANTHEON)
+		{
+			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
+			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
 		}
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
@@ -25187,7 +25205,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iValue += getYieldFromBirthCapital(eYield);
 					}
 					//Scale it here to avoid scaling the growth yield below.
-					if(bEraScale)
+					if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
 					{
 						iValue *= iEra;
 					}
@@ -25221,7 +25239,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true);
+						
+						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 					}
 					break;
 				}
@@ -25230,7 +25249,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromPolicyUnlock(eYield);
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true);
+						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowers;
 					}
 					break;
 				}
@@ -25328,7 +25347,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true);
+							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 						}
 					}
 					if(eYield == YIELD_FAITH)
@@ -25432,7 +25451,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
+					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_DEATH:
@@ -25461,7 +25480,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true);
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * iNumFollowers;
 							}
 							if(eYield == YIELD_SCIENCE && iPassYield > 0)
 							{
@@ -25485,13 +25504,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
+							int iTempValue = pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
+							if (iPassYield != 0)
+							{
+								iTempValue *= (100 + iPassYield);
+								iTempValue /= 100;
+							}
+
+							iValue += iTempValue;
 						}
 					}
-					if(iPassYield != 0)
-					{
-						iValue *= iPassYield;
-					}
+					
 					break;
 				}	
 				case INSTANT_YIELD_TYPE_TR_MOVEMENT:
@@ -26531,6 +26554,49 @@ void CvPlayer::SetGreatScientistBeakerMod(int iValue)
 void CvPlayer::ChangeGreatScientistBeakerMod(int iChange)
 {
 	SetGreatScientistBeakerMod(GetGreatScientistBeakerMod() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+int CvPlayer::GetGreatEngineerHurryMod() const
+{
+	return m_iGreatEngineerHurryMod;
+}
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+void CvPlayer::SetGreatEngineerHurryMod(int iValue)
+{
+	m_iGreatEngineerHurryMod = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+void CvPlayer::ChangeGreatEngineerHurryMod(int iChange)
+{
+	SetGreatEngineerHurryMod(GetGreatEngineerHurryMod() + iChange);
+}
+
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+int CvPlayer::GetTechCostXCitiesModifier() const
+{
+	return m_iTechCostXCitiesModifier;
+}
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+void CvPlayer::SetTechCostXCitiesModifier(int iValue)
+{
+	m_iTechCostXCitiesModifier = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+void CvPlayer::ChangeTechCostXCitiesModifier(int iChange)
+{
+	SetTechCostXCitiesModifier(GetTechCostXCitiesModifier() + iChange);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -29237,7 +29303,7 @@ void CvPlayer::SetMonopolyModFlat(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModFlat() const
 {
-	return m_iMonopolyModFlat;
+	return m_iMonopolyModFlat+1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29253,7 +29319,7 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModPercent() const
 {
-	return m_iMonopolyModPercent;
+	return m_iMonopolyModPercent + 1;
 }
 
 /// What are we willing to give/receive for peace with the active human player?
@@ -35614,14 +35680,10 @@ int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 
 	int iCount = 0;
 
-	// Loop through all plots
-	const CvPlotsVector& aiPlots = GetPlots();
-	for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
-		if (aiPlots[uiPlotIndex] == -1)
-			continue;
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (pPlot && pPlot->getResourceType(getTeam()) == eIndex)
 		{
 			iCount++;
@@ -39688,6 +39750,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeEspionageModifier(pPolicy->GetEspionageModifier() * iChange);
 	}
 	ChangeGreatScientistBeakerMod(pPolicy->GetGreatScientistBeakerModifier() * iChange);
+	ChangeGreatEngineerHurryMod(pPolicy->GetGreatEngineerHurryModifier() * iChange);
+	ChangeTechCostXCitiesModifier(pPolicy->GetTechCostXCitiesMod() * iChange);
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -40604,7 +40668,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += GetMonopolyModPercent();
+							iTemp *= max(1, GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -41884,14 +41948,15 @@ void CvPlayer::Read(FDataStream& kStream)
 	// reading plot values
 	{
 		m_aiPlots.clear();
-		m_aiPlots.push_back_copy(-1, GC.getMap().numPlots());
 
 		// trying to cut down how big saves are
 		int iSize;
 		kStream >> iSize;
 		for(int i = 0; i < iSize; i++)
 		{
-			kStream >> m_aiPlots[i];
+			int iTemp;
+			kStream >> iTemp;
+			m_aiPlots.insert(iTemp);
 		}
 	}
 
@@ -42080,26 +42145,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 	// writing out plot values
 	{
-		// trying to cut down how big saves are
-		int iSize = -1;
-		for(int i = m_aiPlots.size() - 1; i >= 0; i--)
+		kStream << m_aiPlots.size();
+		for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 		{
-			if(m_aiPlots[i] != -1)
-			{
-				iSize = i + 1;
-				break;
-			}
-		}
-
-		if(iSize < 0)
-		{
-			iSize = 0;
-		}
-
-		kStream << iSize;
-		for(int i = 0; i < iSize; i++)
-		{
-			kStream << m_aiPlots[i];
+			kStream << *it;
 		}
 	}
 
@@ -42778,52 +42827,22 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 }
 
 //	--------------------------------------------------------------------------------
-/// This sets up the m_aiPlots array that is used to contain which plots the player contains
-void CvPlayer::InitPlots(void)
-{
-	int iNumPlots = GC.getMap().getGridHeight() * GC.getMap().getGridHeight();
-	// in case we're loading
-	if(iNumPlots != m_aiPlots.size())
-	{
-		m_aiPlots.clear();
-		m_aiPlots.push_back_copy(-1, iNumPlots);
-	}
-}
-
-//	--------------------------------------------------------------------------------
 /// This determines what plots the player has under control
 void CvPlayer::UpdatePlots(void)
 {
-	if(m_aiPlots.size() == 0)  // not been inited
-	{
-		return;
-	}
+	m_aiPlots.clear();
 
-	int iPlotIndex = 0;
-	int iMaxNumPlots = (int) m_aiPlots.size();
-	while(iPlotIndex < iMaxNumPlots && m_aiPlots[iPlotIndex] != -1)
-	{
-		m_aiPlots[iPlotIndex] = -1;
-		iPlotIndex++;
-	}
-
-	int iI;
-	CvPlot* pLoopPlot;
-	iPlotIndex = 0;
 	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
-	for(iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if(pLoopPlot->getOwner() != m_eID)
-		{
 			continue;
-		}
 
 		//somebody might have plundered an improvement
 		pLoopPlot->updateFreshwater();
 
-		m_aiPlots[iPlotIndex] = iI;
-		iPlotIndex++;
+		m_aiPlots.insert(iI);
 	}
 }
 
@@ -42832,34 +42851,14 @@ void CvPlayer::UpdatePlots(void)
 void CvPlayer::AddAPlot(CvPlot* pPlot)
 {
 	if(!pPlot)
-	{
 		return;
-	}
 
-	if(m_aiPlots.size() == 0)  // not been inited
-	{
-		return;
-	}
-
-	if(pPlot->getOwner() == m_eID)
-	{
-		return;
-	}
-
-	int iPlotIndex = 0;
-	int iMaxNumPlots = (int)m_aiPlots.size();
-	while(iPlotIndex < iMaxNumPlots && m_aiPlots[iPlotIndex] != -1)
-	{
-		iPlotIndex++;
-	}
-
-	m_aiPlots[iPlotIndex] = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-
+	m_aiPlots.insert(pPlot->GetPlotIndex());
 }
 
 //	--------------------------------------------------------------------------------
 /// Returns the list of the plots the player owns
-CvPlotsVector& CvPlayer::GetPlots(void)
+const set<int>& CvPlayer::GetPlots(void) const
 {
 	return m_aiPlots;
 }
@@ -42868,21 +42867,7 @@ CvPlotsVector& CvPlayer::GetPlots(void)
 /// How many plots does this player own?
 int CvPlayer::GetNumPlots() const
 {
-	int iNumPlots = 0;
-
-	CvPlot* pLoopPlot;
-	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
-	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
-	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-
-		if(pLoopPlot->getOwner() != m_eID)
-			continue;
-
-		iNumPlots++;
-	}
-
-	return iNumPlots;
+	return m_aiPlots.size();
 }
 
 
@@ -43569,16 +43554,11 @@ void CvPlayer::ChangeNumNaturalWondersDiscoveredInArea(int iChange)
 int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 {
 	int iValue = 0;
-	CvPlotsVector& aiPlots = GetPlots();
-	for(uint ui = 0; ui < aiPlots.size(); ui++)
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
-		// at the end of the plot list
-		if(aiPlots[ui] == -1)
-		{
-			break;
-		}
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 		if (pPlot && pPlot->IsNaturalWonder(true))
 #else
@@ -44129,9 +44109,6 @@ void CvPlayer::SetBestWonderCities()
 		// Look at all of our Cities to see which is the best.
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
-			//Reset here.
-			pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
-
 			if (!pLoopCity->canConstruct(eBuilding))
 				continue;
 
@@ -44168,9 +44145,19 @@ void CvPlayer::SetBestWonderCities()
 				pBestCity = pLoopCity;
 			}
 		}
-		if (pBestCity != NULL)
+		if (pBestCity != NULL && !pBestCity->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
 		{
 			pBestCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+
+			int iLoopCity;
+			CvCity* pLoopCity = NULL;
+			// Remove from all other cities.
+			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			{
+				if (pLoopCity != pBestCity)
+					pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
+			}
+
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;
@@ -44188,9 +44175,19 @@ void CvPlayer::SetBestWonderCities()
 			}
 		}
 		//No city? Set capital as best.
-		else if (getCapitalCity() != NULL && iValidCities > 0)
+		else if (getCapitalCity() != NULL && iValidCities > 0 && !getCapitalCity()->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
 		{
 			getCapitalCity()->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+
+			int iLoopCity;
+			CvCity* pLoopCity = NULL;
+			// Remove from all other cities.
+			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			{
+				if (pLoopCity != getCapitalCity())
+					pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
+			}
+
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;
@@ -45181,23 +45178,14 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		}
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFWORKERS"), iGameTurn, iWorkerCount);
 
-
-		// go through all the plots the player has under their control
-		CvPlotsVector& aiPlots = GetPlots();
-
 		// worked tiles
 		int iWorkedTiles = 0;
 		int iImprovedTiles = 0;
-		for(uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+		// go through all the plots the player has under their control
+		for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 		{
-			// when we encounter the first plot that is invalid, the rest of the list will be invalid
-			if(aiPlots[uiPlotIndex] == -1)
-			{
-				break;
-			}
-
-			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-			if(!pPlot)
+			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+			if (!pPlot)
 			{
 				continue;
 			}
@@ -46181,7 +46169,7 @@ void CvPlayer::setAveragePlotFoundValue()
 	OutputDebugString( CvString::format("Average city site value for player %d is %d\n",m_eID.get(),iAvg).c_str() );
 
 	//assuming a normal distribution, this should allow all but the worst plots
-	m_iReferenceFoundValue = iAvg - iAvg/3;
+	m_iReferenceFoundValue = iAvg - iAvg/4;
 }
 
 void CvPlayer::updatePlotFoundValues()

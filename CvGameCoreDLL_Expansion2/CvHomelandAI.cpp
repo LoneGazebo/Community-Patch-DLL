@@ -113,8 +113,12 @@ void CvHomelandAI::RecruitUnits()
 	// Loop through our units
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
+		// Sanity check
+		if (pLoopUnit->IsGreatGeneral() && pLoopUnit->plot()->getNumDefenders(pLoopUnit->getOwner()) == 0 && pLoopUnit->GetDanger()>0)
+			OutputDebugString("undefended general found!\n");
+
 		// Never want immobile/dead units or ones that have already moved
-		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove())
 		{
 			continue;
 		}
@@ -998,7 +1002,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pZone = pTactMap->GetZoneByCity(pLoopPlot->getWorkingCity(), false);
 				if (pZone)
 				{
-					int iValue = (10000 - pZone->GetFriendlyMeleeUnitCount() - pZone->GetFriendlyRangedUnitCount());
+					int iValue = 10000 - pZone->GetTotalFriendlyUnitCount();
 					if (iValue > 0)
 					{
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_UNASSIGNED);
@@ -1377,7 +1381,7 @@ void CvHomelandAI::PlotHealMoves()
 		if(pUnit && !pUnit->isHuman())
 		{
 #if defined(MOD_AI_SMART_HEALING)
-			int iHealingLimit = pUnit->GetMaxHitPoints() * 9 / 10;
+			int iHealingLimit = pUnit->GetMaxHitPoints() * 8 / 10;
 
 			if (MOD_AI_SMART_HEALING) 
 			{
@@ -3158,7 +3162,7 @@ void CvHomelandAI::PlotAirliftMoves()
 	for (it = aAirliftCities.begin(); it != aAirliftCities.end(); it++)
 	{
 		pZone = pTactMap->GetZoneByCity(*it, false);
-		if (pZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE))
+		if (pZone && (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE))
 		{
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
@@ -3734,7 +3738,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		}
 
 		//if we made an opportunity attack, we're done
-		if(!pUnit->canMove() || pUnit->isOutOfAttacks())
+		if(!pUnit->canMove())
 		{
 			UnitProcessed(pUnit->GetID());
 			continue;
@@ -3773,7 +3777,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		if(pBestPlot && pBestPlot != pUnit->plot())
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 
+				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING,
+				false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			// Only mark as done if out of movement - we'll do a second pass later
 			if (!pUnit->canMove())
@@ -5221,12 +5227,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if(!pUnit)
 			continue;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//might have been used in tactical AI already
-		if (!pUnit->canMove())
-			continue;
-#endif
-
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
@@ -5741,23 +5741,24 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-	if(pMyReligion)
+	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
 	{
-		pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-		if (pHolyCityPlot != NULL)
+#endif
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+		if(pMyReligion)
 		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+			pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+			if (pHolyCityPlot != NULL)
 			{
-				bKeepHolyCityClear = true;
+				pHolyCity = pHolyCityPlot->getPlotCity();
+				if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+				{
+					bKeepHolyCityClear = true;
+				}
 			}
 		}
-	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	}
 #endif
@@ -8142,7 +8143,12 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 		return false;
 	}
 
-	if(!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
+	// see if we can capture a civilian?
+	int iFlags = CvUnit::MOVEFLAG_DESTINATION;
+	if (!pPlot->isVisibleEnemyDefender(pUnit) && pPlot->isVisibleEnemyUnit(pUnit))
+		iFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+	if(!pUnit->canMoveInto(*pPlot, iFlags))
 	{
 		return false;
 	}
@@ -8296,7 +8302,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return true;
 	}
 
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
 	if (eDomain == pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 
@@ -8549,8 +8555,8 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 		if (!pZoneCity)
 			continue;
 
-		int iFriendlyPower = pZone->GetFriendlyStrength();
-		int iEnemyPower = pZone->GetEnemyStrength();
+		int iFriendlyPower = pZone->GetOverallFriendlyStrength();
+		int iEnemyPower = pZone->GetOverallEnemyStrength();
 
 		if(bWater)
 		{
@@ -8586,9 +8592,9 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
-			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+			iEnemyPower += pOtherZone->GetOverallEnemyStrength() / iScale;
 
-			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
+			iFriendlyPower =+ pOtherZone->GetOverallFriendlyStrength();
 		}
 
 		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower);
@@ -8629,8 +8635,8 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		if (!pZoneCity)
 			continue;
 
-		int iFriendlyPower = pZone->GetFriendlyStrength();
-		int iEnemyPower = pZone->GetEnemyStrength();
+		int iFriendlyPower = pZone->GetOverallFriendlyStrength();
+		int iEnemyPower = pZone->GetOverallEnemyStrength();
 
 		if(bWater)
 			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
@@ -8662,9 +8668,9 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
-			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+			iEnemyPower += pOtherZone->GetOverallEnemyStrength() / iScale;
 
-			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
+			iFriendlyPower =+ pOtherZone->GetOverallFriendlyStrength();
 		}
 
 		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower);

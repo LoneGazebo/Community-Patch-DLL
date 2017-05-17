@@ -3855,7 +3855,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * (10 * iNumCaps);
 	}
 
-	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
 	{
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 20;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 20;
@@ -4082,16 +4082,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					//Has a defensive pact with him? Let's reduce our war interest.
 					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 					{
-						// Approaches already assigned to other higher-priority Majors
-						switch (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false))
+						if (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 						{
-						case MAJOR_CIV_APPROACH_HOSTILE:
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3;
-							break;
-						case MAJOR_CIV_APPROACH_WAR:
-							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3;
-							break;
-						}
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 10;
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 10;
+						}		
 					}
 				}
 			}
@@ -7935,9 +7930,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			//look at the tactical map (is it up to date?)
 			CvTacticalDominanceZone* pLandZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iOurDanger++;
-			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iOurDanger++;
 
 			if(pLoopCity->isUnderSiege())
@@ -7958,9 +7953,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			//look at the tactical map (is it up to date?)
 			CvTacticalDominanceZone* pLandZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iTheirDanger++;
-			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iTheirDanger++;
 
 			if(pLoopCity->isUnderSiege())
@@ -9793,7 +9788,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 			}
 			if(iDPThem > 0)
 			{
-				iOtherPlayerMilitary *= ((iDPThem * 25) + 100);
+				iOtherPlayerMilitary *= ((iDPThem * 50) + 100);
 				iOtherPlayerMilitary /= 100;
 			}
 			if(iDPUs > 0)
@@ -20721,7 +20716,7 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 						if(bActivePlayer)
 						{
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_WARMONGER);
-							gDLL->GameplayDiplomacyAILeaderMessage(ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+							gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 						}
 					}
 				}
@@ -34245,27 +34240,17 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 	if(eVictory != NO_VICTORY)
 	{
-		ProjectTypes capsuleID = (ProjectTypes) GC.getSPACESHIP_CAPSULE();
-		ProjectTypes boosterID = (ProjectTypes) GC.getSPACESHIP_BOOSTER();
-		ProjectTypes stasisID = (ProjectTypes) GC.getSPACESHIP_STASIS();
-		ProjectTypes engineID = (ProjectTypes) GC.getSPACESHIP_ENGINE();
 		ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
-
-		int iValue = GET_TEAM(GetPlayer()->getTeam()).getProjectCount(capsuleID);
-		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(boosterID);
-		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(stasisID);
-		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(engineID);
-		iValue += GET_TEAM(GetPlayer()->getTeam()).getProjectCount(ApolloProgram);
-
-		int iTotalTechs = GC.getNumTechInfos();
-		iTotalTechs *= 8;
-		iTotalTechs /= 10;
-		if(iValue >= 2)
+		if (GET_TEAM(GetPlayer()->getTeam()).getProjectCount(ApolloProgram) >= 1)
 		{
 			return true;
 		}
+
+		int iTotalTechs = GC.getNumTechInfos();
+		iTotalTechs *= 85;
+		iTotalTechs /= 100;
 		
-		else if(GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() >= iTotalTechs)
+		if(GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() >= iTotalTechs)
 		{
 			PlayerTypes eLoopPlayer;
 			int iNumCivsAheadScience = 0;

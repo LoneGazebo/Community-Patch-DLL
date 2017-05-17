@@ -11070,7 +11070,7 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 	CvPlot* pBestPlot = NULL;
 
 	int iWorldWidth = GC.getMap().getGridWidth();
-	iWorldWidth /= 3;
+	iWorldWidth /= 5;
 	
 	int iBestValue = 0;
 	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
@@ -16016,7 +16016,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iBaseReluctanceScore = 0;
 	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iBaseReluctanceScore = -150;
+		iBaseReluctanceScore = -175;
 	}
 	else
 	{
@@ -16086,7 +16086,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	{
 		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -150);
+			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -75);
 			iScore += iBulliedVeryRecentlyScore;
 			if (sTooltipSink)
 			{
@@ -16096,9 +16096,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if(iLastBullyTurn + 20 >= GC.getGame().getGameTurn())
+		if (iLastBullyTurn + 20 >= GC.getGame().getGameTurn())
 		{
-			int iBulliedRecentlyScore = (((iLastBullyTurn + 20) - (GC.getGame().getGameTurn())) * -100);
+			int iBulliedRecentlyScore = (((iLastBullyTurn + 20) - (GC.getGame().getGameTurn())) * -25);
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
 			{
@@ -17483,16 +17483,15 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 
 	// Must own an improveable plot
 	bool bHasValidPlot = false;
-	CvPlotsVector& aiPlots = GetPlayer()->GetPlots();
-	for(uint ui = 0; ui < aiPlots.size(); ui++)
+	const set<int>& aiPlots = GetPlayer()->GetPlots();
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		// at the end of the plot list
-		if(aiPlots[ui] == -1)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
-			break;
+			continue;
 		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
 		if (IsLackingGiftableTileImprovementAtPlot(eMajor, pPlot->getX(), pPlot->getY()))
 		{
 			bHasValidPlot = true;
@@ -17535,16 +17534,15 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 	CvPlot* pBestPlot = NULL;
 	// Must own an improveable plot
 	bool bHasValidPlot = false;
-	CvPlotsVector& aiPlots = GetPlayer()->GetPlots();
-	for (uint ui = 0; ui < aiPlots.size(); ui++)
+	const set<int>& aiPlots = GetPlayer()->GetPlots();
+	// go through all the plots the player has under their control
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		// at the end of the plot list
-		if (aiPlots[ui] == -1)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
-			break;
+			continue;
 		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
 		if (IsLackingGiftableTileImprovementAtPlot(eMajor, pPlot->getX(), pPlot->getY()))
 		{
 			if (pPlot->getResourceType(GET_PLAYER(eMajor).getTeam()) != NO_RESOURCE)

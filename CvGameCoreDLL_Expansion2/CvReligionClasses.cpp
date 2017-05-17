@@ -2123,6 +2123,26 @@ int CvGameReligions::GetNumCitiesFollowing(ReligionTypes eReligion) const
 	return iRtnValue;
 }
 
+int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	// Loop through each of their cities
+	int iLoop;
+	CvCity* pLoopCity;
+	for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+		{
+			iRtnValue++;
+		}
+	}
+	return iRtnValue;
+}
+
+
+
 /// Has this player created a religion?
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal) const
@@ -3203,7 +3223,8 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 		{
-			iPressure *= 2;
+			iPressure *= 120;
+			iPressure /= 100;
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -3308,7 +3329,7 @@ int CvGameReligions::GetFaithGreatPersonNumber(int iNum) const
 int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, PlayerTypes eWinningPlayer)
 {
 	int iRtnValue = 0;
-	int iMultiplier;
+	int iMultiplier = 0;
 	int iLoop;
 	CvCity* pLoopCity;
 
@@ -3329,7 +3350,19 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 			int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
 
 			// Do we have a yield from this?
-			iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			if (MOD_BALANCE_CORE_BELIEFS)
+			{
+				if (eReligion == GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(eWinningPlayer) || eReligion == GET_PLAYER(eWinningPlayer).GetReligions()->GetReligionInMostCities())
+					iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
+			}
+			else
+			{
+#endif
+				iMultiplier = GetReligion(eReligion, eWinningPlayer)->m_Beliefs.GetFaithFromKills(iDistance, eWinningPlayer, pLoopCity);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			}
+#endif
 			if(iMultiplier > 0)
 			{
 				// Just looking for one city providing this
@@ -5970,29 +6003,29 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				iGoldBonus /= 100;
 			}
 
-			if(iGoldBonus > 0)
+			if (eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetCurrentReligion(false) == eMajority)
 			{
-				GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
+				if (iGoldBonus > 0)
+				{
+					GET_PLAYER(eReligionController).GetTreasury()->ChangeGold(iGoldBonus);
 #if defined(MOD_BALANCE_CORE)
-				m_pCity->SetPaidAdoptionBonus(eMajority, true);
+					m_pCity->SetPaidAdoptionBonus(eMajority, true);
 #else
-				SetPaidAdoptionBonus(true);
+					SetPaidAdoptionBonus(true);
 #endif
 
-				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
+					if (eReligionController == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
 #if defined(SHOW_PLOT_POPUP)
-					SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
+						SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
 #else
-					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+						GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
 #endif
+					}
 				}
-			}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-			if(eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetCurrentReligion() == eMajority)
-			{
 				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
@@ -7019,7 +7052,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 		}
 
 		CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-		if (pZone && pZone->GetEnemyStrength()>0)
+		if (pZone && pZone->GetOverallEnemyStrength()>0)
 			continue;
 
 		if(pUnit && !pUnit->CanSpreadReligion(pLoopCity->plot()))
@@ -10704,7 +10737,7 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 }
 
 /// Do we have a belief that allows a faith generating building to be constructed?
-BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity) const
+BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity, bool bEvaluateBestPurchase) const
 {
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
@@ -10746,8 +10779,30 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	//pick a random building class
-	if (choices.size()>1)
-		return choices[ GC.getGame().getJonRandNum(choices.size(),"Faith Building Class") ];
+	if (choices.size() > 1)
+	{
+		if (bEvaluateBestPurchase)
+		{
+			for (unsigned int iI = 0; iI < choices.size(); iI++)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuilding);
+					if (pBuildingEntry && pBuildingEntry->GetExtraCityHitPoints() > 0 || pBuildingEntry->GetDefenseModifier() > 0)
+					{
+						if (pCity != NULL && pCity->IsBastion() || pCity->isUnderSiege() || pCity->isInDangerOfFalling())
+						{
+							return choices[iI];
+						}
+					}
+				}
+			}
+			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+		}
+		else
+			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+	}
 	else if (choices.size()==1)
 		return choices[0];
 #endif

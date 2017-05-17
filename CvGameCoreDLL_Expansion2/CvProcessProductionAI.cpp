@@ -205,11 +205,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			{		
 				if (m_pCity->isUnderSiege())
 				{
-					iModifier += 1000;
+					iModifier += 500;
 				}
 				else if (m_pCity->getDamage() > 0)
 				{
-					iModifier += m_pCity->getDamage() * 100;
+					iModifier += m_pCity->getDamage() * 50;
 				}
 				else if (m_pCity->isInDangerOfFalling())
 				{
@@ -217,11 +217,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				}
 				else if (m_pCity->IsBlockaded(true))
 				{
-					iModifier += 200;
+					iModifier += 150;
 				}
 				else if (m_pCity->IsBlockadedWaterAndLand())
 				{
-					iModifier += 200;
+					iModifier += 150;
 				}
 			}
 		}
@@ -240,7 +240,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 		if (m_pCity->getUnhappinessFromDefense() > 0)
 		{
-			iModifier += (m_pCity->getUnhappinessFromDefense() * 15);
+			iModifier += (m_pCity->getUnhappinessFromDefense() * 5);
 		}
 	}
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");

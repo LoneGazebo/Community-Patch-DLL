@@ -1,25 +1,7 @@
 -- Adjusted for Religion Spread Rework
 UPDATE Defines
-SET Value = '13'
+SET Value = '9'
 WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '30'
-WHERE Type = 'GAMESPEED_MARATHON';
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '50'
-WHERE Type = 'GAMESPEED_EPIC';
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '70'
-WHERE Type = 'GAMESPEED_STANDARD';
-
-
-UPDATE GameSpeeds
-SET ReligiousPressureAdjacentCity = '100'
-WHERE Type = 'GAMESPEED_QUICK';
-
 
 -- For CBO
 INSERT INTO Defines (Name, Value)
@@ -383,8 +365,12 @@ SET Priority = '50'
 WHERE Type = 'TACTICAL_ATTRIT_HIGH_UNIT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );
 
 UPDATE TacticalMoves
-SET Priority = '30'
+SET Priority = '75'
 WHERE Type = 'TACTICAL_BASTION_ALREADY_THERE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );
+
+UPDATE TacticalMoves
+SET Priority = '50'
+WHERE Type = 'TACTICAL_BASTION_1_TURN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );
 
 -- 150
 UPDATE Defines

@@ -97,6 +97,17 @@
 		<Row Tag="TXT_KEY_PROCESS_CULTURE_STRATEGY">
 			<Text>Investing production in art is a good way to boost your Civilization's cutural output, either to grab that next policy or to stave off a Tourism victory.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_DEFENSE">
+			<Text>Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_DEFENSE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] boosts City [ICON_STRENGTH] Defense and increases Hit Point recovery by 20% of the City's [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_DEFENSE_STRATEGY">
+			<Text>Investing production in defense is a last-ditch method to stave off your city's conquest by a foreign power.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_PROCESS_FOOD">
 			<Text>Farming</Text>
 		</Row>
@@ -141,6 +152,9 @@
 		<!-- Sweden Grenadiers -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
 			<Text>Grenadiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
+			<Text>Splash Damage</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

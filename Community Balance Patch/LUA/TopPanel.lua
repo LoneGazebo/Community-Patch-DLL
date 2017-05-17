@@ -1450,13 +1450,14 @@ function UnitSupplyHandler(control)
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
 		local iWarWearinessReduction = pPlayer:GetWarWeariness();
 		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+		local iTechReduction = pPlayer:GetTechSupplyReduction();
 
 		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
 		strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction);
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction);
 
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 	else
@@ -1467,7 +1468,9 @@ function UnitSupplyHandler(control)
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
 		local iWarWearinessReduction = pPlayer:GetWarWeariness();
 		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
-		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessReduction);
+		local iTechReduction = pPlayer:GetTechSupplyReduction();
+
+		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction);
 	end
 
 	if(strUnitSupplyToolTip ~= "") then

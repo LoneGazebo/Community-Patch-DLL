@@ -8031,12 +8031,7 @@ void CvGame::doTurn()
 {
 #if defined(MOD_BALANCE_CORE)
 	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
-#else
-#ifndef FINAL_RELEASE
-	char temp[256];
-	sprintf_s(temp, "Turn %i\n", getGameTurn());
-	OutputDebugString(temp);
-#endif
+	GC.getMap().DoKillCountDecay();
 #endif
 
 	int aiShuffle[MAX_PLAYERS];
@@ -8412,7 +8407,10 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			continue;
 		}
 
-		bool bValid = (pkUnitInfo->GetCombat() > 0);
+		if (pkUnitInfo->GetCombat() <= 0)
+			continue;
+
+		bool bValid = true;
 
 		if(bNoResource)
 		{

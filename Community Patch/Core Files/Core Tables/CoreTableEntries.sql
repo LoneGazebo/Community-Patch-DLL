@@ -71,6 +71,12 @@ ALTER TABLE Beliefs ADD COLUMN 'PolicyReductionWonderXFollowerCities' INTEGER DE
 
 -- Policy - increases potency of beakers for GSs
 ALTER TABLE Policies ADD COLUMN 'GreatScientistBeakerModifier' INTEGER DEFAULT 0;
+-- and GE hurry
+ALTER TABLE Policies ADD COLUMN 'GreatEngineerHurryModifier' INTEGER DEFAULT 0;
+
+-- Reduce tech costs from cities:
+ALTER TABLE Policies ADD COLUMN 'TechCostXCitiesMod' INTEGER DEFAULT 0;
+
 
 -- Policy - reduces policy cost of Wonders by 1 for every x CS allies
 ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAULT 0;
@@ -610,7 +616,6 @@ ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap.
 ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
 
-
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResourceQuantity' INTEGER DEFAULT 0;
@@ -654,6 +659,16 @@ ALTER TABLE Units ADD 'GPExtra' INTEGER DEFAULT 0;
 -- Example: <GPExtra>1</GPExtra> in a unit's XML table will put all of its GPP into a unique meter and a faith buy track.
 
 -- Promotions
+
+ALTER TABLE UnitPromotions ADD 'MinimumRangeRequired' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'MaximumRangeRequired' INTEGER DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD 'AttackAbove50HealthMod' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'AttackBelowEqual50HealthMod' INTEGER DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD 'SplashDamage' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
 
@@ -1012,9 +1027,6 @@ ALTER TABLE Units ADD 'CultureBoost' BOOLEAN DEFAULT 0;
 
 -- Unit gets extra attacks and partial health is restored upon killing an enemy unit.
 ALTER TABLE Units ADD 'ExtraAttackHealthOnKill' BOOLEAN DEFAULT 0;
-
--- Kills Improvement if set to 1 (use this to reveal a resource on the map, when build is finished etc.)
-ALTER TABLE Builds ADD 'KillImprovement' BOOLEAN DEFAULT 0;
 
 -- Trait allows player to have every unit upgraded once tech is reached.
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSFollowingYourReligion' INTEGER DEFAULT 0;

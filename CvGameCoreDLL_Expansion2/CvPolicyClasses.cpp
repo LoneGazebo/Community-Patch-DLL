@@ -268,6 +268,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bDoubleBorderGA(false),
 	m_iIncreasedQuestInfluence(0),
 	m_iGreatScientistBeakerModifier(0),
+	m_iGreatEngineerHurryModifier(0),
+	m_iTechCostXCitiesMod(0),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
 	m_iPuppetProdMod(0),
@@ -652,6 +654,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
 	m_iIncreasedQuestInfluence = kResults.GetInt("IncreasedQuestRewards");
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
+	m_iGreatEngineerHurryModifier = kResults.GetInt("GreatEngineerHurryModifier");
+	m_iTechCostXCitiesMod = kResults.GetInt("TechCostXCitiesMod");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
@@ -2647,6 +2651,14 @@ int CvPolicyEntry::GetIncreasedQuestInfluence() const
 int CvPolicyEntry::GetGreatScientistBeakerModifier() const
 {
 	return m_iGreatScientistBeakerModifier;
+}
+int CvPolicyEntry::GetGreatEngineerHurryModifier() const
+{
+	return m_iGreatEngineerHurryModifier;
+}
+int CvPolicyEntry::GetTechCostXCitiesMod() const
+{
+	return m_iTechCostXCitiesMod;
 }
 /// Citadel Boost?
 int CvPolicyEntry::GetCitadelBoost() const

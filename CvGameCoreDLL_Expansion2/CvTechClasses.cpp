@@ -1755,6 +1755,12 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	// Mod for City Count
 	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	iMod += m_pPlayer->GetTechCostXCitiesModifier();
+
+	//Never less than 1%!
+	if (iMod <= 1)
+		iMod = 1;
+
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);

@@ -72,7 +72,6 @@ typedef std::list<CvPopupInfo*> CvPopupQueue;
 typedef std::vector< std::pair<UnitCombatTypes, PromotionTypes> > UnitCombatPromotionArray;
 typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromotionArray;
 typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
-typedef FStaticVector<int, 152* 96, true, c_eCiv5GameplayDLL, 0> CvPlotsVector; // allocate the size of HUGE Terra world just in case (this is max that we ship with)
 
 class CvPlayer
 {
@@ -1131,6 +1130,14 @@ public:
 	int GetGreatScientistBeakerMod() const;
 	void SetGreatScientistBeakerMod(int iValue);
 	void ChangeGreatScientistBeakerMod(int iChange);
+
+	int GetGreatEngineerHurryMod() const;
+	void SetGreatEngineerHurryMod(int iValue);
+	void ChangeGreatEngineerHurryMod(int iChange);	
+
+	int GetTechCostXCitiesModifier() const;
+	void SetTechCostXCitiesModifier(int iValue);
+	void ChangeTechCostXCitiesModifier(int iChange);
 
 	int GetGreatGeneralCombatBonus() const;
 	void SetGreatGeneralCombatBonus(int iValue);
@@ -2322,10 +2329,9 @@ public:
 	void SetCapitalGrowthMod(int iValue);
 	void ChangeCapitalGrowthMod(int iChange);
 
-	void InitPlots();  // this needs to be called after the map is inited. It makes the list of how many plots the player controls
-	void UpdatePlots();  // Modifies the list of plots and sets which ones the player owns
-	void AddAPlot(CvPlot* pPlot); // adds a plot at the end of the list
-	CvPlotsVector& GetPlots();  // gets the list of plots the player owns
+	void UpdatePlots();  // Refreshes the list of plots and sets which ones the player owns
+	void AddAPlot(CvPlot* pPlot); // adds an owned plot
+	const set<int>& GetPlots() const;  // gets the list of plots the player owns
 	int GetNumPlots() const;
 
 	int GetNumPlotsBought() const;
@@ -2940,6 +2946,8 @@ protected:
 #endif
 	FAutoVariable<int, CvPlayer> m_iGreatScientistRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatScientistBeakerModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatEngineerHurryMod;
+	FAutoVariable<int, CvPlayer> m_iTechCostXCitiesModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatEngineerRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatPersonExpendGold;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -3451,7 +3459,7 @@ protected:
 	CvNotifications* m_pNotifications;
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
-	CvPlotsVector m_aiPlots;
+	set<int> m_aiPlots;
 
 	// Treasury
 	CvTreasury* m_pTreasury;

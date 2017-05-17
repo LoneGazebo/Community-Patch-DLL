@@ -2126,6 +2126,7 @@ if civ5_mode and gk_mode then
 		local iWarWearinessReduction = pPlayer:GetWarWeariness();
 		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
 		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+		local iTechReduction = pPlayer:GetTechSupplyReduction();
 	
 		local strUnitSupplyToolTip = "";
 		if(iUnitsOver > 0) then
@@ -2134,7 +2135,7 @@ if civ5_mode and gk_mode then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 		end
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction);
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction);
 
 		if(strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;

@@ -360,6 +360,9 @@ protected:
 	static int lRoughRangedAttackModifier(lua_State* L);
 	static int lAttackFortifiedModifier(lua_State* L);
 	static int lAttackWoundedModifier(lua_State* L);
+	static int lAttackFullyHealedModifier(lua_State* L);
+	static int lAttackAbove50Modifier(lua_State* L);
+	static int lAttackBelow50Modifier(lua_State* L);
 	static int lFlankAttackModifier(lua_State* L);
 	static int lOpenDefenseModifier(lua_State* L);
 	static int lRoughDefenseModifier(lua_State* L);

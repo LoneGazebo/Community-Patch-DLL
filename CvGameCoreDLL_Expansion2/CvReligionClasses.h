@@ -230,6 +230,7 @@ public:
 	int GetNumFollowers(ReligionTypes eReligion) const;
 #endif
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
+	int GetNumDomesticCitiesFollowing(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;
 #else
@@ -668,7 +669,7 @@ private:
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter) const;
 	bool HaveEnoughInquisitors(ReligionTypes eReligion) const;
-	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL) const;
+	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL, bool bEvaluateBestPurchase = false) const;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool IsProphetGainRateAcceptable();
 	bool CanBuyNonFaithUnit() const;

@@ -545,7 +545,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Carriers? Only if we need them.
-		if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
+		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA || (pkUnitEntry->GetCargoSpace() > 0 && pkUnitEntry->GetDomainType() == DOMAIN_SEA))
 		{
 			if (kPlayer.isMinorCiv())
 				return 0;
@@ -591,7 +591,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(bCombat)
 			{
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumNavalUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize() * 2;
 				int iValue = iDesired - iCurrent;
 				
 				if(bAtWar)
@@ -633,7 +633,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(bCombat)
 			{
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize() * 2;
 				int iValue = iDesired - iCurrent;
 				if(bAtWar)
 				{
@@ -1046,12 +1046,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iFlavorExpansion -= 3;
 			}
-
+			if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true)) > 0)
+			{
+				iFlavorExpansion -= 3;
+			}
+			else if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true)) > 0 || kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AUTHORITY", true)) > 0)
+			{
+				iFlavorExpansion += 3;
+			}
 			MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 			// scale based on flavor and world size
 			if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 			{
-				iFlavorExpansion -= 2;
+				iFlavorExpansion -= 3;
 			}
 			int iNumCities = kPlayer.getNumCities();
 			

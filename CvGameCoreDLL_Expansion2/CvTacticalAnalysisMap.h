@@ -332,14 +332,20 @@ public:
 	{
 		m_eTerritoryType = eTerritoryType;
 	};
-	inline eTacticalDominanceFlags GetDominanceFlag() const
+	inline eTacticalDominanceFlags GetOverallDominanceFlag() const
 	{
-		return m_eDominanceFlag;
+		return m_eOverallDominanceFlag;
 	};
-	inline void SetDominanceFlag(eTacticalDominanceFlags eDominanceFlag)
+	inline void SetOverallDominanceFlag(eTacticalDominanceFlags eDominanceFlag)
 	{
-		m_eDominanceFlag = eDominanceFlag;
+		m_eOverallDominanceFlag = eDominanceFlag;
 	};
+
+	eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags CvTacticalDominanceZone::GetUnitCountDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalRangedDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalUnitCountDominanceFlag(int iDominancePercentage) const;
+
 	inline PlayerTypes GetOwner() const
 	{
 		return m_eOwner;
@@ -360,21 +366,29 @@ public:
 	{
 		m_iAreaID = iID;
 	};
-	inline int GetFriendlyStrength() const
+	inline int GetOverallFriendlyStrength() const
 	{
-		return m_iFriendlyStrength;
+		return m_iFriendlyMeleeStrength + m_iFriendlyNavalStrength + m_iFriendlyRangedStrength + m_iFriendlyNavalRangedStrength;
 	};
-	inline void AddFriendlyStrength(int iStrength)
+	inline int GetOverallEnemyStrength() const
 	{
-		m_iFriendlyStrength += iStrength;
+		return m_iEnemyMeleeStrength + m_iEnemyNavalStrength + m_iEnemyRangedStrength + m_iEnemyNavalRangedStrength;
 	};
-	inline int GetEnemyStrength() const
+	inline int GetFriendlyMeleeStrength() const
 	{
-		return m_iEnemyStrength;
+		return m_iFriendlyMeleeStrength;
 	};
-	inline void AddEnemyStrength(int iStrength)
+	inline void AddFriendlyMeleeStrength(int iStrength)
 	{
-		m_iEnemyStrength += iStrength;
+		m_iFriendlyMeleeStrength += iStrength;
+	};
+	inline int GetEnemyMeleeStrength() const
+	{
+		return m_iEnemyMeleeStrength;
+	};
+	inline void AddEnemyMeleeStrength(int iStrength)
+	{
+		m_iEnemyMeleeStrength += iStrength;
 	};
 	inline int GetFriendlyRangedStrength() const
 	{
@@ -425,45 +439,21 @@ public:
 	{
 		m_iEnemyNavalRangedStrength += iRangedStrength;
 	};
-	inline int GetFriendlyUnitCount() const
+	inline int GetTotalFriendlyUnitCount() const
 	{
-		return m_iFriendlyUnitCount;
+		return m_iFriendlyUnitCount + m_iFriendlyNavalUnitCount;
 	};
 	inline void AddFriendlyUnitCount(int iUnitCount)
 	{
 		m_iFriendlyUnitCount += iUnitCount;
 	};
-	inline int GetEnemyUnitCount() const
+	inline int GetTotalEnemyUnitCount() const
 	{
-		return m_iEnemyUnitCount;
+		return m_iEnemyUnitCount + m_iEnemyNavalUnitCount;
 	};
 	inline void AddEnemyUnitCount(int iUnitCount)
 	{
 		m_iEnemyUnitCount += iUnitCount;
-	};
-	inline int GetFriendlyRangedUnitCount() const
-	{
-		return m_iFriendlyRangedUnitCount;
-	};
-	inline void AddFriendlyRangedUnitCount(int iUnitCount)
-	{
-		m_iFriendlyRangedUnitCount += iUnitCount;
-	};
-	inline void AddFriendlyMeleeUnitCount(int iUnitCount)
-	{
-		m_iFriendlyMeleeUnitCount += iUnitCount;
-	};
-	inline void AddEnemyMeleeUnitCount(int iUnitCount)
-	{
-		m_iEnemyMeleeUnitCount += iUnitCount;
-	};
-	inline int GetFriendlyMeleeUnitCount() const
-	{
-		return m_iFriendlyMeleeUnitCount;
-	};
-	inline int GetEnemyMeleeUnitCount() const
-	{
-		return m_iEnemyMeleeUnitCount;
 	};
 	inline void AddNeutralUnitCount(int iUnitCount)
 	{
@@ -480,14 +470,6 @@ public:
 	inline int GetNeutralStrength() const
 	{
 		return m_iNeutralUnitStrength;
-	};
-	inline int GetEnemyRangedUnitCount() const
-	{
-		return m_iEnemyRangedUnitCount;
-	};
-	inline void AddEnemyRangedUnitCount(int iUnitCount)
-	{
-		m_iEnemyRangedUnitCount += iUnitCount;
 	};
 	inline int GetEnemyNavalUnitCount() const
 	{
@@ -545,12 +527,12 @@ public:
 private:
 	int m_iDominanceZoneID;
 	eDominanceTerritoryTypes m_eTerritoryType;
-	eTacticalDominanceFlags m_eDominanceFlag;
+	eTacticalDominanceFlags m_eOverallDominanceFlag;
 	PlayerTypes m_eOwner;
 	int m_iCityID;
 	int m_iAreaID;
-	int m_iFriendlyStrength;
-	int m_iEnemyStrength;
+	int m_iFriendlyMeleeStrength;
+	int m_iEnemyMeleeStrength;
 	int m_iFriendlyRangedStrength;
 	int m_iEnemyRangedStrength;
 	int m_iFriendlyNavalStrength;

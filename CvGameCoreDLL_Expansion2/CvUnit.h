@@ -95,9 +95,9 @@ public:
 	{
 		//these values can be called via the dll external interface, don't modify them
 	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
-	    MOVEFLAG_DECLARE_WAR				  = 0x0002,
-	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot
-	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x0008,	// purpose unknown
+	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // exact meaning unclear, probably not required anymore?
+	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
+	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (not checked in the pathfinder, only when executing the move so we don't leak information)
 	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
 	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
@@ -138,7 +138,7 @@ public:
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
-	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
+	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bConvert = false);
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
@@ -559,8 +559,8 @@ public:
 	int GetBaseCombatStrength() const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
-	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
-	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreAdjacencyBonus = false) const;
+	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL) const;
+	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreUnitAdjacencyBoni = false) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -574,9 +574,10 @@ public:
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
+	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
@@ -754,7 +755,7 @@ public:
 
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
-	int GetNumSpecificPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
+	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
 
 	int GetAdjacentModifier() const;
@@ -783,6 +784,9 @@ public:
 	int roughRangedAttackModifier() const;
 	int attackFortifiedModifier() const;
 	int attackWoundedModifier() const;
+	int attackFullyHealedModifier() const;
+	int attackAbove50HealthModifier() const;
+	int attackBelow50HealthModifier() const;
 	int openDefenseModifier() const;
 	int roughDefenseModifier() const;
 	int terrainAttackModifier(TerrainTypes eTerrain) const;
@@ -793,6 +797,9 @@ public:
 	int unitClassDefenseModifier(UnitClassTypes eUnitClass) const;
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
+
+	int getyieldModifier(YieldTypes eYield) const;
+	void setyieldmodifier(YieldTypes eYield, int iValue);
 
 	bool IsHasNoValidMove() const;
 
@@ -953,6 +960,9 @@ public:
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
+
+	int getSplashDamage() const;
+	void changeSplashDamage(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1082,6 +1092,16 @@ public:
 
 	int getExtraAttackWoundedMod() const;
 	void changeExtraAttackWoundedMod(int iChange);
+
+	int getExtraAttackFullyHealedMod() const;
+	void changeExtraAttackFullyHealedMod(int iChange);
+
+
+	int getExtraAttackAboveHealthMod() const;
+	void changeExtraAttackAboveHealthMod(int iChange);
+
+	int getExtraAttackBelowHealthMod() const;
+	void changeExtraAttackBelowHealthMod(int iChange);
 
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
@@ -1649,7 +1669,7 @@ public:
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
-	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
+	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, int* piTurns = NULL);
 	void ClearPathCache();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
@@ -1733,6 +1753,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
+	FAutoVariable<int, CvUnit> m_iSplashDamage;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
@@ -1783,6 +1804,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraRoughRangedAttackMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackFortifiedMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackWoundedMod;
+	FAutoVariable<int, CvUnit> m_iExtraFullyHealedMod;
+	FAutoVariable<int, CvUnit> m_iExtraAttackAboveHealthMod;
+	FAutoVariable<int, CvUnit> m_iExtraAttackBelowHealthMod;
 	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
 	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
 	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;
@@ -1922,6 +1946,7 @@ protected:
 	IDInfo m_transportUnit;
 
 	std::vector<int> m_extraDomainModifiers;
+	std::vector<int> m_yieldModifier;
 
 	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;

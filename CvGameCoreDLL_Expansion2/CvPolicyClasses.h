@@ -282,6 +282,8 @@ public:
 	bool GetDoubleBorderGA() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
+	int GetGreatEngineerHurryModifier() const;
+	int GetTechCostXCitiesMod() const;
 	int GetCitadelBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
@@ -638,6 +640,8 @@ private:
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
 	int m_iGreatScientistBeakerModifier;
+	int m_iGreatEngineerHurryModifier;
+	int m_iTechCostXCitiesMod;
 	int m_iIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;

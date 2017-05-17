@@ -481,6 +481,7 @@ void CvPlot::doImprovement()
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
+								this->DoFindCityToLinkResourceTo();
 								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
@@ -574,13 +575,7 @@ void CvPlot::updateFog(bool bDefer)
 	}
 	else
 	{
-		CvMap::DeferredPlotArray& plotList = GC.getMap().m_vDeferredFogPlots;
-		for (CvMap::DeferredPlotArray::const_iterator itr = plotList.begin(); itr != plotList.end(); ++itr)
-		{
-			if((*itr) == this)
-				return;	// Already in
-		}
-		plotList.push_back(this);
+		GC.getMap().deferredFogPlots().insert(this);
 	}
 }
 
@@ -2587,12 +2582,6 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			return false;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(thisBuildInfo.IsKillImprovement() && getResourceType() != NO_RESOURCE)
-	{
-		return false;
-	}
-#endif
 	if(thisBuildInfo.IsRemoveRoute())
 	{
 		if(!getPlotCity() && getRouteType() != NO_ROUTE)
@@ -3952,6 +3941,28 @@ bool CvPlot::HasDig()
 	return (getResourceType() == GC.getARTIFACT_RESOURCE());
 }
 #endif
+
+bool CvPlot::isVisible(TeamTypes eTeam, bool bDebug) const
+{
+	if (bDebug && GC.getGame().isDebugMode())
+		return true;
+	else
+		return isVisible(eTeam);
+}
+
+bool CvPlot::isVisible(TeamTypes eTeam) const
+{
+	if (eTeam == NO_TEAM)
+		return false;
+
+	/*
+	//experimental hack: observer visibility is determined by the player they will return as
+	if (GET_TEAM(eTeam).isObserver() && GC.getGame().GetAutoPlayReturnPlayer() != NO_PLAYER)
+		eTeam = GET_PLAYER(GC.getGame().GetAutoPlayReturnPlayer()).getTeam();
+	*/
+
+	return ((getVisibilityCount(eTeam) > 0));
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isActiveVisible(bool bDebug) const
@@ -8369,7 +8380,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 		
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
+		if (MOD_EVENTS_TILE_IMPROVEMENTS)
+		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileImprovementChanged, getX(), getY(), getOwner(), eOldImprovement, eNewValue, IsImprovementPillaged());
 		}
 #endif
@@ -9774,7 +9786,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
 				if(iTemp > 0)
 				{
-					iTemp += GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat();
+					iTemp *= max(1, GET_PLAYER(pWorkingCity->getOwner()).GetMonopolyModFlat());
 					iYield += iTemp;
 				}
 			}
@@ -12093,8 +12105,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 											// Good we passed. Now let's add a resource.
 											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 											setResourceType((ResourceTypes)iI, iResourceNum);
-											if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
-												SetResourceLinkedCityActive(true);
+											this->DoFindCityToLinkResourceTo();
 											if(getOwner() == GC.getGame().getActivePlayer())
 											{
 												pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
@@ -14390,7 +14401,7 @@ void CvPlot::updateImpassable(TeamTypes eTeam)
 			SetTeamImpassable((TeamTypes)i, m_bIsImpassable);
 
 	//if it's passable, check for blocking terrain/features
-	if(eTerrain != NO_TERRAIN && !m_bIsImpassable)
+	if(eTerrain != NO_TERRAIN)
 	{
 		if(eFeature == NO_FEATURE)
 		{

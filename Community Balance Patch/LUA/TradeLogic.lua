@@ -3309,7 +3309,7 @@ function ShowOtherPlayerChooser( isUs, type )
 							-- Can't force third party peace with a loser. Has to be a sizeable difference
 							local iFromWarScore = Players[iFromPlayer]:GetWarScore(iLoopPlayer);
 
-							if(iFromWarScore <= 0) then
+							if(iFromWarScore < 75) then
 								if(strToolTip ~= "") then
 									strToolTip = strToolTip .. "[NEWLINE]";
 								end

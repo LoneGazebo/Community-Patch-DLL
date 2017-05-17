@@ -10942,17 +10942,15 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 
 	CvPlot* pResultPlot = NULL;
 
-	const CvPlotsVector& aiPlots = pkPlayer->GetPlots();
+	const set<int>& aiPlots = pkPlayer->GetPlots();
 	// go through all the plots the player has under their control
-	for(uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		// when we encounter the first plot that is invalid, the rest of the list will be invalid
-		if(aiPlots[uiPlotIndex] == -1)
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (!pPlot)
 		{
-			break;
+			continue;
 		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
 
 		// check to see if a resource is here. If not, bail out!
 		ResourceTypes eResource = pPlot->getResourceType(pkPlayer->getTeam());
@@ -11055,20 +11053,13 @@ int CvLuaPlayer::lIsAnyPlotImproved(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const CvPlotsVector& aiPlots = pkPlayer->GetPlots();
+	const set<int>& aiPlots = pkPlayer->GetPlots();
 
 	bool bResult = false;
 
-	// go through all the plots the player has under their control
-	for(uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		// when we encounter the first plot that is invalid, the rest of the list will be invalid
-		if(aiPlots[uiPlotIndex] == -1)
-		{
-			break;
-		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)
 		{
 			continue;
@@ -11097,18 +11088,12 @@ int CvLuaPlayer::lGetPlayerVisiblePlot(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlayerAI* pkPlayer2 = CvLuaPlayer::GetInstance(L, 2);
 
-	const CvPlotsVector& aiPlots = pkPlayer->GetPlots();
+	const set<int>& aiPlots = pkPlayer->GetPlots();
 
 	// go through all the plots the player has under their control
-	for(uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
-		// when we encounter the first plot that is invalid, the rest of the list will be invalid
-		if(aiPlots[uiPlotIndex] == -1)
-		{
-			break;
-		}
-
-		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)
 		{
 			continue;

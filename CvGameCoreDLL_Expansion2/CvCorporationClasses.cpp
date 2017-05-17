@@ -945,11 +945,18 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 					{
 						iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
 					}
-					if (pCapital != NULL)
+					int iLoop2;
+					for (CvCity* pLoopCity2 = m_pPlayer->firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iLoop2))
 					{
-						//Prioritize closer cities first.
-						int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
-						iScore -= (iDistance * 5);
+						if (pLoopCity2 != NULL)
+						{
+							if (!m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_LAND, TRADE_CONNECTION_INTERNATIONAL, false) && !m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_SEA, TRADE_CONNECTION_INTERNATIONAL, false))
+								continue;
+
+							//Prioritize closer cities first.
+							int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+							iScore -= (iDistance * 5);
+						}
 					}
 					if (iScore > iBestScore)
 					{

@@ -974,7 +974,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				changeOverflowProduction(GC.getINITIAL_AI_CITY_PRODUCTION());
 #if defined(ACHIEVEMENT_HACKS)
-			} else {
+			}
+			else
+			{
 				CvAchievementUnlocker::UnlockFromDatabase();
 #endif
 			}
@@ -3837,11 +3839,6 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 		{
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
-
-			int iMin = GC.getEVENT_MIN_DURATION_BETWEEN();
-			iMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iMin /= 100;
-			ChangeCityEventCooldown(iMin);
 
 			//Set oneshot stuff so this event can't fire ever again.
 			if(pkEventInfo->isOneShot())
@@ -8683,6 +8680,10 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 	// Loop through all plots near this City to see if we can find eResource - tests are ordered to optimize performance
 	CvPlot* pLoopPlot;
 
+	//Settled on it? We good.
+	if (this->plot()->getResourceType() == eResource)
+		return true;
+
 	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
 		pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
@@ -13465,6 +13466,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
+										pLoopPlot->DoFindCityToLinkResourceTo();
 										iNumResourceGiven++;
 										if(iNumResourceGiven >= iNumResourceTotal)
 										{
@@ -13490,6 +13492,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
+											pLoopPlot->DoFindCityToLinkResourceTo();
 											iNumResourceGiven++;
 											if(iNumResourceGiven >= iNumResourceTotal)
 											{
@@ -13877,6 +13880,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						{
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResource, pBuildingInfo->GetResourceQuantityToPlace(), false);
+							pLoopPlot->DoFindCityToLinkResourceTo();
 							iNumResourcePlotsGiven++;
 							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 							{
@@ -13890,10 +13894,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										}
 									}
 								}
-							}
-							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-							{
-								break;
 							}
 							if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 							{
@@ -13926,6 +13926,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 									}
 								}
+							}
+							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+							{
+								break;
 							}
 						}
 					}
@@ -15458,7 +15462,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
 			if(iTempMod != 0)
 			{
-				iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 				iTotalMod += iTempMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
@@ -21218,17 +21222,21 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			//Only useable in religions!
 			if (eYield == YIELD_GOLD)
 			{
-				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this, true);
-				iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
+				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this);
+				if (eReligion == RELIGION_PANTHEON)
+					iYieldValue += iGoldPerFollowingCity;
 
 				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner(), this, true);
 				if (iGoldPerXFollowers > 0)
 				{
-					iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+					if (eReligion == RELIGION_PANTHEON)
+						iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iGoldPerXFollowers);
+					else
+						iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
 
-			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this, true);
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this);
 			if (iYieldPerFollowingCity > 0)
 			{
 				iYieldValue += iYieldPerFollowingCity;
@@ -21343,24 +21351,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	CvPlot* pCityPlot = plot();
 	for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getyieldModifier(eIndex);
+		if (iTempMod != 0)
 		{
-			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-			if(pkPromotionInfo != NULL)
+			iModifier += iTempMod;
+			if(toolTipSink && iTempMod)
 			{
-				if(pkPromotionInfo->GetYieldModifier(eIndex) > 0)
-				{
-					if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-					{
-						iTempMod = pkPromotionInfo->GetYieldModifier(eIndex);
-						iModifier += iTempMod;
-						if(toolTipSink && iTempMod)
-						{
-							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
-						}
-					}
-				}
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
 			}
 		}
 	}
@@ -21520,7 +21517,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
 		if (iTempMod != 0)
 		{
-			iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+			iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 			iModifier += iTempMod;
 			if(toolTipSink)
 			{
@@ -31380,7 +31377,12 @@ bool CvCity::isInDangerOfFalling() const
 {
 	int iHitpoints = GetMaxHitPoints() - getDamage();
 	//be conservative here ...
-	return (m_iDamageTakenLastTurn*1.5 > iHitpoints);
+	if (m_iDamageTakenLastTurn*1.5 > iHitpoints)
+	{
+		GET_PLAYER(getOwner()).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
+		return true;
+	}
+	return false;
 }
 
 bool CvCity::isUnderSiege() const

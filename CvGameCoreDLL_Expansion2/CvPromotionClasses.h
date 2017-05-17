@@ -89,6 +89,9 @@ public:
 	int  GetRoughRangedAttackMod() const;
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
+	int  GetAttackFullyHealedMod() const;
+	int GetAttackAboveHealthMod() const;
+	int GetAttackBelowHealthMod() const;
 	int  GetFlankAttackModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
@@ -162,6 +165,9 @@ public:
 	bool IsStrongerDamaged() const;
 	bool IsMountainsDoubleMove() const;
 	int GetAOEDamageOnKill() const;
+	int GetSplashDamage() const;
+	int GetMinRange() const;
+	int GetMaxRange() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -354,6 +360,9 @@ protected:
 	int m_iRoughRangedAttackMod;
 	int m_iAttackFortifiedMod;
 	int m_iAttackWoundedMod;
+	int m_iAttackFullyHealedMod;
+	int m_iAttackAboveHealthMod;
+	int m_iAttackBelowHealthMod;
 	int m_iFlankAttackModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;
@@ -450,6 +459,9 @@ protected:
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
 	int m_iWonderProductionModifier;
 	int m_iAOEDamageOnKill;
+	int m_iSplashDamage;
+	int m_iMinRange;
+	int m_iMaxRange;
 	bool m_bMountainsDoubleMove;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
