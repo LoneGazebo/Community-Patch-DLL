@@ -43137,6 +43137,11 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
+void CvPlayer::ResetDangerCache(const CvPlot & Plot)
+{
+	m_pDangerPlots->ResetDangerCache(Plot);
+}
+
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
 {
 	if (m_pDangerPlots->IsDirty())

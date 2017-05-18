@@ -73,6 +73,11 @@ struct CvDangerPlotContents
 		m_lastResults.clear();
 	};
 
+	void resetCache()
+	{
+		m_lastResults.clear();
+	}
+
 	int GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
@@ -144,6 +149,7 @@ public:
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+	void ResetDangerCache(const CvPlot& Plot);
 	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility, bool bRemember);
 	bool IsKnownAttacker(PlayerTypes eOwner, int iUnitID) const;
 	void AddKnownAttacker(PlayerTypes eOwner, int iUnitID);

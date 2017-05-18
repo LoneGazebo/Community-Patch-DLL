@@ -566,7 +566,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			}
 			pkDefender->testPromotionReady();
 
-			ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
+			ApplyPostKillTraitEffects(pkDefender, pkAttacker);
 
 		}
 		// Defender died
@@ -606,7 +606,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 			pkAttacker->testPromotionReady();
 
-			ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+			ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 			// If defender captured, mark who captured him
 			if (kCombatInfo.getDefenderCaptured())
@@ -1183,7 +1183,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
 #endif
 
-						ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 						if(bBarbarian)
 						{
@@ -2067,7 +2067,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 							}
 						}
 
-						ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
+						ApplyPostKillTraitEffects(pkDefender, pkAttacker);
 					}
 					// Defender died
 					else if(pkDefender->IsDead())
@@ -2097,7 +2097,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 						bTargetDied = true;
 
-						ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 #if defined(MOD_BUGFIX_MINOR)
 						// Friendship from barb death via air-strike
@@ -2526,7 +2526,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 
 				pkDefender->testPromotionReady();
 
-				ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
+				ApplyPostKillTraitEffects(pkDefender, pkAttacker);
 			}
 			// Defender died
 			else if(bDefenderDead)
@@ -2569,7 +2569,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 
 				pkAttacker->testPromotionReady();
 
-				ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+				ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 			}
 			// Nobody died
 			else
@@ -4322,9 +4322,19 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 }
 
 //	---------------------------------------------------------------------------
-void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
+// winner has killed loser
+//	---------------------------------------------------------------------------
+void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 {
 	int iExistingDelay = 0;
+
+	// Clear cached danger in the vicinity
+	for (int i = 0; i < RING2_PLOTS; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(pkLoser->plot(), i);
+		if (pPlot)
+			GET_PLAYER(pkWinner->getOwner()).ResetDangerCache(*pPlot);
+	}
 
 	// "Heal if defeat enemy" promotion; doesn't apply if defeat a barbarian
 	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
@@ -4569,7 +4579,7 @@ void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo &
 
 					pkAttacker->testPromotionReady();
 
-					CvUnitCombat::ApplyPostCombatTraitEffects(pkAttacker, pkUnit);
+					CvUnitCombat::ApplyPostKillTraitEffects(pkAttacker, pkUnit);
 				}
 			}
 		}

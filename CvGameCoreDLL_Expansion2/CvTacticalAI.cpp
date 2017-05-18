@@ -11266,7 +11266,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 
 bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 {
-	if (!pAttacker || !pDefender)
+	if (!pAttacker || !pDefender || pDefender->isDelayedDeath())
 		return false;
 
 	//aircraft are different
@@ -11342,7 +11342,7 @@ bool TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(PlayerTypes ePlayer, C
 
 bool TacticalAIHelpers::IsCaptureTargetAdjacent(CvUnit * pUnit)
 {
-	if (pUnit && pUnit->IsCombatUnit() && !pUnit->isRanged() && !pUnit->isNoCapture())
+	if (pUnit && pUnit->IsCombatUnit() && !pUnit->isNoCapture())
 	{
 		//don't really check all reachable plots, just the neighbors
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pUnit->plot());
@@ -11353,9 +11353,12 @@ bool TacticalAIHelpers::IsCaptureTargetAdjacent(CvUnit * pUnit)
 			if (pPlot == NULL)
 				continue;
 
-			CvCity* pNeighboringCity = pPlot->getPlotCity();
-			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())
-				return true;
+			if (!pUnit->isRanged())
+			{
+				CvCity* pNeighboringCity = pPlot->getPlotCity();
+				if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())
+					return true;
+			}
 
 			if (pPlot->getImprovementType()==GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{

@@ -7282,7 +7282,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 	if(!bTestVisible)
 	{
 		// Embarked Units can't heal
-		if(isEmbarked())
+		if(pPlot->needsEmbarkation(this))
 		{
 			return false;
 		}
