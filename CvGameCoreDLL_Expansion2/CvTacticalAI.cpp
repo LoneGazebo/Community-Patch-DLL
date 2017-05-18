@@ -11062,7 +11062,11 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMax
 	if (!pUnit)
 		return NULL;
 
-	//work outwards in rings
+	//first see if the current plot is good
+	if (pUnit->GetDanger() == 0 && pUnit->plot()->getOwner()==pUnit->getOwner() && pUnit->canHeal(pUnit->plot(), false, true))
+		return pUnit->plot();
+
+	//then work outwards in rings
 	for (int iRing=0; iRing<min(iMaxDistance,5); iRing++)
 	{
 		std::vector<SPlotWithScore> vCandidates;
@@ -11099,7 +11103,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMax
 					continue;
 			}
 
-			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot) - pUnit->GetDanger(pPlot)/10;
+			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot) - pUnit->GetDanger(pPlot)/5;
 			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 
