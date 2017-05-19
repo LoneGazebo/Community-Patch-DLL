@@ -866,7 +866,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		return GetAirUnitDamage(pUnit, iAirAction);
 
 	//simple caching for speedup
-	SUnitInfo unitStats(pUnit);
+	SUnitInfo unitStats(pUnit, unitsToIgnore);
 	for (size_t i=0; i<m_lastResults.size(); i++)
 		if ( unitStats == m_lastResults[i].first )
 			return m_lastResults[i].second;
@@ -966,8 +966,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		}
 
 		//update cache
-		m_lastResults.push_back( std::make_pair(unitStats,iPlotDamage) );
-		if (m_lastResults.size()==DANGER_MAX_CACHE_SIZE)
+		m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
+		if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
 			m_lastResults.erase(m_lastResults.begin());
 
 		return iPlotDamage;
@@ -1033,8 +1033,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
 	//update cache
-	m_lastResults.push_back( std::make_pair(unitStats,iPlotDamage) );
-	if (m_lastResults.size()==DANGER_MAX_CACHE_SIZE)
+	m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
+	if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
 		m_lastResults.erase(m_lastResults.begin());
 
 	//done
