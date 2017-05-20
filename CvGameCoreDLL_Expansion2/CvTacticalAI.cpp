@@ -11097,8 +11097,11 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMax
 					continue;
 			}
 
-			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot) - pUnit->GetDanger(pPlot)/5;
-			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
+			if (pUnit->GetDanger(pPlot) < pUnit->healRate(pPlot))
+			{
+				int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot) - pUnit->GetDanger(pPlot) / 5;
+				vCandidates.push_back(SPlotWithScore(pPlot, iScore));
+			}
 		}
 
 		//start with the plot that is closest to one of our cities
