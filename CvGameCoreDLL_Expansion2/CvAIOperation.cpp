@@ -912,7 +912,7 @@ bool CvAIOperation::Move()
 	}
 
 	pThisArmy->UpdateCheckpointTurns();
-	pThisArmy->RemoveStuckUnits();
+	pThisArmy->RemoveStuckAndWeakUnits();
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );

@@ -4584,7 +4584,6 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 
 	int iRange = 5;
 	int iMinDist = INT_MAX;
-	int iResult = -1;
 
 	// Loop through all appropriate targets to see if any is of concern
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
@@ -4592,20 +4591,15 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		// Is the target of an appropriate type?
 		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-				m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY
-				)
+		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 		{
 			int iDistance = plotDistance(m_AllTargets[iI].GetTargetX(),m_AllTargets[iI].GetTargetY(),pArmy->GetX(),pArmy->GetY());
 			if (iDistance<iRange && iDistance<iMinDist)
-			{
 				iMinDist = iDistance;
-				iResult = iI;
-			}
 		}
 	}
 
-	if (iResult<0)
+	if (iMinDist<INT_MAX)
 		return;
 
 	vector<STacticalAssignment> vAssignments;
@@ -4617,7 +4611,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		pUnit = pArmy->GetNextUnit();
 	}
 	
-	CvPlot* pTargetPlot = GC.getMap().plotUnchecked(m_AllTargets[iResult].GetTargetX(),m_AllTargets[iResult].GetTargetY());
+	CvPlot* pTargetPlot = pArmy->GetCenterOfMass();
 	int iCount = 0;
 	do
 	{
@@ -11109,6 +11103,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMax
 
 		//start with the plot that is closest to one of our cities
 		std::stable_sort( vCandidates.begin(), vCandidates.end() );
+		std::reverse(vCandidates.begin(), vCandidates.end());
 
 		for (size_t iI=0; iI<vCandidates.size(); iI++)
 		{
