@@ -154,8 +154,9 @@ struct SCachedTarget
 	SCachedTarget() :
 		iTargetCity(0),
 		iMusterCity(0),
-		bAttackBySea(0),
-		bOcean(0),
+		bAttackBySea(false),
+		bOcean(false),
+		bNoLandPath(false),
 		iScore(0),
 		iTurnChosen(0)
 	{
@@ -163,9 +164,9 @@ struct SCachedTarget
 
 	int iTargetCity;
 	int iMusterCity;
-	int bAttackBySea;
-	int bOcean;
-	int bNoLandPath;
+	bool bAttackBySea;
+	bool bOcean;
+	bool bNoLandPath;
 	int iScore;
 	int iTurnChosen;
 };
@@ -243,7 +244,6 @@ public:
 	CvAIOperation* GetShowOfForceOperation(PlayerTypes eEnemy);
 	CvAIOperation* GetBasicAttackOperation(PlayerTypes eEnemy);
 	CvAIOperation* GetCityStateAttackOperation(PlayerTypes eEnemy);
-	CvAIOperation* GetNukeAttackOperation(PlayerTypes eEnemy);
 	CvAIOperation* GetPureNavalAttackOperation(PlayerTypes eEnemy);
 
 	// Emergency purchases
@@ -261,6 +261,7 @@ public:
 	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity);
 	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity);
 	void RefreshDistanceCaches();
+	bool PathIsSafe(const SPath& path);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);

@@ -408,6 +408,7 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 		kStream >> target.iMusterCity;
 		kStream >> target.bAttackBySea;
 		kStream >> target.bOcean;
+		kStream >> target.bNoLandPath;
 		kStream >> target.iScore;
 		kStream >> target.iTurnChosen;
 		m_cachedTargets[(PlayerTypes)eEnemy][(AIOperationTypes)eAIOp] = target;
@@ -495,6 +496,7 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 				kStream << itOp->second.iMusterCity;
 				kStream << itOp->second.bAttackBySea;
 				kStream << itOp->second.bOcean;
+				kStream << itOp->second.bNoLandPath;
 				kStream << itOp->second.iScore;
 				kStream << itOp->second.iTurnChosen;
 			}
@@ -1356,13 +1358,17 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 
 	if (m_pPlayer->CanCrossOcean())
 	{
-		iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
+		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+		if (!!path && PathIsSafe(path))
+			iDistance = path.iTotalTurns;
 	}
 	else if (GET_TEAM(m_pPlayer->getTeam()).canEmbark())
 	{
-		//now try without ocean for comparison
+		//try without ocean
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
-		iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
+		SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+		if (!!path && PathIsSafe(path))
+			iDistance = path.iTotalTurns;
 	}
 
 	//update the cache
@@ -1403,7 +1409,9 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 	data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
-	iDistance = GC.GetStepFinder().GetPathLengthInTurns(pCity->plot(), pOtherCity->plot(), data);
+	SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
+	if (!!path && PathIsSafe(path))
+		iDistance = path.iTotalTurns;
 
 	//update the cache
 	m_cachedLandDistances[pCity][pOtherCity] = iDistance;
@@ -1425,6 +1433,24 @@ void CvMilitaryAI::RefreshDistanceCaches()
 {
 	m_cachedLandDistances.clear();
 	m_cachedWaterDistances.clear();
+}
+
+bool CvMilitaryAI::PathIsSafe(const SPath & path)
+{
+	//define short paths as safe (start and dest plot are included in count)
+	if (path.vPlots.size() < 4)
+		return true;
+
+	for (size_t i = 3; i < path.vPlots.size() - 3; i++)
+	{
+		CvPlot* pPlot = GC.getMap().plot(path.vPlots[i].x,path.vPlots[i].y);
+		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPlot);
+		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+		if (pCity && m_pPlayer->IsAtWarWith(pCity->getOwner()) && iCityDistance < 3)
+			return false;
+	}
+
+	return true;
 }
 
 bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
@@ -1471,7 +1497,7 @@ bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes e
 
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore, bool bCheckWar)
 {
-	int ciAgeLimit = 30;
+	int ciAgeLimit = 8; //refresh this relatively often in case cities are conquered or founded
 
 	if (eEnemy >= MAX_CIV_PLAYERS)
 	{
@@ -1758,7 +1784,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		{
 			continue;
 		}
-		if(pPlot->isRevealed(m_pPlayer->getTeam()))
+		if(pPlot->isRevealed(m_pPlayer->getTeam())) //this is cheating ...
 		{
 			int iPower = 0;
 			bool bGeneralInTheVicinity = false;
@@ -1807,12 +1833,12 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		}
 		for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 		{
-			if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
+			if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->plot()->isAdjacentRevealed(m_pPlayer->getTeam()))
 			{
 				CvMilitaryTarget target;
 				target.m_pMusterCity = pFriendlyCity;
 				target.m_pTargetCity = pEnemyCity;
-				target.iStrengthRatioTimes100 = ((pFriendlyCity->iScratch + pFriendlyCity->GetPower()) * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
+				target.iStrengthRatioTimes100 = (pFriendlyCity->iScratch * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
 
 				if (target.iStrengthRatioTimes100 <= 50)
 				{

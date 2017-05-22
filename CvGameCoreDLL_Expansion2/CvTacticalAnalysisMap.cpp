@@ -844,7 +844,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						pLoopUnit->isRanged() || //ranged power is cross-domain!
 						(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
 						((pLoopUnit->getDomainType() == DOMAIN_SEA || (pLoopUnit->isEmbarked() && pClosestCity) && pZone->IsWater())));
-						//embarked melee still count in water zone if there's a city to attack
+						//embarked melee still count in water zone if there's a city to attack/defend
 
 				if (!bUnitMayBeRelevant)
 					continue;
