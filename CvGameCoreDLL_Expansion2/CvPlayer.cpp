@@ -348,6 +348,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumPolicies("CvPlayer::m_iNumPolicies", m_syncArchive)
 	, m_iNumGreatPeople("CvPlayer::m_iNumGreatPeople", m_syncArchive)
 	, m_uiStartTime("CvPlayer::m_uiStartTime", m_syncArchive)  // XXX save these?
+	, m_bHasUUPeriod("CvPlayer::m_bHasUUPeriod", m_syncArchive)
 	, m_bHasBetrayedMinorCiv("CvPlayer::m_bHasBetrayedMinorCiv", m_syncArchive)
 	, m_bAlive("CvPlayer::m_bAlive", m_syncArchive)
 	, m_bEverAlive("CvPlayer::m_bEverAlive", m_syncArchive)
@@ -619,6 +620,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiJFDPoliticPercent("CvPlayer::m_paiJFDPoliticPercent", m_syncArchive)
+	, m_paiResourceFromCSAlliances("CvPlayer::m_paiResourceFromCSAlliances", m_syncArchive)
 	, m_paiResourceOverValue("CvPlayer::m_paiResourceOverValue", m_syncArchive)
 	, m_aiGlobalTourismAlreadyReceived("CvPlayer::m_aiGlobalTourismAlreadyReceived", m_syncArchive)
 	, m_aiYieldFromBirth("CvPlayer::m_aiYieldFromBirth", m_syncArchive)
@@ -1640,6 +1642,7 @@ void CvPlayer::uninit()
 	m_iBorderObstacleCount = 0;
 	m_iPopRushHurryCount = 0;
 	m_uiStartTime = 0;
+	m_bHasUUPeriod = false;
 	m_iTotalImprovementsBuilt = 0;
 	m_iNextOperationID = 0;
 	m_iCostNextPolicy = 0;
@@ -1978,6 +1981,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 #if defined(MOD_BALANCE_CORE)
 		m_paiJFDPoliticPercent.clear();
 		m_paiJFDPoliticPercent.resize(MAX_CIV_PLAYERS, 0);
+
+		m_paiResourceFromCSAlliances.clear();
+		m_paiResourceFromCSAlliances.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiResourceOverValue.clear();
 		m_paiResourceOverValue.resize(GC.getNumResourceInfos(), 0);
@@ -10747,6 +10753,8 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
+	SetHasUUPeriod();
+
 	if(MOD_BALANCE_CORE_JFD)
 	{
 		GetContracts()->DoTurn();
@@ -13057,9 +13065,12 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	{
 		iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getJonRandNum(kGoodyInfo.getGoldRandAmount(), "Goody Gold Rand"));
 	}
-	if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+
+	int iGoodyModifier = pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus();
+
+	if (pUnit != NULL && iGoodyModifier != 0)
 	{
-		iGold *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+		iGold *= (100 + iGoodyModifier);
 		iGold /= 100;
 	}
 	if(iGold != 0)
@@ -13104,9 +13115,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iProduction *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iProduction /= 100;
 
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier != 0)
 		{
-			iProduction *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iProduction *= (100 + iGoodyModifier);
 			iProduction /= 100;
 		}
 
@@ -13144,9 +13155,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iGoldenAge *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 		iGoldenAge /= 100;
 
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier != 0)
 		{
-			iGoldenAge *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iGoldenAge *= (100 + iGoodyModifier);
 			iGoldenAge /= 100;
 		}
 
@@ -13177,9 +13188,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if(pBestCity != NULL)
 		{
 
-			if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+			if (pUnit != NULL && iGoodyModifier != 0)
 			{
-				iFreeTiles *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+				iFreeTiles *= (100 + iGoodyModifier);
 				iFreeTiles /= 100;
 			}
 
@@ -13206,9 +13217,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iCulture *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 		iCulture /= 100;
 
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier != 0)
 		{
-			iCulture *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iCulture *= (100 + iGoodyModifier);
 			iCulture /= 100;
 		}
 #if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
@@ -13233,9 +13244,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iFaith *= GC.getGame().getGameSpeedInfo().getFaithPercent();
 		iFaith /= 100;
 
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier != 0)
 		{
-			iFaith *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iFaith *= (100 + iGoodyModifier);
 			iFaith /= 100;
 		}
 
@@ -13257,9 +13268,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iFaith /= iDivisor;
 		iFaith *= iDivisor;
 
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier != 0)
 		{
-			iFaith *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iFaith *= (100 + iGoodyModifier);
 			iFaith /= 100;
 		}
 
@@ -13411,17 +13422,17 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	{
 #if defined(MOD_UNITS_XP_TIMES_100)
 		int iExperience = kGoodyInfo.getExperience() * 100;
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier  != 0)
 		{
-			iExperience *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iExperience *= (100 + iGoodyModifier);
 			iExperience /= 100;
 		}
 		pUnit->changeExperienceTimes100(iExperience);
 #else
 		int iExperience = kGoodyInfo.getExperience();
-		if (pUnit != NULL && pUnit->getUnitInfo().GetGoodyModifier() != 0)
+		if (pUnit != NULL && iGoodyModifier != 0)
 		{
-			iExperience *= (100 + pUnit->getUnitInfo().GetGoodyModifier());
+			iExperience *= (100 + iGoodyModifier);
 			iExperience /= 100;
 		}
 		pUnit->changeExperience(iExperience;
@@ -25347,7 +25358,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
+							iValue += (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * iNumFollowerCities;
 						}
 					}
 					if(eYield == YIELD_FAITH)
@@ -25559,9 +25570,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						continue;
 					}
-					if (iPassYield != 0 && pLoopCity->GetYieldFromUnitLevelUp(eYield) > 0)
+
+					int iLevelUpYield = pLoopCity->GetYieldFromUnitLevelUp(eYield) + GetPlayerTraits()->GetYieldFromLevelUp(eYield);
+
+					if (iPassYield != 0 && iLevelUpYield > 0)
 					{
-						iValue += ((((iPassYield * iPassYield) - (2 * iPassYield) + 1)) * pLoopCity->GetYieldFromUnitLevelUp(eYield));
+						iValue += ((((iPassYield * iPassYield) - (2 * iPassYield) + 1)) * iLevelUpYield);
 					}
 					break;
 				}
@@ -34905,6 +34919,12 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 			}
 		}
 	}
+
+	int iCSResource = getResourceFromCSAlliances(eIndex);
+	if (iCSResource != 0)
+	{
+		iTotalNumResource += (iCSResource * GetNumCSAllies());
+	}
 #endif
 
 	if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -35105,6 +35125,42 @@ void CvPlayer::setResourceOverValue(ResourceTypes eIndex, int iChange)
 	CvAssert(m_paiResourceOverValue[eIndex] >= 0);
 }
 
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getResourceFromCSAlliances(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiResourceFromCSAlliances[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
+{
+	CvAssert(eIndex >= 0);
+	CvAssert(eIndex < GC.getNumResourceInfos());
+
+	if (iChange != 0)
+	{
+		m_paiResourceFromCSAlliances.setAt(eIndex, m_paiResourceFromCSAlliances[eIndex] + iChange);
+	}
+
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+
+	CvAssert(m_paiResourceFromCSAlliances[eIndex] >= 0);
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
+{
+	CvAssert(eIndex >= 0);
+	CvAssert(eIndex < GC.getNumResourceInfos());
+
+	m_paiResourceFromCSAlliances.setAt(eIndex, iChange);
+
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+
+	CvAssert(m_paiResourceFromCSAlliances[eIndex] >= 0);
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HasGlobalMonopoly(ResourceTypes eResource) const
@@ -39861,6 +39917,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if(MOD_BALANCE_CORE_POLICIES)
 	{
+		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
+		{
+			changeResourceFromCSAlliances((ResourceTypes)iI, (pPolicy->GetResourceFromCSAlly(iI) * iChange));
+		}
 		ChangeNoUnhappinessExpansion(pPolicy->GetNoUnhappinessExpansion() * iChange);
 		ChangeNoUnhappyIsolation(pPolicy->GetNoUnhappyIsolation() * iChange);
 		ChangeDoubleBorderGA(pPolicy->GetDoubleBorderGA() * iChange);
@@ -43186,6 +43246,11 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
+void CvPlayer::ResetDangerCache(const CvPlot & Plot)
+{
+	m_pDangerPlots->ResetDangerCache(Plot);
+}
+
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
 {
 	if (m_pDangerPlots->IsDirty())
@@ -45957,6 +46022,69 @@ bool CvPlayer::HasUnitClass(UnitClassTypes iUnitClassType)
 	}
 
 	return false;
+}
+
+bool CvPlayer::HasUUActive()
+{
+	int iLoopUnit;
+
+	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(getCivilizationType());
+	if (pkInfo)
+	{
+		for (CvUnit* pLoopUnit = firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoopUnit)) 
+		{
+			if (!pLoopUnit->isDelayedDeath()) 
+			{
+				if (pkInfo->isCivilizationUnitOverridden(pLoopUnit->getUnitClassType()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasUUPeriod() const
+{
+	return m_bHasUUPeriod;
+}
+
+void CvPlayer::SetHasUUPeriod()
+{
+	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(getCivilizationType());
+	if (pkInfo)
+	{
+		// Loop through all units
+		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+		{
+			// Is this one overridden for our civ?
+			if (pkInfo->isCivilizationUnitOverridden(iI))
+			{
+				UnitTypes eCivilizationUnit = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(iI));
+				if (eCivilizationUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
+					if (pkUnitEntry && pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport())
+					{
+						//obsolete? This no longer applies.
+						if (pkUnitEntry->GetObsoleteTech() != NO_TECH && HasTech((TechTypes)pkUnitEntry->GetObsoleteTech()))
+						{
+							m_bHasUUPeriod = false;
+						}
+						else if (!m_bHasUUPeriod)
+						{
+							m_bHasUUPeriod = true;
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	if (m_bHasUUPeriod)
+		m_bHasUUPeriod = false;
 }
 
 bool CvPlayer::HasTrait(TraitTypes eTrait) const

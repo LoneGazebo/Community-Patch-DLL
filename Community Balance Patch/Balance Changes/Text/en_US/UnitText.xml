@@ -208,7 +208,7 @@
 			<Text>Flank attack bonus increased by 100%. Steal gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
-			<Text>Esprit de Corps</Text>
+			<Text>Withering Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]20%[ENDCOLOR] Chance to force an enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
@@ -540,6 +540,20 @@
 			<Text>Deals 5 Damage to all enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE] Range).</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_TERROR">
+			<Text>Precision</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TERROR_HELP">
+			<Text>+25% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TERROR_II">
+			<Text>Precision II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TERROR_II_HELP">
+			<Text>+25% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+		</Row>
+		
+
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_POWER">
 			<Text>Coup de Grace</Text>
 		</Row>
@@ -553,7 +567,91 @@
 			<Text>+1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">
+			<Text>Siege I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I_HELP">
+			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II">
+			<Text>Siege II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_II_HELP">
+			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III">
+			<Text>Siege III</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIEGE_III_HELP">
+			<Text>+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_I">
+			<Text>Field I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_I_HELP">
+			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_II">
+			<Text>Field II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_II_HELP">
+			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_III">
+			<Text>Field III</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_III_HELP">
+			<Text>+5% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% [ICON_STRENGTH] VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">
+			<Text>Treasure Hunter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP">
+			<Text>+25% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE">
+			<Text>Scavenger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE_HELP">
+			<Text>+5 XP when you [COLOR_POSITIVE_TEXT]Pillage[ENDCOLOR] a tile.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING">
+			<Text>Spotters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING_HELP">
+			<Text>+5 XP for every turn spent in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I">
+			<Text>Penalty vs. Barbarians</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I_HELP">
+			<Text>-30% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II">
+			<Text>Penalty vs. Barbarians</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II_HELP">
+			<Text>-20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III">
+			<Text>Penalty vs. Barbarians</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III_HELP">
+			<Text>-10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_OCEAN_CROSSING">
+			<Text>Ocean Explorer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_OCEAN_CROSSING_HELP">
+			<Text>Can Cross Oceans before researching Astronomy</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

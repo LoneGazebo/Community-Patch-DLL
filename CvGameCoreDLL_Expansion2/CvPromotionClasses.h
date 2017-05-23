@@ -148,7 +148,10 @@ public:
 	int GetTradeMissionGoldModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetBarbarianCombatBonus() const;
+	int GetGoodyHutYieldBonus() const;
 	bool IsGainsXPFromScouting() const;
+	bool IsGainsXPFromPillaging() const;
+	bool IsGainsXPFromSpotting() const;
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
 	bool IsLostOnMove() const;
@@ -168,6 +171,7 @@ public:
 	int GetSplashDamage() const;
 	int GetMinRange() const;
 	int GetMaxRange() const;
+	int GetMultiAttackBonus() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -414,7 +418,10 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iBarbarianCombatBonus;
+	int m_iGoodyHutYieldBonus;
 	bool m_bGainsXPFromScouting;
+	bool m_bGainsXPFromPillaging;
+	bool m_bGainsXPFromSpotting;
 	bool m_bCannotBeCaptured;
 	int m_iNegatesPromotion;
 	int m_iForcedDamageValue;
@@ -462,6 +469,7 @@ protected:
 	int m_iSplashDamage;
 	int m_iMinRange;
 	int m_iMaxRange;
+	int m_iMultiAttackBonus;
 	bool m_bMountainsDoubleMove;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)

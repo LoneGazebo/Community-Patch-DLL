@@ -106,6 +106,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_bNoOpenTrade(false),
 	m_bGoldenAgeOnWar(false),
 	m_iTourismToGAP(0),
+	m_iInfluenceMeetCS(0),
+	m_iMultipleAttackBonus(0),
 	m_iEventTourismBoost(0),
 	m_iEventGP(0),
 	m_iWLTKDCulture(0),
@@ -224,6 +226,7 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_BALANCE_CORE)
 	m_paiGAPToYield(NULL),
 	m_paiMountainRangeYield(NULL),
+	m_piYieldFromLevelUp(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
 	m_piTradeRouteStartYield(NULL),
@@ -722,6 +725,14 @@ int CvTraitEntry::GetTourismToGAP() const
 {
 	return m_iTourismToGAP;
 }
+int CvTraitEntry::GetInfluenceMeetCS() const
+{
+	return m_iInfluenceMeetCS;
+}
+int CvTraitEntry::GetMultipleAttackBonus() const
+{
+	return m_iMultipleAttackBonus;
+}
 int CvTraitEntry::GetEventTourismBoost() const
 {
 	return m_iEventTourismBoost;
@@ -967,6 +978,10 @@ int CvTraitEntry::YieldFromOwnPantheon(int i) const
 int CvTraitEntry::YieldFromHistoricEvent(int i) const
 {
 	return m_piYieldFromHistoricEvent ? m_piYieldFromHistoricEvent[i] : -1;
+}
+int CvTraitEntry::YieldFromLevelUp(int i) const
+{
+	return m_piYieldFromLevelUp ? m_piYieldFromLevelUp[i] : -1;
 }
 /// Accessor:: does this civ get a free great work when it conquers a city?
 bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
@@ -1320,6 +1335,10 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 int CvTraitEntry::GetYieldFromHistoricEvent(int i) const
 {
 	return m_piYieldFromHistoricEvent? m_piYieldFromHistoricEvent[i] : -1;
+}
+int CvTraitEntry::GetYieldFromLevelUp(int i) const
+{
+	return m_piYieldFromLevelUp ? m_piYieldFromLevelUp[i] : -1;
 }
 int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 {
@@ -1920,7 +1939,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
 	m_bNoOpenTrade							= kResults.GetBool("NoOpenTrade");
 	m_bGoldenAgeOnWar						= kResults.GetBool("GoldenAgeOnWar");
+	m_iInfluenceMeetCS						= kResults.GetInt("InfluenceMeetCS");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
+	m_iMultipleAttackBonus					= kResults.GetInt("MultipleAttackBonus");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
 	m_iEventGP								= kResults.GetInt("EventGP");
 	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
@@ -2412,6 +2433,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_piYieldFromLevelUp, "Trait_YieldFromLevelUp", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
 	//Note name change b/c of function change in DLL!
@@ -3032,6 +3054,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bPermanentYieldsDecreaseEveryEra = true;
 			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
+			m_iInfluenceMeetCS += trait->GetInfluenceMeetCS();
+			m_iMultipleAttackBonus += trait->GetMultipleAttackBonus();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();		
 			m_iWLTKDGPImprovementModifier += trait->GetWLTKDGPImprovementModifier();
@@ -3288,6 +3312,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
+				m_iYieldFromLevelUp[iYield] = trait->GetYieldFromLevelUp(iYield);
 				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
 				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
 				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
@@ -3622,6 +3647,8 @@ void CvPlayerTraits::Reset()
 	m_bNoOpenTrade = false;
 	m_bGoldenAgeOnWar = false;
 	m_iTourismToGAP = 0;
+	m_iInfluenceMeetCS = 0;
+	m_iMultipleAttackBonus = 0;
 	m_iEventTourismBoost = 0;
 	m_iWonderProductionModifierToBuilding = 0;
 	m_iPolicyGEorGM = 0;
@@ -3788,6 +3815,7 @@ void CvPlayerTraits::Reset()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		m_iYieldFromLevelUp[iYield] = 0;
 		m_iYieldFromHistoricEvent[iYield] = 0;
 		m_iYieldFromOwnPantheon[iYield] = 0;
 		m_iTradeRouteStartYield[iYield] = 0;
@@ -5517,6 +5545,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismGABonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iInfluenceMeetCS, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iMultipleAttackBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iEventTourismBoost, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iEventGP, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iWLTKDCulture, 0);
@@ -5882,6 +5912,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	ArrayWrapper<int> kYieldFromLevelUpWrapper(NUM_YIELD_TYPES, m_iYieldFromLevelUp);
+	kStream >> kYieldFromLevelUpWrapper;
 	ArrayWrapper<int> kYieldFromHistoricEventWrapper(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
 	kStream >> kYieldFromHistoricEventWrapper;
 	ArrayWrapper<int> kYieldFromOwnPantheonWrapper(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
@@ -6079,6 +6111,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismGABonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
+	MOD_SERIALIZE_WRITE(kStream, m_iInfluenceMeetCS);
+	MOD_SERIALIZE_WRITE(kStream, m_iMultipleAttackBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iEventTourismBoost);
 	MOD_SERIALIZE_WRITE(kStream, m_iEventGP);
 	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDCulture);
@@ -6258,6 +6292,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromLevelUp);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromHistoricEvent);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromOwnPantheon);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);

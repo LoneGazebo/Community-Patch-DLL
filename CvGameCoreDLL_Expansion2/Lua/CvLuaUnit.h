@@ -378,6 +378,8 @@ protected:
 	static int lBarbarianCombatBonus(lua_State* L);
 	static int lIsMounted(lua_State* L);
 	static int lIsStrongerDamaged(lua_State* L);
+	static int lGetMultiAttackBonus(lua_State* L);
+	static int lGetMultiAttackBonusCity(lua_State* L);
 #endif
 	static int lDomainModifier(lua_State* L);
 	static int lGetStrategicResourceCombatPenalty(lua_State* L);

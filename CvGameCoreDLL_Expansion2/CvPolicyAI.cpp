@@ -151,6 +151,9 @@ void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropaga
 /// Choose a player's next policy purchase (could be opening a branch)
 int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 {
+	if (pPlayer->isMinorCiv())
+		return 0;
+
 	RandomNumberDelegate fcn;
 	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	int iRtnValue = (int)NO_POLICY;
@@ -243,7 +246,9 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 								{
 									if (pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
 									{
-										iWeight -= iDiploValue += iDiploInterest;;
+										iWeight -= iDiploValue += iDiploInterest;
+										iDiploValue = 0;
+										iDiploInterest = 0;
 										break;
 									}
 								}
@@ -466,28 +471,18 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 						}
 					}
 				}
-				if(ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PIETY", true))
+				if (ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PIETY", true))
 				{
-					EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
-					bool bBuildingReligion = false;
-					if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY)
-					{
-						bBuildingReligion = pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-					}
-					if(!bBuildingReligion)
+					if (pPlayer->GetReligions()->GetCurrentReligion(false) != NO_RELIGION)
+						iWeight *= 4;
+					else if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && pPlayer->GetReligions()->GetCurrentReligion(true) <= RELIGION_PANTHEON)
 					{
 						iWeight = 0;
 					}
 					else
-					{
-						iWeight *= 5;
-					}
-					if(GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && pPlayer->GetReligions()->GetReligionCreatedByPlayer() <= RELIGION_PANTHEON)
-					{
-						iWeight = 0;
-					}
+						iWeight /= 4;
 				}
-				if(ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true))
+				else if(ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true))
 				{
 					if(GC.getGame().GetNumMinorCivsAlive() <= 0)
 					{
@@ -496,6 +491,22 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					else if(pPlayer->GetDiplomacyAI()->GetNumMinorCivApproach(MINOR_CIV_APPROACH_FRIENDLY) <= 0)
 					{
 						iWeight = 0;
+					}
+					if (pPlayer->GetPlayerTraits()->GetVotePerXCSAlliance() != 0 || pPlayer->GetPlayerTraits()->GetVotePerXCSFollowingYourReligion() != 0 || pPlayer->GetPlayerTraits()->GetAllianceCSStrength() != 0)
+					{
+						iWeight *= 2;
+					}
+					else if (pPlayer->GetPlayerTraits()->GetCityStateBonusModifier() != 0 || pPlayer->GetPlayerTraits()->GetCityStateFriendshipModifier() != 0)
+					{
+						iWeight *= 2;
+					}
+					else if (pPlayer->GetPlayerTraits()->IsAngerFreeIntrusionOfCityStates() != 0 || pPlayer->GetPlayerTraits()->IsAbleToAnnexCityStates() != 0 || pPlayer->GetPlayerTraits()->IsDiplomaticMarriage())
+					{
+						iWeight *= 2;
+					}
+					else
+					{
+						iWeight /= 2;
 					}
 				}
 			}

@@ -2054,6 +2054,11 @@ public:
 	int getResourceOverValue(ResourceTypes eIndex) const;
 	void changeResourceOverValue(ResourceTypes eIndex, int iChange);
 	void setResourceOverValue(ResourceTypes eIndex, int iChange);
+
+	int getResourceFromCSAlliances(ResourceTypes eIndex) const;
+	void changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
+	void setResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
+
 #endif
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -2366,6 +2371,7 @@ public:
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
+	void ResetDangerCache(const CvPlot& Plot);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);
@@ -2602,6 +2608,9 @@ public:
 	bool HasAnyTradeRouteWith(PlayerTypes iPlayer) const;
 	bool HasUnit(UnitTypes iUnitType);
 	bool HasUnitClass(UnitClassTypes iUnitClassType);
+	bool HasUUActive();
+	bool HasUUPeriod() const;
+	void SetHasUUPeriod();
 
 	bool HasTrait(TraitTypes eTrait) const;
 	bool HasAnyHolyCity();
@@ -3211,6 +3220,7 @@ protected:
 
 	FAutoVariable<uint, CvPlayer> m_uiStartTime;  // XXX save these?
 
+	FAutoVariable<bool, CvPlayer> m_bHasUUPeriod;
 	FAutoVariable<bool, CvPlayer> m_bHasBetrayedMinorCiv;
 	FAutoVariable<bool, CvPlayer> m_bAlive;
 	FAutoVariable<bool, CvPlayer> m_bEverAlive;
@@ -3241,6 +3251,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiJFDPoliticPercent;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromCSAlliances;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;

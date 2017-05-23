@@ -273,6 +273,7 @@ public:
 	int GetFreeChosenBuilding(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetResourceFromCSAlly(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromConstruction(int i) const;
@@ -632,6 +633,7 @@ private:
 	int* m_paiFreeChosenBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int* m_piResourcefromCSAlly;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromConstruction;

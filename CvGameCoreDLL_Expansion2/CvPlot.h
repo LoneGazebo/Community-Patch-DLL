@@ -299,7 +299,7 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
-	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
+	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
 
 	//units which can cause or lift a blockade
@@ -1137,11 +1137,11 @@ struct SPlotWithScore
 	CvPlot* pPlot;
 	int score;
 };
-struct SPlotWithTwoScores
+struct SPlotWithTwoScoresL2
 {
-	SPlotWithTwoScores(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
+	SPlotWithTwoScoresL2(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
 
-	bool operator<(const SPlotWithTwoScores& other) const
+	bool operator<(const SPlotWithTwoScoresL2& other) const
     {
         return score1*score1+score2*score2 < other.score1*other.score1+other.score2*other.score2;
     }
@@ -1149,6 +1149,19 @@ struct SPlotWithTwoScores
 	CvPlot* pPlot;
 	int score1,score2;
 };
+struct SPlotWithTwoScoresTiebreak
+{
+	SPlotWithTwoScoresTiebreak(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
+
+	bool operator<(const SPlotWithTwoScoresTiebreak& other) const
+	{
+		return (score1<other.score1) || (score1==other.score1 && score2<other.score2);
+	}
+
+	CvPlot* pPlot;
+	int score1, score2;
+};
+
 #endif
 
 #endif

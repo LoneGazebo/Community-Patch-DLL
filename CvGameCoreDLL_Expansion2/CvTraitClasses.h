@@ -132,6 +132,8 @@ public:
 	int GetAllianceCSStrength() const;
 	int GetTourismGABonus() const;
 	int GetTourismToGAP() const;
+	int GetInfluenceMeetCS() const;
+	int GetMultipleAttackBonus() const;
 	int GetEventTourismBoost() const;
 	int GetEventGP() const;
 	int GetWLTKDCulture() const;
@@ -197,6 +199,7 @@ public:
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
 	int YieldFromHistoricEvent(int i) const;
+	int YieldFromLevelUp(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -289,6 +292,7 @@ public:
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
 	int GetTradeRouteStartYield(int i) const;
@@ -447,6 +451,8 @@ protected:
 	bool m_bNoOpenTrade;
 	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
+	int m_iInfluenceMeetCS;
+	int m_iMultipleAttackBonus;
 	int m_iEventTourismBoost;
 	int m_iEventGP;
 	int m_iWonderProductionModifierToBuilding;
@@ -589,6 +595,7 @@ protected:
 	int** m_ppiPlotYieldChanges;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
 	int* m_piTradeRouteStartYield;
@@ -1002,6 +1009,14 @@ public:
 	int GetTourismToGAP() const
 	{
 		return m_iTourismToGAP;
+	};
+	int GetInfluenceMeetCS() const
+	{
+		return m_iInfluenceMeetCS;
+	};
+	int GetMultipleAttackBonus() const
+	{
+		return m_iMultipleAttackBonus;
 	};
 	int GetEventTourismBoost() const
 	{
@@ -1437,6 +1452,10 @@ public:
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromLevelUp(YieldTypes eYield) const
+	{
+		return m_iYieldFromLevelUp[(int)eYield];
+	};
 	int GetYieldFromHistoricEvent(YieldTypes eYield) const
 	{
 		return m_iYieldFromHistoricEvent[(int)eYield];
@@ -1750,6 +1769,8 @@ private:
 	bool m_bNoOpenTrade;
 	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
+	int m_iInfluenceMeetCS;
+	int m_iMultipleAttackBonus;
 	int m_iEventTourismBoost;
 	int m_iWLTKDGPImprovementModifier;
 	int m_iGrowthBoon;
@@ -1907,6 +1928,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
 	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];

@@ -116,11 +116,16 @@ UPDATE Buildings SET PrereqTech = 'TECH_RADIO' WHERE Type = 'BUILDING_FOREIGN_OF
 UPDATE Buildings SET NumPoliciesNeeded = '12' WHERE Type = 'BUILDING_SUMMER_PALACE';
 UPDATE Buildings SET NumPoliciesNeeded = '5' WHERE Type = 'BUILDING_FORUM';
 
--- Printing Press Culture Boost
-INSERT INTO Policy_BuildingClassCultureChanges (PolicyType, BuildingClassType, CultureChange) SELECT 'POLICY_PHILANTHROPY', 'BUILDINGCLASS_PRINTING_PRESS' , '10';
-
 -- Chancery Happiness Boost
 INSERT INTO Policy_BuildingClassHappiness (PolicyType, BuildingClassType, Happiness) SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
+
+--Philanthropy more paper!
+
+INSERT INTO Policy_ResourcefromCSAlly
+	(PolicyType, ResourceType, Number)
+VALUES
+	('POLICY_PHILANTHROPY', 'RESOURCE_PAPER', 2);
+
 
 -- Change to Order Palace of Science and Culture
 UPDATE Buildings SET DPToVotes = '1' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';

@@ -474,7 +474,7 @@ void CvArmyAI::UpdateCheckpointTurns()
 	}
 }
 
-void CvArmyAI::RemoveStuckUnits()
+void CvArmyAI::RemoveStuckAndWeakUnits()
 {
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
 
@@ -490,6 +490,18 @@ void CvArmyAI::RemoveStuckUnits()
 
 				RemoveUnit(m_FormationEntries[iI].GetUnitID());
 			}
+		}
+	}
+
+	for (unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
+	{
+		if (m_FormationEntries[iI].m_iUnitID > ARMYSLOT_NO_UNIT)
+		{
+			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
+
+			//let tactical AI handle those
+			if (pUnit->GetCurrHitPoints()<pUnit->GetMaxHitPoints()/3)
+				RemoveUnit(m_FormationEntries[iI].GetUnitID());
 		}
 	}
 }

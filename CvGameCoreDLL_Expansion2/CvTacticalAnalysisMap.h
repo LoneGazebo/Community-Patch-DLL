@@ -539,16 +539,12 @@ private:
 	int m_iEnemyNavalStrength;
 	int m_iFriendlyNavalRangedStrength;
 	int m_iEnemyNavalRangedStrength;
-	int m_iFriendlyUnitCount;
-	int m_iEnemyUnitCount;
-	int m_iFriendlyRangedUnitCount;
-	int m_iFriendlyMeleeUnitCount;
-	int m_iEnemyMeleeUnitCount;
+	int m_iFriendlyUnitCount; //all land units
+	int m_iEnemyUnitCount; //all land units
 	int m_iNeutralUnitCount;
 	int m_iNeutralUnitStrength;
-	int m_iEnemyRangedUnitCount;
-	int m_iEnemyNavalUnitCount;
-	int m_iFriendlyNavalUnitCount;
+	int m_iEnemyNavalUnitCount; //all naval units
+	int m_iFriendlyNavalUnitCount; //all naval units
 	int m_iZoneValue;
 	int m_iRangeClosestEnemyUnit;
 	bool m_bIsWater;

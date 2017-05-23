@@ -4634,7 +4634,7 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 	return false;
 }
 
-bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const
+bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -4653,6 +4653,9 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 			{
 				if (bCombat != pLoopUnit->IsCanDefend())
+					continue;
+
+				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
 					continue;
 
 				if(isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false))
