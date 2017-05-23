@@ -260,7 +260,7 @@ public:
 
 	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity);
 	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity);
-	void RefreshDistanceCaches();
+	void ResetDistanceCaches();
 	bool PathIsSafe(const SPath& path);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
@@ -453,8 +453,8 @@ private:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CachedTargetsMap m_cachedTargets;
-	CachedDistancesMap m_cachedWaterDistances;
-	CachedDistancesMap m_cachedLandDistances;
+	CachedDistancesMap m_cachedWaterDistances; //not serialized. regenerated every turn
+	CachedDistancesMap m_cachedLandDistances; //not serialized. regenerated every turn
 #endif
 
 	// Data recomputed each turn (no need to serialize)

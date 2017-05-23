@@ -571,25 +571,20 @@ void CvMilitaryAI::SetTurnStrategyAdopted(MilitaryAIStrategyTypes eStrategy, int
 void CvMilitaryAI::DoTurn()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("MilitaryAI DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-#if defined(MOD_BALANCE_CORE)
 	if(!m_pPlayer->isMinorCiv())
 	{
-#endif
-	ScanForBarbarians();
-	UpdateThreats();
-	UpdateWars();
-	UpdateBaseData();
-	UpdateDefenseState();
-#if defined(MOD_BALANCE_CORE)
+		ScanForBarbarians();
+		UpdateThreats();
+		UpdateWars();
+		UpdateBaseData();
+		UpdateDefenseState();
 	}
-#endif
+
 	UpdateMilitaryStrategies();
-#if defined(MOD_BALANCE_CORE)
 	if(!m_pPlayer->isMinorCiv())
 	{
 		UpdateWarType();
 	}
-#endif
 
 	if(!m_pPlayer->isHuman())
 	{
@@ -599,19 +594,16 @@ void CvMilitaryAI::DoTurn()
 		RequestImprovements();
 		DisbandObsoleteUnits();
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(!m_pPlayer->isMinorCiv())
 	{
-#endif
-	LogMilitaryStatus();
+		LogMilitaryStatus();
 
-	if(GetArmyBeingBuilt() != NO_ARMY_TYPE)
-	{
-		LogAvailableForces();
+		if(GetArmyBeingBuilt() != NO_ARMY_TYPE)
+		{
+			LogAvailableForces();
+		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 }
 
 /// Requests for sneak attack on a city of a player we're not at war with. Returns true if operation started.
@@ -1337,22 +1329,23 @@ CvCity* GetCityFromGlobalID(int iID)
 	return NULL;
 }
 
+//-----------------------------------------
+// basic intra-turn caching. not serialized.
+//-----------------------------------------
 int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity)
 {
-	int iDistance = -1;
+	if (!pCity->hasSharedAdjacentArea(pOtherCity))
+		return -1;
 
 	CachedDistancesMap::iterator itO = m_cachedWaterDistances.find(pCity);
 	if (itO != m_cachedWaterDistances.end())
 	{
 		CachedDistancesMap::value_type::second_type::iterator itD = itO->second.find(pOtherCity);
 		if (itD != itO->second.end())
-		{
-			iDistance = itD->second;
-			if (iDistance != -1 && iDistance != MAX_INT)
-				return iDistance;
-		}
+			return itD->second;
 	}
 
+	int iDistance = -1;
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_ANY_AREA, pOtherCity->getOwner());
 	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
@@ -1387,28 +1380,27 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 	return iDistance;
 }
 
+//-----------------------------------------
+// basic intra-turn caching. not serialized.
+//-----------------------------------------
 int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity)
 {
 	if (pCity->getArea() != pOtherCity->getArea())
 		return -1;
 
-	int iDistance = -1;
 	CachedDistancesMap::iterator itO = m_cachedLandDistances.find(pCity);
 	if (itO != m_cachedLandDistances.end())
 	{
 		CachedDistancesMap::value_type::second_type::iterator itD = itO->second.find(pOtherCity);
 		if (itD != itO->second.end())
-		{
-			iDistance = itD->second;
-			if (iDistance != -1 && iDistance != MAX_INT)
-				return iDistance;
-		}
+			return itD->second;
 	}
 
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, pOtherCity->getOwner());
 	data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 	data.iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
+	int iDistance = -1;
 	SPath path = GC.GetStepFinder().GetPath(pCity->plot(), pOtherCity->plot(), data);
 	if (!!path && PathIsSafe(path))
 		iDistance = path.iTotalTurns;
@@ -1429,7 +1421,7 @@ int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOthe
 	return iDistance;
 }
 
-void CvMilitaryAI::RefreshDistanceCaches()
+void CvMilitaryAI::ResetDistanceCaches()
 {
 	m_cachedLandDistances.clear();
 	m_cachedWaterDistances.clear();
@@ -1497,7 +1489,7 @@ bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes e
 
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore, bool bCheckWar)
 {
-	int ciAgeLimit = 8; //refresh this relatively often in case cities are conquered or founded
+	int ciAgeLimit = 12; //refresh this relatively often in case the situation changes
 
 	if (eEnemy >= MAX_CIV_PLAYERS)
 	{
@@ -1845,6 +1837,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 					continue;
 				}
 
+				//this is the important part
 				CheckApproachFromLandAndSea(target, eAIOperationType);
 
 				if(target.m_iPathLength == MAX_INT || target.m_iPathLength == -1)
@@ -4506,6 +4499,9 @@ void CvMilitaryAI::UpdateOperations()
 	// Operation vs. Other Civs
 	//////////////////////
 	//////////////////////////////
+
+	//cached distances might be invalid because of new/conquered cities or changed alliances ...
+	ResetDistanceCaches();
 
 	int iBestValue;
 	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, true);
