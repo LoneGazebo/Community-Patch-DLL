@@ -1033,6 +1033,12 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 				{
 					SetToAbort( AI_ABORT_HALF_STRENGTH);
 				}
+
+				//special for escorted ops
+				if (pThisArmy->GetNumSlotsFilled() < 2 && iNumRequiredSlots == 2)
+				{
+					SetToAbort(AI_ABORT_HALF_STRENGTH);
+				}
 			}
 			break;
 		}
@@ -2442,7 +2448,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 }
 
 /// Find the plot where we want to settle
-CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafeTargets)
 {
 	//todo: better options
 	//a) return a list of possible targets and find the ones that are currently reachable
@@ -2451,24 +2457,24 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* p
 	bool bIsSafe; //dummy
 	int iTargetArea = GetTargetPlot() ? GetTargetPlot()->getArea() : -1;
 	//ignore the current operation target when searching. default would be to suppress currently targeted plots
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iTargetArea, bOnlySafePaths, bIsSafe, this);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iTargetArea, bOnlySafeTargets, bIsSafe, this);
 
 	//try again if the result is not good
 	if (pResult == NULL && iTargetArea != -1)
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafePaths, bIsSafe, this);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe, this);
 
 	return pResult;
 }
 
 //need to have this, it's pure virtual in civilian operation
-CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets)
 {
 	bool bIsSafe; //dummy
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iAreaID, bOnlySafePaths, bIsSafe);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iAreaID, bOnlySafeTargets, bIsSafe);
 
 	//try again if the result is not good
 	if (pResult == NULL && iAreaID != -1 )
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafePaths, bIsSafe);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe);
 
 	return pResult;
 }
@@ -2535,12 +2541,12 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 }
 
 /// Find the plot where we want to settler
-CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafeTargets*/)
 {
 	if(!pUnit)
 		return NULL;
 
-	return GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlot(pUnit, !bOnlySafePaths /*m_bEscorted*/);
+	return GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlot(pUnit);
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -2559,7 +2565,7 @@ CvAIOperationCivilianDiplomatDelegation::~CvAIOperationCivilianDiplomatDelegatio
 }
 
 /// Find the plot where we want to influence
-CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafePaths*/)
+CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafeTargets*/)
 {
 	if(!pUnit)
 		return NULL;
@@ -2656,12 +2662,12 @@ CvAIOperationCivilianConcertTour::~CvAIOperationCivilianConcertTour()
 }
 
 /// Find the plot where we want to settler
-CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafeTargets*/)
 {
 	if(!pUnit)
 		return NULL;
 
-	return GET_PLAYER(pUnit->getOwner()).FindBestMusicianTargetPlot(pUnit, !bOnlySafePaths /*m_bEscorted*/);
+	return GET_PLAYER(pUnit->getOwner()).FindBestMusicianTargetPlot(pUnit);
 }
 
 bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)

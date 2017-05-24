@@ -4257,8 +4257,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		CvString strLogString;
 		if(pEscort)
 		{
-			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
-
 			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
 			if(bHavePathEscort)
 			{
@@ -4289,23 +4287,21 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							}
 						}
 
-						//in CP embarked units cannot stack ...
-						if (pCommonPlot->needsEmbarkation(pCivilian))
+						//civilian goes first
+						ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
+						//watch out: in CP embarked units cannot stack ...
+						if (pEscort->canMoveInto(*pCivilian->plot(),CvUnit::MOVEFLAG_DESTINATION))
 						{
-							//civilian goes first
-							ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
+							ExecuteMoveToPlot(pEscort, pCivilian->plot(), bSaveMoves);
+						}
+						else 
+						{
 							if ( pCivilian->plot()->isAdjacent( pEscort->plot() ) )
 								//approximate move wouldn't make any progress - go straight to the target
 								ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 							else
 								//escort tries to stay close
 								ExecuteMoveToPlot(pEscort, pCivilian->plot(), bSaveMoves, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-						}
-						else
-						{
-							//escort goes first, civilian can always stack
-							ExecuteMoveToPlot(pEscort, pCommonPlot, bSaveMoves);
-							ExecuteMoveToPlot(pCivilian, pEscort->plot(), bSaveMoves);
 						}
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -6360,7 +6356,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 						if ( IsGoodPlotForStaging(m_pPlayer,pLoopPlot,pUnit->getDomainType()==DOMAIN_SEA) )
 						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY());
 							TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
 							bMoveMade = true;
 
@@ -6443,7 +6439,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
 
 					// Move to the lowest danger value found
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 
 					//see if we can do damage after retreating
 					if (pUnit->canMove() && pUnit->canRangeStrike())
@@ -6537,12 +6533,9 @@ void CvTacticalAI::ExecuteHeals()
 		if (pUnit->getArmyID() != -1)
 		{
 			CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
-			if (pArmy)
+			if (pArmy && pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
 			{
-				if (pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-				{
-					pArmy->RemoveUnit(pUnit->GetID());
-				}
+				pArmy->RemoveUnit(pUnit->GetID());
 			}
 		}
 
@@ -6845,15 +6838,8 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 					}
 #endif
 
-					// Look at where we'd move this turn taking units into consideration
-					int iFlags = 0;
-					if(pEscort)
-					{
-						iFlags = CvUnit::MOVEFLAG_IGNORE_DANGER;
-					}
-
 					// Handle case of no path found at all for civilian
-					if(!pCivilian->GeneratePath(pTarget, iFlags))
+					if(!pCivilian->GeneratePath(pTarget, 0))
 					{
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -9363,7 +9349,7 @@ void CvTacticalAI::PerformChosenMoves()
 									if (pUnit->TurnsToReachTarget(pAdjacentPlot, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/, 1) <= 1)
 									{
 										// Move up there
-										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
 										if(pPlotBeforeMove != pUnit->plot())
 										{
 											m_ChosenBlocks[iI].SetNumChoices(-1);
@@ -9668,7 +9654,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				CvPlot* pSafestPlot = TacticalAIHelpers::FindSafestPlotInReach(pGeneral,true);
 				if(pSafestPlot != NULL)
 				{
-					pGeneral->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafestPlot->getX(), pSafestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+					pGeneral->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafestPlot->getX(), pSafestPlot->getY());
 					pGeneral->finishMoves();
 					UnitProcessed(pGeneral->GetID());						
 				}
@@ -11305,7 +11291,7 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 		{
 			if (pAttacker->TurnsToReachTarget(pDefender->plot(),false,false,1)<=1)
 			{
-				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+				pAttacker->PushMission(CvTypes::getMISSION_MOVE_TO(),pDefender->getX(),pDefender->getY());
 				return true;
 			}
 		}
@@ -11514,7 +11500,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	}
 
 	//bonus for a kill
-	if (iDamageDealt > iPrevHitPoints)
+	if (iDamageDealt >= iPrevHitPoints)
 	{
 		if (tactPlot.isEnemyCity()) //city capture
 		{
@@ -12164,6 +12150,11 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 				//the plot we're checking right now
 				const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 				const CvTacticalPlot& currentPlot = getTactPlot(*it);
+
+				//don't attack cities if the real target is something else
+				if (currentPlot.isEnemyCity() && getTarget()->GetPlotIndex() != currentPlot.getPlotIndex())
+					continue;
+
 				if (currentPlot.isValid() && currentPlot.isEnemy() && assumedUnitPlot.isValid()) //still alive?
 				{
 					//received damage is zero here but still use the correct unit number ratio so as not to distort scores
@@ -12208,7 +12199,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		possibleMoves.erase( possibleMoves.begin()+nMaxCount, possibleMoves.end() );
 	
 	//don't return moves which are known to be suboptimal
-	while (!possibleMoves.empty() && possibleMoves.back().iScore < possibleMoves.front().iScore/3)
+	while (!possibleMoves.empty() && possibleMoves.back().iScore < possibleMoves.front().iScore/4)
 		possibleMoves.pop_back();
 
 	return possibleMoves;
@@ -12562,7 +12553,7 @@ bool CvTacticalPosition::isOffensive() const
 			it->eType==STacticalAssignment::A_MELEEKILL ||
 			it->eType==STacticalAssignment::A_RANGEATTACK ||
 			it->eType==STacticalAssignment::A_RANGEKILL ||
-			it->eType==STacticalAssignment::A_PILLAGE ||
+			it->eType==STacticalAssignment::A_PILLAGE || //don't know if pillage should count as offensive
 			it->eType==STacticalAssignment::A_CAPTURE)
 			return true;
 
@@ -13263,7 +13254,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
 			if (bPrecondition)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER); //don't take any detours because of danger
 			bPostcondition = (pUnit->plot() == pToPlot); //plot changed
 			break;
 		case STacticalAssignment::A_RANGEATTACK:

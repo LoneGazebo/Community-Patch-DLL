@@ -539,7 +539,7 @@ public:
 
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 	virtual CvUnit* FindBestCivilian();
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths) = 0;
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets) = 0;
 
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
@@ -582,7 +582,7 @@ public:
 
 protected:
 	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -674,7 +674,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -708,7 +708,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -742,7 +742,7 @@ public:
 	virtual bool PerformMission(CvUnit* pUnit);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
-	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafeTargets);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
