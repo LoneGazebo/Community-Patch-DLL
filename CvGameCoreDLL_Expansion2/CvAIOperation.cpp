@@ -3879,8 +3879,21 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
 														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iTurnDistance, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
 {
-	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->isTrade())
+	if (pLoopUnit->isTrade())
 		return false;
+
+	if (!pLoopUnit->canRecruitFromTacticalAI())
+	{
+		//Is it a garrison we can spare?
+		if (pLoopUnit->IsGarrisoned())
+		{
+			CvTacticalDominanceZone* pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopUnit->plot());
+			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+				return false;
+		}
+		else
+			return false;
+	}
 
 	//In an army?
 	if (pLoopUnit->getArmyID() != -1)
