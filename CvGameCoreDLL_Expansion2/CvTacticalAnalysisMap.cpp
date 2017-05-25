@@ -81,14 +81,8 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyNavalRangedStrength = 0;
 	m_iFriendlyUnitCount = 0;
 	m_iEnemyUnitCount = 0;
-	m_iFriendlyRangedUnitCount = 0;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	m_iFriendlyMeleeUnitCount = 0;
-	m_iEnemyMeleeUnitCount = 0;
 	m_iNeutralUnitStrength = 0;
 	m_iNeutralUnitCount = 0;
-#endif
-	m_iEnemyRangedUnitCount = 0;
 	m_iEnemyNavalUnitCount = 0;
 	m_iFriendlyNavalUnitCount = 0;
 	m_iZoneValue = 0;
@@ -850,7 +844,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						pLoopUnit->isRanged() || //ranged power is cross-domain!
 						(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
 						((pLoopUnit->getDomainType() == DOMAIN_SEA || (pLoopUnit->isEmbarked() && pClosestCity) && pZone->IsWater())));
-						//embarked melee still count in water zone if there's a city to attack
+						//embarked melee still count in water zone if there's a city to attack/defend
 
 				if (!bUnitMayBeRelevant)
 					continue;
@@ -1462,12 +1456,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iEnemyNavalRangedStrength;
 	saveTo << readFrom.m_iFriendlyUnitCount;
 	saveTo << readFrom.m_iEnemyUnitCount;
-	saveTo << readFrom.m_iFriendlyRangedUnitCount;
-	saveTo << readFrom.m_iFriendlyMeleeUnitCount;
-	saveTo << readFrom.m_iEnemyMeleeUnitCount;
+	saveTo << 0;
+	saveTo << 0;
+	saveTo << 0;
 	saveTo << readFrom.m_iNeutralUnitCount;
 	saveTo << readFrom.m_iNeutralUnitStrength;
-	saveTo << readFrom.m_iEnemyRangedUnitCount;
+	saveTo << 0;
 	saveTo << readFrom.m_iEnemyNavalUnitCount;
 	saveTo << readFrom.m_iFriendlyNavalUnitCount;
 	saveTo << readFrom.m_iZoneValue;
@@ -1504,12 +1498,12 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iEnemyNavalRangedStrength;
 	loadFrom >> writeTo.m_iFriendlyUnitCount;
 	loadFrom >> writeTo.m_iEnemyUnitCount;
-	loadFrom >> writeTo.m_iFriendlyRangedUnitCount;
-	loadFrom >> writeTo.m_iFriendlyMeleeUnitCount;
-	loadFrom >> writeTo.m_iEnemyMeleeUnitCount;
+	loadFrom >> tmp; //dummy for compatibility
+	loadFrom >> tmp; //dummy for compatibility
+	loadFrom >> tmp; //dummy for compatibility
 	loadFrom >> writeTo.m_iNeutralUnitCount;
 	loadFrom >> writeTo.m_iNeutralUnitStrength;
-	loadFrom >> writeTo.m_iEnemyRangedUnitCount;
+	loadFrom >> tmp; //dummy for compatibility
 	loadFrom >> writeTo.m_iEnemyNavalUnitCount;
 	loadFrom >> writeTo.m_iFriendlyNavalUnitCount;
 	loadFrom >> writeTo.m_iZoneValue;

@@ -3639,6 +3639,18 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
 				continue;
 
+			if (pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pEvalPlot))
+			{
+				pUnit->pillage();
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s pillaged a plot because we get XP, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
+
 			//see if we can make an easy kill
 			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
 			if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit,pEnemyUnit))
@@ -5440,15 +5452,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 				CvCity* pClosestEnemyCity = m_pPlayer->GetTacticalAI()->GetNearestTargetCity(pUnit->plot());
 				if(pClosestEnemyCity != NULL)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Found a nearby city target for our Siege Tower: X: %d, Y: %d", pClosestEnemyCity->getX(), pClosestEnemyCity->getY());
-						LogHomelandMessage(strLogString);
-					}
 					iScore += (1000 - (plotDistance(pCandidate->getX(), pCandidate->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 5));
-				}
 
 				iScore += (100*iSupportedDanger)/(iGeneralDanger+1);
 				if (iScore>iBestScore && iScore>100)

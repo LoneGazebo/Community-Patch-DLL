@@ -550,6 +550,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(RangeCombatUnitDefense);
 	Method(RangeCombatDamage);
 	Method(GetAirStrikeDefenseDamage);
+	Method(GetMultiAttackBonusCity);
 
 	Method(IsWorkingPlot);
 	Method(AlterWorkingPlot);
@@ -4915,6 +4916,26 @@ int CvLuaCity::lGetAirStrikeDefenseDamage(lua_State* L)
 
 	const int iRangedDamage = pkCity->GetAirStrikeDefenseDamage(pkAttackingUnit, bIncludeRand);
 	lua_pushinteger(L, iRangedDamage);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetMultiAttackBonusCity(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+
+	if (pkUnit == NULL || pkCity == NULL)
+		return 0;
+
+	int iModifier = 0;
+	//bonus for attacking same unit over and over in a turn?
+	if (GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus() != 0)
+	{
+		int iTempModifier = GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus() * pkUnit->GetNumTimesAttackedThisTurn(pkCity->getOwner());
+		iModifier += iTempModifier;
+	}
+
+	lua_pushinteger(L, iModifier);
 	return 1;
 }
 //------------------------------------------------------------------------------

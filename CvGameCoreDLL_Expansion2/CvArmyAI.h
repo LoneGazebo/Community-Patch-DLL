@@ -118,7 +118,7 @@ public:
 
 	int GetTurnOfLastUnitAtNextCheckpoint() const;
 	void UpdateCheckpointTurns();
-	void RemoveStuckUnits();
+	void RemoveStuckAndWeakUnits();
 	int GetUnitsOfType(MultiunitPositionTypes ePosition) const;
 	bool IsAllOceanGoing();
 

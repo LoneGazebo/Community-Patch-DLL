@@ -188,6 +188,13 @@ ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 -- Player gains a free policy after unlocking x number of technologies from the tech tree.
 ALTER TABLE Traits ADD COLUMN 'FreePolicyPerXTechs' INTEGER default 0;
 
+-- Does this Civ get extra damage from multiple attacks on same target?
+ALTER TABLE Traits ADD COLUMN 'MultipleAttackBonus' INTEGER DEFAULT 0;
+
+-- Does this Civ get extra influence from meeting a CS?
+ALTER TABLE Traits ADD COLUMN 'InfluenceMeetCS' INTEGER DEFAULT 0;
+
+
 -- Grants a free valid promotion to a unit when it is on a type of improvement (farm, mine, etc.).
 
 ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
@@ -674,8 +681,6 @@ ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 
-ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' BOOLEAN DEFAULT 0;
-
 ALTER TABLE UnitPromotions ADD 'PromotionDuration' INTEGER DEFAULT 0;
 
 -- Promotion restricted to tile. Lost if unit leaves it. Only used in conjuction with free promotions from features and terrains (see above)
@@ -953,6 +958,14 @@ ALTER TABLE Policies ADD NewCityFreeBuilding TEXT DEFAULT NULL REFERENCES Buildi
 
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD COLUMN 'StackedGreatGeneralXP' INTEGER DEFAULT 0;
+
+-- Promotions 
+ALTER TABLE UnitPromotions ADD COLUMN 'GoodyHutYieldBonus' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'GainsXPFromScouting' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'GainsXPFromPillaging' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'GainsXPFromSpotting' BOOLEAN DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD COLUMN 'MultiAttackBonus' INTEGER DEFAULT 0;
 
 -- Note: The below entries are used, e.g. mounting or dismounting a unit, say a Lancer gets below 50 HP "DamageThreshold", and can "dismount" and fortify as an Infantry type unit.
 

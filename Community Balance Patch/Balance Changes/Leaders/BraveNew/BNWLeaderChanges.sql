@@ -425,7 +425,7 @@ VALUES
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BUILDING_ROYAL_LIBRARY', 'BUILDINGCLASS_LIBRARY', 'YIELD_SCIENCE', 2);
+	('BUILDING_ROYAL_LIBRARY', 'BUILDINGCLASS_LIBRARY', 'YIELD_SCIENCE', 3);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)

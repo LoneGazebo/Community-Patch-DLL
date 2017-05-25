@@ -1307,6 +1307,9 @@ public:
 	int getBombardRange() const;
 #endif
 
+	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
+	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
+
 	bool canRangeStrike() const;
 	bool CanRangeStrikeNow() const;
 	bool IsHasBuildingThatAllowsRangeStrike() const;
@@ -1719,6 +1722,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;

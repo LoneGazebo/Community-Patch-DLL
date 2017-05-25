@@ -259,6 +259,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiFreeChosenBuilding(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	m_piResourcefromCSAlly(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthCapital(NULL),
 	m_piYieldFromConstruction(NULL),
@@ -371,6 +372,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
@@ -705,6 +707,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	kUtility.PopulateArrayByValue(m_piResourcefromCSAlly, "Resources", "Policy_ResourcefromCSAlly", "ResourceType", "PolicyType", szPolicyType, "Number");
+	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
@@ -2599,6 +2603,12 @@ int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 }
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+int CvPolicyEntry::GetResourceFromCSAlly(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piResourcefromCSAlly[i];
+}
 /// Does this Policy grant yields from citizen birth?
 int CvPolicyEntry::GetYieldFromBirth(int i) const
 {

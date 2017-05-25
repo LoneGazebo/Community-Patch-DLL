@@ -174,6 +174,7 @@ CvUnit::CvUnit() :
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
+	, m_iMultiAttackBonus("CvUnit::m_iMultiAttackBonus", m_syncArchive)
 #endif
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
@@ -365,10 +366,14 @@ CvUnit::CvUnit() :
 	, m_PromotionDuration("CvUnit::m_PromotionDuration", m_syncArchive)
 	, m_TurnPromotionGained("CvUnit::m_TurnPromotionGained", m_syncArchive)
 	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
+	, m_bSpottedEnemy("CvUnit::m_bSpottedEnemy", m_syncArchive)
 	, m_iGainsXPFromScouting("CvUnit::m_iGainsXPFromScouting", m_syncArchive)
+	, m_iGainsXPFromPillaging("CvUnit::m_iGainsXPFromPillaging", m_syncArchive)
+	, m_iGainsXPFromSpotting("CvUnit::m_iGainsXPFromSpotting", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
+	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -426,6 +431,7 @@ CvUnit::CvUnit() :
 	, m_yieldFromBarbarianKills("CvUnit::m_yieldFromBarbarianKills", m_syncArchive/*, true*/)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_aiNumTimesAttackedThisTurn("CvUnit::m_aiNumTimesAttackedThisTurn", m_syncArchive/*, true*/)
 	, m_yieldFromScouting("CvUnit::m_yieldFromScouting", m_syncArchive/*, true*/)
 #endif
 #if defined(MOD_CORE_DEBUGGING)
@@ -1288,6 +1294,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMountainsDoubleMoveCount = 0;
 	m_iAOEDamageOnKill = 0;
 	m_iSplashDamage = 0;
+	m_iMultiAttackBonus = 0;
 #endif
 	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
@@ -1380,10 +1387,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumTilesRevealedThisTurn = 0;
+	m_bSpottedEnemy = false;
 	m_iGainsXPFromScouting = 0;
+	m_iGainsXPFromSpotting = 0;
+	m_iGainsXPFromPillaging = 0;
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
 	m_iStrongerDamaged = 0;
+	m_iGoodyHutYieldBonus = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -1578,6 +1589,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_yieldFromKills.clear();
 		m_yieldFromBarbarianKills.clear();
 #if defined(MOD_BALANCE_CORE)
+		m_aiNumTimesAttackedThisTurn.clear();
+		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
 #endif
 		
@@ -1596,6 +1609,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 		}
 #endif
+		for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
+		{
+			m_aiNumTimesAttackedThisTurn.setAt(iI, 0);
+		}
 
 		CvAssertMsg((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
 		m_extraUnitCombatModifier.clear();
@@ -1813,7 +1830,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bMelee = true;
 				}
 				//If we're losing standard promotions because of a combatclass change, let's replace with some experience.
-				if(!isRanged() && pUnit->HasPromotion(ePromotion) && pUnit->isRanged() && bRanged && !bFree)
+				if (!isRanged() && pUnit->HasPromotion(ePromotion) && pUnit->isRanged() && bRanged && !bFree && !::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
@@ -2749,6 +2766,32 @@ void CvUnit::doTurn()
 	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
+	}
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
+	}
+
+	//Behind enemy lines?
+	if (IsGainsXPFromSpotting())
+	{
+		if (plot() != NULL && plot()->getTeam() != getTeam() && plot()->getTeam() != NO_TEAM && plot()->getTeam() != BARBARIAN_TEAM)
+		{
+			if (GET_TEAM(plot()->getTeam()).isAtWar(getTeam()))
+			{
+				int iExperience = GC.getBALANCE_SCOUT_XP_BASE() * 5;
+				if (iExperience > 0)
+				{
+					//Up to max barb value - rest has to come through combat!
+#if defined(MOD_UNITS_XP_TIMES_100)
+					changeExperienceTimes100(iExperience * 100);
+#else
+					changeExperience(iExperience);
+#endif
+				}
+			}
+		}
 	}
 #endif
 
@@ -7909,8 +7952,11 @@ const CvPlot* CvUnit::getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities)
 	{
 		return NULL;
 	}
-
-	return pPlot;
+	if (pEndCity->getOwner() == getOwner() || (GET_PLAYER(pEndCity->getOwner()).isMinorCiv() && GET_PLAYER(pEndCity->getOwner()).GetMinorCivAI()->GetAlly() == getOwner()))
+	{
+		return pPlot;
+	}
+	return NULL;
 }
 
 const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
@@ -10134,6 +10180,15 @@ bool CvUnit::pillage()
 		changeMoves(-GC.getMOVE_DENOMINATOR());
 	}
 
+	if (IsGainsXPFromPillaging())
+	{
+#if defined(MOD_UNITS_XP_TIMES_100)
+		changeExperienceTimes100(GC.getBALANCE_SCOUT_XP_BASE() * 500);
+#else
+		changeExperienceTimes100(GC.getBALANCE_SCOUT_XP_BASE() * 5);
+#endif
+	}
+
 	if(bSuccessfulNonRoadPillage)
 	{
 		if (hasHealOnPillage())
@@ -10811,7 +10866,7 @@ bool CvUnit::DoSpreadReligion()
 					// Requires majority for this city to be another religion
 					int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
 					CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, true, pCity->getOwner(), plot());
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
 					if(pCity->getOwner() != m_eOwner)
 					{
 						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 2), true, pCity->getOwner(), plot());
@@ -15272,7 +15327,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 		// Capital Defense
 		iTempModifier = GetCapitalDefenseModifier();
-		if(iTempModifier > 0)
+		if (iTempModifier > 0 || GetCapitalDefenseFalloff() > 0)
 		{
 			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
 			if(pCapital)
@@ -15489,6 +15544,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
 				iModifier += iTempModifier;
 			}
+			//bonus for attacking same unit over and over in a turn?
+			iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+			if (iTempModifier != 0)
+			{
+				iTempModifier *= pToPlot->getPlotCity()->GetNumTimesAttackedThisTurn(getOwner());
+				iModifier += iTempModifier;
+			}
 #endif
 
 			// City Defending against a Barbarian
@@ -15598,6 +15660,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
+
+		//bonus for attacking same unit over and over in a turn?
+		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		if (iTempModifier != 0)
+		{
+			iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
+			iModifier += iTempModifier;
+		}
 	}
 
 	// Unit can't drop below 10% strength
@@ -16124,6 +16194,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #endif
 		}
 
+		//bonus for attacking same unit over and over in a turn?
+		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		if (iTempModifier != 0)
+		{
+			iTempModifier *= pOtherUnit->GetNumTimesAttackedThisTurn(getOwner());
+			iModifier += iTempModifier;
+		}
+
 		// OTHER UNIT is a Barbarian
 		if(pOtherUnit->isBarbarian())
 		{
@@ -16191,6 +16269,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += iTempModifier;
 		}
 #endif
+		//bonus for attacking same unit over and over in a turn?
+		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		if (iTempModifier != 0)
+		{
+			iTempModifier *= pCity->GetNumTimesAttackedThisTurn(getOwner());
+			iModifier += iTempModifier;
+		}
 		// Bonus against city states?
 		if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
@@ -17434,6 +17519,34 @@ int CvUnit::GetNumTilesRevealedThisTurn()
 	VALIDATE_OBJECT
 	return m_iNumTilesRevealedThisTurn;
 }
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetSpottedEnemy(bool bValue)
+{
+	VALIDATE_OBJECT
+		m_bSpottedEnemy = bValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsSpottedEnemy()
+{
+	VALIDATE_OBJECT
+		return m_bSpottedEnemy;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsGainsYieldFromScouting() const
+{
+	VALIDATE_OBJECT
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			if (getYieldFromScouting((YieldTypes)iI) > 0)
+			{
+				return true;
+			}
+		}
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGainsXPFromScouting() const
 {
@@ -17441,19 +17554,7 @@ bool CvUnit::IsGainsXPFromScouting() const
 	return (GetGainsXPFromScouting() > 0);
 }
 
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsGainsYieldFromScouting() const
-{
-	VALIDATE_OBJECT
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		if(getYieldFromScouting((YieldTypes)iI) > 0)
-		{
-			return true;
-		}
-	}
-	return false;
-}
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetGainsXPFromScouting() const
@@ -17471,6 +17572,61 @@ void CvUnit::ChangeGainsXPFromScouting(int iValue)
 		m_iGainsXPFromScouting += iValue;
 	}
 }
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsGainsXPFromSpotting() const
+{
+	VALIDATE_OBJECT
+		return (GetGainsXPFromSpotting() > 0);
+}
+
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetGainsXPFromSpotting() const
+{
+	VALIDATE_OBJECT
+		return m_iGainsXPFromSpotting;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeGainsXPFromSpotting(int iValue)
+{
+	VALIDATE_OBJECT
+		if (iValue != 0)
+		{
+			m_iGainsXPFromSpotting += iValue;
+		}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsGainsXPFromPillaging() const
+{
+	VALIDATE_OBJECT
+		return (GetGainsXPFromPillaging() > 0);
+}
+
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetGainsXPFromPillaging() const
+{
+	VALIDATE_OBJECT
+		return m_iGainsXPFromPillaging;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeGainsXPFromPillaging(int iValue)
+{
+	VALIDATE_OBJECT
+		if (iValue != 0)
+		{
+			m_iGainsXPFromPillaging += iValue;
+		}
+}
+
+
+
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 //	--------------------------------------------------------------------------------
 bool CvUnit::isGGFromBarbarians() const
@@ -19194,25 +19350,18 @@ if (!bDoEvade)
 		bool bZero = false;
 		if(IsGainsXPFromScouting())
 		{
-#if defined(MOD_UNITS_XP_TIMES_100)
-			if(getExperienceTimes100() <= (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
-#else
-			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
-#endif
+			int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
+			iExperience += GetNumTilesRevealedThisTurn();
+			iExperience /= 6;
+			if(iExperience > 0)
 			{
-				int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
-				iExperience += GetNumTilesRevealedThisTurn();
-				iExperience /= 6;
-				if(iExperience > 0)
-				{
 					//Up to max barb value - rest has to come through combat!
 #if defined(MOD_UNITS_XP_TIMES_100)
-					changeExperienceTimes100(iExperience * 100);
+				changeExperienceTimes100(iExperience * 100);
 #else
-					changeExperience(iExperience);
+				changeExperience(iExperience);
 #endif
-					bZero = true;
-				}
+				bZero = true;
 			}
 		}
 		if(IsGainsYieldFromScouting())
@@ -21245,6 +21394,21 @@ void CvUnit::changeSplashDamage(int iChange)
 		m_iSplashDamage = (m_iSplashDamage + iChange);
 	CvAssert(getSplashDamage() >= 0);
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getMultiAttackBonus() const
+{
+	VALIDATE_OBJECT
+		return m_iMultiAttackBonus;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeMultiAttackBonus(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
+	CvAssert(getMultiAttackBonus() >= 0);
+}
+
 
 
 #endif
@@ -23498,6 +23662,18 @@ void CvUnit::ChangeIsStrongerDamaged(int iChange)
 	m_iStrongerDamaged += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetGoodyHutYieldBonus() const
+{
+	return m_iGoodyHutYieldBonus;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeGoodyHutYieldBonus(int iChange)
+{
+	m_iGoodyHutYieldBonus += iChange;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -24735,6 +24911,21 @@ void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 	else
 		m_map[eIndex] = iChange;
 }
+
+void CvUnit::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
+	m_aiNumTimesAttackedThisTurn.setAt(ePlayer, m_aiNumTimesAttackedThisTurn[ePlayer] + iValue);
+}
+int CvUnit::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	return m_aiNumTimesAttackedThisTurn[ePlayer];
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -25500,9 +25691,12 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
+		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
+		ChangeGainsXPFromPillaging((thisPromotion.IsGainsXPFromPillaging()) ? iChange : 0);
+		ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
 		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
@@ -25535,6 +25729,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 		ChangeIsStrongerDamaged((thisPromotion.IsStrongerDamaged()) ? iChange : 0);
+		ChangeGoodyHutYieldBonus((thisPromotion.GetGoodyHutYieldBonus()) * iChange);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
@@ -25817,33 +26012,36 @@ bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarke
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 {
-	VALIDATE_OBJECT
-	bool bSwapPossible = false;
+	return GetPotentialUnitToSwapWith(swapPlot) != NULL;
+}
 
-	if(getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
+CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
+{
+	VALIDATE_OBJECT
+	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
-		if(canEnterTerrain(swapPlot,CvUnit::MOVEFLAG_DESTINATION))
+		if (canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
 			// Can I get there this turn?
-			SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+			SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
 
 			//need to be careful here, this method may be called from GUI and gamecore, this can lead to a deadlock
 			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
 			if (!!path)
 			{
 				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
-				if(pEndTurnPlot == &swapPlot)
+				if (pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-					if(swapPlot.getMaxFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
+					if (swapPlot.getMaxFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
 #else
-					if(swapPlot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+					if (swapPlot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
 #endif
 					{
 						const IDInfo* pUnitNode;
 						CvUnit* pLoopUnit;
 						pUnitNode = swapPlot.headUnitNode();
-						while(pUnitNode != NULL)
+						while (pUnitNode != NULL)
 						{
 							pLoopUnit = (CvUnit*)::getUnit(*pUnitNode);
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
@@ -25855,24 +26053,21 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 							}
 
 							// Make sure units belong to the same player
-							if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
+							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
-								if(AreUnitsOfSameType(*pLoopUnit))
+								if (AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
+									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
 									{
 										// Can the unit I am swapping with get to me this turn?
-										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
 										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
 											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
-											if(pPathEndTurnPlot == plot())
-											{
-												bSwapPossible = true;
-												break;
-											}
+											if (pPathEndTurnPlot == plot())
+												return pLoopUnit;
 										}
 									}
 								}
@@ -25884,7 +26079,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 		}
 	}
 
-	return bSwapPossible;
+	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28894,6 +29089,31 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iValue /= 3;
 		}
 	}
+
+	if (pkPromotionInfo->IsGainsXPFromSpotting())
+	{
+		iExtra = visibilityRange();
+		iTemp = (iExtra * 10);
+
+		iValue += iTemp + iFlavorOffense * 7;
+	}
+
+	if (pkPromotionInfo->IsGainsXPFromPillaging())
+	{
+		iExtra = movesLeft();
+		iTemp = (iExtra * 10);
+
+		iValue += iTemp + iFlavorOffense * 7;
+	}
+
+	iTemp = pkPromotionInfo->GetGoodyHutYieldBonus();
+	if (iTemp != 0)
+	{
+		iExtra = movesLeft();
+		iTemp += (iExtra * 10);
+
+		iValue += iTemp + iFlavorRecon * 7;
+	}
 #endif
 
 	iTemp = pkPromotionInfo->GetOpenAttackPercent();
@@ -28989,9 +29209,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0)
 	{
 		iExtra = getExtraCityAttackPercent();
-		iTemp *= (100 + iExtra * 2);
+		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense * 2;
+		iValue += iTemp + iFlavorOffense * 3;
 		if(isRanged())
 		{
 			iValue += iFlavorRanged * 2;
@@ -29144,48 +29364,48 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetAttackWoundedMod();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraAttackWoundedMod() * 3;
+		iExtra = getExtraAttackWoundedMod() * 2;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackFullyHealedMod();
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackFullyHealedMod() * 3;
+		iExtra = getExtraAttackFullyHealedMod() * 2;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackAboveHealthMod();
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackAboveHealthMod() * 3;
+		iExtra = getExtraAttackAboveHealthMod() * 2;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
 	}
 	iTemp = pkPromotionInfo->GetAttackBelowHealthMod();
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackBelowHealthMod() * 3;
+		iExtra = getExtraAttackBelowHealthMod() * 2;
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 7;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
 	}
 
 	
@@ -29205,7 +29425,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
 	if(iTemp > 0)
 	{
-		iExtra = (8 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra = (12 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
 		iExtra *= iTemp;
 		iExtra /= 100;
 		iValue += iExtra;
@@ -29576,7 +29796,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iValue > 0)
 	{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		iValue += GC.getGame().getSmallFakeRandNum(30, iValue);
+		iValue += GC.getGame().getSmallFakeRandNum(100, iValue);
 #else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
 #endif

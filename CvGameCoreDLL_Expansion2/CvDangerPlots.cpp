@@ -317,41 +317,37 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 }
 
 /// Return the maximum amount of damage that could be dealt to a non-specific unit at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 {
 	if(!m_bArrayAllocated)
 		return 0;
 
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
-	return m_DangerPlots[idx].GetDanger(ePlayer);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
 }
 
 /// Return the maximum amount of damage a city could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison)
 {
 	if(!m_bArrayAllocated)
 		return 0;
 
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
 	if (pCity != NULL)
 	{
-		return m_DangerPlots[idx].GetDanger(pCity, pPretendGarrison);
+		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
 	}
-	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
 {
 	if(!m_bArrayAllocated)
 		return 0;
 
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
-
 	if (pUnit)
-		return m_DangerPlots[idx].GetDanger(pUnit, unitsToIgnore, iAirAction);
+		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iAirAction);
 
-	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
 }
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) const
@@ -359,9 +355,12 @@ std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) con
 	if(!m_bArrayAllocated)
 		return std::vector<CvUnit*>();
 
-	const int idx = Plot.getX() + Plot.getY() * GC.getMap().getGridWidth();
+	return m_DangerPlots[Plot.GetPlotIndex()].GetPossibleAttackers();
+}
 
-	return m_DangerPlots[idx].GetPossibleAttackers();
+void CvDangerPlots::ResetDangerCache(const CvPlot & Plot)
+{
+	m_DangerPlots[Plot.GetPlotIndex()].resetCache();
 }
 
 bool CvDangerPlots::IsKnownAttacker(PlayerTypes eOwner, int iUnitID) const
@@ -867,7 +866,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		return GetAirUnitDamage(pUnit, iAirAction);
 
 	//simple caching for speedup
-	SUnitInfo unitStats(pUnit);
+	SUnitInfo unitStats(pUnit, unitsToIgnore);
 	for (size_t i=0; i<m_lastResults.size(); i++)
 		if ( unitStats == m_lastResults[i].first )
 			return m_lastResults[i].second;
@@ -967,8 +966,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		}
 
 		//update cache
-		m_lastResults.push_back( std::make_pair(unitStats,iPlotDamage) );
-		if (m_lastResults.size()==DANGER_MAX_CACHE_SIZE)
+		m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
+		if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
 			m_lastResults.erase(m_lastResults.begin());
 
 		return iPlotDamage;
@@ -1034,8 +1033,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
 	//update cache
-	m_lastResults.push_back( std::make_pair(unitStats,iPlotDamage) );
-	if (m_lastResults.size()==DANGER_MAX_CACHE_SIZE)
+	m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
+	if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
 		m_lastResults.erase(m_lastResults.begin());
 
 	//done

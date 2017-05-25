@@ -688,9 +688,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (m_pCity->isCoastal())
 	{
-		if (pkBuildingInfo->GetBorderObstacleWater() > 0)
+		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+		if (eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
 		{
-			iDefense += 50;
+			if (!m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
+			{
+				if (pkBuildingInfo->GetBorderObstacleWater() > 0)
+				{
+					iDefense += 50;
+				}
+			}
 		}
 	}
 	else

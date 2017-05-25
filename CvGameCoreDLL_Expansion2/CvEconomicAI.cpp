@@ -1138,6 +1138,12 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 				else
 					iResultValue += iSmallScore;
 			}
+
+			//recon should gravitate towards enemy lands during war.
+			if (pLoopPlot->getOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(pLoopPlot->getOwner()).getTeam()).isAtWar(pPlayer->getTeam()))
+			{
+				iResultValue *= 2;
+			}
 		}
 	}
 
@@ -2554,7 +2560,7 @@ void CvEconomicAI::DoReconState()
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || 
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
-				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && !TacticalAIHelpers::IsEnemyUnitInRange(pLoopUnit))
+				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 					eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
@@ -2646,7 +2652,7 @@ void CvEconomicAI::DoReconState()
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA))
 				{
-					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && !TacticalAIHelpers::IsEnemyUnitInRange(pLoopUnit))
+					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
 					{
 						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 						eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );

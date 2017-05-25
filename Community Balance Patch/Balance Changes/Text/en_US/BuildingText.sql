@@ -495,7 +495,7 @@ SET Text = '1 Free Social Policy. Reduces [ICON_HAPPINESS_3] Illiteracy in all c
 WHERE Tag = 'TXT_KEY_WONDER_ORACLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receive a free Great General. [NEWLINE][NEWLINE]Enemy land Units must expend 1 extra [ICON_MOVES] movement when entering your territory. Increases the Military Unit Supply Cap by 3. Provides Walls for free in the city in which it is built.[NEWLINE][NEWLINE]Upon discovering Dynamite, The Great Wall becomes obsolete.'
+SET Text = 'Receive a free Great General. [NEWLINE][NEWLINE]Enemy land Units expend all [ICON_MOVES] movement when entering your territory. Increases the Military Unit Supply Cap by 3. Provides Walls for free in the city in which it is built.[NEWLINE][NEWLINE]Upon discovering Dynamite, The Great Wall becomes obsolete.'
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_WALL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

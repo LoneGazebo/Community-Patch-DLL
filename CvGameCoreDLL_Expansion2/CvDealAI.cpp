@@ -1849,7 +1849,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 
 			//Increase value based on number remaining (up to 10).
-			iItemValue += ((10 - iNumRemaining) * 10);
+			iItemValue += ((10 - min(10, iNumRemaining)) * 10);
 
 			//How much do we have compared to them?
 			int iResourceRatio = GetResourceRatio(GetPlayer()->GetID(), eOtherPlayer, eResource);
@@ -1893,7 +1893,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity * iNumTurns);
-			iItemValue /= 10;
+			iItemValue /= 25;
 
 			return iItemValue;
 		}
@@ -2028,8 +2028,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			return 0;
 		}
 	}
-
-	return MAX_INT;
 }
 
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -6999,7 +6997,7 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 	int iResourceLoop;
 	ResourceTypes eResource;
 #if defined(MOD_BALANCE_CORE)
-	int iBestValue = 0;
+	int iBestValue = 20;
 #endif
 
 	// precalculate, it's expensive
@@ -7090,7 +7088,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 	int iResourceLoop;
 	ResourceTypes eResource;
-	int iBestValue = 0;
+	int iBestValue = 15;
 
 	// precalculate, it's expensive
 	int iCurrentNetGoldOfReceivingPlayer = m_pPlayer->GetTreasury()->CalculateBaseNetGold();

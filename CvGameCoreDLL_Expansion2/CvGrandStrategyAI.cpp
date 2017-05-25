@@ -1018,6 +1018,15 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	//Add in our base gold value.
 	iPriorityBonus += (m_pPlayer->GetTreasury()->CalculateBaseNetGold() / 15);
 
+	if (MOD_DIPLOMACY_CITYSTATES)
+	{
+		ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+		if (ePaper != NO_RESOURCE && m_pPlayer->getResourceFromCSAlliances(ePaper) > 0)
+		{
+			iPriorityBonus += 25;
+		}
+	}
+
 	//Add priority value based on flavors of policies we've acquired.
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{

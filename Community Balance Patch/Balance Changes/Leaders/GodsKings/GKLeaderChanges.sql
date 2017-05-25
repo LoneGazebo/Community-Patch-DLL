@@ -445,7 +445,7 @@ VALUES
 INSERT INTO Trait_YieldFromExport
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 4);
+	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 6);
 
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)

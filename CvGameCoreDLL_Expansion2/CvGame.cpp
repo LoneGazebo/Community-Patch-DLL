@@ -1146,6 +1146,7 @@ void CvGame::uninit()
 	m_iDefenseAverage = 0;
 	m_iGoldAverage = 0;
 	m_iGlobalPopulation = 0;
+	m_iLastTurnCSSurrendered = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iLargestBasePotential = 0;
@@ -10769,6 +10770,14 @@ void CvGame::DoBarbCountdown()
 		}
 	}
 }
+void CvGame::SetLastTurnCSAnnexed(int iValue)
+{
+	m_iLastTurnCSSurrendered = iValue;
+}
+int CvGame::GetLastTurnCSAnnexed()
+{
+	return m_iLastTurnCSSurrendered;
+}
 #endif
 //	--------------------------------------------------------------------------------
 const CvReplayMessage* CvGame::getReplayMessage(uint i) const
@@ -10877,6 +10886,7 @@ void CvGame::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iLastTurnCSSurrendered, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_READ(66, kStream, m_iLargestBasePotential, 0);
@@ -11131,6 +11141,7 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
+	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_WRITE(kStream, m_iLargestBasePotential);

@@ -4147,6 +4147,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 					}
 				}
 			}
+			//we like our vassal.
+			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == GetPlayer()->GetID())
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+			}
 		}
 
 		else if (IsVassal(ePlayer))
@@ -4680,6 +4686,39 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 				}
 				break;
 			}
+		}
+	}
+
+	//we've got a UU? Let's see if it is time to go.
+	if (GetPlayer()->HasUUPeriod())
+	{
+		bool bHasUU = GetPlayer()->HasUUActive();
+		//We got it? Let's strike!
+		if (GetPlayer()->GetPlayerTechs()->HasUUTech() && bHasUU)
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 10;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= 10;
+		}
+		//Have tech but not UU? Hurry Up!
+		else if (GetPlayer()->GetPlayerTechs()->HasUUTech() && !bHasUU)
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 10;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 10;
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= 2;
+		}
+
+		//Don't have it but will have it soon? Delay.
+		if (GetPlayer()->GetPlayerTechs()->WillHaveUUTechSoon())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 5;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 5;
+			viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= 2;
+		}
+		//Don't have it and won't have it soon? Delay.
+		else
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 25;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 25;
 		}
 	}
 
@@ -11676,6 +11715,12 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	{
 		return false;
 	}
+
+	//No DPs if last two!
+	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
+	if (iNumMajorsLeft <= 2)
+		return false;
+
 	int iValue = 0;
 
 	int iNumDPsAlreadyWanted = GetNumDefensivePactsWanted(ePlayer);

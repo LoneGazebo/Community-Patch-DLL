@@ -505,6 +505,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		//don't count the "self-inflicted" damage on the attacker
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
+	
+		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 		// Update experience for both sides.
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -566,7 +568,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			}
 			pkDefender->testPromotionReady();
 
-			ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
+			ApplyPostKillTraitEffects(pkDefender, pkAttacker);
 
 		}
 		// Defender died
@@ -606,7 +608,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 			pkAttacker->testPromotionReady();
 
-			ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+			ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 			// If defender captured, mark who captured him
 			if (kCombatInfo.getDefenderCaptured())
@@ -1153,6 +1155,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 							}
 						}
 					}
+					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 #endif
 
 					// Defender died
@@ -1183,7 +1186,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
 #endif
 
-						ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 						if(bBarbarian)
 						{
@@ -1374,6 +1377,8 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 
 				if(pkAttacker)
 				{
+					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
+
 					// Info message for the attacking player
 					if(iActivePlayerID == pkAttacker->getOwner())
 					{
@@ -1485,6 +1490,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
 #endif
+		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 #if defined(MOD_UNITS_XP_TIMES_100)
 		pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
@@ -2024,6 +2030,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
 
+					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
+
 					// Update experience
 #if defined(MOD_UNITS_XP_TIMES_100)
 					pkDefender->changeExperienceTimes100(100 * 
@@ -2067,7 +2075,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 							}
 						}
 
-						ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
+						ApplyPostKillTraitEffects(pkDefender, pkAttacker);
 					}
 					// Defender died
 					else if(pkDefender->IsDead())
@@ -2097,7 +2105,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 						bTargetDied = true;
 
-						ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 #if defined(MOD_BUGFIX_MINOR)
 						// Friendship from barb death via air-strike
@@ -2149,6 +2157,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				pCity->clearCombat();
 				if(pkAttacker)
 				{
+					pCity->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 					pCity->changeDamage(iAttackerDamageInflicted);
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pCity->getOwner());
 
@@ -2526,7 +2535,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 
 				pkDefender->testPromotionReady();
 
-				ApplyPostCombatTraitEffects(pkDefender, pkAttacker);
+				ApplyPostKillTraitEffects(pkDefender, pkAttacker);
 			}
 			// Defender died
 			else if(bDefenderDead)
@@ -2569,7 +2578,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 
 				pkAttacker->testPromotionReady();
 
-				ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+				ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 			}
 			// Nobody died
 			else
@@ -4322,9 +4331,19 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 }
 
 //	---------------------------------------------------------------------------
-void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
+// winner has killed loser
+//	---------------------------------------------------------------------------
+void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 {
 	int iExistingDelay = 0;
+
+	// Clear cached danger in the vicinity
+	for (int i = 0; i < RING2_PLOTS; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(pkLoser->plot(), i);
+		if (pPlot)
+			GET_PLAYER(pkWinner->getOwner()).ResetDangerCache(*pPlot);
+	}
 
 	// "Heal if defeat enemy" promotion; doesn't apply if defeat a barbarian
 	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
@@ -4517,6 +4536,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 			}
 		}
 	}
+	pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 }
 
 void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo & kCombatInfo, uint uiParentEventID)
@@ -4569,7 +4589,7 @@ void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo &
 
 					pkAttacker->testPromotionReady();
 
-					CvUnitCombat::ApplyPostCombatTraitEffects(pkAttacker, pkUnit);
+					CvUnitCombat::ApplyPostKillTraitEffects(pkAttacker, pkUnit);
 				}
 			}
 		}
