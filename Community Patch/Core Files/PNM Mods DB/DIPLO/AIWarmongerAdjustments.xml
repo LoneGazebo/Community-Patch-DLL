@@ -4,18 +4,18 @@
 		<!-- Multiplicative modifier for how much more the capital is worth -->
 		<Row Name="WARMONGER_THREAT_CAPITAL_CITY_PERCENT">
 			<!-- Default 100 -->
-			<Value>200</Value>
+			<Value>300</Value>
 		</Row>
 		<!-- Warmonger threat for capturing a major's city -->
 		<Row Name="WARMONGER_THREAT_MAJOR_CITY_WEIGHT">
 			<!-- Default 1000 -->
-			<Value>700</Value>
+			<Value>850</Value>
 		</Row>
 		<!-- Warmonger threat for capturing a minor's city -->
 		<Row Name="WARMONGER_THREAT_MINOR_CITY_WEIGHT">
 			<!-- Default 1000 -->
 			<!-- As a minor city will almost always be a capital, this should be the desired value divided by WARMONGER_THREAT_CAPITAL_CITY_PERCENT -->
-			<Value>500</Value>
+			<Value>750</Value>
 		</Row>
 
 		<!-- Multiplicative modifier for when the bystander does know the defender, they may or may not know the attacker -->
@@ -26,13 +26,13 @@
 		<!-- Multiplicative modifier for when the bystander doesn't know the defender, but does know the attacker -->
 		<Row Name="WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT">
 			<!-- Default 100 -->
-			<Value>80</Value>
+			<Value>85</Value>
 		</Row>
 
 		<!-- Multiplicative modifier for capturing a city from someone who delared war on you -->
 		<Row Name="WARMONGER_THREAT_AGGRIEVED_PERCENT">
 			<!-- Default 100 -->
-			<Value>80</Value>
+			<Value>90</Value>
 		</Row>
 		<!-- If enabled, a bystander with a DefPact with the defender will always receive the full amount of warmonger threat -->
 		<Row Name="WARMONGER_THREAT_DEF_PACT_ENABLED">
@@ -43,7 +43,7 @@
 		<!-- C is in a joint war with A against B, A captures B's city, C will get WARMONGER_THREAT_COOP_WAR_PERCENT of the warmonger threat -->
 		<Row Name="WARMONGER_THREAT_COOP_WAR_PERCENT">
 			<!-- Default 100 -->
-			<Value>25</Value>
+			<Value>50</Value>
 		</Row>
 
 		<!-- Additive modifiers for the warmonger threat based on the bystanders approach to the attacker and defender -->
@@ -52,15 +52,15 @@
 		<!-- If C is hostile to B they won't care so much about what A does to their enemy -->
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_HOSTILE">
 			<!-- Default 0 -->
-			<Value>40</Value>
+			<Value>50</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_AFRAID">
 			<!-- Default 0 -->
-			<Value>15</Value>
+			<Value>25</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_GUARDED">
 			<!-- Default 0 -->
-			<Value>20</Value>
+			<Value>30</Value>
 		</Row>
 		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_NEUTRAL">
 			<!-- Default 0 -->

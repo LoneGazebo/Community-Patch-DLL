@@ -13066,7 +13066,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getJonRandNum(kGoodyInfo.getGoldRandAmount(), "Goody Gold Rand"));
 	}
 
-	int iGoodyModifier = pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus();
+	int iGoodyModifier = pUnit != NULL ? pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus() : 0;
 
 	if (pUnit != NULL && iGoodyModifier != 0)
 	{

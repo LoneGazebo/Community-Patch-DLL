@@ -2774,13 +2774,13 @@ void CvUnit::doTurn()
 	}
 
 	//Behind enemy lines?
-	if (IsGainsXPFromSpotting())
+	if (IsGainsXPFromSpotting() && !isEmbarked())
 	{
 		if (plot() != NULL && plot()->getTeam() != getTeam() && plot()->getTeam() != NO_TEAM && plot()->getTeam() != BARBARIAN_TEAM)
 		{
-			if (GET_TEAM(plot()->getTeam()).isAtWar(getTeam()))
+			if (GET_TEAM(plot()->getTeam()).isMajorCiv() && GET_TEAM(plot()->getTeam()).isAtWar(getTeam()))
 			{
-				int iExperience = GC.getBALANCE_SCOUT_XP_BASE() * 5;
+				int iExperience = GC.getBALANCE_SCOUT_XP_BASE() * 2;
 				if (iExperience > 0)
 				{
 					//Up to max barb value - rest has to come through combat!
@@ -4497,6 +4497,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 					return false;
 				}
 
+				if (canCrossOceans())
+					return true;
+
 				PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
 				bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy) || 
 					(eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean());
@@ -5749,6 +5752,9 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 			return false;
 
 		// No scouts
+		if (getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
+			return false;
+
 		UnitClassTypes eScoutClass = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_SCOUT", true);
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
@@ -17450,7 +17456,7 @@ void CvUnit::changeCanCrossMountainsCount(int iValue)
 bool CvUnit::canCrossOceans() const
 {
 	VALIDATE_OBJECT
-	return MOD_PROMOTIONS_CROSS_OCEANS && (getCanCrossOceansCount() > 0);
+	return getCanCrossOceansCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25648,9 +25654,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-		if (MOD_PROMOTIONS_CROSS_OCEANS) {
-			changeCanCrossOceansCount((thisPromotion.CanCrossOceans()) ? iChange : 0);
-		}
+		changeCanCrossOceansCount((thisPromotion.CanCrossOceans()) ? iChange : 0);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 		if (MOD_PROMOTIONS_CROSS_ICE) {

@@ -1536,9 +1536,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			return INT_MAX;
 		}
-		if (GetPlayer()->getNumResourceAvailable(eResource) == 1 && !GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention())
+		if (GetPlayer()->getNumResourceAvailable(eResource) == 1)
 		{
-			int iFactor = 1;
+			int iFactor = 3;
+			if (GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention())
+				iFactor -= 1;
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetCurrentReligion(), GetPlayer()->GetID());
 			if (pReligion)
 			{
@@ -1550,10 +1552,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					}
 				}
 			}
-			if (iFactor > 1)
-			{
-				iItemValue *= iFactor; //last one is x as valuable
-			}
+
+			iItemValue *= iFactor; //last one is x as valuable
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
@@ -3701,7 +3701,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			return INT_MAX;
 		}
-		if(eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_AFRAID)
+		if (eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_AFRAID && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 		{
 			return INT_MAX;
 		}
@@ -3711,7 +3711,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 100;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 200;
-			else if (eWarProjection <= WAR_PROJECTION_UNKNOWN)
+			else if (eWarProjection <= WAR_PROJECTION_UNKNOWN && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				return INT_MAX;			
 		}
 		else
@@ -3722,7 +3722,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 200;
 			else if(eWarProjection >= WAR_PROJECTION_STALEMATE)
 				iItemValue += 300;
-			else if(eWarProjection < WAR_PROJECTION_STALEMATE)
+			else if (eWarProjection < WAR_PROJECTION_STALEMATE && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				return INT_MAX;
 		}
 		
@@ -3801,7 +3801,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 90;
 			iItemValue /= 100;
 		}
-		else
+		else if (pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 		{
 			return INT_MAX;
 		}
@@ -3922,21 +3922,21 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			//Are we already at war with the player? Let's lower our standards a bit.
 			if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eWithPlayer).getTeam()))
 			{
-				if(eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE)
+				if (eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE &&  pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				{
 					return INT_MAX;
 				}
 			}
 			else if(eMajorApproachTowardsWarPlayer < MAJOR_CIV_APPROACH_DECEPTIVE)
 			{
-				if(eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE)
+				if (eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				{
 					return INT_MAX;
 				}
 			}
 			else
 			{
-				if(eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_GUARDED)
+				if (eApproachTowardsAskingPlayer < MAJOR_CIV_APPROACH_GUARDED && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				{
 					return INT_MAX;
 				}
@@ -3995,7 +3995,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					iItemValue *= 175;
 					iItemValue /= 100;
 				}
-				else if(eMajorApproachTowardsWarPlayer >= MAJOR_CIV_APPROACH_FRIENDLY)
+				else if (eMajorApproachTowardsWarPlayer >= MAJOR_CIV_APPROACH_FRIENDLY && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
 				{
 					return INT_MAX;
 				}

@@ -399,9 +399,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-	if (MOD_PROMOTIONS_CROSS_OCEANS) {
-		m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
-	}
+	m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	if (MOD_PROMOTIONS_CROSS_ICE) {

@@ -480,8 +480,6 @@
 			<GoldMaintenance>2</GoldMaintenance>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<PrereqTech>TECH_STEEL</PrereqTech>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
 			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
 			<Description>TXT_KEY_BUILDING_DOJO</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT</Civilopedia>

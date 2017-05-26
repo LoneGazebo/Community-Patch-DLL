@@ -623,7 +623,7 @@
 			<Text>Spotters</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING_HELP">
-			<Text>+5 XP for every turn spent in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].</Text>
+			<Text>+2 XP for every turn spent unembarked in the [COLOR_POSITIVE_TEXT]enemy territory[ENDCOLOR] of a Major Civ.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I">
