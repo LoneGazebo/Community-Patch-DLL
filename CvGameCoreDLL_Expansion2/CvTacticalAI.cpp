@@ -4595,7 +4595,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		}
 	}
 
-	if (iMinDist<INT_MAX)
+	if (iMinDist==INT_MAX)
 		return;
 
 	vector<STacticalAssignment> vAssignments;
@@ -10709,7 +10709,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit)
 			iDamageDealt += 50; //bonus for a kill!
 
 		int iScore = (1000 * iDamageDealt) / (iDamageReceived + 10);
-		if (iScore > 1000 * vEnemies.size() ) //threshold depends on number of enemies around us!
+		if (iScore > 1000 * (int)vEnemies.size() ) //threshold depends on number of enemies around us!
 			targets.push_back( SPlotWithScore(vEnemies[i]->plot(),iScore) );
 	}
 
