@@ -3075,7 +3075,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			}
 			else
 			{
-				if (TacticalAIHelpers::PerformRangedAttackWithoutMoving(currentDefender))
+				if (TacticalAIHelpers::PerformOpportunityAttack(currentDefender))
 					currentDefender->finishMoves();
 				else if (currentDefender->canFortify(pPlot))
 					currentDefender->PushMission(CvTypes::getMISSION_FORTIFY());
@@ -3118,28 +3118,28 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 		if (pGarrison && pGarrison->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		{
-			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
+			//ranged garrisons are used in ExecuteSafeBombards. 
+			//special handling only needed for melee garrisons here. note: garrison will not advance
+			TacticalAIHelpers::PerformOpportunityAttack(pGarrison);
+
+			//can we maybe capture a lone civilian
 			for (int i=RING0_PLOTS; i<RING2_PLOTS; i++)
 			{
-				CvPlot* pNeighbor = iterateRingPlots( pPlot,i ); //todo: randomize order? but the chance of multiple potential victims is low
-				if (pNeighbor)
+				CvPlot* pNeighbor = iterateRingPlots( pPlot,i );
+				if (!pNeighbor)
+					continue;
+
+				if (!pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true) &&
+					pNeighbor->isEnemyUnit(m_pPlayer->GetID(), false, true) &&
+					pGarrison->TurnsToReachTarget(pNeighbor, 0, 1) < 2 &&
+					pGarrison->GetDanger(pNeighbor) == 0 &&
+					pGarrison->GetDanger() == 0 &&
+					pCity->getDamage() == 0)
 				{
-					CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pGarrison,true);
-
-					//attacker will not advance ...
-					if (pEnemy && i<RING1_PLOTS && TacticalAIHelpers::KillUnitIfPossible(pGarrison, pEnemy))
-						break;
-
-					//can we maybe capture a lone civilian
-					if (!pEnemy && pNeighbor->isVisibleEnemyUnit(m_pPlayer->GetID()) &&
-						pGarrison->TurnsToReachTarget(pNeighbor, 0, 1) < 2 &&
-						pGarrison->GetDanger(pNeighbor) == 0 &&
-						pGarrison->GetDanger() == 0 &&
-						pCity->getDamage() == 0)
-					{
-						pGarrison->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighbor->getX(), pNeighbor->getY());
-						break;
-					}
+					pGarrison->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighbor->getX(), pNeighbor->getY());
+					if (pGarrison->canMove()) //try to move back
+						pGarrison->PushMission(CvTypes::getMISSION_MOVE_TO(), pCity->getX(), pCity->getY());
+					break;
 				}
 			}
 
@@ -6298,7 +6298,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				{
 					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, pUnit->getDomainType(), 12))
 					{
-						TacticalAIHelpers::PerformOpportunityAttack(pUnit,pBestPlot);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
 						
@@ -6329,7 +6329,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				{
 					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, DOMAIN_SEA, 12))
 					{
-						TacticalAIHelpers::PerformOpportunityAttack(pUnit,pBestPlot);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 						bMoveMade = true;
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -6686,7 +6686,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
 					{
 #if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformOpportunityAttack(pUnit,NULL);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 						if(pUnit->getMoves() > 0 && pUnit->canPillage(pUnit->plot()))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -6732,7 +6732,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_SEA,12))
 					{
-						TacticalAIHelpers::PerformOpportunityAttack(pUnit,pBestPlot);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
@@ -7146,7 +7146,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		if (pUnit)
 		{
-			TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+			TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 
 			//safety check
 			if (pUnit->GetDanger() > pUnit->GetCurrHitPoints())
@@ -7162,7 +7162,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 			if (pUnit->canMove())
-				TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+				TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 
 			if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -9447,7 +9447,7 @@ void CvTacticalAI::PerformChosenMoves()
 			}
 
 			//see if we can hit an enemy
-			TacticalAIHelpers::PerformOpportunityAttack(pUnit, NULL);
+			TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 
 			if(pUnit->canFortify(pUnit->plot()))
 			{
@@ -10666,119 +10666,67 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 
 	int iDamageDealt = 0, iDamageReceived = 1;
 	if (pTargetCity)
+	{
 		//+2 to make sure it's positive if city has zero hitpoints left
-		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity,pUnit,pUnit->plot(),iDamageReceived) + 2; 
+		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity, pUnit, pUnit->plot(), iDamageReceived) + 2;
+		return (iDamageDealt > iDamageReceived || iDamageDealt == pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage());
+	}
 	else if (pTargetUnit)
-		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(pTargetUnit,pUnit,pTargetUnit->plot(),pUnit->plot(),iDamageReceived);
-	
-	return (iDamageDealt>iDamageReceived);
+	{
+		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(pTargetUnit, pUnit, pTargetUnit->plot(), pUnit->plot(), iDamageReceived);
+		return (iDamageDealt > iDamageReceived || iDamageDealt == pTargetUnit->GetCurrHitPoints());
+	}
+
+	return false;
 }
 
-//attack the target plot with the given unit if possible this turn
-bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pTargetPlot)
+//attack the target plot with the given unit if possible this turn. if no target given, pick the best one
+bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit)
 {
 	if (!pUnit)
 		return false;
 
-	//no target given - see if we can find one
-	if (!pTargetPlot)
-	{
-		if (pUnit->IsCanAttackRanged())
-			return TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
-
-		//melee, need to see if a target is adjacent - what to do if there are multiple targets?
-		CvUnit *pEnemy = pUnit->plot()->GetAdjacentEnemyUnit(pUnit->getTeam(), pUnit->getDomainType());
-		if (!pEnemy)
-			return false;
-
-		pTargetPlot = pEnemy->plot();
-	}
-
-	//target can be city or a unit
-	CvCity* pTargetCity = pTargetPlot->getPlotCity();
-	CvUnit* pTargetUnit = pTargetPlot->getVisibleEnemyDefender( pUnit->getOwner() );
-
-	//cannot attack if not at war
-	CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
-	if (pTargetCity && kPlayer.IsAtPeaceWith(pTargetCity->getOwner()))
-		return false;
-
-	//cannot attack if unit has been killed
-	if (pTargetUnit && (pTargetUnit->isDelayedDeath() || GET_PLAYER(pUnit->getOwner()).IsAtPeaceWith(pTargetUnit->getOwner())))
-		return false;
-
 	//cannot attack if no attacks left
 	int iAttacksLeft = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
-	if (iAttacksLeft==0)
+	if (iAttacksLeft == 0)
 		return false;
 
-	//ranged attack. 
-	if (pUnit->isRanged() && pUnit->getDomainType()!=DOMAIN_AIR)
+	//for ranged we have a readymade method
+	if (pUnit->IsCanAttackRanged())
+		return TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+
+	//melee needs more work
+	vector<CvUnit*> vEnemies = pUnit->plot()->GetAdjacentEnemyUnits(pUnit->getTeam(), pUnit->getDomainType());
+	if (vEnemies.empty())
+		return false;
+
+	vector<SPlotWithScore> targets;
+	for (size_t i = 0; i < vEnemies.size(); i++)
 	{
-		std::vector<SPlotWithScore> vBasePlots;
+		int iDamageDealt = 0, iDamageReceived = 0;
+		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(vEnemies[i], pUnit, vEnemies[i]->plot(), pUnit->plot(), iDamageReceived);
+		if (iDamageDealt == vEnemies[i]->GetCurrHitPoints())
+			iDamageDealt += 50; //bonus for a kill!
 
-		ReachablePlots reachablePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false,1);
-		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
-		{
-			CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-
-			//valid base plot for attack?
-			if (!pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY(), pCandidate, false))
-				continue;
-
-			if (!pUnit->canMoveInto(*pCandidate,CvUnit::MOVEFLAG_DESTINATION ))
-				continue;
-
-			vBasePlots.push_back( SPlotWithScore(pCandidate, pUnit->GetDanger(pCandidate)) );
-		}
-
-		//cannot attack
-		if (vBasePlots.empty())
-			return false;
-
-		//lowest danger first
-		std::stable_sort(vBasePlots.begin(), vBasePlots.end());
-
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),vBasePlots[0].pPlot->getX(),vBasePlots[0].pPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-
-		if (pUnit->plot()==vBasePlots[0].pPlot)
-		{
-			if (pUnit->canSetUpForRangedAttack(vBasePlots[0].pPlot))
-				pUnit->setSetUpForRangedAttack(true);
-
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Performing ranged opportunity attack on (%d:%d) with %s at (%d:%d)",
-					pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-				GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
-			}
-
-			pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(),pTargetPlot->getX(), pTargetPlot->getY());
-			return true;
-		}
-		else
-			return false;
+		int iScore = (1000 * iDamageDealt) / (iDamageReceived + 10);
+		if (iScore > 1000 * vEnemies.size() ) //threshold depends on number of enemies around us!
+			targets.push_back( SPlotWithScore(vEnemies[i]->plot(),iScore) );
 	}
-	else if (!pTargetCity && TacticalAIHelpers::IsAttackNetPositive(pUnit, pTargetPlot)) //melee attack - not against cities
-	{
-		int iTurns = pUnit->TurnsToReachTarget( pTargetPlot, 0, 1);
-		if (iTurns <=1 )
-		{
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Performing melee opportunity attack on (%d:%d) with %s at (%d:%d)",
-					pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-				GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
-			}
 
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pTargetPlot->getX(), pTargetPlot->getY());
-			return true;
+	if (!targets.empty())
+	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Performing melee opportunity attack on (%d:%d) with %s at (%d:%d)",
+				targets.front().pPlot->getX(), targets.front().pPlot->getY(), pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
 		}
-		else
-			return false;
+
+		std::sort(targets.begin(), targets.end());
+		std::reverse(targets.begin(), targets.end());
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targets.front().pPlot->getX(), targets.front().pPlot->getY());
+		return true;
 	}
 
 	return false;
@@ -11871,11 +11819,16 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 		iScore = -1; //don't ever go there, wouldn't work anyway
 		break;
 	case CvTacticalPlot::TP_FRONTLINE:
-		iScore = 2; //dangerous, only in emergencies
+		iScore = tactPlot.isFriendlyCombatUnit() ? 2 : -1; //dangerous, only in emergencies
 		break;
 	case CvTacticalPlot::TP_SECONDLINE:
 	case CvTacticalPlot::TP_THIRDLINE:
-		iScore = 23; //nice. different to first line is worth more than two adjacent units
+		if (tactPlot.isFriendlyCombatUnit())
+			iScore = 24; //nice. different to first line is worth more than two adjacent units
+		else if (tactPlot.getNumAdjacentFriendlies() > 0)
+			iScore = 3; //dangerous
+		else
+			iScore = -1; //nobody around? don't go there
 		break;
 	case CvTacticalPlot::TP_FARAWAY:
 		iScore = 1;	//possible but not really useful
@@ -11903,9 +11856,15 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 		//if we intend to stay there, there must be a defender which intends to stay
 		if (plot.iMovesLeft == 0 || plot.iPlotIndex == unit.iPlotIndex)
 		{
-			STacticalAssignment defenderAssignment = assumedPosition.findBlockingUnitAtPlot(tactPlot.getPlotIndex());
-			if (defenderAssignment.iUnitID==0 || defenderAssignment.iRemainingMoves>0)
-				iScore = 0;
+			CvUnit* pUnit = GET_PLAYER(assumedPosition.getPlayer()).getUnit(unit.iUnitID);
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(plot.iPlotIndex);
+			
+			if (!pPlot->isFriendlyCity(*pUnit,true)) //check only applies outside of cities
+			{
+				STacticalAssignment defenderAssignment = assumedPosition.findBlockingUnitAtPlot(tactPlot.getPlotIndex());
+				if (defenderAssignment.iUnitID == 0 || defenderAssignment.iRemainingMoves > 0)
+					iScore = 0;
+			}
 		}
 	}
 

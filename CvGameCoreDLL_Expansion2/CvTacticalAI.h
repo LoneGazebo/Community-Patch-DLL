@@ -1210,7 +1210,7 @@ namespace TacticalAIHelpers
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 
 	bool PerformRangedAttackWithoutMoving(CvUnit* pUnit);
-	bool PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pTarget);
+	bool PerformOpportunityAttack(CvUnit* pUnit);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
 	bool CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iDeployRange);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);

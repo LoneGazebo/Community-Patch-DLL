@@ -15309,13 +15309,14 @@ bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) 
 	return false;
 }
 
-CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) const
+vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const
 {
+	vector<CvUnit*> result;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
 		CvPlot *pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL && !pLoopPlot->isCity()) //ignore units in cities
 		{
 			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
@@ -15328,7 +15329,7 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 				if(pLoopUnit)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked() && !pLoopUnit->isDelayedDeath())
 					{
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
@@ -15338,7 +15339,7 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 							// Must be same domain
 							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
 							{
-								return pLoopUnit;
+								result.push_back(pLoopUnit);
 							}
 						}
 					}
@@ -15346,7 +15347,8 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 			}
 		}
 	}
-	return NULL;
+
+	return result;
 }
 
 int CvPlot::GetAdjacentEnemyPower(PlayerTypes ePlayer) const
