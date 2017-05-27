@@ -240,8 +240,17 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		{
 			//sea units can typically not leave their area - catch this case, 
 			//else there will be a long and useless pathfinding operation
-			if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
-				continue;
+			CvPlot* pCurPlot = pUnit->plot();
+			if (pCurPlot->isCity())
+			{
+				if (!pCurPlot->getPlotCity()->isMatchingArea(vExplorePlots[ui].pPlot))
+					continue;
+			}
+			else
+			{
+				if (pCurPlot->getArea() != vExplorePlots[ui].pPlot->getArea())
+					continue;
+			}
 		}
 
 		if(vExplorePlots[ui].pPlot == pUnit->plot())
@@ -3620,6 +3629,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		int iBestPlotScore = 0;
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
+		//if the scout is already embarked, we need to allow it so we don't get stuck!
 		ReachablePlots eligiblePlots;
 		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, pUnit->isEmbarked());
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
@@ -3633,10 +3643,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				continue;
 
 			//don't embark to reach a close-range target
-			if(pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
-				continue;
-			//Ignore land for sea explorers
-			if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
+			if(pEvalPlot->needsEmbarkation(pUnit))
 				continue;
 
 			//see if we can make an easy kill
