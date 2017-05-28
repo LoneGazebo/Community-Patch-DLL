@@ -4587,7 +4587,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		// Is the target of an appropriate type?
 		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
+		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT )
 		{
 			int iDistance = plotDistance(m_AllTargets[iI].GetTargetX(),m_AllTargets[iI].GetTargetY(),pArmy->GetX(),pArmy->GetY());
 			if (iDistance<iRange && iDistance<iMinDist)
@@ -10916,17 +10916,17 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger+=20;
 
 		//use city distance as tiebreaker
-		iDanger = iDanger * 10 + iCityDistance;
+		int iScore = iDanger * 10 + iCityDistance;
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
 		if (bWrongDomain)
-			iDanger += 500;
+			iScore += 500;
 
 		if(bIsInCity)
 		{
 			if (!pPlot->getPlotCity()->isInDangerOfFalling())
-				aCityList.push_back(pPlot, iDanger);
+				aCityList.push_back(pPlot, iScore);
 		}
 		else if(bIsZeroDanger)
 		{
@@ -10936,11 +10936,11 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		}
 		else if(bIsInCover) //mostly relevant for civilians - when in doubt go home
 		{
-			aCoverList.push_back(pPlot, iDanger - iCityDistance);
+			aCoverList.push_back(pPlot, iScore - iCityDistance);
 		}
 		else if( (!bLowDangerOnly || iDanger<pUnit->GetCurrHitPoints()) && (!bWouldEmbark || bAllowEmbark) )
 		{
-			aDangerList.push_back(pPlot, iDanger);
+			aDangerList.push_back(pPlot, iScore);
 		}
 	}
 
@@ -11148,6 +11148,10 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const C
 			pCity->getStrengthValue(),
 			pAttacker->GetMaxAttackStrength(pAttackerPlot, pCity->plot(), NULL),
 			pCity->getDamage() + iExtraDefenderDamage, false, true, false);
+
+		//if both would die, the attacking unit survives!
+		if (pCity->getDamage() + iExtraDefenderDamage + iDamage >= pCity->GetMaxHitPoints() && pAttacker->getDamage() + iAttackerDamage >= pAttacker->GetMaxHitPoints())
+			iAttackerDamage = pAttacker->GetMaxHitPoints() - pAttacker->getDamage() - 1;
 	}
 
 	return iDamage;
@@ -12409,8 +12413,15 @@ bool CvTacticalPosition::movesAreEquivalent(const vector<STacticalAssignment>& s
 
 void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const
 {
+	if (chosen.empty())
+		return;
+
 	for (vector<STacticalAssignment>::const_iterator itChoice = choice.begin(); itChoice != choice.end(); ++itChoice)
 	{
+		//don't combine good moves with crap moves
+		if (itChoice->iScore < chosen.front().iScore / 4)
+			break; //choice is sorted!
+
 		if (isMoveBlockedByOtherUnit(*itChoice))
 		{
 			int iBlockingUnitID = findBlockingUnitAtPlot(itChoice->iToPlotIndex).iUnitID;
