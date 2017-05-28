@@ -118,7 +118,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTradeMissionGoldModifier(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iBarbarianCombatBonus(0),
+	m_iGoodyHutYieldBonus(0),
 	m_bGainsXPFromScouting(false),
+	m_bGainsXPFromPillaging(false),
+	m_bGainsXPFromSpotting(false),
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
 	m_bCityStateOnly(false),
@@ -166,6 +169,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iSplashDamage(0),
 	m_iMinRange(0),
 	m_iMaxRange(0),
+	m_iMultiAttackBonus(0),
 	m_bMountainsDoubleMove(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -327,7 +331,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//Basic Properties
 #if defined(MOD_BALANCE_CORE)
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
+	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
+	m_bGainsXPFromPillaging = kResults.GetBool("GainsXPFromPillaging");
+	m_bGainsXPFromSpotting = kResults.GetBool("GainsXPFromSpotting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
@@ -382,6 +389,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iSplashDamage = kResults.GetInt("SplashDamage");
 	m_iMinRange = kResults.GetInt("MinimumRangeRequired");
 	m_iMaxRange = kResults.GetInt("MaximumRangeRequired");
+	m_iMultiAttackBonus = kResults.GetInt("MultiAttackBonus");
 	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -391,9 +399,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-	if (MOD_PROMOTIONS_CROSS_OCEANS) {
-		m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
-	}
+	m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	if (MOD_PROMOTIONS_CROSS_ICE) {
@@ -1628,11 +1634,30 @@ int CvPromotionEntry::GetTradeMissionGoldModifier() const
 	return m_iTradeMissionGoldModifier;
 }
 #if defined(MOD_BALANCE_CORE)
+
+int CvPromotionEntry::GetGoodyHutYieldBonus() const
+{
+	return m_iGoodyHutYieldBonus;
+}
 /// Accessor: Can this Promotion grant XP from scouting?
 bool CvPromotionEntry::IsGainsXPFromScouting() const
 {
 	return m_bGainsXPFromScouting;
 }
+
+/// Accessor: Can this Promotion grant XP from pillaging?
+bool CvPromotionEntry::IsGainsXPFromPillaging() const
+{
+	return m_bGainsXPFromPillaging;
+}
+
+/// Accessor: Can this Promotion grant XP from spotting?
+bool CvPromotionEntry::IsGainsXPFromSpotting() const
+{
+	return m_bGainsXPFromSpotting;
+}
+
+
 /// Accessor: Can this Promotion grant bonuses v. barbarians?
 int CvPromotionEntry::GetBarbarianCombatBonus() const
 {
@@ -1855,6 +1880,10 @@ int CvPromotionEntry::GetMinRange() const
 int CvPromotionEntry::GetMaxRange() const
 {
 	return m_iMaxRange;
+}
+int CvPromotionEntry::GetMultiAttackBonus() const
+{
+	return m_iMultiAttackBonus;
 }
 /// Accessor: Double movement in hills
 bool CvPromotionEntry::IsMountainsDoubleMove() const

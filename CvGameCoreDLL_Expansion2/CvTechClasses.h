@@ -285,6 +285,11 @@ public:
 	int GetResearchProgress(TechTypes eTech) const;
 	int GetMedianTechResearch() const;
 
+	bool HasUUTech() const;
+	void CheckHasUUTech();
+	void CheckWillHaveUUTechSoon();
+	bool WillHaveUUTechSoon() const;
+
 private:
 	void AddFlavorAsStrategies(int iPropagatePercent);
 
@@ -296,6 +301,8 @@ private:
 	int* m_piLocaleTechPriority;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piGSTechPriority;
+	bool m_bHasUUTech;
+	bool m_bWillHaveUUTechSoon;
 #endif
 	ResourceTypes* m_peLocaleTechResources;
 	UnitTypes* m_peCivTechUniqueUnits;

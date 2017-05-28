@@ -8,13 +8,13 @@
 DELETE FROM Leader_Flavors;
 
 -- Personality Types
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_MILITARY_TRAINING',        Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_OFFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_DEFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_MILITARY_TRAINING',        Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_OFFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_DEFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_CITY_DEFENSE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_MOBILE',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_MOBILE',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_RECON',                    Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_RANGED',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_RANGED',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_NAVAL',                    Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_NAVAL_RECON',              Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_NAVAL_GROWTH',             Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
@@ -36,7 +36,7 @@ INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_RELIGION',                 Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_GREAT_PEOPLE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_HAPPINESS',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_EXPANSION',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_EXPANSION',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_TILE_IMPROVEMENT',         Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_INFRASTRUCTURE',           Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_WATER_CONNECTION',         Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
@@ -44,7 +44,7 @@ INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_I_SEA_TRADE_ROUTE',        Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_I_TRADE_ORIGIN',           Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_I_TRADE_DESTINATION',      Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_WONDER',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_WONDER',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   2, 'FLAVOR_DIPLOMACY',                Type FROM Leaders WHERE Personality = 'PERSONALITY_CONQUEROR';
 
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_MILITARY_TRAINING',        Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
@@ -75,7 +75,7 @@ INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_RELIGION',                 Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_GREAT_PEOPLE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_HAPPINESS',                Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_EXPANSION',                Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_EXPANSION',                Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_TILE_IMPROVEMENT',         Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_INFRASTRUCTURE',           Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_WATER_CONNECTION',         Type FROM Leaders WHERE Personality = 'PERSONALITY_COALITION';
@@ -88,11 +88,11 @@ INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   
 
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   3, 'FLAVOR_MILITARY_TRAINING',        Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_OFFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_DEFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_CITY_DEFENSE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_DEFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_CITY_DEFENSE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_MOBILE',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_RECON',                    Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_RANGED',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_RANGED',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_NAVAL',                    Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_NAVAL_RECON',              Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_NAVAL_GROWTH',             Type FROM Leaders WHERE Personality = 'PERSONALITY_DIPLOMAT';
@@ -129,21 +129,21 @@ INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_OFFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_DEFENSE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_CITY_DEFENSE',             Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_MOBILE',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_MOBILE',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_RECON',                    Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_RANGED',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   8, 'FLAVOR_RANGED',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_NAVAL',                    Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_NAVAL_RECON',              Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_NAVAL_GROWTH',             Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_NAVAL_TILE_IMPROVEMENT',   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_AIR',                      Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_ANTIAIR',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_AIRLIFT',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_AIR',                      Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_ANTIAIR',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_AIRLIFT',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_AIR_CARRIER',              Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_USE_NUKE',                 Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   4, 'FLAVOR_NUKE',                     Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   9, 'FLAVOR_GROWTH',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
-INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   6, 'FLAVOR_PRODUCTION',               Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_GROWTH',                   Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
+INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_PRODUCTION',               Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_GOLD',                     Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   7, 'FLAVOR_SCIENCE',                  Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 INSERT OR REPLACE INTO Leader_Flavors(Flavor, FlavorType , LeaderType) SELECT   5, 'FLAVOR_SPACESHIP',                Type FROM Leaders WHERE Personality = 'PERSONALITY_EXPANSIONIST';
@@ -271,8 +271,9 @@ UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_CULTURE'     
 UPDATE Leader_Flavors SET Flavor =   9 WHERE FlavorType = 'FLAVOR_OFFENSE'                     AND LeaderType = 'LEADER_NAPOLEON';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_SCIENCE'                    AND LeaderType = 'LEADER_NEBUCHADNEZZAR';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE'                    AND LeaderType = 'LEADER_NEBUCHADNEZZAR';
-UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING'                     AND LeaderType = 'LEADER_ODA_NOBUNAGA';
+UPDATE Leader_Flavors SET Flavor =   9 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING'                     AND LeaderType = 'LEADER_ODA_NOBUNAGA';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_CULTURE'                     AND LeaderType = 'LEADER_ODA_NOBUNAGA';
+UPDATE Leader_Flavors SET Flavor =   9 WHERE FlavorType = 'FLAVOR_OFFENSE'                     AND LeaderType = 'LEADER_ODA_NOBUNAGA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_SCIENCE'                     AND LeaderType = 'LEADER_PACAL';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE'                     AND LeaderType = 'LEADER_PACAL';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_CULTURE'                  AND LeaderType = 'LEADER_PEDRO';

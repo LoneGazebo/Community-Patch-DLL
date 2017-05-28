@@ -299,7 +299,7 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
-	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
+	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
 
 	//units which can cause or lift a blockade

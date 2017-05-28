@@ -329,6 +329,7 @@ CvCity::CvCity() :
 	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
+	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
 	, m_aiYieldFromKnownPantheons("CvCity::m_aiYieldFromKnownPantheons", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
@@ -974,7 +975,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				changeOverflowProduction(GC.getINITIAL_AI_CITY_PRODUCTION());
 #if defined(ACHIEVEMENT_HACKS)
-			} else {
+			}
+			else
+			{
 				CvAchievementUnlocker::UnlockFromDatabase();
 #endif
 			}
@@ -1496,6 +1499,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iFreeBuildingTradeTargetCity = -1;
 	m_iBaseTourism = 0;
 	m_iBaseTourismBeforeModifiers = 0;
+	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
@@ -1540,6 +1544,11 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_aiEconomicValue.setAt(iI, 0);
+		
+	}
+	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
+	{
+		m_aiNumTimesAttackedThisTurn.setAt(iI, 0);
 	}
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
@@ -2721,6 +2730,10 @@ void CvCity::doTurn()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
+	}
 	//See if we are a defense-necessary city.
 	TestBastion();
 	//Do bad barb stuff!
@@ -13464,6 +13477,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
+										pLoopPlot->DoFindCityToLinkResourceTo();
 										iNumResourceGiven++;
 										if(iNumResourceGiven >= iNumResourceTotal)
 										{
@@ -13489,6 +13503,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
+											pLoopPlot->DoFindCityToLinkResourceTo();
 											iNumResourceGiven++;
 											if(iNumResourceGiven >= iNumResourceTotal)
 											{
@@ -13876,6 +13891,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						{
 							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 							pLoopPlot->setResourceType(eResource, pBuildingInfo->GetResourceQuantityToPlace(), false);
+							pLoopPlot->DoFindCityToLinkResourceTo();
 							iNumResourcePlotsGiven++;
 							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 							{
@@ -13889,10 +13905,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										}
 									}
 								}
-							}
-							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
-							{
-								break;
 							}
 							if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 							{
@@ -13925,6 +13937,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 									}
 								}
+							}
+							if(iNumResourcePlotsGiven >= iNumResourceTotalPlots)
+							{
+								break;
 							}
 						}
 					}
@@ -15457,7 +15473,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
 			if(iTempMod != 0)
 			{
-				iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 				iTotalMod += iTempMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
@@ -21512,7 +21528,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
 		if (iTempMod != 0)
 		{
-			iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+			iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 			iModifier += iTempMod;
 			if(toolTipSink)
 			{
@@ -23307,7 +23323,7 @@ void CvCity::DoBarbIncursion()
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
-					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 4) : (pUnit->GetBaseCombatStrength() * 4);
+					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
 					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, *plot()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
@@ -23420,6 +23436,8 @@ void CvCity::DoBarbIncursion()
 							{
 								if((getProduction() > 0) && (getProductionTurnsLeft() >= 2) && (getProductionTurnsLeft() != INT_MAX))
 								{
+									iTheft *= 2;
+									iTheft /= 3;
 									int iProduction = ((getBaseYieldRate(YIELD_PRODUCTION) * iTheft) / 100);
 									if(iProduction > 0)
 									{
@@ -29339,6 +29357,22 @@ void CvCity::setMadeAttack(bool bNewValue)
 	m_bMadeAttack = bNewValue;
 }
 
+void CvCity::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "ePlayer expected to be >= 0");
+	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "ePlayer expected to be < NUM_DOMAIN_TYPES");
+	m_aiNumTimesAttackedThisTurn.setAt(ePlayer, m_aiNumTimesAttackedThisTurn[ePlayer] + iValue);
+}
+int CvCity::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < REALLY_MAX_PLAYERS, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	return m_aiNumTimesAttackedThisTurn[ePlayer];
+}
+
+
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 //	--------------------------------------------------------------------------------
 int CvCity::getBombardRange() const
@@ -29800,6 +29834,18 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 
 	// Bring it back out of hundreds
 	iAttackerDamage /= 100;
+
+	//bonus for attacking same unit over and over in a turn?
+	if (pDefender != NULL)
+	{
+		int iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+		if (iTempModifier != 0)
+		{
+			iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
+			iAttackerDamage *= (iTempModifier + 100);
+			iAttackerDamage /= 100;
+		}
+	}
 
 	// Always do at least 1 damage
 	int iMinDamage = /*1*/ GC.getMIN_CITY_STRIKE_DAMAGE();
@@ -31372,7 +31418,12 @@ bool CvCity::isInDangerOfFalling() const
 {
 	int iHitpoints = GetMaxHitPoints() - getDamage();
 	//be conservative here ...
-	return (m_iDamageTakenLastTurn*1.5 > iHitpoints);
+	if (m_iDamageTakenLastTurn*1.5 > iHitpoints)
+	{
+		GET_PLAYER(getOwner()).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
+		return true;
+	}
+	return false;
 }
 
 bool CvCity::isUnderSiege() const

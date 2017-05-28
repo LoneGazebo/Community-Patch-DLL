@@ -382,6 +382,12 @@
 			<Text>Target below/at 50 HP</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
+			<Text>Multi-Attack Bonus</Text>
+		</Row>
+
+		
+
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
 		</Row>

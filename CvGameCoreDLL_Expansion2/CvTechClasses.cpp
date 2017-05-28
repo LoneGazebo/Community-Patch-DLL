@@ -702,6 +702,8 @@ CvPlayerTechs::CvPlayerTechs():
 	m_piLocaleTechPriority(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piGSTechPriority(NULL),
+	m_bHasUUTech(false),
+	m_bWillHaveUUTechSoon(false),
 #endif
 	m_peLocaleTechResources(NULL),
 	m_peCivTechUniqueBuildings(NULL),
@@ -767,7 +769,7 @@ void CvPlayerTechs::Uninit()
 	SAFE_DELETE_ARRAY(m_piCivTechPriority);
 	SAFE_DELETE_ARRAY(m_piLocaleTechPriority);
 #if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_piGSTechPriority );
+	SAFE_DELETE_ARRAY(m_piGSTechPriority);
 #endif
 	SAFE_DELETE_ARRAY(m_peLocaleTechResources);
 	SAFE_DELETE_ARRAY(m_peCivTechUniqueBuildings);
@@ -795,6 +797,9 @@ void CvPlayerTechs::Reset()
 		m_peCivTechUniqueBuildings[iI] = NO_BUILDING;
 		m_peCivTechUniqueImprovements[iI] = NO_IMPROVEMENT;
 	}
+
+	m_bHasUUTech = false;
+	m_bWillHaveUUTechSoon = false;
 
 	// Tweak tech priorities to recognize unique properties of this civ
 	if(!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->getCivilizationType() != NO_CIVILIZATION)
@@ -960,6 +965,9 @@ void CvPlayerTechs::Read(FDataStream& kStream)
 
 	ArrayWrapper<int> kLatestFlavorWrapper(iNumFlavors, m_piLatestFlavorValues);
 	kStream >> kLatestFlavorWrapper;
+
+	kStream >> m_bHasUUTech;
+	kStream >> m_bWillHaveUUTechSoon;
 }
 
 /// Serialization write
@@ -994,6 +1002,9 @@ void CvPlayerTechs::Write(FDataStream& kStream)
 	CvAssertMsg(m_piLatestFlavorValues != NULL && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
 	kStream << GC.getNumFlavorTypes();
 	kStream << ArrayWrapper<int>(GC.getNumFlavorTypes(), m_piLatestFlavorValues);
+
+	kStream << m_bHasUUTech;
+	kStream << m_bWillHaveUUTechSoon;
 }
 
 /// Respond to a new set of flavor values
@@ -1002,6 +1013,11 @@ void CvPlayerTechs::FlavorUpdate()
 	SetLocalePriorities();
 #if defined(MOD_BALANCE_CORE)
 	SetGSPriorities();
+	if(GetPlayer()->HasUUPeriod())
+	{
+		CheckHasUUTech();
+		CheckWillHaveUUTechSoon();
+	}
 #endif
 	AddFlavorAsStrategies(GC.getTECH_WEIGHT_PROPAGATION_PERCENT());
 }
@@ -1755,6 +1771,12 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	// Mod for City Count
 	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	iMod += m_pPlayer->GetTechCostXCitiesModifier();
+
+	//Never less than 1%!
+	if (iMod <= 1)
+		iMod = 1;
+
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ false);
@@ -1834,6 +1856,142 @@ int CvPlayerTechs::GetMedianTechResearch() const
 	}
 
 	return iRtnValue;
+}
+
+bool CvPlayerTechs::HasUUTech() const
+{
+	return m_bHasUUTech;
+}
+
+void CvPlayerTechs::CheckHasUUTech()
+{
+	bool bHas = false;
+	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
+	if (pkInfo)
+	{
+		// Loop through all units
+		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+		{
+			if (bHas)
+				break;
+
+			// Is this one overridden for our civ?
+			if (pkInfo->isCivilizationUnitOverridden(iI))
+			{
+				UnitTypes eCivilizationUnit = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(iI));
+				if (eCivilizationUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
+					if (pkUnitEntry)
+					{
+						int iTech = pkUnitEntry->GetPrereqAndTech();
+						int iObsoleteTech = pkUnitEntry->GetObsoleteTech();
+						if (iTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iTech))
+						{
+							bHas = true;
+						}
+						else if (iTech == NO_TECH)
+						{
+							bHas = true;
+						}
+						if (iObsoleteTech != NO_TECH && m_pPlayer->HasTech((TechTypes)iObsoleteTech))
+						{
+							bHas = false;
+						}			
+					}
+				}
+			}
+		}
+	}
+	if (m_bHasUUTech != bHas)
+	{
+		m_bHasUUTech = bHas;
+		if ((GC.getLogging() && GC.getAILogging()))
+		{
+			CvString strLogString;
+			strLogString.Format("We have our unique unit now - tuning our diplomacy to match");
+			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
+	}
+}
+
+void CvPlayerTechs::CheckWillHaveUUTechSoon()
+{
+	//Already have? Set this false!
+	if (HasUUTech())
+	{
+		if (m_bWillHaveUUTechSoon)
+			m_bWillHaveUUTechSoon = false;
+
+		return;
+	}
+
+	//Already know this? Shutup, baby, I know it!
+	if (m_bWillHaveUUTechSoon)
+		return;
+
+	bool bWillHaveSoon = false;
+	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
+	if (pkInfo)
+	{
+		// Loop through all units
+		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+		{
+			// Is this one overridden for our civ?
+			if (pkInfo->isCivilizationUnitOverridden(iI))
+			{
+				UnitTypes eCivilizationUnit = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(iI));
+				if (eCivilizationUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
+					if (pkUnitEntry)
+					{
+						int iTech = pkUnitEntry->GetPrereqAndTech();
+						if (iTech != NO_TECH && !m_pPlayer->HasTech((TechTypes)iTech))
+						{
+							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)iTech);
+							if (pkTechInfo)
+							{
+								if (IsResearchingTech((TechTypes)iTech))
+								{
+									bWillHaveSoon = true;
+									break;
+								}
+								else
+								{
+									// See if it is possible based on AND prereqs
+									for (int iJ = 0; iJ < GC.getNUM_AND_TECH_PREREQS(); iJ++)
+									{
+										TechTypes ePrereq = (TechTypes)pkTechInfo->GetPrereqAndTechs(iJ);
+										if (ePrereq != NO_TECH && IsResearchingTech(ePrereq))
+										{
+											bWillHaveSoon = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if (m_bWillHaveUUTechSoon != bWillHaveSoon)
+	{
+		m_bWillHaveUUTechSoon = bWillHaveSoon;
+		if ((GC.getLogging() && GC.getAILogging()))
+		{
+			CvString strLogString;
+			strLogString.Format("We are about to have our unique unit - tuning our diplomacy to match");
+			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
+	}
+}
+
+bool CvPlayerTechs::WillHaveUUTechSoon() const
+{
+	return m_bWillHaveUUTechSoon;
 }
 
 // PRIVATE METHODS
@@ -2258,6 +2416,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
 		iResearchCost = (iResearchCost * 100) / iResearchMod;
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
+		iNumCitiesMod += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{

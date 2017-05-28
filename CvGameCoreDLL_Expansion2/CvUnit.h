@@ -673,9 +673,20 @@ public:
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
 
+	void SetSpottedEnemy(bool bValue);
+	bool IsSpottedEnemy();
+
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
+
+	bool IsGainsXPFromSpotting() const;
+	int GetGainsXPFromSpotting() const;
+	void ChangeGainsXPFromSpotting(int iValue);
+
+	bool IsGainsXPFromPillaging() const;
+	int GetGainsXPFromPillaging() const;
+	void ChangeGainsXPFromPillaging(int iValue);
 
 	bool IsGainsYieldFromScouting() const;
 
@@ -963,6 +974,9 @@ public:
 
 	int getSplashDamage() const;
 	void changeSplashDamage(int iChange);
+
+	int getMultiAttackBonus() const;
+	void changeMultiAttackBonus(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1194,6 +1208,10 @@ public:
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+
+	int GetGoodyHutYieldBonus() const;
+	void ChangeGoodyHutYieldBonus(int iChange);
+
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
@@ -1372,6 +1390,9 @@ public:
 	int getFeatureDoubleHeal(FeatureTypes eIndex) const;
 	bool isFeatureDoubleHeal(FeatureTypes eIndex) const;
 	void changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange);
+
+	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
+	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
 #endif
 
 	int getImpassableCount() const;
@@ -1755,6 +1776,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
+	FAutoVariable<int, CvUnit> m_iMultiAttackBonus;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
@@ -1853,7 +1875,10 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
+	FAutoVariable<int, CvUnit> m_bSpottedEnemy;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
+	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
+	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
@@ -1913,6 +1938,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
+	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
@@ -1977,6 +2003,7 @@ protected:
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureAttackPercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureDefensePercent;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvUnit> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromScouting;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)

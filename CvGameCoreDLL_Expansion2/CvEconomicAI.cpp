@@ -1138,6 +1138,12 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 				else
 					iResultValue += iSmallScore;
 			}
+
+			//recon should gravitate towards enemy lands during war.
+			if (pLoopPlot->getOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(pLoopPlot->getOwner()).getTeam()).isAtWar(pPlayer->getTeam()))
+			{
+				iResultValue *= 2;
+			}
 		}
 	}
 
@@ -2883,11 +2889,11 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		}
 	}
 
-	if(iNumUnimprovedPlots > 0)
+	if(iNumUnimprovedPlots > iNumWorkers)
 	{
 		return;
 	}
-	else if(iNumUnimprovedPlots > iNumWorkers)
+	else if(iNumWorkers > iNumUnimprovedPlots)
 	{
 		m_iLastTurnWorkerDisbanded = GC.getGame().getGameTurn();
 

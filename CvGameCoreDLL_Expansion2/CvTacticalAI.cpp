@@ -11763,6 +11763,8 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				result.iScore += 10;
 			else if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
 				result.iScore += 50;
+			else if (pUnit->IsGainsXPFromPillaging())
+				result.iScore += 25;
 
 			result.eType = STacticalAssignment::A_PILLAGE;
 		}

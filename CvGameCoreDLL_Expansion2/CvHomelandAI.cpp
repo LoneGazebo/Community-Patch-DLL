@@ -3646,6 +3646,18 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(pEvalPlot->needsEmbarkation(pUnit))
 				continue;
 
+			if (pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pEvalPlot))
+			{
+				pUnit->pillage();
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s pillaged a plot because we get XP, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
+
 			//see if we can make an easy kill
 			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
 			if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit,pEnemyUnit))
@@ -5743,23 +5755,24 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) {
-#endif
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-	if(pMyReligion)
+	if (!MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS) 
 	{
-		pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-		if (pHolyCityPlot != NULL)
+#endif
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+		if(pMyReligion)
 		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-			if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+			pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+			if (pHolyCityPlot != NULL)
 			{
-				bKeepHolyCityClear = true;
+				pHolyCity = pHolyCityPlot->getPlotCity();
+				if (pHolyCity && pHolyCity->isCoastal() && pHolyCity->getOwner() == m_pPlayer->GetID())
+				{
+					bKeepHolyCityClear = true;
+				}
 			}
 		}
-	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	}
 #endif

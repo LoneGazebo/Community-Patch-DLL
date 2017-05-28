@@ -3254,7 +3254,7 @@ void CvMilitaryAI::UpdateBaseData()
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
 
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.5 to about 1.5)
-	fMultiplier = (float)0.50 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
+	fMultiplier = (float)0.25 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
 
 	// first get the number of defenders that we think we need
 
@@ -3266,6 +3266,8 @@ void CvMilitaryAI::UpdateBaseData()
 	iNumUnitsWanted += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	iNumUnitsWanted += m_pPlayer->GetCurrentEra();
+
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
 	PlayerTypes eOtherPlayer;
 	if(MOD_BALANCE_CORE_MILITARY && !m_pPlayer->isMinorCiv())
@@ -3280,11 +3282,11 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || m_pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						fMultiplier += 0.3f;
+						fMultiplier += 0.125f;
 					}
 					else if(m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						fMultiplier += 0.3f;
+						fMultiplier += 0.125f;
 					}
 				}
 			}
@@ -3300,8 +3302,8 @@ void CvMilitaryAI::UpdateBaseData()
 #endif
 
 	// add in a few for the difficulty level (all above Chieftain are boosted)
-	int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 1);
-	m_iMandatoryReserveSize += iDifficulty;
+	//int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 1);
+	//m_iMandatoryReserveSize += iDifficulty;
 
 	m_iMandatoryReserveSize = max(3,m_iMandatoryReserveSize);
 
@@ -3339,10 +3341,10 @@ void CvMilitaryAI::UpdateBaseData()
 		}
 
 		// add in a few more if the player is bold
-		iNumUnitsWanted += m_pPlayer->GetDiplomacyAI()->GetBoldness();
+		iNumUnitsWanted += (m_pPlayer->GetDiplomacyAI()->GetBoldness() / 2);
 
 		// add in more if we are playing on a high difficulty
-		iNumUnitsWanted += iDifficulty;
+		//iNumUnitsWanted += iDifficulty;
 
 		iNumUnitsWanted = (int)((float)iNumUnitsWanted * fMultiplier);
 
@@ -4219,7 +4221,7 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 {
 	//Not perfect, as some operations are mixed, but it will keep us from sending everyone to slaughter all at once.
 	int iReservesTotal = ((m_iNumLandUnits + m_iNumNavalUnits) - (m_iNumNavalUnitsInArmies + m_iNumLandUnitsInArmies));
-	if(iReservesTotal > m_iMandatoryReserveSize)
+	if(iReservesTotal >= m_iMandatoryReserveSize)
 	{
 		int iOperationID;
 		int iNumRequiredSlots;
@@ -4293,7 +4295,7 @@ void CvMilitaryAI::DoSeaAttacks(PlayerTypes ePlayer)
 {
 	//Not perfect, as some operations are mixed, but it will keep us from sending everyone to slaughter all at once.
 	int iReservesTotal = ((m_iNumLandUnits + m_iNumNavalUnits) - (m_iNumNavalUnitsInArmies + m_iNumLandUnitsInArmies));
-	if(iReservesTotal > m_iMandatoryReserveSize)
+	if(iReservesTotal >= m_iMandatoryReserveSize)
 	{
 		int iNumRequiredSlots;
 		int iFilledSlots;

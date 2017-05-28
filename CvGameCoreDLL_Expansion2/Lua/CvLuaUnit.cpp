@@ -366,6 +366,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(IsMounted);
 	Method(IsStrongerDamaged);
+	Method(GetMultiAttackBonus);
+	Method(GetMultiAttackBonusCity);
 	Method(BarbarianCombatBonus);
 #endif
 	Method(DomainModifier);
@@ -3688,6 +3690,50 @@ int CvLuaUnit::lIsStrongerDamaged(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetMultiAttackBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+
+	if (pkUnit == NULL || pkOtherUnit == NULL)
+		return 0;
+
+	int iModifier = 0;
+	//bonus for attacking same unit over and over in a turn?
+	int iTempModifier = pkUnit->getMultiAttackBonus() + GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+	if (iTempModifier != 0)
+	{
+		iTempModifier *= pkOtherUnit->GetNumTimesAttackedThisTurn(pkUnit->getOwner());
+		iModifier += iTempModifier;
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetMultiAttackBonusCity(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
+
+	if (pkUnit == NULL || pkCity == NULL)
+		return 0;
+
+	int iModifier = 0;
+	//bonus for attacking same unit over and over in a turn?
+	int iTempModifier = pkUnit->getMultiAttackBonus() + GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+	if (iTempModifier != 0)
+	{
+		iTempModifier *= pkCity->GetNumTimesAttackedThisTurn(pkUnit->getOwner());
+		iModifier += iTempModifier;
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //int domainModifier(int /*DomainTypes*/ eDomain);

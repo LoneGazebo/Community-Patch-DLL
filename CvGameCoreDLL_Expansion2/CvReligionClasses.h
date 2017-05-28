@@ -669,7 +669,7 @@ private:
 	bool AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const;
 	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter) const;
 	bool HaveEnoughInquisitors(ReligionTypes eReligion) const;
-	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL) const;
+	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL, bool bEvaluateBestPurchase = false) const;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool IsProphetGainRateAcceptable();
 	bool CanBuyNonFaithUnit() const;

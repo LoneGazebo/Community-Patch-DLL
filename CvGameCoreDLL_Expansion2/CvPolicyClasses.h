@@ -273,6 +273,7 @@ public:
 	int GetFreeChosenBuilding(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetResourceFromCSAlly(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromConstruction(int i) const;
@@ -282,6 +283,8 @@ public:
 	bool GetDoubleBorderGA() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
+	int GetGreatEngineerHurryModifier() const;
+	int GetTechCostXCitiesMod() const;
 	int GetCitadelBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
@@ -630,6 +633,7 @@ private:
 	int* m_paiFreeChosenBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int* m_piResourcefromCSAlly;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromConstruction;
@@ -638,6 +642,8 @@ private:
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
 	int m_iGreatScientistBeakerModifier;
+	int m_iGreatEngineerHurryModifier;
+	int m_iTechCostXCitiesMod;
 	int m_iIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;

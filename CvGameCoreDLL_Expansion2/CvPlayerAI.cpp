@@ -2489,10 +2489,16 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		}
 
 		// Are we already Friends? If so, let's stay the course.
-		if(pMinorCivAI->IsFriends(GetID()))
+		else if(pMinorCivAI->IsFriends(GetID()))
 		{
 			iScore *= 4;
 		}
+		//No friends, and no points? Let's not completely ignore this.
+		else
+		{
+			iScore *= 2;
+		}
+		
 	}
 
 	// **************************
@@ -2521,7 +2527,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	}
 
 	//If this is way too far away, let's not penalize it too much.
-	iScore -= (iDistance * 4);
+	iScore -= (iDistance * 2);
 
 	//All CSs should theoretically be valuable if we've gotten this far.
 	if(iScore <= 0)

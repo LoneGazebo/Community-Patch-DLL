@@ -5540,6 +5540,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 					SetJerk(eLoopTeam, 0);
 				}
 			}
+			SetTurnsSinceRebellion(0);
 		}
 #endif
 		// Set new influence values
@@ -5978,6 +5979,10 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorGift, GetPlayer()->GetID(), ePlayer, iGift, iFriendshipBoost, 0, bFirstMajorCiv, false, szTxtKeySuffix);
 					}
 #endif
+					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetInfluenceMeetCS() != 0)
+					{
+						SetFriendshipWithMajor(ePlayer, GET_PLAYER(ePlayer).GetPlayerTraits()->GetInfluenceMeetCS(), /*bFromQuest*/ false);
+					}
 				}
 			}
 #if defined(MOD_GLOBAL_CS_GIFTS)
@@ -16016,7 +16021,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iBaseReluctanceScore = 0;
 	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iBaseReluctanceScore = -150;
+		iBaseReluctanceScore = -175;
 	}
 	else
 	{
@@ -16080,6 +16085,26 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// -300 ~ -0
 	// **************************
+	if (GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IsBullyAnnex() && GC.getGame().GetLastTurnCSAnnexed() > 0)
+	{
+		int iTurnLimit = 50;
+		iTurnLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iTurnLimit /= 100;
+
+		if ((GC.getGame().getGameTurn() - GC.getGame().GetLastTurnCSAnnexed()) < iTurnLimit)
+		{
+			int iInfluenceScore = iFailScore;
+			iScore += iInfluenceScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iInfluenceScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
+
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
 
 	if(iLastBullyTurn >= 0)
@@ -16706,6 +16731,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						strLogString.Format("%s annexed by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
 						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
+
+					GC.getGame().SetLastTurnCSAnnexed(GC.getGame().getGameTurn());
 
 					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, false, false);
 					return;

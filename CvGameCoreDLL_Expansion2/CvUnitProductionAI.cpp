@@ -482,14 +482,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Sanity check for buildable support units.
 		if(pkUnitEntry->IsCityAttackSupport())
 		{
+			int iTotalAlready = kPlayer.GetNumUnitsWithUnitAI(pkUnitEntry->GetDefaultUnitAIType());
 			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_BOMBARD, true, false);
-			if(iNum >= kPlayer.getNumCities())
+			if (iNum < iTotalAlready)
 			{
 				return 0;
 			}
 			else
 			{
-				iBonus += 20;
+				iBonus += 50 * (5 - iTotalAlready);
 			}
 		}
 
@@ -783,6 +784,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
+
+			if (MOD_DIPLOMACY_CITYSTATES)
+			{
+				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+				if (ePaper != NO_RESOURCE && kPlayer.getResourceFromCSAlliances(ePaper) > 0)
+				{
+					iInfluence *= 5;
+				}
+			}
+
 			if(bAlwaysOne && kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true, true) <= 0)
 			{
 				iInfluence *= 10;

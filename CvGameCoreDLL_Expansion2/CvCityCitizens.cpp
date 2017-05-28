@@ -1444,6 +1444,9 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 	SpecialistTypes eSpecialist;
 	int iValue;
 
+	if (m_pCity->GetResistanceTurns() > 0)
+		return NO_BUILDING;
+
 	// Loop through all Buildings
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{

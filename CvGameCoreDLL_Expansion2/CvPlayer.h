@@ -1131,6 +1131,14 @@ public:
 	void SetGreatScientistBeakerMod(int iValue);
 	void ChangeGreatScientistBeakerMod(int iChange);
 
+	int GetGreatEngineerHurryMod() const;
+	void SetGreatEngineerHurryMod(int iValue);
+	void ChangeGreatEngineerHurryMod(int iChange);	
+
+	int GetTechCostXCitiesModifier() const;
+	void SetTechCostXCitiesModifier(int iValue);
+	void ChangeTechCostXCitiesModifier(int iChange);
+
 	int GetGreatGeneralCombatBonus() const;
 	void SetGreatGeneralCombatBonus(int iValue);
 	void ChangeGreatGeneralCombatBonus(int iValue);
@@ -2046,6 +2054,11 @@ public:
 	int getResourceOverValue(ResourceTypes eIndex) const;
 	void changeResourceOverValue(ResourceTypes eIndex, int iChange);
 	void setResourceOverValue(ResourceTypes eIndex, int iChange);
+
+	int getResourceFromCSAlliances(ResourceTypes eIndex) const;
+	void changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
+	void setResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
+
 #endif
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -2595,6 +2608,9 @@ public:
 	bool HasAnyTradeRouteWith(PlayerTypes iPlayer) const;
 	bool HasUnit(UnitTypes iUnitType);
 	bool HasUnitClass(UnitClassTypes iUnitClassType);
+	bool HasUUActive();
+	bool HasUUPeriod() const;
+	void SetHasUUPeriod();
 
 	bool HasTrait(TraitTypes eTrait) const;
 	bool HasAnyHolyCity();
@@ -2939,6 +2955,8 @@ protected:
 #endif
 	FAutoVariable<int, CvPlayer> m_iGreatScientistRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatScientistBeakerModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatEngineerHurryMod;
+	FAutoVariable<int, CvPlayer> m_iTechCostXCitiesModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatEngineerRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatPersonExpendGold;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -3202,6 +3220,7 @@ protected:
 
 	FAutoVariable<uint, CvPlayer> m_uiStartTime;  // XXX save these?
 
+	FAutoVariable<bool, CvPlayer> m_bHasUUPeriod;
 	FAutoVariable<bool, CvPlayer> m_bHasBetrayedMinorCiv;
 	FAutoVariable<bool, CvPlayer> m_bAlive;
 	FAutoVariable<bool, CvPlayer> m_bEverAlive;
@@ -3232,6 +3251,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiJFDPoliticPercent;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromCSAlliances;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;

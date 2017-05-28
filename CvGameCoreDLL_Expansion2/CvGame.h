@@ -478,6 +478,9 @@ public:
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestPotential();
 	void DoBarbCountdown();
+
+	void SetLastTurnCSAnnexed(int iValue);
+	int GetLastTurnCSAnnexed();
 #endif
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
@@ -791,6 +794,7 @@ protected:
 	int m_iDefenseAverage;
 	int m_iGoldAverage;
 	int m_iGlobalPopulation;
+	int m_iLastTurnCSSurrendered;
 #endif
 
 	CvString m_strScriptData;

@@ -334,6 +334,13 @@
 		<Column name="Max" type="integer" default="0"/>
 	</Table>
 
+	<!-- POLICY: Allows you to define a resource gained from having a CS Ally) -->
+	<Table name="Policy_ResourcefromCSAlly">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ResourceType" type="integer" reference="Resources(Type)"/>
+		<Column name="Number" type="integer" default="0"/>
+	</Table>
+
 	<!-- POLICY: Allows you to define an instant yield granted when a building is constructed. (culture only - grants local border growth as well) -->
 	<Table name="Policy_YieldFromConstruction">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
@@ -534,6 +541,13 @@
 	
 	<!-- TRAIT: Allows you to define a yield that is gained if your pantheon or religion is the majority in a city.-->
 	<Table name="Trait_YieldFromOwnPantheon">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- TRAIT: Allows you to define a yield that is gained from units leveling up.-->
+	<Table name="Trait_YieldFromLevelUp">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>

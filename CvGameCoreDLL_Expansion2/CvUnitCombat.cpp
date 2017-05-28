@@ -505,6 +505,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		//don't count the "self-inflicted" damage on the attacker
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
+	
+		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 		// Update experience for both sides.
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -1153,6 +1155,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 							}
 						}
 					}
+					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 #endif
 
 					// Defender died
@@ -1374,6 +1377,8 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 
 				if(pkAttacker)
 				{
+					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
+
 					// Info message for the attacking player
 					if(iActivePlayerID == pkAttacker->getOwner())
 					{
@@ -1485,6 +1490,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
 #endif
+		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 #if defined(MOD_UNITS_XP_TIMES_100)
 		pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
@@ -2024,6 +2030,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted, pkAttacker);
 #endif
 
+					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
+
 					// Update experience
 #if defined(MOD_UNITS_XP_TIMES_100)
 					pkDefender->changeExperienceTimes100(100 * 
@@ -2149,6 +2157,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				pCity->clearCombat();
 				if(pkAttacker)
 				{
+					pCity->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 					pCity->changeDamage(iAttackerDamageInflicted);
 					pkAttacker->changeDamage(iDefenderDamageInflicted, pCity->getOwner());
 
@@ -4527,6 +4536,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 			}
 		}
 	}
+	pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 }
 
 void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo & kCombatInfo, uint uiParentEventID)
