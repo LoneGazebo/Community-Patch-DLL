@@ -1410,15 +1410,15 @@ void CvTacticalAI::FindTacticalTargets()
 						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>0)
 							continue;
 
-						int iWeight = (iDistance>1) ? 50 : 0;
+						int iWeight = (iDistance>1) ? 10 : 0;
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							iWeight += 50;
+							iWeight += 10;
 
 						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || pWorkingCity->IsBlockaded(true))
-							iWeight *= 10;
+							iWeight *= 2;
 
 						if (pWorkingCity->IsBastion())
-							iWeight *= 5;
+							iWeight *= 2;
 
 						if (pWorkingCity->getDamage() > 0)
 							iWeight *= 2;
@@ -7295,16 +7295,14 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone, bool bOffensive)
 {
 	CvOperationUnit unit;
-	int iDistance;
-	int iRangedUnits = 0;
-	int iMeleeUnits = 0;
-	int iGenerals = 0;
 	list<int>::iterator it;
 	int iTacticalRadius = GetTacticalAnalysisMap()->GetTacticalRange();
 
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
+
+	vector<CvOperationUnit> landMelee, landRanged, navalMelee, navalRanged;
 
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
@@ -7316,7 +7314,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			        (pZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA || !pZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND))
 			{	
 				// Find units really close to target or somewhat close that just came out of an operation
-				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
+				int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
 				if(iDistance <= iTacticalRadius || (iDistance <= iTacticalRadius*2 && pUnit->IsRecentlyDeployedFromOperation()))
 				{
 					//don't run away if there's work to do (will eventually be handled by ExecuteAttackWithUnits)
@@ -7328,32 +7326,41 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
 					{
 						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
-						iGenerals++;
 						m_GeneralsToMove.push_back(unit);
 					}
 					else if(pUnit->IsCanAttackRanged() && pUnit->GetRange() > 1)
 					{
 						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_BOMBARD]);
-						iRangedUnits++;
-						m_OperationUnits.push_back(unit);
+						if (pUnit->getDomainType()==DOMAIN_SEA)
+							navalRanged.push_back(unit);
+						else
+							landRanged.push_back(unit);
 					}
 					else
 					{
 						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_FRONT_LINE]);
-						iMeleeUnits++;
-						m_OperationUnits.push_back(unit);
+						if (pUnit->getDomainType() == DOMAIN_SEA)
+							navalMelee.push_back(unit);
+						else
+							landMelee.push_back(unit);
 					}
 				}
 			}
 		}
 	}
 
+	m_OperationUnits.insert(m_OperationUnits.end(), navalMelee.begin(), navalMelee.end());
+	m_OperationUnits.insert(m_OperationUnits.end(), landMelee.begin(), landMelee.end());
+	// only take ranged units if there are also melee units
+	// todo: check whether there are already melee units present in the target area 
+	if (navalMelee.size() > 0)
+		m_OperationUnits.insert(m_OperationUnits.end(), navalRanged.begin(), navalRanged.end());
+	if (landMelee.size() > 0)
+		m_OperationUnits.insert(m_OperationUnits.end(), landRanged.begin(), landRanged.end());
+
 	// If have any units to move...
 	if(m_OperationUnits.size() > 0)
 	{
-		int iRangedUnitsToPlace = iRangedUnits;
-		int iMeleeUnitsToPlace = iMeleeUnits;
-
 		// see where our units can go
 		std::map<int,ReachablePlots> unitMovePlots;
 		for(opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
@@ -7374,7 +7381,10 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		m_PotentialBlocks.clear();
 
 		// First loop for ranged unit spots
-		bool bDone = (iRangedUnitsToPlace==0);
+		int iUnitsToPlace = navalRanged.size() + landRanged.size();
+		int iUnitsRemaining = iUnitsToPlace;
+		bool bDone = (iUnitsRemaining==0);
+
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			AITacticalTargetType eTargetType = m_TempTargets[iI].GetTargetType();
@@ -7399,15 +7409,13 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 						m_PotentialBlocks.push_back(block);
 					}
 
-					iRangedUnitsToPlace--;
-					if(iRangedUnitsToPlace == 0)
-					{
+					iUnitsRemaining--;
+					if(iUnitsRemaining == 0)
 						bDone = true;
-					}
 				}
 			}
 		}
-		AssignDeployingUnits(iRangedUnits - iRangedUnitsToPlace);
+		AssignDeployingUnits(iUnitsToPlace - iUnitsRemaining);
 		PerformChosenMoves();
 
 		// Second loop for everyone else (including remaining ranged units)
@@ -7417,11 +7425,12 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			ScoreHedgehogPlots(pTargetPlot, unitMovePlots);
 
 		std::stable_sort(m_TempTargets.begin(), m_TempTargets.end());
-
 		m_PotentialBlocks.clear();
-		iMeleeUnits += iRangedUnitsToPlace;
-		iMeleeUnitsToPlace += iRangedUnitsToPlace;
-		bDone = (iMeleeUnitsToPlace==0);
+
+		iUnitsToPlace = navalMelee.size() + landMelee.size() + iUnitsRemaining;
+		iUnitsRemaining = iUnitsToPlace;
+		bDone = (iUnitsRemaining==0);
+
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			//don't care about prio/safety now
@@ -7446,16 +7455,14 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 						m_PotentialBlocks.push_back(block);
 					}
 
-					iMeleeUnitsToPlace--;
-					if(iMeleeUnitsToPlace == 0)
-					{
+					iUnitsRemaining--;
+					if(iUnitsRemaining == 0)
 						bDone = true;
-					}
 				}
 			}
 		}
 
-		AssignDeployingUnits(iMeleeUnits - iMeleeUnitsToPlace);
+		AssignDeployingUnits(iUnitsToPlace-iUnitsRemaining);
 		PerformChosenMoves();
 	}
 
