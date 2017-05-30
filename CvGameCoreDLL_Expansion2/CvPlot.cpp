@@ -6698,24 +6698,20 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 				return false;
 		}
 
-		int iRange = GC.getNAVAL_PLOT_BLOCKADE_RANGE();
-		if (iRange>1)
+		//check ring 2 to N for enemies - rather inefficient
+		int iRange = min(5,max(2,GC.getNAVAL_PLOT_BLOCKADE_RANGE()));
+		for (int i=RING1_PLOTS; i<RING_PLOTS[iRange]; i++)
 		{
-			for (int iDX = -iRange; iDX <= iRange; iDX++)
-			{
-				for (int iDY = -iRange; iDY <= iRange; iDY++)
-				{
-					CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-					if (!pLoopPlot || plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) > iRange)
-						continue;
+			CvPlot* pLoopPlot = iterateRingPlots(this, i);
+			if (!pLoopPlot)
+				continue;
 
-					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
-					{
-						SPathFinderUserData data(NO_PLAYER,PT_GENERIC_SAME_AREA,-1,iRange);
-						if (GC.GetStepFinder().GetPath(pLoopPlot,this,data).length()<=iRange)
-							return true;
-					}
-				}
+			if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
+			{
+				SPathFinderUserData data(NO_PLAYER,PT_GENERIC_SAME_AREA,-1,iRange);
+				SPath path = GC.GetStepFinder().GetPath(pLoopPlot, this, data);
+				if (!!path && path.length()<=iRange)
+					return true;
 			}
 		}
 	}
