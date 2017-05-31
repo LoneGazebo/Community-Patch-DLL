@@ -8310,7 +8310,7 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 
 /// Fills m_CurrentMoveUnits with all units in operation that can get to target (returns TRUE if 1 or more found)
 bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,ReachablePlots>& movePlots, 
-	bool bIncludeRanged, bool bRangedOnly, bool bOffensiveCombatExpected)
+	bool bIncludeRanged, bool bRangedOnly, bool bCombatExpected)
 {
 	bool rtnValue = false;
 	m_CurrentMoveUnits.clear();
@@ -8328,35 +8328,25 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 		if (!pLoopUnit)
 			continue;
 
-		if (pLoopUnit->hasMoved())
-			continue;
-		
 		if (pLoopUnit->IsCanAttackRanged())
 		{
 			if (!bIncludeRanged)
 				continue;
 
-			if (bOffensiveCombatExpected)
-			{
-				if (pCell->GetTargetDistance()>pLoopUnit->GetRange())
-					continue;
-
-				if (!pLoopUnit->IsRangeAttackIgnoreLOS() && !pCell->GetHasLOS())
-					continue;
-			}
+			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(), pLoopUnit->getDomainType(), NULL, false) > 0)
+				continue;
 		}
 		else //melee
 		{
-			if (bOffensiveCombatExpected)
-				if (pCell->GetTargetDistance()>1 && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(),pLoopUnit->getDomainType())==0)
-					continue;
-		}
+			if (bRangedOnly)
+				continue;
 
-		if (bRangedOnly && !pLoopUnit->IsCanAttackRanged())
-			continue;
+			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(),pLoopUnit->getDomainType())==0)
+				continue;
+		}
 		
 		//avoid embarkation if we need to fight!
-		if (bOffensiveCombatExpected && !pLoopUnit->isNativeDomain(pTarget))
+		if (bCombatExpected && !pLoopUnit->isNativeDomain(pTarget))
 			continue;
 
 		std::map<int,ReachablePlots>::const_iterator itUnit = movePlots.find(pLoopUnit->GetID());
