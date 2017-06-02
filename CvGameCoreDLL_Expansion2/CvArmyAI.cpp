@@ -478,7 +478,7 @@ void CvArmyAI::RemoveStuckAndWeakUnits()
 {
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
 
-	if(pOperation->GetOperationState() < AI_OPERATION_STATE_MOVING_TO_TARGET)
+	if(pOperation->GetOperationState() < AI_OPERATION_STATE_AT_TARGET)
 	{
 		for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 		{

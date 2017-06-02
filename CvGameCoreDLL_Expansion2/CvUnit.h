@@ -116,6 +116,7 @@ public:
 		MOVEFLAG_IGNORE_ZOC						= 0x40000, //ignore zones of control
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
+		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
 	};
 
 #if defined(MOD_BALANCE_CORE)

@@ -824,14 +824,13 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
 bool CvAIOperation::ShouldAbort()
 {
-	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS)
-	{
-		int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
-		if (iTurns > (GetMaximumRecruitTurns() * 2))
-		{
-			SetToAbort(AI_ABORT_TIMED_OUT);
-		}
-	}
+	int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
+
+	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS && iTurns > GetMaximumRecruitTurns()*2)
+		SetToAbort(AI_ABORT_TIMED_OUT);
+
+	if (m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurns()*3)
+		SetToAbort(AI_ABORT_TIMED_OUT);
 
 	if (m_eCurrentState != AI_OPERATION_STATE_SUCCESSFUL_FINISH)
 	{
@@ -2403,7 +2402,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 		return AI_ABORT_NO_UNITS;
 
 	bool bCanFound = pSettler->canFound(GetTargetPlot());
-	bool bHavePath = pSettler->GeneratePath(GetTargetPlot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+	bool bHavePath = pSettler->GeneratePath(GetTargetPlot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
 
 	if (!bCanFound)
 		LogOperationSpecialMessage( CvString::format("cannot found city at (%d:%d)",m_iTargetX,m_iTargetY).c_str() );

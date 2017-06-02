@@ -864,7 +864,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 	TeamTypes ePlotTeam = pPlot->getTeam();
 
-	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
+	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam) || (finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED));
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
 	kToNodeCacheData.bIsNonNativeDomain = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
