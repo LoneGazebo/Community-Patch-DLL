@@ -1362,7 +1362,7 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 					{
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
 #if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pGarrison);
+						TacticalAIHelpers::PerformRangedOpportunityAttack(pGarrison);
 						UnitProcessed(pGarrison->GetID());
 #endif
 						if(GC.getLogging() && GC.getAILogging())
@@ -1586,12 +1586,8 @@ void CvHomelandAI::PlotMobileReserveMoves()
 				CvUnit *pReserve = GetBestUnitToReachTarget(pTarget, 15);
 				if(pReserve)
 				{
-					ExecuteMoveToTarget(pReserve, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pReserve);
-					pReserve->finishMoves();
+					ExecuteMoveToTarget(pReserve, pTarget, 0, true);
 					UnitProcessed(pReserve->GetID());
-#endif
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -1630,12 +1626,9 @@ void CvHomelandAI::PlotSentryMoves()
 				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
 				if(pSentry)
 				{
-					ExecuteMoveToTarget(pSentry, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
-					pSentry->finishMoves();
+					ExecuteMoveToTarget(pSentry, pTarget, 0, true);
 					UnitProcessed(pSentry->GetID());
-#endif
+
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
@@ -1678,11 +1671,8 @@ void CvHomelandAI::PlotSentryNavalMoves()
 						{
 							pSentry->PushMission(CvTypes::getMISSION_SKIP());
 						}
-#if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
-						pSentry->finishMoves();
 						UnitProcessed(pSentry->GetID());
-#endif
+
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -1692,12 +1682,9 @@ void CvHomelandAI::PlotSentryNavalMoves()
 					}
 					else
 					{
-						ExecuteMoveToTarget(pSentry, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
-						pSentry->finishMoves();
+						ExecuteMoveToTarget(pSentry, pTarget, 0, true);
 						UnitProcessed(pSentry->GetID());
-#endif
+
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -2592,7 +2579,7 @@ void CvHomelandAI::PlotAncientRuinMoves()
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
 #if defined(MOD_BALANCE_CORE)
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pIndy);
+					TacticalAIHelpers::PerformRangedOpportunityAttack(pIndy,true);
 					pIndy->finishMoves();
 					UnitProcessed(pIndy->GetID());
 #endif
