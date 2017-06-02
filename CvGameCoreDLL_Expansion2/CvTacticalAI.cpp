@@ -7299,9 +7299,10 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	int iTacticalRadius = GetTacticalAnalysisMap()->GetTacticalRange();
 
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
+	CvTacticalDominanceZone* pTargetZone = GetTacticalAnalysisMap()->GetZoneByPlot(pTargetPlot);
+
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
-
 	vector<CvOperationUnit> landMelee, landRanged, navalMelee, navalRanged;
 
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -7353,9 +7354,9 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	m_OperationUnits.insert(m_OperationUnits.end(), landMelee.begin(), landMelee.end());
 	// only take ranged units if there are also melee units
 	// todo: check whether there are already melee units present in the target area 
-	if (navalMelee.size() > 0)
+	if (navalMelee.size() > 0 || (pTargetZone && pTargetZone->GetFriendlyMeleeStrength()>pTargetZone->GetFriendlyRangedStrength()))
 		m_OperationUnits.insert(m_OperationUnits.end(), navalRanged.begin(), navalRanged.end());
-	if (landMelee.size() > 0)
+	if (landMelee.size() > 0 || (pTargetZone && pTargetZone->GetFriendlyMeleeStrength()>pTargetZone->GetFriendlyRangedStrength()))
 		m_OperationUnits.insert(m_OperationUnits.end(), landRanged.begin(), landRanged.end());
 
 	// If have any units to move...
@@ -8317,9 +8318,6 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 
 	if (pTarget == NULL)
 		return false;
-
-	int iPlotIndex = GC.getMap().plotNum(pTarget->getX(), pTarget->getY());
-	CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 
 	// Loop through all units available to operation
 	for (opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
