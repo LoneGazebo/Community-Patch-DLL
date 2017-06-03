@@ -26,20 +26,20 @@
 
 //PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
-#define PATH_DEFENSE_WEIGHT										(100)	//per percent defense bonus on turn end plot
+#define PATH_DEFENSE_WEIGHT										(80)	//per percent defense bonus on turn end plot
 #define PATH_STEP_WEIGHT										(100)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(20)	//accept four plots detour to save on maintenance
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*90)		//embarkation should be avoided (land units only)
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*110)	//embarkation should be avoided (land units only)
 #define PATH_END_TURN_INVISIBLE_WEIGHT							(PATH_BASE_COST*10)		//when in doubt, prefer routes through visible areas
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
-#define BASE_TEMP_STEP											(100)	//for unit successfully passing a plot
+#define PATH_ASSUMED_MAX_DEFENSE								(100)	//MAX_DEFENSE * DEFENSE_WEIGHT + END_TURN_FOREIGN_TERRITORY + END_TURN_NO_ROUTE should be smaller than END_TURN_WATER
 
 #include <xmmintrin.h>
 #include "LintFree.h"
@@ -919,12 +919,11 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	//use the flags mostly as provided
 	//destination will be handled later once we know whether we would like to end the turn here
 	//attack only applies to the true (non-approximate) destination or to any plot if we don't have a destination (reachable plots)
-	//the flag NO_ATTACKING is only evaluated when the move mission is executed so we don't leak information before the enemy becomes visible
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
 	if (bIsDestination)
 	{
-		//special checks for attack flag
-		if (pCacheData->IsCanAttack())
+		//special checks for attack flag. if it's a human unit ignore the NO_ATTACKING flag so we don't leak information (shouldn't be set anyway)
+		if (pCacheData->IsCanAttack() && (!pCacheData->isAIControl() || !finder->HaveFlag(CvUnit::MOVEFLAG_NO_ATTACKING)))
 		{
 			if (pUnit->isRanged())
 			{
@@ -1117,7 +1116,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 	if(pUnit->IsCombatUnit())
 	{
-		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
+		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
 
 	// Damage caused by features (mods)
@@ -1328,7 +1327,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
 		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && pUnitDataCache->isAIControl())
 		{
-			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false, false)))));
+			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false, false)))));
 
 			//avoid river attack penalty
 			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))

@@ -97,7 +97,7 @@ public:
 	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // exact meaning unclear, probably not required anymore?
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
-	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (not checked in the pathfinder, only when executing the move so we don't leak information)
+	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (or the target is a city)
 	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
 	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
