@@ -3617,8 +3617,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		//if the scout is already embarked, we need to allow it so we don't get stuck!
-		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, pUnit->isEmbarked());
+		ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, pUnit->isEmbarked());
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -5333,8 +5332,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			int iAura = 0;
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -5403,8 +5401,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 
@@ -6835,8 +6832,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
 	WeightedPlotVector aBestPlotList;
-	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,true);
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn();
 	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{

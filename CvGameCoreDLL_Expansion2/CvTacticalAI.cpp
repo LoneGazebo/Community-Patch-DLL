@@ -5519,7 +5519,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 					std::map<int,ReachablePlots>::iterator it = unitMovePlots.find(pEnemyUnit->GetID());
 					if (it==unitMovePlots.end())
 					{
-						TacticalAIHelpers::GetAllPlotsInReachThisTurn(pEnemyUnit,pEnemyUnit->plot(),plots,true,true,false);
+						plots = pEnemyUnit->GetAllPlotsInReachThisTurn(true, true, false);
 						unitMovePlots[pEnemyUnit->GetID()] = plots;
 					}
 					else
@@ -6160,8 +6160,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 			continue;
 
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
-		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, false);
+		ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -6349,8 +6348,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 				if (!bMoveMade)
 				{
-					ReachablePlots reachablePlots;
-					TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+					ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 					for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 					{
 						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -7601,9 +7599,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(CvUnit* pUnit, CvPlot* plotTarget, i
 	if (pUnit->IsGarrisoned())
 		return NULL;
 
-	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
-
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 	if (reachablePlots.empty())
 		return NULL;
 
@@ -7979,8 +7975,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 			else if (pLoopUnit->canMove() && pLoopUnit->getDomainType()!=DOMAIN_AIR)
 			{
 				//note that we also take units which can reach an attack plot but can only attack next turn. that's ok.
-				ReachablePlots reachablePlots;
-				TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,true,false,bImmediateStrike?1:0);
+				ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),CvUnit::MOVEFLAG_NO_EMBARK,bImmediateStrike?1:0);
 
 				//start from the outside
 				for (int i=pLoopUnit->GetRange(); i>0 && !bCanReach; i--)
@@ -8803,8 +8798,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 	CvPlot* pBestMovePlot = 0;
 	int iBestValue = 0;
 
-	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), reachablePlots, true, true, false);
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
 		CvPlot* pConsiderPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -9534,8 +9528,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 		CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass() : NULL;
 
-		ReachablePlots reachablePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pGeneral,pGeneral->plot(),reachablePlots,true,true,false);
+		ReachablePlots reachablePlots = pGeneral->GetAllPlotsInReachThisTurn(true, true, false);
 		for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -10551,43 +10544,22 @@ bool CvTacticalAI::IsUnitHealing(int iUnitID) const
 	return m_HealingUnits.find(iUnitID) != m_HealingUnits.end();
 }
 
-//	--------------------------------------------------------------------------------
-/// get all tiles a unit can reach in one turn - this ignores friendly stacking. need to check the result by hand!
-int TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
-	bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft)
+ReachablePlots TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC)
 {
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING;
-
-	if (!bCheckTerritory)
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
-	if (!bCheckZOC)
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
-	if (!bAllowEmbark)
-		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
-
-	return GetAllPlotsInReachThisTurn(pUnit,pStartPlot,resultSet,iFlags,iMinMovesLeft,-1,set<int>());
-}
-
-int TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
-	int iFlags, int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC)
-{
-	if (!pUnit || !pStartPlot)
-		return false;
-
-	resultSet.clear();
+	if (!pStartPlot)
+		return ReachablePlots();
 
 	if (!plotsToIgnoreForZOC.empty())
 		iFlags |= CvUnit::MOVEFLAG_SELECTIVE_ZOC;
 
-	SPathFinderUserData data(pUnit,iFlags,1);
+	SPathFinderUserData data(pUnit, iFlags, 1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	data.iMinMovesLeft = iMinMovesLeft;
 	if (iStartMoves>-1) //overwrite this only if we have a sane value
 		data.iStartMoves = iStartMoves;
 	data.plotsToIgnoreForZOC = plotsToIgnoreForZOC;
-	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(), pStartPlot->getY(), data);
 
-	return (int)resultSet.size();
+	return GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(), pStartPlot->getY(), data);
 }
 
 int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility)
@@ -10863,9 +10835,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	CvWeightedVector<CvPlot*, 8, true> aCoverList;
 	CvWeightedVector<CvPlot*, 8, true> aDangerList;
 
-	ReachablePlots eligiblePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, true /*always true we sort out embarkation below*/);
-
+	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); //embarkation allowed for now, we sort it out below
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -11322,9 +11292,7 @@ CvPlot* TacticalAIHelpers::GetFirstEnemyUnitInRange(CvUnit * pUnit, bool bMustBe
 	if (!pUnit)
 		return NULL;
 
-	ReachablePlots plots;
-	GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), plots, true, true, false);
-
+	ReachablePlots plots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -12794,8 +12762,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			CvUnit* pUnit2 = GET_PLAYER(ePlayer).getUnit(itUnit2->iUnitID);
 			CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(itUnit2->iPlotIndex);
 
-			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit2, pStartPlot, reachablePlots, iFlags, 0, itUnit2->iMovesLeft, freedPlots);
+			ReachablePlots reachablePlots =  TacticalAIHelpers::GetAllPlotsInReach(pUnit2, pStartPlot, iFlags, 0, itUnit2->iMovesLeft, freedPlots);
 			reachablePlotLookup[itUnit2->iUnitID] = reachablePlots;
 
 			set<int> rangeAttackPlots;
@@ -12805,10 +12772,9 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	}
 	else if (itUnit->iMovesLeft>0) //otherwise iterator is invalid
 	{
-		ReachablePlots reachablePlots;
 		CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(itUnit->iUnitID);
 		CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(itUnit->iPlotIndex);
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pStartPlot, reachablePlots, iFlags, 0, itUnit->iMovesLeft, freedPlots);
+		ReachablePlots reachablePlots =	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pStartPlot, iFlags, 0, itUnit->iMovesLeft, freedPlots);
 		reachablePlotLookup[itUnit->iUnitID] = reachablePlots;
 
 		set<int> rangeAttackPlots;
@@ -12938,8 +12904,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	assignedMoves.push_back( STacticalAssignment(pUnit->plot()->GetPlotIndex(),pUnit->plot()->GetPlotIndex(),
 								pUnit->GetID(),pUnit->getMoves(),pUnit->IsCombatUnit(),0,STacticalAssignment::A_INITIAL) );
 
-	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), reachablePlots, true, true, false /*no embarkation*/);
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false /*no embarkation*/);
 	reachablePlotLookup[pUnit->GetID()] = reachablePlots; //store all of them, if there's no matching tactical plot they will be skipped later
 
 	//for ranged units

@@ -3272,8 +3272,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 						{
 							CvPlot* pBestPlot = NULL;
 							int iBestDanger = 0;
-							ReachablePlots reachablePlots;
-							TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit, pLoopPlot, reachablePlots, true, true, true);
+							ReachablePlots reachablePlots = pLoopUnit->GetAllPlotsInReachThisTurn();
 							for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 							{
 								CvPlot* pFleePlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);

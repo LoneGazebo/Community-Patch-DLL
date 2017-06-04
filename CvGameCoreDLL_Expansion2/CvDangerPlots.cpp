@@ -95,9 +95,8 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
-	ReachablePlots reachablePlots;
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,iFlags,iMinMovesLeft,-1,set<int>());
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,-1,set<int>());
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{

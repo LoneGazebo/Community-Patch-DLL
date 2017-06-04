@@ -1222,10 +1222,7 @@ void CvUnit::uninit()
 	uninitInfos();
 
 	m_missionQueue.clear();
-
 	m_Promotions.Uninit();
-
-	m_kLastPath.clear();
 
 	delete m_pReligion;
 	m_pReligion = NULL;
@@ -18722,9 +18719,7 @@ bool CvUnit::IsHasNoValidMove() const
 		return false;
 	}
 
-	ReachablePlots plots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(this,plot(),plots,true,true,false);
-
+	ReachablePlots plots = GetAllPlotsInReachThisTurn(true,true,false);
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
 		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -27281,8 +27276,8 @@ bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 	//now copy the new path
 	//but skip the first node, it's the current unit plot
 	//important: this means that an empty m_kLastPath is valid!
+	ClearPathCache();
 	CvPathNode nextNode;
-	m_kLastPath.clear();
 	for (size_t i=1; i<newPath.vPlots.size(); i++)
 	{
 		nextNode = newPath.vPlots[i];
@@ -27599,7 +27594,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 
 		pPathPlot = pDestPlot;
-		m_kLastPath.clear(); // Not used by air units, keep it clear.
+		ClearPathCache(); // Not used by air units, keep it clear.
 	}
 	else
 	{
@@ -27701,7 +27696,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 		if(bRejectMove)
 		{
-			m_kLastPath.clear();
+			ClearPathCache();
 			PublishQueuedVisualizationMoves();
 			return 0;
 		}
@@ -27738,7 +27733,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 		else
 		{
-			m_kLastPath.clear(); //failed to move, recalculate.
+			ClearPathCache(); //failed to move, recalculate.
 			return 0;
 		}
 	}
@@ -28464,12 +28459,28 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
+// get all tiles a unit can reach in one turn - this ignores friendly stacking. need to check the result by hand!
+//	--------------------------------------------------------------------------------
+ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft) const
+{
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+	if (!bCheckTerritory)
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
+	if (!bCheckZOC)
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+	if (!bAllowEmbark)
+		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+
+	// caching this is a bit too dangerous as it depends on enemy units as well
+	return TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 {
 	VALIDATE_OBJECT
-	ReachablePlots plots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(this,plot(),plots,true,true,false);
-
+	ReachablePlots plots = GetAllPlotsInReachThisTurn(true, true, false);
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);

@@ -1571,6 +1571,8 @@ public:
 	bool IsCanAttack() const;
 	bool IsCanAttackWithMoveNow() const;
 	bool IsCanDefend(const CvPlot* pPlot = NULL) const;
+
+	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
