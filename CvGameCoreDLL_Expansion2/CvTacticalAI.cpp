@@ -11000,7 +11000,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, int iMax
 		return NULL;
 
 	//first see if the current plot is good
-	if (pUnit->GetDanger() == 0 && pUnit->plot()->getOwner()==pUnit->getOwner() && pUnit->canHeal(pUnit->plot(), false, true))
+	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), false, true))
 		return pUnit->plot();
 
 	//then work outwards in rings
