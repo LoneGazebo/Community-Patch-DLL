@@ -9318,14 +9318,6 @@ void CvPlot::changeRiverCrossingCount(int iChange)
 	CvAssert(getRiverCrossingCount() >= 0);
 }
 
-
-//	--------------------------------------------------------------------------------
-short* CvPlot::getYield()
-{
-	return m_aiYield;
-}
-
-
 //	--------------------------------------------------------------------------------
 int CvPlot::getYield(YieldTypes eIndex) const
 {
@@ -10730,32 +10722,22 @@ bool CvPlot::hasYield() const
 //	--------------------------------------------------------------------------------
 void CvPlot::updateYield()
 {
-	CvCity* pWorkingCity;
-	bool bChange;
-	short iNewYield;
-	int iOldYield;
-	int iI;
-
+	bool bChange = false;
 	if(area() == NULL)
-	{
 		return;
-	}
 
-	bChange = false;
-
-	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
-		iNewYield = (short)calculateYield((YieldTypes)iI);
+		int iNewYield = calculateYield((YieldTypes)iI);
 
-		if(getYield((YieldTypes)iI) != (int)iNewYield)
+		if(getYield((YieldTypes)iI) != iNewYield)
 		{
-			iOldYield = getYield((YieldTypes)iI);
+			int iOldYield = getYield((YieldTypes)iI);
 
-			m_aiYield[iI] = iNewYield;
+			m_aiYield[iI] = (uint8) min(0xFF,max(0,iNewYield));
 			CvAssertMsg(getYield((YieldTypes)iI) >= 0 && getYield((YieldTypes)iI) < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-			pWorkingCity = getWorkingCity();
-
+			CvCity* pWorkingCity = getWorkingCity();
 			if(pWorkingCity != NULL)
 			{
 				if(isBeingWorked())
@@ -10829,9 +10811,6 @@ int CvPlot::getFoundValue(PlayerTypes eIndex)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex);
 	int iPlotValue = getFoundValue(eIndex);
 
@@ -10840,9 +10819,9 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 		return false;
 	}
 
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if((pAdjacentPlot != NULL) && pAdjacentPlot->isRevealed(thisPlayer.getTeam()))
 		{
@@ -10895,6 +10874,15 @@ void CvPlot::changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange)
 	}
 }
 
+void CvPlot::flipVisibility(TeamTypes eTeam)
+{
+	//flip visibility
+	if (eTeam==NO_TEAM)
+		memcpy(m_aiVisibilityCountThisTurnMax, m_aiVisibilityCount, MAX_TEAMS * sizeof(uint8));
+	else
+		m_aiVisibilityCountThisTurnMax[eTeam] = m_aiVisibilityCount[eTeam];
+}
+
 //	--------------------------------------------------------------------------------
 #if defined(MOD_API_EXTENSIONS)
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
@@ -10902,145 +10890,142 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible)
 #endif
 {
-	CvCity* pCity;
-	CvPlot* pAdjacentPlot;
-	bool bOldVisible;
-
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	PlotVisibilityChangeResult eResult = VISIBILTY_CHANGE_NONE;
-	if(iChange != 0)
+	if (iChange == 0)
+		return eResult;
+
+	bool bOldVisibility = (m_aiVisibilityCount[eTeam]>0);
+
+	m_aiVisibilityCount[eTeam] += iChange;
+	CvAssertFmt(m_aiVisibilityCount[eTeam]>=0, "Changing plot X:%d, Y:%d to a negative visibility", getX(), getY());
+	if (m_aiVisibilityCount[eTeam] < 0)
+		m_aiVisibilityCount[eTeam] = 0;
+
+	//remember the maximum
+	m_aiVisibilityCountThisTurnMax[eTeam] = max(m_aiVisibilityCountThisTurnMax[eTeam], m_aiVisibilityCount[eTeam]);
+
+	if(eSeeInvisible != NO_INVISIBLE)
 	{
-		bOldVisible = isVisible(eTeam);
+		changeInvisibleVisibilityCount(eTeam, eSeeInvisible, iChange);
+	}
 
-		m_aiVisibilityCount[eTeam] += iChange;
-		CvAssertFmt(m_aiVisibilityCount[eTeam]>=0, "Changing plot X:%d, Y:%d to a negative visibility", getX(), getY());
-		if (m_aiVisibilityCount[eTeam] < 0)
-			m_aiVisibilityCount[eTeam] = 0;
-
-		if(eSeeInvisible != NO_INVISIBLE)
+	if(bAlwaysSeeInvisible)
+	{
+		for(int iI = 0; iI < NUM_INVISIBLE_TYPES; iI++)
 		{
-			changeInvisibleVisibilityCount(eTeam, eSeeInvisible, iChange);
-		}
-
-		if(bAlwaysSeeInvisible)
-		{
-			for(int iI = 0; iI < NUM_INVISIBLE_TYPES; iI++)
-			{
-				changeInvisibleVisibilityCount(eTeam, (InvisibleTypes) iI, iChange);
-			}
-		}
-
-		if(bOldVisible != isVisible(eTeam))
-		{
-			// We couldn't see the Plot before but we can now
-			if(isVisible(eTeam))
-			{
-				eResult = VISIBILITY_CHANGE_TO_VISIBLE;
-
-				//are we seeing this plot for the first time?
-				if(bInformExplorationTracking && !isRevealed(eTeam))
-				{
-					// slewis - ghetto-tastic hack. ugh
-					for(int iI = 0; iI < MAX_PLAYERS; iI++)
-					{
-						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
-						if(playerI.isAlive())
-						{
-							if(playerI.getTeam() == eTeam)
-								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
-						}
-					}
-				}
-
-#if defined(MOD_API_EXTENSIONS)
-				if (!setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
-#else
-				if (!setRevealed(eTeam, true))	// Change to revealed, returns true if the visibility was changed
-#endif
-				{
-					// The visibility was not changed because it was already revealed, but we are changing to a visible state as well, so we must update.
-					// Just trying to avoid redundant messages.
-					if (eTeam == GC.getGame().getActiveTeam())
-					{
-						updateSymbols();
-						updateFog(true);
-						updateVisibility();
-					}
-				}
-
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL)
-					{
-						pAdjacentPlot->updateRevealedOwner(eTeam);
-					}
-				}
-
-				// If there are any Units here, meet their owners
-				for(int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
-				{
-					// If the AI spots a human Unit, don't meet - wait for the human to find the AI
-					CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
-
-					if(!loopUnit) 
-						continue;
-
-					if(!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
-						continue;
-
-					GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-					//if it is an enemy unit, update the danger plots! 
-					if (GET_TEAM(eTeam).isAtWar(loopUnit->getTeam()))
-					{
-						const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
-						for(size_t iI = 0; iI < aePlayers.size(); iI++)
-						{
-							PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
-							if(ePlayer == NO_PLAYER)
-							{
-								continue;
-							}
-							else
-							{
-								GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
-							}
-						}
-					}
-#endif
-				}
-
-				// If there's a City here, meet its owner
-				if(isCity())
-				{
-					// If the AI spots a human City, don't meet - wait for the human to find the AI
-					if(GET_TEAM(eTeam).isHuman() || !getPlotCity()->isHuman())
-					{
-						GET_TEAM(eTeam).meet(getTeam(), false);	// If there's a City here, we can assume its owner is the same as the plot owner
-					}
-				}
-			}
-			else
-			{
-				eResult = VISIBILITY_CHANGE_TO_INVISIBLE;
-				if(eTeam == GC.getGame().getActiveTeam())
-					updateFog(true);
-			}
-
-			pCity = getPlotCity();
-
-			if(eTeam == GC.getGame().getActiveTeam())
-			{
-				//updateFog();
-				updateCenterUnit();
-			}
+			changeInvisibleVisibilityCount(eTeam, (InvisibleTypes) iI, iChange);
 		}
 	}
+
+	// We couldn't see the Plot before but we can now
+	// note: the isVisible check works even when MOD_CORE_DELAYED_VISIBILITY is active
+	if (bOldVisibility == false && isVisible(eTeam))
+	{
+		eResult = VISIBILITY_CHANGE_TO_VISIBLE;
+
+#if defined(MOD_API_EXTENSIONS)
+		if (setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
+#else
+		if (setRevealed(eTeam, true))	// Change to revealed, returns true if the visibility was changed
+#endif
+		{
+			//we are seeing this plot for the first time
+			if (bInformExplorationTracking)
+			{
+				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
+				for (size_t i = 0; i < vPlayers.size(); i++)
+					GET_PLAYER(vPlayers[i]).GetEconomicAI()->SetExplorationPlotsDirty();
+			}
+		}
+		else
+		{
+			// The visibility was not changed because it was already revealed, but we are changing to a visible state as well, so we must update.
+			// Just trying to avoid redundant messages.
+			if (eTeam == GC.getGame().getActiveTeam())
+			{
+				updateSymbols();
+				updateFog(true);
+				updateVisibility();
+			}
+		}
+
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if (pAdjacentPlot != NULL)
+			{
+				pAdjacentPlot->updateRevealedOwner(eTeam);
+			}
+		}
+
+		// If there are any Units here, meet their owners
+		for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
+		{
+			// If the AI spots a human Unit, don't meet - wait for the human to find the AI
+			CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
+
+			if (!loopUnit)
+				continue;
+
+			if (!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
+				continue;
+
+			GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//if it is an enemy unit, update the danger plots! 
+			if (GET_TEAM(eTeam).isAtWar(loopUnit->getTeam()))
+			{
+				const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
+				for (size_t iI = 0; iI < aePlayers.size(); iI++)
+				{
+					PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
+					if (ePlayer == NO_PLAYER)
+					{
+						continue;
+					}
+					else
+					{
+						GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
+					}
+				}
+			}
+#endif
+		}
+
+		// If there's a City here, meet its owner
+		if (isCity())
+		{
+			// If the AI spots a human City, don't meet - wait for the human to find the AI
+			if (GET_TEAM(eTeam).isHuman() || !getPlotCity()->isHuman())
+			{
+				GET_TEAM(eTeam).meet(getTeam(), false);	// If there's a City here, we can assume its owner is the same as the plot owner
+			}
+		}
+
+		if (eTeam == GC.getGame().getActiveTeam())
+		{
+			updateCenterUnit();
+		}
+
+	}
+//with delayed visibility we do this in setTurnActive()
+#if !defined(MOD_CORE_DELAYED_VISIBILITY)
+	// We could se the plot before but not anymore
+	else if (bOldVisibility == true && !isVisible(eTeam))
+	{
+		eResult = VISIBILITY_CHANGE_TO_INVISIBLE;
+		if (eTeam == GC.getGame().getActiveTeam())
+		{
+			updateFog(true);
+			updateCenterUnit();
+		}
+	}
+#endif
 
 	return eResult;
 }
@@ -12972,6 +12957,8 @@ void CvPlot::read(FDataStream& kStream)
 		kStream >> m_aiVisibilityCount[i];
 		if (m_aiVisibilityCount[i] < 0)
 			m_aiVisibilityCount[i] = 0;
+		//update the shadow copy as well
+		m_aiVisibilityCountThisTurnMax[i] = m_aiVisibilityCount[i];
 		kStream >> m_aiRevealedOwner[i];
 		kStream >> m_abResourceForceReveal[i];
 		m_aeRevealedImprovementType[i] = (ImprovementTypes) CvInfosSerializationHelper::ReadHashed(kStream);

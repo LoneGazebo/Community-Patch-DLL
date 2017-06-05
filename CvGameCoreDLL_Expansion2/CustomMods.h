@@ -61,6 +61,9 @@
 #define MOD_BALANCE_CORE_NEW_TACTICAL_AI
 #define MOD_CORE_NEW_DEPLOYMENT_LOGIC
 
+/// visible tiles stay visible until the end of the turn
+#define MOD_CORE_DELAYED_VISIBILITY
+
 /// for better multiplayer experience
 #define MOD_CORE_REDUCE_RANDOMNESS
 #define MOD_CORE_RESILIENT_PANTHEONS
@@ -141,9 +144,6 @@
 #define AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
 /// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
 #define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
-
-// unhappiness from public opinion scales linearly with dissatisfaction
-#define MOD_CORE_SMOOTH_PUBLIC_OPINION
 
 // track how much damage a unit takes per turn in order to better predict whether it might die
 #define MOD_CORE_PER_TURN_DAMAGE

@@ -31458,6 +31458,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		DLLUI->PublishEndTurnDirty();
 
 		CvGame& kGame = GC.getGame();
+		CvMap& theMap = GC.getMap();
 
 		/////////////////////////////////////////////
 		// TURN IS BEGINNING
@@ -31472,10 +31473,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			DoUnitAttrition();
 
 			if(kGame.getActivePlayer() == m_eID)
-			{
-				CvMap& theMap = GC.getMap();
 				theMap.updateDeferredFog();
-			}
 
 			if((kGame.isHotSeat() || kGame.isPbem()) && isHuman() && bDoTurn)
 			{
@@ -31573,6 +31571,16 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 		else
 		{
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+			//visibility expires now!
+			//flip for all teams in case we killed one of their units
+			for (int iI = 0; iI < theMap.numPlots(); iI++)
+				theMap.plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM);
+
+			if (kGame.getActivePlayer() == m_eID)
+				theMap.updateFog();
+#endif
+
 #if defined(MOD_EVENTS_RED_TURN)
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<

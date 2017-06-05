@@ -654,7 +654,6 @@ public:
 	int getRiverCrossingCount() const;
 	void changeRiverCrossingCount(int iChange);
 
-	short* getYield();
 	int getYield(YieldTypes eIndex) const;
 	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, bool bIgnoreFeature = false) const;
 	int calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const;
@@ -685,9 +684,15 @@ public:
 		CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 		CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+		//return the hacked visibility count so plots which were once visible this turn stay that way
+		return m_aiVisibilityCountThisTurnMax[eTeam];
+#else
 		return m_aiVisibilityCount[eTeam];
+#endif
 	}
 
+	void flipVisibility(TeamTypes eTeam=NO_TEAM);
 #if defined(MOD_API_EXTENSIONS)
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
 #else
@@ -1000,9 +1005,10 @@ protected:
 
 	//external memory allocated by CvMap
 	friend class CvMap;
-	short* m_aiYield;
-	char* m_aiPlayerCityRadiusCount;
-	short* m_aiVisibilityCount;
+	uint8* m_aiYield;
+	uint8* m_aiPlayerCityRadiusCount;
+	uint8* m_aiVisibilityCount;				//serialized
+	uint8* m_aiVisibilityCountThisTurnMax;	//not serialized
 	char* m_aiRevealedOwner;
 	char *m_aeRevealedImprovementType;
 	char *m_aeRevealedRouteType;

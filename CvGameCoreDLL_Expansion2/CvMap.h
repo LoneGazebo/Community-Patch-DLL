@@ -350,9 +350,10 @@ protected:
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
 #endif
 
-	short* m_pYields;
-	char*  m_pPlayerCityRadiusCount;
-	short* m_pVisibilityCount;
+	uint8* m_pYields;
+	uint8* m_pPlayerCityRadiusCount;
+	uint8* m_pVisibilityCount;				//actual vis count
+	uint8* m_pVisibilityCountThisTurnMax;	//maximum vis count this turn
 	char*  m_pRevealedOwner;
 #if defined(MOD_BALANCE_CORE)
 	bool*  m_pIsImpassable;

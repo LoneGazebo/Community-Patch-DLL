@@ -853,8 +853,6 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst)
 //	--------------------------------------------------------------------------------
 void CvTeam::doTurn()
 {
-	int iI;
-
 	CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
 	// Barbarians get all Techs that 3/4 of alive players get
@@ -976,7 +974,7 @@ void CvTeam::doTurn()
 		DoMinorCivTech();
 	}
 
-	for(iI = 0; iI < GC.getNumTechInfos(); iI++)
+	for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
 	{
 		GetTeamTechs()->SetNoTradeTech(((TechTypes)iI), false);
 	}
