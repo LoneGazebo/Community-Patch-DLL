@@ -64,6 +64,9 @@
 /// visible tiles stay visible until the end of the turn
 #define MOD_CORE_DELAYED_VISIBILITY
 
+/// experimental performance improvement
+#define MOD_CORE_CACHE_REACHABLE_PLOTS
+
 /// for better multiplayer experience
 #define MOD_CORE_REDUCE_RANDOMNESS
 #define MOD_CORE_RESILIENT_PANTHEONS

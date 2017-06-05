@@ -11274,10 +11274,8 @@ void CvPlayer::doTurnUnits()
 /// Indicate that the AI has not processed any units yet
 void CvPlayer::SetAllUnitsUnprocessed()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
@@ -11299,10 +11297,8 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		// First heal the unit
 		pLoopUnit->doHeal();
@@ -11360,26 +11356,28 @@ void CvPlayer::DoUnitReset()
 	}
 }
 
+void CvPlayer::ResetReachablePlotsForAllUnits()
+{
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		pLoopUnit->ClearReachablePlots();
+}
+
+
 //	--------------------------------------------------------------------------------
 /// Damage units from attrition (start of turn so we can get notifications)
 void CvPlayer::DoUnitAttrition()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-	{
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		pLoopUnit->DoAttrition();
-	}
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::RespositionInvalidUnits()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit)
 		{
@@ -11441,10 +11439,8 @@ void CvPlayer::updateYield()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateExtraSpecialistYield()
 {
-	CvCity* pLoopCity;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->updateExtraSpecialistYield();
 	}
@@ -11453,10 +11449,8 @@ void CvPlayer::updateExtraSpecialistYield()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateCityPlotYield()
 {
-	CvCity* pLoopCity;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->plot()->updateYield();
 	}
@@ -11466,10 +11460,8 @@ void CvPlayer::updateCityPlotYield()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateCitySight(bool bIncrement)
 {
-	CvCity* pLoopCity;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->plot()->updateSight(bIncrement);
 	}
@@ -31499,6 +31491,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			if(bDoTurn)
 			{
 				SetAllUnitsUnprocessed();
+
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+				ResetReachablePlotsForAllUnits();
+#endif
+
 				{
 					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 

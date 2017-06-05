@@ -2004,6 +2004,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 
 		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
 			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
+
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+		//important - zoc has probably changed
+		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
+#endif
 	}
 //---------------------------------
 
@@ -28092,6 +28097,9 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if (!GET_PLAYER(getOwner()).isTurnActive())
 		return;
 
+	//any mission resets the cache
+	ClearReachablePlots();
+
 	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
 	{
 		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
@@ -28472,8 +28480,20 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 	if (!bAllowEmbark)
 		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
-	// caching this is a bit too dangerous as it depends on enemy units as well
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+	// caching this is a bit dangerous as the result depends on many circumstances we aren't aware of here
+	// but we do it anyway and reset it generously (turn start, new mission, enemy killed)
+	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags)
+		return m_lastReachablePlots;
+
+	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
+
+	m_lastReachablePlots = result;
+	m_lastReachablePlotsFlags = iFlags;
+	return result;
+#else
 	return TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -28586,6 +28606,12 @@ void CvUnit::ClearPathCache()
 	m_uiLastPathFlags = 0xFFFFFFFF;
 	m_uiLastPathTurn = 0xFFFFFFFF;
 	m_uiLastPathLength = 0xFFFFFFFF;
+}
+
+void CvUnit::ClearReachablePlots()
+{
+	m_lastReachablePlots.clear();
+	m_lastReachablePlotsFlags = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

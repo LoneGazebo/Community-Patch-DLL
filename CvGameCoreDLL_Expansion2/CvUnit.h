@@ -1696,6 +1696,7 @@ public:
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
 	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, int* piTurns = NULL);
 	void ClearPathCache();
+	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
@@ -2058,6 +2059,9 @@ protected:
 	CvString m_strGreatName;
 #endif
 	GreatWorkType m_eGreatWork;
+
+	mutable ReachablePlots m_lastReachablePlots;
+	mutable uint m_lastReachablePlotsFlags;
 
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheOrigin;
