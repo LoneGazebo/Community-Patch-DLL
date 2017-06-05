@@ -3335,9 +3335,12 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 			if (!pLoopCity || plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pLoopCity->getX(), pLoopCity->getY()) > pLoopUnit->GetRange())
 				continue;
 
+			//don't nuke if we're about to capture it
+			if (pLoopCity->isInDangerOfFalling())
+				continue;
+
 			CvPlot* pCityPlot = pLoopCity->plot();
-			int iThisCityValue = pLoopCity->getPopulation() + pLoopCity->getEconomicValue(enemyPlayer.GetID());
-			iThisCityValue -= pLoopCity->getDamage() / 5; // No point nuking a city that is already trashed unless it is good city
+			int iThisCityValue = pLoopCity->getEconomicValue(enemyPlayer.GetID()) + pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage();
 
 			// check to see if there is anything good or bad in the radius that we should account for
 			int iBlastRadius = min(5,max(1,GC.getNUKE_BLAST_RADIUS()));
@@ -3364,10 +3367,10 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 					{
 						if(!pLoopPlot->IsImprovementPillaged())
 						{
-							iThisCityValue -= 5;
+							iThisCityValue -= 50;
 							if(pLoopPlot->getResourceType(ePlotTeam) != NO_RESOURCE)  // we aren't nuking our own resources
 							{
-								iThisCityValue -= 1000;
+								iThisCityValue -= 100;
 							}
 						}
 					}
@@ -3379,17 +3382,17 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 					{
 						if(!pLoopPlot->IsImprovementPillaged())
 						{
-							iThisCityValue += 2;
+							iThisCityValue += 20;
 							if(pLoopPlot->getResourceType(ePlotTeam) != NO_RESOURCE)  // we like nuking our their resources
 							{
-								iThisCityValue += 5;
+								iThisCityValue += 100;
 							}
 						}
 					}
 				}
 				else if (ePlotOwner != NO_PLAYER) // this will trigger a war
 				{
-					iThisCityValue -= 1000;
+					iThisCityValue -= 2000;
 				}
 	
 				// will we hit any units here?
@@ -3403,30 +3406,29 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 					{
 						PlayerTypes eUnitOwner = pInnerLoopUnit->getOwner();
 						TeamTypes eUnitTeam = pInnerLoopUnit->getTeam();
-						// are we at war with them (or are they us)
+						//Let's not nuke our own units.
 						if(eUnitOwner == m_eOwner)
 						{
-							//Let's not nuke our own units.
-							iThisCityValue -= 25;
+							iThisCityValue -= 200;
 						}
-						// Do we want a visibility check here?  We shouldn't know they are here.
+						// visibility check for enemies
 						else if(ourTeam.isAtWar(eUnitTeam) && pLoopPlot->isVisible(eTeam))
 						{
-							iThisCityValue += 10;
+							iThisCityValue += 200;
 						}
 						else if (eUnitOwner != NO_PLAYER && GET_PLAYER(eUnitOwner).isMajorCiv()) // this will trigger a war
 						{
 							if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(eUnitOwner, false) == MAJOR_CIV_APPROACH_WAR)
 							{
-								iThisCityValue += 100;
+								iThisCityValue += 500;
 							}
 							else if(GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetMajorCivApproach(eUnitOwner, false) == MAJOR_CIV_APPROACH_HOSTILE)
 							{
-								iThisCityValue += 10;
+								iThisCityValue += 200;
 							}
 							else
 							{
-								iThisCityValue -= 1000;
+								iThisCityValue -= 2000;
 							}
 						}
 					}
@@ -3435,9 +3437,15 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 
 			// if this is the capital
 			if(pLoopCity->isCapital())
-			{
 				iThisCityValue *= 2;
-			}
+
+			//de-emphasise if we're winning anyway
+			CvTacticalDominanceZone* pLandZone = ownerPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity, false);
+			CvTacticalDominanceZone* pWaterZone = ownerPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity, true);
+			if (pLandZone && pLandZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				iThisCityValue /= 2;
+			if (pWaterZone && pWaterZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				iThisCityValue /= 2;
 
 			if(iThisCityValue > iBestCity)
 			{
@@ -3451,7 +3459,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 	if (ppMuster)
 		*ppMuster = pBestUnit ? pBestUnit->plot() : NULL;
 
-	return pBestUnit ? pBestCity->plot() : NULL;
+	return pBestCity ? pBestCity->plot() : NULL;
 }
 
 AIOperationAbortReason CvAIOperationNukeAttack::VerifyOrAdjustTarget(CvArmyAI* /*pArmy*/)
