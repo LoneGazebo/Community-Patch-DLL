@@ -4382,6 +4382,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	VALIDATE_OBJECT
 	DomainTypes eDomain = getDomainType();
 
+#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
+	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0)
+		return false;
+#endif
+
 	// Part 1 : Domain specific exclusions -----------------------------------------------
 
 	// Air can go anywhere - provided it's a city or a carrier

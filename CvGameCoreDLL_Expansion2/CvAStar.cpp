@@ -1361,6 +1361,11 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
 
+#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
+	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman())
+		return FALSE;
+#endif
+
 	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
@@ -1607,6 +1612,11 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
+
+#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
+	if (ePlayer!=NO_PLAYER && !pToPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()))
+		return FALSE;
+#endif
 
 	//this is the important check here - stay within the same area
 	if(!bAnyArea && pFromPlot->getArea() != pToPlot->getArea())
