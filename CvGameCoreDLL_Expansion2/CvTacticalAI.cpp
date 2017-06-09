@@ -8221,7 +8221,7 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if (!pLoopUnit)
+		if (!pLoopUnit || !pLoopUnit->canMove())
 			continue;
 
 		// don't use non-combat units (but consider embarked for now)
@@ -8233,10 +8233,6 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 		if (bMustHaveHalfHP && (pLoopUnit->getDamage() * 2 > GC.getMAX_HIT_POINTS()))
 #endif
 			continue;
-
-		if (!pLoopUnit->canMove())
-			continue;
-
 		if (bMustBeRangedUnit && ((pTarget->isWater() && pLoopUnit->getDomainType() == DOMAIN_LAND) ||
 			(!pTarget->isWater() && !pTarget->isCoastalLand() && pLoopUnit->getDomainType() == DOMAIN_SEA)))
 			continue;
@@ -8316,7 +8312,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 	for (opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
-		if (!pLoopUnit)
+		if (!pLoopUnit || !pLoopUnit->canMove())
 			continue;
 
 		if (pLoopUnit->IsCanAttackRanged())
@@ -8376,7 +8372,7 @@ bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, const std::map
 	for(opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
-		if(!pLoopUnit)
+		if (!pLoopUnit || !pLoopUnit->canMove())
 			continue;
 
 		if(bEscortedUnits && (!pLoopUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_LAND))
