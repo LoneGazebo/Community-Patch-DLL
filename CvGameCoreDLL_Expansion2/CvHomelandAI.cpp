@@ -1604,42 +1604,34 @@ void CvHomelandAI::PlotMobileReserveMoves()
 /// Send units to sentry points around borders
 void CvHomelandAI::PlotSentryMoves()
 {
-	if (m_pPlayer->IsAtWar())
-		return;
-
 	// Do we have any targets of this type?
-	if(!m_TargetedSentryPoints.empty())
+	for(unsigned int iI = 0; iI < m_TargetedSentryPoints.size(); iI++)
 	{
-		// Prioritize them (LATER)
+		AI_PERF_FORMAT("Homeland-perf.csv", ("PlotSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-		// See how many moves of this type we can execute
-		for(unsigned int iI = 0; iI < m_TargetedSentryPoints.size(); iI++)
+		CvPlot* pTarget = GC.getMap().plot(m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY());
+
+		FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY, (iI == 0)/*bFirstTime*/);
+
+		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 		{
-			AI_PERF_FORMAT("Homeland-perf.csv", ("PlotSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY());
-
-			FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY, (iI == 0)/*bFirstTime*/);
-
-			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+			CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
+			if(pSentry)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
-				if(pSentry)
-				{
-					ExecuteMoveToTarget(pSentry, pTarget, 0, true);
-					UnitProcessed(pSentry->GetID());
+				ExecuteMoveToTarget(pSentry, pTarget, 0, true);
+				UnitProcessed(pSentry->GetID());
 
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
-						LogHomelandMessage(strLogString);
-					}
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
+					LogHomelandMessage(strLogString);
 				}
 			}
 		}
 	}
 }
+
 #if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotSentryNavalMoves()
 {
