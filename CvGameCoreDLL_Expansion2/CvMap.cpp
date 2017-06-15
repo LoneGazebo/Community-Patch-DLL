@@ -2343,6 +2343,7 @@ int CvMap::GetAIMapHint()
 	return m_iAIMapHints;
 }
 
+#if defined(MOD_UNIT_KILL_STATS)
 int CvMap::GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex)
 {
 	if (killCount.find(ePlayer) != killCount.end())
@@ -2398,3 +2399,4 @@ void CvMap::DoKillCountDecay(float fDecayFactor)
 		for (UnitKillCount::value_type::second_type::iterator itPlot = itPlayer->second.begin(); itPlot != itPlayer->second.end(); ++itPlot)
 			itPlot->second = int(itPlot->second*fDecayFactor);
 }
+#endif

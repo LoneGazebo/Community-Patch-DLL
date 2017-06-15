@@ -1994,23 +1994,22 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 		}
 	}
 
-//---------------------------------
-// statistics
-//---------------------------------
-	if (ePlayer!=NO_PLAYER)
+#if defined(MOD_UNIT_KILL_STATS)
+	if (ePlayer != NO_PLAYER && !bDelay)
 	{
 		TacticalAIMoveTypes move = getTacticalMove();
-		saiTaskWhenKilled[ (int)move+1 ]++;
+		saiTaskWhenKilled[(int)move + 1]++;
 
 		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
 			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
+	}
+#endif
 
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-		//important - zoc has probably changed
+	//important - zoc has probably changed
+	if (ePlayer != NO_PLAYER)
 		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
 #endif
-	}
-//---------------------------------
 
 	auto_ptr<ICvUnit1> pDllThisUnit = GC.WrapUnitPointer(this);
 

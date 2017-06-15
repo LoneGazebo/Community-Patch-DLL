@@ -316,10 +316,12 @@ public:
 	int GetAIMapHint();
 	// End Natural Wonders stuff
 
+#if defined(MOD_UNIT_KILL_STATS)
 	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void ExportUnitKillCount(PlayerTypes ePlayer);
 	void DoKillCountDecay(float fDecayFactor = 0.98);
+#endif
 
 protected:
 
@@ -372,8 +374,10 @@ protected:
 
 	DeferredFogPlots m_vDeferredFogPlots; // don't serialize me
 
+#if defined(MOD_UNIT_KILL_STATS)
 	// player -> plot index -> number of owned units killed
 	UnitKillCount killCount;
+#endif
 };
 
 #endif

@@ -764,7 +764,7 @@ CvPlayer::CvPlayer() :
 //	--------------------------------------------------------------------------------
 CvPlayer::~CvPlayer()
 {
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE) && defined(MOD_UNIT_KILL_STATS)
 	if (isMajorCiv() && GC.getAILogging())
 		GC.getMap().ExportUnitKillCount(GetID());
 #endif
