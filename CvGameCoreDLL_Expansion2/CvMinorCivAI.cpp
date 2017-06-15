@@ -12047,6 +12047,10 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 #endif
 			}
 		}
+
+		//teleport our units if necessary
+		GC.getMap().verifyUnitValidPlot();
+
 		if(eOldAlly == GC.getGame().getActivePlayer())
 		{
 			theMap.updateDeferredFog();

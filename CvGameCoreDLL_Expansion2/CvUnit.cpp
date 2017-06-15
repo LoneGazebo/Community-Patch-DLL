@@ -4373,6 +4373,10 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 		}
 	}
 
+	//city states may enter their ally's territory - may help for defense
+	if (kMyTeam.isMinorCiv() && kTheirTeam.isMajorCiv() && GET_PLAYER(getOwner()).GetMinorCivAI()->IsAllies(kTheirTeam.getLeaderID()))
+		return true;
+
 	return false;
 }
 

@@ -442,11 +442,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 				(attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()) ||
 				(attackPlot->getImprovementType() == eImprovementCamp && kAttacker.isBarbarian()) )
 			{
-				if(attackPlot->getOwner() == kAttacker.getOwner())
-				{
-					//CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
-					bAdvance = false;
-				}
+				//CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
+				bAdvance = false;
 			}
 		}
 #endif

@@ -11507,14 +11507,30 @@ void CvPlayer::UpdateReligion()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateTimers()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
 	m_endTurnBusyUnitUpdatesLeft--;
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-	{
+
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 		pLoopUnit->UpdateMission();
-		pLoopUnit->doDelayedDeath();
-	}
+
+	//unit cleanup - this should probably also be done in a two-pass scheme like below
+	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
+	bool bKilledAtLeastOne = false;
+	bool bKilledOneThisPass = false;
+	do
+	{
+		bKilledOneThisPass = false;
+		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			bKilledOneThisPass |= pLoopUnit->doDelayedDeath();
+		bKilledAtLeastOne |= bKilledOneThisPass;
+	} while (bKilledOneThisPass);
+
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+	//force explicit visibility update for killed units
+	if (bKilledAtLeastOne)
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM, GC.getGame().getActivePlayer() == m_eID);
+#endif
 
 	GetDiplomacyAI()->update();
 }
@@ -31572,10 +31588,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			//visibility expires now!
 			//flip for all teams in case we killed one of their units
 			for (int iI = 0; iI < theMap.numPlots(); iI++)
-				theMap.plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM);
-
-			if (kGame.getActivePlayer() == m_eID)
-				theMap.updateFog();
+				theMap.plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM, kGame.getActivePlayer() == m_eID);
 #endif
 
 #if defined(MOD_EVENTS_RED_TURN)

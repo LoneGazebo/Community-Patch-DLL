@@ -7304,7 +7304,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if(pUnit && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath() && pUnit->canMove())
 		{
 			// If not naval invasion, proper domain of unit?
 			if(pZone->IsNavalInvasion() ||
@@ -8311,6 +8311,8 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 	// Loop through all units available to operation
 	for (opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 	{
+		int iPenalty = 0;
+
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
 		if (!pLoopUnit || !pLoopUnit->canMove())
 			continue;
@@ -8321,7 +8323,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 				continue;
 
 			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(), pLoopUnit->getDomainType(), NULL, false) > 0)
-				continue;
+				iPenalty = 2;
 		}
 		else //melee
 		{
@@ -8329,7 +8331,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 				continue;
 
 			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(),pLoopUnit->getDomainType())==0)
-				continue;
+				iPenalty = 1;
 		}
 		
 		//avoid embarkation if we need to fight!
@@ -8342,7 +8344,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 			if (itPlot!=itUnit->second.end())
 			{
-				int iTurns = itPlot->iTurns;
+				int iTurns = itPlot->iTurns + iPenalty;
 
 				CvTacticalUnit unit;
 				unit.SetID(pLoopUnit->GetID());

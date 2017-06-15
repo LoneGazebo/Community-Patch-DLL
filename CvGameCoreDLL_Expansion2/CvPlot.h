@@ -692,7 +692,7 @@ public:
 #endif
 	}
 
-	void flipVisibility(TeamTypes eTeam=NO_TEAM);
+	void flipVisibility(TeamTypes eTeam=NO_TEAM, bool bUpdateFog=false);
 #if defined(MOD_API_EXTENSIONS)
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
 #else

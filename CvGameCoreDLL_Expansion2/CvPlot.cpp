@@ -10874,13 +10874,29 @@ void CvPlot::changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange)
 	}
 }
 
-void CvPlot::flipVisibility(TeamTypes eTeam)
+void CvPlot::flipVisibility(TeamTypes eTeam, bool bUpdateFog)
 {
 	//flip visibility
-	if (eTeam==NO_TEAM)
-		memcpy(m_aiVisibilityCountThisTurnMax, m_aiVisibilityCount, MAX_TEAMS * sizeof(uint8));
+	if (eTeam == NO_TEAM)
+	{
+		if (memcmp(m_aiVisibilityCountThisTurnMax, m_aiVisibilityCount, MAX_TEAMS * sizeof(uint8)) != 0)
+			memcpy(m_aiVisibilityCountThisTurnMax, m_aiVisibilityCount, MAX_TEAMS * sizeof(uint8));
+		else
+			bUpdateFog = false;
+	}
 	else
-		m_aiVisibilityCountThisTurnMax[eTeam] = m_aiVisibilityCount[eTeam];
+	{
+		if (m_aiVisibilityCountThisTurnMax[eTeam] != m_aiVisibilityCount[eTeam])
+			m_aiVisibilityCountThisTurnMax[eTeam] = m_aiVisibilityCount[eTeam];
+		else
+			bUpdateFog = false;
+	}
+
+	if (bUpdateFog)
+	{
+		updateFog();
+		updateSymbols(); //this should make sure the yield symbols are still being displayed
+	}
 }
 
 //	--------------------------------------------------------------------------------
