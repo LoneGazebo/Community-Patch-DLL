@@ -3840,6 +3840,8 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
+	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge())
+		return false;
 #endif
 
 	// Science building in capital that has given us a tech boost?

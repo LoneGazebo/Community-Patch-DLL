@@ -66,6 +66,7 @@ struct CvDangerPlotContents
 	void clear()
 	{
 		m_bFlatPlotDamage = false;
+		m_bEnemyAdjacent = false;
 		m_pCitadel = NULL;
 		m_apUnits.clear();
 		m_apCities.clear();
@@ -95,8 +96,8 @@ struct CvDangerPlotContents
 	int m_iX;
 	int m_iY;
 	bool m_bFlatPlotDamage;
-	//only one citadel can affect a unit at a time
-	CvPlot* m_pCitadel;
+	bool m_bEnemyAdjacent; //use this as a tiebreaker, disengage when in doubt
+	CvPlot* m_pCitadel;	//only one citadel can affect a unit at a time
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;
 	std::vector<int> m_fogDanger;

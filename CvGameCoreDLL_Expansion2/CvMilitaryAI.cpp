@@ -4746,10 +4746,19 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		return;
 	}
 
-	// Don't do this if we're a minor civ
-	if(m_pPlayer->isMinorCiv())
+	if (m_pPlayer->isMinorCiv())
 	{
-		return;
+		if (m_pPlayer->getNumMilitaryUnits() < m_pPlayer->getTotalPopulation() / 2)
+			return;
+
+		if (m_pPlayer->IsAtWar())
+			return;
+
+		if (m_pPlayer->GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
+			return;
+
+		if (m_pPlayer->GetMinorCivAI()->GetNumThreateningBarbarians() > 0)
+			return;
 	}
 
 	// Are we running at a deficit?
@@ -4766,13 +4775,16 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	bInDeficit = bInDeficit || iAverageGoldPerUnit > 5;
 #endif
 
-	// Are we running anything other than the Conquest Grand Strategy?
-	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	if(eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
+	if (!m_pPlayer->isMinorCiv())
 	{
-		if(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eConquestGrandStrategy)
+		// Are we running anything other than the Conquest Grand Strategy?
+		AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+		if (eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
 		{
-			bConquestGrandStrategy = true;
+			if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eConquestGrandStrategy)
+			{
+				bConquestGrandStrategy = true;
+			}
 		}
 	}
 
@@ -4792,12 +4804,17 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	{
 		if(pLandUnit)
 		{
+	
 			bool bGifted = false;
-			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
-			if (eMinor != NO_PLAYER)
+			// Don't do this if we're a minor civ
+			if (!m_pPlayer->isMinorCiv())
 			{
-				GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
-				bGifted = true;
+				PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+				if (eMinor != NO_PLAYER)
+				{
+					GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
+					bGifted = true;
+				}
 			}
 			if (!bGifted)
 			{
@@ -4815,11 +4832,15 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		if(pNavalUnit)
 		{
 			bool bGifted = false;
-			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
-			if (eMinor != NO_PLAYER)
+			// Don't do this if we're a minor civ
+			if (!m_pPlayer->isMinorCiv())
 			{
-				GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
-				bGifted = true;
+				PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+				if (eMinor != NO_PLAYER)
+				{
+					GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
+					bGifted = true;
+				}
 			}
 			if (!bGifted)
 			{

@@ -240,8 +240,17 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		{
 			//sea units can typically not leave their area - catch this case, 
 			//else there will be a long and useless pathfinding operation
-			if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
-				continue;
+			CvPlot* pCurPlot = pUnit->plot();
+			if (pCurPlot->isCity())
+			{
+				if (!pCurPlot->getPlotCity()->isMatchingArea(vExplorePlots[ui].pPlot))
+					continue;
+			}
+			else
+			{
+				if (pCurPlot->getArea() != vExplorePlots[ui].pPlot->getArea())
+					continue;
+			}
 		}
 
 		if(vExplorePlots[ui].pPlot == pUnit->plot())
@@ -1353,7 +1362,7 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 					{
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
 #if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pGarrison);
+						TacticalAIHelpers::PerformRangedOpportunityAttack(pGarrison);
 						UnitProcessed(pGarrison->GetID());
 #endif
 						if(GC.getLogging() && GC.getAILogging())
@@ -1577,12 +1586,8 @@ void CvHomelandAI::PlotMobileReserveMoves()
 				CvUnit *pReserve = GetBestUnitToReachTarget(pTarget, 15);
 				if(pReserve)
 				{
-					ExecuteMoveToTarget(pReserve, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pReserve);
-					pReserve->finishMoves();
+					ExecuteMoveToTarget(pReserve, pTarget, 0, true);
 					UnitProcessed(pReserve->GetID());
-#endif
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -1621,12 +1626,9 @@ void CvHomelandAI::PlotSentryMoves()
 				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
 				if(pSentry)
 				{
-					ExecuteMoveToTarget(pSentry, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
-					pSentry->finishMoves();
+					ExecuteMoveToTarget(pSentry, pTarget, 0, true);
 					UnitProcessed(pSentry->GetID());
-#endif
+
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
@@ -1669,11 +1671,8 @@ void CvHomelandAI::PlotSentryNavalMoves()
 						{
 							pSentry->PushMission(CvTypes::getMISSION_SKIP());
 						}
-#if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
-						pSentry->finishMoves();
 						UnitProcessed(pSentry->GetID());
-#endif
+
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -1683,12 +1682,9 @@ void CvHomelandAI::PlotSentryNavalMoves()
 					}
 					else
 					{
-						ExecuteMoveToTarget(pSentry, pTarget, 0);
-#if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
-						pSentry->finishMoves();
+						ExecuteMoveToTarget(pSentry, pTarget, 0, true);
 						UnitProcessed(pSentry->GetID());
-#endif
+
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -2161,6 +2157,7 @@ void CvHomelandAI::ExecuteAggressivePatrolMoves()
 				if (pUnit->canFortify(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					pUnit->SetFortifiedThisTurn(true);
 					pUnit->SetTurnProcessed(true);
 					pUnit->finishMoves();
 				}
@@ -2278,6 +2275,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 				if (pUnit->canFortify(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					pUnit->SetFortifiedThisTurn(true);
 					pUnit->SetTurnProcessed(true);
 					pUnit->finishMoves();
 				}
@@ -2583,7 +2581,7 @@ void CvHomelandAI::PlotAncientRuinMoves()
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
 #if defined(MOD_BALANCE_CORE)
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pIndy);
+					TacticalAIHelpers::PerformRangedOpportunityAttack(pIndy,true);
 					pIndy->finishMoves();
 					UnitProcessed(pIndy->GetID());
 #endif
@@ -3620,8 +3618,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		int iBestPlotScore = 0;
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
-		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, pUnit->isEmbarked());
+		//if the scout is already embarked, we need to allow it so we don't get stuck!
+		ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, pUnit->isEmbarked());
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -3633,10 +3631,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				continue;
 
 			//don't embark to reach a close-range target
-			if(pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
-				continue;
-			//Ignore land for sea explorers
-			if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
+			if(pEvalPlot->needsEmbarkation(pUnit))
 				continue;
 
 			if (pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pEvalPlot))
@@ -3995,7 +3990,7 @@ void CvHomelandAI::ExecuteHeals()
 				CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
 				if (pBestPlot)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 					continue;
@@ -4036,7 +4031,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 			if(pBestPlot != NULL)
 			{
 				// Move to the lowest danger value found
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 
@@ -4164,7 +4159,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
@@ -4188,7 +4183,8 @@ void CvHomelandAI::ExecuteWriterMoves()
 							// In multiple moves
 							else
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), 
+									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->finishMoves();
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -4295,7 +4291,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
@@ -4318,7 +4314,8 @@ void CvHomelandAI::ExecuteArtistMoves()
 							// In multiple moves
 							else
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), 
+									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->finishMoves();
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -4424,7 +4421,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
@@ -4447,7 +4444,8 @@ void CvHomelandAI::ExecuteMusicianMoves()
 							// In multiple moves
 							else
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), 
+									CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->finishMoves();
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -4619,7 +4617,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 								if(pEng)
 								{
-									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
+									ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
 									if(GC.getLogging() && GC.getAILogging())
 									{
@@ -4640,7 +4638,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 						if(pEng)
 						{
-							ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
+							ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
@@ -4710,7 +4708,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 								if(pEng)
 								{
-									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
+									ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
 									if(GC.getLogging() && GC.getAILogging())
 									{
@@ -4730,7 +4728,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), 42);
 							if(pEng)
 							{
-								ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
+								ExecuteMoveToTarget(pEng, pWonderCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
 								if(GC.getLogging() && GC.getAILogging())
 								{
@@ -4795,7 +4793,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 				}
 				else if( pUnit->CanReachInXTurns(pTarget,INT_MAX) )
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 
 					if(pUnit->plot() == pTarget && pUnit->canMove())
 					{
@@ -4883,7 +4881,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 			else if( pUnit->CanReachInXTurns(pTarget,INT_MAX) )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 				
 				if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
 				{
@@ -4925,7 +4923,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				}
 				else
 				{
-					ExecuteMoveToTarget(pUnit,pTarget, 0, true);
+					ExecuteMoveToTarget(pUnit,pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -5110,7 +5108,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 
 				if(pBestCityPlot)
 				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestCityPlot->getX(), pBestCityPlot->getY());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestCityPlot->getX(), pBestCityPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -5161,7 +5159,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 					}
 					else
 					{
-						ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
+						ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -5291,7 +5289,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				else
 				{
 					//continue moving to target
-					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, 0))
+					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
 					{
 						vPlotsToAvoid.push_back(pTargetPlot);
 						pUnit->finishMoves();
@@ -5336,8 +5334,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			int iAura = 0;
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -5406,8 +5403,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 
@@ -5608,7 +5604,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				// Move normally to this city
 				else if(pChosenCity)
 				{
-					MoveToTargetButDontEndTurn(pUnit,pChosenCity->plot(),0);
+					MoveToTargetButDontEndTurn(pUnit,pChosenCity->plot(),CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -5832,7 +5828,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				{
 					CvCity *pChosenCity = weightedCityList.GetElement(0);
 				
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -6080,7 +6076,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			// Move normally to this city
 			else
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY());
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pChosenCity->getX(), pChosenCity->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 
@@ -6150,7 +6146,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit,pTarget->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
+				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -6200,31 +6196,64 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, &iTargetTurns);
 		if(pTarget)
 		{
-			if(iTargetTurns == 0)
+			if (pUnit->CanRemoveHeresy(pTarget->plot()))
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-
-				if(pUnit->canMove())
-					pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
-
-				if(GC.getLogging() && GC.getAILogging())
+				if (iTargetTurns == 0)
 				{
-					CvString strLogString;
-					strLogString.Format("Move to remove heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-					LogHomelandMessage(strLogString);
-				}
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
-				UnitProcessed(pUnit->GetID());
+					if (pUnit->canMove())
+						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Move to remove heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					UnitProcessed(pUnit->GetID());
+				}
+				else
+				{
+					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving to plot adjacent to heresy removal city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+				}
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
-
-				if(GC.getLogging() && GC.getAILogging())
+				if (iTargetTurns == 0)
 				{
-					CvString strLogString;
-					strLogString.Format("Moving to plot adjacent to heresy removal city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+
+					if (pUnit->canMove())
+						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Move to garrison against heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					UnitProcessed(pUnit->GetID());
+				}
+				else
+				{
+					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving to plot adjacent to garrison against heresy in city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}
@@ -6810,7 +6839,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 			return true;
 		}
 	}
@@ -6838,8 +6867,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
 	WeightedPlotVector aBestPlotList;
-	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,true);
+	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn();
 	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{
@@ -6963,7 +6991,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 			return true;
 		}
 	}
@@ -7553,7 +7581,7 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 			if (iDistance == MAX_INT)
 				continue;
 			
-			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, false, false, iMinTurns);
+			int iMoves = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iMinTurns);
 			it->SetMovesToTarget(iMoves);
 			// Did we make it at all?
 			if (iMoves != MAX_INT)
@@ -8015,7 +8043,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 			if(eMission == CvTypes::getMISSION_MOVE_TO())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, 0, false, false, MISSIONAI_BUILD, pPlot);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aDirective[0].m_sX, aDirective[0].m_sY, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, false, false, MISSIONAI_BUILD, pPlot);
 
 				//do we have movement left?
 				if (pUnit->getMoves()>0)
@@ -8163,7 +8191,9 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 /// Move an exploring unit to a designated target (special function exposed to Lua)
 bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 {
-	SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER);
+	int iFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER;
+
+	SPathFinderUserData data(pUnit,iFlags);
 	SPath path = GC.GetPathFinder().GetPath(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
 	if(!!path)
 	{
@@ -8177,7 +8207,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 				strLogString.Format("UnitID: %d Moving to script explore target, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), iFlags, false, false, MISSIONAI_EXPLORE, pPlot);
 			pUnit->finishMoves();
 			UnitProcessed(pUnit->GetID());
 
@@ -8271,7 +8301,7 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		// Embarked and in danger? We need to do something!
 		if (pUnit->isEmbarked())
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
 		else
@@ -8284,7 +8314,10 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 
 			// No safe path so just stay put and fortify until life improves for you.
 			if (pUnit->canFortify(pUnit->plot()))
+			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
 			else
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			return false;
@@ -8306,7 +8339,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return true;
 	}
 
-	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
+	int iFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_NO_ATTACKING;
 	if (eDomain == pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 

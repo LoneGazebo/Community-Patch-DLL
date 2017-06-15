@@ -372,6 +372,7 @@ CvUnit::CvUnit() :
 	, m_iGainsXPFromSpotting("CvUnit::m_iGainsXPFromSpotting", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
+	, m_iDamageAoEFortified("CvUnit::m_iDamageAoEFortified", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 #endif
@@ -1222,10 +1223,7 @@ void CvUnit::uninit()
 	uninitInfos();
 
 	m_missionQueue.clear();
-
 	m_Promotions.Uninit();
-
-	m_kLastPath.clear();
 
 	delete m_pReligion;
 	m_pReligion = NULL;
@@ -1393,6 +1391,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromPillaging = 0;
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
+	m_iDamageAoEFortified = 0;
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 #endif
@@ -2007,6 +2006,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 
 		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
 			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
+
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+		//important - zoc has probably changed
+		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
+#endif
 	}
 //---------------------------------
 
@@ -2825,6 +2829,10 @@ void CvUnit::doTurn()
 	if(IsFortifiedThisTurn())
 	{
 		changeFortifyTurns(1);
+		if (GetDamageAoEFortified() > 0)
+		{
+			DoAoEDamage(GetDamageAoEFortified());
+		}
 	}
 
 	// Recon unit? If so, he sees what's around him
@@ -4380,6 +4388,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	VALIDATE_OBJECT
 	DomainTypes eDomain = getDomainType();
 
+#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
+	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0)
+		return false;
+#endif
+
 	// Part 1 : Domain specific exclusions -----------------------------------------------
 
 	// Air can go anywhere - provided it's a city or a carrier
@@ -5897,6 +5910,10 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			return false;
 
 		// No scouts
+		if (getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
+			return false;
+
+		// No scouts
 		UnitClassTypes eScoutClass = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_SCOUT", true);
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
@@ -7331,7 +7348,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 	if(!bTestVisible)
 	{
 		// Embarked Units can't heal
-		if(isEmbarked())
+		if(pPlot->needsEmbarkation(this))
 		{
 			return false;
 		}
@@ -15862,13 +15879,12 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 	{
 		iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
 
-		if(GET_PLAYER(pOtherUnit->getOwner()).isHuman())
+		if (GET_PLAYER(pOtherUnit->getOwner()).isHuman())
 		{
-			int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonus() * 5;
+			int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonus() * 10;
 			iResistance *= (100 + iHandicap);
 			iResistance /= 100;
 		}
-		
 	}
 
 	return iResistance;
@@ -18722,9 +18738,7 @@ bool CvUnit::IsHasNoValidMove() const
 		return false;
 	}
 
-	ReachablePlots plots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(this,plot(),plots,true,true,false);
-
+	ReachablePlots plots = GetAllPlotsInReachThisTurn(true,true,false);
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
 		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -21173,7 +21187,27 @@ void CvUnit::SetFortifiedThisTurn(bool bValue)
 	}
 }
 
+void CvUnit::DoAoEDamage(int iValue)
+{
+	CvPlot* pAdjacentPlot;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
+		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+		{
+			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
+			{
+				CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iJ);
+				if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
+				{
+					CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY");
+					pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+				}
+			}
+		}
+	}
+}
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlitzCount() const
 {
@@ -23705,6 +23739,20 @@ void CvUnit::ChangeMoraleBreakChance(int iChange)
 {
 	m_iCanMoraleBreak += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDamageAoEFortified() const
+{
+	return m_iDamageAoEFortified;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDamageAoEFortified(int iChange)
+{
+	m_iDamageAoEFortified += iChange;
+}
+
+
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getFriendlyLandsModifier() const
@@ -25705,6 +25753,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
 		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
+		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 
 		if(thisPromotion.PromotionDuration() != 0)
 		{
@@ -27281,8 +27330,8 @@ bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 	//now copy the new path
 	//but skip the first node, it's the current unit plot
 	//important: this means that an empty m_kLastPath is valid!
+	ClearPathCache();
 	CvPathNode nextNode;
-	m_kLastPath.clear();
 	for (size_t i=1; i<newPath.vPlots.size(); i++)
 	{
 		nextNode = newPath.vPlots[i];
@@ -27599,7 +27648,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 
 		pPathPlot = pDestPlot;
-		m_kLastPath.clear(); // Not used by air units, keep it clear.
+		ClearPathCache(); // Not used by air units, keep it clear.
 	}
 	else
 	{
@@ -27701,7 +27750,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 		if(bRejectMove)
 		{
-			m_kLastPath.clear();
+			ClearPathCache();
 			PublishQueuedVisualizationMoves();
 			return 0;
 		}
@@ -27738,7 +27787,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 		else
 		{
-			m_kLastPath.clear(); //failed to move, recalculate.
+			ClearPathCache(); //failed to move, recalculate.
 			return 0;
 		}
 	}
@@ -28096,6 +28145,9 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//potential deadlock in pathfinder, be careful
 	if (!GET_PLAYER(getOwner()).isTurnActive())
 		return;
+
+	//any mission resets the cache
+	ClearReachablePlots();
 
 	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
 	{
@@ -28464,12 +28516,40 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
+// get all tiles a unit can reach in one turn - this ignores friendly stacking. need to check the result by hand!
+//	--------------------------------------------------------------------------------
+ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft) const
+{
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+	if (!bCheckTerritory)
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
+	if (!bCheckZOC)
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+	if (!bAllowEmbark)
+		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+	// caching this is a bit dangerous as the result depends on many circumstances we aren't aware of here
+	// but we do it anyway and reset it generously (turn start, new mission, enemy killed)
+	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags)
+		return m_lastReachablePlots;
+
+	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
+
+	m_lastReachablePlots = result;
+	m_lastReachablePlotsFlags = iFlags;
+	return result;
+#else
+	return TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
+#endif
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 {
 	VALIDATE_OBJECT
-	ReachablePlots plots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(this,plot(),plots,true,true,false);
-
+	ReachablePlots plots = GetAllPlotsInReachThisTurn(true, true, false);
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -28575,6 +28655,12 @@ void CvUnit::ClearPathCache()
 	m_uiLastPathFlags = 0xFFFFFFFF;
 	m_uiLastPathTurn = 0xFFFFFFFF;
 	m_uiLastPathLength = 0xFFFFFFFF;
+}
+
+void CvUnit::ClearReachablePlots()
+{
+	m_lastReachablePlots.clear();
+	m_lastReachablePlotsFlags = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

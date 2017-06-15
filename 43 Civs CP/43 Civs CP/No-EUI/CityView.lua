@@ -1258,6 +1258,9 @@ function OnCityViewUpdate()
 							iGPPChange = iGPPChange + building.GreatPeopleRateChange * 100;
 						end
 					end
+
+					iGPPChange = iGPPChange + pCity:GetExtraSpecialistPoints(pSpecialistInfo.ID);
+
 					if iGPPChange > 0 then
 						-- Generic GP mods
 						local iPlayerMod = pPlayer:GetGreatPeopleRateModifier();

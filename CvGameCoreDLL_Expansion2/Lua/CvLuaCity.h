@@ -506,6 +506,7 @@ protected:
 	static int lGetSpecialistGreatPersonProgress(lua_State* L);
 	static int lGetSpecialistGreatPersonProgressTimes100(lua_State* L);
 	static int lChangeSpecialistGreatPersonProgressTimes100(lua_State* L);
+	static int lGetExtraSpecialistPoints(lua_State* L);
 	static int lGetNumSpecialistsInBuilding(lua_State* L);
 	static int lDoReallocateCitizens(lua_State* L);
 	static int lDoVerifyWorkingPlots(lua_State* L);

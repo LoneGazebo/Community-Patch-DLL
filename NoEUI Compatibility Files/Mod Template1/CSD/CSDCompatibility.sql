@@ -113,8 +113,8 @@ UPDATE Policies SET GreatDiplomatRateModifier = '25' WHERE Type = 'POLICY_SCHOLA
 UPDATE Buildings SET PrereqTech = 'TECH_RADIO' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
 
 -- Set Wonder Policy Requirement
-UPDATE Buildings SET NumPoliciesNeeded = '12' WHERE Type = 'BUILDING_SUMMER_PALACE';
-UPDATE Buildings SET NumPoliciesNeeded = '5' WHERE Type = 'BUILDING_FORUM';
+UPDATE Buildings SET NumPoliciesNeeded = '11' WHERE Type = 'BUILDING_SUMMER_PALACE';
+UPDATE Buildings SET NumPoliciesNeeded = '3' WHERE Type = 'BUILDING_FORUM';
 
 -- Chancery Happiness Boost
 INSERT INTO Policy_BuildingClassHappiness (PolicyType, BuildingClassType, Happiness) SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';

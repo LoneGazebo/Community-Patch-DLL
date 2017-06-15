@@ -1219,6 +1219,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteTotal);
 	Method(GetInternationalTradeRouteScience);
 #if defined(MOD_BALANCE_CORE)
+	Method(GetInternationalTradeRouteCulture);
 	Method(GetInternationalTradeRouteProduction);
 	Method(GetInternationalTradeRouteFood);
 	Method(GetMinorCivGoldBonus);
@@ -1235,6 +1236,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTradeRoutesAvailable);
 	Method(GetTradeRoutesToYou);
 	Method(GetNumTechDifference);
+	Method(GetNumPolicyDifference);
 
 	// Culture functions. Not sure where they should go
 	Method(GetGreatWorks);
@@ -4638,6 +4640,31 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	bool bOrigin = lua_toboolean(L, 5);
+
+	TradeConnection kTradeConnection;
+	kTradeConnection.SetCities(pOriginCity, pDestCity);
+	kTradeConnection.m_eDomain = eDomain;
+
+	if (pOriginCity->getOwner() != pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+	}
+
+	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_CULTURE, bOrigin);
+	lua_pushinteger(L, iResult);
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteProduction(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -5285,6 +5312,11 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		lua_setfield(L, t, "FromScience");
 		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
 		lua_setfield(L, t, "ToScience");
+		lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_CULTURE, true));
+		lua_setfield(L, t, "FromCulture");
+		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_CULTURE, false));
+		lua_setfield(L, t, "ToCulture");
+
 
 
 		ReligionTypes eToReligion = NO_RELIGION;
@@ -5455,6 +5487,10 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						lua_setfield(L, t, "FromScience");
 						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
 						lua_setfield(L, t, "ToScience");
+						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_CULTURE, true));
+						lua_setfield(L, t, "FromCulture");
+						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_CULTURE, false));
+						lua_setfield(L, t, "ToCulture");
 
 						ReligionTypes eToReligion = NO_RELIGION;
 						int iToPressure = 0;
@@ -5588,6 +5624,10 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 		lua_setfield(L, t, "FromScience");
 		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
 		lua_setfield(L, t, "ToScience");
+		lua_pushinteger(L, pFromPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_CULTURE, true));
+		lua_setfield(L, t, "FromCulture");
+		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_CULTURE, false));
+		lua_setfield(L, t, "ToCulture");
 
 		ReligionTypes eToReligion = NO_RELIGION;
 		int iToPressure = 0;
@@ -5636,6 +5676,15 @@ int CvLuaPlayer::lGetNumTechDifference(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	lua_pushinteger(L, GC.getGame().GetGameTrade()->GetTechDifference(pkPlayer->GetID(), eOtherPlayer));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumPolicyDifference(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, GC.getGame().GetGameTrade()->GetPolicyDifference(pkPlayer->GetID(), eOtherPlayer));
 	return 1;
 }
 

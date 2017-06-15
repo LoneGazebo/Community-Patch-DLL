@@ -434,9 +434,13 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			// If the attacker is in a city, fort or citadel, don't advance
 			static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 			static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+			static ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 			CvPlot* attackPlot = kAttacker.plot();
 
-			if (attackPlot->isCity() || (attackPlot->getImprovementType() == eImprovementFort && !attackPlot->IsImprovementPillaged()) || (attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()))
+			if (attackPlot->isCity() || 
+				(attackPlot->getImprovementType() == eImprovementFort && !attackPlot->IsImprovementPillaged()) || 
+				(attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()) ||
+				(attackPlot->getImprovementType() == eImprovementCamp && kAttacker.isBarbarian()) )
 			{
 				if(attackPlot->getOwner() == kAttacker.getOwner())
 				{
@@ -1141,7 +1145,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
-							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pPlot->getX(), pPlot->getY()))
+							if (pAdjacentPlot != NULL && pkAttacker->canEverRangeStrikeAt(pAdjacentPlot->getX(), pAdjacentPlot->getY()))
 							{
 								for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 								{

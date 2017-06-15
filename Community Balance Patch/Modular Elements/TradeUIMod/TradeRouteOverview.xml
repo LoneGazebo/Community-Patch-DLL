@@ -17,9 +17,9 @@
 						<Image ID="FromCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
 					</Box>
 				</Box>
-				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="160,34">
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="100,34">
 					<Grid Anchor="C,C" Size="150,34" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
-					<Label Anchor="L,C" Offset="0,0" String="FromCity" TruncateWidth="156" Font="TwCenMT20" FontStyle="Stroke" ID="FromCity"/>
+					<Label Anchor="L,C" Offset="0,0" String="FromCity" TruncateWidth="100" Font="TwCenMT20" FontStyle="Stroke" ID="FromCity"/>
 				</Box>
 				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="30,34">
 					<Grid Anchor="C,C" Size="30,34" Offset="0,0" Padding="0,0" Style="Grid9Frame27" Hidden="1"/>
@@ -30,8 +30,8 @@
 						<Image ID="ToCivIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
 					</Box>
 				</Box>
-				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="160,34">
-					<Label Anchor="L,C" Offset="0,0" String="ToCity" TruncateWidth="156" Font="TwCenMT20" FontStyle="Stroke" ID="ToCity"/>
+				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="100,34">
+					<Label Anchor="L,C" Offset="0,0" String="ToCity" TruncateWidth="100" Font="TwCenMT20" FontStyle="Stroke" ID="ToCity"/>
 				</Box>
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="55,34">
 					<Label Anchor="C,C" Offset="0,0" String="FromGPT" Color0="Gold.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="FromGPT"/>
@@ -44,7 +44,13 @@
         </Box>
         <Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="55,34">
           <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="ToScience"/>
-        </Box>        
+        </Box>
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="55,34">
+					<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Culture" Color1="Black.255" FontStyle="Stroke" ID="FromCulture"/>
+				</Box>
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="55,34">
+					<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Culture" Color1="Black.255" FontStyle="Stroke" ID="ToCulture"/>
+				</Box>
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="55,34">
 					<Label Anchor="C,C" Offset="0,0" String="ToFood" Color0="Food.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="ToFood"/>
 				</Box>
@@ -116,9 +122,13 @@
 			<Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
 				<Box Anchor="L,T" Size="35,459" Color="0,0,0,0"/>
 				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
-				<Box Anchor="L,T" Size="190,459" Color="1,26,23,255"/>
+				<Box Anchor="L,T" Size="130,459" Color="1,26,23,255"/>
 				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
-				<Box Anchor="L,T" Size="190,459" Color="0,0,0,0"/>
+				<Box Anchor="L,T" Size="130,459" Color="0,0,0,0"/>
+				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+				<Box Anchor="L,T" Size="55,459" Color="1,26,23,255"/>
+				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+				<Box Anchor="L,T" Size="55,459" Color="0,0,0,0"/>
 				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
 				<Box Anchor="L,T" Size="55,459" Color="1,26,23,255"/>
 				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
@@ -157,9 +167,9 @@
 					</ShowOnMouseOver>
 					<Image Anchor="C,C" Offset="0,0" Texture="Diplomacy_24.dds" Size="24,24" ToolTip="TXT_KEY_TRO_COL_FROM_CIV_TT"/>
 				</Button>
-				<Button ID="FromCityHeader" Anchor="L,C" Size="160,45" Style="BoxButton">
+				<Button ID="FromCityHeader" Anchor="L,C" Size="100,45" Style="BoxButton">
 					<ShowOnMouseOver>
-						<AlphaAnim Anchor="C,C" Offset="0,0" Size="150,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="90,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="150,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
@@ -173,9 +183,9 @@
 					</ShowOnMouseOver>
 					<Image Anchor="C,C" Offset="0,0" Texture="Diplomacy_24.dds" Size="24,24" ToolTip="TXT_KEY_TRO_COL_TO_CIV_TT"/>
 				</Button>
-				<Button ID="ToCityHeader" Anchor="L,C" Size="160,45" Style="BoxButton">
+				<Button ID="ToCityHeader" Anchor="L,C" Size="100,45" Style="BoxButton">
 					<ShowOnMouseOver>
-						<AlphaAnim Anchor="C,C" Offset="0,0" Size="150,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="90,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="150,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
@@ -213,6 +223,22 @@
           </ShowOnMouseOver>
           <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_TRO_COL_TO_SCIENCE" ToolTip="TXT_KEY_TRO_COL_TO_SCIENCE_TT"/>
         </Button>
+		<Button ID="FromCulture" Anchor="L,C" Size="55,45" Style="BoxButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="C,C" Offset="0,0" Size="55,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="55,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_TRO_COL_FROM_CULTURE" ToolTip="TXT_KEY_TRO_COL_FROM_CULTURE_TT"/>
+		</Button>
+		<Button ID="ToCulture" Anchor="L,C" Size="55,45" Style="BoxButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="C,C" Offset="0,0" Size="55,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="55,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_TRO_COL_TO_CULTURE" ToolTip="TXT_KEY_TRO_COL_TO_CULTURE_TT"/>
+		</Button>
         <Button ID="ToFood" Anchor="L,C" Size="55,45" Style="BoxButton">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="55,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">

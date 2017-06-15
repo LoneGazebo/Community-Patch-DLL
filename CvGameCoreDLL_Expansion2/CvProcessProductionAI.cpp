@@ -223,6 +223,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				{
 					iModifier += 150;
 				}
+				//None of these things?
+				else
+					iModifier -= 500;
 			}
 		}
 		//Tiny army? Eek!
@@ -242,6 +245,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		{
 			iModifier += (m_pCity->getUnhappinessFromDefense() * 5);
 		}
+		if (kPlayer.isMinorCiv())
+			iModifier /= 2;
 	}
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");

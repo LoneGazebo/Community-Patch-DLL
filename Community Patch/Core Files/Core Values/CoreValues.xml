@@ -252,6 +252,15 @@
 		<Row Name="ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT">
 			<Value>0</Value>
 		</Row>
+		<Row Name="TRADE_ROUTE_CULTURE_DIVISOR_TIMES100">
+			<Value>200</Value>
+		</Row>
+		<Row Name="TRADE_ROUTE_CS_ALLY_CULTURE_DELTA">
+			<Value>2</Value>
+		</Row>
+		<Row Name="TRADE_ROUTE_CS_FRIEND_CULTURE_DELTA">
+			<Value>1</Value>
+		</Row>
 	</Defines>
 	
 	<!-- Specialists -->

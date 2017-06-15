@@ -937,7 +937,7 @@
 			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
-			<ExtraWithdrawal>50</ExtraWithdrawal>
+			<EnemyRoute>true</EnemyRoute>
 			<PortraitIndex>51</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -3140,7 +3140,7 @@
 			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<IgnoreZOC>true</IgnoreZOC>
-			<EnemyRoute>true</EnemyRoute>
+			<ExtraWithdrawal>50</ExtraWithdrawal>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
@@ -3357,6 +3357,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_AOE_STRIKE_FORTIFY</Type>
+			<Description>TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY</Description>
+			<Help>TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AoEWhileFortified>10</AoEWhileFortified>
+			<PortraitIndex>24</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_SPLASH</Type>
 			<Description>TXT_KEY_PROMOTION_SPLASH</Description>
 			<Help>TXT_KEY_PROMOTION_SPLASH_HELP</Help>
@@ -3524,7 +3536,7 @@
 			<Help>TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<GoodyHutYieldBonus>25</GoodyHutYieldBonus>
+			<GoodyHutYieldBonus>50</GoodyHutYieldBonus>
 			<PortraitIndex>11</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
@@ -3551,8 +3563,8 @@
 			<OrderPriority>3</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionPrereqOr1>
 			<GainsXPFromSpotting>true</GainsXPFromSpotting>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PortraitIndex>43</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING</PediaEntry>
 		</Row>

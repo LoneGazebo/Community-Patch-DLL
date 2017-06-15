@@ -1857,6 +1857,8 @@ local function UpdateCityViewNow()
 						end
 					end
 
+					gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID)
+
 					local gpChangePlayerMod = cityOwner:GetGreatPeopleRateModifier()
 					local gpChangeCityMod = city:GetGreatPeopleRateModifier()
 					-- CBP

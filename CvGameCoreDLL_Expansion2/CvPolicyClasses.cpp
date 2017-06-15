@@ -4467,9 +4467,9 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		}
 
 		//% cost increases.
-		iTier1 *= 3;
-		iTier2 *= 5;
-		iTier3 *= 7;
+		iTier1 *= (int)(GC.getPOLICY_COST_EXPONENT() * 2);
+		iTier2 *= (int)(GC.getPOLICY_COST_EXPONENT() * 3);
+		iTier3 *= (int)(GC.getPOLICY_COST_EXPONENT() * 4);
 			
 		iCost *= (100 + iTier1 + iTier2 + iTier3);
 		iCost /= 100;

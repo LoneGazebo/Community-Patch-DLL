@@ -258,7 +258,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING">
-			<Text>Every owned city (not including your [ICON_CAPITAL] Capital) decreases the [ICON_TOURISM] Tourism you produce from Cities and Historic Events by {1_Num}% (up to 75%).</Text>
+			<Text>Every [ICON_PUPPET] non-Puppet owned city (excluding [ICON_CAPITAL] Capital) decreases the [ICON_TOURISM] Tourism you produce from Cities and Historic Events by {1_Num}% (up to 75%).</Text>
 		</Row>
 		
 		<!-- City-State Protection Prompt -->
@@ -333,6 +333,57 @@
 			<Text>Gold bonus from [ICON_INFLUENCE] Influence with {1_CityName}: {2_Num}</Text>
 		</Row>
 
+		
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_CULTURE">
+			<Text>Highest Culture</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_CULTURE_DELTA">
+			<Text>Highest Culture Delta</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_BOREDOM">
+			<Text>[ICON_CULTURE] Boredom: {1_Num}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN_CS">
+			<Text>Total: {1_Num} [ICON_CULTURE] Culture (due to [ICON_INFLUENCE] Influence over this City-State)</Text>
+		</Row>
+	
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_GAIN">
+			<Text>THEIR CULTURE GAIN</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN">
+			<Text>YOUR CULTURE GAIN</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_EXPLAINED">
+			<Text>{1_CivName} has unlocked {2_Num} more Policies than you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_EXPLAINED">
+			<Text>You have unlocked {1_Num} more Policies than {2_CivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_TOTAL">
+			<Text>Total: {1_Num} [ICON_CULTURE] Culture</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_TOTAL">
+			<Text>{1_CivName} Total: {2_Num} [ICON_CULTURE] Culture</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TRO_COL_FROM_CULTURE">
+			<Text>[ICON_ARROW_LEFT][ICON_CULTURE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TRO_COL_TO_CULTURE">
+			<Text>[ICON_ARROW_RIGHT][ICON_CULTURE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TRO_COL_TO_CULTURE_TT">
+			<Text>Click to sort by the amount of [ICON_CULTURE] Culture that the destination city would receive from this trade route.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TRO_COL_FROM_CULTURE_TT">
+			<Text>Click to sort by the amount of [ICON_CULTURE] Culture that the civilization that established the trade route generates from this trade route.</Text>
+		</Row>
+
+		<!-- Tootips for Monopoly Bonuses -->
+
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY">
 			<Text>{1_Happiness} from Resource Monopolies.</Text>
 		</Row>
@@ -350,7 +401,7 @@
 		</Row>
 
 
-		<!-- Tootips for Monopoly Bonuses -->
+		
 		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
 			<Text>Strategic Resource Monopoly</Text>
 		</Row>

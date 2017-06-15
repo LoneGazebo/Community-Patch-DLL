@@ -72,7 +72,7 @@ public:
 #endif
 
 	bool GreatMerchantWantsCash();
-	CvPlot* FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
+	CvPlot* FindBestMerchantTargetPlot(CvUnit* pGreatMerchant);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//For Great Diplomats
 	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
@@ -85,7 +85,7 @@ public:
 #endif
 
 	CvPlot* FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::vector<CvPlot*>& vPlotsToAvoid, int& iScore);
-	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
+	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant);
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster);
