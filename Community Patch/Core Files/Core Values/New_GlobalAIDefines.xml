@@ -109,17 +109,17 @@
 		<!-- Religion -->
 		<Update>
 			<!-- Unowned but in range more valuable than before to make sure AI knows it's in a good position -->
-			<Set Value="2" />
+			<Set Value="1" />
 			<Where Name="RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
 			<!-- Owned slightly more valuable than before -->
-			<Set Value="3" />
+			<Set Value="2" />
 			<Where Name="RELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
 			<!-- Owned and worked should have no difference since citizen management will compensate anyway -->
-			<Set Value="5" />
+			<Set Value="4" />
 			<Where Name="RELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER" />
 		</Update>
 

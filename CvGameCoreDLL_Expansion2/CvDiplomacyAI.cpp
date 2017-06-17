@@ -32129,12 +32129,12 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 		MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, true);
 		switch (eApproach)
 		{
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
 		case MAJOR_CIV_APPROACH_AFRAID:
 		case MAJOR_CIV_APPROACH_FRIENDLY:
 		case MAJOR_CIV_APPROACH_NEUTRAL:
 			return true;
 			break;
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
 		case MAJOR_CIV_APPROACH_WAR:
 		case MAJOR_CIV_APPROACH_HOSTILE:
 		case MAJOR_CIV_APPROACH_GUARDED:
@@ -40441,6 +40441,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if(GET_TEAM(GetPlayer()->getTeam()).GetNumVassals() > 0)
 		return false;
 
+	//cannot voluntary become a vassal if at war.
+	if (GetPlayer()->IsAtWar())
+		return false;
 	
 	// Don't become vassal if we're diplo and UN is available
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))

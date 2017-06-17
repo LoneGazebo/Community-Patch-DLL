@@ -23,7 +23,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture in City for every 2 Plains or Grassland tiles without Hills, Forests, Jungles, or Marshes. +1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Pastures'
+SET Text = '+1 [ICON_CULTURE] Culture in City per 2 worked Plains or 2 worked Grassland tiles without Hills, Forests, Jungles, or Marshes. +1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Pastures'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -163,7 +163,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Earth Mother
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Mines on improved resources, and +2 [ICON_PRODUCTION] Production from Monuments'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Mines on improved resources, and +3 [ICON_PRODUCTION] Production from Monuments'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God-King
@@ -271,7 +271,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Reliquary (Now Tithes)
 UPDATE Language_en_US
-SET Text = 'When a city adopts your Religion, Holy City gains 10 [ICON_GOLD] Gold for every City following your Religion, scaling with Era. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy city for every 6 followers of this Religion in Foreign Cities.'
+SET Text = 'When a city adopts your Religion for the first time, Holy City gains 10 [ICON_GOLD] Gold for every City following your Religion, scaling with Era. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy city for every 10 followers of this Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -280,7 +280,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Just War (Now Martyrdom)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture in Holy City for every 6 followers of this Religion in Foreign Cities. Holy City gains 100 [ICON_PEACE] Faith each time the owner expends a Great Person. Bonus scales with Era.'
+SET Text = '+1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture in Holy City for every 10 followers of this Religion in Foreign Cities. Holy City gains 100 [ICON_PEACE] Faith each time the owner expends a Great Person. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -521,7 +521,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Papal Primacy (Now Council of Elders)
 UPDATE Language_en_US
-SET Text = 'Unlocks Holy Council National Wonder (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +5 [ICON_RESEARCH] Science from Holy Sites; unlocks Reformation Belief). When a city adopts your Religion, gain 5 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in your Holy City for every City following your Religion, scaling with Era.'
+SET Text = 'Unlocks Holy Council National Wonder (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +5 [ICON_RESEARCH] Science from Holy Sites; unlocks Reformation Belief). When a city adopts your Religion for the first time, gain 5 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in your Holy City for every City following your Religion, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -1048,6 +1048,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iFlavorExpansion += 2;
 			}
+			if (GC.getGame().getCurrentEra() > kPlayer.getNumCities() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+			{
+				iFlavorExpansion += 5;
+			}
 
 			if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 			{
@@ -1178,7 +1182,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 		if(GC.getGame().getGameTurn() <= 25)
 		{
-			iBonus += -400;
+			iBonus += -100;
 		}
 		else
 		{
@@ -1186,11 +1190,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.isMinorCiv())
 				{
-					iBonus += 200;
+					iBonus += 300;
 				}
 				else
 				{
-					iBonus += 350;
+					iBonus += 500;
 				}
 			}
 		}
@@ -1216,12 +1220,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 			if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 			{
-				iBonus += (100 * iCurrentNumCities);
+				iBonus += (150 * iCurrentNumCities);
 			}
 			AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 			{
-				iBonus += (200 * iCurrentNumCities);
+				iBonus += (250 * iCurrentNumCities);
 			}
 		}
 	}
@@ -1382,11 +1386,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	if (m_pCity->isInDangerOfFalling())
 	{
-		iBonus *= 5;
+		if (bCombat)
+			iBonus *= 5;
+		else
+			iBonus = 0;
 	}
 	if (m_pCity->isUnderSiege())
 	{
-		iBonus *= 2;
+		if (bCombat)
+			iBonus *= 5;
+		else
+			iBonus = 0;
 	}
 
 	if (bCombat)
@@ -1401,17 +1411,40 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Debt is worth considering.
 	if(bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
 	{
-		if (iGPT < 0)
+		if (iGPT < 5)
 		{
-			//Every -1 GPT = -100 penalty.
+			//Every -1 GPT = -300 penalty.
 			if (!bAtWar)
 			{
-				iBonus += iGPT * 100;
+				iBonus += iGPT * 300;
 				//At zero? Even more negative!
 				if (kPlayer.GetTreasury()->GetGold() <= 0)
 				{
-					iBonus += -500;
+					iBonus += -1000;
 				}
+			}
+		}
+	}
+
+	if (bCombat)
+	{
+		//making a combat unit?
+		if (m_pCity->getProductionUnit() != NO_UNIT)
+		{
+			//working on this unit? finish up if at war.
+			if (eUnit == m_pCity->getProductionUnit() && bAtWar)
+			{
+				iBonus += 1000;
+			}
+			//a little boost if not at war (to finish)
+			else if (eUnit == m_pCity->getProductionUnit() && !bAtWar)
+			{
+				iBonus += 50;
+			}
+			// looking at another unit? let's not switch.
+			else if (GC.getUnitInfo(m_pCity->getProductionUnit())->GetCombat() > 0 || GC.getUnitInfo(m_pCity->getProductionUnit())->GetRangedCombat() > 0)
+			{
+				iBonus -= 1000;
 			}
 		}
 	}

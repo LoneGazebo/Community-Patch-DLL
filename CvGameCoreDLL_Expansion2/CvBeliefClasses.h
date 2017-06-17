@@ -167,6 +167,7 @@ public:
 	int GetGreatWorkYieldChange(int i) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson) const;
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
@@ -284,6 +285,7 @@ protected:
 	int** m_ppiSpecialistYieldChange;
 	int** m_ppiGreatPersonExpendedYield;
 	int* m_piGoldenAgeGreatPersonRateModifier;
+	int* m_piGreatPersonPoints;
 	int* m_piCapitalYieldChange;
 	int* m_piCoastalCityYieldChange;
 	int* m_piGreatWorkYieldChange;
@@ -489,6 +491,7 @@ public:
 	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

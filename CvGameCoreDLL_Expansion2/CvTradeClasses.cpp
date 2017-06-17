@@ -82,7 +82,9 @@ void CvGameTrade::Reset (void)
 void CvGameTrade::DoTurn (void)
 {
 	ResetTechDifference();
+	ResetPolicyDifference();
 	BuildTechDifference();
+	BuildPolicyDifference();
 }
 
 // helper function
@@ -1620,7 +1622,7 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 			}
 			else if(GET_PLAYER(ePlayer2).GetMinorCivAI()->IsFriends(ePlayer))
 			{
-				int iFriendScience = GD_INT_GET(TRADE_ROUTE_CS_ALLY_SCIENCE_DELTA);
+				int iFriendScience = GD_INT_GET(TRADE_ROUTE_CS_FRIEND_SCIENCE_DELTA);
 				if(iFriendScience <= 0)
 				{
 					return 0;
@@ -1633,6 +1635,102 @@ int CvGameTrade::GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2)
 	}
 
 	return m_aaiTechDifference[ePlayer][ePlayer2];
+}
+
+//	--------------------------------------------------------------------------------
+void CvGameTrade::ResetPolicyDifference()
+{
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
+		{
+			m_aaiPolicyDifference[ui][ui2] = -1; // undefined
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvGameTrade::BuildPolicyDifference()
+{
+	if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+	{
+		return;
+	}
+
+	// for each major civ
+	for (uint uiPlayer1 = 0; uiPlayer1 < MAX_MAJOR_CIVS; uiPlayer1++)
+	{
+		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
+		TeamTypes eTeam1 = GET_PLAYER(ePlayer1).getTeam();
+
+		for (uint uiPlayer2 = 0; uiPlayer2 < MAX_MAJOR_CIVS; uiPlayer2++)
+		{
+			PlayerTypes ePlayer2 = (PlayerTypes)uiPlayer2;
+			TeamTypes eTeam2 = GET_PLAYER(ePlayer2).getTeam();
+
+			if (eTeam1 == eTeam2)
+			{
+				m_aaiPolicyDifference[uiPlayer1][uiPlayer2] = 0;
+			}
+			else if (!GET_PLAYER(ePlayer1).isAlive() || !GET_PLAYER(ePlayer2).isAlive())
+			{
+				m_aaiPolicyDifference[uiPlayer1][uiPlayer2] = 0;
+			}
+			else
+			{		
+				CvPlayerPolicies* pPlayerPolicies1 = GET_PLAYER(ePlayer1).GetPlayerPolicies();
+				CvPlayerPolicies* pPlayerPolicies2 = GET_PLAYER(ePlayer2).GetPlayerPolicies();
+				
+				int iPolicyDifference = pPlayerPolicies2->GetNumPoliciesOwned(true, true) - pPlayerPolicies1->GetNumPoliciesOwned(true, true);
+
+				m_aaiPolicyDifference[uiPlayer1][uiPlayer2] = iPolicyDifference;
+			}
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
+{
+	if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+	{
+		return 0;
+	}
+
+	if (GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).isBarbarian())
+	{
+		return 0;
+	}
+
+	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
+	{
+#if defined(MOD_BALANCE_CORE)
+		if (GET_PLAYER(ePlayer2).isMinorCiv() && MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		{
+			if (GET_PLAYER(ePlayer2).GetMinorCivAI()->GetAlly() == ePlayer)
+			{
+				int iAllyCulture = GD_INT_GET(TRADE_ROUTE_CS_ALLY_CULTURE_DELTA);
+				if (iAllyCulture <= 0)
+				{
+					return 0;
+				}
+				return 	iAllyCulture;
+			}
+			else if (GET_PLAYER(ePlayer2).GetMinorCivAI()->IsFriends(ePlayer))
+			{
+				int iFriendCulture = GD_INT_GET(TRADE_ROUTE_CS_FRIEND_CULTURE_DELTA);
+				if (iFriendCulture <= 0)
+				{
+					return 0;
+				}
+				return 	iFriendCulture;
+			}
+		}
+#endif
+		return 0;
+	}
+
+	return m_aaiPolicyDifference[ePlayer][ePlayer2];
 }
 
 #if defined(MOD_API_TRADEROUTES)
@@ -2113,6 +2211,27 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 		}
 	}
 
+	if (uiVersion >= 3)
+	{
+		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+		{
+			for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
+			{
+				loadFrom >> writeTo.m_aaiPolicyDifference[ui][ui2];
+			}
+		}
+	}
+	else
+	{
+		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+		{
+			for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
+			{
+				writeTo.m_aaiPolicyDifference[ui][ui2] = 0;
+			}
+		}
+	}
+
 	loadFrom >> writeTo.m_iNextID;
 
 	return loadFrom;
@@ -2179,6 +2298,14 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameTrade& readFrom)
 		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
 		{
 			saveTo << readFrom.m_aaiTechDifference[ui][ui2];
+		}
+	}
+
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
+		{
+			saveTo << readFrom.m_aaiPolicyDifference[ui][ui2];
 		}
 	}
 
@@ -2552,6 +2679,28 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 
 				return iAdjustedTechDifference * 100;
 			}
+			else if (eYield == YIELD_CULTURE)
+			{
+				int iCultureDifference = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
+				int iAdjustedCultureDifference = 0;
+				if (iCultureDifference > 0)
+				{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+					int iCeilCultureDifference = iCultureDifference * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+#else
+					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
+					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+					if (iAdjustedCultureDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+					{
+						iAdjustedCultureDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+					}
+#endif
+				}
+
+				return iAdjustedCultureDifference * 100;
+			}
 		}
 	}
 	else
@@ -2571,6 +2720,22 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			}
 
 			return  iAdjustedTechDifference * 100;
+		}
+		else if (eYield == YIELD_CULTURE)
+		{
+			int iCultureDifference = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
+			int iAdjustedCultureDifference = 0;
+			if (iCultureDifference > 0)
+			{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+				int iCeilCultureDifference = iCultureDifference * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+#else
+				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
+				iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
+			}
+
+			return  iAdjustedCultureDifference * 100;
 		}
 		else
 		{
@@ -5698,6 +5863,36 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 #endif
 	int iTechDelta = iTechDifferenceP1fromP2 - iTechDifferenceP2fromP1;
 
+	// culture
+	int iCultureDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if (pFromCity->getUnhappinessFromCulture() > 0)
+		{
+			iCultureDifferenceP1fromP2 += pFromCity->getUnhappinessFromCulture();
+		}
+	}
+#endif
+	int iCultureDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
+#ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
+	if (bIsToMinor)
+		iCultureDifferenceP2fromP1 = 0;
+#endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+	//If we are friends with the player, let's not care about how much science they make.
+	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+	{
+		iCultureDifferenceP2fromP1 /= 2;
+	}
+	else if (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
+	{
+		iCultureDifferenceP2fromP1 /= 2;
+	}
+#endif
+	int iCultureDelta = iCultureDifferenceP1fromP2 - iCultureDifferenceP2fromP1;
+
 	// religion
 	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
 	if (eOwnerFoundedReligion == NO_RELIGION)
@@ -5758,8 +5953,10 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iFlavorGold = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
 	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 	iScore += (iGoldDelta * max(1, (iFlavorGold / 2)));
 	iScore += (iTechDelta *  max(3, (iFlavorScience / 2))); // 3 science = 1 gold
+	iScore += (iCultureDelta * max(5, (iFlavorCulture / 2))); // 5 culture = 1 gold
 	iScore += (iReligionDelta *  max(2, (iFlavorReligion / 2))); // 2 religion = 1 gold
 #else
 	iScore += iGoldDelta;

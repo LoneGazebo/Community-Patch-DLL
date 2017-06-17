@@ -100,16 +100,15 @@ UPDATE Language_en_US
 SET Text = 'If the unit is inside City-State territory that you are not at war with, this order will expend the unit.[COLOR_POSITIVE_TEXT]There are three units capable of this Mission, each with different abilities:[ENDCOLOR][NEWLINE][ICON_BULLET]   [COLOR_POSITIVE_TEXT]Diplomatic Units:[ENDCOLOR] Receive [ICON_INFLUENCE] Influence with the City-State based on the unit''s promotions.[NEWLINE][ICON_BULLET]   [COLOR_POSITIVE_TEXT]Great Diplomats:[ENDCOLOR] Receive a large amount of [ICON_INFLUENCE] Influence with the City-State and the [ICON_INFLUENCE] of all other major civilizations known to the City-State will be decreased with this City-State by the same amount.[NEWLINE][ICON_BULLET]   [COLOR_POSITIVE_TEXT]Great Merchant:[ENDCOLOR] Receive a large amount of [ICON_GOLD] Gold and an instant ''We Love the King Day'' in all owned cities. This action will consume the unit.'
 WHERE Tag = 'TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP';
 
--- Philanthropy
-UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Informants[ENDCOLOR][NEWLINE]Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game). The Printing Press boosts City [ICON_CULTURE] Culture by +10.'
-WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
-
 -- Cultural Diplomacy
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Cultural Diplomacy[ENDCOLOR][NEWLINE]Resources gifted by City-States doubled and +1 [ICON_HAPPINESS_1] Happiness from Chanceries. When you complete a [ICON_INTERNATIONAL_TRADE] Trade Route to a City-State, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP';
 
+-- Philanthropy
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Informants[ENDCOLOR][NEWLINE]Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game). +2 [ICON_RES_PAPER] Paper for each City-State Alliance you maintain.'
+WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged and you have a [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] with them, this decay value will triple.'
@@ -122,7 +121,7 @@ WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
 -- Policy Changes
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Statecraft[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Statecraft grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Resting point for [ICON_INFLUENCE] Influence with all City-States is increased by 20. [NEWLINE] [ICON_BULLET] City-State Quest Rewards increased by +25%.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Statecraft policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET]Your City-State [ICON_INFLUENCE] Influence degrades 5% slower.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Statecraft grants:[ENDCOLOR][NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR]. [NEWLINE] [ICON_BULLET] Allied City-States will occasionally gift you [ICON_GREAT_PEOPLE] Great People. [NEWLINE] [ICON_BULLET] World Wonders require 1 less unlocked Policy for every 4 City-State alliances you maintain.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Statecraft[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Statecraft grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Resting point for [ICON_INFLUENCE] Influence with all City-States is increased by 20. [NEWLINE] [ICON_BULLET] City-State Quest Rewards increased by +30%.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Statecraft policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET]Your City-State [ICON_INFLUENCE] Influence degrades 5% slower.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Statecraft grants:[ENDCOLOR][NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Palace of Westminster[ENDCOLOR]. [NEWLINE] [ICON_BULLET] Allied City-States will occasionally gift you [ICON_GREAT_PEOPLE] Great People. [NEWLINE] [ICON_BULLET] World Wonders require 1 less unlocked Policy for every 4 City-State alliances you maintain.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP';
 
 UPDATE Language_en_US

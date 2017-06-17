@@ -2149,6 +2149,7 @@ void CvHomelandAI::ExecuteAggressivePatrolMoves()
 				if (pUnit->canFortify(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					pUnit->SetFortifiedThisTurn(true);
 					pUnit->SetTurnProcessed(true);
 					pUnit->finishMoves();
 				}
@@ -2266,6 +2267,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 				if (pUnit->canFortify(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					pUnit->SetFortifiedThisTurn(true);
 					pUnit->SetTurnProcessed(true);
 					pUnit->finishMoves();
 				}
@@ -6186,31 +6188,64 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, &iTargetTurns);
 		if(pTarget)
 		{
-			if(iTargetTurns == 0)
+			if (pUnit->CanRemoveHeresy(pTarget->plot()))
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-
-				if(pUnit->canMove())
-					pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
-
-				if(GC.getLogging() && GC.getAILogging())
+				if (iTargetTurns == 0)
 				{
-					CvString strLogString;
-					strLogString.Format("Move to remove heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-					LogHomelandMessage(strLogString);
-				}
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
-				UnitProcessed(pUnit->GetID());
+					if (pUnit->canMove())
+						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Move to remove heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					UnitProcessed(pUnit->GetID());
+				}
+				else
+				{
+					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving to plot adjacent to heresy removal city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+				}
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
-
-				if(GC.getLogging() && GC.getAILogging())
+				if (iTargetTurns == 0)
 				{
-					CvString strLogString;
-					strLogString.Format("Moving to plot adjacent to heresy removal city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+
+					if (pUnit->canMove())
+						pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Move to garrison against heresy, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					UnitProcessed(pUnit->GetID());
+				}
+				else
+				{
+					ExecuteMoveToTarget(pUnit, pTarget->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN, true);
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Moving to plot adjacent to garrison against heresy in city, X: %d, Y: %d, Currently at, X: %d, Y: %d", pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
 				}
 			}
 		}
@@ -8271,7 +8306,10 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 
 			// No safe path so just stay put and fortify until life improves for you.
 			if (pUnit->canFortify(pUnit->plot()))
+			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
 			else
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			return false;

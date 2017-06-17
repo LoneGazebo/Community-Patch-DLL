@@ -936,8 +936,16 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements ...
-	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS || pPlot->getFeatureType()==FEATURE_FLOOD_PLAINS))
+	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS))
 		rtnValue += 1;
+
+	//let's encourage settlement on/near oases
+	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_OASIS)
+		rtnValue += 2;
+
+	//let's encourage settlement on/near flood plains
+	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS)
+		rtnValue += 3;
 
 	//Help with island settling - assume a lighthouse
 	if(pPlot->isShallowWater())

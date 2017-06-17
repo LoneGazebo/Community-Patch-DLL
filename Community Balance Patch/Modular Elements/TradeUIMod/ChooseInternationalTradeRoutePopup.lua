@@ -208,6 +208,9 @@ function RefreshData()
 				tradeRoute.ScienceDelta = u.Mine - u.Theirs;
 --			end
 -- CBP
+			elseif (iYield == YieldTypes.YIELD_CULTURE) then
+				tradeRoute.Culture = u.Theirs;
+				tradeRoute.CultureDelta = u.Mine - u.Theirs;
 			elseif (iYield == YieldTypes.YIELD_PRODUCTION) then
 				tradeRoute.Production = u.Theirs;
 			elseif (iYield == YieldTypes.YIELD_FOOD) then
@@ -338,6 +341,14 @@ function SortByScienceDelta(a, b)
 	return a.ScienceDelta > b.ScienceDelta;
 end
 
+function SortByMaxCulture(a, b)
+	return a.Culture > b.Culture;
+end
+
+function SortByCultureDelta(a, b)
+	return a.CultureDelta > b.CultureDelta;
+end
+
 --CBP
 function SortByOtherIsolation(a, b)
 	return a.OtherIsolation > b.OtherIsolation;
@@ -361,6 +372,8 @@ g_SortOptions = {
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_SCIENCE", SortByMaxScience},
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_SCIENCE_DELTA", SortByScienceDelta},
 	--CBP
+	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_CULTURE", SortByMaxCulture},
+	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_CULTURE_DELTA", SortByCultureDelta},
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_ISOLATION_OTHER", SortByOtherIsolation},
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_INFLUENCE_OTHER", SortByOtherInfluence},
 	{"TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_PRODUCTION", SortByProduction},

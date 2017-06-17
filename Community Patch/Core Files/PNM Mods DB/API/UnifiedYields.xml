@@ -399,6 +399,22 @@
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="Modifier" type="integer"/>
 	</Table>
+
+	<!-- Capital Only -->
+	<Table name="Belief_GreatPersonPoints">
+		<!-- Refer to Traits.GoldenAgeGreatArtist/Muscian/WriterRateModifier -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Value" type="integer"/>
+	</Table>
+
+	<!-- Reduce cost of GPs, including prophets and GG/GA. Negative = better!-->
+	<Table name="Trait_GreatPersonCostReduction">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
+
 	<Table name="Policy_GoldenAgeGreatPersonRateModifier">
 		<!-- Refer to Traits.GoldenAgeGreatArtist/Muscian/WriterRateModifier -->
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>

@@ -3039,12 +3039,15 @@ void CvTacticalAI::PlotHealMoves()
 			//now we need to take care of the units which are damaged and have nothing else to do
 
 			CvPlot* pUnitPlot = pUnit->plot();
-			int iAcceptableDamage = 10;
+			int iAcceptableDamage = 20;
 			//allow some more damage outside of our borders
 			if (pUnitPlot->getOwner() != pUnit->getOwner())
-				iAcceptableDamage = 20;
-
-			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID()==-1 && FindNearbyTarget(pUnit,5)==NULL)
+				iAcceptableDamage = 40;
+			//these should fortify as much as possible, especially near enemies
+			if (pUnit->GetDamageAoEFortified() > 0 && pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 1) != NULL)
+				m_HealingUnits.insert(pUnit->GetID());
+			//normal
+			else if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
 				m_HealingUnits.insert(pUnit->GetID());
 		}
 	}
@@ -3078,7 +3081,10 @@ void CvTacticalAI::PlotCampDefenseMoves()
 				if (TacticalAIHelpers::PerformOpportunityAttack(currentDefender))
 					currentDefender->finishMoves();
 				else if (currentDefender->canFortify(pPlot))
+				{
 					currentDefender->PushMission(CvTypes::getMISSION_FORTIFY());
+					currentDefender->SetFortifiedThisTurn(true);
+				}
 				else
 					currentDefender->PushMission(CvTypes::getMISSION_SKIP());
 				UnitProcessed(currentDefender->GetID());
@@ -3144,7 +3150,10 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 			}
 
 			if (pGarrison->canFortify(pGarrison->plot()))
+			{
 				pGarrison->PushMission(CvTypes::getMISSION_FORTIFY());
+				pGarrison->SetFortifiedThisTurn(true);
+			}
 			else
 				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 
@@ -4022,6 +4031,10 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			{
 				MissionTypes eMission = pUnit->canFortify(pUnit->plot()) ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
 				pUnit->PushMission(eMission);
+				if (pUnit->canFortify(pUnit->plot()))
+				{
+					pUnit->SetFortifiedThisTurn(true);
+				}
 				pUnit->SetTurnProcessed(true);
 			}
 			else if ( pUnit->getDomainType()==DOMAIN_LAND )
@@ -6559,6 +6572,10 @@ void CvTacticalAI::ExecuteHeals()
 						LogTacticalMessage(strLogString);
 					}
 				}
+				else if (pUnit->GetDamageAoEFortified() > 0)
+				{
+					pBetterPlot = pUnit->plot();
+				}
 				else //flee
 				{
 					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
@@ -6616,7 +6633,10 @@ void CvTacticalAI::ExecuteHeals()
 		if (pUnit->canHeal(pUnit->plot()))
 			pUnit->PushMission(CvTypes::getMISSION_HEAL());
 		else if (pUnit->canFortify(pUnit->plot()))
+		{
 			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			pUnit->SetFortifiedThisTurn(true);
+		}
 		else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
@@ -6655,7 +6675,10 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					{
 						pUnit->setTacticalMove((TacticalAIMoveTypes)AI_TACTICAL_BARBARIAN_CAMP_DEFENSE);
 						if (pUnit->canFortify(pPlot))
+						{
 							pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+							pUnit->SetFortifiedThisTurn(true);
+						}
 						else
 							pUnit->PushMission(CvTypes::getMISSION_SKIP());
 						UnitProcessed(pUnit->GetID());
@@ -9437,6 +9460,7 @@ void CvTacticalAI::PerformChosenMoves()
 			if(pUnit->canFortify(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
@@ -13232,7 +13256,10 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case STacticalAssignment::A_ENDTURN:
 			if (pUnit->canFortify(pUnit->plot()))
+			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
 			else
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			//this is the difference to a blocked unit, we prevent anyone else from moving it
@@ -13242,7 +13269,10 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case STacticalAssignment::A_BLOCKED:
 			if (pUnit->canFortify(pUnit->plot()))
+			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
 			else
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			//do not mark the unit as processed, it can be reused for other tasks!

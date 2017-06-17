@@ -92,6 +92,13 @@
 			<Text>When you advance after destroying an enemy unit, all newly-adjacent enemy units take 10 Damage.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY">
+			<Text>Pilum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP">
+			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent enemy units take 10 Damage at the beginning of every turn.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
 			<Text>Conscription</Text>
 		</Row>
@@ -110,31 +117,31 @@
 			<Text>Trailblazer I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP">
-			<Text>Double Movement in Jungles and Forests</Text>
+			<Text>Double Movement in Jungles and Forests.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II">
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP">
-			<Text>Double Movement in Desert and Snow</Text>
+			<Text>Double Movement in Desert and Snow.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III">
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
-			<Text>Ignores Zone of Control, Can Use Enemy Roads/Railroads</Text>
+			<Text>Ignores Zone of Control, and attempts to withdraw when faced with a melee attack.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
 			<Text>Bonus v. Gun (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I_HELP">
-			<Text>+20% [ICON_STRENGTH] Strength VS Gun (Melee) Units</Text>
+			<Text>+20% [ICON_STRENGTH] Strength VS Gun (Melee) Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II">
 			<Text>Bonus v. Siege (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength VS Siege Units</Text>
+			<Text>+25% [ICON_STRENGTH] Strength VS Siege Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
@@ -609,7 +616,7 @@
 			<Text>Treasure Hunter</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP">
-			<Text>+25% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
+			<Text>+50% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE">

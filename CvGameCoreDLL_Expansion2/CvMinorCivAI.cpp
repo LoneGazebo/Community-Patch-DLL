@@ -16554,7 +16554,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 {
-	int iValue = 75;
+	int iValue = 65;
 	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iValue /= 100;
 
@@ -17383,6 +17383,8 @@ int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreat
 		{
 			iInfluence += iMilitaryInfluence;
 		}
+
+		iInfluence -= min((GC.getFRIENDSHIP_PER_UNIT_GIFTED()/ 2), (GetPlayer()->getNumMilitaryUnits()));
 	}
 
 	return iInfluence;

@@ -938,6 +938,8 @@ public:
 	bool IsFortifiedThisTurn() const;
 	void SetFortifiedThisTurn(bool bValue);
 
+	void DoAoEDamage(int iValue);
+
 	int getBlitzCount() const;
 	bool isBlitz() const;
 	void changeBlitzCount(int iChange);
@@ -1225,6 +1227,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetMoraleBreakChance() const;
 	void ChangeMoraleBreakChance(int iChange);
+
+	int GetDamageAoEFortified() const;
+	void ChangeDamageAoEFortified(int iChange);
 #endif
 
 	int getFriendlyLandsModifier() const;
@@ -1942,6 +1947,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
+	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;

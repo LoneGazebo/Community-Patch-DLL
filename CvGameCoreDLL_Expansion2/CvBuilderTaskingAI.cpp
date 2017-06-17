@@ -810,6 +810,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		}
 	}
 
+	int iGold = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+
 	// go through all the plots the player has under their control
 	for(set<int>::iterator it=m_aiPlots.begin(); it!=m_aiPlots.end(); ++it)
 	{
@@ -863,7 +865,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 		UpdateCurrentPlotYields(pPlot);
 
-		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway, iGold);
 		AddImprovingResourcesDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddChopDirectives(pUnit, pPlot, iMoveTurnsAway);
@@ -941,7 +943,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			LogInfo(strLog, m_pPlayer);
 		}
 
-		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway, iGold);
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -1566,7 +1568,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway, int iGold)
 {
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
 
@@ -1599,6 +1601,9 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 			return;
 		}
 	}
+	//abort if we're running low on gold.
+	if (iGold <= 3)
+		return;
 #endif
 
 	// find the route build
@@ -1960,7 +1965,10 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 #if defined(MOD_BALANCE_CORE)
 
 	//don't consider non-workable plots for GPs!
-	if(pUnit->IsGreatPerson() && pPlot->getWorkingCity() == NULL)
+	if (pUnit->IsGreatPerson() && pPlot->getWorkingCity() == NULL)
+		return false;
+
+	if (pUnit->IsGreatPerson() && pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() != pUnit->getOwner())
 		return false;
 
 	bool bAdjacent = false;

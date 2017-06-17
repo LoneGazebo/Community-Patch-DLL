@@ -368,6 +368,85 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 
 	return strResult;
 end
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function BuildTradeRouteCultureToolTipString (pOriginCity, pTargetCity, eDomain)
+
+	local strResult = "";
+	local iPlayer = pOriginCity:GetOwner();
+	local pOriginPlayer = Players[iPlayer];
+	local iOtherPlayer = pTargetCity:GetOwner();
+	local pOtherPlayer = Players[iOtherPlayer];
+	
+	local strOriginLeaderName;
+	if(pOriginPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+		strOriginLeaderName = pOriginPlayer:GetNickName();
+	else
+		strOriginLeaderName = pOriginPlayer:GetName();
+	end
+	
+	local strOtherLeaderName;
+	if(pOtherPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+		strOtherLeaderName = pOtherPlayer:GetNickName();
+	else
+		strOtherLeaderName = pOtherPlayer:GetName();
+	end
+
+	local iOriginCulture = pOriginPlayer:GetInternationalTradeRouteCulture(pOriginCity, pTargetCity, eDomain, true) / 100;
+	local iDestCulture = pOtherPlayer:GetInternationalTradeRouteCulture(pOriginCity, pTargetCity, eDomain, false) / 100;
+
+	if (iOriginCulture > 0) then
+		if(pOtherPlayer:IsMinorCiv()) then
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN_CS", iOriginCulture);
+		else	
+			local iNumPolicies = pOriginPlayer:GetNumPolicyDifference(iOtherPlayer);
+			if(iNumPolicies < 0) then
+				iTotal = (iTotal * -1);
+			end
+			if (iPlayer == Game.GetActivePlayer()) then	
+				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN");
+				strResult = strResult .. "[NEWLINE]";
+				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_EXPLAINED", strOtherLeaderName, iNumPolicies);
+				strResult = strResult .. "[NEWLINE]";
+				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_TOTAL", iOriginCulture);
+			else
+				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_GAIN");
+				strResult = strResult .. "[NEWLINE]";
+				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_EXPLAINED", iNumPolicies, strOriginLeaderName);
+				strResult = strResult .. "[NEWLINE]";
+				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_TOTAL", strOriginLeaderName, iOriginCulture);				
+			end
+		end
+	end
+	
+	if (iDestCulture > 0) then
+		if (strResult ~= "") then
+			strResult = strResult .. "[NEWLINE][NEWLINE]";
+		end
+	
+		local iNumPolicies = pOtherPlayer:GetNumPolicyDifference(iPlayer);
+		if(iNumPolicies < 0) then
+			iNumPolicies = (iNumPolicies * -1);
+		end
+		if (iPlayer == Game.GetActivePlayer()) then
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_GAIN");
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_EXPLAINED", iNumPolicies, strOtherLeaderName);
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_TOTAL", strOtherLeaderName, iDestCulture);		
+		else
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN");
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_EXPLAINED", strOriginLeaderName, iNumPolicies);
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_TOTAL", iDestCulture);		
+		end
+
+	end
+
+	return strResult;
+end
 --CBP
 function BuildTradeRouteProductionToolTipString (pOriginCity, pTargetCity, eDomain)
 
@@ -409,6 +488,7 @@ function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomai
 		local strGoldToolTip = BuildTradeRouteGoldToolTipString(pOriginCity, pTargetCity, eDomain);
 		local strScienceToolTip = BuildTradeRouteScienceToolTipString(pOriginCity, pTargetCity, eDomain);
 		-- CBP
+		local strCultureToolTip = BuildTradeRouteCultureToolTipString(pOriginCity, pTargetCity, eDomain);
 		local strProductionToolTip = BuildTradeRouteProductionToolTipString(pOriginCity, pTargetCity, eDomain);
 		local strFoodToolTip = BuildTradeRouteFoodToolTipString(pOriginCity, pTargetCity, eDomain);
 		--END
@@ -421,6 +501,13 @@ function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomai
 			strResult = strResult .. strScienceToolTip;
 		end
 		--CBP
+		if (strCultureToolTip ~= "") then
+			if (strResult ~= "") then
+				strResult = strResult .. "[NEWLINE][NEWLINE]";
+			end
+		
+			strResult = strResult .. strCultureToolTip;
+		end	
 		if (strProductionToolTip ~= "") then
 			if (strResult ~= "") then
 				strResult = strResult .. "[NEWLINE][NEWLINE]";

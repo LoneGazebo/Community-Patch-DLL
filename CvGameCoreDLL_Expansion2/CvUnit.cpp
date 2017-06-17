@@ -372,6 +372,7 @@ CvUnit::CvUnit() :
 	, m_iGainsXPFromSpotting("CvUnit::m_iGainsXPFromSpotting", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
+	, m_iDamageAoEFortified("CvUnit::m_iDamageAoEFortified", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 #endif
@@ -1390,6 +1391,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromPillaging = 0;
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
+	m_iDamageAoEFortified = 0;
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 #endif
@@ -2002,6 +2004,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 
 		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
 			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
+
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+		//important - zoc has probably changed
+		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
+#endif
 	}
 #endif
 
@@ -2826,6 +2833,10 @@ void CvUnit::doTurn()
 	if(IsFortifiedThisTurn())
 	{
 		changeFortifyTurns(1);
+		if (GetDamageAoEFortified() > 0)
+		{
+			DoAoEDamage(GetDamageAoEFortified());
+		}
 	}
 
 	// Recon unit? If so, he sees what's around him
@@ -5904,6 +5915,10 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 	{
 		// No settlers
 		if(isFound() || IsFoundAbroad())
+			return false;
+
+		// No scouts
+		if (getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
 			return false;
 
 		// No scouts
@@ -15872,13 +15887,12 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 	{
 		iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
 
-		if(GET_PLAYER(pOtherUnit->getOwner()).isHuman())
+		if (GET_PLAYER(pOtherUnit->getOwner()).isHuman())
 		{
-			int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonus() * 5;
+			int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonus() * 10;
 			iResistance *= (100 + iHandicap);
 			iResistance /= 100;
 		}
-		
 	}
 
 	return iResistance;
@@ -21181,7 +21195,27 @@ void CvUnit::SetFortifiedThisTurn(bool bValue)
 	}
 }
 
+void CvUnit::DoAoEDamage(int iValue)
+{
+	CvPlot* pAdjacentPlot;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
+		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+		{
+			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
+			{
+				CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iJ);
+				if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
+				{
+					CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY");
+					pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+				}
+			}
+		}
+	}
+}
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlitzCount() const
 {
@@ -23713,6 +23747,20 @@ void CvUnit::ChangeMoraleBreakChance(int iChange)
 {
 	m_iCanMoraleBreak += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDamageAoEFortified() const
+{
+	return m_iDamageAoEFortified;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDamageAoEFortified(int iChange)
+{
+	m_iDamageAoEFortified += iChange;
+}
+
+
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getFriendlyLandsModifier() const
@@ -25713,6 +25761,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
 		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
+		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 
 		if(thisPromotion.PromotionDuration() != 0)
 		{
