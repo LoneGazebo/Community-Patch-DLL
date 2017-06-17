@@ -1522,7 +1522,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 			{
 				//make sure the path cache is current
 				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
-				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX);
+				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX,NULL,true);
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 				{

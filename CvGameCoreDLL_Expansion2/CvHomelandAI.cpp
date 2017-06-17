@@ -3523,9 +3523,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			continue;
 		}
 
-		//performance: if we have a leftover path and the target is a good, then reuse it!
+		//performance: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 		const CvPathNodeArray& lastPath = pUnit->GetPathNodeArray();
-		if (!lastPath.empty())
+		if (lastPath.size()>11u)
 		{
 			CvPlot* pDestPlot = lastPath.GetFinalPlot();
 			const std::vector<SPlotWithScore>& vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit->getDomainType());
@@ -3533,10 +3533,14 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			SPlotWithScore dummy(pDestPlot,0);
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pDestPlot);
-				if(!pUnit->canMove())
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), 
+					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING, 
+					false, false, MISSIONAI_EXPLORE, pDestPlot);
+				if (!pUnit->canMove())
+				{
 					UnitProcessed(pUnit->GetID());
-				continue;
+					continue;
+				}
 			}
 		}
 
@@ -3677,21 +3681,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if( pEvalPlot == pUnit->plot())
 					iScoreExtra -= 50;
 
-				//If a known minor, let's not wander around if we don't have open borders.
-				if(pEvalPlot->getOwner() != NO_PLAYER)
-				{
-					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
-					{
-						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
-						{
-							if(pUnit->getDomainType() == DOMAIN_LAND)
-							{
-								iScoreExtra -= 25;
-							}
-						}
-					}
-				}
-
 				if(pUnit->canSellExoticGoods(pEvalPlot))
 				{
 					float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
@@ -3760,7 +3749,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			//verify that we don't move into danger ...
 			if (pBestPlot)
 			{
-				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, INT_MAX, NULL, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)

@@ -730,6 +730,13 @@ SPath CvAStar::GetCurrentPath() const
 		pNode = pNode->m_pParent;
 	}
 
+	//special: if we can reach the target in one turn with movement left, define this as zero turns
+	if (!!ret)
+	{
+		if (ret.vPlots.front().turns == 1 && ret.vPlots.front().moves > 0)
+			ret.vPlots.front().turns = 0;
+	}
+
 	//make it so that the destination comes last
 	std::reverse(ret.vPlots.begin(),ret.vPlots.end());
 	return ret;

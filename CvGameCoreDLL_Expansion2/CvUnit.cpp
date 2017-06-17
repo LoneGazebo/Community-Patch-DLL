@@ -27330,7 +27330,7 @@ void CvUnit::PlayActionSound()
 	VALIDATE_OBJECT
 }
 
-bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
+int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool bCacheResult)
 {
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
 	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
@@ -27338,37 +27338,40 @@ bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 	//now copy the new path
 	//but skip the first node, it's the current unit plot
 	//important: this means that an empty m_kLastPath is valid!
-	ClearPathCache();
-	CvPathNode nextNode;
-	for (size_t i=1; i<newPath.vPlots.size(); i++)
+	if (bCacheResult)
 	{
-		nextNode = newPath.vPlots[i];
-		m_kLastPath.push_back( nextNode );
-	}
-
-	if(!m_kLastPath.empty())
-	{
-		CvMap& kMap = GC.getMap();
-		TeamTypes eTeam = getTeam();
-
-		// Get the state of the plots in the path, they determine how much of the path is re-usable.
-		for (size_t iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
+		ClearPathCache();
+		CvPathNode nextNode;
+		for (size_t i = 1; i < newPath.vPlots.size(); i++)
 		{
-			CvPathNode& kNode = m_kLastPath[iIndex];
-			CvPlot* pkPlot = kMap.plot(kNode.m_iX, kNode.m_iY);
-			if (pkPlot && !pkPlot->isVisible(eTeam))
-				kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
+			nextNode = newPath.vPlots[i];
+			m_kLastPath.push_back(nextNode);
 		}
+
+		if (!m_kLastPath.empty())
+		{
+			CvMap& kMap = GC.getMap();
+			TeamTypes eTeam = getTeam();
+
+			// Get the state of the plots in the path, they determine how much of the path is re-usable.
+			for (size_t iIndex = 0; iIndex < m_kLastPath.size(); iIndex++)
+			{
+				CvPathNode& kNode = m_kLastPath[iIndex];
+				CvPlot* pkPlot = kMap.plot(kNode.m_iX, kNode.m_iY);
+				if (pkPlot && !pkPlot->isVisible(eTeam))
+					kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
+			}
+		}
+
+		// This helps in preventing us from trying to re-path to the same unreachable location.
+		m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
+		m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
+		m_uiLastPathFlags = iFlags;
+		m_uiLastPathTurn = GC.getGame().getGameTurn();
+		m_uiLastPathLength = !newPath ? 0xFFFFFFFF : m_kLastPath.size(); //length UINT_MAX means invalid
 	}
 
-	// This helps in preventing us from trying to re-path to the same unreachable location.
-	m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
-	m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
-	m_uiLastPathFlags = iFlags;
-	m_uiLastPathTurn = GC.getGame().getGameTurn();
-	m_uiLastPathLength = (!!newPath) ? m_kLastPath.size() : 0xFFFFFFFF; //length UINT_MAX means invalid
-
-	return !!newPath;
+	return !newPath ? -1 : newPath.vPlots.back().turns;
 }
 
 //	---------------------------------------------------------------------------
@@ -27380,7 +27383,7 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
-		return ComputePath(pDestPlot, iFlags, iMaxTurns);
+		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
 
 	// Was the next plot invisible at the time of generation? See if it is visible now.
 	CvPlot* pkNextPlot = m_kLastPath.GetFirstPlot();
@@ -27406,7 +27409,7 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 		//don't recompute for the destination plot because it's pointless and because it could succeed 
 		//(the pathfinder dynamically sets the attack flag for the destination)
 		if (!bHaveValidPath && pkNextPlot!=pDestPlot && !GET_PLAYER(m_eOwner).isHuman())
-			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
+			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
 	}
 	else
 	{
@@ -28610,39 +28613,46 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags)
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns)
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns, bool bCacheResult)
 {
 	if(pToPlot == NULL)
 		return false;
 
 	//can we re-use the old path?
-	bool bHavePath = HaveCachedPathTo(pToPlot, iFlags);
-
-	if (!bHavePath)
-		bHavePath = ComputePath(pToPlot, iFlags, iMaxTurns);
-
-	if(piPathTurns != NULL)
+	if (HaveCachedPathTo(pToPlot, iFlags) && IsCachedPathValid())
 	{
-		*piPathTurns = INT_MAX;
-
-		if(!m_kLastPath.empty())
+		if (piPathTurns == NULL)
+			return true;
+		else
 		{
-			*piPathTurns = m_kLastPath.back().m_iTurns;
+			if (m_kLastPath.empty())
+				//we're already there (at least approximately)!
+				*piPathTurns = 0;
+			else
+				*piPathTurns = m_kLastPath.back().m_iTurns;
 
-			//special: if we can reach the target in one turn with movement left, define this as zero turns
-			if(*piPathTurns == 1)
+			return true;
+		}
+	}
+	else
+	{
+		if (piPathTurns == NULL)
+			return ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult) >= 0;
+		else
+		{
+			int iTurns = ComputePath(pToPlot, iFlags, iMaxTurns, bCacheResult);
+			if (iTurns < 0)
 			{
-				if(m_kLastPath.back().m_iMoves > 0)
-				{
-					*piPathTurns = 0;
-				}
+				*piPathTurns = INT_MAX;
+				return false;
+			}
+			else
+			{
+				*piPathTurns = iTurns;
+				return true;
 			}
 		}
-		else if (bHavePath) //we're already there (at least approximately)!
-			*piPathTurns = 0;
 	}
-
-	return IsCachedPathValid();
 }
 
 //	--------------------------------------------------------------------------------

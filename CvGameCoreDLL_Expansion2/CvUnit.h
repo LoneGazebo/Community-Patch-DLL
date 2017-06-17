@@ -1581,8 +1581,9 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL);
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL, bool bCacheResult = false);
 
+	// you must call GeneratePath with caching before using these methods!
 	const CvPathNodeArray& GetPathNodeArray() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
 
@@ -1713,7 +1714,8 @@ protected:
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
 	bool IsCachedPathValid();
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
-	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);
+	//return -1 if impossible, turns to target otherwise (zero is valid!)
+	int ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool bCacheResult);
 
 	bool HasQueuedVisualizationMoves() const;
 	void QueueMoveForVisualization(CvPlot* pkPlot);

@@ -4270,7 +4270,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		CvString strLogString;
 		if(pEscort)
 		{
-			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 			if(bHavePathEscort)
 			{
 				CvPlot* pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
@@ -4278,7 +4278,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				if(pCommonPlot != NULL && pCivilian->canMoveInto(*pCommonPlot,CvUnit::MOVEFLAG_DESTINATION))
 				{
 					int iTurns = INT_MAX;
-					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, iMoveFlags, 5, &iTurns);
+					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, iMoveFlags, 5, &iTurns, true);
 					if (bHavePathCivilian)
 					{
 						bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
@@ -4330,7 +4330,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
-				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 				if(bHavePathCivilian)
 				{
 					CvPlot* pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
@@ -4400,7 +4400,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		}
 		else //no escort
 		{
-			bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+			bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 			if(bHavePathCivilian)
 			{
 				CvPlot* pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
@@ -6858,7 +6858,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 #endif
 
 					// Handle case of no path found at all for civilian
-					if(!pCivilian->GeneratePath(pTarget, 0))
+					if(!pCivilian->GeneratePath(pTarget, 0, INT_MAX, NULL, true))
 					{
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -6873,7 +6873,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 						pCivilianMove = pCivilian->GetPathEndFirstTurnPlot();
 
 						// Can we reach our target this turn?
-						if(pCivilianMove == pTarget)
+						if (pCivilianMove == pTarget)
 						{
 							// See which defender is stronger
 							CvUnit* pCampDefender = pCivilianMove->getBestDefender(m_pPlayer->GetID());
@@ -6921,9 +6921,8 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 								}
 							}
 						}
-
 						// Can't reach target and don't have escort...
-						else if(!pEscort)
+						else if (!pEscort)
 						{
 							ExecuteMoveToPlot(pCivilian, pCivilianMove);
 							if(GC.getLogging() && GC.getAILogging())
@@ -6935,9 +6934,8 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 								LogTacticalMessage(strLogString);
 							}
 						}
-
 						// Can't reach target and DO have escort...
-						else
+						else if (pCivilianMove)
 						{
 							// See if escort can move to the same location in one turn
 							if(pEscort->TurnsToReachTarget(pCivilianMove) <= 1)
@@ -6956,7 +6954,6 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 									LogTacticalMessage(strLogString);
 								}
 							}
-
 							else
 							{
 								CvUnit* pBlockingUnit = pCivilianMove->getBestDefender(m_pPlayer->GetID());
@@ -7172,8 +7169,9 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 				continue;
 
 			//don't get killed on the way
-			if (!pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+			if (!pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, INT_MAX, NULL, true))
 				continue;
+
 			if (pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot()) > pUnit->GetCurrHitPoints())
 				continue;
 
@@ -9627,7 +9625,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 		if(pBestPlot != NULL)
 		{
-			pGeneral->GeneratePath(pBestPlot);
+			pGeneral->GeneratePath(pBestPlot, NULL, INT_MAX, NULL, true);
 			CvPlot *pMovePlot = pGeneral->GetPathEndFirstTurnPlot();
 			if(pMovePlot != NULL)
 			{
