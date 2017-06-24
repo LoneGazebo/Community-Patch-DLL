@@ -25623,6 +25623,7 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	}
 #endif
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+	GC.getMap().updateDeferredFog();
 
 	DoUpdateCheapestPlotInfluenceDistance();
 }

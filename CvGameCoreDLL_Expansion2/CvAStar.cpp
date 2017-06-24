@@ -573,7 +573,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 {
 	//we would have to start a new turn to continue
 	if(node->m_iMoves == 0)
-		if (node->m_iTurns+1 > m_sData.iMaxTurns) // path is getting too long ...
+		if (node->m_iTurns+1 >= m_sData.iMaxTurns) // path is getting too long ...
 			return NS_FORBIDDEN;
 
 	//seems innocent, but is very important
@@ -721,20 +721,19 @@ SPath CvAStar::GetCurrentPath() const
 
 	ret.iTotalCost = pNode->m_iKnownCost;
 	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
-	ret.iTotalTurns = pNode->m_iTurns;
+	//switch counting convention. if zero moves left, consider this as plus one turns
+	ret.iTotalTurns = pNode->m_iTurns + (pNode->m_iMoves==0 ? 1 : 0);
 
 	//walk backwards ...
 	while(pNode != NULL)
 	{
 		ret.vPlots.push_back(SPathNode(pNode));
-		pNode = pNode->m_pParent;
-	}
 
-	//special: if we can reach the target in one turn with movement left, define this as zero turns
-	if (!!ret)
-	{
-		if (ret.vPlots.front().turns == 1 && ret.vPlots.front().moves > 0)
-			ret.vPlots.front().turns = 0;
+		//switch counting convention. if zero moves left, consider this as plus one turns
+		if (ret.vPlots.back().moves == 0)
+			ret.vPlots.back().turns++;
+
+		pNode = pNode->m_pParent;
 	}
 
 	//make it so that the destination comes last
@@ -1489,7 +1488,7 @@ void CvTwoLayerPathFinder::NodeAdded(CvAStarNode*, CvAStarNode* node, CvAStarNod
 	{
 		//in this case we did not call PathCost() before, so we have to set the initial values here
 		node->m_iMoves = GetData().iStartMoves;
-		node->m_iTurns = 1;
+		node->m_iTurns = 0;
 
 		UpdateNodeCacheData(node,pUnit,this);
 		bUpdateCacheForNeighbors = true;
@@ -2251,7 +2250,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 	bool bBlockAhead = 
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
-		current->m_iTurns < 2 &&			//only in the first turn, otherwise the block will likely have moved
+		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
 		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) &&
 		next->m_kCostCacheData.bFriendlyUnitLimitReached;
 

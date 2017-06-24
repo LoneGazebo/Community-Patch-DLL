@@ -27469,7 +27469,7 @@ bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
 // Returns +1 if attack was made...
 // Return 0 if no target in range
 // Return -1 if attack is not possible
-int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
+CvUnit::MoveResult CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 {
 	VALIDATE_OBJECT
 	CvMap& kMap = GC.getMap();
@@ -27477,7 +27477,7 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 
 	CvAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
 	if(!pDestPlot)
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	// Air mission
 	if(getDomainType() == DOMAIN_AIR)
@@ -27485,51 +27485,46 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		if (GetBaseCombatStrength() == 0 && canRangeStrikeAt(iX, iY))
 		{
 			CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
-			return 1;
+			return CvUnit::MOVE_RESULT_ATTACK;
 		}
 		else
-			return 0;
+			return CvUnit::MOVE_RESULT_NO_TARGET;
 	}
 
 	//other domains - look at the next plot in the path
 	CvPlot* pPathPlot = m_kLastPath.GetFirstPlot();
 	if (!pPathPlot)
-		return -1;
-
-	bool bIsEnemyCity = pPathPlot->isEnemyCity(*this);
-	CvUnit* pBestDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//nothing to attack?
+	bool bIsEnemyCity = pPathPlot->isEnemyCity(*this);
+	CvUnit* pBestDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
 	if ( !bIsEnemyCity && !pBestDefender )
-		return 0;
+		return CvUnit::MOVE_RESULT_NO_TARGET;
 
 	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
 	if (iFlags & MOVEFLAG_NO_ATTACKING)
-		return -1;
-
-	//there may be an enemy which has been hiding in the fog, in that case we may not want to attack
-	if (iFlags & MOVEFLAG_NO_ATTACKING)
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//can we even attack?
 	if(!IsCanAttackWithMove() || isOutOfAttacks())
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//support units cannot attack themselves
 	if (IsCityAttackSupport() && !bIsEnemyCity)
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//embarked can't do a move-attack
 	if(pPathPlot->needsEmbarkation(this))
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//don't allow an attack if we already have one
 	if(isFighting() || pPathPlot->isFighting())
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	//check consistency - we know there's a target there!
 	if (!canMoveInto(*pPathPlot,iFlags|MOVEFLAG_ATTACK))
-		return -1;
+		return CvUnit::MOVE_RESULT_CANCEL;
 
 	// Publish any queued moves so that the attack doesn't appear to happen out of order
 	PublishQueuedVisualizationMoves();
@@ -27544,7 +27539,7 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 			CvBarbarians::DoCityAttacked(pPathPlot);
 		}
 #endif
-		return 1;
+		return CvUnit::MOVE_RESULT_ATTACK;
 	}
 	// Normal unit combat
 	else if(pBestDefender)
@@ -27557,11 +27552,11 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 			CvBarbarians::DoCampAttacked(pPathPlot);
 		}
 
-		return 1;
+		return CvUnit::MOVE_RESULT_ATTACK;
 	}
 
 	//cannot happen
-	return 0;
+	return CvUnit::MOVE_RESULT_NO_TARGET;
 }
 
 //	---------------------------------------------------------------------------
@@ -27619,44 +27614,31 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 }
 
 //	---------------------------------------------------------------------------
-// Returns the number of turns it will take to reach the target.  
-// If no move was made it will return 0. 
-// If it can reach the target in one turn or less than one turn (i.e. not use up all its movement points) it will return 1
-// If the pathfinder indicates to make no further moves for the turn, it will return -1 (even if there are movement points left!)
+// Returns the number of turns it will take to reach the target or a MOVE_RESULT indicating a problem
 int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingRoute)
 {
 	VALIDATE_OBJECT
-	CvPlot* pDestPlot;
 	CvPlot* pPathPlot = NULL;
 
 	LOG_UNIT_MOVES_MESSAGE_OSTR( std::string("UnitPathTo() : player ") << GET_PLAYER(getOwner()).getName() << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << iX << std::string(", ") << iY);
 
-	if(at(iX, iY))
-	{
-		LOG_UNIT_MOVES_MESSAGE("Already at location");
-		return 0;
-	}
+	if (at(iX, iY))
+		return MOVE_RESULT_DONE;
 
 	CvAssert(!IsBusy());
 	CvAssert(getOwner() != NO_PLAYER);
 
 	CvMap& kMap = GC.getMap();
-	pDestPlot = kMap.plot(iX, iY);
-	CvAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
-	if(!pDestPlot)
-	{
-		LOG_UNIT_MOVES_MESSAGE("Destination is not a valid plot location");
-		return 0;
-	}
+	CvPlot* pDestPlot = kMap.plot(iX, iY);
+	if (!pDestPlot)
+		return MOVE_RESULT_CANCEL;
 
 	CvAssertMsg(canMove(), "canAllMove is expected to be true");
 
 	if(getDomainType() == DOMAIN_AIR)
 	{
 		if(!canMoveInto(*pDestPlot))
-		{
-			return 0;
-		}
+			return MOVE_RESULT_CANCEL;
 
 		pPathPlot = pDestPlot;
 		ClearPathCache(); // Not used by air units, keep it clear.
@@ -27668,10 +27650,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE);
 			SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 			if (path.vPlots.size()<2)
-			{
-				LOG_UNIT_MOVES_MESSAGE("Unable to generate path with BuildRouteFinder");
-				return 0;
-			}
+				return MOVE_RESULT_CANCEL;
 
 			//zero is the current position! 
 			pPathPlot = path.get(1);
@@ -27692,7 +27671,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				else
 					LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Cannot move into pPathPlot ") << pPathPlot->getX() << std::string(" ") << pPathPlot->getY());
 #endif
-				return 0;
+				return MOVE_RESULT_CANCEL;
 			}
 		}
 		else
@@ -27705,7 +27684,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			if (pPathPlot && m_kLastPath.front().m_iMoves>getMoves())
 			{
 				finishMoves();
-				return 0;
+				return MOVE_RESULT_CANCEL;
 			}
 
 			//the given target may be different from the actual target
@@ -27714,7 +27693,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet
 				if (pDestPlot && pDestPlot->getX()==getX() && pDestPlot->getY()==getY())
-					return 0;
+					return MOVE_RESULT_DONE;
 			}
 
 			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
@@ -27763,7 +27742,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		{
 			ClearPathCache();
 			PublishQueuedVisualizationMoves();
-			return 0;
+			return MOVE_RESULT_CANCEL;
 		}
 	}
 
@@ -27793,17 +27772,18 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 					m_kLastPath[i].m_iTurns--;
 
 				//means we're done for this turn
-				return -1;
+				return MOVE_RESULT_DONE;
 			}
 		}
 		else
 		{
 			ClearPathCache(); //failed to move, recalculate.
-			return 0;
+			return MOVE_RESULT_CANCEL;
 		}
 	}
 
-	return iETA;
+	//return value must be greater than zero
+	return max(0,iETA);
 }
 
 //	---------------------------------------------------------------------------
@@ -27828,13 +27808,13 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 		}
 	}
 
-	bool bWasMoveMade = ( UnitPathTo(iX, iY, iFlags, -1, true) != 0 );
-	if(bWasMoveMade)
+	if ( UnitPathTo(iX, iY, iFlags, -1, true) != MOVE_RESULT_CANCEL )
 	{
 		PublishQueuedVisualizationMoves();
+		return true;
 	}
-
-	return bWasMoveMade;
+	else
+		return false;
 }
 
 
