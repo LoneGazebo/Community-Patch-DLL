@@ -314,7 +314,7 @@
     <!-- Permits coastal units to cross oceans (v19) -->
     <!-- See also: "Promotions - Terrain Crossing" -->
     <!-- See also: "Unique Unit - Longboat" -->
-    <Row Class="2" Name="PROMOTIONS_CROSS_OCEANS" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_CROSS_OCEANS" Value="1" DbUpdates="1"/>
     <!-- Permits land units to cross ice (v19) -->
     <!-- See also: "Promotions - Terrain Crossing" -->
     <Row Class="2" Name="PROMOTIONS_CROSS_ICE" Value="0" DbUpdates="1"/>

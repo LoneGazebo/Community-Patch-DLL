@@ -519,7 +519,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP' AND EXISTS (SELECT * F
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a Pantheon. Each Follower of your primary Religion in a City increases Religious Pressure and [ICON_FOOD] Growth in that City. Cannot build Missionaries.'
+SET Text = 'Starts with a Pantheon, and [ICON_PROPHET] Great Prophets require 50% less [ICON_PEACE] Faith. Each Follower of your primary Religion in a City increases Religious Pressure and [ICON_FOOD] Growth. Cannot build Missionaries.'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -898,7 +898,7 @@ SET Text = ' The Ballista is an excellent siege weapon. It is extremely useful a
  WHERE Tag = 'TXT_KEY_UNIT_ROMAN_BALLISTA_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Strong, front-line land Unit of the Classical Era. Only the Romans may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Swordsman, which it replaces, and gains the Cover I promotion for free.'
+SET Text = 'Strong, front-line land Unit of the Classical Era. Only the Romans may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Swordsman, which it replaces, and gains the Cover I promotion for free. It also starts with the Pilum promotion, which deals 10 damage to all adjacent enemies every turn while fortified.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ROMAN_LEGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -1000,7 +1000,7 @@ SET Text = 'Powerful Medieval Mounted Unit, weak to Pikemen. Only the Siamese ma
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SIAMESE_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence with City-States starts at 45. Yields from friendly and allied City-States increased by 75%. +25% to [ICON_STRENGTH] Combat Strength of Allied City-State [ICON_CAPITAL] Capitals.'
+SET Text = '[ICON_INFLUENCE] Influence with City-States starts at 40. Yields from friendly and allied City-States increased by 75%. +25% to [ICON_STRENGTH] Combat Strength of Allied City-State [ICON_CAPITAL] Capitals.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 --------------------

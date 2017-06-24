@@ -2216,6 +2216,11 @@ local function GetCultureTooltip( city )
 
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_CULTURE))
 
+	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
+	if(trculture ~= "") then
+		tips:append( L("[NEWLINE][ICON_BULLET]" .. trculture))
+	end
+
 	-- Base Yield from Misc
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END

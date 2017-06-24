@@ -126,6 +126,20 @@ g_SortOptions = {
 		SortType = "numeric",
 	},
 	{
+		Button = Controls.FromCulture,
+		Column = "FromCulture",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.ToCulture,
+		Column = "ToCulture",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
 		Button = Controls.TurnsLeft,
 		Column = "TurnsLeft",
 		DefaultDirection = "asc",
@@ -532,6 +546,9 @@ function DisplayData()
 		
 		local fromScience = "";
 		local toScience = "";
+
+		local fromCulture = "";
+		local toCulture = "";
 		
 		if (v.FromID ~= v.ToID) then
 		
@@ -544,9 +561,22 @@ function DisplayData()
 				toScience = v.ToScience / 100;
 				instance.ToScience:SetToolTipString(strTT);	
 			end
+
+			if(v.FromCulture ~= 0) then
+				fromCulture = v.FromCulture / 100;
+				instance.FromCulture:SetToolTipString(strTT);	
+			end
+			
+			if(v.ToCulture ~= 0) then
+				toCulture = v.ToCulture / 100;
+				instance.ToCulture:SetToolTipString(strTT);	
+			end
 		end
 		instance.FromScience:SetText(fromScience);
 		instance.ToScience:SetText(toScience);
+
+		instance.FromCulture:SetText(fromCulture);
+		instance.ToCulture:SetText(toCulture);
 		
 		local strTurnsRemaining = "";
 		if (v.IsRecalled) then

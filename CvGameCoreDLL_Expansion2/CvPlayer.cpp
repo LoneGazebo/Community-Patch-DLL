@@ -3258,31 +3258,34 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				int iValue = (pOldCity->getPopulation() / 2);
 				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iValue /= 100;
-				ChangeCultureBonusTurnsConquest(iValue);
-				if (GetID() == GC.getGame().getActivePlayer())
+				if (iValue > 0)
 				{
-					Localization::String strMessage;
-					Localization::String strSummary;
-					strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
-					strMessage << iValue;
-					strMessage << pOldCity->getNameKey();
-					strMessage << GetPlayerTraits()->GetCultureBonusModifierConquest();
-					strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
+					ChangeCultureBonusTurnsConquest(iValue);
+					if (GetID() == GC.getGame().getActivePlayer())
+					{
+						Localization::String strMessage;
+						Localization::String strSummary;
+						strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
+						strMessage << iValue;
+						strMessage << pOldCity->getNameKey();
+						strMessage << GetPlayerTraits()->GetCultureBonusModifierConquest();
+						strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
 
-					CvNotifications* pNotification = GetNotifications();
-					if (pNotification)
-					{
-						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+						CvNotifications* pNotification = GetNotifications();
+						if (pNotification)
+						{
+							pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+						}
 					}
-				}
-				if ((GC.getLogging() && GC.getAILogging()))
-				{
-					CvGameCulture *pCulture = GC.getGame().GetGameCulture();
-					if (pCulture)
+					if ((GC.getLogging() && GC.getAILogging()))
 					{
-						CvString strLogString;
-						strLogString.Format("Conquest culture boost: %d", (pOldCity->getPopulation() / 2));
-						GetHomelandAI()->LogHomelandMessage(strLogString);
+						CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+						if (pCulture)
+						{
+							CvString strLogString;
+							strLogString.Format("Conquest culture boost: %d", (pOldCity->getPopulation() / 2));
+							GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 					}
 				}
 			}
@@ -3291,31 +3294,34 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				int iValue = (pOldCity->getPopulation() / 2);
 				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iValue /= 100;
-				ChangeProductionBonusTurnsConquest(iValue);
-				if (GetID() == GC.getGame().getActivePlayer())
+				if (iValue > 0)
 				{
-					Localization::String strMessage;
-					Localization::String strSummary;
-					strMessage = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART");
-					strMessage << (pOldCity->getPopulation() / 2);
-					strMessage << pOldCity->getNameKey();
-					strMessage << GetPlayerTraits()->GetProductionBonusModifierConquest();
-					strSummary = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART_SUMMARY");
+					ChangeProductionBonusTurnsConquest(iValue);
+					if (GetID() == GC.getGame().getActivePlayer())
+					{
+						Localization::String strMessage;
+						Localization::String strSummary;
+						strMessage = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART");
+						strMessage << (pOldCity->getPopulation() / 2);
+						strMessage << pOldCity->getNameKey();
+						strMessage << GetPlayerTraits()->GetProductionBonusModifierConquest();
+						strSummary = Localization::Lookup("TXT_KEY_PRODUCTION_BOOST_ART_SUMMARY");
 
-					CvNotifications* pNotification = GetNotifications();
-					if (pNotification)
-					{
-						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+						CvNotifications* pNotification = GetNotifications();
+						if (pNotification)
+						{
+							pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), (int)pOldCity->GetID(), GetID());
+						}
 					}
-				}
-				if ((GC.getLogging() && GC.getAILogging()))
-				{
-					CvGameCulture *pCulture = GC.getGame().GetGameCulture();
-					if (pCulture)
+					if ((GC.getLogging() && GC.getAILogging()))
 					{
-						CvString strLogString;
-						strLogString.Format("Conquest production boost: %d", (pOldCity->getPopulation() / 2));
-						GetHomelandAI()->LogHomelandMessage(strLogString);
+						CvGameCulture *pCulture = GC.getGame().GetGameCulture();
+						if (pCulture)
+						{
+							CvString strLogString;
+							strLogString.Format("Conquest production boost: %d", (pOldCity->getPopulation() / 2));
+							GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 					}
 				}
 			}
@@ -4347,7 +4353,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	if (MOD_BALANCE_CORE_EVENTS)
+	{
+		CheckActivePlayerEvents(pNewCity);
+	}
+#endif
 	if (pNewCity->getX() == GET_PLAYER(eOldOwner).GetLostHolyCityX() && pNewCity->getY() == GET_PLAYER(eOldOwner).GetLostHolyCityY())
 	{
 		GET_PLAYER(eOldOwner).SetHasLostHolyCity(false, NO_PLAYER);
@@ -9158,7 +9169,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 											}
 											else
 											{
-												pUnit->setMoves(0);
+												pUnit->finishMoves();
 												//Lua Hook
 												GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
 											}
@@ -9209,7 +9220,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 									}
 									else
 									{
-										pUnit->setMoves(0);
+										pUnit->finishMoves();
 										//Lua Hook
 										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
 									}
@@ -11274,10 +11285,8 @@ void CvPlayer::doTurnUnits()
 /// Indicate that the AI has not processed any units yet
 void CvPlayer::SetAllUnitsUnprocessed()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		pLoopUnit->SetTurnProcessed(false);
 
@@ -11299,10 +11308,8 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		// First heal the unit
 		pLoopUnit->doHeal();
@@ -11360,26 +11367,28 @@ void CvPlayer::DoUnitReset()
 	}
 }
 
+void CvPlayer::ResetReachablePlotsForAllUnits()
+{
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		pLoopUnit->ClearReachablePlots();
+}
+
+
 //	--------------------------------------------------------------------------------
 /// Damage units from attrition (start of turn so we can get notifications)
 void CvPlayer::DoUnitAttrition()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-	{
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		pLoopUnit->DoAttrition();
-	}
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::RespositionInvalidUnits()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit)
 		{
@@ -11441,10 +11450,8 @@ void CvPlayer::updateYield()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateExtraSpecialistYield()
 {
-	CvCity* pLoopCity;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->updateExtraSpecialistYield();
 	}
@@ -11453,10 +11460,8 @@ void CvPlayer::updateExtraSpecialistYield()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateCityPlotYield()
 {
-	CvCity* pLoopCity;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->plot()->updateYield();
 	}
@@ -11466,10 +11471,8 @@ void CvPlayer::updateCityPlotYield()
 //	--------------------------------------------------------------------------------
 void CvPlayer::updateCitySight(bool bIncrement)
 {
-	CvCity* pLoopCity;
 	int iLoop;
-
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		pLoopCity->plot()->updateSight(bIncrement);
 	}
@@ -13066,7 +13069,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getJonRandNum(kGoodyInfo.getGoldRandAmount(), "Goody Gold Rand"));
 	}
 
-	int iGoodyModifier = pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus();
+	int iGoodyModifier = pUnit != NULL ? pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus() : 0;
 
 	if (pUnit != NULL && iGoodyModifier != 0)
 	{
@@ -17497,6 +17500,14 @@ int CvPlayer::greatGeneralThreshold() const
 
 	iThreshold = ((/*200*/ GC.getGREAT_GENERALS_THRESHOLD() * std::max(0, (getGreatGeneralsThresholdModifier() + 100))) / 100);
 
+	UnitClassTypes eUnitClassGeneral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL");
+	int iMod = GetPlayerTraits()->GetGreatPersonCostReduction(GetGreatPersonFromUnitClass(eUnitClassGeneral));
+	if (iMod != 0)
+	{
+		iThreshold *= (100 + iMod);
+		iThreshold /= 100;
+	}
+
 	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 	iThreshold /= std::max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
 
@@ -17512,6 +17523,14 @@ int CvPlayer::greatAdmiralThreshold() const
 	int iThreshold;
 
 	iThreshold = ((/*200*/ GC.getGREAT_GENERALS_THRESHOLD() * std::max(0, (getGreatAdmiralsThresholdModifier() + 100))) / 100);
+
+	UnitClassTypes eUnitClassAdmiral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL");
+	int iMod = GetPlayerTraits()->GetGreatPersonCostReduction(GetGreatPersonFromUnitClass(eUnitClassAdmiral));
+	if (iMod != 0)
+	{
+		iThreshold *= (100 + iMod);
+		iThreshold /= 100;
+	}
 
 	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 	iThreshold /= std::max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
@@ -23803,6 +23822,9 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	//Check for buildings and beliefs that add Great General points.
 	int iLoop;
 	int iGreatGeneralPoints = 0;
+
+	UnitClassTypes eUnitClassGeneral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL");
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassGeneral);
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if(pLoopCity != NULL)
@@ -23825,6 +23847,10 @@ void CvPlayer::DoChangeGreatGeneralRate()
 					{
 						iGreatGeneralPoints += iReligionYieldChange;
 					}
+				}
+				if (eGreatPerson != NO_GREATPERSON)
+				{
+					iGreatGeneralPoints += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
 				}
 			}
 		}
@@ -23870,6 +23896,10 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	//Check for buildings and beliefs that add Great General points.
 	int iLoop;
 	int iGreatAdmiralPoints = 0;
+
+	UnitClassTypes eUnitClassAdmiral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL");
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassAdmiral);
+
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if(pLoopCity != NULL)
@@ -23892,6 +23922,11 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 					{
 						iGreatAdmiralPoints += iReligionYieldChange;
 					}
+				}
+
+				if (eGreatPerson != NO_GREATPERSON)
+				{
+					iGreatAdmiralPoints += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
 				}
 			}
 		}
@@ -25612,8 +25647,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					break;
 					case YIELD_PRODUCTION:
 					{
-						pLoopCity->changeProduction(iValue);
-						if(pLoopCity->getProduction() <= 0)
+						if ((pLoopCity->getProduction() < pLoopCity->getProductionNeeded()) && pLoopCity->isProduction())
+						{
+							pLoopCity->changeProduction(iValue);
+
+							if (pLoopCity->getProduction() > pLoopCity->getProductionNeeded() && !pLoopCity->isProductionProcess())
+							{
+								pLoopCity->popOrder(0, !pLoopCity->isProductionProcess(), true);
+							}
+						}
+						else
+						{
+							pLoopCity->changeOverflowProduction(iValue);
+						}
+						if (pLoopCity->getProduction() <= 0)
 						{
 							pLoopCity->setProduction(0);
 						}
@@ -31458,6 +31505,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		DLLUI->PublishEndTurnDirty();
 
 		CvGame& kGame = GC.getGame();
+		CvMap& theMap = GC.getMap();
 
 		/////////////////////////////////////////////
 		// TURN IS BEGINNING
@@ -31472,10 +31520,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			DoUnitAttrition();
 
 			if(kGame.getActivePlayer() == m_eID)
-			{
-				CvMap& theMap = GC.getMap();
 				theMap.updateDeferredFog();
-			}
 
 			if((kGame.isHotSeat() || kGame.isPbem()) && isHuman() && bDoTurn)
 			{
@@ -31501,6 +31546,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			if(bDoTurn)
 			{
 				SetAllUnitsUnprocessed();
+
+#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
+				ResetReachablePlotsForAllUnits();
+#endif
+
 				{
 					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
@@ -31573,6 +31623,16 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 		else
 		{
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+			//visibility expires now!
+			//flip for all teams in case we killed one of their units
+			for (int iI = 0; iI < theMap.numPlots(); iI++)
+				theMap.plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM);
+
+			if (kGame.getActivePlayer() == m_eID)
+				theMap.updateFog();
+#endif
+
 #if defined(MOD_EVENTS_RED_TURN)
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<

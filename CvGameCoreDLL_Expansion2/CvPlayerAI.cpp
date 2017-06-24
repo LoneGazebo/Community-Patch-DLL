@@ -1420,7 +1420,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
 
-	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
+	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician);
 
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
@@ -1579,7 +1579,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	// Attempt a run to a minor civ
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && IsSafe(this))
 	{
-		CvPlot* pTarget = FindBestMerchantTargetPlot(pGreatMerchant, true);
+		CvPlot* pTarget = FindBestMerchantTargetPlot(pGreatMerchant);
 		if(pTarget)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1920,7 +1920,7 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 	return true;
 }
 
-CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafePaths)
+CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant)
 {
 	if(!pMerchant)
 		return NULL;
@@ -1988,7 +1988,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafe
 					bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
 					if(bRightOwner && bIsRevealed)
 					{
-						iPathTurns = pMerchant->TurnsToReachTarget(pAdjacentPlot, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
+						iPathTurns = pMerchant->TurnsToReachTarget(pAdjacentPlot, false, false, iBestTurnsToReach);
 #if defined(MOD_BALANCE_CORE)
 						if(bIsVenice)
 						{
@@ -2653,7 +2653,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit)
 }
 #endif
 
-CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafePaths)
+CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 {
 	if(!pMusician)
 		return NULL;
@@ -2681,8 +2681,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
 	int iMoveFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-	if (!bOnlySafePaths)
-		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
 
 	// Loop through each of that player's cities
 	int iLoop;

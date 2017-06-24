@@ -132,6 +132,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iChangeDamageValue(0),
 	m_iPromotionDuration(0),
 	m_iMoraleBreakChance(0),
+	m_iDamageAoEFortified(0),
 #endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
@@ -346,6 +347,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
 	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
+	m_iDamageAoEFortified = kResults.GetInt("AoEWhileFortified");
 #endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
@@ -399,9 +401,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-	if (MOD_PROMOTIONS_CROSS_OCEANS) {
-		m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
-	}
+	m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	if (MOD_PROMOTIONS_CROSS_ICE) {
@@ -1708,6 +1708,10 @@ int CvPromotionEntry::PromotionDuration() const
 int CvPromotionEntry::GetMoraleBreakChance() const
 {
 	return m_iMoraleBreakChance;
+}
+int CvPromotionEntry::GetDamageAoEFortified() const
+{
+	return m_iDamageAoEFortified;
 }
 #endif
 /// Accessor: Can this Promotion be earned through normal leveling?

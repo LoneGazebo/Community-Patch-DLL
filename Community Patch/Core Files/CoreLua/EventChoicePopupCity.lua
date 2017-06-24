@@ -185,7 +185,7 @@ CommitItems["CityEventChoices"] = function(selection, playerID, cityID)
 				-- Event Choice Audio
 				local eventChoiceAudio = eventChoice.EventChoiceAudio
 				if eventChoiceAudio then
-					Events.AudioPlay2DSound("AS2D_EVENT_CHOICE")
+					Events.AudioPlay2DSound(eventChoiceAudio)
 				end
 			end
 		end

@@ -276,6 +276,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiGreatPersonExpendedYield(NULL),
 	m_ppiGreatPersonBornYield(NULL),
 	m_piGoldenAgeGreatPersonRateModifier(NULL),
+	m_piGreatPersonCostReduction(NULL),
 	m_piPerPuppetGreatPersonRateModifier(NULL),
 	m_piGreatPersonGWAM(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
@@ -1560,6 +1561,14 @@ int CvTraitEntry::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPer
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGoldenAgeGreatPersonRateModifier ? m_piGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
+
+int CvTraitEntry::GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piGreatPersonCostReduction ? m_piGreatPersonCostReduction[(int)eGreatPerson] : 0;
+}
+
 int CvTraitEntry::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
@@ -2661,6 +2670,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiGreatPersonBornYield[GreatPersonID][YieldID] = yield;
 		}
 	}
+
+	kUtility.PopulateArrayByValue(m_piGreatPersonCostReduction, "GreatPersons", "Trait_GreatPersonCostReduction", "GreatPersonType", "TraitType", szTraitType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piGoldenAgeGreatPersonRateModifier, "GreatPersons", "Trait_GoldenAgeGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piPerPuppetGreatPersonRateModifier, "GreatPersons", "Trait_PerPuppetGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piGreatPersonGWAM, "GreatPersons", "Trait_GreatPersonBirthGWAM", "GreatPersonType", "TraitType", szTraitType, "Value");
@@ -3466,6 +3477,7 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			for (int iGreatPersonTypes = 0; iGreatPersonTypes < GC.getNumGreatPersonInfos(); iGreatPersonTypes++)
 			{
+				m_aiGreatPersonCostReduction[iGreatPersonTypes] = trait->GetGreatPersonCostReduction((GreatPersonTypes)iGreatPersonTypes);
 				m_aiPerPuppetGreatPersonRateModifier[iGreatPersonTypes] = trait->GetPerPuppetGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGreatPersonGWAM[iGreatPersonTypes] = trait->GetGreatPersonGWAM((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
@@ -3543,6 +3555,7 @@ void CvPlayerTraits::Uninit()
 	m_ppiTerrainYieldChange.clear();
 	m_ppiTradeRouteYieldChange.clear();
 
+	m_aiGreatPersonCostReduction.clear();
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
@@ -3936,15 +3949,18 @@ void CvPlayerTraits::Reset()
 		m_paiMaintenanceModifierUnitCombat[iI] = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
+	m_aiGreatPersonCostReduction.clear();
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
 
+	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 	m_aiGreatPersonGWAM.resize(GC.getNumGreatPersonInfos());
 	m_aiGoldenAgeGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); iI++)
 	{
+		m_aiGreatPersonCostReduction[iI] = 0;
 		m_aiPerPuppetGreatPersonRateModifier[iI] = 0;
 		m_aiGreatPersonGWAM[iI] = 0;
 		m_aiGoldenAgeGreatPersonRateModifier[iI] = 0;
@@ -4244,7 +4260,7 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 #if defined(MOD_API_UNIFIED_YIELDS)
 int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
 {
-	CvAssertMsg(eSpecialist < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(), "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
 
 	if(eGreatPerson == NO_GREATPERSON)
@@ -5861,6 +5877,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_aiGreatPersonCostReduction;
 	kStream >> m_aiPerPuppetGreatPersonRateModifier;
 	kStream >> m_aiGreatPersonGWAM;
 	kStream >> m_aiGoldenAgeGreatPersonRateModifier;
@@ -6258,6 +6275,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 		kStream << m_aFreeTraitUnits[ui].m_ePrereqTech;
 	}
 #if defined(MOD_BALANCE_CORE)
+	kStream << m_aiGreatPersonCostReduction;
 	kStream << m_aiPerPuppetGreatPersonRateModifier;
 	kStream << m_aiGreatPersonGWAM;
 	kStream << m_aiGoldenAgeGreatPersonRateModifier;

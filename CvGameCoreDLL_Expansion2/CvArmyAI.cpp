@@ -478,7 +478,7 @@ void CvArmyAI::RemoveStuckAndWeakUnits()
 {
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
 
-	if(pOperation->GetOperationState() < AI_OPERATION_STATE_MOVING_TO_TARGET)
+	if(pOperation->GetOperationState() < AI_OPERATION_STATE_AT_TARGET)
 	{
 		for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 		{
@@ -493,15 +493,18 @@ void CvArmyAI::RemoveStuckAndWeakUnits()
 		}
 	}
 
-	for (unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
+	if (pOperation->IsOffensive()) //if we're defending or escorting, no point in running away
 	{
-		if (m_FormationEntries[iI].m_iUnitID > ARMYSLOT_NO_UNIT)
+		for (unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 		{
-			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
+			if (m_FormationEntries[iI].m_iUnitID > ARMYSLOT_NO_UNIT)
+			{
+				CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
 
-			//let tactical AI handle those
-			if (pUnit->GetCurrHitPoints()<pUnit->GetMaxHitPoints()/3)
-				RemoveUnit(m_FormationEntries[iI].GetUnitID());
+				//let tactical AI handle those
+				if (pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() / 3)
+					RemoveUnit(m_FormationEntries[iI].GetUnitID());
+			}
 		}
 	}
 }

@@ -25,13 +25,13 @@
 			<Text>Morrigan, Harbinger of Strife</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA">
-			<Text>Receive +12 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era</Text>
+			<Text>Receive +10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
 			<Text>Epona, the Great Mare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, and +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 10 [ICON_GOLD] Gold per turn, +1 [ICON_GOLDEN_AGE] Golden Age Points for every 5 [ICON_RESEARCH] Science per turn, and +2 [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed King</Text>
@@ -43,13 +43,13 @@
 			<Text>Cernunnos, the Horned Stag</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH">
-			<Text>+4 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist, +1 [ICON_CULTURE] Culture from World Wonders</Text>
+			<Text>+3 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold in Cities with a Specialist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
 			<Text>Lugh, the Skilled One</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON">
-			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold in every City</Text>
+			<Text>+2 [ICON_CULTURE] Culture in every City, +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every improved Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
 			<Text>Rhiannon, Goddess of Sovereignty</Text>
@@ -61,13 +61,13 @@
 			<Text>Mannanan, Son of the Sea</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA">
-			<Text>+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in a City, and gain 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born</Text>
+			<Text>+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in a City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GREAT_SCIENTIST] Great Scientist Points in [ICON_CAPITAL] Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_OGMA_SHORT">
 			<Text>Ogma, the Learned</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN">
-			<Text>+100% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +1 [ICON_CULTURE] Culture in every City</Text>
+			<Text>+100% increase to [ICON_RANGE_STRENGTH] Ranged Combat Strength, +25% [ICON_FOOD] Growth, and +8 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born, scaling with Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
 			<Text>Bran, the Sleeping Guardian</Text>
@@ -152,6 +152,9 @@
 		<!-- Sweden Grenadiers -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
 			<Text>Grenadiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY">
+			<Text>Pilum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
 			<Text>Splash Damage</Text>

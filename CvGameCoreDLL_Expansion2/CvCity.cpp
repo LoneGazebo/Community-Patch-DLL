@@ -560,16 +560,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot != NULL)
+				if(pLoopPlot->getOwner() == NO_PLAYER)
 				{
-					if(pLoopPlot->getOwner() == NO_PLAYER)
-					{
-						pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
-					}
-					if(pLoopPlot->getOwner() == getOwner())
-					{
-						pLoopPlot->SetCityPurchaseID(m_iID);
-					}
+					pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+				}
+				if(pLoopPlot->getOwner() == getOwner())
+				{
+					pLoopPlot->SetCityPurchaseID(m_iID);
 				}
 			}
 		}
@@ -871,7 +868,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	if(MOD_BALANCE_CORE_EVENTS)
+	if (MOD_BALANCE_CORE_EVENTS && bInitialFounding)
 	{
 		owningPlayer.CheckActivePlayerEvents(this);
 	}
@@ -6533,7 +6530,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 										}
 										else
 										{
-											pUnit->setMoves(0);
+											pUnit->finishMoves();
 											//Lua Hook
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
 										}
@@ -6569,7 +6566,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							}
 							else
 							{
-								pUnit->setMoves(0);
+								pUnit->finishMoves();
 								//Lua Hook
 								GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
 							}
@@ -23951,7 +23948,7 @@ int CvCity::GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink) cons
 				*toolTipSink += GetLocalizedText("TXT_KEY_SCIENCE_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
 				break;
 			case YIELD_CULTURE:
-				*toolTipSink += "[NEWLINE][BULLET]";
+				//*toolTipSink += "[NEWLINE][BULLET]";
 				*toolTipSink += GetLocalizedText("TXT_KEY_CULTURE_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
 				break;
 			case YIELD_FAITH:

@@ -203,6 +203,9 @@ function RefreshList()
 		if(iScienceUnhappiness > 0) then
 			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ILLITERACY", iScienceUnhappiness);
 		end
+		if(iCultureUnhappiness > 0) then
+			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_BOREDOM", iCultureUnhappiness);
+		end
 		if(iConnectionUnhappiness > 0) then
 			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION", iConnectionUnhappiness);
 		end

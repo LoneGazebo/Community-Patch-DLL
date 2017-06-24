@@ -92,16 +92,11 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	//for ranged every plot we can enter with movement left is a base for attack
 	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
 
-	//specialty for barbarian who won't leave camp
-	if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
-		iMinMovesLeft = pLoopUnit->getMoves();
-
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
-	ReachablePlots reachablePlots;
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,iFlags,iMinMovesLeft,-1,set<int>());
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,-1,set<int>());
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
@@ -123,6 +118,13 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 			AssignUnitDangerValue(pLoopUnit, pMoveTile);
 		}
+	}
+
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		if (aNeighbors[iI])
+			m_DangerPlots[aNeighbors[iI]->GetPlotIndex()].m_bEnemyAdjacent = true;
 	}
 
 	if (bRemember)
@@ -954,6 +956,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		// Damage from features (citadel)
 		iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 		iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
+		iPlotDamage += m_bEnemyAdjacent ? 1 : 0;
 
 		// Damage from cities
 		for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
@@ -1031,6 +1034,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	// Damage from surrounding features (citadel) and the plot itself
 	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
+	iPlotDamage += m_bEnemyAdjacent ? 1 : 0;
 
 	//update cache
 	m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));

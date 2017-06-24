@@ -43,10 +43,10 @@ VALUES
 INSERT INTO Belief_GreatPersonExpendedYield
 	(BeliefType, GreatPersonType, YieldType, Yield)
 VALUES
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_SCIENCE', 20),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 20),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 20),
-	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 20);
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_SCIENCE', 5),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 5),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 5),
+	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 5);
 
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
@@ -113,14 +113,19 @@ UPDATE Policies SET GreatDiplomatRateModifier = '25' WHERE Type = 'POLICY_SCHOLA
 UPDATE Buildings SET PrereqTech = 'TECH_RADIO' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
 
 -- Set Wonder Policy Requirement
-UPDATE Buildings SET NumPoliciesNeeded = '12' WHERE Type = 'BUILDING_SUMMER_PALACE';
-UPDATE Buildings SET NumPoliciesNeeded = '5' WHERE Type = 'BUILDING_FORUM';
-
--- Printing Press Culture Boost
-INSERT INTO Policy_BuildingClassCultureChanges (PolicyType, BuildingClassType, CultureChange) SELECT 'POLICY_PHILANTHROPY', 'BUILDINGCLASS_PRINTING_PRESS' , '10';
+UPDATE Buildings SET NumPoliciesNeeded = '11' WHERE Type = 'BUILDING_SUMMER_PALACE';
+UPDATE Buildings SET NumPoliciesNeeded = '3' WHERE Type = 'BUILDING_FORUM';
 
 -- Chancery Happiness Boost
 INSERT INTO Policy_BuildingClassHappiness (PolicyType, BuildingClassType, Happiness) SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
+
+--Philanthropy more paper!
+
+INSERT INTO Policy_ResourcefromCSAlly
+	(PolicyType, ResourceType, Number)
+VALUES
+	('POLICY_PHILANTHROPY', 'RESOURCE_PAPER', 2);
+
 
 -- Change to Order Palace of Science and Culture
 UPDATE Buildings SET DPToVotes = '1' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';

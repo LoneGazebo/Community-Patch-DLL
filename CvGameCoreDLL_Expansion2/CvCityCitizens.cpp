@@ -3264,6 +3264,16 @@ void CvCityCitizens::DoSpecialists()
 				// GPP from Buildings
 				iGPPChange += GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
 
+				ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+				if (eMajority != NO_RELIGION)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+					if (pReligion)
+					{
+						iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
+					}
+				}
+
 				if(iGPPChange > 0)
 				{
 					iMod = 0;
@@ -4035,6 +4045,13 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 #endif
 			}
 		}
+	}
+
+	int iMod = GET_PLAYER(GetCity()->getOwner()).GetPlayerTraits()->GetGreatPersonCostReduction(GetGreatPersonFromUnitClass(eUnitClass));
+	if (iMod != 0)
+	{
+		iThreshold *= (100 + iMod);
+		iThreshold /= 100;
 	}
 #endif
 	// Increase threshold based on how many GP have already been spawned

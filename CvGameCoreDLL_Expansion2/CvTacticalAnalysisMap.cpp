@@ -500,14 +500,13 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 	for(unsigned int iUnitIndex = 0;  iUnitIndex < m_EnemyUnits.size(); iUnitIndex++)
 	{
 		CvUnit* pUnit = getUnit(m_EnemyUnits[iUnitIndex]);
-		ReachablePlots tiles;
-
+		
 		//for ranged every plot we can enter with movement left is a base for attack
 		int iMinMovesLeft = pUnit->IsCanAttackRanged() ? 1 : 0;
 
 		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
 		//therefore we later do a dilation filter on the cells
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft);
+		ReachablePlots tiles = pUnit->GetAllPlotsInReachThisTurn(false,true,false,iMinMovesLeft);
 
 		for (ReachablePlots::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{

@@ -456,6 +456,8 @@ public:
 	ReligionTypes GetReligionForHolyCity();
 #endif
 	bool IsReligionHereOtherThan(ReligionTypes eReligion);
+	bool HasFriendlyInquisitor(ReligionTypes eReligion, CvUnit* pUnit = NULL);
+	bool IsForeignMissionaryNearby(ReligionTypes eReligion);
 	bool IsDefendedAgainstSpread(ReligionTypes eReligion);
 	ReligionTypes GetReligiousMajority();
 	ReligionTypes GetSimulatedReligiousMajority();
@@ -645,7 +647,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void DoFaithPurchasesInCities(CvCity* pCity);
 #endif
-	void DoFaithPurchases();
+	bool DoFaithPurchases();
 	bool BuyMissionary(ReligionTypes eReligion);
 	bool BuyInquisitor(ReligionTypes eReligion);
 	bool BuyGreatPerson(UnitTypes eUnit);
@@ -660,6 +662,7 @@ private:
 	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot);
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry);
+	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield);
 
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit);
 	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit);

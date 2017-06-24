@@ -1119,9 +1119,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		}
 	}
 
-	m_Buildables.SortItems();
-
 	ReweightByCost();
+
+	m_Buildables.SortItems();
 
 	LogPossibleBuildsPostCheck();
 
@@ -1289,10 +1289,9 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 			}
 		}
 	}
+	m_BuildablesPrecheck.SortItems();
 
 	ReweightPreCheckByCost();
-
-	m_BuildablesPrecheck.SortItems();
 
 	LogPossibleHurries();
 
@@ -4165,6 +4164,16 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 				// GPP from Buildings
 				iGPPChange += pCity->GetCityCitizens()->GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
+
+				ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+				if (eMajority != NO_RELIGION)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+					if (pReligion)
+					{
+						iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), pCity->getOwner(), pCity, true) * 100;
+					}
+				}
 
 				if (iGPPChange > 0)
 				{

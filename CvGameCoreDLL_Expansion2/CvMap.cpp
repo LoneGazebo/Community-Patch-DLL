@@ -269,12 +269,15 @@ void CvMap::InitPlots()
 	int iNumTeams = MAX_TEAMS;
 
 	//allocate all the memory we need up front
-	m_pYields = FNEW(short[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
-	memset(m_pYields, 0, NUM_YIELD_TYPES*iNumPlots*sizeof(short));
-	m_pPlayerCityRadiusCount = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
-	memset(m_pPlayerCityRadiusCount, 0, iNumTeams*iNumPlots*sizeof(char));
-	m_pVisibilityCount = FNEW(short[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
-	memset(m_pVisibilityCount, 0, iNumTeams*iNumPlots *sizeof(short));
+	m_pYields = FNEW(uint8[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pYields, 0, NUM_YIELD_TYPES*iNumPlots*sizeof(uint8));
+	m_pPlayerCityRadiusCount = FNEW(uint8[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pPlayerCityRadiusCount, 0, iNumTeams*iNumPlots*sizeof(uint8));
+	m_pVisibilityCount = FNEW(uint8[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pVisibilityCount, 0, iNumTeams*iNumPlots *sizeof(uint8));
+	m_pVisibilityCountThisTurnMax = FNEW(uint8[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pVisibilityCountThisTurnMax, 0, iNumTeams*iNumPlots * sizeof(uint8));
+
 	m_pRevealedOwner = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pRevealedOwner, -1, iNumTeams*iNumPlots *sizeof(char));
 	m_pRevealed = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
@@ -290,15 +293,16 @@ void CvMap::InitPlots()
 	memset(m_pIsImpassable, 0, iNumTeams*iNumPlots *sizeof(bool));
 #endif
 
-	short* pYields = m_pYields;
-	char*  pPlayerCityRadiusCount = m_pPlayerCityRadiusCount;
-	short* pVisibilityCount = m_pVisibilityCount;
-	char*  pRevealedOwner = m_pRevealedOwner;
+	uint8* pYields = m_pYields;
+	uint8* pPlayerCityRadiusCount = m_pPlayerCityRadiusCount;
+	uint8* pVisibilityCount = m_pVisibilityCount;
+	uint8* pVisibilityCountThisTurnMax = m_pVisibilityCountThisTurnMax;
+	char* pRevealedOwner = m_pRevealedOwner;
 	char* pRevealedImprovementType = m_pRevealedImprovementType;
 	char* pRevealedRouteType = m_pRevealedRouteType;
-	bool*  pResourceForceReveal = m_pResourceForceReveal;
+	bool* pResourceForceReveal = m_pResourceForceReveal;
 #if defined(MOD_BALANCE_CORE)
-	bool*  pIsImpassable = m_pIsImpassable;
+	bool* pIsImpassable = m_pIsImpassable;
 #endif
 
 	for(int i = 0; i < iNumPlots; i++)
@@ -306,6 +310,7 @@ void CvMap::InitPlots()
 		m_pMapPlots[i].m_aiYield = pYields;
 		m_pMapPlots[i].m_aiPlayerCityRadiusCount = pPlayerCityRadiusCount;
 		m_pMapPlots[i].m_aiVisibilityCount = pVisibilityCount;
+		m_pMapPlots[i].m_aiVisibilityCountThisTurnMax = pVisibilityCountThisTurnMax;
 		m_pMapPlots[i].m_aiRevealedOwner = pRevealedOwner;
 		m_pMapPlots[i].m_aeRevealedImprovementType = pRevealedImprovementType;
 		m_pMapPlots[i].m_aeRevealedRouteType = pRevealedRouteType;
@@ -317,6 +322,7 @@ void CvMap::InitPlots()
 		pYields					+= NUM_YIELD_TYPES;
 		pPlayerCityRadiusCount  += iNumTeams;
 		pVisibilityCount		+= iNumTeams;
+		pVisibilityCountThisTurnMax += iNumTeams;
 		pRevealedOwner			+= iNumTeams;
 		pRevealedImprovementType+= iNumTeams;
 		pRevealedRouteType		+= iNumTeams;
@@ -573,8 +579,7 @@ void CvMap::setupGraphical()
 
 	if(m_pMapPlots != NULL)
 	{
-		int iI;
-		for(iI = 0; iI < numPlots(); iI++)
+		for(int iI = 0; iI < numPlots(); iI++)
 		{
 			plotByIndexUnchecked(iI)->setupGraphical();
 		}
@@ -585,9 +590,7 @@ void CvMap::setupGraphical()
 //	--------------------------------------------------------------------------------
 void CvMap::erasePlots()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->erase(true/*bEraseUnitsIfWater*/);
 	}
@@ -597,9 +600,7 @@ void CvMap::erasePlots()
 //	--------------------------------------------------------------------------------
 void CvMap::setRevealedPlots(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly)
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for(int iI = 0; iI < numPlots(); iI++)
 	{
 #if defined(MOD_API_EXTENSIONS)
 		plotByIndexUnchecked(iI)->setRevealed(eTeam, bNewValue, NULL, bTerrainOnly);
@@ -626,9 +627,7 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
 //	--------------------------------------------------------------------------------
 void CvMap::doTurn()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->doTurn();
 	}
@@ -638,9 +637,7 @@ void CvMap::doTurn()
 //	--------------------------------------------------------------------------------
 void CvMap::updateFog()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->updateFog();
 	}
@@ -660,9 +657,7 @@ void CvMap::updateDeferredFog()
 //	--------------------------------------------------------------------------------
 void CvMap::updateVisibility()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->updateVisibility();
 	}
@@ -686,9 +681,7 @@ void CvMap::updateLayout(bool bDebug)
 //	--------------------------------------------------------------------------------
 void CvMap::updateSight(bool bIncrement)
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->updateSight(bIncrement);
 	}
@@ -698,9 +691,7 @@ void CvMap::updateSight(bool bIncrement)
 //	--------------------------------------------------------------------------------
 void CvMap::updateCenterUnit()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->updateCenterUnit();
 	}
@@ -737,9 +728,7 @@ void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
 //	--------------------------------------------------------------------------------
 void CvMap::updateYield()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->updateYield();
 	}
@@ -749,9 +738,7 @@ void CvMap::updateYield()
 //	Update the adjacency cache values
 void CvMap::updateAdjacency()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pPlot = plotByIndexUnchecked(iI);
 		pPlot->m_bIsAdjacentToLand = pPlot->isAdjacentToLand();
@@ -764,9 +751,7 @@ void CvMap::updateAdjacency()
 //	--------------------------------------------------------------------------------
 void CvMap::verifyUnitValidPlot()
 {
-	int iI;
-
-	for(iI = 0; iI < numPlots(); iI++)
+	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->verifyUnitValidPlot();
 	}
@@ -1025,14 +1010,12 @@ CvUnit* CvMap::findUnit(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect,
 CvPlot* CvMap::findNearestStartPlot(int iX, int iY, PlayerTypes& eOwner)
 {
 	eOwner = NO_PLAYER;
-	int iValue;
 	int iBestValue;
-	int iI;
 	CvPlot* pBestStartPlot = 0;
 
 	iBestValue = INT_MAX;
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(thisPlayer.isEverAlive())
@@ -1040,7 +1023,7 @@ CvPlot* CvMap::findNearestStartPlot(int iX, int iY, PlayerTypes& eOwner)
 			CvPlot* pStartPlot = thisPlayer.getStartingPlot();
 			if (pStartPlot)
 			{
-				iValue = plotDistance(iX, iY, pStartPlot->getX(), pStartPlot->getY());
+				int iValue = plotDistance(iX, iY, pStartPlot->getX(), pStartPlot->getY());
 				if(iValue < iBestValue)
 				{
 					iBestValue = iValue;

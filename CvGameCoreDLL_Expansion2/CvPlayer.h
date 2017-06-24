@@ -255,6 +255,7 @@ public:
 	void DoUnitReset();
 	void DoUnitAttrition();
 	void RespositionInvalidUnits();
+	void ResetReachablePlotsForAllUnits();
 
 	void updateYield();
 	void updateExtraSpecialistYield();

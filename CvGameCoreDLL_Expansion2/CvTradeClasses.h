@@ -163,6 +163,10 @@ public:
 	void BuildTechDifference ();
 	int GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2);
 
+	void ResetPolicyDifference();
+	void BuildPolicyDifference();
+	int GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2);
+
 	void CreateTradeUnitForRoute (int iIndex); // Create the trade unit vis unit
 	CvUnit* GetTradeUnitForRoute(int iIndex);
 #if defined(MOD_API_TRADEROUTES)
@@ -199,6 +203,7 @@ protected:
 
 	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
 	int m_aaiTechDifference[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
+	int m_aaiPolicyDifference[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
 
 	struct {
 		int iPlotX, iPlotY;

@@ -1300,6 +1300,7 @@ protected:
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetInternationalTradeRouteCulture(lua_State* L);
 	static int lGetInternationalTradeRouteProduction(lua_State* L);
 	static int lGetInternationalTradeRouteFood(lua_State* L);
 	static int lGetMinorCivGoldBonus(lua_State* L);
@@ -1316,6 +1317,7 @@ protected:
 	static int lGetTradeRoutesAvailable(lua_State* L);
 	static int lGetTradeRoutesToYou(lua_State* L);
 	static int lGetNumTechDifference(lua_State* L);
+	static int lGetNumPolicyDifference(lua_State* L);
 	// End international trade
 
 	// culture

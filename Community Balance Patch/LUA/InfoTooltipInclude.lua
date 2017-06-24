@@ -938,7 +938,21 @@ function GetCultureTooltip(pCity)
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EVENTS", iCultureFromEvent);
 		end
-		-- END 
+
+		-- Yield modifiers string
+		local strCultureFromTR = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE);
+		if (strCultureFromTR ~= "") then
+			
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. strCultureFromTR;
+		end
+		-- END  
 		
 		-- Empire Culture modifier
 		local iAmount = Players[pCity:GetOwner()]:GetCultureCityModifier();

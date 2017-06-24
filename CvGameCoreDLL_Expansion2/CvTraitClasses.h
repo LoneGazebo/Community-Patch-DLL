@@ -340,6 +340,7 @@ public:
 	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
+	int GetGreatPersonCostReduction(GreatPersonTypes eIndex1) const;
 	int GetGreatPersonGWAM(GreatPersonTypes eIndex1) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 #endif
@@ -643,6 +644,7 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiGreatPersonExpendedYield;
 	int** m_ppiGreatPersonBornYield;
+	int* m_piGreatPersonCostReduction;
 	int* m_piGoldenAgeGreatPersonRateModifier;
 	int* m_piPerPuppetGreatPersonRateModifier;
 	int* m_piGreatPersonGWAM;
@@ -1419,6 +1421,10 @@ public:
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
 #if defined(MOD_BALANCE_CORE)
+	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
+	{
+		return ((uint)eGreatPerson < m_aiGreatPersonCostReduction.size()) ? m_aiGreatPersonCostReduction[(int)eGreatPerson] : 0;
+	};
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 	{
 		return ((uint)eGreatPerson < m_aiPerPuppetGreatPersonRateModifier.size()) ? m_aiPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
@@ -1978,6 +1984,7 @@ private:
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector<int> m_aiGreatPersonCostReduction;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;
 	std::vector<int> m_aiNumPledgesDomainProdMod;

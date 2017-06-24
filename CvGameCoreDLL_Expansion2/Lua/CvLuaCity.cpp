@@ -518,6 +518,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetSpecialistGreatPersonProgress);
 	Method(GetSpecialistGreatPersonProgressTimes100);
 	Method(ChangeSpecialistGreatPersonProgressTimes100);
+	Method(GetExtraSpecialistPoints);
 	Method(GetNumSpecialistsInBuilding);
 	Method(DoReallocateCitizens);
 	Method(DoVerifyWorkingPlots);
@@ -4686,6 +4687,27 @@ int CvLuaCity::lChangeSpecialistGreatPersonProgressTimes100(lua_State* L)
 	const int iChange = lua_tointeger(L, 3);
 	pkCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(toValue<SpecialistTypes>(L, 2), iChange);
 
+	return 1;
+}
+int CvLuaCity::lGetExtraSpecialistPoints(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+
+	if (eSpecialist != NO_SPECIALIST)
+	{
+		ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+			if (pReligion)
+			{
+				lua_pushinteger(L, pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), pkCity->getOwner(), pkCity, true));
+				return 1;
+			}
+		}
+	}
+	lua_pushinteger(L, 0);
 	return 1;
 }
 

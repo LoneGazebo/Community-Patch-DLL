@@ -97,7 +97,7 @@ public:
 	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002, // exact meaning unclear, probably not required anymore?
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
-	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (not checked in the pathfinder, only when executing the move so we don't leak information)
+	    MOVEFLAG_NO_ATTACKING				  = 0x0008,	// don't attack in case an enemy unit becomes visible (or the target is a city)
 	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
 	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
@@ -116,6 +116,7 @@ public:
 		MOVEFLAG_IGNORE_ZOC						= 0x40000, //ignore zones of control
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
+		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
 	};
 
 #if defined(MOD_BALANCE_CORE)
@@ -937,6 +938,8 @@ public:
 	bool IsFortifiedThisTurn() const;
 	void SetFortifiedThisTurn(bool bValue);
 
+	void DoAoEDamage(int iValue);
+
 	int getBlitzCount() const;
 	bool isBlitz() const;
 	void changeBlitzCount(int iChange);
@@ -1224,6 +1227,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetMoraleBreakChance() const;
 	void ChangeMoraleBreakChance(int iChange);
+
+	int GetDamageAoEFortified() const;
+	void ChangeDamageAoEFortified(int iChange);
 #endif
 
 	int getFriendlyLandsModifier() const;
@@ -1570,6 +1576,8 @@ public:
 	bool IsCanAttack() const;
 	bool IsCanAttackWithMoveNow() const;
 	bool IsCanDefend(const CvPlot* pPlot = NULL) const;
+
+	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
@@ -1693,6 +1701,7 @@ public:
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
 	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, int* piTurns = NULL);
 	void ClearPathCache();
+	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
@@ -1938,6 +1947,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
+	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
@@ -2055,6 +2065,9 @@ protected:
 	CvString m_strGreatName;
 #endif
 	GreatWorkType m_eGreatWork;
+
+	mutable ReachablePlots m_lastReachablePlots;
+	mutable uint m_lastReachablePlotsFlags;
 
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheOrigin;
