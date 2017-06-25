@@ -2616,7 +2616,7 @@ void CvCity::kill()
 		{
 			if(pLoopUnit->IsImmobile())
 			{
-				pLoopUnit->kill(false, eOwner);
+				pLoopUnit->kill(false);
 			}
 		}
 	}

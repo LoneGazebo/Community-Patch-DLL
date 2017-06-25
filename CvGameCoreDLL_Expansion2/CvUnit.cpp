@@ -1972,6 +1972,10 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //		ePlayer			- Optional player ID who is doing the killing.
 void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConvert)
 {
+	//nothing to do
+	if (bDelay && isDelayedDeath())
+		return;
+
 	VALIDATE_OBJECT
 	CvUnit* pTransportUnit;
 	CvUnit* pLoopUnit;

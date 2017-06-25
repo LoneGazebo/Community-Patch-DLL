@@ -4771,7 +4771,9 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 								kCaptureUnitList.push_back(kCaptureDef);
 								loopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
 							}
-							loopUnit->kill(false, ePlayer);
+
+							//be careful here, it's possible we're about to kill a civilian which is right now executing a mission causing this war state change
+							loopUnit->kill(true, ePlayer);
 						}
 					}
 				}
