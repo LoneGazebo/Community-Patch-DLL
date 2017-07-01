@@ -344,16 +344,16 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		return;
 	}
-	else if(pTargetCity->IsConnectedToCapital())
+	
+	if(pTargetCity->IsConnectedToCapital())
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(pTargetCity->IsRazing())
 	{
 		return;
 	}
-#endif
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if(!pRouteInfo)
@@ -396,7 +396,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	//don't build through the wilderness
-	if (3*iWildPlots > 2*(iRoadLength+1) || iWildPlots>10)
+	if (iWildPlots>3)
 		return;
 
 	//maybe a lighthouse is just as good?

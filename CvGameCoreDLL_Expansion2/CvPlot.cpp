@@ -2870,6 +2870,14 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			}
 		}
 
+		//can't build roads in enemy territory and saddle them with the maintenance
+		if (getOwner() != NO_PLAYER && ePlayer != NO_PLAYER)
+		{
+			CvPlayer& kOwner = GET_PLAYER(getOwner());
+			if (kOwner.isMajorCiv() && kOwner.getTeam() != GET_PLAYER(ePlayer).getTeam())
+				return false;
+		}
+
 		bValid = true;
 	}
 
