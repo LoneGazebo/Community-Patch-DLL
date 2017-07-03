@@ -188,7 +188,7 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 	//force explicit visibility update for killed units
 	if (bKilledAtLeastOne)
 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM, GC.getGame().getActivePlayer() == m_eID);
+			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
 	//army cleanup

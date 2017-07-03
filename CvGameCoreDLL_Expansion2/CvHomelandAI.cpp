@@ -6913,10 +6913,28 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				}
 			}
 
-			if (pUnit->GetDanger(pLoopPlot)==INT_MAX)
-				continue;
+			int iDanger = pUnit->GetDanger(pLoopPlot);
+			if (iDanger==INT_MAX)
+				iDanger=10000;
 
-			iValue -= m_pPlayer->GetPlotDanger(*pLoopPlot);
+			iValue -= iDanger;
+
+			//tiebreaker ...
+			if (GET_PLAYER(pUnit->getOwner()).isEnemyUnitAdjacent(pLoopPlot))
+				iValue-=5;
+			//when in doubt move as far as possible
+			if (it->iMovesLeft==0)
+				iValue++;
+			//don't risk it
+			if (pLoopPlot->isVisible(pUnit->getTeam()))
+				iValue++;
+			//enemy territory is bad
+			if (pLoopPlot->isOwned() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
+				iValue-=3;
+			//try to hide
+			if (pLoopPlot->isVisibleToEnemy(pUnit->getOwner()))
+				iDanger+=10;
+
 			aBestPlotList.push_back(pLoopPlot, iValue);
 		}
 	}

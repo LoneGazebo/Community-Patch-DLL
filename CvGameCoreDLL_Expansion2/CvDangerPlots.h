@@ -84,6 +84,7 @@ struct CvDangerPlotContents
 	int GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction);
 	int GetDanger(CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	std::vector<CvUnit*> GetPossibleAttackers() const;
+	bool isEnemyUnitAdjacent() const { return m_bEnemyAdjacent; }
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
@@ -150,6 +151,7 @@ public:
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
+	bool isEnemyUnitAdjacent(const CvPlot& pPlot) const;
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	void ResetDangerCache(const CvPlot& Plot);

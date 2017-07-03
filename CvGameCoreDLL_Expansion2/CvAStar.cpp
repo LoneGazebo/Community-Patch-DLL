@@ -946,6 +946,10 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 	}
 
+	//ignore this flag if we'd be stuck otherwise
+	if (iMoveFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
+		iMoveFlags &= ~CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
@@ -1457,14 +1461,14 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 
 		//normally we would be able to enter enemy territory if at war
-		if(finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY )
 		{
 			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
 				return FALSE;
 		}
 
 		//ocean allowed?
-		if ( finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
+		if ( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN )
 		{
 			if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
 			{

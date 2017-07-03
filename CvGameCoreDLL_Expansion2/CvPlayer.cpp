@@ -11540,7 +11540,7 @@ void CvPlayer::updateTimers()
 	//force explicit visibility update for killed units
 	if (bKilledAtLeastOne)
 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM, GC.getGame().getActivePlayer() == m_eID);
+			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
 	GetDiplomacyAI()->update();
@@ -31535,6 +31535,12 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 			DoUnitAttrition();
 
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+			//force update in case one of our units was killed or moved
+			for (int iI = 0; iI < theMap.numPlots(); iI++)
+				theMap.plotByIndexUnchecked(iI)->flipVisibility(getTeam());
+#endif
+
 			if(kGame.getActivePlayer() == m_eID)
 				theMap.updateDeferredFog();
 
@@ -31641,9 +31647,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		{
 #if defined(MOD_CORE_DELAYED_VISIBILITY)
 			//visibility expires now!
-			//flip for all teams in case we killed one of their units
 			for (int iI = 0; iI < theMap.numPlots(); iI++)
-				theMap.plotByIndexUnchecked(iI)->flipVisibility(NO_TEAM, kGame.getActivePlayer() == m_eID);
+				theMap.plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
 #if defined(MOD_EVENTS_RED_TURN)
@@ -43293,6 +43298,18 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvPlayer::isEnemyUnitAdjacent(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return false;
+
+	if (m_pDangerPlots->IsDirty())
+		m_pDangerPlots->UpdateDanger();
+
+	return m_pDangerPlots->isEnemyUnitAdjacent(*pPlot);
+}
+
+
 int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())

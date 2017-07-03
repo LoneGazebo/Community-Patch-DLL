@@ -327,6 +327,14 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
 }
 
+bool CvDangerPlots::isEnemyUnitAdjacent(const CvPlot & Plot) const
+{
+	if(!m_bArrayAllocated)
+		return false;
+
+	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyUnitAdjacent();
+}
+
 /// Return the maximum amount of damage a city could take at this plot
 int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison)
 {
@@ -334,9 +342,8 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pP
 		return 0;
 
 	if (pCity != NULL)
-	{
 		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
-	}
+
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
 }
 
