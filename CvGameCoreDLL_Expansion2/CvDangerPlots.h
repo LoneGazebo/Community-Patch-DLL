@@ -61,12 +61,14 @@ struct CvDangerPlotContents
 		m_pPlot = &plot;
 		m_iX = m_pPlot->getX();
 		m_iY = m_pPlot->getY();
+		clear();
 	}
 
 	void clear()
 	{
 		m_bFlatPlotDamage = false;
 		m_bEnemyAdjacent = false;
+		m_bEnemyCanCapture = false;
 		m_pCitadel = NULL;
 		m_apUnits.clear();
 		m_apCities.clear();
@@ -98,6 +100,7 @@ struct CvDangerPlotContents
 	int m_iY;
 	bool m_bFlatPlotDamage;
 	bool m_bEnemyAdjacent; //use this as a tiebreaker, disengage when in doubt
+	bool m_bEnemyCanCapture; //for civilians
 	CvPlot* m_pCitadel;	//only one citadel can affect a unit at a time
 	DangerUnitVector m_apUnits;
 	DangerCityVector m_apCities;

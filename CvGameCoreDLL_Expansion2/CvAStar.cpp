@@ -302,6 +302,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
 
+	SanitizeFlags();
 	Reset();
 
 	if(!isValid(iXstart, iYstart))
@@ -945,10 +946,6 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 			}
 		}
 	}
-
-	//ignore this flag if we'd be stuck otherwise
-	if (iMoveFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
-		iMoveFlags &= ~CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
@@ -2314,6 +2311,20 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 	return true;
 }
 
+void CvTwoLayerPathFinder::SanitizeFlags()
+{
+	if (m_sData.ePlayer==NO_PLAYER)
+		return;
+
+	CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID);
+	if (!pUnit)
+		return;
+
+	//ignore this flag if we'd be stuck otherwise
+	if (m_sData.iFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
+		m_sData.iFlags &= ~CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+
+}
 
 //	--------------------------------------------------------------------------------
 //default version for step paths - m_kCostCacheData is not valid

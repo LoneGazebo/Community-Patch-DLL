@@ -183,6 +183,9 @@ protected:
 	// Pure virtual method to set up function pointers. needs to be implemented in derived class
 	virtual bool Configure(PathType eType) = 0;
 
+	// Failsafe. Check if the passed flags make sense
+	virtual void SanitizeFlags() = 0;
+
 	inline int GetNormalizedLength() const
 	{
 		if (m_pBest)
@@ -372,6 +375,7 @@ class CvStepFinder : public CvPathFinder
 
 protected:
 	virtual bool Configure(PathType ePathType);
+	virtual void SanitizeFlags() {} //no-op
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -396,7 +400,8 @@ public:
 protected:
 	// set the function pointers which do the actual work
 	virtual bool Configure(PathType ePathType);
-
+	// Failsafe. Check if the passed flags make sense
+	virtual void SanitizeFlags();
 private:
 	CvAStarNode** m_ppaaPartialMoveNodes;
 };
