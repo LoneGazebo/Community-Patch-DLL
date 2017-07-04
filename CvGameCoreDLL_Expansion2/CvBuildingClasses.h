@@ -334,6 +334,10 @@ public:
 	int GetAlwaysHeal() const;
 	bool IsCorp() const;
 #endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool IsPlayerBorderGainlessPillage() const;
+	bool IsCityGainlessPillage() const;
+#endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
 	bool IsCapital() const;
@@ -769,6 +773,10 @@ private:
 	int m_iSeaTourism;
 	int m_iAlwaysHeal;
 	bool m_bIsCorp;
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool m_bPlayerBorderGainlessPillage;
+	bool m_bCityGainlessPillage;
 #endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;

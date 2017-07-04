@@ -699,6 +699,10 @@ public:
 	int GetNoOccupiedUnhappinessCount() const;
 	void ChangeNoOccupiedUnhappinessCount(int iChange);
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool IsLocalGainlessPillage() const;
+	void ChangeLocalGainlessPillageCount(int iChange);
+#endif
 	int getFood() const;
 	int getFoodTimes100() const;
 	void setFood(int iNewValue);
@@ -1647,6 +1651,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;
 	FAutoVariable<int, CvCity> m_iNoOccupiedUnhappinessCount;
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	FAutoVariable<int, CvCity> m_iLocalGainlessPillageCount;
+#endif
 	FAutoVariable<int, CvCity> m_iFood;
 	FAutoVariable<int, CvCity> m_iFoodKept;
 	FAutoVariable<int, CvCity> m_iMaxFoodKeptPercent;
