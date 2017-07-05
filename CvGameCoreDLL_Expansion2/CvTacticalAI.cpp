@@ -11464,7 +11464,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			else
 			{
 				iDamageDealt = 108; //more than any unit except if it's a perfect kill
-				iExtraDamage += 50;
+				iExtraDamage += 100; //capturing a city is important
 				result.eType = STacticalAssignment::A_MELEEKILL;
 			}
 		}
@@ -12511,7 +12511,7 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 //are there units left or all enemies gone?
 bool CvTacticalPosition::isComplete() const
 { 
-	return availableUnits.empty() || killedEnemies.size()==nTotalEnemies;
+	return killedEnemies.size()==nTotalEnemies;
 }
 
 //check that we're not just shuffling around units
@@ -12727,16 +12727,20 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		itUnit->iAttacksLeft--;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 		bVisibilityChange = true;
-		oldTactPlot.update(*this, false, false, false, false);
-		newTactPlot.update(*this, true, false, false, false);
-		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
-		bRecomputeAllMoves = true; //ZOC changed
+
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
-		if (pEnemy)
+		if (newTactPlot.isEnemyCity() && !pEnemy)
+			killedEnemies.insert(0); //put an invalid unit ID as a placeholder so that isComplete() works
+		else if (pEnemy) //should always be true, else we wouldn't be here
 		{
 			freedPlots.insert(newAssignment.iToPlotIndex);
 			killedEnemies.insert(pEnemy->GetID());
 		}
+
+		oldTactPlot.update(*this, false, false, false, false);
+		newTactPlot.update(*this, true, false, false, false);
+		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
+		bRecomputeAllMoves = true; //ZOC changed
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
@@ -13117,6 +13121,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
 
 	vector<CvTacticalPosition*> openPositionsHeap;
+	vector<CvTacticalPosition*> completedPositions;
 	vector<CvTacticalPosition*> finishedPositions;
 	vector<CvTacticalPosition*> discardedPositions;
 
@@ -13136,7 +13141,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	struct PrPositionIsBetter
 	{
 		//sort by cumulative score. only makes sense for "completed" positions
-		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const { return lhs->getScore() > rhs->getScore(); }
+		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const { return lhs->getScore()*(lhs->isComplete()?2:1) > rhs->getScore()*(rhs->isComplete()?2:1); }
 	};
 
 	int iMaxAssignmentsPerBranch = max(ourUnits.size() / 3, 1u);
@@ -13145,8 +13150,13 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
+		//done?
+		if (current->isComplete())
+		{
+			completedPositions.push_back(current);
+		}
 		//here the magic happens
-		if (current->makeNextAssignments(iMaxBranches,iMaxAssignmentsPerBranch))
+		else if (current->makeNextAssignments(iMaxBranches,iMaxAssignmentsPerBranch))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -13167,7 +13177,18 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		}
 	}
 
-	if (!finishedPositions.empty())
+	//normally the score for a completed position should be higher than for a finished one
+	//but if there are too many unassigned units it can tip
+	if (!completedPositions.empty())
+	{
+		//need the predicate, else we sort the pointers by address!
+		sort(completedPositions.begin(), completedPositions.end(), PrPositionIsBetter());
+		result = completedPositions.front()->getAssignments();
+
+		if (0)
+			completedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+	}
+	else if (!finishedPositions.empty())
 	{
 		//need the predicate, else we sort the pointers by address!
 		sort(finishedPositions.begin(), finishedPositions.end(), PrPositionIsBetter());
@@ -13190,7 +13211,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 
 	//this deletes the whole tree with all child positions
 	delete initialPosition;
-	return !finishedPositions.empty();
+	return !result.empty();
 }
 
 bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments)
