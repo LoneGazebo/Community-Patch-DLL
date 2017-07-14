@@ -1730,6 +1730,10 @@ public:
 	bool isBorderObstacle() const;
 	void changeBorderObstacleCount(int iChange);
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool isBorderGainlessPillage() const;
+	void changeBorderGainlessPillageCount(int iChange);
+#endif
 	int getNetID() const;
 	void setNetID(int iNetID);
 	bool isConnected() const;
@@ -3222,6 +3226,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNavalCombatExperienceTimes100;
 #endif
 	FAutoVariable<int, CvPlayer> m_iBorderObstacleCount;
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	FAutoVariable<int, CvPlayer> m_iBorderGainlessPillageCount;
+#endif
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;
 	FAutoVariable<int, CvPlayer> m_iNextOperationID;

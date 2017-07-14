@@ -320,6 +320,9 @@ CvPlayer::CvPlayer() :
 	, m_iNavalCombatExperienceTimes100("CvPlayer::m_iNavalCombatExperienceTimes100", m_syncArchive)
 #endif
 	, m_iBorderObstacleCount("CvPlayer::m_iBorderObstacleCount", m_syncArchive)
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	, m_iBorderGainlessPillageCount("CvPlayer::m_iBorderGainlessPillageCount", m_syncArchive)
+#endif
 	, m_iPopRushHurryCount("CvPlayer::m_iPopRushHurryCount", m_syncArchive)
 	, m_iTotalImprovementsBuilt("CvPlayer::m_iTotalImprovementsBuilt", m_syncArchive)
 	, m_iNextOperationID("CvPlayer::m_iNextOperationID", m_syncArchive)
@@ -1664,6 +1667,9 @@ void CvPlayer::uninit()
 	m_iNavalCombatExperienceTimes100 = 0;
 #endif
 	m_iBorderObstacleCount = 0;
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	m_iBorderGainlessPillageCount = 0;
+#endif
 	m_iPopRushHurryCount = 0;
 	m_uiStartTime = 0;
 	m_bHasUUPeriod = false;
@@ -16581,6 +16587,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangeSpecialistCultureChange(pBuildingInfo->GetSpecialistExtraCulture() * iChange);
 	changeBorderObstacleCount(pBuildingInfo->IsPlayerBorderObstacle() * iChange);
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	changeBorderGainlessPillageCount(pBuildingInfo->IsPlayerBorderGainlessPillage() * iChange);
+#endif
 	changeSpaceProductionModifier(pBuildingInfo->GetGlobalSpaceProductionModifier() * iChange);
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -31406,6 +31415,22 @@ void CvPlayer::changeBorderObstacleCount(int iChange)
 	}
 }
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+//	--------------------------------------------------------------------------------
+bool CvPlayer::isBorderGainlessPillage() const
+{
+	return (m_iBorderGainlessPillageCount > 0);
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeBorderGainlessPillageCount(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iBorderGainlessPillageCount = m_iBorderGainlessPillageCount + iChange;
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNetID() const
 {

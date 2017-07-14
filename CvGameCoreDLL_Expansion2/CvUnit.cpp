@@ -10088,14 +10088,14 @@ bool CvUnit::pillage()
 		CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eTempImprovement);
 		if(pkImprovement)
 		{
-			if(pPlot->getTeam() != getTeam())
+			if (pPlot->getTeam() != getTeam())
 			{
 #if defined(MOD_BALANCE_CORE)
-				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
+				if ((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
 					// Notify Diplo AI that damage has been done
 					int iValue = (GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 3);
-					if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
+					if (pPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					{
 						CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(getTeam()));
 						if (pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -10103,7 +10103,7 @@ bool CvUnit::pillage()
 							iValue *= 2;
 						}
 					}
-					if(pkImprovement->IsCreatedByGreatPerson())
+					if (pkImprovement->IsCreatedByGreatPerson())
 					{
 						iValue *= 2;
 					}
@@ -10111,12 +10111,12 @@ bool CvUnit::pillage()
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					// Loser a vassal?
 					TeamTypes eMaster = GET_TEAM(pPlot->getTeam()).GetMaster();
-					if(eMaster != NO_TEAM)
+					if (eMaster != NO_TEAM)
 					{
 						// master failing to protect territory
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++) {
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++) {
+							PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+							if (GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
 								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
 							}
 						}
@@ -10149,7 +10149,22 @@ bool CvUnit::pillage()
 				iPillageGold = GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 1");
 				iPillageGold += GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 2");
 				iPillageGold += (getPillageChange() * iPillageGold) / 100;
-
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+				if (pPlot->getOwner() != NO_PLAYER)
+				{
+					if (GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
+					{
+						iPillageGold = 0;
+					} else
+					{
+						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getWorkingCity();
+						if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
+						{
+							iPillageGold = 0;
+						}
+					}
+				}
+#endif
 				if(iPillageGold > 0)
 				{
 #if defined(MOD_BALANCE_CORE)
@@ -10240,6 +10255,26 @@ bool CvUnit::pillage()
 
 	if(bSuccessfulNonRoadPillage)
 	{
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
+		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
+		{
+			CvCity* pCityOfThisPlot = pPlot->getWorkingCity();
+			if ( pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()) )
+			{
+				if (hasHealOnPillage())
+				{
+					// completely heal unit
+					changeDamage(-getDamage());
+				}
+				else
+				{
+					int iHealAmount = min(getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
+					changeDamage(-iHealAmount);
+				}
+			}
+		}
+#else
 		if (hasHealOnPillage())
 		{
 			// completely heal unit
@@ -10250,6 +10285,7 @@ bool CvUnit::pillage()
 			int iHealAmount = min(getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
 			changeDamage(-iHealAmount);
 		}
+#endif
 	}
 
 	return true;

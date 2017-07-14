@@ -164,6 +164,9 @@ CvCity::CvCity() :
 	, m_iMaintenance("CvCity::m_iMaintenance", m_syncArchive)
 	, m_iHealRate("CvCity::m_iHealRate", m_syncArchive)
 	, m_iNoOccupiedUnhappinessCount("CvCity::m_iNoOccupiedUnhappinessCount", m_syncArchive)
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	, m_iLocalGainlessPillageCount("CvCity::m_iLocalGainlessPillageCount", m_syncArchive)
+#endif
 	, m_iFood("CvCity::m_iFood", m_syncArchive)
 	, m_iFoodKept("CvCity::m_iFoodKept", m_syncArchive)
 	, m_iMaxFoodKeptPercent("CvCity::m_iMaxFoodKeptPercent", m_syncArchive)
@@ -1396,6 +1399,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iConversionModifier = 0;
 #endif
 	m_iNoOccupiedUnhappinessCount = 0;
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	m_iLocalGainlessPillageCount = 0;
+#endif
 	m_iFood = 0;
 	m_iFoodKept = 0;
 	m_iMaxFoodKeptPercent = 0;
@@ -13596,6 +13602,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeNoOccupiedUnhappinessCount(pBuildingInfo->IsNoOccupiedUnhappiness() * iChange);
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+		ChangeLocalGainlessPillageCount(pBuildingInfo->IsCityGainlessPillage() * iChange); //bool promotion
+#endif
+
 #if !defined(MOD_API_EXTENSIONS)
 		// Trust the modder if they set a building to negative happiness
 		if(pBuildingInfo->GetHappiness() > 0)
@@ -18510,6 +18520,24 @@ void CvCity::ChangeNoOccupiedUnhappinessCount(int iChange)
 }
 
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+//	--------------------------------------------------------------------------------
+/// see CvUnit@ CvUnit::pillage()
+bool CvCity::IsLocalGainlessPillage() const
+{
+	VALIDATE_OBJECT
+	return m_iLocalGainlessPillageCount > 0;
+}
+
+//	--------------------------------------------------------------------------------
+/// How many sources proof this city against the looting from a pillage of its tiles?
+void CvCity::ChangeLocalGainlessPillageCount(int iChange)
+{
+	VALIDATE_OBJECT
+	if (iChange != 0)
+		m_iLocalGainlessPillageCount += iChange;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvCity::getFood() const
 {

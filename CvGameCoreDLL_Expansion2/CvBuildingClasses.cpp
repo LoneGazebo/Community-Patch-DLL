@@ -253,6 +253,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iAlwaysHeal(0),
 	m_bIsCorp(false),
 #endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	m_bPlayerBorderGainlessPillage(false),
+	m_bCityGainlessPillage(false),
+#endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
 	m_bGoldenAge(false),
@@ -558,6 +562,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
 	m_bIsCorp = kResults.GetBool("IsCorporation");
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	m_bPlayerBorderGainlessPillage = kResults.GetBool("PlayerBorderGainlessPillage");
+	m_bCityGainlessPillage = kResults.GetBool("CityGainlessPillage");
 #endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
@@ -2264,6 +2272,19 @@ int CvBuildingEntry::GetAlwaysHeal() const
 bool CvBuildingEntry::IsCorp() const
 {
 	return m_bIsCorp;
+}
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+/// Is a border-wide nullification of the heal and gold benefits from pillaging
+bool CvBuildingEntry::IsPlayerBorderGainlessPillage() const
+{
+	return m_bPlayerBorderGainlessPillage;
+}
+
+/// Is a nullification of heal and gold benefits from pillaging this city's tiles
+bool CvBuildingEntry::IsCityGainlessPillage() const
+{
+	return m_bCityGainlessPillage;
 }
 #endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
