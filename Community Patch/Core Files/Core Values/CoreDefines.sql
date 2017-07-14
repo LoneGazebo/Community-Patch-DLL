@@ -371,7 +371,7 @@ SELECT 'BALANCE_MARRIAGE_GP_RATE', '15';
 
 --Affects DOF, DP, and enemy calculations
 UPDATE Defines
-SET Value = '22'
+SET Value = '25'
 WHERE Name = 'DOF_THRESHOLD';
 
 UPDATE Defines

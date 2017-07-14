@@ -68,7 +68,7 @@ WHERE Type = 'ECONOMICAISTRATEGY_LOSING_MONEY';
 
 -- AI Spam message reduction
 UPDATE Defines
-SET Value = '5'
+SET Value = '3'
 WHERE Name = 'AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_SETTLER_TWEAKS' AND Value= 1 );
 
 UPDATE Defines
@@ -1331,6 +1331,12 @@ UPDATE GreatWorks SET Image = 'artifact.dds' WHERE GreatWorkClassType = 'GREAT_W
 
 -- Ice
 UPDATE Features SET NoImprovement = 'true' WHERE Type = 'FEATURE_ICE';
+
+UPDATE Features SET SeeThrough = '0' WHERE Type = 'FEATURE_SOLOMONS_MINES';
+UPDATE Features SET SeeThrough = '1' WHERE Type = 'FEATURE_GEYSER';
+UPDATE Features SET SeeThrough = '1' WHERE Type = 'FEATURE_FOUNTAIN_YOUTH';
+UPDATE Features SET SeeThrough = '0' WHERE Type = 'FEATURE_SOLOMONS_MINES';
+
 
 -- Shrink Citadel
 UPDATE ArtDefine_Landmarks

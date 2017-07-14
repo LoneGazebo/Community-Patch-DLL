@@ -282,7 +282,15 @@ ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' INTEGER DEFAULT 0;
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
+-- adds it back in as happiness!
+ALTER TABLE Policies ADD COLUMN 'HappfromXSpecialists' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' INTEGER DEFAULT 0;
+
+-- Warscore mod
+ALTER TABLE Policies ADD COLUMN 'WarScoreModifier' INTEGER DEFAULT 0;
+
+-- Can only trade with same ideology
+ALTER TABLE Policies ADD COLUMN 'IsOnlyTradeSameIdeology' BOOLEAN DEFAULT 0;
 
 -- Half specialist food in just capital
 ALTER TABLE Policies ADD COLUMN 'HalfSpecialistFoodCapital' BOOLEAN DEFAULT 0;
@@ -333,12 +341,30 @@ ALTER TABLE Policies ADD COLUMN 'WarWearinessModifier' INTEGER DEFAULT 0;
 -- GG Mod - boosts strength modifier of GGs
 ALTER TABLE Policies ADD COLUMN 'GreatGeneralExtraBonus' INTEGER DEFAULT 0;
 
+-- Shift Influence with CS for all by % +/- when you bully
+ALTER TABLE Policies ADD COLUMN 'BullyGlobalCSInfluenceShift' INTEGER DEFAULT 0;
+
+-- More yields from Vassals and CSs
+ALTER TABLE Policies ADD COLUMN 'VassalCSBonusModifier' INTEGER DEFAULT 0;
+
+-- Can bully friendly CSs (no penalty)
+ALTER TABLE Policies ADD COLUMN 'CanBullyFriendlyCS' BOOLEAN DEFAULT 0;
+
+-- CS influence does not decline at war
+ALTER TABLE Policies ADD COLUMN 'NoAlliedCSInfluenceDecayAtWar' BOOLEAN DEFAULT 0;
+
+-- Vassals don't rebel and can't be forced out by deals or WC
+ALTER TABLE Policies ADD COLUMN 'VassalsNoRebel' BOOLEAN DEFAULT 0;
+
 -- % boosts to city yield for happiness sources (traits) - Values should be negative to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'UnculturedHappinessTraitMod' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' INTEGER DEFAULT 0;
+
+-- Get more tenets when you adopt for first time
+ALTER TABLE Traits ADD COLUMN 'ExtraTenetsFirstAdoption' INTEGER DEFAULT 0;
 
 -- New Traits -- Can Only Select from beliefs unique to the civ
 ALTER TABLE Traits ADD COLUMN 'UniqueBeliefsOnly' BOOLEAN DEFAULT 0;
@@ -884,6 +910,9 @@ ALTER TABLE Policies ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'HappinessPerXPolicies' INTEGER DEFAULT 0;
 
+-- Trade Routes
+ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;
+
 -- CORPORATIONS
 ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
 
@@ -1030,7 +1059,7 @@ ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
 -- Define a modifier for all great work tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
--- Promotion grants additional combat strength if on a pillaged improvement
+-- Promotion grants additional religious pressure when this unit is garrisoned in the city (if the player has a religion).
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
 
 -- Trait allows player to have every unit upgraded once tech is reached.

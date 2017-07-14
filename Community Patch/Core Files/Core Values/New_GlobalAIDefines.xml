@@ -114,18 +114,18 @@
 		</Update>
 		<Update>
 			<!-- Owned slightly more valuable than before -->
-			<Set Value="2" />
+			<Set Value="3" />
 			<Where Name="RELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
 			<!-- Owned and worked should have no difference since citizen management will compensate anyway -->
-			<Set Value="4" />
+			<Set Value="3" />
 			<Where Name="RELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER" />
 		</Update>
 
 		<Update>
 			
-			<Set Value="4" />
+			<Set Value="5" />
 			<Where Name="RELIGION_BELIEF_SCORE_CITY_MULTIPLIER" />
 		</Update>
 		

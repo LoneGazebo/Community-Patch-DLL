@@ -6398,6 +6398,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
 			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
+			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_CAPITAL">
 			<Text>Birth of a [ICON_CITIZEN] Citizen in [ICON_CAPITAL] Capital:[NEWLINE]{1_YieldString}</Text>
 		</Row>
@@ -6433,6 +6436,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
 			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
+			<Text>[ICON_RAzING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
 			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>
@@ -6893,6 +6899,24 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD">
 			<Text>Golden Age Conquest Of The World Bonus</Text>
 		</Row>
+		
+		<!-- Autocracy-->
+
+		
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS">
+			<Text>{2_Civ} bullied {1_CS}, reducing your [ICON_INFLUENCE] Influence with {1_CS} by {3_Influence}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_S">
+			<Text>{2_Civ} terrorizes {1_CS}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU">
+			<Text>Your bullying of {1_CS} increased your [ICON_INFLUENCE] Influence by {2_Influence}, and reduced the [ICON_INFLUENCE] Influence of other Civiliations by {3_Percent}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S">
+			<Text>You tighten your grip on {1_CS}!</Text>
+		</Row>
+
 
 		<!-- Randomization Victory Data-->
 		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
