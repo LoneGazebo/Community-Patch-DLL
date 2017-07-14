@@ -379,6 +379,9 @@ public:
 	int GetYieldFromVictory(int i) const;
 	int* GetYieldFromVictoryArray() const;
 
+	int GetYieldFromPillage(int i) const;
+	int* GetYieldFromPillageArray() const;
+
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
@@ -820,6 +823,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
+	int* m_piYieldFromPillage;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
@@ -1052,6 +1056,7 @@ public:
 #else
 	int GetThemingBonuses() const;
 #endif
+	int GetTotalNumThemedBuildings() const;
 	int GetNumBuildingsFromFaith() const;
 
 	int GetCityStateTradeRouteProductionModifier() const;

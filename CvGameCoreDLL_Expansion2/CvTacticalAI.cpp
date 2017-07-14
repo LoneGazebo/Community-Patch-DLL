@@ -4270,7 +4270,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		CvString strLogString;
 		if(pEscort)
 		{
-			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+			bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 			if(bHavePathEscort)
 			{
 				CvPlot* pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
@@ -4278,7 +4278,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				if(pCommonPlot != NULL && pCivilian->canMoveInto(*pCommonPlot,CvUnit::MOVEFLAG_DESTINATION))
 				{
 					int iTurns = INT_MAX;
-					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, iMoveFlags, 5, &iTurns);
+					bool bHavePathCivilian = pCivilian->GeneratePath(pCommonPlot, iMoveFlags, 5, &iTurns, true);
 					if (bHavePathCivilian)
 					{
 						bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
@@ -4330,7 +4330,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
-				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+				bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 				if(bHavePathCivilian)
 				{
 					CvPlot* pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
@@ -4400,7 +4400,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		}
 		else //no escort
 		{
-			bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+			bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 			if(bHavePathCivilian)
 			{
 				CvPlot* pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
@@ -6858,7 +6858,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 #endif
 
 					// Handle case of no path found at all for civilian
-					if(!pCivilian->GeneratePath(pTarget, 0))
+					if(!pCivilian->GeneratePath(pTarget, 0, INT_MAX, NULL, true))
 					{
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -6873,7 +6873,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 						pCivilianMove = pCivilian->GetPathEndFirstTurnPlot();
 
 						// Can we reach our target this turn?
-						if(pCivilianMove == pTarget)
+						if (pCivilianMove == pTarget)
 						{
 							// See which defender is stronger
 							CvUnit* pCampDefender = pCivilianMove->getBestDefender(m_pPlayer->GetID());
@@ -6921,9 +6921,8 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 								}
 							}
 						}
-
 						// Can't reach target and don't have escort...
-						else if(!pEscort)
+						else if (!pEscort)
 						{
 							ExecuteMoveToPlot(pCivilian, pCivilianMove);
 							if(GC.getLogging() && GC.getAILogging())
@@ -6935,9 +6934,8 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 								LogTacticalMessage(strLogString);
 							}
 						}
-
 						// Can't reach target and DO have escort...
-						else
+						else if (pCivilianMove)
 						{
 							// See if escort can move to the same location in one turn
 							if(pEscort->TurnsToReachTarget(pCivilianMove) <= 1)
@@ -6956,7 +6954,6 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 									LogTacticalMessage(strLogString);
 								}
 							}
-
 							else
 							{
 								CvUnit* pBlockingUnit = pCivilianMove->getBestDefender(m_pPlayer->GetID());
@@ -7172,8 +7169,9 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 				continue;
 
 			//don't get killed on the way
-			if (!pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+			if (!pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, INT_MAX, NULL, true))
 				continue;
+
 			if (pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot()) > pUnit->GetCurrHitPoints())
 				continue;
 
@@ -7327,7 +7325,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if(pUnit && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath() && pUnit->canMove())
 		{
 			// If not naval invasion, proper domain of unit?
 			if(pZone->IsNavalInvasion() ||
@@ -8334,6 +8332,8 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 	// Loop through all units available to operation
 	for (opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 	{
+		int iPenalty = 0;
+
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
 		if (!pLoopUnit || !pLoopUnit->canMove())
 			continue;
@@ -8344,7 +8344,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 				continue;
 
 			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(), pLoopUnit->getDomainType(), NULL, false) > 0)
-				continue;
+				iPenalty = 2;
 		}
 		else //melee
 		{
@@ -8352,7 +8352,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 				continue;
 
 			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(),pLoopUnit->getDomainType())==0)
-				continue;
+				iPenalty = 1;
 		}
 		
 		//avoid embarkation if we need to fight!
@@ -8365,7 +8365,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 			if (itPlot!=itUnit->second.end())
 			{
-				int iTurns = itPlot->iTurns;
+				int iTurns = itPlot->iTurns + iPenalty;
 
 				CvTacticalUnit unit;
 				unit.SetID(pLoopUnit->GetID());
@@ -9625,7 +9625,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 		if(pBestPlot != NULL)
 		{
-			pGeneral->GeneratePath(pBestPlot);
+			pGeneral->GeneratePath(pBestPlot, NULL, INT_MAX, NULL, true);
 			CvPlot *pMovePlot = pGeneral->GetPathEndFirstTurnPlot();
 			if(pMovePlot != NULL)
 			{
@@ -11464,7 +11464,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			else
 			{
 				iDamageDealt = 108; //more than any unit except if it's a perfect kill
-				iExtraDamage += 50;
+				iExtraDamage += 100; //capturing a city is important
 				result.eType = STacticalAssignment::A_MELEEKILL;
 			}
 		}
@@ -12511,7 +12511,7 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 //are there units left or all enemies gone?
 bool CvTacticalPosition::isComplete() const
 { 
-	return availableUnits.empty() || killedEnemies.size()==nTotalEnemies;
+	return killedEnemies.size()==nTotalEnemies;
 }
 
 //check that we're not just shuffling around units
@@ -12727,16 +12727,20 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		itUnit->iAttacksLeft--;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 		bVisibilityChange = true;
-		oldTactPlot.update(*this, false, false, false, false);
-		newTactPlot.update(*this, true, false, false, false);
-		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
-		bRecomputeAllMoves = true; //ZOC changed
+
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
-		if (pEnemy)
+		if (newTactPlot.isEnemyCity() && !pEnemy)
+			killedEnemies.insert(0); //put an invalid unit ID as a placeholder so that isComplete() works
+		else if (pEnemy) //should always be true, else we wouldn't be here
 		{
 			freedPlots.insert(newAssignment.iToPlotIndex);
 			killedEnemies.insert(pEnemy->GetID());
 		}
+
+		oldTactPlot.update(*this, false, false, false, false);
+		newTactPlot.update(*this, true, false, false, false);
+		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
+		bRecomputeAllMoves = true; //ZOC changed
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
@@ -13117,6 +13121,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
 
 	vector<CvTacticalPosition*> openPositionsHeap;
+	vector<CvTacticalPosition*> completedPositions;
 	vector<CvTacticalPosition*> finishedPositions;
 	vector<CvTacticalPosition*> discardedPositions;
 
@@ -13136,7 +13141,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	struct PrPositionIsBetter
 	{
 		//sort by cumulative score. only makes sense for "completed" positions
-		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const { return lhs->getScore() > rhs->getScore(); }
+		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const { return lhs->getScore()*(lhs->isComplete()?2:1) > rhs->getScore()*(rhs->isComplete()?2:1); }
 	};
 
 	int iMaxAssignmentsPerBranch = max(ourUnits.size() / 3, 1u);
@@ -13145,8 +13150,13 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
+		//done?
+		if (current->isComplete())
+		{
+			completedPositions.push_back(current);
+		}
 		//here the magic happens
-		if (current->makeNextAssignments(iMaxBranches,iMaxAssignmentsPerBranch))
+		else if (current->makeNextAssignments(iMaxBranches,iMaxAssignmentsPerBranch))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -13167,7 +13177,18 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		}
 	}
 
-	if (!finishedPositions.empty())
+	//normally the score for a completed position should be higher than for a finished one
+	//but if there are too many unassigned units it can tip
+	if (!completedPositions.empty())
+	{
+		//need the predicate, else we sort the pointers by address!
+		sort(completedPositions.begin(), completedPositions.end(), PrPositionIsBetter());
+		result = completedPositions.front()->getAssignments();
+
+		if (0)
+			completedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+	}
+	else if (!finishedPositions.empty())
 	{
 		//need the predicate, else we sort the pointers by address!
 		sort(finishedPositions.begin(), finishedPositions.end(), PrPositionIsBetter());
@@ -13190,7 +13211,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 
 	//this deletes the whole tree with all child positions
 	delete initialPosition;
-	return !finishedPositions.empty();
+	return !result.empty();
 }
 
 bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments)

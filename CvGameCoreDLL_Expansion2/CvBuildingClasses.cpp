@@ -291,6 +291,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
+	m_piYieldFromPillage(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
@@ -401,6 +402,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
+	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
@@ -826,6 +828,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
@@ -2501,6 +2504,21 @@ int* CvBuildingEntry::GetYieldFromVictoryArray() const
 {
 	return m_piYieldFromVictory;
 }
+
+/// Change to yield if pillaging
+int CvBuildingEntry::GetYieldFromPillage(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromPillage ? m_piYieldFromPillage[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromPillageArray() const
+{
+	return m_piYieldFromPillage;
+}
+
+
 
 /// Change to yield during golden ages
 int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const
@@ -5078,6 +5096,26 @@ int CvCityBuildings::GetThemingBonuses() const
 		}
 	}
 #endif
+
+	return iBonus;
+}
+
+/// Accessor: Total theming bonus from all buildings in the city
+int CvCityBuildings::GetTotalNumThemedBuildings() const
+{
+	int iBonus = 0;
+
+	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo)
+		{
+			if (GetThemingBonusIndex((BuildingTypes)*iI) != -1)
+			{
+				iBonus++;
+			}
+		}
+	}
 
 	return iBonus;
 }

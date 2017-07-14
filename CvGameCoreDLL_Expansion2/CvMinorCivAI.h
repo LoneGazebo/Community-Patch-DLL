@@ -313,6 +313,7 @@ public:
 
 	bool IsThreateningBarbariansEventActiveForPlayer(PlayerTypes ePlayer);
 	int GetNumThreateningBarbarians();
+	int GetNumBarbariansInBorders();
 
 	void DoTestThreatenedAnnouncement();
 	int GetTurnsSinceThreatenedAnnouncement() const;

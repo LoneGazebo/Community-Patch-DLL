@@ -109,6 +109,10 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 			CvPlot* pAttackTile = GC.getMap().plotByIndexUnchecked(*attackTile);
 			AssignUnitDangerValue(pLoopUnit, pAttackTile);
 		}
+
+		//ranged units can capture as well
+		for (ReachablePlots::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
+			m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
 	}
 	else
 	{
@@ -117,6 +121,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 			AssignUnitDangerValue(pLoopUnit, pMoveTile);
+			m_DangerPlots[moveTile->iPlotIndex].m_bEnemyCanCapture = true;
 		}
 	}
 
@@ -327,6 +332,14 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
 }
 
+bool CvDangerPlots::isEnemyUnitAdjacent(const CvPlot & Plot) const
+{
+	if(!m_bArrayAllocated)
+		return false;
+
+	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyUnitAdjacent();
+}
+
 /// Return the maximum amount of damage a city could take at this plot
 int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison)
 {
@@ -334,9 +347,8 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pP
 		return 0;
 
 	if (pCity != NULL)
-	{
 		return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
-	}
+
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(NO_PLAYER);
 }
 
@@ -884,11 +896,10 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
 	{
 		// If plot contains an enemy unit, mark it as max danger
-		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), NULL, true))
-		{
+		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))
 			return MAX_INT;
-		}
 
+		//need to use m_bEnemyCanCapture to differentiate between plots that the enemy can move into and those merely under ranged attack
 		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 		{
 			CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
@@ -900,7 +911,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 				{
 					if (GetDanger(pFriendlyCity) + pFriendlyCity->getDamage() > pFriendlyCity->GetMaxHitPoints())
 					{
-						return MAX_INT;
+						return m_bEnemyCanCapture ? MAX_INT : 0;
 					}
 				}
 				// Look for a possible plot defender
@@ -929,18 +940,19 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 						}
 						pBestDefender = NULL;
 					}
+
 					// If there is a defender and it might be killed, high danger
 					if (pBestDefender && (pBestDefender->isWaiting() || !pBestDefender->canMove()))
 					{
 						if (GetDanger(pBestDefender,unitsToIgnore,iAirAction) > pBestDefender->GetCurrHitPoints())
 						{
-							return INT_MAX;
+							return m_bEnemyCanCapture ? MAX_INT : 0;
 						}
 					}
 					else if (pBestDefender==NULL)
 					{
 						//Civilian could be captured on this tile
-						if (pAttacker->isNativeDomain(m_pPlot))
+						if (m_bEnemyCanCapture && pAttacker->isNativeDomain(m_pPlot))
 							return MAX_INT;
 						else
 						{

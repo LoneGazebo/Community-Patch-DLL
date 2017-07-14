@@ -2671,6 +2671,12 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 						iAdjustedTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 					}
 #endif
+
+					// Policy bump
+					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+
+					iAdjustedTechDifference += iPolicyBump;
+
 				}
 				// Cultural influence bump
 				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
@@ -2696,8 +2702,12 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 					{
 						iAdjustedCultureDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 					}
-#endif
-				}
+#endif				
+					// Policy bump
+					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+
+					iAdjustedCultureDifference += iPolicyBump;
+				}				
 
 				return iAdjustedCultureDifference * 100;
 			}
@@ -2844,7 +2854,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 					{
 						if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 						{
-							if (pOriginCity->IsHasResourceLocal(eResource, false) != pDestCity->IsHasResourceLocal(eResource, false))
+							if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 							{
 #if defined(MOD_TRADE_ROUTE_SCALING)
 								iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
@@ -4652,9 +4662,16 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if((eOwningPlayer != NO_PLAYER && !m_pPlayer->isBarbarian() && !GET_PLAYER(eOwningPlayer).isBarbarian()) && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()))
 	{
 		// Notify Diplo AI that damage has been done
-		int iValue = (iPlunderGoldValue * 4);
+		int iValue = (iPlunderGoldValue * 2);
 		if(iValue > 0)
 		{
+			int iWarscoremod = m_pPlayer->GetWarScoreModifier();
+			if (iWarscoremod != 0)
+			{
+				iValue *= (iWarscoremod + 100);
+				iValue /= 100;
+			}
+
 			// My viewpoint
 			m_pPlayer->GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eOwningPlayer, m_pPlayer->GetID(), iValue);
 			// Bad guy's viewpoint

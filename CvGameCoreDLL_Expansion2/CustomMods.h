@@ -60,6 +60,16 @@
 /// radical rewrite
 #define MOD_BALANCE_CORE_NEW_TACTICAL_AI
 #define MOD_CORE_NEW_DEPLOYMENT_LOGIC
+//#define MOD_UNIT_KILL_STATS
+
+/// visible tiles stay visible until the end of the turn
+#define MOD_CORE_DELAYED_VISIBILITY
+
+/// experimental performance improvement
+#define MOD_CORE_CACHE_REACHABLE_PLOTS
+
+/// unrevealed plots are impassable instead of passable by default
+#define MOD_CORE_UNREVEALED_IMPASSABLE
 
 /// visible tiles stay visible until the end of the turn
 #define MOD_CORE_DELAYED_VISIBILITY

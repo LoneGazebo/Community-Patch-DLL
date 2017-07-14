@@ -4771,7 +4771,9 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 								kCaptureUnitList.push_back(kCaptureDef);
 								loopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
 							}
-							loopUnit->kill(false, ePlayer);
+
+							//be careful here, it's possible we're about to kill a civilian which is right now executing a mission causing this war state change
+							loopUnit->kill(true, ePlayer);
 						}
 					}
 				}
@@ -7186,7 +7188,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 																char text[256] = { 0 };
 																fDelay += 0.5f;
 																CvString yieldString = "";
-																yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+																yieldString.Format("%s%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
 																sprintf_s(text, yieldString, -iValue);
 																DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
 															}
@@ -9058,7 +9060,21 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				int iNumFreePolicies = kPlayer.GetPlayerTraits()->GetFreeSocialPoliciesPerEra() > 0;
 				if (iNumFreePolicies > 0)
 				{
-					kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+					if (kPlayer.GetPlayerTraits()->IsOddEraScaler() && ((eNewValue % 2) != 0))
+					{
+						if ((GC.getLogging() && GC.getAILogging()))
+						{
+							CvString strLogString;
+							strLogString.Format("CBP - Poland got their odd scaler in era %d", (int)eNewValue);
+							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+
+						kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+					}
+					else
+					{
+						kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+					}
 				}
 			}
 		}

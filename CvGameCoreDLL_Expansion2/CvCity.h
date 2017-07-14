@@ -1020,6 +1020,9 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromPillage(YieldTypes eIndex) const;
+	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
+
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
@@ -1724,7 +1727,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
-	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillage;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;

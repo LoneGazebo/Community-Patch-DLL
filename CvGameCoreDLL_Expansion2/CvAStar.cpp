@@ -302,6 +302,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
 
+	SanitizeFlags();
 	Reset();
 
 	if(!isValid(iXstart, iYstart))
@@ -573,7 +574,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 {
 	//we would have to start a new turn to continue
 	if(node->m_iMoves == 0)
-		if (node->m_iTurns+1 > m_sData.iMaxTurns) // path is getting too long ...
+		if (node->m_iTurns+1 >= m_sData.iMaxTurns) // path is getting too long ...
 			return NS_FORBIDDEN;
 
 	//seems innocent, but is very important
@@ -721,12 +722,18 @@ SPath CvAStar::GetCurrentPath() const
 
 	ret.iTotalCost = pNode->m_iKnownCost;
 	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
-	ret.iTotalTurns = pNode->m_iTurns;
+	//switch counting convention. if zero moves left, consider this as plus one turns
+	ret.iTotalTurns = pNode->m_iTurns + (pNode->m_iMoves==0 ? 1 : 0);
 
 	//walk backwards ...
 	while(pNode != NULL)
 	{
 		ret.vPlots.push_back(SPathNode(pNode));
+
+		//switch counting convention. if zero moves left, consider this as plus one turns
+		if (ret.vPlots.back().moves == 0)
+			ret.vPlots.back().turns++;
+
 		pNode = pNode->m_pParent;
 	}
 
@@ -1451,14 +1458,14 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 
 		//normally we would be able to enter enemy territory if at war
-		if(finder->HaveFlag(CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY )
 		{
 			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
 				return FALSE;
 		}
 
 		//ocean allowed?
-		if ( finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN) )
+		if ( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN )
 		{
 			if (pToPlot->getTerrainType() == TERRAIN_OCEAN)
 			{
@@ -1482,7 +1489,7 @@ void CvTwoLayerPathFinder::NodeAdded(CvAStarNode*, CvAStarNode* node, CvAStarNod
 	{
 		//in this case we did not call PathCost() before, so we have to set the initial values here
 		node->m_iMoves = GetData().iStartMoves;
-		node->m_iTurns = 1;
+		node->m_iTurns = 0;
 
 		UpdateNodeCacheData(node,pUnit,this);
 		bUpdateCacheForNeighbors = true;
@@ -2091,6 +2098,10 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		}
 	}
 
+	//too dangerous, might be severed any time
+	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByOtherTeam(thisPlayer.getTeam()))
+		return FALSE;
+
 	return TRUE;
 }
 
@@ -2244,7 +2255,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 	bool bBlockAhead = 
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
-		current->m_iTurns < 2 &&			//only in the first turn, otherwise the block will likely have moved
+		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
 		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) &&
 		next->m_kCostCacheData.bFriendlyUnitLimitReached;
 
@@ -2300,6 +2311,20 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 	return true;
 }
 
+void CvTwoLayerPathFinder::SanitizeFlags()
+{
+	if (m_sData.ePlayer==NO_PLAYER)
+		return;
+
+	CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID);
+	if (!pUnit)
+		return;
+
+	//ignore this flag if we'd be stuck otherwise
+	if (m_sData.iFlags & CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pUnit->plot()->getOwner()))
+		m_sData.iFlags &= ~CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
+
+}
 
 //	--------------------------------------------------------------------------------
 //default version for step paths - m_kCostCacheData is not valid

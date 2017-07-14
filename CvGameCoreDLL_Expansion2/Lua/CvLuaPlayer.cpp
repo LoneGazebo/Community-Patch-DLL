@@ -339,6 +339,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasCreatedReligion);
 	Method(CanCreatePantheon);
 	Method(GetReligionCreatedByPlayer);
+	Method(GetOriginalReligionCreatedByPlayer);
 	Method(GetFoundedReligionEnemyCityCombatMod);
 	Method(GetFoundedReligionFriendlyCityCombatMod);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
@@ -3582,6 +3583,18 @@ int CvLuaPlayer::lGetReligionCreatedByPlayer(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	lua_pushinteger(L, eReligion);
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool GetReligionCreatedByPlayer();
+int CvLuaPlayer::lGetOriginalReligionCreatedByPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetOriginalReligionCreatedByPlayer();
 	lua_pushinteger(L, eReligion);
 
 	return 1;

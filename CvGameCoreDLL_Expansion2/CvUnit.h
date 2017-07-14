@@ -119,6 +119,15 @@ public:
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
 	};
 
+	enum MoveResult
+	{
+		//values >= 0 are valid
+		MOVE_RESULT_CANCEL		= 0xFFFFFFFE,		//cannot continue mission
+		MOVE_RESULT_DONE		= 0xFFFFFFFD,		//mission accomplished
+		MOVE_RESULT_ATTACK		= 0xFFFFFFFC,		//move resulted in an attack
+		MOVE_RESULT_NO_TARGET	= 0xFFFFFFFB,		//attack not required
+	};
+
 #if defined(MOD_BALANCE_CORE)
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
 #else
@@ -1215,6 +1224,9 @@ public:
 	int GetGoodyHutYieldBonus() const;
 	void ChangeGoodyHutYieldBonus(int iChange);
 
+	int GetReligiousPressureModifier() const;
+	void ChangeReligiousPressureModifier(int iChange);
+
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
@@ -1581,8 +1593,9 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL);
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL, bool bCacheResult = false);
 
+	// you must call GeneratePath with caching before using these methods!
 	const CvPathNodeArray& GetPathNodeArray() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
 
@@ -1713,16 +1726,17 @@ protected:
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
 	bool IsCachedPathValid();
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
-	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);
+	//return -1 if impossible, turns to target otherwise (zero is valid!)
+	int ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool bCacheResult);
 
 	bool HasQueuedVisualizationMoves() const;
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
 	bool CheckDOWNeededForMove(int iX, int iY);
-	int UnitAttackWithMove(int iX, int iY, int iFlags);
+	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
+	int UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
-	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);
 	bool UnitBuild(BuildTypes eBuild);
 
@@ -1949,6 +1963,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
+	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;

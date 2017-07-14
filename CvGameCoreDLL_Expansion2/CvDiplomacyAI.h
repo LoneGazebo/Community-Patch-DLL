@@ -181,6 +181,7 @@ public:
 	bool IsEmbassyExchangeAcceptable(PlayerTypes ePlayer);
 	bool WantsEmbassyAtPlayer(PlayerTypes ePlayer);
 	bool IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer);
+	bool IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer);
 	bool IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
@@ -243,6 +244,9 @@ public:
 	WarProjectionTypes GetLastWarProjection(PlayerTypes ePlayer) const; // previous value of GetWarProjection
 	void SetLastWarProjection(PlayerTypes ePlayer, WarProjectionTypes eWarProjection);
 	void DoUpdateWarProjections();
+
+	int GetHighestWarscore();
+
 #if defined(MOD_BALANCE_CORE)
 	int GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation = false, bool bDebug=false);
 #else

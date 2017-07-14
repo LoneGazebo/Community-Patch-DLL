@@ -865,7 +865,7 @@ void CvHomelandAI::FindHomelandTargets()
 							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 							if((pUnit != NULL) && pUnit->IsCivilianUnit())
 							{
-								iWeight += 25;
+								iWeight += 100;
 							}
 						}
 #if !defined(MOD_CORE_REDUCE_RANDOMNESS)
@@ -882,7 +882,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible naval sentry point?
-			if (pLoopPlot->isWater() &&
+			else if (pLoopPlot->isWater() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
@@ -920,7 +920,7 @@ void CvHomelandAI::FindHomelandTargets()
 							{
 								if (pUnit->IsCivilianUnit())
 								{
-									iWeight += 25;
+									iWeight += 100;
 								}
 								else if (pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
 								{
@@ -1604,42 +1604,34 @@ void CvHomelandAI::PlotMobileReserveMoves()
 /// Send units to sentry points around borders
 void CvHomelandAI::PlotSentryMoves()
 {
-	if (m_pPlayer->IsAtWar())
-		return;
-
 	// Do we have any targets of this type?
-	if(!m_TargetedSentryPoints.empty())
+	for(unsigned int iI = 0; iI < m_TargetedSentryPoints.size(); iI++)
 	{
-		// Prioritize them (LATER)
+		AI_PERF_FORMAT("Homeland-perf.csv", ("PlotSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-		// See how many moves of this type we can execute
-		for(unsigned int iI = 0; iI < m_TargetedSentryPoints.size(); iI++)
+		CvPlot* pTarget = GC.getMap().plot(m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY());
+
+		FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY, (iI == 0)/*bFirstTime*/);
+
+		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 		{
-			AI_PERF_FORMAT("Homeland-perf.csv", ("PlotSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-			CvPlot* pTarget = GC.getMap().plot(m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY());
-
-			FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY, (iI == 0)/*bFirstTime*/);
-
-			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+			CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
+			if(pSentry)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
-				if(pSentry)
-				{
-					ExecuteMoveToTarget(pSentry, pTarget, 0, true);
-					UnitProcessed(pSentry->GetID());
+				ExecuteMoveToTarget(pSentry, pTarget, 0, true);
+				UnitProcessed(pSentry->GetID());
 
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
-						LogHomelandMessage(strLogString);
-					}
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Moving %s %d to sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedSentryPoints[iI].GetTargetX(), m_TargetedSentryPoints[iI].GetTargetY(), m_TargetedSentryPoints[iI].GetAuxIntData());
+					LogHomelandMessage(strLogString);
 				}
 			}
 		}
 	}
 }
+
 #if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotSentryNavalMoves()
 {
@@ -3531,9 +3523,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			continue;
 		}
 
-		//performance: if we have a leftover path and the target is a good, then reuse it!
+		//performance: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 		const CvPathNodeArray& lastPath = pUnit->GetPathNodeArray();
-		if (!lastPath.empty())
+		if (lastPath.size()>11u)
 		{
 			CvPlot* pDestPlot = lastPath.GetFinalPlot();
 			const std::vector<SPlotWithScore>& vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit->getDomainType());
@@ -3541,10 +3533,14 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			SPlotWithScore dummy(pDestPlot,0);
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pDestPlot);
-				if(!pUnit->canMove())
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), 
+					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING, 
+					false, false, MISSIONAI_EXPLORE, pDestPlot);
+				if (!pUnit->canMove())
+				{
 					UnitProcessed(pUnit->GetID());
-				continue;
+					continue;
+				}
 			}
 		}
 
@@ -3685,21 +3681,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if( pEvalPlot == pUnit->plot())
 					iScoreExtra -= 50;
 
-				//If a known minor, let's not wander around if we don't have open borders.
-				if(pEvalPlot->getOwner() != NO_PLAYER)
-				{
-					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
-					{
-						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
-						{
-							if(pUnit->getDomainType() == DOMAIN_LAND)
-							{
-								iScoreExtra -= 25;
-							}
-						}
-					}
-				}
-
 				if(pUnit->canSellExoticGoods(pEvalPlot))
 				{
 					float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
@@ -3768,7 +3749,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			//verify that we don't move into danger ...
 			if (pBestPlot)
 			{
-				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, INT_MAX, NULL, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
@@ -6932,10 +6913,28 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				}
 			}
 
-			if (pUnit->GetDanger(pLoopPlot)==INT_MAX)
-				continue;
+			int iDanger = pUnit->GetDanger(pLoopPlot);
+			if (iDanger==INT_MAX)
+				iDanger=10000;
 
-			iValue -= m_pPlayer->GetPlotDanger(*pLoopPlot);
+			iValue -= iDanger;
+
+			//tiebreaker ...
+			if (GET_PLAYER(pUnit->getOwner()).isEnemyUnitAdjacent(pLoopPlot))
+				iValue-=5;
+			//when in doubt move as far as possible
+			if (it->iMovesLeft==0)
+				iValue++;
+			//don't risk it
+			if (pLoopPlot->isVisible(pUnit->getTeam()))
+				iValue++;
+			//enemy territory is bad
+			if (pLoopPlot->isOwned() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
+				iValue-=3;
+			//try to hide
+			if (pLoopPlot->isVisibleToEnemy(pUnit->getOwner()))
+				iDanger+=10;
+
 			aBestPlotList.push_back(pLoopPlot, iValue);
 		}
 	}

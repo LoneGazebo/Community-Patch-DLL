@@ -782,6 +782,23 @@ public:
 
 	void ChangePositiveWarScoreTourismMod(int iValue);
 	int GetPositiveWarScoreTourismMod() const;
+
+	void ChangeIsNoCSDecayAtWar(int iValue);
+	bool IsNoCSDecayAtWar() const;
+
+	void ChangeCanBullyFriendlyCS(int iValue);
+	bool IsCanBullyFriendlyCS() const;
+
+	void ChangeBullyGlobalCSReduction(int iValue);
+	int GetBullyGlobalCSReduction() const;
+#endif
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	void ChangeIsVassalsNoRebel(int iValue);
+	bool IsVassalsNoRebel() const;
+
+	void ChangeVassalCSBonusModifier(int iValue);
+	int GetVassalCSBonusModifier() const;
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -1410,6 +1427,10 @@ public:
 	bool IsAbleToAnnexCityStates() const;
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
+
+	bool IsOnlyTradeSameIdeology() const;
+	void ChangeOnlyTradeSameIdeology(int iChange);
+	
 #if defined(MOD_BALANCE_CORE)
 	//JFD
 	void SetPiety(int iValue);
@@ -1491,6 +1512,9 @@ public:
 
 	void ChangeGoldenAgeTourism(int iChange);
 	int GetGoldenAgeTourism() const;
+
+	void ChangeExtraCultureandScienceTradeRoutes(int iChange);
+	int GetExtraCultureandScienceTradeRoutes() const;
 
 	bool CanUpgradeCSTerritory() const;
 	void ChangeUpgradeCSTerritory(int iChange);
@@ -1597,10 +1621,19 @@ public:
 	void ChangePuppetUnhappinessMod(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
+
+	int GetHappfromXSpecialists() const;
+	void ChangeHappfromXSpecialists(int iChange);
+
 	int GetNoUnhappfromXSpecialistsCapital() const;
 	void ChangeNoUnhappfromXSpecialistsCapital(int iChange);
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
+
+	int GetWarScoreModifier() const;
+	void ChangeWarScoreModifier(int iChange);
+
+	
 
 	void SetProductionRoutesAllCities(bool bValue);
 	bool IsProductionRoutesAllCities() const;
@@ -1822,6 +1855,12 @@ public:
 
 	int getYieldFromBirthCapital(YieldTypes eIndex) const;
 	void changeYieldFromBirthCapital(YieldTypes eIndex, int iChange);
+
+	int getYieldFromBirthRetroactive(YieldTypes eIndex) const;
+	void changeYieldFromBirthRetroactive(YieldTypes eIndex, int iChange);
+
+	int getYieldFromBirthCapitalRetroactive(YieldTypes eIndex) const;
+	void changeYieldFromBirthCapitalRetroactive(YieldTypes eIndex, int iChange);
 
 	int getYieldFromDeath(YieldTypes eIndex) const;
 	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
@@ -2369,6 +2408,7 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
+	bool isEnemyUnitAdjacent(const CvPlot* pPlot) const;
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
@@ -2832,6 +2872,13 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
 	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
 	FAutoVariable<int, CvPlayer> m_iPositiveWarScoreTourismMod;
+	FAutoVariable<int, CvPlayer> m_iIsNoCSDecayAtWar;
+	FAutoVariable<int, CvPlayer> m_iCanBullyFriendlyCS;
+	FAutoVariable<int, CvPlayer> m_iBullyGlobalCSReduction;	
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	FAutoVariable<int, CvPlayer> m_iIsVassalsNoRebel;
+	FAutoVariable<int, CvPlayer> m_iVassalCSBonusModifier;		
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -2974,8 +3021,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iPuppetUnhappinessMod;
 	FAutoVariable<int, CvPlayer> m_iCapitalUnhappinessModCBP;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialists;
+	FAutoVariable<int, CvPlayer> m_iHappfromXSpecialists;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialistsCapital;
 	FAutoVariable<int, CvPlayer> m_iWarWearinessModifier;
+	FAutoVariable<int, CvPlayer> m_iWarScoreModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iGarrisonsOccupiedUnhapppinessMod;
@@ -3083,6 +3132,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorScienceAlliesCount;
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
+	FAutoVariable<int, CvPlayer> m_iOnlyTradeSameIdeology;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iFreeUnits;
 	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
@@ -3106,6 +3156,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUnitDiversity;
 	FAutoVariable<int, CvPlayer> m_iNavyUnitDiversity;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
+	FAutoVariable<int, CvPlayer> m_iExtraCultureandScienceTradeRoutes;
 	FAutoVariable<int, CvPlayer> m_iArchaeologicalDigTourism;
 	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
 	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
@@ -3256,6 +3307,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceOverValue;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthRetroactive;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapitalRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromTech;

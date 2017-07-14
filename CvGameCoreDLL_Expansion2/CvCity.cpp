@@ -328,7 +328,8 @@ CvCity::CvCity() :
 	, m_iFreeBuildingTradeTargetCity("CvCity::m_iFreeBuildingTradeTargetCity", m_syncArchive)
 	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
-	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
+	, m_aiYieldFromVictory("CvCity::m_aiYieldFromVictory", m_syncArchive)
+	, m_aiYieldFromPillage("CvCity::m_aiYieldFromPillage", m_syncArchive)
 	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
 	, m_aiYieldFromKnownPantheons("CvCity::m_aiYieldFromKnownPantheons", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
@@ -1498,7 +1499,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
-	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
@@ -1579,7 +1581,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #if defined(MOD_BALANCE_CORE)
 		m_aiYieldFromKnownPantheons.setAt(iI, 0);
-		m_aiChangeYieldFromVictory.setAt(iI, 0);
+		m_aiYieldFromVictory.setAt(iI, 0);
+		m_aiYieldFromPillage.setAt(iI, 0);
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 		m_aiYieldFromWLTKD.setAt(iI, 0);
 		m_aiYieldFromConstruction.setAt(iI, 0);
@@ -2616,7 +2619,7 @@ void CvCity::kill()
 		{
 			if(pLoopUnit->IsImmobile())
 			{
-				pLoopUnit->kill(false, eOwner);
+				pLoopUnit->kill(false);
 			}
 		}
 	}
@@ -2699,14 +2702,11 @@ void CvCity::doTurn()
 #if defined(MOD_BALANCE_CORE)
 		if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
 		{
-			int iPile = getCurrentProductionDifferenceTimes100(false, true);
-			iPile *= 20;
+			int iPile = getYieldRate(YIELD_PRODUCTION, false);
+			iPile *= 10;
 			iPile /= 100;
 
-			iPile /= 100;
-
-			iHitsHealed *= (100 + iPile);
-			iHitsHealed /= 100;
+			iHitsHealed += iPile;
 		}
 #endif
 		changeDamage(-iHitsHealed);
@@ -6177,7 +6177,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
 							if(eBuildingType != NO_BUILDING)
 							{
-								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 1);
+								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 1, true);
 							}
 						}
 					}
@@ -14080,6 +14080,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
 			}
 
+			if (MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromPillage(eYield) > 0))
+			{
+				ChangeYieldFromPillage(eYield, pBuildingInfo->GetYieldFromPillage(eYield) * iChange);
+			}
+
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
 			{
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
@@ -16083,33 +16088,22 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 #if defined(MOD_BALANCE_CORE)
 			UpdateCityYields(YIELD_CULTURE);
-			ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-			if(eReligion != NO_RELIGION)
+			if (pUnit != NULL && pUnit->GetReligiousPressureModifier() != 0)
 			{
-				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+				if (eReligion != NO_RELIGION)
 				{
-					const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-					if(pkPromotionInfo != NULL)
+					if(m_pCityReligions->IsReligionInCity())
 					{
-						if(pkPromotionInfo->GetReligiousPressureModifier() > 0)
+						ReligionTypes eMajority = m_pCityReligions->GetReligiousMajority();
+						ReligionTypes eSecondary = m_pCityReligions->GetSecondaryReligion();
+						if(eMajority != NO_RELIGION && eMajority == eReligion)
 						{
-							if(pUnit->isHasPromotion(eLoopPromotion))
-							{
-								if(m_pCityReligions->IsReligionInCity())
-								{
-									ReligionTypes eMajority = m_pCityReligions->GetReligiousMajority();
-									ReligionTypes eSecondary = m_pCityReligions->GetSecondaryReligion();
-									if(eMajority != NO_RELIGION && eMajority == eReligion)
-									{
-										m_pCityReligions->ChangeReligiousPressureModifier(pkPromotionInfo->GetReligiousPressureModifier());
-									}
-									else if(eSecondary != NO_RELIGION && eSecondary == eReligion)
-									{
-										m_pCityReligions->ChangeReligiousPressureModifier(pkPromotionInfo->GetReligiousPressureModifier());
-									}
-								}
-							}
+							m_pCityReligions->ChangeReligiousPressureModifier(pUnit->GetReligiousPressureModifier());
+						}
+						else if(eSecondary != NO_RELIGION && eSecondary == eReligion)
+						{
+							m_pCityReligions->ChangeReligiousPressureModifier(pUnit->GetReligiousPressureModifier());
 						}
 					}
 				}
@@ -16127,33 +16121,22 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 			ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 #if defined(MOD_BALANCE_CORE)
 			UpdateCityYields(YIELD_CULTURE);
-			ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-			if(eReligion != NO_RELIGION)
+			if (pOldGarrison != NULL && pOldGarrison->GetReligiousPressureModifier() != 0)
 			{
-				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+				if (eReligion != NO_RELIGION)
 				{
-					const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-					if(pkPromotionInfo != NULL)
+					if (m_pCityReligions->IsReligionInCity())
 					{
-						if(pkPromotionInfo->GetReligiousPressureModifier() > 0)
+						ReligionTypes eMajority = m_pCityReligions->GetReligiousMajority();
+						ReligionTypes eSecondary = m_pCityReligions->GetSecondaryReligion();
+						if(eMajority != NO_RELIGION && eMajority == eReligion)
 						{
-							if(pOldGarrison->isHasPromotion(eLoopPromotion))
-							{
-								if(m_pCityReligions->IsReligionInCity())
-								{
-									ReligionTypes eMajority = m_pCityReligions->GetReligiousMajority();
-									ReligionTypes eSecondary = m_pCityReligions->GetSecondaryReligion();
-									if(eMajority != NO_RELIGION && eMajority == eReligion)
-									{
-										m_pCityReligions->ChangeReligiousPressureModifier(-pkPromotionInfo->GetReligiousPressureModifier());
-									}
-									else if(eSecondary != NO_RELIGION && eSecondary == eReligion)
-									{
-										m_pCityReligions->ChangeReligiousPressureModifier(-pkPromotionInfo->GetReligiousPressureModifier());
-									}
-								}
-							}
+							m_pCityReligions->ChangeReligiousPressureModifier(pOldGarrison->GetReligiousPressureModifier());
+						}
+						else if(eSecondary != NO_RELIGION && eSecondary == eReligion)
+						{
+							m_pCityReligions->ChangeReligiousPressureModifier(pOldGarrison->GetReligiousPressureModifier());
 						}
 					}
 				}
@@ -19030,6 +19013,13 @@ bool CvCity::DoRazingTurn()
 		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
 		iValue /= GetRazingTurns();
 
+		int iWarscoremod = GET_PLAYER(getOwner()).GetWarScoreModifier();
+		if (iWarscoremod != 0)
+		{
+			iValue *= (iWarscoremod + 100);
+			iValue /= 100;
+		}
+
 		// My viewpoint
 		GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(eFormerOwner, getOwner(), iValue);
 		// Bad guy's viewpoint
@@ -19388,6 +19378,30 @@ int CvCity::GetLocalHappiness() const
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
 	}
+
+	if (kPlayer.GetHappfromXSpecialists() > 0)
+	{
+		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount() * 100;
+		if (iSpecialistPopulation > 0)
+		{
+			int iHappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
+			int iHappinessSpecialists = GET_PLAYER(getOwner()).GetHappfromXSpecialists();
+
+			//Can't give more free happiness than specialists.
+			if (iSpecialistPopulation > iHappinessSpecialists)
+			{
+				iSpecialistPopulation = iHappinessSpecialists;
+			}
+			if (iSpecialistPopulation > 0 && iHappinessPerPop > 0)
+			{
+				iSpecialistPopulation *= iHappinessPerPop;
+				iSpecialistPopulation /= 100;
+
+				iLocalHappiness += iSpecialistPopulation;
+			}
+		}
+	}
+
 	// Follower beliefs
 	int iHappinessFromReligion = 0;
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -21407,6 +21421,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_CAPITAL", iTempMod);
 	}
 #if defined(MOD_BALANCE_CORE)
+	//Blockade
+	if (eIndex == YIELD_GOLD && isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	{
+		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && IsBlockaded(true))
+		{
+			iTempMod = GC.getBLOCKADE_GOLD_PENALTY();
+			iModifier += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_GOLDMOD_YIELD_BLOCKADE", iTempMod);
+		}
+	}
+
 	iTempMod = (GetTradeRouteCityMod(eIndex));
 	if(iTempMod > 0)
 	{
@@ -22225,7 +22251,7 @@ int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiChangeYieldFromVictory[eIndex];
+	return m_aiYieldFromVictory[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
@@ -22238,8 +22264,31 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiChangeYieldFromVictory.setAt(eIndex, m_aiChangeYieldFromVictory[eIndex] + iChange);
+		m_aiYieldFromVictory.setAt(eIndex, m_aiYieldFromVictory[eIndex] + iChange);
 		CvAssert(GetYieldFromVictory(eIndex) >= 0);
+	}
+}
+
+int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromPillage[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromPillage.setAt(eIndex, m_aiYieldFromPillage[eIndex] + iChange);
+		CvAssert(GetYieldFromPillage(eIndex) >= 0);
 	}
 }
 
@@ -23283,6 +23332,12 @@ void CvCity::DoBarbIncursion()
 	{
 		return;
 	}
+
+	//No barb incursions before 'release' point.
+	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn();
+	if (!bBarbsAllowedYet)
+		return;
+
 	// Found a CS city to spawn near
 	if (MOD_DIPLOMACY_CITYSTATES_QUESTS && GET_PLAYER(getOwner()).isBarbarian() && GET_PLAYER(getOriginalOwner()).isMinorCiv())
 	{
@@ -24656,6 +24711,18 @@ void CvCity::updateStrengthValue()
 	fTechMod *= 100;	// Bring it back into hundreds
 	iStrengthValue += (int)(fTechMod + 0.005);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
 
+#if defined(MOD_BALANCE_CORE)
+	if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	{
+		int iPile = getYieldRate(YIELD_PRODUCTION, false);
+
+		iPile *= 10;
+		iPile /= 100;
+
+		iStrengthValue += iPile;
+	}
+#endif
+
 	int iStrengthMod = 0;
 
 	// Player-wide strength mod (Policies, etc.)
@@ -24664,21 +24731,6 @@ void CvCity::updateStrengthValue()
 	// Apply Mod
 	iStrengthValue *= (100 + iStrengthMod);
 	iStrengthValue /= 100;
-
-#if defined(MOD_BALANCE_CORE)
-	if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
-	{
-		int iPile = getCurrentProductionDifferenceTimes100(false, true);
-
-		iPile *= 20;
-		iPile /= 100;
-
-		iPile /= 100;
-
-		iStrengthValue *= (100 + iPile);
-		iStrengthValue /= 100;
-	}
-#endif
 
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv() && isCapital())
@@ -25623,6 +25675,7 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	}
 #endif
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+	GC.getMap().updateDeferredFog();
 
 	DoUpdateCheapestPlotInfluenceDistance();
 }
@@ -28671,7 +28724,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 		setFeatureProduction(0);
 
 #if defined(MOD_PROCESS_STOCKPILE)
-		if(getProduction() >= getProductionNeeded())
+		if (getProduction() >= getProductionNeeded())
 #else
 		if(getProduction() >= getProductionNeeded() && !isProductionProcess())
 #endif

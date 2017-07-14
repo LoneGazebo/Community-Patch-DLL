@@ -5209,6 +5209,14 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	//	iResultPercentage = 100 - ((iDeltaInfluence * 100) / iAdjustedAllyInfluence);
 	//}
 
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		iResultPercentage *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
+		iResultPercentage /= 100;
+	}
+#endif
+
 
 	return iResultPercentage;
 }

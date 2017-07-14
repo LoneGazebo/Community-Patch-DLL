@@ -175,13 +175,21 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 	//unit cleanup - this should probably also be done in a two-pass scheme like below
 	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
 	bool bKilledAtLeastOne = false;
-	do 
+	bool bKilledOneThisPass = false;
+	do
 	{
-		bKilledAtLeastOne = false;
-		for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-			bKilledAtLeastOne |= pLoopUnit->doDelayedDeath();
-	}
-	while (bKilledAtLeastOne);
+		bKilledOneThisPass = false;
+		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			bKilledOneThisPass |= pLoopUnit->doDelayedDeath();
+		bKilledAtLeastOne |= bKilledOneThisPass;
+	} while (bKilledOneThisPass);
+
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+	//force explicit visibility update for killed units
+	if (bKilledAtLeastOne)
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+			GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
+#endif
 
 	//army cleanup
 	std::vector<int> itemsToDelete;
@@ -1500,7 +1508,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		int iNumImprovement = getImprovementCount(eManufactory);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1555,7 +1563,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	if(bConstructImprovement && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		int iNumImprovement = getImprovementCount(eCustomHouse);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1624,7 +1632,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));
 		// Even if not going spaceship right now, build academies up to your flavor.
 		int iNumImprovement = getImprovementCount(eAcademy);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1710,7 +1718,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET);
 		//Let's use our prophets for improvments instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}

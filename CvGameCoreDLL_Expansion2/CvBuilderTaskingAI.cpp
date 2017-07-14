@@ -344,16 +344,16 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		return;
 	}
-	else if(pTargetCity->IsConnectedToCapital())
+	
+	if(pTargetCity->IsConnectedToCapital())
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(pTargetCity->IsRazing())
 	{
 		return;
 	}
-#endif
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if(!pRouteInfo)
@@ -396,7 +396,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	//don't build through the wilderness
-	if (3*iWildPlots > 2*(iRoadLength+1) || iWildPlots>10)
+	if (iWildPlots>3)
 		return;
 
 	//maybe a lighthouse is just as good?
@@ -1538,7 +1538,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		iWeight += iBuildTimeWeight;
 
 		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
-			iWeight /= 10;
+			iWeight /= 100;
 
 #if defined(MOD_BALANCE_CORE)
 		iWeight = min(iWeight,0x7FFF);
@@ -1866,11 +1866,11 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
-		iWeight = iWeight / 4;
+		iWeight = iWeight / 10;
 	}
 	if (m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest() && eFeature == FEATURE_FOREST)
 	{
-		iWeight = iWeight / 4;
+		iWeight = iWeight / 10;
 	}
 	// this doesn't actually help them, but adds some historical flavor
 	if (m_pPlayer->GetPlayerTraits()->IsEmbarkedAllWater() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))

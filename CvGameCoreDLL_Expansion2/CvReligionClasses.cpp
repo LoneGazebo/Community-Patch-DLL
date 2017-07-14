@@ -2034,6 +2034,46 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs()
 			}
 		}
 	}
+	//zero? uh oh.
+	if (availableBeliefs.size() <= 0)
+	{
+		for (int iI = 0; iI < iNumBeleifs; iI++)
+		{
+			const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
+
+			CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
+			if (pEntry && pEntry->IsPantheonBelief())
+			{
+				bool bAvailable = true;
+#if defined(MOD_BALANCE_CORE)
+				if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
+				{
+					if (bUniqueExists)
+					{
+						if (pEntry->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+						{
+							bAvailable = false;
+						}
+					}
+				}
+
+				if (pEntry->GetRequiredCivilization() != NO_CIVILIZATION)
+				{
+					if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getCivilizationType() != pEntry->GetRequiredCivilization())
+					{
+						bAvailable = false;
+					}
+				}
+#endif
+				if (bAvailable)
+				{
+					availableBeliefs.push_back(eBelief);
+				}
+			}
+		}
+	}
+
+
 
 	return availableBeliefs;
 }
@@ -2288,6 +2328,24 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 	}
 	return eRtnValue;
 #endif
+}
+
+ReligionTypes CvGameReligions::GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const
+{
+	ReligionTypes eRtnValue = NO_RELIGION;
+
+	ReligionList::const_iterator it;
+	for (it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+	{
+		if (it->m_eFounder == ePlayer)
+		{
+			if (!it->m_bPantheon)
+			{
+				eRtnValue = it->m_eReligion;
+			}
+		}
+	}
+	return eRtnValue;
 }
 
 /// Get the religion for which this player is eligible for founder benefits
@@ -4117,6 +4175,13 @@ void CvPlayerReligions::SetPlayerReligion(ReligionTypes eReligion)
 		m_ePlayerCurrentReligion = eReligion;
 	}
 }
+
+ReligionTypes CvPlayerReligions::GetOriginalReligionCreatedByPlayer() const
+{
+	return GC.getGame().GetGameReligions()->GetOriginalReligionCreatedByPlayer(m_pPlayer->GetID());
+}
+
+
 ReligionTypes CvPlayerReligions::GetCurrentReligion(bool bIncludePantheon) const
 {
 	if(m_ePlayerCurrentReligion == RELIGION_PANTHEON && bIncludePantheon)
@@ -5337,7 +5402,7 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 			{
 				if(eResponsiblePlayer != NO_PLAYER)
 				{
-					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(eResponsiblePlayer);  // Normally 0
+					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
 					if (iPressureRetention > 0)
 					{
 						ePressureRetainedReligion = it->m_eReligion;
@@ -5346,7 +5411,7 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 				}
 				else
 				{
-					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(eResponsiblePlayer);  // Normally 0
+					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
 					if (iPressureRetention > 0)
 					{
 						ePressureRetainedReligion = it->m_eReligion;
@@ -5477,7 +5542,7 @@ void CvCityReligions::SimulateProphetSpread(ReligionTypes eReligion, int iPressu
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, NO_PLAYER);
 			if(pReligion)
 			{
-				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention();  // Normally 0
+				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
 				if (iPressureRetention > 0)
 				{
 					ePressureRetainedReligion = it->m_eReligion;
@@ -5719,7 +5784,7 @@ void CvCityReligions::AdoptReligionFully(ReligionTypes eReligion)
 	m_ReligionStatus.push_back(religion);
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
-	if (MOD_GLOBAL_RELIGIOUS_SETTLERS) {
+	if (MOD_GLOBAL_RELIGIOUS_SETTLERS || GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsReconquista()) {
 		RecomputeFollowers(FOLLOWER_CHANGE_ADOPT_FULLY, NO_RELIGION);
 	}
 #endif
@@ -5774,7 +5839,7 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(eLoopReligion, NO_PLAYER);
 			if (pReligion)
 			{
-				iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention();  // Normally 0
+				iPressureRetained = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
 			}
 		}
 
@@ -8388,7 +8453,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 					iScoreAtPlot *= GC.getRELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER();
 				}
 			}
-			else if(ePlotOwner != NO_PLAYER)
+			else if (ePlotOwner == m_pPlayer->getTeam())
 			{
 				if (pPlot->getImprovementType() != NO_IMPROVEMENT)
 				{
@@ -8957,91 +9022,119 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		for (int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 		{
 			int iValidTiles = 0;
-			TerrainTypes eTerrain = (TerrainTypes) iJ;
+			int iUnownedTiles = 0;
+			TerrainTypes eTerrain = (TerrainTypes)iJ;
 			if(eTerrain != NO_TERRAIN && pEntry->GetYieldPerXTerrainTimes100(iJ, iI) > 0)
 			{
 				if(eTerrain == TERRAIN_MOUNTAIN)
 				{
-					iValidTiles = pCity->GetNearbyMountains() * 3;
+					iValidTiles = pCity->GetNearbyMountains() * 5;
 				}
 				else
 				{
 					CvPlot* pPlot;
-					int iI;
+					int iK;
 					CvCityCitizens* pCityCitizens = pCity->GetCityCitizens();
-					for (iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+					for (iK = 0; iK < pCity->GetNumWorkablePlots(); iK++)
 					{
-						pPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+						pPlot = pCityCitizens->GetCityPlotFromIndex(iK);
 
 						if (pPlot != NULL)
 						{
+							if (pPlot->isCity())
+								continue;
+
 							if (pPlot->getTerrainType() == eTerrain)
 							{
-								if (pEntry->RequiresImprovement() && pPlot->getImprovementType() != NO_IMPROVEMENT)
+								bool bValid = true;
+
+								if (pEntry->RequiresResource() && pPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
 								{
-									iValidTiles++;
+									bValid = false;
 								}
-								else if (pEntry->RequiresResource() && pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+								else if (pEntry->RequiresNoFeature() && (pPlot->getFeatureType() != NO_FEATURE || pPlot->isHills()))
 								{
-									iValidTiles++;
+									bValid = false;
 								}
-								else if (pEntry->RequiresNoFeature() && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+								else if (pEntry->RequiresNoImprovement() && pPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
-									iValidTiles++;
+									bValid = false;
 								}
-								else if (pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+
+								if (bValid)
 								{
-									iValidTiles++;
-								}
-								else
-								{
-									iValidTiles++;
+									if (pPlot->getOwner() == NO_PLAYER)
+										iUnownedTiles++;
+									else
+										iValidTiles++;
 								}
 							}
 						}
 					}
 				}
-				iRtnValue += (((iValidTiles * 10 * pEntry->GetYieldPerXTerrainTimes100(iJ, iI)) / 100));
+
+				if (iValidTiles > 0)
+				{
+					if (iUnownedTiles > 0)
+					{
+						iValidTiles += (iUnownedTiles / 4);
+					}
+					iRtnValue += ((iValidTiles * 3 * pEntry->GetYieldPerXTerrainTimes100(iJ, iI)) / 100);
+				}
 			}
 		}
 		for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 		{
 			int iValidTiles = 0;
+			int iUnownedTiles = 0;
 			FeatureTypes eFeature = (FeatureTypes) iJ;
 			if(eFeature != NO_FEATURE && pEntry->GetYieldPerXFeatureTimes100(iJ, iI) > 0)
 			{
 				CvPlot* pPlot;
-				int iI;
+				int iK;
 				CvCityCitizens* pCityCitizens = pCity->GetCityCitizens();
-				for (iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+				for (iK = 0; iK < pCity->GetNumWorkablePlots(); iK++)
 				{
-					pPlot = pCityCitizens->GetCityPlotFromIndex(iI);
+					pPlot = pCityCitizens->GetCityPlotFromIndex(iK);
 
 					if (pPlot != NULL)
 					{
+						if (pPlot->isCity())
+							continue;
+
 						if (pPlot->getFeatureType() == eFeature)
 						{
-							if (pEntry->RequiresImprovement() && pPlot->getImprovementType() != NO_IMPROVEMENT)
+							bool bValid = true;
+\
+							if (pEntry->RequiresResource() && pPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
 							{
-								iValidTiles++;
+								bValid = false;
 							}
-							else if (pEntry->RequiresResource() && pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+							else if (pEntry->RequiresNoImprovement() && pPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
-								iValidTiles++;
+								bValid = false;
 							}
-							else if (pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+
+							if (bValid)
 							{
-								iValidTiles++;
-							}
-							else
-							{
-								iValidTiles++;
+								if (pPlot->getOwner() == NO_PLAYER)
+									iUnownedTiles++;
+								else
+									iValidTiles++;
 							}
 						}
 					}
 				}
 
-				iRtnValue += (((iValidTiles * 20 * pEntry->GetYieldPerXFeatureTimes100(iJ, iI)) / 100));
+				if (iValidTiles > 0)
+				{
+					if (iUnownedTiles > 0)
+					{
+						iValidTiles += (iUnownedTiles / 4);
+					}
+
+					iRtnValue += ((iValidTiles * 3 * pEntry->GetYieldPerXFeatureTimes100(iJ, iI)) / 100);
+				}
 			}
 		}
 #endif
@@ -9065,12 +9158,12 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		iTempValue = pEntry->GetYieldChangeAnySpecialist(iI);
 		if(pCity->getPopulation() >= 6)  // Like it more with large cities
 		{
-			iTempValue *= 6;
+			iTempValue *= 2;
 		}
 #if defined(MOD_BALANCE_CORE)
 		if(pCity->GetCityCitizens()->GetTotalSpecialistCount() > 0)
 		{
-			iTempValue *= 10;
+			iTempValue *= 5;
 		}
 		else
 		{

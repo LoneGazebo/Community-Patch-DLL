@@ -603,19 +603,19 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
 					int iResult = hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags);
-					if (iResult<0)
+					if (iResult == CvUnit::MOVE_RESULT_CANCEL)
 					{
 						//illegal, cannot execute attack
 						hUnit->ClearMissionQueue();
 						return;
 					}
-					else if (iResult==0)
+					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
 						//nothing to attack, continue movement
 						hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
 						bDone = true;
 					}
-					else if (iResult>0)
+					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{
 						//attack executed
 						bDone = true;
@@ -638,22 +638,25 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 					}
 
 					int iResult = hUnit->UnitAttackWithMove(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
-					if (iResult<0)
+					if (iResult == CvUnit::MOVE_RESULT_CANCEL)
 					{
 						//illegal, cannot execute attack
 						hUnit->ClearMissionQueue();
 						return;
 					}
-					else if (iResult==0)
+					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
 						//nothing to attack, continue movement
 						int iThisETA = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, iETA);
-						if(iThisETA > 0) //normal movement
+						if(iThisETA >= 0) //normal movement
 						{
 							bAction = true;
-							bDone = hUnit->at(kMissionData.iData1, kMissionData.iData2);
+							// Save off the initial ETA, we will feed it back into the UnitPathTo so it can check to see if our ETA grows while we are in the loop.
+							// This can happen as terrain gets revealed.
+							if (iSteps == 0)
+								iETA = iThisETA;
 						}
-						else if (iThisETA < 0) //turn finished
+						else if (iResult == CvUnit::MOVE_RESULT_DONE)
 						{
 							bAction = true;
 							bDone = true;
@@ -662,15 +665,8 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						{
 							bDone = true;
 						}
-
-						// Save off the initial ETA, we will feed it back into the UnitPathTo so it can check to see if our ETA grows while we are in the loop.
-						// This can happen as terrain gets revealed.
-						if(iSteps == 0)
-						{
-							iETA = iThisETA;
-						}
 					}
-					else if (iResult>0)
+					else if (iResult == CvUnit::MOVE_RESULT_ATTACK)
 					{
 						//attack executed
 						bDone = true;
@@ -741,7 +737,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
-					if(hUnit->UnitPathTo(pTargetUnit->getX(), pTargetUnit->getY(), kMissionData.iFlags) > 0)
+					if(hUnit->UnitPathTo(pTargetUnit->getX(), pTargetUnit->getY(), kMissionData.iFlags) >= 0)
 					{
 						bAction = true;
 					}
@@ -1522,7 +1518,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 			{
 				//make sure the path cache is current
 				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
-				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX);
+				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX,NULL,true);
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 				{

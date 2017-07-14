@@ -1408,6 +1408,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
+		//Cannot ask him to do so.
+		if (pFromPlayer->IsVassalsNoRebel())
+			return false;
+
 		// If either team is a vassal of the other, we cannot end vassals
 		if(pToTeam->IsVassal(eFromTeam) || pFromTeam->IsVassal(eToTeam))
 		{
@@ -3292,6 +3296,10 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				if (eLoopPlayer == eAcceptedFromPlayer || eLoopPlayer == eAcceptedToPlayer)
+					continue;
+
 				if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 				{
 					//AI go to war now.
@@ -3302,28 +3310,32 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					}
 
 					//If human attacked, send notification with info.
-					if(GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).GetEspionage())
+					if(GET_PLAYER(eLoopPlayer).isHuman())
 					{
-						if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
+						if (GET_PLAYER(eLoopPlayer).GetEspionage())
 						{
-							CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-							if(pNotifications)
+							if (GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 							{
-								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
-								strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-								strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
-								strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-								pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+								CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+								if (pNotifications)
+								{
+									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
+									strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+									strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
+									strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+									pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+								}
 							}
 						}
 					}
-					//If AI, bump down their opinion of the broker a bit.
+					//If AI, bump down their opinion of the broker and the warrior a bit.
 					else if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetEspionage())
 					{
 						if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 						{
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 600);
 						}
 					}
 				}
@@ -4024,6 +4036,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if (eLoopPlayer == eAcceptedFromPlayer || eLoopPlayer == eAcceptedToPlayer)
+							continue;
+
 						if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 						{
 							//AI go to war now.
@@ -4034,19 +4050,22 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							}
 
 							//If human attacked, send notification with info.
-							if(GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).GetEspionage())
+							if(GET_PLAYER(eLoopPlayer).isHuman())
 							{
-								if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
+								if (GET_PLAYER(eLoopPlayer).GetEspionage())
 								{
-									CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-									if(pNotifications)
+									if (GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 									{
-										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
-										strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-										strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
-										strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
-										pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+										CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+										if (pNotifications)
+										{
+											Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME");
+											strText << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+											strText << GET_PLAYER(eAcceptedFromPlayer).getCivilizationShortDescriptionKey();
+											Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S");
+											strSummary << GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescriptionKey();
+											pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+										}
 									}
 								}
 							}
@@ -4056,6 +4075,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								if(GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedToPlayer) || GET_PLAYER(eLoopPlayer).GetEspionage()->IsAnySurveillanceEstablished(eAcceptedFromPlayer))
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedToPlayer, 600);
+									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eAcceptedFromPlayer, 600);
 								}
 							}
 						}

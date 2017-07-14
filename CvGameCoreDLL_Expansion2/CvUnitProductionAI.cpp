@@ -262,16 +262,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Sanitize...
 	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
 	{
-		if (iTempWeight > 2000)
+		if (iTempWeight > 1750)
 		{
-			iTempWeight = 2000;
+			iTempWeight = 1750;
 		}
 	}
 	else
 	{
-		if (iTempWeight > 1500)
+		if (iTempWeight > 1250)
 		{
-			iTempWeight = 1500;
+			iTempWeight = 1250;
 		}
 	}
 
@@ -443,7 +443,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						}
 						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 						{
-							iBonus += (50 * kPlayer.getNumResourceAvailable(eResourceLoop, false));
+							iBonus += (150 * kPlayer.getNumResourceAvailable(eResourceLoop, false));
 						}
 					}
 				}
@@ -1075,6 +1075,23 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iFlavorExpansion -= 3;
 			}
+
+			AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
+			bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+
+			if (bSeekingCultureVictory)
+			{
+				iFlavorExpansion -= 2;
+			}
+
+			eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
+			bool bSeekingSSVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+
+			if (bSeekingSSVictory)
+			{
+				iFlavorExpansion -= 2;
+			}
+
 			int iNumCities = kPlayer.getNumCities();
 			
 			iFlavorExpansion -= iNumCities;
@@ -1322,14 +1339,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 50;
+						iBonus += 100;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 50;
+						iBonus += 100;
 					}
 				}
 			}
@@ -1359,6 +1376,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					iBonus += 250;
 				}
+				else
+					iBonus += -100;
 			}
 			else if (eDomain == DOMAIN_SEA)
 			{
@@ -1367,6 +1386,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					iBonus += 250;
 				}
+				else
+					iBonus += -100;
 			}
 		}
 	}

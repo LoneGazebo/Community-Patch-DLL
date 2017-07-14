@@ -8030,8 +8030,9 @@ void CvGame::removeGreatPersonBornName(const CvString& szName)
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
-#if defined(MOD_BALANCE_CORE)
 	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_UNIT_KILL_STATS)
 	GC.getMap().DoKillCountDecay();
 #endif
 
@@ -10172,6 +10173,9 @@ CvRandom& CvGame::getJonRand()
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
 #if defined(MOD_BUGFIX_RANDOM)
+	if (GC.getGame().getActivePlayer() == BARBARIAN_PLAYER)
+		return getSmallFakeRandNum(iNum, ((iNum/2)+(iNum*2)));
+
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
