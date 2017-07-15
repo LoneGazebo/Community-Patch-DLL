@@ -5518,6 +5518,43 @@ void CvPlayerCulture::DoPublicOpinion()
 			}
 		}
 
+		if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+		{
+			//first ideology?
+			if (GetTurnIdeologySwitch() == -1)
+			{
+				//free 'pressure' for our ideology if we just adopted.
+				int iTurnsSinceIdeology = GC.getGame().getGameTurn() - GetTurnIdeologyAdopted();
+				int iTurnLag = 50;
+				iTurnLag *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iTurnLag /= 100;
+				iTurnsSinceIdeology = iTurnLag - iTurnsSinceIdeology;
+				iTurnsSinceIdeology /= 10;
+				if (eCurrentIdeology == eFreedomBranch)
+					iPressureForFreedom += iTurnsSinceIdeology;
+				else if (eCurrentIdeology == eOrderBranch)
+					iPressureForOrder += iTurnsSinceIdeology;
+				else if (eCurrentIdeology == eAutocracyBranch)
+					iPressureForAutocracy += iTurnsSinceIdeology;
+			}
+			else
+			{
+				//free 'pressure' for our ideology if we just adopted.
+				int iTurnsSinceIdeology = GC.getGame().getGameTurn() - GetTurnIdeologySwitch();
+				int iTurnLag = 30;
+				iTurnLag *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iTurnLag /= 100;
+				iTurnsSinceIdeology = iTurnLag - iTurnsSinceIdeology;
+				iTurnsSinceIdeology /= 10;
+				if (eCurrentIdeology == eFreedomBranch)
+					iPressureForFreedom += iTurnsSinceIdeology;
+				else if (eCurrentIdeology == eOrderBranch)
+					iPressureForOrder += iTurnsSinceIdeology;
+				else if (eCurrentIdeology == eAutocracyBranch)
+					iPressureForAutocracy += iTurnsSinceIdeology;
+			}
+		}
+
 		// Now compute satisfaction with this branch compared to two other ones
 		int iDissatisfaction = 0;
 		if (eCurrentIdeology == eFreedomBranch)

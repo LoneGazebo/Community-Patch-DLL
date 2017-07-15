@@ -9060,16 +9060,19 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				int iNumFreePolicies = kPlayer.GetPlayerTraits()->GetFreeSocialPoliciesPerEra() > 0;
 				if (iNumFreePolicies > 0)
 				{
-					if (kPlayer.GetPlayerTraits()->IsOddEraScaler() && ((eNewValue % 2) != 0))
+					if (kPlayer.GetPlayerTraits()->IsOddEraScaler())
 					{
-						if ((GC.getLogging() && GC.getAILogging()))
+						if (((eNewValue % 2) != 0))
 						{
-							CvString strLogString;
-							strLogString.Format("CBP - Poland got their odd scaler in era %d", (int)eNewValue);
-							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
+							if ((GC.getLogging() && GC.getAILogging()))
+							{
+								CvString strLogString;
+								strLogString.Format("CBP - Poland got their odd scaler in era %d", (int)eNewValue);
+								kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+							}
 
-						kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+							kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+						}
 					}
 					else
 					{

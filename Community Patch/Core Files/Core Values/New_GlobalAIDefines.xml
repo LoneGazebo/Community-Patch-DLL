@@ -139,11 +139,11 @@
 			<Where Name="IDEOLOGY_SCORE_HOSTILE" />
 		</Update>
 		<Update>
-			<Set Value="100" />
+			<Set Value="250" />
 			<Where Name="IDEOLOGY_SCORE_GUARDED" />
 		</Update>
 		<Update>
-			<Set Value="50" />
+			<Set Value="150" />
 			<Where Name="IDEOLOGY_SCORE_AFRAID" />
 		</Update>
 		<Update>
@@ -152,15 +152,15 @@
 		</Update>
 		<!-- Makes sure the AI is actually likely to voluntarily switch ideologies if it suits their goals -->
 		<Update>
-			<Set Value="4" />
+			<Set Value="3" />
 			<Where Name="IDEOLOGY_SCORE_HAPPINESS" />
 		</Update>
 		<Update>
-			<Set Value="100" />
+			<Set Value="50" />
 			<Where Name="IDEOLOGY_SCORE_PER_FREE_TENET" />
 		</Update>
 		<Update>
-			<Set Value="300" />
+			<Set Value="500" />
 			<Where Name="IDEOLOGY_SCORE_GRAND_STRATS" />
 		</Update>
 	</Defines>

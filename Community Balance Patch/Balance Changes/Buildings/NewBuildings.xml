@@ -507,7 +507,6 @@
 			<Strategy>TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
 			<FoodKept>20</FoodKept>
-			<ConquestProb>66</ConquestProb>
 			<NeverCapture>true</NeverCapture>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>

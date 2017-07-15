@@ -49,10 +49,6 @@ UPDATE Terrains
 SET SpawnLocationUnitFreePromotion = 'PROMOTION_WHITE_WALKER'
 WHERE Type = 'TERRAIN_SNOW';
 
-UPDATE Terrains
-SET SpawnLocationUnitFreePromotion = 'PROMOTION_WHITE_WALKER'
-WHERE Type = 'TERRAIN_TUNDRA';
-
 INSERT INTO UnitPromotions
 	(Type, Description, Help, Sound, OrderPriority, PortraitIndex, BarbarianOnly, IconAtlas, PediaType, CannotBeChosen, PediaEntry)
 VALUES
@@ -74,7 +70,6 @@ VALUES
 INSERT INTO UnitPromotions_Terrains
 	(PromotionType, TerrainType, DoubleMove)
 VALUES
-	('PROMOTION_WHITE_WALKER', 'TERRAIN_TUNDRA', 1),
 	('PROMOTION_WHITE_WALKER', 'TERRAIN_SNOW', 1),
 	('PROMOTION_DESERT_WALKER', 'TERRAIN_DESERT', 1);
 

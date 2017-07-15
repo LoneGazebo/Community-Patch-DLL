@@ -23,7 +23,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture in City per 2 worked Plains or 2 worked Grassland tiles without Hills, Forests, Jungles, or Marshes. +1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Pastures'
+SET Text = '+1 [ICON_CULTURE] Culture in City per 2 worked Plains or 2 worked Grassland tiles without Hills or Features. +1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Pastures'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -224,7 +224,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Glory of God
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era). When you expend a [ICON_GREAT_PEOPLE] Great Person, Gain 5 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith per City following your Religion, scaling with Era.'
+SET Text = 'Use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era). When you expend a [ICON_GREAT_PEOPLE] Great Person, Gain 2 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith per City following your Religion, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_TO_GLORY_OF_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Underground Sect (Now Faith of the  Masses)
@@ -271,7 +271,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Reliquary (Now Tithes)
 UPDATE Language_en_US
-SET Text = 'When a city adopts your Religion for the first time, Holy City gains 10 [ICON_GOLD] Gold for every City following your Religion, scaling with Era. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy city for every 10 followers of this Religion in Foreign Cities.'
+SET Text = 'When a city adopts your Religion for the first time, Holy City gains 10 [ICON_GOLD] Gold for every City following your Religion, scaling with Era. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy city for every 8 followers of this Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -307,7 +307,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ITINERANT_PREACHERS_SHORT' AND EXISTS (SELECT * FROM
 
 -- Messiah (Now Sainthood)
 UPDATE Language_en_US
-SET Text = 'Prophets of this Religion 25% stronger, cost 25% less [ICON_PEACE] Faith. If the majority Religion in the City, rival Inquisitors and Prophets reduce your Religion''s presence by 75% (instead of eliminating it).'
+SET Text = 'Prophets of this Religion 25% stronger, cost 25% less [ICON_PEACE] Faith. If the majority Religion, Follower reduction from rival Inquisitors and Prophets halved. +3 to all Holy Site yields.'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -334,7 +334,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Religious Unity
 UPDATE Language_en_US
-SET Text = 'Missionaries and Inquisitors cost 30% less [ICON_PEACE] Faith. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every 6 followers of this religion in non-enemy foreign Cities.'
+SET Text = 'Missionaries and Inquisitors cost 30% less [ICON_PEACE] Faith. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every 10 followers of this religion in non-enemy foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

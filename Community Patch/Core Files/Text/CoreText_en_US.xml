@@ -6911,7 +6911,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU">
-			<Text>Your bullying of {1_CS} increased your [ICON_INFLUENCE] Influence by {2_Influence}, and reduced the [ICON_INFLUENCE] Influence of other Civiliations by {3_Percent}!</Text>
+			<Text>Your bullying of {1_CS} increased your [ICON_INFLUENCE] Influence by {2_Influence}, and reduced the [ICON_INFLUENCE] Influence of other Civiliations by {3_Percent}%!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S">
 			<Text>You tighten your grip on {1_CS}!</Text>

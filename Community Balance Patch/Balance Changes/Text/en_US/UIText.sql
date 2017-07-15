@@ -470,7 +470,7 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {1_Num}%[ENDCOLOR]!'
+SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {2_Num}%[ENDCOLOR]!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -479,7 +479,7 @@ WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNIT
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 UPDATE Language_en_US
-SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}%[ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {1_Num}%[ENDCOLOR]!'
+SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}%[ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {2_Num}%[ENDCOLOR]!'
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US

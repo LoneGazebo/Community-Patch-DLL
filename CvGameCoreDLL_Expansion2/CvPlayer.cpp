@@ -3418,7 +3418,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				iScaler = 1;
 			}
-			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler);
+			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, pOldCity);
 
 			if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !isMinorCiv() && !isBarbarian() && (GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 			{
@@ -25550,7 +25550,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_F_CONQUEST:
 				{
-					if (!pLoopCity->isEverOwned(GetID()))
+					if (pCity != NULL && !pCity->isEverOwned(GetID()))
 					{
 						if (pLoopCity->isCapital())
 						{
