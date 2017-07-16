@@ -2091,8 +2091,6 @@ protected:
 
 	CvUnit* airStrikeTarget(CvPlot& pPlot, bool bNoncombatAllowed) const;
 
-	bool CanWithdrawFromMelee(CvUnit& pAttacker);
-	bool DoWithdrawFromMelee(CvUnit& pAttacker);
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);
 #endif
@@ -2101,7 +2099,7 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 	// these are do to a unit using Heavy Charge against you
-	bool CanFallBackFromMelee(CvUnit& pAttacker);
+	bool CanFallBackFromMelee(CvUnit& pAttacker, bool bCheckChances);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);
 #if defined(MOD_BALANCE_CORE)
 	bool CanFallBackFromRanged(CvUnit& pAttacker);
