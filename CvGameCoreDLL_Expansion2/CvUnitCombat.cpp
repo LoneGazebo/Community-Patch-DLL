@@ -257,7 +257,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, pkDefender);
 		}
 
-		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBackFromMelee(kAttacker))
+		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBackFromMelee(kAttacker,false))
 		{
 			iAttackerStrength = (iAttackerStrength * 150) / 100;
 		}
@@ -3665,12 +3665,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
-	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanWithdrawFromMelee(kAttacker))
+	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanFallBackFromMelee(kAttacker,true))
 	{
-		if(!pDefender->isEmbarked())
-		{
-			pDefender->DoWithdrawFromMelee(kAttacker);
-		}
+		pDefender->DoFallBackFromMelee(kAttacker);
 
 		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{

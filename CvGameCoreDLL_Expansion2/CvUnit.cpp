@@ -175,6 +175,7 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
 	, m_iMultiAttackBonus("CvUnit::m_iMultiAttackBonus", m_syncArchive)
+	, m_iLandAirDefenseValue("CvUnit::m_iLandAirDefenseValue", m_syncArchive)
 #endif
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
@@ -1294,6 +1295,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnKill = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
+	m_iLandAirDefenseValue = 0;
 #endif
 	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
@@ -5361,9 +5363,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
 		if (pBestPlot->needsEmbarkation(this))
-			embark(pBestPlot);
+			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
-			disembark(pBestPlot);
+			disembark(plot());
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
 		return true;
 	}
@@ -5424,9 +5426,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 		}
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
 		if (pBestPlot->needsEmbarkation(this))
-			embark(pBestPlot);
+			embark(plot()); //at the current plot so that the vision update works correctly
 		else 
-			disembark(pBestPlot);
+			disembark(plot());
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
 	}
 	else
@@ -16809,10 +16811,32 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
 	pAttacker; pTargetPlot; pFromPlot;
-	if (bIncludeRand)
-		return 8 + GC.getGame().getJonRandNum(5,"air attack attrition");
+	//base value
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	{
+		int iBaseValue = getUnitInfo().GetBaseLandAirDefense();
+		if (iBaseValue == 0)
+			if (bIncludeRand && !IsCivilianUnit())
+				return GC.getGame().getJonRandNum(3, "air attack attrition");
+			else
+				return 0;
+		else
+		{
+			iBaseValue += getLandAirDefenseValue();
+
+			if (bIncludeRand)
+				return iBaseValue + GC.getGame().getJonRandNum(5, "air attack attrition");
+			else
+				return iBaseValue;
+		}
+	}
 	else
-		return 10;
+	{
+		if (bIncludeRand)
+			return 8 + GC.getGame().getJonRandNum(5, "air attack attrition");
+		else
+			return 10;
+	}	
 #else
 	if (!pAttacker)
 		return 0;
@@ -19107,21 +19131,17 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										bool bDoCapture = false;
 #if defined(MOD_BALANCE_CORE)
 										bool bDoEvade = false;
-										if(pLoopUnit->IsCivilianUnit() && pLoopUnit->getExtraWithdrawal() > 0 && pLoopUnit->CanWithdrawFromMelee(*this))
+										if(pLoopUnit->IsCivilianUnit() && pLoopUnit->getExtraWithdrawal() > 0 && pLoopUnit->CanFallBackFromMelee(*this,true))
 										{
-											if(!pLoopUnit->isEmbarked())
-											{
-												bDoEvade = true;
-												pLoopUnit->DoWithdrawFromMelee(*this);
-												strMessage = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_DETAILED_PIONEER");
-												strMessage << pLoopUnit->getUnitInfo().GetTextKey();
-												strSummary = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_PIONEER");
+											bDoEvade = true;
+											pLoopUnit->DoFallBackFromMelee(*this);
+											strMessage = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_DETAILED_PIONEER");
+											strMessage << pLoopUnit->getUnitInfo().GetTextKey();
+											strSummary = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_PIONEER");
 
-												CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
-												if(pNotification)
-												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int) pLoopUnit->getUnitType(), pLoopUnit->getOwner());
-											}
-
+											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
+											if(pNotification)
+											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int) pLoopUnit->getUnitType(), pLoopUnit->getOwner());
 										}
 #endif
 										// Some units can't capture civilians. Embarked units are also not captured, they're simply killed. And some aren't a type that gets captured.
@@ -21583,6 +21603,20 @@ void CvUnit::changeMultiAttackBonus(int iChange)
 		m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
 	CvAssert(getMultiAttackBonus() >= 0);
 }
+//	--------------------------------------------------------------------------------
+int CvUnit::getLandAirDefenseValue() const
+{
+	VALIDATE_OBJECT
+		return m_iLandAirDefenseValue;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeLandAirDefenseValue(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iLandAirDefenseValue = (m_iLandAirDefenseValue + iChange);
+	CvAssert(getLandAirDefenseValue() >= 0);
+}
+
 
 
 
@@ -25892,6 +25926,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
+		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
@@ -28854,81 +28889,6 @@ CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) cons
 	return NULL;
 }
 
-//	--------------------------------------------------------------------------------
-bool CvUnit::CanWithdrawFromMelee(CvUnit& attacker)
-{
-	VALIDATE_OBJECT
-
-	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
-		return false;
-
-	int iWithdrawChance = getExtraWithdrawal();
-
-	// Does attacker have a speed greater than 1?
-	int iAttackerMovementRange = attacker.maxMoves() / GC.getMOVE_DENOMINATOR();
-	if(iAttackerMovementRange > 0)
-	{
-		iWithdrawChance += (GC.getWITHDRAW_MOD_ENEMY_MOVES() * (iAttackerMovementRange - 2));
-	}
-
-	// Are some of the retreat hexes away from the attacker blocked?
-	int iBlockedHexes = 0;
-	CvPlot* pAttackerFromPlot = attacker.plot();
-	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
-	int iBiases[3] = {0,-1,1};
-	int x = plot()->getX();
-	int y = plot()->getY();
-
-	for(int i = 0; i < 3; i++)
-	{
-		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
-
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
-		{
-			iBlockedHexes++;
-		}
-	}
-
-	// If all three hexes away from attacker blocked, we can't withdraw
-	if(iBlockedHexes >= 3)
-	{
-		return false;
-	}
-
-	iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
-
-	int iRoll = GC.getGame().getJonRandNum(100, "Withdraw from Melee attempt");
-
-	return iRoll < iWithdrawChance;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::DoWithdrawFromMelee(CvUnit& attacker)
-{
-	VALIDATE_OBJECT
-	CvPlot* pAttackerFromPlot = attacker.plot();
-	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
-
-	int iRightOrLeftBias = (GC.getGame().getJonRandNum(100, "right or left bias") < 50) ? 1 : -1;
-	int iBiases[5] = {0,-1,1,-2,2};
-	int x = plot()->getX();
-	int y = plot()->getY();
-
-	// try to retreat as close to away from the attacker as possible
-	for(int i = 0; i < 5; i++)
-	{
-		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
-
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
-		{
-			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
-			return true;
-		}
-	}
-	return false;
-}
 #if defined(MOD_BALANCE_CORE)
 void CvUnit::DoPlagueTransfer(CvUnit& defender)
 {
@@ -29008,9 +28968,14 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 #endif
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanFallBackFromMelee(CvUnit& attacker)
+//	--------------------------------------------------------------------------------
+bool CvUnit::CanFallBackFromMelee(CvUnit& attacker, bool bCheckChances)
 {
 	VALIDATE_OBJECT
+
+	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
+		return false;
+
 	// Are some of the retreat hexes away from the attacker blocked?
 	int iBlockedHexes = 0;
 	CvPlot* pAttackerFromPlot = attacker.plot();
@@ -29024,7 +28989,7 @@ bool CvUnit::CanFallBackFromMelee(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
+		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
 		{
 			iBlockedHexes++;
 		}
@@ -29036,7 +29001,22 @@ bool CvUnit::CanFallBackFromMelee(CvUnit& attacker)
 		return false;
 	}
 
-	return true;
+	if(bCheckChances)
+	{
+		int iWithdrawChance = getExtraWithdrawal();
+		// Does attacker have a speed greater than 1?
+		int iAttackerMovementRange = attacker.maxMoves() / GC.getMOVE_DENOMINATOR();
+		if(iAttackerMovementRange > 0)
+		{
+			iWithdrawChance += (GC.getWITHDRAW_MOD_ENEMY_MOVES() * (iAttackerMovementRange - 2));
+		}
+		iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
+
+		int iRoll = GC.getGame().getJonRandNum(100, "Withdraw from Melee attempt");
+		return iRoll < iWithdrawChance;
+	}
+	else
+		return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29058,7 +29038,7 @@ bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION) && isMatchingDomain(pDestPlot))
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isMatchingDomain(pDestPlot))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
 			return true;
@@ -29084,7 +29064,7 @@ bool CvUnit::CanFallBackFromRanged(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
+		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
 		{
 			iBlockedHexes++;
 		}
@@ -29118,7 +29098,7 @@ bool CvUnit::DoFallBackFromRanged(CvUnit& attacker)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
 		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
 
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION) && isMatchingDomain(pDestPlot))
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isMatchingDomain(pDestPlot))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();

@@ -424,6 +424,13 @@ public:
 
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
+
+	int GetYieldFromSpyAttack(int i) const;
+	int* GetYieldFromSpyAttackArray() const;
+
+	int GetYieldFromSpyDefense(int i) const;
+	int* GetYieldFromSpyDefenseArray() const;
+
 #endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
@@ -836,6 +843,8 @@ private:
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;
+	int* m_piYieldFromSpyAttack;
+	int* m_piYieldFromSpyDefense;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;

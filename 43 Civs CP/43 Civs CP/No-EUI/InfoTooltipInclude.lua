@@ -50,6 +50,13 @@ function GetHelpTextForUnit(iUnitID, bIncludeRequirementsInfo)
 		strHelpText = strHelpText .. "[NEWLINE]";
 		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_STRENGTH", iStrength);
 	end
+
+	-- Air Strength
+	local iAirStrength = pUnitInfo.BaseLandAirDefense;
+	if (iAirStrength ~= 0) then
+		strHelpText = strHelpText .. "[NEWLINE]";
+		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_AIR_STRENGTH", iAirStrength);
+	end
 	
 	-- Resource Requirements
 	local iNumResourcesNeededSoFar = 0;
@@ -939,6 +946,21 @@ function GetCultureTooltip(pCity)
 			end
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EVENTS", iCultureFromEvent);
+		end
+		-- END 
+
+		-- Yield modifiers string
+		local strCultureFromTR = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE);
+		if (strCultureFromTR ~= "") then
+			
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. strCultureFromTR;
 		end
 		-- END 
 		

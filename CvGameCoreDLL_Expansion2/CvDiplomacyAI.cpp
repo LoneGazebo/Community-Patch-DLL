@@ -15366,7 +15366,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	for(pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 	{
 		// Don't be scared of noncombat Units!
-		if(pLoopUnit->IsCombatUnit())
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 		{
 			CvPlot* pUnitPlot = pLoopUnit->plot();
 			// Can we actually see this Unit's Plot?  No cheating!

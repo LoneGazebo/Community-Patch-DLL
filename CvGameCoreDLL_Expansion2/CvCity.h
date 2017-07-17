@@ -1036,6 +1036,12 @@ public:
 	int GetThemingYieldBonus(YieldTypes eIndex) const;
 	void ChangeThemingYieldBonus(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromSpyAttack(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyAttack(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromSpyDefense(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
@@ -1752,6 +1758,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyAttack;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyDefense;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
 	FAutoVariable<int, CvCity> m_iThreatRank;

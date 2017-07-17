@@ -3730,6 +3730,13 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
 							iValue += max((iDelta * 100), 100);
 						}
+
+						// Tech Progress increases City Strength
+						int iTechProgress = GET_TEAM(pOriginCity->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
+						iTechProgress /= 2;
+
+						iValue *= (iTechProgress + 100);
+						iValue /= 100;
 					}
 #endif
 #if defined(MOD_BALANCE_CORE)

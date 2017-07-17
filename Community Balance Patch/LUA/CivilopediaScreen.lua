@@ -2806,6 +2806,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 				Controls.MovementFrame:SetHide( false );
 			end
 		end
+
+		-- CBO update the air defense value
+		local airdefense = thisUnit.BaseLandAirDefense;
+		if airdefense > 0 then
+			Controls.AirDefenseLabel:SetText( tostring(airdefense).." [ICON_AIRSTRIKE_DEFENSE]" );
+			Controls.AirDefenseFrame:SetHide( false );
+		end
+
+		
 		
  		local contentSize;
  		local frameSize = {};
@@ -7670,6 +7679,7 @@ function ClearArticle()
 	Controls.RangedCombatFrame:SetHide( true );
 	Controls.RangedCombatRangeFrame:SetHide( true );
 	Controls.MovementFrame:SetHide( true );
+	Controls.AirDefenseFrame:SetHide( true );	
 	Controls.FreePromotionsFrame:SetHide( true );
 	Controls.PrereqTechFrame:SetHide( true );
 	Controls.GreatWorksFrame:SetHide( true );

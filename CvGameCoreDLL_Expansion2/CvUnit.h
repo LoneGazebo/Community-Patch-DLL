@@ -989,6 +989,9 @@ public:
 
 	int getMultiAttackBonus() const;
 	void changeMultiAttackBonus(int iChange);
+
+	int getLandAirDefenseValue() const;
+	void changeLandAirDefenseValue(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1800,6 +1803,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
 	FAutoVariable<int, CvUnit> m_iMultiAttackBonus;
+	FAutoVariable<int, CvUnit> m_iLandAirDefenseValue;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
@@ -2095,8 +2099,6 @@ protected:
 
 	CvUnit* airStrikeTarget(CvPlot& pPlot, bool bNoncombatAllowed) const;
 
-	bool CanWithdrawFromMelee(CvUnit& pAttacker);
-	bool DoWithdrawFromMelee(CvUnit& pAttacker);
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);
 #endif
@@ -2105,7 +2107,7 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 	// these are do to a unit using Heavy Charge against you
-	bool CanFallBackFromMelee(CvUnit& pAttacker);
+	bool CanFallBackFromMelee(CvUnit& pAttacker, bool bCheckChances);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);
 #if defined(MOD_BALANCE_CORE)
 	bool CanFallBackFromRanged(CvUnit& pAttacker);

@@ -173,6 +173,7 @@ public:
 	int GetMinRange() const;
 	int GetMaxRange() const;
 	int GetMultiAttackBonus() const;
+	int GetLandAirDefenseValue() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -472,6 +473,7 @@ protected:
 	int m_iMinRange;
 	int m_iMaxRange;
 	int m_iMultiAttackBonus;
+	int m_iLandAirDefenseValue;
 	bool m_bMountainsDoubleMove;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)

@@ -1140,6 +1140,11 @@
 			<Text>Highest Warscore: {1_Num}</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_PEDIA_AIR_DEFENSE_LABEL">
+			<Text>Air Strike Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_AIR_STRENGTH">
+			<Text>[ICON_AIRSTRIKE_DEFENSE] Air Strike Defense</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

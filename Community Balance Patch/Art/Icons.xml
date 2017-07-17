@@ -257,6 +257,10 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_BRAZILWOOD</IconFontTexture>
 			<IconFontTextureFile>Brazilwood</IconFontTextureFile>
 		</Row>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
+			<IconFontTextureFile>airstrike</IconFontTextureFile>
+		</Row>
 	</IconFontTextures>
 	<IconFontMapping>
 		<Row>
@@ -267,6 +271,11 @@
 		<Row>
 			<IconName>ICON_RES_BRAZILWOOD</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_BRAZILWOOD</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_AIRSTRIKE_DEFENSE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
 			<IconMapping>1</IconMapping>
 		</Row>
 	</IconFontMapping>

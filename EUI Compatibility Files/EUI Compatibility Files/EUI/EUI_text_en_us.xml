@@ -455,5 +455,8 @@
 		<Row Tag="TXT_KEY_EUI_UNKNOWN_CITY">
 			<Text>Unknown City</Text>
 		</Row>
+		<Row Tag="TXT_KEY_AIR_STRENGTH_DEFENSE">
+			<Text>Air Strike Defense:</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

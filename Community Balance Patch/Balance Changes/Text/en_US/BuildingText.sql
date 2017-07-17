@@ -136,7 +136,7 @@ SET Text = 'The Harbor is a Medieval-era building, requiring a Lighthouse. It im
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +15% [ICON_PRODUCTION] Production in City. +1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. Increases the Military Unit Supply Cap from Population in the City by 10%.[NEWLINE][NEWLINE]City must be built on the coast, and cannot have a Train Station in the City.'
+SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +25% [ICON_PRODUCTION] Production in City. +1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. Increases the Military Unit Supply Cap from Population in the City by 10%.[NEWLINE][NEWLINE]City must be built on the coast, and cannot have a Train Station in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -326,11 +326,11 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom greatly. Provides a large sum of 
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Crime greatly. Reduces enemy spy stealing rate by 50%.[NEWLINE][NEWLINE]City must have a Constabulary.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Crime greatly. Reduces enemy spy stealing rate by 50%, and prevents the theft of [ICON_GOLD] Gold through Spy Advanced Actions. When an enemy Spy is killed in this City, gain 500 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, scaling with Era and the level of the Spy killed.[NEWLINE][NEWLINE]City must have a Constabulary.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Reduces enemy spy stealing rate by 33%.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Reduces enemy spy stealing rate by 33%, and prevents the disruption of Building construction by Spy Advanced Actions.'
 WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -393,7 +393,7 @@ SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Crime by 2. The National Intelligence Agency also provides an additional spy, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. A city must have a Police Station before it can construct the National Intelligence Agency.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Crime. The National Intelligence Agency also provides an additional spy, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. Empires with a lot of offensive spies will benefit greatly from this building. A city must have a Police Station before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -439,7 +439,7 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and levels up all your existing spies. Foreign spies cannot incite rebellion or unrest in this City, and your Spies are much more likely to assassinate foreign [ICON_GREAT_PEOPLE] Great People. Also provides a 15% reduction in enemy spy effectiveness.[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Slows enemy spy effectiveness by 15%, provides an additional spy, and levels up all existing spies.[NEWLINE][NEWLINE]+400 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, or complete a City-State Coup (scaling with Era and Spy level). +100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you complete an Advanced Action (scaling with Era).[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

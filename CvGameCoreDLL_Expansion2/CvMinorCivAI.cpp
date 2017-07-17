@@ -16100,7 +16100,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -999 ~ -0
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS && !GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
+	if (MOD_BALANCE_CORE_MINORS && !GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
 	{
 		int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
 		if(GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE) > 0)
@@ -17202,22 +17202,28 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 {
 	CvAssertMsg(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	CvPlayer* pBully = &GET_PLAYER(eBully);
 	CvAssertMsg(pBully, "pBully not expected to be NULL. Please send Anton your save file and version.");
 	if (!pBully) return;
 
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
-		return;
-
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
-	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
+	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	{
+		ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
+	}
 
 	// In case we have quests that bullying makes obsolete, check now
-	DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	{
+		DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+	}
 #if defined(MOD_BALANCE_CORE_MINORS)
-	DoChangeProtectionFromMajor(eBully, false, true);
+	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	{
+		DoChangeProtectionFromMajor(eBully, false, true);
+	}
 #endif
 
 	// Inform alive majors who have met the bully

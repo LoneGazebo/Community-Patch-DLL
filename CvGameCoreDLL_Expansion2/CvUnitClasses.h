@@ -50,6 +50,7 @@ public:
 	int GetBaseSightRange() const;
 	int GetRange() const;
 	int GetAirInterceptRange() const;
+	int GetBaseLandAirDefense() const;
 	int GetAirUnitCap() const;
 	int GetNukeDamageLevel() const;
 	int GetWorkRate() const;
@@ -274,6 +275,7 @@ private:
 	int m_iBaseSightRange;
 	int m_iRange;
 	int m_iAirInterceptRange;
+	int m_iBaseLandAirDefense;
 	int m_iAirUnitCap;
 	int m_iNukeDamageLevel;
 	int m_iWorkRate;

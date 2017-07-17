@@ -301,6 +301,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
+	m_piYieldFromSpyAttack(NULL),
+	m_piYieldFromSpyDefense(NULL),
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piScienceFromYield(NULL),
@@ -411,6 +413,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
+	SAFE_DELETE_ARRAY(m_piYieldFromSpyAttack);
+	SAFE_DELETE_ARRAY(m_piYieldFromSpyDefense);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
@@ -841,6 +845,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromSpyAttack, "Building_YieldFromSpyAttack", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromSpyDefense, "Building_YieldFromSpyDefense", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
@@ -2700,6 +2706,34 @@ int* CvBuildingEntry::GetThemingYieldBonusArray() const
 {
 	return m_piThemingYieldBonus;
 }
+
+/// Array of yield changes
+int CvBuildingEntry::GetYieldFromSpyAttack(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromSpyAttack ? m_piYieldFromSpyAttack[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromSpyAttackArray() const
+{
+	return m_piYieldFromSpyAttack;
+}
+
+/// Array of yield changes
+int CvBuildingEntry::GetYieldFromSpyDefense(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromSpyDefense ? m_piYieldFromSpyDefense[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromSpyDefenseArray() const
+{
+	return m_piYieldFromSpyDefense;
+}
+
+
 #endif
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const

@@ -41,7 +41,7 @@
 			<Text>Coast Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER_HELP">
-			<Text>Double movement on Coastal tiles. Barbarian only.</Text>
+			<Text>Allows embarkation. Barbarian only.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER">
@@ -78,10 +78,25 @@
 			<Text>Receive [ICON_GOLD] Gold in your Capital when you defeat an enemy unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
 		</Row>
 
-
-
-
-
+		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I">
+			<Text>Air Defense I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP">
+			<Text>+5 Damage to Air Units when defending against Air Strikes. Available once you have researched Flight.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II">
+			<Text>Air Defense II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP">
+			<Text>+5 Damage to Air Units when defending against Air Strikes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III">
+			<Text>Air Defense III</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP">
+			<Text>+5 Damage to Air Units when defending against Air Strikes.</Text>
+		</Row>
+			
 		<Row Tag="TXT_KEY_UNIT_GUERILLA">
 			<Text>Mercenaries</Text>
 		</Row>

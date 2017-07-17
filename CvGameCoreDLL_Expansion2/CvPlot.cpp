@@ -10912,10 +10912,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 
 	bool bOldVisibility = (m_aiVisibilityCount[eTeam]>0);
 
-	m_aiVisibilityCount[eTeam] += iChange;
-	CvAssertFmt(m_aiVisibilityCount[eTeam]>=0, "Changing plot X:%d, Y:%d to a negative visibility", getX(), getY());
-	if (m_aiVisibilityCount[eTeam] < 0)
+	//apparently it's legal to decrease sight below zero - so catch that
+	if (iChange<0 && abs(iChange)>m_aiVisibilityCount[eTeam])
 		m_aiVisibilityCount[eTeam] = 0;
+	else
+		m_aiVisibilityCount[eTeam] += iChange;
 
 	//remember the maximum
 	m_aiVisibilityCountThisTurnMax[eTeam] = max(m_aiVisibilityCountThisTurnMax[eTeam], m_aiVisibilityCount[eTeam]);

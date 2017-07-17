@@ -931,6 +931,8 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 				}
 
+				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+
 				// kill spy off
 				ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
 #if defined(MOD_API_ESPIONAGE)
@@ -1012,6 +1014,8 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
 					}
+
+					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 6);
 				}
 				else
 				{
@@ -1338,6 +1342,8 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy);
 						}
 					}
+
+					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 					// kill spy off
 					ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1869,6 +1875,8 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
 					}
 				}
+
+				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// level up the defending spy
 				int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
@@ -2779,6 +2787,10 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						}
 						LogEspionageMsg(strMsg);
 					}
+				}
+				if (iSpyResult != 9)
+				{
+					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 0);
 				}
 			}
 		}
@@ -5442,6 +5454,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
 	}
 #endif
+
+	if (bAttemptSuccess)
+	{
+		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, (m_aSpyList[uiSpyIndex].m_eRank + 1));
+	}
 
 	// Update City banners and game info
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
@@ -9261,6 +9278,8 @@ void CvEspionageAI::StealTechnology()
 #if defined(MOD_BALANCE_CORE)
 			pEspionage->m_aiNumSpyActionsDone[eDefendingPlayer]++;
 #endif
+			
+			m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 6);
 
 			// send out notifications to the parties that were stolen from
 			CvPlot* pPlot = GC.getMap().plot(pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iX, pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iY);
@@ -9326,6 +9345,8 @@ void CvEspionageAI::StealGreatWork()
 		{
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0, "pEspionage->m_aPlayerStealableGWList[uiPlayer] list is empty. Not good");
+
+			m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 6);
 			
 			int iGrab = GC.getGame().getJonRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), "Random roll to see if we should attempt a coup");
 			int iCityLoop;

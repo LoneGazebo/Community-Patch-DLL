@@ -3418,7 +3418,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				iScaler = 1;
 			}
-			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, pOldCity);
+			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler);
 
 			if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !isMinorCiv() && !isBarbarian() && (GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 			{
@@ -9207,7 +9207,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 										if (iResult != -1)
 										{
 											CvUnit* pUnit = getUnit(iResult);
-											if (!pUnit->jumpToNearestValidPlot())
+											if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 											{
 												pUnit->kill(false);	// Could not find a valid spot!
 											}
@@ -9258,7 +9258,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 								if (iResult != -1)
 								{
 									CvUnit* pUnit = getUnit(iResult);
-									if (!pUnit->jumpToNearestValidPlot())
+									if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
 									}
@@ -25477,6 +25477,32 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					break;
 				}
+
+				case INSTANT_YIELD_TYPE_SPY_ATTACK:
+				{
+					iValue += pLoopCity->GetYieldFromSpyAttack(eYield);
+					if (iValue != 0)
+					{
+						if (iPassYield == 0)
+							iValue /= 2;
+						else
+							iValue *= iPassYield;
+					}
+					break;
+				}
+				case INSTANT_YIELD_TYPE_SPY_DEFENSE:
+				{
+					iValue += pLoopCity->GetYieldFromSpyDefense(eYield);
+					if (iValue != 0)
+					{
+						if (iPassYield == 0)
+							iValue /= 4;
+						else
+							iValue *= iPassYield;
+					}
+					break;
+				}
+				
 				case INSTANT_YIELD_TYPE_CONSTRUCTION:
 				{
 					iValue += pLoopCity->GetYieldFromConstruction(eYield) + getYieldFromConstruction(eYield);
@@ -25550,20 +25576,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_F_CONQUEST:
 				{
-					if (pCity != NULL && !pCity->isEverOwned(GetID()))
+					if (pLoopCity->isCapital())
 					{
-						if (pLoopCity->isCapital())
-						{
-							iValue += (getConquerorYield(eYield) + GetPlayerTraits()->GetYieldFromConquest(eYield));
-						}
-						if (pReligion)
-						{
-							iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
-						}
-						if (iPassYield != 0 && iValue != 0)
-						{
-							iValue *= iPassYield;
-						}
+						iValue += (getConquerorYield(eYield) + GetPlayerTraits()->GetYieldFromConquest(eYield));
+					}
+					if (pReligion)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity, true);
+					}
+					if (iPassYield != 0 && iValue != 0)
+					{
+						iValue *= iPassYield;
 					}
 					break;
 				}

@@ -353,6 +353,8 @@ CvCity::CvCity() :
 	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
 	, m_aiStaticCityYield("CvCity::m_aiStaticCityYield", m_syncArchive)
 	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
+	, m_aiYieldFromSpyAttack("CvCity::m_aiYieldFromSpyAttack", m_syncArchive)
+	, m_aiYieldFromSpyDefense("CvCity::m_aiYieldFromSpyDefense", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiBaseYieldRateFromCSFriendship("CvCity::m_aiBaseYieldRateFromCSFriendship", m_syncArchive)
 	, m_aiResourceQuantityPerXFranchises("CvCity::m_aiResourceQuantityPerXFranchises", m_syncArchive)
@@ -1523,6 +1525,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiBuildingScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromSpyAttack.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromSpyDefense.resize(NUM_YIELD_TYPES);
 	m_aiNumTimesOwned.resize(REALLY_MAX_PLAYERS);
 	m_aiStaticCityYield.resize(NUM_YIELD_TYPES);
 #endif
@@ -1604,6 +1608,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiScienceFromYield.setAt(iI, 0);
 		m_aiBuildingScienceFromYield.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
+		m_aiYieldFromSpyAttack.setAt(iI, 0);
+		m_aiYieldFromSpyDefense.setAt(iI, 0);
 		m_aiEventCityYield.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
@@ -6530,7 +6536,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 									if (iResult != -1)
 									{
 										CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-										if (!pUnit->jumpToNearestValidPlot())
+										if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 										{
 											pUnit->kill(false);	// Could not find a valid spot!
 										}
@@ -6566,7 +6572,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						if (iResult != -1)
 						{
 							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-							if (!pUnit->jumpToNearestValidPlot())
+							if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 							{
 								pUnit->kill(false);	// Could not find a valid spot!
 							}
@@ -14122,6 +14128,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
 				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
+			}
+
+			if (MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromSpyAttack(eYield) > 0))
+			{
+				ChangeYieldFromSpyAttack(eYield, pBuildingInfo->GetYieldFromSpyAttack(eYield) * iChange);
+			}
+			if (MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromSpyDefense(eYield) > 0))
+			{
+				ChangeYieldFromSpyDefense(eYield, pBuildingInfo->GetYieldFromSpyDefense(eYield) * iChange);
 			}
 
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromBirth(eYield) > 0))
@@ -22707,6 +22722,56 @@ void CvCity::ChangeThemingYieldBonus(YieldTypes eIndex, int iChange)
 	{
 		m_aiThemingYieldBonus.setAt(eIndex, m_aiThemingYieldBonus[eIndex] + iChange);
 		CvAssert(GetThemingYieldBonus(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from spy attacks
+int CvCity::GetYieldFromSpyAttack(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromSpyAttack[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromSpyAttack(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromSpyAttack.setAt(eIndex, m_aiYieldFromSpyAttack[eIndex] + iChange);
+		CvAssert(GetYieldFromSpyAttack(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from spy defense
+int CvCity::GetYieldFromSpyDefense(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromSpyDefense[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromSpyDefense.setAt(eIndex, m_aiYieldFromSpyDefense[eIndex] + iChange);
+		CvAssert(GetYieldFromSpyDefense(eIndex) >= 0);
 	}
 }
 #endif

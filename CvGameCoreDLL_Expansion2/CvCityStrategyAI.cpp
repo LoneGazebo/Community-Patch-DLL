@@ -4996,6 +4996,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += (kPlayer.getPolicyCostModifier() * -1) + pkBuildingInfo->GetYieldFromPolicyUnlock(eYield);
 	}
+	if (pkBuildingInfo->GetYieldFromSpyAttack(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyAttack(eYield) / 15;
+	}
+	if (pkBuildingInfo->GetYieldFromSpyDefense(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefense(eYield) / 15;
+	}
 	if (pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetYieldFromPurchase(eYield);

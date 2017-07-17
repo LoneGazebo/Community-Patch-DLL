@@ -809,6 +809,10 @@ ALTER TABLE Units ADD COLUMN 'GlobalFaithPurchaseCooldown' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 
+-- Base air defense when defending against an airstrike.
+ALTER TABLE Units ADD COLUMN 'BaseLandAirDefense' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'LandAirDefenseBonus' INTEGER DEFAULT 0;
+
 -- Allows Courthouses to be built in any city
 ALTER TABLE Buildings ADD COLUMN 'BuildAnywhere' BOOLEAN DEFAULT 0;
 
