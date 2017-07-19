@@ -472,7 +472,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		// minors should not build out of their borders when they are doing a major/minor connection, only when connecting their two cities
 		if(!(m_pPlayer->isMinorCiv() && bMajorMinorConnection))
 		{
-			if(pPlot->getOwner() != m_pPlayer->GetID())
+			if(pPlot->getOwner() == NO_PLAYER)
 			{
 				m_aiNonTerritoryPlots.push_back(GC.getMap().plotNum(pPlot->getX(), pPlot->getY()));
 			}

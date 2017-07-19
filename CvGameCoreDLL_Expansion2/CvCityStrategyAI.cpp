@@ -5153,7 +5153,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pCity->GetCityReligions()->GetReligiousMajority() == kPlayer.GetReligions()->GetReligionInMostCities())
 	{
-		int iReligionPolicyBonus = kPlayer.GetPlayerPolicies()->GetReligionBuildingClassYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+		int iReligionPolicyBonus = pCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
 		if (iReligionPolicyBonus > 0)
 		{
 			iModifier += iReligionPolicyBonus;

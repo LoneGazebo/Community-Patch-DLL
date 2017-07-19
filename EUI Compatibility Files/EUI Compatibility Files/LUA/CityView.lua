@@ -826,6 +826,15 @@ local function SetupBuildingList( city, buildings, buildingIM )
 						+ (gk_mode and cityOwner:GetPlayerBuildingClassYieldChange( buildingClassID, yieldID )
 						+ city:GetReligionBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
 						+ (bnw_mode and city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
+						+ city:GetLocalBuildingClassYield(buildingClassID, yieldID)
+						+ city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
+						+ city:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, yieldID)
+						+ city:GetEventBuildingClassYield(buildingClassID, yieldID)
+						+ cityOwner:GetPolicyBuildingClassYieldChange(buildingClassID, yieldID)
+
+			if GameInfo.Yields[yieldID].Type == "YIELD_CULTURE" then
+				buildingCultureRate = buildingCultureRate + city:GetBuildingClassCultureChange(buildingClassID )
+			end
 			-- Yield modifiers from the building
 			buildingYieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
 						+ cityOwner:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )

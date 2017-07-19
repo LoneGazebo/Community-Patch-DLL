@@ -325,6 +325,7 @@ public:
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsAnyBodyOfWater() const;
+	int GetCityAirStrikeDefense() const;
 	int GetBorderObstacleCity() const;
 	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
@@ -775,6 +776,7 @@ private:
 	bool m_bIsReligious;
 	bool m_bBorderObstacle;
 #if defined(MOD_BALANCE_CORE)
+	int m_iCityAirStrikeDefense;
 	int m_iBorderObstacleCity;
 	int m_iBorderObstacleWater;
 	int m_iWLTKDTurns;

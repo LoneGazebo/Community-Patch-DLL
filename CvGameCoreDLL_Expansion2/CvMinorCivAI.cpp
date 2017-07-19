@@ -15951,7 +15951,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 						// Is a combat unit
-						if(pLoopUnit && pLoopUnit->IsCombatUnit())
+						if(pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
 						{
 							if(pLoopUnit->getOwner() == eBullyPlayer)
 							{

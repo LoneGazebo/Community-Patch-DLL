@@ -4883,7 +4883,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 			}
 		}
 	}
-	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK);
+	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 	int iLoop;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{

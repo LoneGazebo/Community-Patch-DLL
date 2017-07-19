@@ -680,17 +680,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (25 * iAircraft);
+				iBonus += (30 * iAircraft);
 			}
 		}
 
 		//Air defense needed?
-		if(eDomain == DOMAIN_LAND && pkUnitEntry->GetAirInterceptRange() > 0)
+		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetAirInterceptRange() > 0 || pkUnitEntry->GetBaseLandAirDefense() > 20)
 		{
 			int iNumAA = kPlayer.GetMilitaryAI()->GetNumAAUnits();
 			int iNumCities = kPlayer.getNumCities();
 			
-			iBonus += ((iNumCities - iNumAA) * 10);
+			iBonus += (((iNumCities * 2) - iNumAA) * 15);
 		}
 	
 		/////////////

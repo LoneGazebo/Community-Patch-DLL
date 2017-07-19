@@ -24,6 +24,22 @@ enum CvSpyRank
     NUM_SPY_RANKS
 };
 
+enum CvAdvancedAction
+{
+	ADVANCED_ACTION_NONE,
+	ADVANCED_ACTION_UNIT,
+	ADVANCED_ACTION_GP,
+	ADVANCED_ACTION_BUILDING,
+	ADVANCED_ACTION_WW,
+	ADVANCED_ACTION_GOLD_THEFT,
+	ADVANCED_ACTION_SCIENCE_THEFT,
+	ADVANCED_ACTION_UNREST,
+	ADVANCED_ACTION_REBELLION,
+	ADVANCED_ACTION_FAILURE,
+
+	NUM_ADVANCED_ACTIONS
+};
+
 enum CvSpyState
 {
     SPY_STATE_UNASSIGNED,
@@ -193,7 +209,14 @@ public:
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void DoAdvancedAction(uint uiSpyIndex);
+	void AttemptAdvancedActions(uint uiSpyIndex);
+	void DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction, int iRank, BuildingTypes eBuilding, UnitTypes eUnit, SpecialistTypes eSpecialist);
+	bool CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction);
+	std::vector<CvAdvancedAction> GetAdvancedActionPool(CvCity* pCity, BuildingTypes &eBuilding, UnitTypes &eUnit, SpecialistTypes &eSpecialist, int iRank);
+	void DoAdvancedActionNotification(CvAdvancedAction eAdvancedAction, int iPassValue, CvCity* pCity, uint uiSpyIndex);
+	void DoAdvancedActionLevelUp(CvAdvancedAction eAdvancedAction, uint uiSpyIndex, CvCity* pCity, int iPassValue);
+	void DoAdvancedActionLogging(CvAdvancedAction eAdvancedAction, int iPassValue, CvCity* pCity, uint uiSpyIndex);
+
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
 	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
 #endif

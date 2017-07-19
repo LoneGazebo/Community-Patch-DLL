@@ -4349,6 +4349,9 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 
 	// Over half?
 #if defined(MOD_BALANCE_CORE)
+	if (iNumFollowingCities <= 0)
+		return false;
+
 	if (m_pPlayer->getNumCities() == iNumFollowingCities)
 		return true;
 
@@ -5040,7 +5043,7 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 	return m_majorityCityReligion;
 }
 
-bool CvCityReligions::ComputeReligiousMajority(bool bNotifications)
+bool CvCityReligions::ComputeReligiousMajority(bool bNotifications, bool bNotLoad)
 {
 #else
 /// Is there a religion that at least half of the population follows?
@@ -5071,7 +5074,7 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 	m_majorityCityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
 
 	//update player majority
-	if (m_majorityCityReligion!=oldMajority)
+	if (m_majorityCityReligion != oldMajority && bNotLoad)
 	{
 		GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority(bNotifications);
 	}
@@ -6205,7 +6208,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					}
 				}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
+				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
@@ -6550,7 +6553,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
 #if defined(MOD_BALANCE_CORE)
-	writeTo.ComputeReligiousMajority();
+	writeTo.ComputeReligiousMajority(false, false);
 #endif
 
 	return loadFrom;
@@ -11046,6 +11049,8 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	{
 		return true;
 	}
+	if (m_pPlayer->GetReligions()->GetReligionInMostCities() <= RELIGION_PANTHEON)
+		return true;
 #endif
 	// Need one for every city in our realm that is of another religion, plus more for defense
 	int iNumNeeded = 1;

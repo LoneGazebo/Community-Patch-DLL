@@ -23707,7 +23707,7 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		}
 	}
 	int iLoop;
-	doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK);
+	doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) 
 	{
 		pLoopCity->GetCityCitizens()->SetDirty(true);
@@ -25309,6 +25309,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 	{
 		iEra = 1;
 	}
+
+	int iNumFollowerCities = 0;
+	int iNumFollowers = 0;
+	if (eReligion > RELIGION_PANTHEON)
+	{
+		iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
+		iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+	}
+	else if (eReligion == RELIGION_PANTHEON)
+	{
+		iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
+		iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
+	}
+
 	CvString totalyieldString = "";
 	//Let's loop through all cities for this.
 	int iLoop;
@@ -25335,21 +25349,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			{
 				pReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
 				eReligion = eLocalReligion;
+
+				if (eReligion > RELIGION_PANTHEON)
+				{
+					iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
+					iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+				}
+				else if (eReligion == RELIGION_PANTHEON)
+				{
+					iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
+					iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
+				}
 			}
 		}
 
-		int iNumFollowerCities = 0;
-		int iNumFollowers = 0;
-		if (eReligion > RELIGION_PANTHEON)
-		{
-			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
-			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
-		}
-		else if (eReligion == RELIGION_PANTHEON)
-		{
-			iNumFollowerCities = GC.getGame().GetGameReligions()->GetNumDomesticCitiesFollowing(eReligion, GetID());
-			iNumFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, GetID());
-		}
+		
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			eYield = (YieldTypes) iI;
@@ -25551,6 +25565,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if(pLoopCity->isCapital())
 						{
 							iValue += getGreatPersonExpendedYield(eGreatPerson, eYield);
+							//Scale it here to avoid scaling the growth yield below.
+							if (bEraScale)
+							{
+								iValue *= iEra;
+							}
 						}
 						if(pReligion)
 						{
@@ -25801,8 +25820,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iValue /= 100;
 					}
 
-					//Exclusion for birth yields (as we do it up above to avoid % growth bonus being scaled).
-					if(bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH)
+					//Exclusion for birth yields and GP expense (as we do it up above to avoid % growth and religion bonuses from being scaled).
+					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE)
 					{
 						iValue *= iEra;
 					}
@@ -40932,7 +40951,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						}
 						//Policy-Religion Fusion Yield Changes
 						iYieldChange = pPolicy->GetReligionBuildingYieldMod(eBuildingClass, YIELD_CULTURE);
-						if (MOD_BALANCE_CORE_POLICIES && iYieldChange > 0)
+						if (MOD_BALANCE_CORE_POLICIES && iYieldChange != 0)
 						{
 							pLoopCity->changeReligionBuildingYieldRateModifier(eBuildingClass, YIELD_CULTURE, (iYieldChange * iBuildingCount * iChange));
 #endif
@@ -40966,7 +40985,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 									//Policy-Religion Fusion Yield Changes
 									iYieldChange = pPolicy->GetReligionBuildingYieldMod(eBuildingClass, eYield);
-									if (MOD_BALANCE_CORE_POLICIES && iYieldChange > 0)
+									if (MOD_BALANCE_CORE_POLICIES && iYieldChange != 0)
 									{
 										pLoopCity->changeReligionBuildingYieldRateModifier(eBuildingClass, eYield, (iYieldChange * iBuildingCount * iChange));
 									}

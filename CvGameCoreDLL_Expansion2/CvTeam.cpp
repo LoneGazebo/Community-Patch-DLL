@@ -6969,7 +6969,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 						{
-							kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK);
+							kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0 , false);
 						}
 					}
 				}
@@ -7223,7 +7223,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 									{
-										kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK);
+										kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 									}
 								}
 							}

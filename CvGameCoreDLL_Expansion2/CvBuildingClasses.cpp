@@ -244,6 +244,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bIsReligious(false),
 	m_bBorderObstacle(false),
 #if defined(MOD_BALANCE_CORE)
+	m_iCityAirStrikeDefense(0),
 	m_iBorderObstacleCity(-1),
 	m_iBorderObstacleWater(-1),
 	m_iWLTKDTurns(-1),
@@ -558,6 +559,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsReligious = kResults.GetBool("IsReligious");
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
 #if defined(MOD_BALANCE_CORE)
+	m_iCityAirStrikeDefense = kResults.GetInt("CityAirStrikeDefense");
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
 	m_iBorderObstacleWater = kResults.GetInt("BorderObstacleWater");
 	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
@@ -2244,6 +2246,11 @@ bool CvBuildingEntry::IsBorderObstacle() const
 bool CvBuildingEntry::IsAnyBodyOfWater() const
 {
 	return m_bAnyWater;
+}
+/// Is this an obstacle for just the tiles around your city?
+int CvBuildingEntry::GetCityAirStrikeDefense() const
+{
+	return m_iCityAirStrikeDefense;
 }
 /// Is this an obstacle for just the tiles around your city?
 int CvBuildingEntry::GetBorderObstacleCity() const

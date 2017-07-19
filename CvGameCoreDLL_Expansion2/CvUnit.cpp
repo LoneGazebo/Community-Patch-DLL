@@ -7282,14 +7282,14 @@ int CvUnit::GetPower() const
 	VALIDATE_OBJECT
 	int iPower = getUnitInfo().GetPower();
 
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (getUnitInfo().GetCombat() > 0) {
-		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (getUnitInfo().GetRangedCombat() > getUnitInfo().GetCombat()) {
+		iPower = iPower * GetBaseRangedCombatStrength() / getUnitInfo().GetRangedCombat();
 	}
 #endif
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (getUnitInfo().GetRangedCombat() > 0) {
-		iPower = iPower * GetBaseRangedCombatStrength() / getUnitInfo().GetRangedCombat();
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	else if (getUnitInfo().GetCombat() > 0) {
+		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
 	}
 #endif
 	
@@ -10956,7 +10956,7 @@ bool CvUnit::DoSpreadReligion()
 					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
 					if(pCity->getOwner() != m_eOwner)
 					{
-						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 2), true, pCity->getOwner(), plot());
+						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 3), false, pCity->getOwner(), plot());
 					}
 #else
 					iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
@@ -29305,6 +29305,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp = (iExtra * 10);
 
 		iValue += iTemp + iFlavorOffense * 7;
+	}
+
+	iTemp = pkPromotionInfo->GetLandAirDefenseValue();
+	if (iTemp != 0)
+	{
+		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR");
+		if(GET_PLAYER(getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategy))
+		{
+			iTemp *= 2;
+		}
+
+		iTemp += getLandAirDefenseValue() + getUnitInfo().GetBaseLandAirDefense();
+
+		iValue += iTemp + iFlavorDefense * 4;
 	}
 
 	if (pkPromotionInfo->IsGainsXPFromPillaging())

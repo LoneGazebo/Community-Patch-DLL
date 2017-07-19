@@ -1111,6 +1111,10 @@ public:
 	void ChangeReligiousTradeModifier(int iChange);
 	void SetReligiousTradeModifier(int iValue);
 
+	int GetCityAirStrikeDefense() const;
+	void ChangeCityAirStrikeDefense(int iChange);
+	void SetCityAirStrikeDefense(int iValue);
+
 	int GetFreeBuildingTradeTargetCity() const;
 	void ChangeFreeBuildingTradeTargetCity(int iChange);
 	void SetFreeBuildingTradeTargetCity(int iValue);
@@ -1769,6 +1773,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
+	FAutoVariable<int, CvCity> m_iCityAirStrikeDefense;
 	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
 	FAutoVariable<int, CvCity> m_iBaseTourism;
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;

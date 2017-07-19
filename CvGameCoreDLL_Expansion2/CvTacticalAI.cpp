@@ -6037,6 +6037,11 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 	//this won't change
 	CvCity *pCity = pTargetPlot->getPlotCity();
 
+	bool bInterceptor = false;
+
+	if (GetProbableInterceptor(pTargetPlot) != NULL)
+		bInterceptor = true;
+
 	// Do air raids, ignore all other units
 	bool bDone = false;
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
@@ -6059,8 +6064,22 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 					break;
 				}
 
-				//it's a ranged attack but it uses the move mission ... air units are strange
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+				int iDamageWeWillTake = 0;
+				if (pCity != NULL)
+					iDamageWeWillTake = pCity->GetAirStrikeDefenseDamage(pUnit, false);
+				else if (pDefender != NULL)
+					iDamageWeWillTake = pDefender->GetAirStrikeDefenseDamage(pUnit, false);
+
+				//interceptors hurt!
+				if (bInterceptor)
+					iDamageWeWillTake *= 5;
+
+				//Only do this if it is a good attack!
+				if ((iDamageWeWillTake * 3) < (pUnit->GetAirCombatDamage(pDefender, pCity, false) * 2))
+				{
+					//it's a ranged attack but it uses the move mission ... air units are strange
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+				}
 				iCount++;
 			}
 

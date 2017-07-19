@@ -328,6 +328,7 @@ CvCity::CvCity() :
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
+	, m_iCityAirStrikeDefense("CvCity::m_iCityAirStrikeDefense", m_syncArchive)
 	, m_iFreeBuildingTradeTargetCity("CvCity::m_iFreeBuildingTradeTargetCity", m_syncArchive)
 	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
@@ -1502,6 +1503,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
+	m_iCityAirStrikeDefense = 5;
 	m_iFreeBuildingTradeTargetCity = -1;
 	m_iBaseTourism = 0;
 	m_iBaseTourismBeforeModifiers = 0;
@@ -10888,12 +10890,13 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			if (eUnitClass != NO_UNITCLASS)
 			{
 				const UnitTypes eThisPlayersUnitType = (UnitTypes)kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
-				ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
 				{
 					// Can't be bought if didn't start religion
-					if (eReligion == NO_RELIGION)
+					if (eFoundedReligion == NO_RELIGION)
 					{
 						iCost = -1;
 					}
@@ -10991,7 +10994,11 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 #endif
 
 					bool bAllUnlockedByBelief = false;
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, getOwner());
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, getOwner());
+					
+					if (pReligion == NULL)
+						pReligion = GC.getGame().GetGameReligions()->GetReligion(eFollowingReligion, getOwner());
+
 					if(pReligion)
 					{
 						if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this))
@@ -13684,37 +13691,41 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetPovertyHappinessChangeBuilding() != 0)
+		if(pBuildingInfo->GetPovertyHappinessChangeBuilding() != 0)
 		{
 			ChangePovertyUnhappiness(pBuildingInfo->GetPovertyHappinessChangeBuilding() * iChange);
 		}
-		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetDefenseHappinessChangeBuilding() != 0)
+		if(pBuildingInfo->GetDefenseHappinessChangeBuilding() != 0)
 		{
 			ChangeDefenseUnhappiness(pBuildingInfo->GetDefenseHappinessChangeBuilding() * iChange);
 		}
-		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0)
+		if(pBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0)
 		{
 			ChangeIlliteracyUnhappiness(pBuildingInfo->GetIlliteracyHappinessChangeBuilding() * iChange);
 		}
-		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0)
+		if(pBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0)
 		{
 			ChangeUnculturedUnhappiness(pBuildingInfo->GetUnculturedHappinessChangeBuilding() * iChange);
 		}
-		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetMinorityHappinessChangeBuilding() != 0)
+		if(pBuildingInfo->GetMinorityHappinessChangeBuilding() != 0)
 		{
 			ChangeMinorityUnhappiness(pBuildingInfo->GetMinorityHappinessChangeBuilding() * iChange);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && (pBuildingInfo->GetTradeReligionModifier() != 0))
+		if((pBuildingInfo->GetTradeReligionModifier() != 0))
 		{
 			ChangeReligiousTradeModifier(pBuildingInfo->GetTradeReligionModifier() * iChange);
 		}
-		if(MOD_BALANCE_CORE && (pBuildingInfo->GetBorderObstacleCity() > 0))
+		if ((pBuildingInfo->GetCityAirStrikeDefense() > 0))
+		{
+			ChangeCityAirStrikeDefense(pBuildingInfo->GetCityAirStrikeDefense() * iChange);
+		}
+		if((pBuildingInfo->GetBorderObstacleCity() > 0))
 		{
 			ChangeBorderObstacleCity(pBuildingInfo->GetBorderObstacleCity() * iChange);
 		}
-		if(MOD_BALANCE_CORE && (pBuildingInfo->GetBorderObstacleWater() > 0))
+		if((pBuildingInfo->GetBorderObstacleWater() > 0))
 		{
 			ChangeBorderObstacleWater(pBuildingInfo->GetBorderObstacleWater() * iChange);
 		}
@@ -13728,15 +13739,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeWeLoveTheKingDayCounter(iWLTKD);
 			}
 		}
-		if(MOD_BALANCE_CORE && pBuildingInfo->GetLandTourismEnd() > 0)
+		if(pBuildingInfo->GetLandTourismEnd() > 0)
 		{
 			ChangeLandTourismBonus(pBuildingInfo->GetLandTourismEnd() * iChange);
 		}
-		if(MOD_BALANCE_CORE && pBuildingInfo->GetSeaTourismEnd() > 0)
+		if(pBuildingInfo->GetSeaTourismEnd() > 0)
 		{
 			ChangeSeaTourismBonus(pBuildingInfo->GetSeaTourismEnd() * iChange);
 		}
-		if(MOD_BALANCE_CORE && pBuildingInfo->GetAlwaysHeal() > 0)
+		if(pBuildingInfo->GetAlwaysHeal() > 0)
 		{
 			ChangeAlwaysHeal(pBuildingInfo->GetAlwaysHeal() * iChange);
 		}
@@ -14085,82 +14096,82 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 			//Yield from growth
-			if((MOD_DIPLOMACY_CITYSTATES || MOD_BALANCE_CORE) && pBuildingInfo->GetGrowthExtraYield(eYield) != 0)
+			if(pBuildingInfo->GetGrowthExtraYield(eYield) != 0)
 			{
 				ChangeGrowthExtraYield(eYield, pBuildingInfo->GetGrowthExtraYield(eYield) * iChange);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromVictory(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromVictory(eYield) > 0))
 			{
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
 			}
 
-			if (MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromPillage(eYield) > 0))
+			if ( (pBuildingInfo->GetYieldFromPillage(eYield) > 0))
 			{
 				ChangeYieldFromPillage(eYield, pBuildingInfo->GetYieldFromPillage(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
+			if( (pBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0))
 			{
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromWLTKD(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromWLTKD(eYield) > 0))
 			{
 				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromConstruction(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromConstruction(eYield) > 0))
 			{
 				ChangeYieldFromConstruction(eYield, pBuildingInfo->GetYieldFromConstruction(eYield) * iChange);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromTech(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromTech(eYield) > 0))
 			{
 				ChangeYieldFromTech(eYield, pBuildingInfo->GetYieldFromTech(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetScienceFromYield(eYield) > 0))
+			if( (pBuildingInfo->GetScienceFromYield(eYield) > 0))
 			{
 				ChangeBuildingScienceFromYield(eYield, (pBuildingInfo->GetScienceFromYield(eYield) * iChange));
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
+			if( (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
 				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
 			}
 
-			if (MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromSpyAttack(eYield) > 0))
+			if ( (pBuildingInfo->GetYieldFromSpyAttack(eYield) > 0))
 			{
 				ChangeYieldFromSpyAttack(eYield, pBuildingInfo->GetYieldFromSpyAttack(eYield) * iChange);
 			}
-			if (MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromSpyDefense(eYield) > 0))
+			if ( (pBuildingInfo->GetYieldFromSpyDefense(eYield) > 0))
 			{
 				ChangeYieldFromSpyDefense(eYield, pBuildingInfo->GetYieldFromSpyDefense(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromBirth(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromBirth(eYield) > 0))
 			{
 				ChangeYieldFromBirth(eYield, pBuildingInfo->GetYieldFromBirth(eYield) * iChange);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromUnitProduction(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromUnitProduction(eYield) > 0))
 			{
 				ChangeYieldFromUnitProduction(eYield, pBuildingInfo->GetYieldFromUnitProduction(eYield) * iChange);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromBorderGrowth(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromBorderGrowth(eYield) > 0))
 			{
 				ChangeYieldFromBorderGrowth(eYield, pBuildingInfo->GetYieldFromBorderGrowth(eYield) * iChange);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0))
 			{
 				ChangeYieldFromPolicyUnlock(eYield, pBuildingInfo->GetYieldFromPolicyUnlock(eYield) * iChange);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromPurchase(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromPurchase(eYield) > 0))
 			{
 				ChangeYieldFromPurchase(eYield, pBuildingInfo->GetYieldFromPurchase(eYield) * iChange);
 			}
 
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromUnitLevelUp(eYield) > 0))
+			if( (pBuildingInfo->GetYieldFromUnitLevelUp(eYield) > 0))
 			{
 				ChangeYieldFromUnitLevelUp(eYield, pBuildingInfo->GetYieldFromUnitLevelUp(eYield) * iChange);
 			}
@@ -14731,11 +14742,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 
 					if(eBuilding != NO_BUILDING)
 					{
-						if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						int iNumBuilding = GetCityBuildings()->GetNumBuilding(eBuilding);
+						if (iNumBuilding > 0)
 						{
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers, getOwner(), this);
 #if defined(MOD_BUGFIX_MINOR)
-							iYieldFromBuilding *= GetCityBuildings()->GetNumBuilding(eBuilding);
+							iYieldFromBuilding *= iNumBuilding;
 #endif
 
 							if (isWorldWonderClass(*pkBuildingClassInfo))
@@ -14748,11 +14760,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 								//Our new majority matches our total majority, so let's add in our new yields.
 								if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eNewMajority)
 								{
-									CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
-									if (pkInfo)
-									{
-										iYieldFromBuilding += getReligionBuildingYieldRateModifier( (BuildingClassTypes)pkInfo->GetBuildingClassType(), (YieldTypes)iYield);
-									}
+									iYieldFromBuilding += getReligionBuildingYieldRateModifier(eBuildingClass, (YieldTypes)iYield);
 								}
 							}
 
@@ -23250,6 +23258,27 @@ void CvCity::SetReligiousTradeModifier(int iValue)
 	VALIDATE_OBJECT
 	m_iReligiousTradeModifier = iValue;
 }
+
+
+int CvCity::GetCityAirStrikeDefense() const
+{
+	VALIDATE_OBJECT
+		return m_iCityAirStrikeDefense;
+}
+void CvCity::ChangeCityAirStrikeDefense(int iChange)
+{
+	VALIDATE_OBJECT
+		if (iChange != 0)
+		{
+			SetCityAirStrikeDefense(GetCityAirStrikeDefense() + iChange);
+		}
+}
+void CvCity::SetCityAirStrikeDefense(int iValue)
+{
+	VALIDATE_OBJECT
+		m_iCityAirStrikeDefense = iValue;
+}
+
 //	--------------------------------------------------------------------------------
 /// Free building built in target trade city (foreign)
 int CvCity::GetFreeBuildingTradeTargetCity() const
@@ -30001,6 +30030,40 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 //	--------------------------------------------------------------------------------
 int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
+#if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
+	pAttacker;
+	//base value
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	{
+		int iBaseValue = GetCityAirStrikeDefense();
+		iBaseValue += plot()->countNumAirUnits(getTeam());
+		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+
+		if (iBaseValue == 0)
+			if (bIncludeRand)
+				return GC.getGame().getJonRandNum(10, "air attack attrition");
+			else
+				return 15;
+		else
+		{
+			if (bIncludeRand)
+				return iBaseValue + GC.getGame().getJonRandNum(10, "air attack attrition");
+			else
+				return iBaseValue;
+		}
+	}
+	else
+	{
+		int iBaseValue = 15;
+		iBaseValue += plot()->countNumAirUnits(getTeam());
+		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+
+		if (bIncludeRand)
+			return iBaseValue + GC.getGame().getJonRandNum(10, "air attack attrition");
+		else
+			return iBaseValue;
+	}
+#else
 	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, false);
 	int iDefenderStrength = getStrengthValue(false);
 
@@ -30052,8 +30115,8 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iMinDamage = /*1*/ GC.getMIN_CITY_STRIKE_DAMAGE();
 	if(iDefenderDamage < iMinDamage)
 		iDefenderDamage = iMinDamage;
-
 	return iDefenderDamage;
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -527,7 +527,7 @@ public:
 	ReligionInCityList m_SimulatedStatus;
 
 #if defined(MOD_BALANCE_CORE)
-	bool ComputeReligiousMajority(bool bNotifications = false);
+	bool ComputeReligiousMajority(bool bNotifications = false, bool bNotLoad = true);
 #endif
 
 private:

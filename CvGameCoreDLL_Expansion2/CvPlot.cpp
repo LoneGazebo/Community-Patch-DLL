@@ -14029,6 +14029,27 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlot::countNumAntiAirUnits(TeamTypes eTeam) const
+{
+	int iCount = 0;
+
+	const IDInfo* pUnitNode = headUnitNode();
+	while (pUnitNode != NULL)
+	{
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+
+		if (pLoopUnit && DOMAIN_LAND == pLoopUnit->getDomainType() && pLoopUnit->getExtraIntercept() > 0 && pLoopUnit->getTeam() == eTeam)
+		{
+			iCount++;
+		}
+	}
+
+	return iCount;
+}
+
+
+//	--------------------------------------------------------------------------------
 PlayerTypes CvPlot::GetBuilderAIScratchPadPlayer() const
 {
 	return (PlayerTypes)m_cBuilderAIScratchPadPlayer;

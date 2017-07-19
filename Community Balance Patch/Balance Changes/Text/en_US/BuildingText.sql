@@ -249,15 +249,15 @@ SET Text = 'City must have a Castle. Military Units supplied by this City''s pop
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production of Air units. Garrisoned units receive an additional 10 Health when healing in this city. Military Units supplied by this City''s population increased by 5%. City must have an Arsenal.'
+SET Text = '+20% [ICON_PRODUCTION] Production of Air units, +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.[NEWLINE][NEWLINE]Garrisoned units receive an additional 10 Health when healing in this city. Foreign Spies cannot steal [ICON_RESEARCH] Science from this City.[NEWLINE][NEWLINE]Military Units supplied by this City''s population increased by 5%. City must have an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 25 and Hit Points by 200. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 10 Health when healing in this city. Increases Military Units supplied by this City''s population by 10%.'
+SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 25 and Hit Points by 200, and improves defense against air units. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 10 Health when healing in this city. Increases Military Units supplied by this City''s population by 10%.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces population loss from nuclear attack by 75%, increases Defensive Strength by 5, and [ICON_HAPPINESS_1] Happiness by 1.'
+SET Text = 'Reduces population loss from nuclear attack by 75%, increases Defensive Strength by 5, and [ICON_HAPPINESS_1] Happiness by 1. +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.'
 WHERE Tag = 'TXT_KEY_BUILDING_BOMB_SHELTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ SET Text = '25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonder
 WHERE Tag = 'TXT_KEY_BUILDING_HOTEL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Allows airlifts to or from this city. [COLOR_POSITIVE_TEXT]Increases air unit capacity of the city from 6 to 10.[ENDCOLOR] 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
+SET Text = 'Allows airlifts to or from this city. [COLOR_POSITIVE_TEXT]Increases air unit capacity of the city from 6 to 10.[ENDCOLOR] +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
 WHERE Tag = 'TXT_KEY_BUILDING_AIRPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -373,7 +373,7 @@ SET Text = 'This National Wonder provides +1 [ICON_CULTURE] Culture and reduces 
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a city generates and reduces [ICON_HAPPINESS_3] Poverty. You also receive a free copy of all Luxury Resources around the City. Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a city generates and reduces [ICON_HAPPINESS_3] Poverty. You also receive a free copy of all Luxury Resources around the City. Owned Spies are much more likely to steal [ICON_GOLD] Gold via Advanced Actions.[NEWLINE][NEWLINE]Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -393,7 +393,7 @@ SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Crime. The National Intelligence Agency also provides an additional spy, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. Empires with a lot of offensive spies will benefit greatly from this building. A city must have a Police Station before it can construct the National Intelligence Agency.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Crime. The National Intelligence Agency provides an additional spy, improves chance of Great Person assassination via Advanced Actions for spies, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. Empires with a lot of offensive spies will benefit greatly from this building. A city must have a Police Station before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -439,7 +439,7 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Slows enemy spy effectiveness by 15%, provides an additional spy, and levels up all existing spies.[NEWLINE][NEWLINE]+400 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, or complete a City-State Coup (scaling with Era and Spy level). +100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you complete an Advanced Action (scaling with Era).[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Slows enemy spy effectiveness by 15%, provides an additional spy, and levels up all existing spies. Owned Spies are much more likely to assassinate [ICON_GREAT_PEOPLE] Great People via Advanced Actions.[NEWLINE][NEWLINE]+400 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you steal a [ICON_GREAT_WORK] Great Work or [ICON_RESEARCH] Technology, or complete a City-State Coup (scaling with Era and Spy level). +100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you complete an Advanced Action (scaling with Era).[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -615,11 +615,11 @@ SET Text = 'Requires completion of Industry Branch. 1 free Great Musician appear
 WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires Autocracy. In addition to the +2 [ICON_HAPPINESS_1] Happiness, the Prora Resort also provides +1 more [ICON_HAPPINESS_1] Happiness for every 2 Policies you have adopted. 1 Free Social Policy.[NEWLINE][NEWLINE]Receive 10 [ICON_CULTURE] Culture when you pillage a tile, scaling with Era. Must be constructed in a coastal city.'
+SET Text = 'Requires Autocracy. +1 [ICON_HAPPINESS_1] Happiness for every 2 Policies you have adopted. 1 Free Social Policy. Enemy Spies cannot disrupt World Wonder [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]Receive 10 [ICON_CULTURE] Culture when you pillage a tile, scaling with Era. Must be constructed in a coastal city.'
 WHERE Tag = 'TXT_KEY_WONDER_PRORA_RESORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of Imperialism Branch. [ICON_GOLD] Gold cost of upgrading military units reduced by 33%.'
+SET Text = 'Requires completion of Imperialism Branch. [ICON_GOLD] Gold cost of upgrading military units reduced by 33%. Owned Spies are much more likely to disrupt Unit [ICON_PRODUCTION] Production via Advanced Actions.'
 WHERE Tag = 'TXT_KEY_WONDER_PENTAGON_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

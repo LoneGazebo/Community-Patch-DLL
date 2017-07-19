@@ -31,6 +31,14 @@ const int iSpyTurnsToRevive = 5;
 #endif
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
+const int iRandomRollSpyAction = 300;
+const int iChancetoIdentifyCounterSpy = 250;
+const int iChancetoDetectCounterSpy = 150;
+const int iChancetoIdentifyNoCounterSpy = 250;
+const int iChancetoDetectNoCounterSpy = 150;
+const int iChancetoKillAA = 275;
+const int iChancetoIdentifyAA = 175;
+const int iSpyRankPower = 50;
 PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 
 //=====================================
@@ -492,7 +500,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		{
 			if(!GET_PLAYER(eCityOwner).isMinorCiv())
 			{
-				DoAdvancedAction(uiSpyIndex);
+				AttemptAdvancedActions(uiSpyIndex);
 			}
 		}
 #endif
@@ -692,7 +700,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		{
 			if(!GET_PLAYER(eCityOwner).isMinorCiv())
 			{
-				DoAdvancedAction(uiSpyIndex);
+				AttemptAdvancedActions(uiSpyIndex);
 			}
 		}
 #endif
@@ -781,12 +789,13 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			int iSpyResult;
 			if(pCityEspionage->HasCounterSpy())
 			{
-				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spy mission with a counterspy in the city");
+				//Higher better for defense; lower better for offense.
+				iSpyResult = GC.getGame().getJonRandNum(iRandomRollSpyAction, "Random roll for the result of a spy mission with a counterspy in the city");
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
+				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
-				if(iSpyResult < 100)
+				if (iSpyResult < iChancetoDetectCounterSpy /* 150 */)
 				{
 #if defined(MOD_EVENTS_ESPIONAGE)
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
@@ -794,7 +803,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
 #endif
 				}
-				else if(iSpyResult < 200)
+				else if (iSpyResult < iChancetoIdentifyCounterSpy /* 250 */ )
 				{
 #if defined(MOD_EVENTS_ESPIONAGE)
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
@@ -830,10 +839,10 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
-				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spying mission without a counterspy in the city");
+				iSpyResult = GC.getGame().getJonRandNum(iRandomRollSpyAction, "Random roll for the result of a spying mission without a counterspy in the city");
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
-				if(iSpyResult < 100)
+				if (iSpyResult < iChancetoDetectNoCounterSpy /* 150 */ )
 				{
 #if defined(MOD_EVENTS_ESPIONAGE)
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_UNDETECTED);
@@ -841,7 +850,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_UNDETECTED);
 #endif
 				}
-				else if(iSpyResult < 200)
+				else if (iSpyResult < iChancetoIdentifyNoCounterSpy /* 250 */ )
 				{
 #if defined(MOD_EVENTS_ESPIONAGE)
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
@@ -1120,7 +1129,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			{
 				if (!GET_PLAYER(eCityOwner).isMinorCiv())
 				{
-					DoAdvancedAction(uiSpyIndex);
+					AttemptAdvancedActions(uiSpyIndex);
 				}
 			}
 #endif
@@ -1211,10 +1220,10 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spy mission with a counterspy in the city");
 					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
+					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
-					if (iSpyResult < 100)
+					if (iSpyResult < iChancetoDetectCounterSpy)
 					{
 #if defined(MOD_EVENTS_ESPIONAGE)
 						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
@@ -1222,7 +1231,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_DETECTED);
 #endif
 					}
-					else if (iSpyResult < 200)
+					else if (iSpyResult < iChancetoIdentifyCounterSpy)
 					{
 #if defined(MOD_EVENTS_ESPIONAGE)
 						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
@@ -1245,7 +1254,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spying mission without a counterspy in the city");
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
-					if (iSpyResult < 100)
+					if (iSpyResult < iChancetoDetectNoCounterSpy)
 					{
 #if defined(MOD_EVENTS_ESPIONAGE)
 						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_UNDETECTED);
@@ -1253,7 +1262,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_UNDETECTED);
 #endif
 					}
-					else if (iSpyResult < 200)
+					else if (iSpyResult < iChancetoIdentifyNoCounterSpy)
 					{
 #if defined(MOD_EVENTS_ESPIONAGE)
 						pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
@@ -1596,20 +1605,200 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 	}
 }
 #if defined(MOD_BALANCE_CORE_SPIES)
-/// Advanced Action - Determine if the spy can do an advanced action not related to techs or intrigue.
-void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
+bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction)
 {
 	CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
 	if (pSpy->GetAdvancedActionsCooldown() > 0)
 	{
-		if(GC.getLogging())
+		if (GC.getLogging())
 		{
 			CvString strMsg;
 			strMsg.Format("Advanced Action: On Hold. Cooldown Remaining: %d,", pSpy->GetAdvancedActionsCooldown());
 			LogEspionageMsg(strMsg);
 		}
-		return;
+		return false;
 	}
+
+	if (eAdvancedAction == ADVANCED_ACTION_FAILURE && m_pPlayer->GetCannotFailSpies())
+		return false;
+
+	if (pCity != NULL)
+	{
+		switch(eAdvancedAction)
+		{
+			case ADVANCED_ACTION_BUILDING:
+			{
+				if (pCity->GetBlockBuildingDestruction() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_WW:
+			{
+				if (pCity->GetBlockWWDestruction() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_UNIT:
+			{
+				if (pCity->GetBlockUDestruction() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_GP:
+			{
+				if (pCity->GetBlockGPDestruction() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_GOLD_THEFT:
+			{
+				if (pCity->GetBlockGold() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_SCIENCE_THEFT:
+			{
+				if (pCity->GetBlockScience() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_UNREST:
+			{
+				if (pCity->GetBlockUnrest() > 0)
+					return false;
+			}
+			case ADVANCED_ACTION_REBELLION:
+			{
+				if (pCity->GetBlockRebellion() > 0)
+					return false;
+			}
+		}
+	}
+	return true;
+}
+std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* pCity, BuildingTypes &eBuilding, UnitTypes &eUnit, SpecialistTypes &eBestSpecialist, int iRank)
+{
+	std::vector<CvAdvancedAction> aiAdvancedAction;
+
+	eBuilding = pCity->getProductionBuilding();	
+
+	//Production setback for non-wonders
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+		CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
+		if (pBuildingInfo && !::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+		{
+			//Can we affect this building?
+			if (pCity->getProduction() > 0)
+			{
+				for (int iAdvancedActionLoop = (4 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionBuilding(); iAdvancedActionLoop++)
+				{
+					aiAdvancedAction.push_back(ADVANCED_ACTION_BUILDING);
+				}
+			}
+		}
+		else if (pBuildingInfo && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+		{
+			//Can we affect this building?
+			if ((pCity->getProduction() > 0))
+			{
+				for (int iAdvancedActionLoop = (5 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionWonder(); iAdvancedActionLoop++)
+				{
+					aiAdvancedAction.push_back(ADVANCED_ACTION_WW);
+				}
+			}
+		}
+	}
+
+	eUnit = pCity->getProductionUnit();
+
+	//Production setback for military units
+	if (eUnit != NO_UNIT)
+	{
+		CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+		if (pUnitInfo->GetCombat() > 0)
+		{
+			//Can we affect this unit?
+			if (pCity->getProduction() > 0)
+			{
+				for (int iAdvancedActionLoop = (3 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnit(); iAdvancedActionLoop++)
+				{
+					aiAdvancedAction.push_back(ADVANCED_ACTION_UNIT);
+				}
+			}
+		}
+	}
+	//GP setback
+	UnitTypes eGreatUnit = NO_UNIT;
+	UnitClassTypes eUnitClass = NO_UNITCLASS;
+	
+	eBestSpecialist = NO_SPECIALIST;
+
+	int iBestRate = 0;
+	int iRate = 0;
+	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+	{
+		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+		if (pkSpecialistInfo)
+		{
+			// Does this Specialist spawn a GP?
+			if (pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+			{
+				iRate = pCity->GetCityCitizens()->GetSpecialistGreatPersonProgress(eSpecialist);
+				if (iRate > iBestRate)
+				{
+					eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+					eGreatUnit = (UnitTypes)pCity->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+					if (eGreatUnit != NO_UNIT)
+					{
+						iBestRate = iRate;
+						eBestSpecialist = eSpecialist;
+					}
+					
+				}
+			}
+		}
+	}
+	if (iBestRate != 0 && eBestSpecialist != NO_SPECIALIST)
+	{
+		for (int iAdvancedActionLoop = (5 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGP(); iAdvancedActionLoop++)
+		{
+			aiAdvancedAction.push_back(ADVANCED_ACTION_GP);
+		}
+	}
+	//Only possible if very unhappy
+	if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+	{
+		for (int iAdvancedActionLoop = (7 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
+		{
+			aiAdvancedAction.push_back(ADVANCED_ACTION_REBELLION);
+		}
+		for (int iAdvancedActionLoop = (6 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
+		{
+			aiAdvancedAction.push_back(ADVANCED_ACTION_UNREST);
+		}
+	}
+	//Science
+	for (int iAdvancedActionLoop = (2 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionScience(); iAdvancedActionLoop++)
+	{
+		aiAdvancedAction.push_back(ADVANCED_ACTION_SCIENCE_THEFT);
+	}
+	//Gold
+	for (int iAdvancedActionLoop = (1 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGold(); iAdvancedActionLoop++)
+	{
+		aiAdvancedAction.push_back(ADVANCED_ACTION_GOLD_THEFT);
+	}
+	//Failure (only one in pool)
+	aiAdvancedAction.push_back(ADVANCED_ACTION_FAILURE);
+
+	return aiAdvancedAction;
+}
+
+/// Advanced Action - Determine if the spy can do an advanced action not related to techs or intrigue.
+void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
+{
+	
+	CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
+
+	//Can this spy advanced action?
+	if (!CanAdvancedAction(uiSpyIndex, NULL, ADVANCED_ACTION_NONE))
+		return;
 	
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
@@ -1617,12 +1806,8 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	PlayerTypes eCityOwner = NO_PLAYER;
 	int iRank = pSpy->m_eRank + 1;
-	UnitTypes eGreatUnit = NO_UNIT;
-	int iCityRank = 0;
 	int iCityValue = 0;
-	UnitClassTypes eUnitClass = NO_UNITCLASS;
-	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-	std::vector<int> aiAdvancedAction;
+
 	//Let's give spies a few new tricks, eh?
 	if(pCityPlot)
 	{
@@ -1631,7 +1816,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 		{
 			eCityOwner = pCity->getOwner();
 			pCityEspionage = pCity->GetCityEspionage();
-			iCityRank = pCity->GetRank();
+			iRank += pCity->GetRank();
 			iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 1000);
 			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
@@ -1642,133 +1827,16 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 	}
 	if(eCityOwner != NO_PLAYER)
 	{
-		BuildingTypes eBuilding = pCity->getProductionBuilding();
-		UnitTypes eUnit = pCity->getProductionUnit();
-		//Production setback for non-wonders
-		if (eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-			CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
-			if (pCity->GetBlockBuildingDestruction() <= 0 && pBuildingInfo && !::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
-			{
-				//Can we affect this building?
-				if((pCity->getProduction() > 0) && (iCityRank > 3))
-				{
-					for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionBuilding(); iAdvancedActionLoop++)
-					{
-						aiAdvancedAction.push_back(1);
-					}
-				}
-			}
-			if (pCity->GetBlockWWDestruction() <= 0 && pBuildingInfo && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
-			{
-				//Can we affect this building?
-				if((pCity->getProduction() > 0) && (iCityRank > 4))
-				{
-					for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionWonder(); iAdvancedActionLoop++)
-					{
-						aiAdvancedAction.push_back(2);
-					}
-				}
-			}
-		}	
-		//Production setback for military units
-		if (eUnit != NO_UNIT && (iCityRank > 2) && pCity->GetBlockUDestruction() <= 0)
-		{
-			CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
-			CvAssertMsg(pUnitInfo, "pUnitInfo is null");
-			if (pUnitInfo)
-			{
-				if(pUnitInfo->GetCombat() > 0)
-				{
-					//Can we affect this unit?
-					if(pCity->getProduction() > 0)
-					{
-						for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnit(); iAdvancedActionLoop++)
-						{
-							aiAdvancedAction.push_back(3);
-						}
-					}
-				}
-			}
-		}
-		//GP setback
-		if(iCityRank > 4  && pCity->GetBlockGPDestruction() <= 0)
-		{
-			int iBestRate = 0;
-			int iRate = 0;
-			for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
-			{
-				const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
-				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-				if(pkSpecialistInfo)
-				{
-					// Does this Specialist spawn a GP?
-					if (pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
-					{
-						iRate = pCity->GetCityCitizens()->GetSpecialistGreatPersonProgress(eSpecialist);
-						if (iRate > iBestRate)
-						{
-							iBestRate = iRate;
-							eBestSpecialist = eSpecialist;
-							eUnitClass = (UnitClassTypes) pkSpecialistInfo->getGreatPeopleUnitClass();
-							eGreatUnit = (UnitTypes) pCity->getCivilizationInfo().getCivilizationUnits(eUnitClass);
-						}
-					}
-				}
-			}
-			if (iBestRate != 0 && eGreatUnit != NO_UNIT)
-			{
-				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGP(); iAdvancedActionLoop++)
-				{
-					aiAdvancedAction.push_back(4);
-				}
-			}
-		}
-		//Only possible if very unhappy
-		if(GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
-		{
-			if(iCityRank > 6 && pCity->GetBlockRebellion() <= 0)
-			{
-				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
-				{
-					aiAdvancedAction.push_back(5);
-				}
-			}
-			else if(iCityRank > 4 && pCity->GetBlockUnrest() <= 0)
-			{	
-				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
-				{
-					aiAdvancedAction.push_back(6);
-				}
-			}
-		}
-		//Science
-		if(pCity->GetBlockScience() <= 0)
-		{
-			for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionScience(); iAdvancedActionLoop++)
-			{
-				aiAdvancedAction.push_back(7);
-			}
-		}
-		//Gold
-		if(pCity->GetBlockGold() <= 0)
-		{
-			for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGold(); iAdvancedActionLoop++)
-			{
-				aiAdvancedAction.push_back(8);
-			}
-		}
-		//Failure (only one in pool)
-		if(m_pPlayer->GetCannotFailSpies() <= 0)
-		{
-			aiAdvancedAction.push_back(9);
-		}
+		BuildingTypes eBuilding = NO_BUILDING;
+		UnitTypes eUnit = NO_UNIT;
+		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+
+		std::vector<CvAdvancedAction> aiAdvancedAction = GetAdvancedActionPool(pCity, eBuilding, eUnit, eBestSpecialist, iRank);
 
 		//Do we have at least something good in here?
-		if(aiAdvancedAction.size() > 0)
+		if(aiAdvancedAction.size() > 1)
 		{
-			int iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of an advanced spy action");			
+			int iSpyResult = GC.getGame().getJonRandNum(iRandomRollSpyAction, "Random roll for the result of an advanced spy action");
 			if (iSpyResult <= 50)
 				return;
 			iSpyResult += (pCity->GetEspionageModifier() + GET_PLAYER(eCityOwner).GetEspionageModifier() * -1);
@@ -1781,7 +1849,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			{
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 
-				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank + 1) * 30;
+				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank + 1) * iSpyRankPower;
 
 				int iHeat = 2 - GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank;
 
@@ -1791,11 +1859,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				}
 			}
 			
-			if(bCanDie && iSpyResult >= 300)
+			if (bCanDie && iSpyResult > iChancetoKillAA /* 275 */ )
 			{
 				pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_KILLED);
 			}
-			else if(iSpyResult >= 200)
+			else if (iSpyResult > iChancetoIdentifyAA /* 175 */)
 			{
 				pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
 			}
@@ -1915,885 +1983,531 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 
 			if(pCityEspionage->m_aiResult[ePlayer] != SPY_RESULT_KILLED) // spy successfully completed advanced task - chance of getting one of these below.
 			{
-				//Result improved by duration of stay.
-				int iTurnsActive = (GC.getGame().getGameTurn() - pSpy->GetSpyActiveTurn());
-				if(iTurnsActive > (iRank * 15))
-				{
-					iTurnsActive = (iRank * 15);
-				}
-
-				pSpy->ChangeAdvancedActions(1);
-#if defined(MOD_BALANCE_CORE)
-				m_aiNumSpyActionsDone[pCity->getOwner()]++;
-#endif
-				
 				int iTest = GC.getGame().getJonRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
-				int iSpyResult = aiAdvancedAction[iTest];
+				CvAdvancedAction eAdvancedAction = aiAdvancedAction[iTest];
 
-				//Rebellion
-				if (iSpyResult == 5)
-				{
-					int iDamage = ((pCity->GetMaxHitPoints() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
-					if(iDamage > pCity->GetMaxHitPoints())
-					{
-						iDamage = pCity->GetMaxHitPoints();
-					}
-					pCity->setDamage(iDamage);
-					pSpy->ChangeAdvancedActionsCooldown(iDamage * 4);
-
-					//Rebels!
-					// In hundreds
-					int iNumRebels = (iRank * (100 + iTurnsActive)); //Based on rank of spy.
-					int iExtraRoll = (iRank * (100 + iTurnsActive)); //1+ Rebels maximum
-					iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
-					iNumRebels /= 100;
-					int iNumRebelTotal = iNumRebels;
-					CvGame& theGame = GC.getGame();
-
-					// Found a place to set up an uprising?
-					if(pCity != NULL)
-					{
-						int iBestPlot = -1;
-						int iBestPlotWeight = -1;
-						CvPlot* pPlot;
-
-						CvCityCitizens* pCitizens = pCity->GetCityCitizens();
-
-						// Start at 1, since ID 0 is the city plot itself
-
-						for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
-						{
-							pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-							if(!pPlot)		// Should be valid, but make sure
-								continue;
-
-							// Can't be impassable
-							if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-								continue;
-
-							// Can't be water
-							if(pPlot->isWater())
-								continue;
-
-							// Can't be ANOTHER city
-							if(pPlot->isCity())
-								continue;
-
-							// Don't place on a plot where a unit is already standing
-							if(pPlot->getNumUnits() > 0)
-								continue;
-
-							int iTempWeight = theGame.getJonRandNum(10, "Uprising rand plot location.");
-
-							// Add weight if there's an improvement here!
-							if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-							{
-								iTempWeight += 4;
-
-								// If also a a resource, even more weight!
-								if(pPlot->getResourceType(GET_PLAYER(pCity->getOwner()).getTeam()) != NO_RESOURCE)
-									iTempWeight += 3;
-							}
-							
-							// Don't pick plots that aren't ours
-							if(pPlot->getOwner() != pCity->getOwner())
-								iTempWeight = -1;
-
-							// Add weight if there's a defensive bonus for this plot
-							if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-								iTempWeight += 4;
-
-							if(iTempWeight > iBestPlotWeight)
-							{
-								iBestPlotWeight = iTempWeight;
-								iBestPlot = iPlotLoop;
-							}
-						}
-
-						// Found valid plot
-						if(iBestPlot != -1)
-						{
-							// Make barbs able to enter ANYONE'S territory
-							theGame.SetBarbarianReleaseTurn(0);
-
-							pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-							// Pick a unit type - should give us more melee than ranged
-							UnitTypes eUnit = theGame.GetRandomSpawnUnitType(pCity->getOwner(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-							UnitTypes emUnit = theGame.GetRandomSpawnUnitType(pCity->getOwner(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false);
-
-							// Init unit
-							GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-							iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-							// Loop until all rebels are placed
-							do
-							{
-								iNumRebels--;
-
-								// Init unit
-								CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pmUnit);
-								if (pmUnit)
-								{
-									if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pmUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pmUnit->setMoves(0);
-									}
-								}
-
-								iNumRebels--;
-
-								// Init unit
-								CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pUnit);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pUnit->setMoves(0);
-									}
-								}
-							}
-							while(iNumRebels > 0);
-						}
-					}
-
-					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-					if(pDefendingPlayerEspionage)
-					{
-						pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, true, iDamage, 0, false);
-					}
-					CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-					if(pDefendingPlayerDiploAI)
-					{
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-						}
-					}
-
-					if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-					{
-						CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-						CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-						if(pDefenderEspionageAI)
-						{
-							pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-							pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-						}
-					}
-
-					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_REBELLION_S");
-						strSummary << pCity->getNameKey();
-
-						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_REBELLION_RESISTANCE");
-						strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-						strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-						strNotification << pCity->getNameKey();
-						strNotification << iDamage;
-						pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-					}
-					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-					if(iNewResult > 45)
-					{
-						LevelUpSpy(uiSpyIndex);
-					}
-					pSpy->ChangeAdvancedActionsCooldown(iDamage * 5);
-					if(GC.getLogging())
-						{
-						CvString strMsg;
-						strMsg.Format("Advanced Action: Caused rebellion. Units: %d,", iNumRebelTotal);
-						strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-						strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-						strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-						strMsg += " , ";
-						if(pCity)
-						{
-							strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-							strMsg += " , ";
-							strMsg += pCity->getName();
-						}
-						LogEspionageMsg(strMsg);
-					}
-				}
-				//Riots!
-				else if (iSpyResult == 6)
-				{
-					int iFood = ((pCity->getFood() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100);
-					if(iFood > pCity->getFood())
-					{
-						iFood = pCity->getFood();
-					}
-					pSpy->ChangeAdvancedActionsCooldown(iFood * 5);
-					pCity->setFood((pCity->getFood() - iFood));
-					pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
-
-					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-					if(pDefendingPlayerEspionage)
-					{
-						pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, 0, true);
-					}
-					CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-					if(pDefendingPlayerDiploAI)
-					{
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-						}
-					}
-
-					if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-					{
-						CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-						CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-						if(pDefenderEspionageAI)
-						{
-							pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-							pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-						}
-					}
-
-					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE_S");
-						strSummary << pCity->getNameKey();
-
-						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE");
-						strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-						strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-						strNotification << pCity->getNameKey();
-						pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-					}
-					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-					if(iNewResult > 45)
-					{
-						LevelUpSpy(uiSpyIndex);
-					}
-					if(GC.getLogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Advanced Action: Caused rebellion, Food lost: %d,", iFood);
-						strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-						strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-						strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-						strMsg += " , ";
-						if(pCity)
-						{
-							strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-							strMsg += " , ";
-							strMsg += pCity->getName();
-						}
-						LogEspionageMsg(strMsg);
-					}
-				}
-				//WONDER
-				else if(iSpyResult == 2)
-				{
-					int iSetback = ((pCity->getProduction() * (iTurnsActive + (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2)))  / 100);
-					if(iSetback > pCity->getProduction())
-					{
-						iSetback = pCity->getProduction();
-					}
-					if(iSetback > 0)
-					{
-						pCity->setProduction(pCity->getProduction() - iSetback);
-						pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
-
-						CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-						if(pDefendingPlayerEspionage)
-						{
-							pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, eBuilding, NO_UNIT, false, iSetback, 0, false);
-						}
-						CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-						if(pDefendingPlayerDiploAI)
-						{
-							if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-							{
-								pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-							}
-						}
-
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-							CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-							if(pDefenderEspionageAI)
-							{
-								pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-								pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-							}
-						}
-
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER_S");
-							strSummary << pCity->getNameKey();
-
-							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER");
-							strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-							strNotification << pCity->getNameKey();
-							strNotification << iSetback;
-							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-						}
-						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-						if(iNewResult > 45)
-						{
-							LevelUpSpy(uiSpyIndex);
-						}
-						pSpy->ChangeAdvancedActionsCooldown(iSetback * 8);
-						if(GC.getLogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Advanced Action: Sabotaged wonder. Damage: %d,", iSetback);
-							strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-							strMsg += " , ";
-							if(pCity)
-							{
-								strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-								strMsg += " , ";
-								strMsg += pCity->getName();
-							}
-							LogEspionageMsg(strMsg);
-						}
-					}
-				}
-				//GREAT PERSON
-				else if(iSpyResult == 4)
-				{
-					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iTurnsActive + (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100;
-					if(iPercentage > pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist))
-					{
-						iPercentage = pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist);
-					}
-					if(iPercentage > 0)
-					{
-						pCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, (iPercentage * -1));
-						
-						//For tooltip.
-						iPercentage /= 100;
-						
-						pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
-
-						CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-						if(pDefendingPlayerEspionage)
-						{
-							pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, eGreatUnit, false, iPercentage, 0, false);
-						}
-						CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-						if(pDefendingPlayerDiploAI)
-						{
-							if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-							{
-								pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-							}
-						}
-
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-							CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-							if(pDefenderEspionageAI)
-							{
-								pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-								pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-							}
-						}
-
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GP_S");
-							strSummary << pCity->getNameKey();
-
-							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GP");
-							strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-							strNotification << pCity->getNameKey();
-							strNotification << iPercentage;
-							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-						}
-
-						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-						if(iNewResult > 55)
-						{
-							LevelUpSpy(uiSpyIndex);
-						}
-						pSpy->ChangeAdvancedActionsCooldown(iPercentage * 10);
-						if(GC.getLogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Advanced Action: Assassinated GP, Points taken: %d,", iPercentage);
-							strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-							strMsg += " , ";
-							if(pCity)
-							{
-								strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-								strMsg += " , ";
-								strMsg += pCity->getName();
-							}
-							LogEspionageMsg(strMsg);
-						}
-					}
-				}
-				//BUILDING
-				else if(iSpyResult == 1)
-				{
-					int iSetback = (pCity->getProduction() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100;
-					if(iSetback > pCity->getProduction())
-					{
-						iSetback = pCity->getProduction();
-					}
-					if(iSetback > 0)
-					{
-						pCity->setProduction(pCity->getProduction() - iSetback);
-						pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
-
-						CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-						if(pDefendingPlayerEspionage)
-						{
-							pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, eBuilding, NO_UNIT, false, iSetback, 0, false);
-						}
-						CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-						if(pDefendingPlayerDiploAI)
-						{
-							if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-							{
-								pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-							}
-						}
-
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-							CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-							if(pDefenderEspionageAI)
-							{
-								pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-								pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-							}
-						}
-
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_BUILDING_S");
-							strSummary << pCity->getNameKey();
-
-							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_BUIDLING");
-							strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-							strNotification << pCity->getNameKey();
-							strNotification << iSetback;
-							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-						}
-						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-						if(iNewResult > 60)
-						{
-							LevelUpSpy(uiSpyIndex);
-						}
-						pSpy->ChangeAdvancedActionsCooldown(iSetback * 8);
-						if(GC.getLogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Advanced Action: Disrupted building. Production loss: %d,", iSetback);
-							strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-							strMsg += " , ";
-							if(pCity)
-							{
-								strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-								strMsg += " , ";
-								strMsg += pCity->getName();
-							}
-							LogEspionageMsg(strMsg);
-						}
-					}
-				}
-				// UNIT
-				else if(iSpyResult == 3)
-				{
-					int iSetback = (pCity->getProduction() * (iTurnsActive * (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100;
-					if(iSetback > pCity->getProduction())
-					{
-						iSetback = pCity->getProduction();
-					}
-					if(iSetback > 0)
-					{
-						pCity->setProduction(pCity->getProduction() - iSetback);
-						pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
-
-						CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-						if(pDefendingPlayerEspionage)
-						{
-							pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, eUnit, false, iSetback, 0, false);
-						}
-						CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-						if(pDefendingPlayerDiploAI)
-						{
-							if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-							{
-								pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-							}
-						}
-
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-							CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-							if(pDefenderEspionageAI)
-							{
-								pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-								pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-							}
-						}
-
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT_S");
-							strSummary << pCity->getNameKey();
-
-							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT");
-							strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-							strNotification << pCity->getNameKey();
-							strNotification << iSetback;
-							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-						}
-						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-						if(iNewResult > 70)
-						{
-							LevelUpSpy(uiSpyIndex);
-						}
-						pSpy->ChangeAdvancedActionsCooldown(iSetback * 8);
-						if(GC.getLogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Advanced Action: Unit disrupted. Production: %d,", iSetback);
-							strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-							strMsg += " , ";
-							if(pCity)
-							{
-								strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-								strMsg += " , ";
-								strMsg += pCity->getName();
-							}
-							LogEspionageMsg(strMsg);
-						}
-					}
-				}
-				// Science
-				else if(iSpyResult == 7)
-				{
-					int iSetback = ((GET_PLAYER(pCity->getOwner()).GetScience() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100);
-					if(iSetback > GET_PLAYER(pCity->getOwner()).GetScience())
-					{
-						iSetback = GET_PLAYER(pCity->getOwner()).GetScience();
-					}
-					if(iSetback > 0)
-					{
-						TechTypes eCurrentTech = m_pPlayer->GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech == NO_TECH)
-						{
-							m_pPlayer->changeOverflowResearch(iSetback);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iSetback, m_pPlayer->GetID());
-						}
-
-						TechTypes eCurrentTech2 = GET_PLAYER(pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech2 == NO_TECH)
-						{
-							GET_PLAYER(pCity->getOwner()).changeOverflowResearch(-iSetback);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech2, -iSetback, pCity->getOwner());
-						}
-
-						pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
-
-						CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-						if(pDefendingPlayerEspionage)
-						{
-							pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, iSetback, false);
-						}
-						CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-						if(pDefendingPlayerDiploAI)
-						{
-							if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-							{
-								pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-							}
-						}
-
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-							CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-							if(pDefenderEspionageAI)
-							{
-								pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-								pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-							}
-						}
-
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE_S");
-							strSummary << pCity->getNameKey();
-
-							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE");
-							strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-							strNotification << pCity->getNameKey();
-							strNotification << iSetback;
-							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-						}
-						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-						if(iNewResult > 85)
-						{
-							LevelUpSpy(uiSpyIndex);
-						}
-						pSpy->ChangeAdvancedActionsCooldown(iSetback * 15);
-						if(GC.getLogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Advanced Action: Science pilfered. Science: %d,", iSetback);
-							strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-							strMsg += " , ";
-							if(pCity)
-							{
-								strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-								strMsg += " , ";
-								strMsg += pCity->getName();
-							}
-							LogEspionageMsg(strMsg);
-						}
-					}
-				}
-				//Gold Theft
-				else if(iSpyResult == 8)
-				{
-					int iTheft = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
-					if(iTheft > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
-					{
-						iTheft = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();
-					}
-					if(iTheft > 0)
-					{
-						GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold((iTheft * -1));
-						m_pPlayer->GetTreasury()->ChangeGold(iTheft);
-
-						CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-						if(pDefendingPlayerEspionage)
-						{
-							pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, iTheft, 0, false);
-						}
-						CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-						if(pDefendingPlayerDiploAI)
-						{
-							if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-							{
-								pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
-							}
-						}
-
-						if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-						{
-							CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-							CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-							if(pDefenderEspionageAI)
-							{
-								pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-								pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-							}
-						}
-
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD_S");
-							strSummary << pCity->getNameKey();
-
-							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD");
-							strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-							strNotification << pCity->getNameKey();
-							strNotification << iTheft;
-							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-						}
-						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
-						if(iNewResult > 95)
-						{
-							LevelUpSpy(uiSpyIndex);
-						}
-						pSpy->ChangeAdvancedActionsCooldown(iTheft * 8);
-						if(GC.getLogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Advanced Action: Gold stolen. Gold: %d,", iTheft);
-							strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-							strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-							strMsg += " , ";
-							if(pCity)
-							{
-								strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-								strMsg += " , ";
-								strMsg += pCity->getName();
-							}
-							LogEspionageMsg(strMsg);
-						}
-					}
-				}
-				else if(iSpyResult == 9)
-				{
-#if defined(MOD_BALANCE_CORE)
-					m_aiNumSpyActionsDone[pCity->getOwner()]--;
-#endif
-					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
-					if(pDefendingPlayerEspionage)
-					{
-						pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, 0, false);
-					}
-					CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
-
-					if(pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
-					{
-						CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
-						CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
-						if(pDefenderEspionageAI)
-						{
-							pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
-							pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
-						}
-					}
-					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING_S");
-						strSummary << pCity->getNameKey();
-
-						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING");
-						strNotification << GetSpyRankName(pSpy->m_eRank);
-#if defined(MOD_BUGFIX_SPY_NAMES)
-						strNotification << pSpy->GetSpyName(m_pPlayer);
-#else
-						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-#endif
-						strNotification << pCity->getNameKey();
-						pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
-					}
-					if(GC.getLogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Advanced Action: Failed Last Advanced Action Test, City Owner Probably Alerted");
-						strMsg += " , ";
-#if defined(MOD_BUGFIX_SPY_NAMES)
-						strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
-#else
-						strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
-#endif
-						strMsg += " , ";
-						if(pCity)
-						{
-							strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-							strMsg += " , ";
-							strMsg += pCity->getName();
-						}
-						LogEspionageMsg(strMsg);
-					}
-				}
-				if (iSpyResult != 9)
-				{
-					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 0);
-				}
+				DoAdvancedAction(uiSpyIndex, pCity, eAdvancedAction, iRank, eBuilding, eUnit, eBestSpecialist);
 			}
 		}
+	}
+}
+void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvancedAction eAdvancedAction, int iRank, BuildingTypes eBuilding, UnitTypes eUnit, SpecialistTypes eSpecialist)
+{
+	CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(pCity->getOwner()).GetEspionage();
+	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+	PlayerTypes ePlayer = m_pPlayer->GetID();
+	PlayerTypes eCityOwner = pCity->getOwner();
+
+	CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
+
+	if (pSpy == NULL || pCity == NULL)
+		return;
+
+	//If we can't do this, we've wasted our turn.
+	if (!CanAdvancedAction(uiSpyIndex, pCity, eAdvancedAction))
+	{
+		DoAdvancedActionLogging(ADVANCED_ACTION_NONE, -1, pCity, uiSpyIndex);
+		return;
+	}
+
+	//Result improved by duration of stay.
+	int iTurnsActive = (GC.getGame().getGameTurn() - pSpy->GetSpyActiveTurn());
+	if (iTurnsActive > (iRank * 15))
+	{
+		iTurnsActive = (iRank * 15);
+	}
+
+	bool bSuccess = false;
+	bool bSuccessButNoRewards = false;
+	int iSetback = 0;
+
+	switch (eAdvancedAction)
+	{
+		case ADVANCED_ACTION_BUILDING:
+		{
+			iSetback = (pCity->getProduction() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100;
+			if (iSetback > pCity->getProduction())
+			{
+				iSetback = pCity->getProduction();
+			}
+			if (iSetback > 0)
+			{
+				pCity->setProduction(pCity->getProduction() - iSetback);
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, eBuilding, NO_UNIT, false, iSetback, 0, false);
+				}
+
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_WW:
+		{
+			iSetback = ((pCity->getProduction() * (iTurnsActive + (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100);
+			if (iSetback > pCity->getProduction())
+			{
+				iSetback = pCity->getProduction();
+			}
+			if (iSetback > 0)
+			{
+				pCity->setProduction(pCity->getProduction() - iSetback);
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, eBuilding, NO_UNIT, false, iSetback, 0, false);
+				}
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_GP:
+		{
+			iSetback = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eSpecialist) * (iTurnsActive + (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100;
+			if (iSetback > pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eSpecialist))
+			{
+				iSetback = pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eSpecialist);
+			}
+			if (iSetback > 0)
+			{
+				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+				if (pkSpecialistInfo)
+				{
+					pCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, (iSetback * -1));
+
+					UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+					UnitTypes eGreatUnit = (UnitTypes)pCity->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+
+					//For tooltip.
+					iSetback /= 100;
+
+					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+					if (pDefendingPlayerEspionage)
+					{
+						pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, eGreatUnit, false, iSetback, 0, false);
+					}
+					bSuccess = true;
+				}
+			}
+			break;
+		}
+		case ADVANCED_ACTION_UNIT:
+		{
+			iSetback = (pCity->getProduction() * (iTurnsActive * (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))) / 100;
+			if (iSetback > pCity->getProduction())
+			{
+				iSetback = pCity->getProduction();
+			}
+			if (iSetback > 0)
+			{
+				pCity->setProduction(pCity->getProduction() - iSetback);
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, eUnit, false, iSetback, 0, false);
+				}
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_UNREST:
+		{
+			iSetback = ((pCity->getFood() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100);
+			if (iSetback > pCity->getFood())
+			{
+				iSetback = pCity->getFood();
+			}
+			if (iSetback > 0)
+			{
+				pCity->setFood((pCity->getFood() - iSetback));
+				pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, 0, true);
+				}
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_REBELLION:
+		{
+			iSetback = ((pCity->GetMaxHitPoints() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+			if (iSetback > pCity->GetMaxHitPoints())
+			{
+				iSetback = pCity->GetMaxHitPoints();
+			}
+			pCity->setDamage(iSetback);
+
+			//Rebels!
+			// In hundreds
+			int iNumRebels = (iRank * (125 + iTurnsActive)); //Based on rank of spy.
+			int iExtraRoll = (iRank * (125 + iTurnsActive)); //1+ Rebels maximum
+			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
+			iNumRebels /= 100;
+			int iNumRebelTotal = iNumRebels;
+			if (iNumRebelTotal > 0)
+			{
+				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, iNumRebelTotal, false, false, false, false);
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, true, iSetback, 0, false);
+				}
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_GOLD_THEFT:
+		{
+			iSetback = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() / 2) + iTurnsActive)) / 100);
+			if (iSetback > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
+			{
+				iSetback = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();
+			}
+			if (iSetback > 0)
+			{
+				GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold((iSetback * -1));
+				m_pPlayer->GetTreasury()->ChangeGold(iSetback);
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, iSetback, 0, false);
+				}
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_SCIENCE_THEFT:
+		{
+			iSetback = ((GET_PLAYER(pCity->getOwner()).GetScience() * ((GC.getBALANCE_SPY_SABOTAGE_RATE() * 2) + iTurnsActive)) / 100);
+			if (iSetback > GET_PLAYER(pCity->getOwner()).GetScience())
+			{
+				iSetback = GET_PLAYER(pCity->getOwner()).GetScience();
+			}
+			if (iSetback > 0)
+			{
+				TechTypes eCurrentTech = m_pPlayer->GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					m_pPlayer->changeOverflowResearch(iSetback);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iSetback, m_pPlayer->GetID());
+				}
+
+				TechTypes eCurrentTech2 = GET_PLAYER(pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech2 == NO_TECH)
+				{
+					GET_PLAYER(pCity->getOwner()).changeOverflowResearch(-iSetback);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech2, -iSetback, pCity->getOwner());
+				}
+
+				CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+				if (pDefendingPlayerEspionage)
+				{
+					pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, iSetback, false);
+				}
+				bSuccess = true;
+			}
+			break;
+		}
+		case ADVANCED_ACTION_FAILURE:
+		{
+			CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
+			if (pDefendingPlayerEspionage)
+			{
+				pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[ePlayer], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, 0, false);
+			}
+
+			if (pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
+			{
+				CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(eCityOwner).GetEspionageAI();
+				CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
+				if (pDefenderEspionageAI)
+				{
+					pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
+					pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
+				}
+			}
+			pSpy->ChangeAdvancedActionsCooldown(iTurnsActive);
+
+			bSuccessButNoRewards = true;
+			bSuccess = true;
+			break;
+		}
+	}
+
+	if (bSuccess)
+	{
+		if (!bSuccessButNoRewards)
+		{
+			DoAdvancedActionLevelUp(eAdvancedAction, uiSpyIndex, pCity, iSetback);
+			if (eAdvancedAction != ADVANCED_ACTION_FAILURE)
+			{
+				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 0);
+			}
+		}
+		DoAdvancedActionNotification(eAdvancedAction, iSetback, pCity, uiSpyIndex);
+		DoAdvancedActionLogging(eAdvancedAction, iSetback, pCity, uiSpyIndex);
+	}
+}
+void CvPlayerEspionage::DoAdvancedActionLevelUp(CvAdvancedAction eAdvancedAction, uint uiSpyIndex, CvCity* pCity, int iPassValue)
+{
+	CvDiplomacyAI* pDefendingPlayerDiploAI = GET_PLAYER(pCity->getOwner()).GetDiplomacyAI();
+	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+	CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
+	PlayerTypes ePlayer = m_pPlayer->GetID();
+
+	if (pSpy == NULL || pCity == NULL)
+		return;
+
+	pSpy->ChangeAdvancedActions(1);
+	m_aiNumSpyActionsDone[pCity->getOwner()]++;
+	pCityEspionage->m_aiNumTimesCityRobbed[pCity->getOwner()]++;
+	pSpy->ChangeAdvancedActionsCooldown(iPassValue * 8);
+
+	CvAssertMsg(pDefendingPlayerDiploAI, "Defending player diplo AI is null");
+	if (pDefendingPlayerDiploAI)
+	{
+		if (pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
+		{
+			pDefendingPlayerDiploAI->ChangeNumTimesRobbedBy(ePlayer, 1);
+		}
+	}
+
+	if (pCityEspionage->m_aiResult[ePlayer] == SPY_RESULT_IDENTIFIED)
+	{
+		CvEspionageAI* pDefenderEspionageAI = GET_PLAYER(pCity->getOwner()).GetEspionageAI();
+		CvAssertMsg(pDefenderEspionageAI, "pDefenderEspionageAI is null");
+		if (pDefenderEspionageAI)
+		{
+			pDefenderEspionageAI->m_aiTurnLastSpyCaught[m_pPlayer->GetID()] = GC.getGame().getGameTurn();
+			pDefenderEspionageAI->m_aiNumSpiesCaught[m_pPlayer->GetID()]++;
+		}
+	}
+
+	int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
+	int iValueNeeded = 101;
+	switch (eAdvancedAction)
+	{
+		case ADVANCED_ACTION_BUILDING:
+		{
+			iValueNeeded = 70;
+			break;
+		}
+		case ADVANCED_ACTION_WW:
+		{
+			iValueNeeded = 60;
+			break;
+		}
+		case ADVANCED_ACTION_UNIT:
+		{
+			iValueNeeded = 65;
+			break;
+		}
+		case ADVANCED_ACTION_GP:
+		{
+			iValueNeeded = 65;
+			break;
+		}
+		case ADVANCED_ACTION_GOLD_THEFT:
+		{
+			iValueNeeded = 90;
+			break;
+		}
+		case ADVANCED_ACTION_SCIENCE_THEFT:
+		{
+			iValueNeeded = 90;
+			break;
+		}
+		case ADVANCED_ACTION_UNREST:
+		{
+			iValueNeeded = 55;
+			break;
+		}
+		case ADVANCED_ACTION_REBELLION:
+		{
+			iValueNeeded = 55;
+			break;
+		}
+	}
+
+	if (iNewResult > iValueNeeded)
+	{
+		LevelUpSpy(uiSpyIndex);
+	}
+}
+void CvPlayerEspionage::DoAdvancedActionNotification(CvAdvancedAction eAdvancedAction, int iPassValue, CvCity* pCity, uint uiSpyIndex)
+{
+	CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+	if (pNotifications)
+	{
+		CvEspionageSpy* pSpy = &(m_aSpyList[uiSpyIndex]);
+		Localization::String strSummary;
+		Localization::String strNotification;
+
+		switch (eAdvancedAction)
+		{
+			case ADVANCED_ACTION_BUILDING:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_BUILDING_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_BUIDLING");
+				break;
+			}
+			case ADVANCED_ACTION_WW:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER");
+				break;
+			}
+			case ADVANCED_ACTION_UNIT:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT");
+				break;
+			}
+			case ADVANCED_ACTION_GP:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GP_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GP");
+				break;
+			}
+			case ADVANCED_ACTION_GOLD_THEFT:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD");
+				break;
+			}
+			case ADVANCED_ACTION_SCIENCE_THEFT:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE");
+				break;
+			}
+			case ADVANCED_ACTION_UNREST:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE");
+				break;
+			}
+			case ADVANCED_ACTION_REBELLION:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_REBELLION_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_REBELLION_RESISTANCE");
+				break;
+			}
+			case ADVANCED_ACTION_FAILURE:
+			{
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING_S");
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING");
+				break;
+			}
+		}
+
+		strSummary << pCity->getNameKey();
+
+		strNotification << GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		strNotification << pSpy->GetSpyName(m_pPlayer);
+#else
+		strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
+		strNotification << pCity->getNameKey();
+		strNotification << iPassValue;
+
+		pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
+	}
+}
+void CvPlayerEspionage::DoAdvancedActionLogging(CvAdvancedAction eAdvancedAction, int iPassValue, CvCity* pCity, uint uiSpyIndex)
+{
+	if (GC.getLogging())
+	{
+		CvString strMsg;
+		CvString strAAMsg;
+		strMsg += " , ";
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+#else
+		strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+#endif
+
+		switch (eAdvancedAction)
+		{
+			case ADVANCED_ACTION_BUILDING:
+			{
+				strAAMsg.Format("Advanced Action: Disrupted building. Production loss: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_WW:
+			{
+				strAAMsg.Format("Advanced Action: Sabotaged wonder. Damage: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_UNIT:
+			{
+				strAAMsg.Format("Advanced Action: Unit disrupted. Production: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_GP:
+			{
+				strAAMsg.Format("Advanced Action: Assassinated GP, Points taken: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_GOLD_THEFT:
+			{
+				strAAMsg.Format("Advanced Action: Gold stolen. Gold: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_SCIENCE_THEFT:
+			{
+				strMsg.Format("Advanced Action: Science pilfered. Science: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_UNREST:
+			{
+				strAAMsg.Format("Advanced Action: Caused rebellion. Units: %d,", iPassValue);
+				break;
+			}
+			case ADVANCED_ACTION_REBELLION:
+			{
+				strAAMsg.Format("Advanced Action: Caused rebellion, Food lost: %d,", iPassValue);
+				break;
+
+			}
+			case ADVANCED_ACTION_FAILURE:
+			{
+				strAAMsg.Format("Advanced Action: Failed Last Advanced Action Test, City Owner Probably Alerted");
+				break;
+			}
+			case ADVANCED_ACTION_NONE:
+			{
+				strAAMsg.Format("Advanced Action: Blocked by City or Player building");
+				break;
+			}
+		}
+		strMsg += strAAMsg;
+
+		strMsg += " , ";
+		if (pCity)
+		{
+			strMsg += GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
+			strMsg += " , ";
+			strMsg += pCity->getName();
+		}
+
+		LogEspionageMsg(strMsg);
 	}
 }
 CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic)
@@ -2812,48 +2526,37 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		switch (pSpy->m_eSpyState)
 		{
 		case SPY_STATE_UNASSIGNED:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));		
 			break;
 		case SPY_STATE_TRAVELLING:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_TRAVELLING_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());		
 			break;
 		case SPY_STATE_SURVEILLANCE:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_SURVEILLANCE_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());		
 			break;
 		case SPY_STATE_GATHERING_INTEL:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_GATHERING_INTEL_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());		
 			break;
 		case SPY_STATE_RIG_ELECTION:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_STATE_RIGGING_ELECTION", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());		
 			break;
 		case SPY_STATE_COUNTER_INTEL:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_COUNTER_INTEL_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());		
 			break;
 		case SPY_STATE_DEAD:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));		
 			return strSpyAtCity;
 		case SPY_STATE_MAKING_INTRODUCTIONS:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());			
 			break;
 		case SPY_STATE_SCHMOOZE:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());			
 			break;
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
 		case SPY_STATE_TERMINATED:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));			
 			return strSpyAtCity;
 		case SPY_STATE_PREPARING_HEIST:
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_HEIST_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());		
 			break;
 #endif
@@ -2861,7 +2564,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		strSpyAtCity += "[NEWLINE][NEWLINE]";
 	}
 
-	if (pSpy->m_bIsDiplomat)
+	if (pSpy->m_bIsDiplomat && pSpy->m_eSpyState != SPY_STATE_TRAVELLING && pSpy->m_eSpyState != SPY_STATE_SURVEILLANCE)
 	{
 		CvString strIntrigue = "";
 		for (int i = m_aIntrigueNotificationMessages.size(); i > 0; i--)
@@ -2934,18 +2637,22 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_POTENTIAL");
 			
-			int iOurSpyPower = 300;
-			iOurSpyPower += (pSpy->m_eRank * 30);
+			int iOurSpyPower = iRandomRollSpyAction;
+			iOurSpyPower += (pSpy->m_eRank * iSpyRankPower);
 			iOurSpyPower *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 			iOurSpyPower /= 100;
 
-			int iKillChance = (((iOurSpyPower - 200) * 100) / 300);
-			int iIdentifyChance = (((iOurSpyPower - 100) * 100) / 300);
+			int iKillChance = ((iOurSpyPower - iChancetoIdentifyCounterSpy) * 100) / iOurSpyPower;
+			int iIdentifyChance = (((iChancetoIdentifyCounterSpy - iChancetoDetectCounterSpy) * 100) / iOurSpyPower);
+			//Remainder
+			int iDetectChance = (100 - iKillChance - iIdentifyChance);
 
 			strSpyAtCity += "[NEWLINE]";
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL", max(0, iKillChance));
 			strSpyAtCity += "[NEWLINE]";
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_CATCH", max(0, iIdentifyChance));
+			strSpyAtCity += "[NEWLINE]";
+			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_DETECT", max(0, iDetectChance));
 
 			//City Rank:
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -2954,28 +2661,32 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_POTENTIAL_AA");
 
-				int iSpyTotal = 300;
+				int iSpyTotal = iRandomRollSpyAction;
 				iSpyTotal += (100 + (pCity->GetEspionageModifier() + m_pPlayer->GetEspionageModifier() * -1));
 				iSpyTotal *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyTotal /= 100;
 				int iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex) / 1000);
-				iSpyTotal += (pSpy->m_eRank + 1) * 30;
+				iSpyTotal += (pSpy->m_eRank + 1) * iSpyRankPower;
 				iSpyTotal -= iCityValue;
 
-				int iKillChance = (((iOurSpyPower - 300) * 100) / 300);
-				int iIdentifyChance = (((iOurSpyPower - 200) * 100) / 300);
+				int iKillChance = (((iSpyTotal - iChancetoKillAA) * 100) / iSpyTotal);
+				int iIdentifyChance = (((iChancetoKillAA - iChancetoIdentifyAA) * 100) / iSpyTotal);
+				//Remainder
+				int iDetectChance = (100 - iKillChance - iIdentifyChance);
 
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_KILL", max(0, iKillChance));
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
+				strSpyAtCity += "[NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_DETECT", max(0, iDetectChance));
 			}
 		}
 	}
 	//Offensive Spies:
 	else if (pCity != NULL)
 	{
-		if (pSpy->m_iCityX == pCity->getX() && pSpy->m_iCityY == pCity->getY())
+		if (pSpy->m_iCityX == pCity->getX() && pSpy->m_iCityY == pCity->getY() && pSpy->m_eSpyState != SPY_STATE_TRAVELLING && pSpy->m_eSpyState != SPY_STATE_SURVEILLANCE)
 		{
 			if (GET_PLAYER(pCity->getOwner()).isMinorCiv())
 			{
@@ -3107,8 +2818,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					}
 					else
 					{
-						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_ADVANCED_ACTIONS_POSSIBLE", pSpy->GetSpyName(m_pPlayer));
-						
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_ADVANCED_ACTIONS_POSSIBLE", pSpy->GetSpyName(m_pPlayer));			
 					}
 					if (bCanDie)
 					{
@@ -3120,22 +2830,46 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_RISKS");
 
-				int iTheirSpyPower = 300;
+				int iTheirSpyPower = iRandomRollSpyAction;
 				if (pCity->GetCityEspionage()->HasCounterSpy())
 				{
 					int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
-					iTheirSpyPower += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
+					iTheirSpyPower += GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * iSpyRankPower;
 				}
 				iTheirSpyPower *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iTheirSpyPower /= 100;
 
-				int iKillChance = (((iTheirSpyPower - 200) * 100) / 300);
-				int iIdentifyChance = (((iTheirSpyPower - 100) * 100) / 300);
+				if (pCity->GetCityEspionage()->HasCounterSpy())
+				{
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT");
 
-				strSpyAtCity += "[NEWLINE]";
-				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_KILL", max(0, iKillChance));
-				strSpyAtCity += "[NEWLINE]";
-				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH", max(0, iIdentifyChance));
+					int iKillChance = (((iTheirSpyPower - iChancetoIdentifyCounterSpy) * 100) / iTheirSpyPower);
+					int iIdentifyChance = (((iChancetoIdentifyCounterSpy - iChancetoDetectCounterSpy) * 100) / iTheirSpyPower);
+					//Remainder
+					int iDetectChance = (100 - iKillChance - iIdentifyChance);
+
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_KILL", max(0, iKillChance));
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH", max(0, iIdentifyChance));
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT", max(0, iDetectChance));
+				}
+				else
+				{
+					int iIdentifyChance = (((iTheirSpyPower - iChancetoIdentifyNoCounterSpy) * 100) / iTheirSpyPower);
+					int iDetectChance = (((iChancetoIdentifyNoCounterSpy - iChancetoDetectNoCounterSpy) * 100) / iTheirSpyPower);
+					//Remainder
+					int iUndetectChance = (100 - iIdentifyChance - iDetectChance);
+
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH", max(0, iIdentifyChance));
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT", max(0, iDetectChance));
+					strSpyAtCity += "[NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_UNDETECTED", max(0, iUndetectChance));
+				}
 
 				//City Rank:
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -3156,15 +2890,34 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					}
 					iSpyTotal -= iCityValue;
 
-					int iKillChance = (((iSpyTotal - 300) * 100) / 300);
-					int iIdentifyChance = (((iSpyTotal - 200) * 100) / 300);
 					if (bCanDie)
 					{
 						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT");
+
+						int iKillChance = (((iSpyTotal - iChancetoKillAA) * 100) / iSpyTotal);
+						int iIdentifyChance = (((iChancetoKillAA - iChancetoIdentifyAA) * 100) / iSpyTotal);
+						//Remainder
+						int iDetectChance = (100 - iKillChance - iIdentifyChance);
+
+						strSpyAtCity += "[NEWLINE]";
 						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL", max(0, iKillChance));
+						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
+						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_DETECT", max(0, iDetectChance));
 					}
-					strSpyAtCity += "[NEWLINE]";
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
+					else
+					{
+						int iIdentifyChance = (((iSpyTotal - iChancetoIdentifyAA) * 100) / iSpyTotal);
+						//Remainder
+						int iDetectChance = (100 - iIdentifyChance);
+
+						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH", max(0, iIdentifyChance));
+						strSpyAtCity += "[NEWLINE]";
+						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_DETECT", max(0, iDetectChance));
+					}
 				}
 			}
 		}
@@ -3182,6 +2935,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 	if (pCity->getOwner() == m_pPlayer->GetID())
 	{
 		int iRank = pCity->GetRank();
+
 		if (!bNoBasic)
 		{
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", pCity->getNameKey(), iRank);
@@ -3197,28 +2951,28 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT");
 			if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
 			{
-				if (iRank > 6 && pCity->GetBlockRebellion() <= 0)
+				if (pCity->GetBlockRebellion() <= 0)
 				{
 					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_REBELLION");
 				}
-				if (iRank > 4 && pCity->GetBlockUnrest() <= 0)
+				if (pCity->GetBlockUnrest() <= 0)
 				{
 					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_UNREST");
 				}
 			}
-			if (iRank > 4 && pCity->GetBlockGPDestruction() <= 0)
+			if (pCity->GetBlockGPDestruction() <= 0)
 			{
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_GP_ASSASSINATION");
 			}
-			if (iRank > 4 && pCity->GetBlockWWDestruction() <= 0)
+			if (pCity->GetBlockWWDestruction() <= 0)
 			{
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_WONDER");
 			}
-			if (iRank > 3 && pCity->GetBlockBuildingDestruction() <= 0)
+			if (pCity->GetBlockBuildingDestruction() <= 0)
 			{
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_BUILDING");	
 			}
-			if (iRank > 2 && pCity->GetBlockUDestruction() <= 0)
+			if (pCity->GetBlockUDestruction() <= 0)
 			{
 				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_UNIT");
 			}
@@ -3251,142 +3005,131 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 	}
 	else
 	{
-		int iRank = pCity->GetRank();
-		if (!bNoBasic)
+		int iRank = pCity->GetRank();;
+
+		int iSpy = GetSpyIndexInCity(pCity);
+		CvEspionageSpy* pSpy = &(m_aSpyList[iSpy]);
+
+		if (pSpy != NULL && pSpy->m_eSpyState != SPY_STATE_TRAVELLING && pSpy->m_eSpyState != SPY_STATE_SURVEILLANCE)
 		{
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", pCity->getNameKey(), iRank);
-		}
-		else
-		{
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT", pCity->getNameKey(), iRank);
-		}
 
-		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-		{
-			strSpyAtCity += "[NEWLINE][NEWLINE]";
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT");
-
-			int iTotalAdvancedActions = 0;
-
-			if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+			if (pSpy != NULL)
 			{
-				if (iRank > 6 && pCity->GetBlockRebellion() <= 0)
-				{
-					iTotalAdvancedActions += m_pPlayer->GetAdvancedActionRebellion();
-				}
-				if (iRank > 4 && pCity->GetBlockUnrest() <= 0)
-				{
-					iTotalAdvancedActions += m_pPlayer->GetAdvancedActionUnrest();
-				}
-			}
-			if (iRank > 4 && pCity->GetBlockGPDestruction() <= 0)
-			{
-				iTotalAdvancedActions += m_pPlayer->GetAdvancedActionGP();
-			}
-			if (iRank > 4 && pCity->GetBlockWWDestruction() <= 0)
-			{
-				iTotalAdvancedActions += m_pPlayer->GetAdvancedActionWonder();
-			}
-			if (iRank > 3 && pCity->GetBlockBuildingDestruction() <= 0)
-			{
-				iTotalAdvancedActions += m_pPlayer->GetAdvancedActionBuilding();
-			}
-			if (iRank > 2 && pCity->GetBlockUDestruction() <= 0)
-			{
-				iTotalAdvancedActions += m_pPlayer->GetAdvancedActionUnit();
-			}
-			if (pCity->GetBlockScience() <= 0)
-			{
-				iTotalAdvancedActions += m_pPlayer->GetAdvancedActionScience();
-			}
-			if (pCity->GetBlockGold() <= 0)
-			{
-				iTotalAdvancedActions += m_pPlayer->GetAdvancedActionGold();
-			}
-			if (!m_pPlayer->IsCannotFailSpies())
-			{
-				iTotalAdvancedActions += 1;
-			}
-			if (iTotalAdvancedActions <= 0)
-			{
-				iTotalAdvancedActions = 1;
+				iRank = (pSpy->m_eRank + 1);
 			}
 
-			int iRemainder = 0;
-			if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
-				if (iRank > 6 && pCity->GetBlockRebellion() <= 0)
-				{
-					int iPercent = (m_pPlayer->GetAdvancedActionRebellion() * 100 / iTotalAdvancedActions);
-					iRemainder += iPercent;
-					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_REBELLION_OTHER", iPercent);
-				}
-				if (iRank > 4 && pCity->GetBlockUnrest() <= 0)
-				{
-					int iPercent = (m_pPlayer->GetAdvancedActionUnrest() * 100 / iTotalAdvancedActions);
-					iRemainder += iPercent;
-					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_UNREST_OTHER", iPercent);
-				}
+				iRank += 1;
 			}
-			if (iRank > 4 && pCity->GetBlockGPDestruction() <= 0)
+
+			if (!bNoBasic)
 			{
-				int iPercent = (m_pPlayer->GetAdvancedActionGP() * 100 / iTotalAdvancedActions);
-				iRemainder += iPercent;
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_GP_ASSASSINATION_OTHER", iPercent);
-			}
-			if (iRank > 4 && pCity->GetBlockWWDestruction() <= 0)
-			{
-				int iPercent = (m_pPlayer->GetAdvancedActionWonder() * 100 / iTotalAdvancedActions);
-				iRemainder += iPercent;
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_WONDER_OTHER", iPercent);
-			}
-			if (iRank > 3 && pCity->GetBlockBuildingDestruction() <= 0)
-			{
-				int iPercent = (m_pPlayer->GetAdvancedActionBuilding() * 100 / iTotalAdvancedActions);
-				iRemainder += iPercent;
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_BUILDING_OTHER", iPercent);
-			}
-			if (iRank > 2 && pCity->GetBlockUDestruction() <= 0)
-			{
-				int iPercent = (m_pPlayer->GetAdvancedActionUnit() * 100 / iTotalAdvancedActions);
-				iRemainder += iPercent;
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_UNIT_OTHER", iPercent);
-			}
-			if (pCity->GetBlockScience() <= 0)
-			{
-				int iPercent = (m_pPlayer->GetAdvancedActionScience() * 100 / iTotalAdvancedActions);
-				iRemainder += iPercent;
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_SCIENCE_OTHER", iPercent);
-			}
-			if (pCity->GetBlockGold() <= 0)
-			{
-				int iPercent = (m_pPlayer->GetAdvancedActionGold() * 100 / iTotalAdvancedActions);
-				iRemainder += iPercent;
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_GOLD_OTHER", iPercent);
-			}
-			if (!m_pPlayer->IsCannotFailSpies())
-			{
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL_OTHER", (100 - iRemainder));
+				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", pCity->getNameKey(), iRank);
 			}
 			else
 			{
-				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL_OTHER_NOTHING", (100 - iRemainder));
+				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT", pCity->getNameKey(), iRank);
 			}
-		}
 
-		int iEspionageMod = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
-		if (iEspionageMod != 0)
-		{
-			strSpyAtCity += "[NEWLINE][NEWLINE]";
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST", iEspionageMod);
-		}
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+			{
+				strSpyAtCity += "[NEWLINE][NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT");
 
-		int iModifier = ((pCity->GetEspionageModifier() + GET_PLAYER(pCity->getOwner()).GetEspionageModifier()) * -1);
+				BuildingTypes eBuilding;
+				UnitTypes eUnit;
+				SpecialistTypes eSpecialist;
+				std::vector<CvAdvancedAction> aiAdvancedAction = GetAdvancedActionPool(pCity, eBuilding, eUnit, eSpecialist, iRank);
 
-		if (iModifier != 0)
-		{
-			strSpyAtCity += "[NEWLINE][NEWLINE]";
-			strSpyAtCity += GetLocalizedText("TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST", iModifier);
+				int iTotalAdvancedActions = aiAdvancedAction.size();
+
+				std::vector<int> aiAdvancedActionTotals;
+				aiAdvancedActionTotals.resize(NUM_ADVANCED_ACTIONS);
+
+				for (uint iAdvancedActionLoop = 0; iAdvancedActionLoop < aiAdvancedAction.size(); iAdvancedActionLoop++)
+				{
+					CvAdvancedAction eAdvancedAction = aiAdvancedAction[iAdvancedActionLoop];
+					aiAdvancedActionTotals[(int)eAdvancedAction]++;
+				}
+
+				int iRemainder = 0;
+				if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+				{
+					if (pCity->GetBlockRebellion() <= 0)
+					{
+						int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_REBELLION] * 100 / iTotalAdvancedActions);
+						iRemainder += iPercent;
+						strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_REBELLION_OTHER", iPercent);
+					}
+					if (pCity->GetBlockUnrest() <= 0)
+					{
+						int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_UNREST] * 100 / iTotalAdvancedActions);
+						iRemainder += iPercent;
+						strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_UNREST_OTHER", iPercent);
+					}
+				}
+				if (pCity->GetBlockGPDestruction() <= 0)
+				{
+					int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_GP] * 100 / iTotalAdvancedActions);
+					iRemainder += iPercent;
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_GP_ASSASSINATION_OTHER", iPercent);
+				}
+				if (pCity->GetBlockWWDestruction() <= 0)
+				{
+					int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_WW] * 100 / iTotalAdvancedActions);
+					iRemainder += iPercent;
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_WONDER_OTHER", iPercent);
+				}
+				if (pCity->GetBlockBuildingDestruction() <= 0)
+				{
+					int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_BUILDING] * 100 / iTotalAdvancedActions);
+					iRemainder += iPercent;
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_BUILDING_OTHER", iPercent);
+				}
+				if (pCity->GetBlockUDestruction() <= 0)
+				{
+					int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_UNIT] * 100 / iTotalAdvancedActions);
+					iRemainder += iPercent;
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_UNIT_OTHER", iPercent);
+				}
+				if (pCity->GetBlockScience() <= 0)
+				{
+					int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_SCIENCE_THEFT] * 100 / iTotalAdvancedActions);
+					iRemainder += iPercent;
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_SCIENCE_OTHER", iPercent);
+				}
+				if (pCity->GetBlockGold() <= 0)
+				{
+					int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_GOLD_THEFT] * 100 / iTotalAdvancedActions);
+					iRemainder += iPercent;
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_GOLD_OTHER", iPercent);
+				}
+				if (!m_pPlayer->IsCannotFailSpies())
+				{
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL_OTHER", (100 - iRemainder));
+				}
+				else
+				{
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_ADVANCED_FAIL_OTHER_NOTHING", (100 - iRemainder));
+				}
+			}
+
+			int iEspionageMod = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
+			if (iEspionageMod != 0)
+			{
+				strSpyAtCity += "[NEWLINE][NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST", iEspionageMod);
+			}
+
+			int iModifier = ((pCity->GetEspionageModifier() + GET_PLAYER(pCity->getOwner()).GetEspionageModifier()) * -1);
+
+			if (iModifier != 0)
+			{
+				strSpyAtCity += "[NEWLINE][NEWLINE]";
+				strSpyAtCity += GetLocalizedText("TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST", iModifier);
+			}
 		}
 	}
 
@@ -10020,7 +9763,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-			int iValue = pLoopCity->GetRank();
+			int iValue = pLoopCity->GetRank() * 10;
 			if(iValue <= 0)
 				continue;
 			//Randomness to try and make the AI less spammy
@@ -10028,7 +9771,11 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			int iAdvancedPenalty = pLoopCity->GetBlockBuildingDestruction() + pLoopCity->GetBlockWWDestruction() + pLoopCity->GetBlockUDestruction() + pLoopCity->GetBlockGPDestruction() + pLoopCity->GetBlockGold() + pLoopCity->GetBlockScience() + pLoopCity->GetBlockRebellion() + pLoopCity->GetBlockUnrest();
 			if(iAdvancedPenalty > 0)
 			{
-				iValue -= min(iValue, iAdvancedPenalty);
+				iValue -= min(iValue, iAdvancedPenalty * 10);
+			}
+			if (pLoopCity->GetCityEspionage()->HasCounterSpy())
+			{
+				iValue -= 50;
 			}
 			int iDiploModifier = 100;
 			if (pDiploAI->GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
@@ -10148,10 +9895,13 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 
-			int iScore = iValue * max(25, iDiploModifier);
-			iScore /= 100;
+			iValue *= (100 + iDiploModifier);
+			iValue /= 100;
 
-			kEntry.m_iScore = iScore;
+			if (iValue <= 0)
+				iValue = 1;
+
+			kEntry.m_iScore = iValue;
 
 			aCityScores.push_back(kEntry);
 		}
