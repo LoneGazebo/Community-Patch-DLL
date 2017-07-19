@@ -1103,7 +1103,9 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			CvDllPathFinderUpdateListData update;
 			update.iX = path.vPlots[i].x;
 			update.iY = path.vPlots[i].y;
-			update.iTurnNumber = path.vPlots[i].turns * 10 + (path.vPlots[i].moves>0) ? 5 : 0;
+			update.iTurnNumber = path.vPlots[i].turns * 10; //fixed point float
+			if (path.vPlots[i].moves>0)
+				update.iTurnNumber += 5; //indicate that there are movement points left
 
 			pUpdateData.push_back(update);
 		}
