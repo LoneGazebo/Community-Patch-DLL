@@ -1103,7 +1103,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			CvDllPathFinderUpdateListData update;
 			update.iX = path.vPlots[i].x;
 			update.iY = path.vPlots[i].y;
-			update.iTurnNumber = path.vPlots[i].turns;
+			update.iTurnNumber = path.vPlots[i].turns * 10 + (path.vPlots[i].moves>0) ? 5 : 0;
 
 			pUpdateData.push_back(update);
 		}

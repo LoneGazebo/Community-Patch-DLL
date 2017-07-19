@@ -44017,9 +44017,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent && !pPlot->isCoastalLand())
 			iScale = 1;
 
-		//if we want offshore expansion, distance doesn't matter, use a flat scale
-		if (bWantOffshore)
-			iScale = bOffshore ? 100 : 1;
+		//if we want offshore expansion, distance mostly doesn't matter, use a flat scale below a threshold
+		if (bWantOffshore && bOffshore)
+			iScale = max(iScale,70);
 
 		if (iScale==0)
 		{
