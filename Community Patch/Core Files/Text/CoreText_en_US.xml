@@ -6795,7 +6795,7 @@
 
 		<Row Tag="TXT_KEY_OFFENSIVE_RIG_CHANCE">
 			<Text>Current chance to Rig Election here: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row
+		</Row>
 
 		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT">
 			<Text>Potential Enemy Advanced Actions in this City:</Text>

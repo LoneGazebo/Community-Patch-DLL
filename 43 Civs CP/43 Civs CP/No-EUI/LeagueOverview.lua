@@ -1217,6 +1217,28 @@ function VoteYesNoController.new(voteController, entry)
 		voteController:UpdateVoteState();
 	end);
 	
+	instance.VoteUpButton:RegisterCallback(Mouse.eMClick, function()
+		local votes = entry.Votes;
+		if(votes >= 0) then
+			if voteController.VotesAvailable >= 10 then
+				entry.Votes = entry.Votes + 10;
+				voteController.VotesAvailable = voteController.VotesAvailable - 10;
+			else 
+				entry.Votes = entry.Votes + voteController.VotesAvailable;
+				voteController.VotesAvailable = voteController.VotesAvailable - voteController.VotesAvailable;
+			end
+		elseif(votes <= -10) then
+			voteController.VotesAvailable = voteController.VotesAvailable + 10;
+			entry.Votes = entry.Votes + 10;
+		elseif(votes < 0) then
+			voteController.VotesAvailable = voteController.VotesAvailable - entry.Votes;
+			entry.Votes = entry.Votes - entry.Votes;
+		end	
+		
+		entryController:UpdateVoteInstance();
+		voteController:UpdateVoteState();
+	end);
+	
 	instance.VoteUpButton:RegisterCallback(Mouse.eRClick, function()
 		local votes = entry.Votes;
 		local availableVotes = voteController.VotesAvailable;
@@ -1240,6 +1262,29 @@ function VoteYesNoController.new(voteController, entry)
 			voteController.VotesAvailable = voteController.VotesAvailable - 1;
 		end	
 		entry.Votes = votes - 1;	
+		
+		entryController:UpdateVoteInstance();
+		voteController:UpdateVoteState();
+	end);
+	
+	instance.VoteDownButton:RegisterCallback(Mouse.eMClick, function()
+		local votes = entry.Votes;
+		if(votes >= 10) then
+			entry.Votes = entry.Votes - 10;
+			voteController.VotesAvailable = voteController.VotesAvailable + 10;
+		elseif(votes > 0) then
+			voteController.VotesAvailable = voteController.VotesAvailable + entry.Votes;
+			entry.Votes = entry.Votes - entry.Votes;
+		elseif(votes <= 0) then
+			if voteController.VotesAvailable >= 10 then
+				entry.Votes = entry.Votes - 10;
+				voteController.VotesAvailable = voteController.VotesAvailable - 10;
+			else 
+				entry.Votes = entry.Votes - voteController.VotesAvailable;
+				voteController.VotesAvailable = voteController.VotesAvailable - voteController.VotesAvailable;
+			end
+		end	
+			
 		
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();

@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(7-18) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(7-18-1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems  to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -665,6 +665,12 @@
         <Name>Corporations Overview</Name>
         <Description>Corporations Overview</Description>
         <FileName>Modular Elements/Corporations/CorporationsOverview.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Random Victory</Name>
+        <Description>Random Victory</Description>
+        <FileName>Modular Elements/RandomVictory/RandomVCPopup.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -2472,13 +2478,13 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modular Elements\RandomVictory\NewEraPopup.lua">
+    <Content Include="Modular Elements\RandomVictory\RandomVCPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modular Elements\RandomVictory\NewEraPopup.xml">
+    <Content Include="Modular Elements\RandomVictory\RandomVCPopup.xml">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\RandomVictory\SpaceRaceVictory.dds">
       <SubType>Lua</SubType>
