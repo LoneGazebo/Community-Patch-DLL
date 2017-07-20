@@ -1576,7 +1576,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	if (MOD_DIPLOMACY_CIV4_FEATURES && GetEffects()->bEndAllCurrentVassals)
 	{
 		TeamTypes eTeam = pPlayer->getTeam();
-		if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetNumVassals() > 0)
+		if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetNumVassals() > 0 && !pPlayer->IsVassalsNoRebel())
 		{
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -11567,7 +11567,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if(eTeam != NO_TEAM)
 		{
 			bool bValid = false;
-			if(GET_TEAM(eTeam).GetNumVassals() > 0)
+			if (GET_TEAM(eTeam).GetNumVassals() > 0 && !GetPlayer()->IsVassalsNoRebel())
 			{
 				//We have vassals? Eek!
 				iScore = (-1000 * GET_TEAM(eTeam).GetNumVassals());
@@ -11597,6 +11597,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 									if(GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 									{
+										//Ignore players this doesn't apply to.
+										if (GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
+											continue;
+
 										switch(eOpinion)
 										{
 											case MAJOR_CIV_OPINION_ALLY:

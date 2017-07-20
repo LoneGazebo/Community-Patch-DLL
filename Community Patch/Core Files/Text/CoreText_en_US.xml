@@ -6398,6 +6398,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
 			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
+			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_CAPITAL">
 			<Text>Birth of a [ICON_CITIZEN] Citizen in [ICON_CAPITAL] Capital:[NEWLINE]{1_YieldString}</Text>
 		</Row>
@@ -6433,6 +6436,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
 			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
+			<Text>[ICON_RAzING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
 			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>
@@ -6711,18 +6717,30 @@
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_CATCH">
 			<Text>[ICON_BULLET] Chance to identify [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETECT">
+			<Text>[ICON_BULLET] Chance to detect [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_KILL">
-			<Text>[ICON_BULLET] Chance to be killed: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[ICON_BULLET] Chance to be killed (if Counterspy): [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH">
 			<Text>[ICON_BULLET] Chance to be caught: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT">
+			<Text>[ICON_BULLET] Chance to be detected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_UNDETECTED">
+			<Text>[ICON_BULLET] Chance to remain undetected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_KILL">
-			<Text>[ICON_BULLET] Chance to be killed: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[ICON_BULLET] Chance to be killed (if Counterspy): [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_CATCH">
 			<Text>[ICON_BULLET] Chance to be caught: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_ADVANCED_ACTION_DETECT">
+			<Text>[ICON_BULLET] Chance to be detected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_KILL">
@@ -6730,6 +6748,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_CATCH">
 			<Text>[ICON_BULLET] Chance to identify [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_ADVANCED_ACTION_DETECT">
+			<Text>[ICON_BULLET] Chance to detect [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
@@ -6767,17 +6788,17 @@
 
 		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE">
 			<Text>Probably of successful Coup: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row
+		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE_ALLIES">
 			<Text>[NEWLINE][ICON_BULLET]   Reason: already Allies!</Text>
-		</Row
+		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_RIG_CHANCE">
 			<Text>Current chance to Rig Election here: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row
+		</Row>
 
 		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_POTENTIAL_LIST_TT">
-			<Text>Potential Advanced Actions in this City:</Text>
+			<Text>Potential Enemy Advanced Actions in this City:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_OWN_CITY_ADVANCED_REBELLION">
 			<Text>[NEWLINE][ICON_BULLET] Rebellion in City</Text>
@@ -6841,6 +6862,9 @@
 		<Row Tag="TXT_KEY_OFFENSIVE_ADVANCED_DEATH_POSSIBILITY">
 			<Text>[NEWLINE][ICON_BULLET] Foreign agents given License to Kill - is possible to [COLOR_NEGATIVE_TEXT]die[ENDCOLOR] during Advanced Actions!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT">
+			<Text>Foreign [ICON_SPY] Counterspies are rumored to be in the City - be careful!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_ADVANCED_HUNTERS">
 			<Text>Foreign agents pursuing {2_SpyName}: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Laying low (no Advanced Actions) until number reaches [COLOR_POSITIVE_TEXT]0[ENDCOLOR].</Text>
 		</Row>
@@ -6893,6 +6917,24 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD">
 			<Text>Golden Age Conquest Of The World Bonus</Text>
 		</Row>
+		
+		<!-- Autocracy-->
+
+		
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS">
+			<Text>{2_Civ} bullied {1_CS}, reducing your [ICON_INFLUENCE] Influence with {1_CS} by {3_Influence}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_S">
+			<Text>{2_Civ} terrorizes {1_CS}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU">
+			<Text>Your bullying of {1_CS} increased your [ICON_INFLUENCE] Influence by {2_Influence}, and reduced the [ICON_INFLUENCE] Influence of other Civiliations by {3_Percent}%!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S">
+			<Text>You tighten your grip on {1_CS}!</Text>
+		</Row>
+
 
 		<!-- Randomization Victory Data-->
 		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">

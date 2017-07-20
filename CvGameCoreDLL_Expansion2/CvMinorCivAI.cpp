@@ -2321,13 +2321,13 @@ bool CvMinorCivQuest::IsComplete()
 	//No barbarians in the city-state, so you win!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if((GetEndTurn() == GC.getGame().getGameTurn()) && pMinor->GetMinorCivAI()->GetNumThreateningBarbarians() <= 0)
+		if ((GetEndTurn() == GC.getGame().getGameTurn()) && pMinor->GetMinorCivAI()->GetNumBarbariansInBorders() <= 0)
 			return true;
 	}
 	//You eliminated all of the rebels.
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumThreateningBarbarians() <= 0))
+		if ((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumBarbariansInBorders() <= 0))
 		{
 			return true;
 		}
@@ -6518,6 +6518,24 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 	for(CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 	{
 		if(pLoopUnit->IsBarbarianUnitThreateningMinor(GetPlayer()->GetID()))
+			iCount++;
+	}
+
+	return iCount;
+}
+
+/// Barbs in our borders?
+int CvMinorCivAI::GetNumBarbariansInBorders()
+{
+	if (GetPlayer()->getCapitalCity() == NULL)
+		return 0;
+
+	int iCount = 0;
+
+	int iLoop;
+	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
+	{
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getOwner() == m_pPlayer->GetID())
 			iCount++;
 	}
 
@@ -11641,8 +11659,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		iChangeThisTurn /= 100;
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (IsAllies(ePlayer) && GET_PLAYER(ePlayer).IsNoCSDecayAtWar() && GET_PLAYER(ePlayer).IsAtWar())
+	{
+		iChangeThisTurn = 0;
+	}
 	//No CS drop for allies - Cold War fun!
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
+	else if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if(pLeague != NULL)
@@ -14143,6 +14165,9 @@ int CvMinorCivAI::GetCurrentCultureBonus(PlayerTypes ePlayer)
 	iAmount += GetCurrentCultureFlatBonus(ePlayer);
 	iAmount += GetCurrentCulturePerBuildingBonus(ePlayer); //antonjs: This feature was prototyped, but later removed. Its value is 0 (no bonus).
 
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount /= 100;
+
 	return iAmount;
 }
 
@@ -14220,6 +14245,10 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 #endif
+
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount /= 100;
+
 	return iAmount;
 }
 
@@ -14477,6 +14506,9 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 	}
 #endif
 
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount /= 100;
+
 	return iAmount;
 }
 
@@ -14631,6 +14663,9 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 	}
 #endif
 
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount /= 100;
+
 	return iAmount;
 }
 
@@ -14784,6 +14819,9 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 	}
 #endif
 
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount /= 100;
+
 	return iAmount;
 }
 
@@ -14842,6 +14880,10 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iBonus /= 100;
 	}
+
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus /= 100;
+
 #endif
 
 	return iBonus;
@@ -14894,6 +14936,9 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 	}
 #endif
 
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus /= 100;
+
 	return iBonus;
 }
 
@@ -14930,6 +14975,9 @@ int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 	}
 #endif
 
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus /= 100;
+
 	return iBonus;
 }
 
@@ -14965,6 +15013,9 @@ int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
 		iBonus /= 100;
 	}
 #endif
+
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus /= 100;
 
 	return iBonus;
 }
@@ -15900,7 +15951,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 						// Is a combat unit
-						if(pLoopUnit && pLoopUnit->IsCombatUnit())
+						if(pLoopUnit && (pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR))
 						{
 							if(pLoopUnit->getOwner() == eBullyPlayer)
 							{
@@ -16049,7 +16100,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -999 ~ -0
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
+	if (MOD_BALANCE_CORE_MINORS && !GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
 	{
 		int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
 		if(GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE) > 0)
@@ -16071,7 +16122,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	}
 	else
 #endif
-	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+	if (GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY() && !GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
 	{
 		int iInfluenceScore = iFailScore;
 		iScore += iInfluenceScore;
@@ -16515,11 +16566,11 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		}
 	}
 #endif
-	if(bSuccess)
+	if (bSuccess)
 	{
 		CvAssertMsg(iGold >= 0, "iGold is expected to be non-negative. Please send Anton your save file and version.");
-	
-		if(GC.getGame().getActivePlayer() == eBully)
+
+		if (GC.getGame().getActivePlayer() == eBully)
 		{
 			int iBullyGold = 0;
 			gDLL->GetSteamStat(ESTEAMSTAT_BULLIEDGOLD, &iBullyGold);
@@ -16530,8 +16581,9 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		}
 
 		GET_PLAYER(eBully).GetTreasury()->ChangeGold(iGold);
-		DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS());
 		
+		DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS());
+
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1);
@@ -16539,9 +16591,77 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #endif
 #if defined(MOD_BALANCE_CORE)
 		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
-		if(pCapital != NULL)
+		if (pCapital != NULL)
 		{
 			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
+		}
+		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+
+				if (ePlayer == eBully)
+				{
+					int iInfluence = GetEffectiveFriendshipWithMajor(eBully);
+					iInfluence *= GET_PLAYER(eBully).GetBullyGlobalCSReduction();
+					iInfluence /= 100;
+
+					if (iInfluence <= 0)
+						continue;
+
+					ChangeFriendshipWithMajor(eBully, iInfluence);
+
+					if (GET_PLAYER(eBully).isHuman())
+					{
+						const char* strMinorsNameKey = GetPlayer()->getNameKey();
+						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
+						Localization::String strMessageOthers;
+						Localization::String strSummaryOthers;
+
+						// Notify player has met the bully
+						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU");
+						strMessageOthers << strMinorsNameKey;
+						strMessageOthers << strBullyName;
+						strMessageOthers << iInfluence;
+						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S");
+						strSummaryOthers << strMinorsNameKey;
+						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eBully);
+					}
+				}
+
+				else if (GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eBully).getTeam())
+					continue;
+
+				else if (GET_PLAYER(ePlayer).isAlive())
+				{
+					int iInfluence = GetEffectiveFriendshipWithMajor(ePlayer);
+					iInfluence *= GET_PLAYER(eBully).GetBullyGlobalCSReduction();
+					iInfluence /= 100;
+
+					if (iInfluence <= 0)
+						continue;
+
+					ChangeFriendshipWithMajor(ePlayer, -iInfluence);
+
+					if (GET_PLAYER(ePlayer).isHuman())
+					{
+						const char* strMinorsNameKey = GetPlayer()->getNameKey();
+						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
+						Localization::String strMessageOthers;
+						Localization::String strSummaryOthers;
+
+						// Notify player has met the bully
+						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS");
+						strMessageOthers << strMinorsNameKey;
+						strMessageOthers << strBullyName;
+						strMessageOthers << iInfluence;
+						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_S");
+						strSummaryOthers << strMinorsNameKey;
+						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+					}
+				}
+			}
 		}
 #endif
 	}
@@ -16663,6 +16783,74 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+
+				if (ePlayer == eBully)
+				{
+					int iInfluence = GetEffectiveFriendshipWithMajor(eBully);
+					iInfluence *= GET_PLAYER(eBully).GetBullyGlobalCSReduction();
+					iInfluence /= 100;
+
+					if (iInfluence <= 0)
+						continue;
+
+					ChangeFriendshipWithMajor(eBully, iInfluence);
+
+					if (GET_PLAYER(eBully).isHuman())
+					{
+						const char* strMinorsNameKey = GetPlayer()->getNameKey();
+						Localization::String strMessageOthers;
+						Localization::String strSummaryOthers;
+
+						// Notify player has met the bully
+						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU");
+						strMessageOthers << strMinorsNameKey;
+						strMessageOthers << iInfluence;
+						strMessageOthers << GET_PLAYER(eBully).GetBullyGlobalCSReduction();
+						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_YOU_S");
+						strSummaryOthers << strMinorsNameKey;
+						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eBully);
+					}
+				}
+
+				else if (GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eBully).getTeam())
+					continue;
+
+				else if (GET_PLAYER(ePlayer).isAlive())
+				{
+					int iInfluence = GetEffectiveFriendshipWithMajor(ePlayer);
+					iInfluence *= GET_PLAYER(eBully).GetBullyGlobalCSReduction();
+					iInfluence /= 100;
+
+					if (iInfluence <= 0)
+						continue;
+
+					ChangeFriendshipWithMajor(ePlayer, -iInfluence);
+
+					if (GET_PLAYER(ePlayer).isHuman())
+					{
+						const char* strMinorsNameKey = GetPlayer()->getNameKey();
+						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
+						Localization::String strMessageOthers;
+						Localization::String strSummaryOthers;
+
+						// Notify player has met the bully
+						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS");
+						strMessageOthers << strMinorsNameKey;
+						strMessageOthers << strBullyName;
+						strMessageOthers << iInfluence;
+						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_AUTOCRACY_BULLY_INFLUENCE_REDUCTION_CS_S");
+						strSummaryOthers << strMinorsNameKey;
+						strSummaryOthers << strBullyName;
+						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+					}
+				}
+			}
+		}
 		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 		{
 			if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex())
@@ -17014,19 +17202,28 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 {
 	CvAssertMsg(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	CvPlayer* pBully = &GET_PLAYER(eBully);
 	CvAssertMsg(pBully, "pBully not expected to be NULL. Please send Anton your save file and version.");
 	if (!pBully) return;
 
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
-	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
+	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	{
+		ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
+	}
 
 	// In case we have quests that bullying makes obsolete, check now
-	DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	{
+		DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+	}
 #if defined(MOD_BALANCE_CORE_MINORS)
-	DoChangeProtectionFromMajor(eBully, false, true);
+	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	{
+		DoChangeProtectionFromMajor(eBully, false, true);
+	}
 #endif
 
 	// Inform alive majors who have met the bully

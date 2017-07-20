@@ -34,7 +34,7 @@
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
 			<BarbarianBonus>60</BarbarianBonus>
 			<AIBarbarianBonus>30</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>14</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
@@ -91,7 +91,7 @@
 			<BarbarianBonus>40</BarbarianBonus>
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
 			<AIBarbarianBonus>40</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>16</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
@@ -149,7 +149,7 @@
 			<BarbarianBonus>30</BarbarianBonus>
 			<AIBarbarianBonus>40</AIBarbarianBonus>
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>18</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
@@ -207,7 +207,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>30</BarbarianBonus>
 			<AIBarbarianBonus>40</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>8</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>20</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
@@ -265,7 +265,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>20</BarbarianBonus>
 			<AIBarbarianBonus>50</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>9</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>22</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
@@ -324,7 +324,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>20</BarbarianBonus>
 			<AIBarbarianBonus>50</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>15</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>10</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>24</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
@@ -384,7 +384,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>10</BarbarianBonus>
 			<AIBarbarianBonus>60</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>11</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>26</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
@@ -444,7 +444,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>0</BarbarianBonus>
 			<AIBarbarianBonus>70</AIBarbarianBonus>
-			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>5</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>

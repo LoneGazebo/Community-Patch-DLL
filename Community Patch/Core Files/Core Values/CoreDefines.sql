@@ -371,7 +371,7 @@ SELECT 'BALANCE_MARRIAGE_GP_RATE', '15';
 
 --Affects DOF, DP, and enemy calculations
 UPDATE Defines
-SET Value = '22'
+SET Value = '25'
 WHERE Name = 'DOF_THRESHOLD';
 
 UPDATE Defines
@@ -379,15 +379,15 @@ SET Value = '5'
 WHERE Name = 'DEAL_VALUE_PER_OPINION_WEIGHT';
 
 UPDATE Defines
-SET Value = '1000'
+SET Value = '1400'
 WHERE Name = 'MINOR_CIV_DISPUTE_FIERCE_THRESHOLD';
 
 UPDATE Defines
-SET Value = '700'
+SET Value = '1000'
 WHERE Name = 'MINOR_CIV_DISPUTE_STRONG_THRESHOLD';
 
 UPDATE Defines
-SET Value = '500'
+SET Value = '700'
 WHERE Name = 'MINOR_CIV_DISPUTE_WEAK_THRESHOLD';
 
 -- Minor Civ Stuff

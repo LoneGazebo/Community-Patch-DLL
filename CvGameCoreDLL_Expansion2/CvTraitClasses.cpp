@@ -151,6 +151,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iExtraFoundedCityTerritoryClaimRange(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange(0),
+	m_iExtraTenetsFirstAdoption(0),
 #endif
 	m_iFreeSocialPoliciesPerEra(0),
 	m_iNumTradeRoutesModifier(0),
@@ -892,6 +893,10 @@ int CvTraitEntry::GetExtraFoundedCityTerritoryClaimRange() const
 int CvTraitEntry::GetExtraConqueredCityTerritoryClaimRange() const
 {
 	return m_iExtraConqueredCityTerritoryClaimRange;
+}
+int CvTraitEntry::GetExtraTenetsFirstAdoption() const
+{
+	return m_iExtraTenetsFirstAdoption;
 }
 #endif
 /// Accessor: extra social policy from advancing to the next age
@@ -1995,6 +2000,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iExtraFoundedCityTerritoryClaimRange  = kResults.GetInt("ExtraFoundedCityTerritoryClaimRange");
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = kResults.GetInt("ExtraConqueredCityTerritoryClaimRange");
+	m_iExtraTenetsFirstAdoption = kResults.GetInt("ExtraTenetsFirstAdoption");
 #endif
 	m_iFreeSocialPoliciesPerEra				= kResults.GetInt("FreeSocialPoliciesPerEra");
 	m_iNumTradeRoutesModifier				= kResults.GetInt("NumTradeRoutesModifier");
@@ -3107,6 +3113,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iExtraFoundedCityTerritoryClaimRange += trait->GetExtraFoundedCityTerritoryClaimRange();
 #if defined(MOD_BALANCE_CORE)
 			m_iExtraConqueredCityTerritoryClaimRange += trait->GetExtraConqueredCityTerritoryClaimRange();
+			m_iExtraTenetsFirstAdoption += trait->GetExtraTenetsFirstAdoption();
 #endif
 			m_iFreeSocialPoliciesPerEra += trait->GetFreeSocialPoliciesPerEra();
 			m_iNumTradeRoutesModifier += trait->GetNumTradeRoutesModifier();
@@ -3698,6 +3705,7 @@ void CvPlayerTraits::Reset()
 	m_iExtraFoundedCityTerritoryClaimRange = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = 0;
+	m_iExtraTenetsFirstAdoption = 0;
 #endif
 	m_iFreeSocialPoliciesPerEra = 0;
 	m_iNumTradeRoutesModifier = 0;
@@ -5624,6 +5632,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	}
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_iExtraConqueredCityTerritoryClaimRange;
+	kStream >> m_iExtraTenetsFirstAdoption;
 #endif
 	if (uiVersion >= 5)
 	{
@@ -6173,6 +6182,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iExtraFoundedCityTerritoryClaimRange;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_iExtraConqueredCityTerritoryClaimRange;
+	kStream << m_iExtraTenetsFirstAdoption;
 #endif
 	kStream << m_iFreeSocialPoliciesPerEra;
 	kStream << m_iNumTradeRoutesModifier;

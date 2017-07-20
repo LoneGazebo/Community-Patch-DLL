@@ -104,6 +104,7 @@ public:
 	bool IsUpgradeCSTerritory() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
+	int GetExtraCultureandScienceTradeRoutes() const;
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageModifier() const;
@@ -180,6 +181,14 @@ public:
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
+	
+	bool IsNoCSDecayAtWar() const;
+	bool CanBullyFriendlyCS() const;
+	int GetBullyGlobalCSReduction() const;
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassalsNoRebel() const;
+	int GetVassalCSBonusModifier() const;
 #endif
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
@@ -276,6 +285,8 @@ public:
 	int GetResourceFromCSAlly(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
+	int GetYieldFromBirthRetroactive(int i) const;
+	int GetYieldFromBirthCapitalRetroactive(int i) const;
 	int GetYieldFromConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
 	bool GetNoUnhappinessExpansion() const;
@@ -359,6 +370,8 @@ public:
 
 	int GetLitYieldChanges(int i) const;
 	int* GetLitYieldChangesArray() const;
+
+	bool IsOnlyTradeSameIdeology() const;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
@@ -386,9 +399,11 @@ public:
 	int GetMinorityHappinessChangePolicyCapital() const;
 	int GetPuppetUnhappinessMod() const;
 	int GetNoUnhappfromXSpecialists() const;
+	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
 
 	int GetWarWearinessModifier() const;
+	int GetWarScoreModifier() const;
 
 	int GetGreatGeneralExtraBonus() const;
 #endif
@@ -522,10 +537,17 @@ private:
 	int m_iMinorBullyScoreModifier;
 	int m_iThemingBonusMultiplier;
 	int m_iInternalTradeRouteYieldModifier;
-#if defined(MOD_BALANCE_CORE)
+
 	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	BuildingClassTypes m_eNewCityFreeBuilding;
+
+	bool m_bNoCSDecayAtWar;
+	bool m_bBullyFriendlyCS;
+	int m_iBullyGlobalCSReduction;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool m_bVassalsNoRebel;
+	int m_iVassalCSBonusModifier;
 #endif
 
 	int m_iSharedReligionTourismModifier;
@@ -574,6 +596,7 @@ private:
 	bool m_bEnablesSSPartPurchase;
 	bool m_bAbleToAnnexCityStates;
 
+	bool m_bIsOnlyTradeSameIdeology;
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -590,8 +613,10 @@ private:
 	int m_iMinorityHappinessChangePolicyCapital;
 	int m_iPuppetUnhappinessModPolicy;
 	int m_iNoUnhappfromXSpecialists;
+	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iWarWearinessModifier;
+	int m_iWarScoreModifier;
 
 	int m_iGreatGeneralExtraBonus;
 #endif
@@ -636,6 +661,8 @@ private:
 	int* m_piResourcefromCSAlly;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
+	int* m_piYieldFromBirthRetroactive;
+	int* m_piYieldFromBirthCapitalRetroactive;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromTech;
 	bool m_bNoUnhappinessExpansion;
@@ -677,6 +704,7 @@ private:
 	bool m_bUpgradeCSTerritory;
 	int m_iArchaeologicalDigTourism;
 	int m_iGoldenAgeTourism;
+	int m_iExtraCultureandScienceTradeRoutes;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageModifier;

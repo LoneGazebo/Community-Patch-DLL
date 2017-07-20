@@ -339,6 +339,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasCreatedReligion);
 	Method(CanCreatePantheon);
 	Method(GetReligionCreatedByPlayer);
+	Method(GetOriginalReligionCreatedByPlayer);
 	Method(GetFoundedReligionEnemyCityCombatMod);
 	Method(GetFoundedReligionFriendlyCityCombatMod);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
@@ -1156,6 +1157,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalValueToMeNormal);
 	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
+	Method(DoAdvancedAction);
 	Method(GetCachedValueOfPeaceWithHuman);
 	Method(GetSpyChanceAtCity);
 	Method(GetCityPotentialInfo);
@@ -3582,6 +3584,18 @@ int CvLuaPlayer::lGetReligionCreatedByPlayer(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	lua_pushinteger(L, eReligion);
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool GetReligionCreatedByPlayer();
+int CvLuaPlayer::lGetOriginalReligionCreatedByPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetOriginalReligionCreatedByPlayer();
 	lua_pushinteger(L, eReligion);
 
 	return 1;
@@ -13361,6 +13375,23 @@ int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
 	int iSpyIndex = lua_tointeger(L, 3);
 	
 	pkPlayerEspionage->GetRandomIntrigue(pkCity, iSpyIndex);
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lDoAdvancedAction(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	int iSpyIndex = lua_tointeger(L, 3);
+	CvAdvancedAction eAdvancedAction = (CvAdvancedAction)lua_tointeger(L, 4);
+	int iRank = lua_tointeger(L, 5);
+	BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 6);
+	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 7);
+	SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 8);
+
+	pkPlayerEspionage->DoAdvancedAction(iSpyIndex, pkCity, eAdvancedAction, iRank, eBuilding, eUnit, eSpecialist);
 	return 0;
 }
 #endif

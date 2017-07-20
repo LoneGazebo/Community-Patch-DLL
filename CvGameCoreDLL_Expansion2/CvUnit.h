@@ -989,6 +989,9 @@ public:
 
 	int getMultiAttackBonus() const;
 	void changeMultiAttackBonus(int iChange);
+
+	int getLandAirDefenseValue() const;
+	void changeLandAirDefenseValue(int iChange);
 #endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
@@ -1223,6 +1226,9 @@ public:
 
 	int GetGoodyHutYieldBonus() const;
 	void ChangeGoodyHutYieldBonus(int iChange);
+
+	int GetReligiousPressureModifier() const;
+	void ChangeReligiousPressureModifier(int iChange);
 
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
@@ -1797,6 +1803,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
 	FAutoVariable<int, CvUnit> m_iMultiAttackBonus;
+	FAutoVariable<int, CvUnit> m_iLandAirDefenseValue;
 #endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
@@ -1960,6 +1967,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
+	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;

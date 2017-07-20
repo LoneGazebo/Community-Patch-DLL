@@ -12,4 +12,8 @@
 #define HH_MOD_API_TRADEROUTE_MODIFIERS
 //see: CvPolicyClasses@ CvPolicyEntry, CvPlayerPolicies; CvTradeClasses@ CvPlayerTrade
 
+//Building quality - block benefit from pillaging inside owned territory
+#define HH_MOD_BUILDINGS_FRUITLESS_PILLAGE
+//see: CvUnit @ CvUnit::pillage; CvPlayer@ CvPlayer; CvCity@ CvCity; CvBuildingClasses@ CvBuildingEntry
+
 #endif

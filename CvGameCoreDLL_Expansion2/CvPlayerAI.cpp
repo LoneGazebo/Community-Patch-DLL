@@ -1508,7 +1508,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		int iNumImprovement = getImprovementCount(eManufactory);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1563,7 +1563,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	if(bConstructImprovement && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		int iNumImprovement = getImprovementCount(eCustomHouse);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1632,7 +1632,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));
 		// Even if not going spaceship right now, build academies up to your flavor.
 		int iNumImprovement = getImprovementCount(eAcademy);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1718,7 +1718,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET);
 		//Let's use our prophets for improvments instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement < iFlavor)
+		if(iNumImprovement <= iFlavor)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}

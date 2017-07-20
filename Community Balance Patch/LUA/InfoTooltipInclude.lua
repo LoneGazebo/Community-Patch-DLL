@@ -50,6 +50,13 @@ function GetHelpTextForUnit(iUnitID, bIncludeRequirementsInfo)
 		strHelpText = strHelpText .. "[NEWLINE]";
 		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_STRENGTH", iStrength);
 	end
+
+	-- Air Strength
+	local iAirStrength = pUnitInfo.BaseLandAirDefense;
+	if (iAirStrength ~= 0) then
+		strHelpText = strHelpText .. "[NEWLINE]";
+		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_AIR_STRENGTH", iAirStrength);
+	end
 	
 	-- Resource Requirements
 	local iNumResourcesNeededSoFar = 0;

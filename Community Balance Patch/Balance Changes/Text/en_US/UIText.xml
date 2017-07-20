@@ -283,6 +283,10 @@
 			<Text>{1_Monopoly}%</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_GOLDMOD_YIELD_BLOCKADE">
+			<Text>[NEWLINE][ICON_BULLET]City Modifier from Water Blockade (Enemy Naval Units adjacent to City): {1_Num}%</Text>
+		</Row>
+
 
 		<!-- Tooltip for War Weariness-->
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS">
@@ -1127,15 +1131,20 @@
 		
 		<!-- Warscore Autocracy UI -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_BONUS">
-			<Text>+{1_Num}% of current Warscore with:[NEWLINE]</Text>
+			<Text>+{1_Num}% of Highest Warscore with:[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_WARSCORE">
-			<Text>+{1_Num}% Bonus from Warscore[NEWLINE]</Text>
+			<Text>+{1_Num}% Bonus from Highest Warscore[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_VALUE">
-			<Text>Warscore: {1_Num}</Text>
+			<Text>Highest Warscore: {1_Num}</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_PEDIA_AIR_DEFENSE_LABEL">
+			<Text>Air Strike Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_AIR_STRENGTH">
+			<Text>[ICON_AIRSTRIKE_DEFENSE] Air Strike Defense</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

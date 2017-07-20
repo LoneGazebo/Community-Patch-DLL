@@ -699,6 +699,10 @@ public:
 	int GetNoOccupiedUnhappinessCount() const;
 	void ChangeNoOccupiedUnhappinessCount(int iChange);
 
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool IsLocalGainlessPillage() const;
+	void ChangeLocalGainlessPillageCount(int iChange);
+#endif
 	int getFood() const;
 	int getFoodTimes100() const;
 	void setFood(int iNewValue);
@@ -1020,6 +1024,9 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromPillage(YieldTypes eIndex) const;
+	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
+
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
@@ -1028,6 +1035,12 @@ public:
 
 	int GetThemingYieldBonus(YieldTypes eIndex) const;
 	void ChangeThemingYieldBonus(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromSpyAttack(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyAttack(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromSpyDefense(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
@@ -1097,6 +1110,10 @@ public:
 	int GetReligiousTradeModifier() const;
 	void ChangeReligiousTradeModifier(int iChange);
 	void SetReligiousTradeModifier(int iValue);
+
+	int GetCityAirStrikeDefense() const;
+	void ChangeCityAirStrikeDefense(int iChange);
+	void SetCityAirStrikeDefense(int iValue);
 
 	int GetFreeBuildingTradeTargetCity() const;
 	void ChangeFreeBuildingTradeTargetCity(int iChange);
@@ -1647,6 +1664,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;
 	FAutoVariable<int, CvCity> m_iNoOccupiedUnhappinessCount;
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	FAutoVariable<int, CvCity> m_iLocalGainlessPillageCount;
+#endif
 	FAutoVariable<int, CvCity> m_iFood;
 	FAutoVariable<int, CvCity> m_iFoodKept;
 	FAutoVariable<int, CvCity> m_iMaxFoodKeptPercent;
@@ -1724,7 +1744,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
-	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPillage;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
@@ -1741,6 +1762,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyAttack;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromSpyDefense;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
 	FAutoVariable<int, CvCity> m_iThreatRank;
@@ -1750,6 +1773,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
+	FAutoVariable<int, CvCity> m_iCityAirStrikeDefense;
 	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
 	FAutoVariable<int, CvCity> m_iBaseTourism;
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;

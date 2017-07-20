@@ -10102,34 +10102,34 @@ void CvGame::doVictoryRandomization()
 			setVictoryValid(eVictory, false);
 		}
 
-		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			TeamTypes eTeam = (TeamTypes)iTeamLoop;
-			if (eTeam == NO_TEAM)
+			PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+			if (ePlayer == NO_PLAYER)
 				continue;
 
-			if (!GET_TEAM(eTeam).isHuman())
-				continue;
-
-			if (pkBestVictoryInfo->isDiploVote())
+			if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().getActivePlayer() == ePlayer)
 			{
-				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 100);
-				DLLUI->AddPopup(kPopupInfo);
-			}
-			else if (pkBestVictoryInfo->isInfluential())
-			{
-				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 99);
-				DLLUI->AddPopup(kPopupInfo);
-			}
-			else if (eBestVictory == (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true))
-			{
-				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 98);
-				DLLUI->AddPopup(kPopupInfo);
-			}
-			else if (pkBestVictoryInfo->isConquest())
-			{
-				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, 97);
-				DLLUI->AddPopup(kPopupInfo);
+				if (pkBestVictoryInfo->isDiploVote())
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_4, 1);
+					DLLUI->AddPopup(kPopupInfo);
+				}
+				else if (pkBestVictoryInfo->isInfluential())
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_4, 2);
+					DLLUI->AddPopup(kPopupInfo);
+				}
+				else if (eBestVictory == (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true))
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_4, 3);
+					DLLUI->AddPopup(kPopupInfo);
+				}
+				else if (pkBestVictoryInfo->isConquest())
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_4, 4);
+					DLLUI->AddPopup(kPopupInfo);
+				}
 			}
 		}
 
@@ -10173,6 +10173,9 @@ CvRandom& CvGame::getJonRand()
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
 #if defined(MOD_BUGFIX_RANDOM)
+	if (GC.getGame().getActivePlayer() == BARBARIAN_PLAYER)
+		return getSmallFakeRandNum(iNum, ((iNum/2)+(iNum*2)));
+
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 

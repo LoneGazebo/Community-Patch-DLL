@@ -5241,6 +5241,16 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 10);
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 10);
 	}
+
+	if (GetPlayer()->IsCanBullyFriendlyCS())
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 10);
+	}
+
+	if (GetPlayer()->GetBullyGlobalCSReduction() > 0)
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 10);
+	}
 #endif
 
 	////////////////////////////////////
@@ -7232,45 +7242,19 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	// If going for culture win always want open borders against civs we need influence on
-	AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-	if (eCultureStrategy != NO_AIGRANDSTRATEGY && m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eCultureStrategy && m_pPlayer->GetCulture()->GetTourism() > 0 )
+#if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+	//If they need influence over us, we don't want their OB, thanks.
+	if ((GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) >= INFLUENCE_TREND_STATIC))
 	{
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		//If they're gaining influence over us, we don't want their OB, thanks.
-		if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) > INFLUENCE_LEVEL_FAMILIAR)
-		{
-			if(GET_PLAYER(ePlayer).GetCulture()->GetInfluencePerTurn(m_pPlayer->GetID()) > m_pPlayer->GetCulture()->GetInfluencePerTurn(ePlayer))
-			{
-				return false;
-			}
-		}
-
-		// If have influence over half the civs, want OB with the other half
-		if (m_pPlayer->GetCulture()->GetNumCivsToBeInfluentialOn() <= m_pPlayer->GetCulture()->GetNumCivsInfluentialOn())
-		{
-			if (m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_INFLUENTIAL)
-			{
-				return true;
-			}
-		}
-#else
-		// The civ we need influence on the most should ALWAYS be included
-		if (m_pPlayer->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == ePlayer)
-		{
-			return true;
-		}
-
-		// If have influence over half the civs, want OB with the other half
-		if (m_pPlayer->GetCulture()->GetNumCivsToBeInfluentialOn() <= m_pPlayer->GetCulture()->GetNumCivsInfluentialOn())
-		{
-			if (m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_INFLUENTIAL)
-			{
-				return true;
-			}
-		}
-#endif
+		return false;
 	}
+#else
+	//If we need influence over them, we want their OB, thanks.
+	if ((m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) > INFLUENCE_LEVEL_FAMILIAR) && (m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer) >= INFLUENCE_TREND_STATIC))
+	{
+		return true;
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 	{
@@ -7284,6 +7268,14 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
+	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
+	{
+		return true;
+	}
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetPlayer()->GetID()))
+		return true;
 #endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	if(!m_pPlayer->IsCramped() && GET_PLAYER(ePlayer).getNumCities() < m_pPlayer->getNumCities())
@@ -7295,7 +7287,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	}
 
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_GUARDED || eApproach == MAJOR_CIV_APPROACH_AFRAID)
+	if (eApproach < MAJOR_CIV_APPROACH_AFRAID)
 	{
 		return false;
 	}
@@ -7325,7 +7317,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 			}
 		}
 	}
-	if(MusteringForNeighborAttack(ePlayer))
+	if(MusteringForNeighborAttack(ePlayer) || IsGoingForWorldConquest() || IsGoingForCultureVictory())
 	{
 		return true;
 	}
@@ -7343,7 +7335,74 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		}
 	}
 #endif
-	return true;
+	return false;
+}
+
+/// Do we want to give Open Borders to eOtherPlayer?
+bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+// If going for culture win always want open borders against civs we need influence on
+#if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+	//If we need influence over them, we want to give, thanks.
+	if ((m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) > INFLUENCE_LEVEL_FAMILIAR) && (m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer) >= INFLUENCE_TREND_STATIC))
+	{
+		return true;
+	}
+#else
+	//If we need influence over them, we want to give OB, thanks.
+	if ((GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) >= INFLUENCE_TREND_STATIC))
+	{
+		return false;
+	}
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetPlayer()->GetID()))
+		return true;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
+	{
+		return false;
+	}
+	if (IsMusteringForAttack(ePlayer))
+	{
+		return false;
+	}
+	if (IsWantsSneakAttack(ePlayer))
+	{
+		return false;
+	}
+	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
+	{
+		return true;
+	}
+#endif
+
+	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
+	if (eApproach < MAJOR_CIV_APPROACH_AFRAID)
+	{
+		return false;
+	}
+	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+	{
+	case STRENGTH_IMMENSE:
+	case STRENGTH_POWERFUL:
+		return false;
+	}
+
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+		return false;
+
+#if defined(MOD_BALANCE_CORE)
+	if (!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).GetDiplomacyAI()->MusteringForNeighborAttack(m_pPlayer->GetID()))
+	{
+		return true;
+	}
+#endif
+	return false;
 }
 
 /// Are we willing to swap Open Borders with ePlayer?
@@ -7352,26 +7411,9 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-
-	if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
-		return true;
-	else if(eApproach == MAJOR_CIV_APPROACH_AFRAID)
-		return true;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	if(GetPlayer()->IsCramped() && GET_PLAYER(ePlayer).getNumCities() > GetPlayer()->getNumCities())
-	{
+	if (IsWillingToGiveOpenBordersToPlayer(ePlayer) && IsWantsOpenBordersWithPlayer(ePlayer))
 		return true;
-	}
-
-	if(GetNeighborOpinion(ePlayer) == MAJOR_CIV_OPINION_ENEMY)
-	{
-		return true;
-	}
-	if(MusteringForNeighborAttack(ePlayer))
-	{
-		return true;
-	}
 #endif
 
 	return false;
@@ -7964,17 +8006,35 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 
 		int iWantPeace = 0;
 		//negative warscore means we're losing - so peace desire is higher!
-		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) < 0)
+		int iWarScore = m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer);
+		if (iWarScore < 0)
 		{
-			iWantPeace += ((m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 10) * -1);
+			iWantPeace += ((iWarScore / 10) * -1);
 		}
+		//positive means we are winning - let's ride this out until we get a good peace deal.
 		else
 		{
-			iWantPeace -= (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) / 15);
+			//If we get a bonus from high warscore, let's not end early!
+			if (m_pPlayer->GetPositiveWarScoreTourismMod() > 0)
+			{
+				iWantPeace -= (iWarScore / 10);
+			}
+			else
+			{
+				iWantPeace += (iWarScore / 15);
+				//At 100? Let's end this (unless we can ride this out!
+				if (iWarScore == 100)
+					iWantPeace += 5;
+			}
 		}
 
-		iWantPeace += (m_pPlayer->GetCulture()->GetWarWeariness() / 5);
+		int iWarWeariness = m_pPlayer->GetCulture()->GetWarWeariness();
+		iWantPeace += (iWarWeariness / 5);
 
+		if (iWarWeariness > 0 && m_pPlayer->IsEmpireUnhappy())
+		{
+			iWantPeace += (iWarWeariness / 5);
+		}
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
 		int iTheirDanger = 0;
@@ -7992,13 +8052,10 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iOurDanger++;
 
-			if(pLoopCity->isUnderSiege())
+			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBlockadedWaterAndLand())
 				iOurDanger++;
 
-			if(pLoopCity->isInDangerOfFalling())
-				iOurDanger++;
-
-			if (pLoopCity->IsBlockadedWaterAndLand())
+			if (pLoopCity->IsInDanger(ePlayer))
 				iOurDanger++;
 		}
 
@@ -8010,22 +8067,20 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			//look at the tactical map (is it up to date?)
 			CvTacticalDominanceZone* pLandZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
 			CvTacticalDominanceZone* pWaterZone = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+			
 			if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iTheirDanger++;
-			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+			else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 				iTheirDanger++;
 
-			if(pLoopCity->isUnderSiege())
+			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBlockadedWaterAndLand())
 				iTheirDanger++;
 
-			if(pLoopCity->isInDangerOfFalling())
-				iTheirDanger++;
-
-			if (pLoopCity->IsBlockadedWaterAndLand())
+			if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
 				iTheirDanger++;
 		}
 		
-		iWantPeace += (iOurDanger * 2);
+		iWantPeace += iOurDanger;
 		iWantPeace += (iTheirDanger * -1);
 
 		//Lack of progress in war increases desire for peace.
@@ -8034,11 +8089,6 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		//Num of turns since they captured a city?
 		if ( GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
 			iWantPeace--;
-
-		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
-		{
-			iWantPeace += (m_pPlayer->GetCulture()->GetWarWeariness() / 2);
-		}
 
 		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
 		{
@@ -8090,7 +8140,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strBaseString += playerName + " VS. " + otherPlayerName;
 
-			strOutBuf.Format("Value Needed: %03d. Value Have: %03d.", iRequestPeaceTurnThreshold, iWantPeace);
+			strOutBuf.Format(" Value Needed: %03d. Value Have: %03d.", iRequestPeaceTurnThreshold, iWantPeace);
 
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
@@ -9036,6 +9086,30 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 	}
 }
 
+int CvDiplomacyAI::GetHighestWarscore()
+{
+	PlayerTypes eLoopPlayer;
+	int iHighestWarscore = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+		if(IsPlayerValid(eLoopPlayer))
+		{
+			int iWarscore = GetWarScore(eLoopPlayer);
+			if (iWarscore > iHighestWarscore)
+			{
+				iHighestWarscore = iWarscore;
+			}
+		}
+
+	}
+
+	iHighestWarscore *= GetPlayer()->GetPositiveWarScoreTourismMod();
+	iHighestWarscore /= 100;
+
+	return iHighestWarscore;
+}
 /// What is the integer value of how well we think the war with ePlayer is going?
 #if defined(MOD_BALANCE_CORE)
 int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer, bool bUsePeacetimeCalculation, bool bDebug)
@@ -11778,7 +11852,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 	else if (GetMostValuableDefensivePact(false) == ePlayer)
 		iValue += 3;
 
-	if (iValue > 20)
+	if (iValue > 25)
 	{
 		return true;
 	}
@@ -13451,6 +13525,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 
 		int iEnemyWeight = 0;
+		m_paiCompetitorValue[ePlayer] = 0;
 
 		if (IsPlayerValid(ePlayer))
 		{
@@ -13643,7 +13718,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-
+		m_paiDefensivePactValue[ePlayer] = 0;
 		int iDPWeight = 0;
 		if (IsPlayerValid(ePlayer) && GetBiggestCompetitor() != ePlayer && GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(ePlayer).getTeam()))
 		{
@@ -13848,7 +13923,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-
+		m_paiDoFValue[ePlayer] = 0;
 		int iDoFWeight = 0;
 		if (IsPlayerValid(ePlayer) && GetBiggestCompetitor() != ePlayer && !IsTooEarlyForDoF(ePlayer))
 		{
@@ -13925,9 +14000,16 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			{
 				iDoFWeight += 10;
 			}
+			if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetPlayer()->GetID()) == INFLUENCE_LEVEL_POPULAR)
+			{
+				if (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetPlayer()->GetID()) == INFLUENCE_TREND_RISING)
+				{
+					iDoFWeight -= 25;
+				}
+			}
 
 			//Subtract for # of existing DoFs - want only a few close friends.
-			iDoFWeight -= (GetNumDoF() * 4);
+			iDoFWeight -= (GetNumDoF() * 6);
 			
 			// Weight for Approach
 			if (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
@@ -15284,7 +15366,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryAggressivePosture(PlayerTypes ePlay
 	for(pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
 	{
 		// Don't be scared of noncombat Units!
-		if(pLoopUnit->IsCombatUnit())
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 		{
 			CvPlot* pUnitPlot = pLoopUnit->plot();
 			// Can we actually see this Unit's Plot?  No cheating!
@@ -19727,6 +19809,19 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				bWantsToMakeGoldGift = false;
 			}
 		}
+	}
+
+	if (GetPlayer()->IsCanBullyFriendlyCS())
+	{
+		bWantsToBullyUnit = true;
+		bWantsToBullyGold = true;
+		bWantsToMakeGoldGift = false;
+	}
+	else if (GetPlayer()->GetBullyGlobalCSReduction())
+	{
+		bWantsToBullyUnit = true;
+		bWantsToBullyGold = true;
+		bWantsToMakeGoldGift = false;
 	}
 #endif
 	// Loop through all (known) Minors
@@ -39904,6 +39999,10 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	if(kMyTeam.isHuman() && !m_pPlayer->isHuman())
 		return false;
 
+	//World conqueror and this guy lost his capital? He's a perma-vassal.
+	if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() && GET_PLAYER(ePlayer).IsHasLostCapital())
+		return false;
+
 	std::vector<CvPlayerAI*> m_Masters;
 	std::vector<CvPlayerAI*> m_Vassals;
 
@@ -40038,7 +40137,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		iScoreForLiberate = 50;
 		break;
 	case MAJOR_CIV_APPROACH_NEUTRAL:
-		iScoreForLiberate = 30;
+		iScoreForLiberate = 20;
 		break;
 	default:
 		CvAssertMsg(false, "IsWantToLiberateVassal(): Something went terribly wrong");
@@ -40085,19 +40184,19 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	switch(eVassalStrength)
 	{
 		case STRENGTH_PATHETIC:
-			iScoreForLiberate *= 150;
+			iScoreForLiberate *= 125;
 			iScoreForLiberate /= 100;
 			break;
 		case STRENGTH_WEAK:
-			iScoreForLiberate *= 130;
-			iScoreForLiberate /= 100;
-			break;
-		case STRENGTH_POOR:
 			iScoreForLiberate *= 115;
 			iScoreForLiberate /= 100;
 			break;
-		case STRENGTH_AVERAGE:
+		case STRENGTH_POOR:
 			iScoreForLiberate *= 100;
+			iScoreForLiberate /= 100;
+			break;
+		case STRENGTH_AVERAGE:
+			iScoreForLiberate *= 90;
 			iScoreForLiberate /= 100;
 			break;
 	}
@@ -40105,19 +40204,19 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	switch(eVassalEcoStrength)
 	{
 		case STRENGTH_PATHETIC:
-			iScoreForLiberate *= 150;
+			iScoreForLiberate *= 125;
 			iScoreForLiberate /= 100;
 			break;
 		case STRENGTH_WEAK:
-			iScoreForLiberate *= 130;
-			iScoreForLiberate /= 100;
-			break;
-		case STRENGTH_POOR:
 			iScoreForLiberate *= 115;
 			iScoreForLiberate /= 100;
 			break;
-		case STRENGTH_AVERAGE:
+		case STRENGTH_POOR:
 			iScoreForLiberate *= 100;
+			iScoreForLiberate /= 100;
+			break;
+		case STRENGTH_AVERAGE:
+			iScoreForLiberate *= 90;
 			iScoreForLiberate /= 100;
 			break;
 	}
@@ -40554,50 +40653,50 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	if(eOpinion == MAJOR_CIV_OPINION_NEUTRAL)
 		iWantVassalageScore += 0;
 	else if(eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
-		iWantVassalageScore += 10;
+		iWantVassalageScore += 5;
 	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
-		iWantVassalageScore += 15;
+		iWantVassalageScore += 10;
 	else if(eOpinion == MAJOR_CIV_OPINION_ALLY)
-		iWantVassalageScore += 25;
+		iWantVassalageScore += 20;
 
 	// If they are economically strong, consider vassalage
 	StrengthTypes eEconomyStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	if(eEconomyStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 80;
+		iWantVassalageScore += 75;
 	else if(eEconomyStrength == STRENGTH_POWERFUL)
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 45;
 	else if(eEconomyStrength == STRENGTH_STRONG)
-		iWantVassalageScore += 30;
+		iWantVassalageScore += 25;
 	else if(eEconomyStrength == STRENGTH_AVERAGE)
 		iWantVassalageScore += 0;
 	else if(eEconomyStrength == STRENGTH_POOR)
-		iWantVassalageScore += -25;
+		iWantVassalageScore += -30;
 	else if(eEconomyStrength == STRENGTH_WEAK)
-		iWantVassalageScore += -45;
+		iWantVassalageScore += -50;
 	else
-		iWantVassalageScore += -75;
+		iWantVassalageScore += -80;
 
 	// If they are militarily strong, consider vassalage
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if(eMilitaryStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 80;
+		iWantVassalageScore += 75;
 	else if(eMilitaryStrength == STRENGTH_POWERFUL)
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 45;
 	else if(eMilitaryStrength == STRENGTH_STRONG)
-		iWantVassalageScore += 30;
+		iWantVassalageScore += 25;
 	else
 		iWantVassalageScore += 0;
 
 	// Small bonus for being a threat to us
 	ThreatTypes eMilitaryThreat = GetMilitaryThreat(ePlayer);
 	if(eMilitaryThreat == THREAT_CRITICAL)
-		iWantVassalageScore += 25;
+		iWantVassalageScore += 20;
 	else if(eMilitaryThreat == THREAT_SEVERE)
-		iWantVassalageScore += 15;
-	else if(eMilitaryThreat == THREAT_MAJOR)
 		iWantVassalageScore += 10;
-	else if(eMilitaryThreat == THREAT_MINOR)
+	else if(eMilitaryThreat == THREAT_MAJOR)
 		iWantVassalageScore += 5;
+	else if(eMilitaryThreat == THREAT_MINOR)
+		iWantVassalageScore += 1;
 	else
 		iWantVassalageScore += 0;
 
@@ -40610,7 +40709,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		iTechPercent = iOurTechs * 100 / iTheirTechs;
 
 	// We have a lot more techs than them!
-	if(iTechPercent > 135)
+	if(iTechPercent > 125)
 		return false;
 
 	// Doing fine
@@ -40728,6 +40827,9 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	if(m_pPlayer->IsAnarchy())
 		return false;
 
+	if (GET_PLAYER(ePlayer).IsVassalsNoRebel())
+		return false;
+
 	// If UN is in session, end vassalage ASAP if going for diplo
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
 	{
@@ -40766,6 +40868,14 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 		iChance += 15;
 	else if(eProximity == PLAYER_PROXIMITY_DISTANT)
 		iChance += 8;
+
+	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(ePlayer, true);
+
+	// if the current approach is a dangerous approach
+	if (eSurfaceApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eSurfaceApproach == MAJOR_CIV_APPROACH_WAR)
+	{
+		iChance += 10;
+	}
 
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if(eMilitaryStrength == STRENGTH_PATHETIC)

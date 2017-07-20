@@ -4976,6 +4976,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iInstant += pkBuildingInfo->GetYieldFromVictory(eYield);
 	}
+	if (pkBuildingInfo->GetYieldFromPillage(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromPillage(eYield);
+	}
 	if (pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{
 		iInstant += pkBuildingInfo->GetInstantYield(eYield);
@@ -4991,6 +4995,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0)
 	{
 		iInstant += (kPlayer.getPolicyCostModifier() * -1) + pkBuildingInfo->GetYieldFromPolicyUnlock(eYield);
+	}
+	if (pkBuildingInfo->GetYieldFromSpyAttack(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyAttack(eYield) / 15;
+	}
+	if (pkBuildingInfo->GetYieldFromSpyDefense(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefense(eYield) / 15;
 	}
 	if (pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
 	{
@@ -5141,7 +5153,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pCity->GetCityReligions()->GetReligiousMajority() == kPlayer.GetReligions()->GetReligionInMostCities())
 	{
-		int iReligionPolicyBonus = kPlayer.GetPlayerPolicies()->GetReligionBuildingClassYieldModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
+		int iReligionPolicyBonus = pCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield);
 		if (iReligionPolicyBonus > 0)
 		{
 			iModifier += iReligionPolicyBonus;
@@ -5564,7 +5576,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if(pCity != NULL && (pkBuildingInfo->GetGreatWorksTourismModifier() > 0 || pkBuildingInfo->GetGreatWorksTourismModifierGlobal() > 0))
 	{
-		int iWorks = pCity->GetCityCulture()->GetNumGreatWorks() + GC.getBASE_TOURISM_PER_GREAT_WORK();
+		int iWorks = pCity->GetCityCulture()->GetNumGreatWorks() + GC.getBASE_TOURISM_PER_GREAT_WORK() + kPlayer.GetGreatWorkYieldChange(YIELD_TOURISM);
 
 		//Higher value the higher the number of works.
 		iCultureValue += (iWorks * (pkBuildingInfo->GetGreatWorksTourismModifier() + pkBuildingInfo->GetGreatWorksTourismModifierGlobal()));

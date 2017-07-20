@@ -2680,6 +2680,10 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	// Me giving Open Borders to the other guy
 	if(bFromMe)
 	{
+		if (!GetPlayer()->GetDiplomacyAI()->IsWillingToGiveOpenBordersToPlayer(eOtherPlayer))
+		{
+			return INT_MAX;
+		}
 		// Approach is important
 		switch(eApproach)
 		{
@@ -2689,16 +2693,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			return INT_MAX;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iItemValue += 100;
+			iItemValue += 400;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue += 100;
+			iItemValue += 300;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue += 60;
+			iItemValue += 50;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue += 40;
+			iItemValue += 200;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2785,6 +2789,11 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
+		if (!GetPlayer()->GetDiplomacyAI()->IsWantsOpenBordersWithPlayer(eOtherPlayer))
+		{
+			return INT_MAX;
+		}
+
 		// Approach is important
 		switch(eApproach)
 		{
@@ -2795,13 +2804,13 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			return INT_MAX;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iItemValue += 100;
+			iItemValue += 200;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iItemValue += 60;
+			iItemValue += 100;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iItemValue += 30;
+			iItemValue += 50;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -3624,6 +3633,29 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		return INT_MAX;
 	}
 #endif
+
+	// don't accept third party wars if we just signed a defensive pact.
+	if (pDiploAI->GetNumDefensePacts() > 0)
+	{
+		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eDPPlayer = (PlayerTypes)iPlayerLoop;
+			if (eDPPlayer != NO_PLAYER && GET_TEAM(GET_PLAYER(eDPPlayer).getTeam()).getDefensivePactCount(GetPlayer()->getTeam()) > 0)
+			{
+				int iNumDeals = kGameDeals.GetNumCurrentDealsWithPlayer(GetPlayer()->GetID(), eDPPlayer);
+				for (int iDeal = 0; iDeal < iNumDeals; iDeal++)
+				{
+					CvDeal* pCurrentDeal = kGameDeals.GetCurrentDealWithPlayer(m_pPlayer->GetID(), eDPPlayer, iDeal);
+					int iStart = pCurrentDeal->GetStartTurn();
+					if (pCurrentDeal != NULL && ((iStart + 10) > GC.getGame().getGameTurn()))
+					{
+						return INT_MAX;
+					}
+				}
+			}
+		}
+	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Already moving on asker?
@@ -8644,9 +8676,9 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 
 	CvDiplomacyAI* m_pDiploAI = GetPlayer()->GetDiplomacyAI();
 
-	if(bFromMe)						
+	if (bFromMe)
 	{
-		if(!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, bWar))
+		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, bWar))
 		{
 			return INT_MAX;
 		}
@@ -8654,7 +8686,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		// Initial Vassalage deal value at 1000
 		iItemValue = 1000;
 
-		if(bWar)
+		if (bWar)
 		{
 			return (iItemValue / 2);
 		}
@@ -8668,79 +8700,179 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		// ex: 2 wars and 2 vassals = 500 + 1000 + 1000 = a 2500 gold before modifiers!
 
 		// The point of Vassalage is protection, if they're not militarily dominant - what's the point?
-		switch(m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
+		switch (m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
 		{
-			case STRENGTH_IMMENSE:
-				iItemValue *= 80;
-				break;
-			case STRENGTH_POWERFUL:
-				iItemValue *= 90;
-				break;
-			case STRENGTH_STRONG:
-				iItemValue *= 120;
-				break;
-			case STRENGTH_AVERAGE:
-				iItemValue *= 200;
-				break;
-			case STRENGTH_POOR:
-			case STRENGTH_WEAK:
-			case STRENGTH_PATHETIC:
-			default:
-				if(bWar)
-				{
-					iItemValue *= 100;
-				}
-				else
-				{
-					return INT_MAX;
-				}
-				break;
+		case STRENGTH_IMMENSE:
+			iItemValue *= 80;
+			break;
+		case STRENGTH_POWERFUL:
+			iItemValue *= 90;
+			break;
+		case STRENGTH_STRONG:
+			iItemValue *= 120;
+			break;
+		case STRENGTH_AVERAGE:
+			iItemValue *= 200;
+			break;
+		case STRENGTH_POOR:
+		case STRENGTH_WEAK:
+		case STRENGTH_PATHETIC:
+		default:
+			if (bWar)
+			{
+				iItemValue *= 100;
+			}
+			else
+			{
+				return INT_MAX;
+			}
+			break;
 		}
 		iItemValue /= 100;
 
-		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
+		switch (GetPlayer()->GetProximityToPlayer(eOtherPlayer))
 		{
-			case PLAYER_PROXIMITY_DISTANT:
-				iItemValue *= 300;
-				break;
-			case PLAYER_PROXIMITY_FAR:
-				iItemValue *= 150;
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
-			case PLAYER_PROXIMITY_NEIGHBORS:
-				iItemValue *= 100;
-				break;
-			default:
-				CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for Vassalage valuation.");
-				iItemValue *= 100;
-				break;
+		case PLAYER_PROXIMITY_DISTANT:
+			iItemValue *= 300;
+			break;
+		case PLAYER_PROXIMITY_FAR:
+			iItemValue *= 150;
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iItemValue *= 100;
+			break;
+		default:
+			CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for Vassalage valuation.");
+			iItemValue *= 100;
+			break;
 		}
 		iItemValue /= 100;
 
-		switch(m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
+		switch (m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
-			case MAJOR_CIV_APPROACH_HOSTILE:
-				iItemValue *= 250;
-				break;
-			case MAJOR_CIV_APPROACH_GUARDED:
-				iItemValue *= 130;
-				break;
-			case MAJOR_CIV_APPROACH_AFRAID:
-				iItemValue *= 75;
-				break;
-			case MAJOR_CIV_APPROACH_FRIENDLY:
-				iItemValue *= 85;
-				break;
-			case MAJOR_CIV_APPROACH_NEUTRAL:
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			iItemValue *= 250;
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			iItemValue *= 130;
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			iItemValue *= 75;
+			break;
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			iItemValue *= 85;
+			break;
+		case MAJOR_CIV_APPROACH_NEUTRAL:
+			iItemValue *= 100;
+			break;
+		default:
+			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 100;
-				break;
-			default:
-				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
-				iItemValue *= 100;
-				break;
+			break;
 		}
 		iItemValue /= 100;
 	}
+	//from them?
+	else
+	{
+		//they don't want to do it?
+		if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(m_pPlayer->GetID(), bWar))
+		{
+			return INT_MAX;
+		}
+
+		// Initial Vassalage deal value at 1000
+		iItemValue = 1000;
+
+		if (bWar)
+		{
+			return (iItemValue / 2);
+		}
+
+		// Add deal value based on number of wars player is currently fighting (including with minors)
+		iItemValue -= iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
+
+		// Increase deal value based on number of vassals player already has
+		iItemValue -= iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals());
+
+		// ex: 2 wars and 2 vassals = 500 + 1000 + 1000 = a 2500 gold before modifiers!
+
+		// The point of Vassalage is protection, if they're not militarily dominant - what's the point?
+		switch (m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
+		{
+		case STRENGTH_IMMENSE:
+			iItemValue *= 150;
+			break;
+		case STRENGTH_POWERFUL:
+			iItemValue *= 120;
+			break;
+		case STRENGTH_STRONG:
+			iItemValue *= 100;
+			break;
+		case STRENGTH_AVERAGE:
+			iItemValue *= 75;
+			break;
+		case STRENGTH_POOR:
+		case STRENGTH_WEAK:
+		case STRENGTH_PATHETIC:
+		default:
+			if (bWar)
+			{
+				iItemValue *= 50;
+			}
+			else
+			{
+				return INT_MAX;
+			}
+			break;
+		}
+		iItemValue /= 100;
+
+		switch (GetPlayer()->GetProximityToPlayer(eOtherPlayer))
+		{
+		case PLAYER_PROXIMITY_DISTANT:
+			iItemValue *= 25;
+			break;
+		case PLAYER_PROXIMITY_FAR:
+			iItemValue *= 50;
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iItemValue *= 100;
+			break;
+		default:
+			CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for Vassalage valuation.");
+			iItemValue *= 100;
+			break;
+		}
+		iItemValue /= 100;
+
+		switch (m_pDiploAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
+		{
+		case MAJOR_CIV_APPROACH_HOSTILE:
+			iItemValue *= 50;
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+			iItemValue *= 60;
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			iItemValue *= 125;
+			break;
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			iItemValue *= 150;
+			break;
+		case MAJOR_CIV_APPROACH_NEUTRAL:
+			iItemValue *= 125;
+			break;
+		default:
+			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Vassalage valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iItemValue *= 100;
+			break;
+		}
+		iItemValue /= 100;
+	}
+
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)

@@ -35,6 +35,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iBaseSightRange(0),
 	m_iRange(0),
 	m_iAirInterceptRange(0),
+	m_iBaseLandAirDefense(0),
 	m_iAirUnitCap(0),
 	m_iNukeDamageLevel(0),
 	m_iWorkRate(0),
@@ -273,6 +274,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBaseSightRange = kResults.GetInt("BaseSightRange");
 	m_iRange = kResults.GetInt("Range");
 	m_iAirInterceptRange = kResults.GetInt("AirInterceptRange");
+	m_iBaseLandAirDefense = kResults.GetInt("BaseLandAirDefense");
 	m_iAirUnitCap = kResults.GetInt("AirUnitCap");
 	m_iNukeDamageLevel = kResults.GetInt("NukeDamageLevel");
 	m_iWorkRate = kResults.GetInt("WorkRate");
@@ -792,6 +794,11 @@ int CvUnitEntry::GetRange() const
 int CvUnitEntry::GetAirInterceptRange() const
 {
 	return m_iAirInterceptRange;
+}
+/// Air interception range
+int CvUnitEntry::GetBaseLandAirDefense() const
+{
+	return m_iBaseLandAirDefense;
 }
 
 /// How many air units does this count as?

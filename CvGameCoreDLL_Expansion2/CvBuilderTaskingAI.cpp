@@ -472,7 +472,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		// minors should not build out of their borders when they are doing a major/minor connection, only when connecting their two cities
 		if(!(m_pPlayer->isMinorCiv() && bMajorMinorConnection))
 		{
-			if(pPlot->getOwner() != m_pPlayer->GetID())
+			if(pPlot->getOwner() == NO_PLAYER)
 			{
 				m_aiNonTerritoryPlots.push_back(GC.getMap().plotNum(pPlot->getX(), pPlot->getY()));
 			}
@@ -1538,7 +1538,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		iWeight += iBuildTimeWeight;
 
 		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
-			iWeight /= 10;
+			iWeight /= 100;
 
 #if defined(MOD_BALANCE_CORE)
 		iWeight = min(iWeight,0x7FFF);
@@ -1866,11 +1866,11 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
-		iWeight = iWeight / 4;
+		iWeight = iWeight / 10;
 	}
 	if (m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest() && eFeature == FEATURE_FOREST)
 	{
-		iWeight = iWeight / 4;
+		iWeight = iWeight / 10;
 	}
 	// this doesn't actually help them, but adds some historical flavor
 	if (m_pPlayer->GetPlayerTraits()->IsEmbarkedAllWater() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))

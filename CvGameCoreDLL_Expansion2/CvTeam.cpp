@@ -6969,7 +6969,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 						{
-							kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK);
+							kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0 , false);
 						}
 					}
 				}
@@ -7188,7 +7188,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 																char text[256] = { 0 };
 																fDelay += 0.5f;
 																CvString yieldString = "";
-																yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+																yieldString.Format("%s%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
 																sprintf_s(text, yieldString, -iValue);
 																DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
 															}
@@ -7223,7 +7223,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 									{
-										kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK);
+										kPlayer.doInstantYield(INSTANT_YIELD_TYPE_ERA_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 									}
 								}
 							}
@@ -9060,7 +9060,24 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				int iNumFreePolicies = kPlayer.GetPlayerTraits()->GetFreeSocialPoliciesPerEra() > 0;
 				if (iNumFreePolicies > 0)
 				{
-					kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+					if (kPlayer.GetPlayerTraits()->IsOddEraScaler())
+					{
+						if (((eNewValue % 2) != 0))
+						{
+							if ((GC.getLogging() && GC.getAILogging()))
+							{
+								CvString strLogString;
+								strLogString.Format("CBP - Poland got their odd scaler in era %d", (int)eNewValue);
+								kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+							}
+
+							kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+						}
+					}
+					else
+					{
+						kPlayer.ChangeNumFreePolicies(iNumFreePolicies);
+					}
 				}
 			}
 		}

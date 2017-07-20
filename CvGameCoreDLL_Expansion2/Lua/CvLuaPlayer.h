@@ -323,6 +323,7 @@ protected:
 	static int lCanCreatePantheon(lua_State* L);
 	static int lHasCreatedReligion(lua_State* L);
 	static int lGetReligionCreatedByPlayer(lua_State* L);
+	static int lGetOriginalReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
 	static int lGetFoundedReligionFriendlyCityCombatMod(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
@@ -1232,6 +1233,7 @@ protected:
 	static int lGetEspionageCityStatus(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetRandomIntrigue(lua_State* L);
+	static int lDoAdvancedAction(lua_State* L);
 	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
 	static int lGetTotalValueToMe(lua_State* L);
 	static int lGetTotalValueToMeNormal(lua_State* L);

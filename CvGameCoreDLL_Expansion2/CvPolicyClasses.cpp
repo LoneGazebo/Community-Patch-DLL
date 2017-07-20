@@ -94,6 +94,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bUpgradeCSTerritory(false),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
+	m_iExtraCultureandScienceTradeRoutes(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageModifier(0),
@@ -170,6 +171,13 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInternalTradeRouteYieldModifierCapital(0),
 	m_iPositiveWarScoreTourismMod(0),
 #endif
+	m_bNoCSDecayAtWar (false),
+	m_bBullyFriendlyCS(false),
+	m_iBullyGlobalCSReduction(0),
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bVassalsNoRebel(false),
+	m_iVassalCSBonusModifier(0),
+#endif
 	m_iSharedReligionTourismModifier(0),
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
@@ -214,6 +222,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bGarrisonFreeMaintenance(false),
 	m_bAbleToAnnexCityStates(false),
 	m_bOneShot(false),
+	m_bIsOnlyTradeSameIdeology(false),
 	m_bIncludesOneShotFreeUnits(false),
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangePolicy(0),
@@ -228,8 +237,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMinorityHappinessChangePolicyCapital(0),
 	m_iPuppetUnhappinessModPolicy(0),
 	m_iNoUnhappfromXSpecialists(0),
+	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iWarWearinessModifier(0),
+	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
 #endif
 	m_piPrereqOrPolicies(NULL),
@@ -262,6 +273,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piResourcefromCSAlly(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthCapital(NULL),
+	m_piYieldFromBirthRetroactive(NULL),
+	m_piYieldFromBirthCapitalRetroactive(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromTech(NULL),
 	m_bNoUnhappinessExpansion(false),
@@ -374,7 +387,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapitalRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
@@ -502,6 +517,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
+	m_iExtraCultureandScienceTradeRoutes = kResults.GetInt("ExtraCultureandScienceTradeRoutes");
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
@@ -605,6 +621,13 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
 #endif
+	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
+	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
+	m_iBullyGlobalCSReduction = kResults.GetInt("BullyGlobalCSInfluenceShift");
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bVassalsNoRebel = kResults.GetBool("VassalsNoRebel");
+	m_iVassalCSBonusModifier = kResults.GetInt("VassalCSBonusModifier");
+#endif
 	m_iSharedReligionTourismModifier = kResults.GetInt("SharedReligionTourismModifier");
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
@@ -619,6 +642,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bOneShot = kResults.GetBool("OneShot");
+	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessMod");
@@ -633,8 +657,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMinorityHappinessChangePolicyCapital = kResults.GetInt("MinorityHappinessModCapital");
 	m_iPuppetUnhappinessModPolicy = kResults.GetInt("PuppetUnhappinessModPolicy");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
+	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
+	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -709,8 +735,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	kUtility.PopulateArrayByValue(m_piResourcefromCSAlly, "Resources", "Policy_ResourcefromCSAlly", "ResourceType", "PolicyType", szPolicyType, "Number");
 	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
-	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Policy_YieldFromBirthRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromBirthCapitalRetroactive, "Policy_YieldFromBirthCapitalRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
@@ -1624,6 +1651,10 @@ int CvPolicyEntry::GetGoldenAgeTourism() const
 {
 	return m_iGoldenAgeTourism;
 }
+int CvPolicyEntry::GetExtraCultureandScienceTradeRoutes() const
+{
+	return m_iExtraCultureandScienceTradeRoutes;
+}
 int CvPolicyEntry::GetTradeRouteLandDistanceModifier() const
 {
 	return m_iTradeRouteLandDistanceModifier;
@@ -2024,6 +2055,29 @@ int CvPolicyEntry::GetPositiveWarScoreTourismMod() const
 
 #endif
 
+bool CvPolicyEntry::IsNoCSDecayAtWar() const
+{
+	return m_bNoCSDecayAtWar;
+}
+bool CvPolicyEntry::CanBullyFriendlyCS() const
+{
+	return m_bBullyFriendlyCS;
+}
+int CvPolicyEntry::GetBullyGlobalCSReduction() const
+{
+	return m_iBullyGlobalCSReduction;
+}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+bool CvPolicyEntry::IsVassalsNoRebel() const
+{
+	return m_bVassalsNoRebel;
+}
+int CvPolicyEntry::GetVassalCSBonusModifier() const
+{
+	return m_iVassalCSBonusModifier;
+}
+#endif
+
 /// Boost to tourism bonus for shared religion
 int CvPolicyEntry::GetSharedReligionTourismModifier() const
 {
@@ -2238,6 +2292,12 @@ bool CvPolicyEntry::IsAbleToAnnexCityStates() const
 	return m_bAbleToAnnexCityStates;
 }
 
+/// Only trade with same ideologies
+bool CvPolicyEntry::IsOnlyTradeSameIdeology() const
+{
+	return m_bIsOnlyTradeSameIdeology;
+}
+
 /// Is this a one shot policy effect
 bool CvPolicyEntry::IsOneShot() const
 {
@@ -2298,6 +2358,10 @@ int CvPolicyEntry::GetNoUnhappfromXSpecialists() const
 {
 	return m_iNoUnhappfromXSpecialists;
 }
+int CvPolicyEntry::GetHappfromXSpecialists() const
+{
+	return m_iHappfromXSpecialists;
+}
 int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
 {
 	return m_iNoUnhappfromXSpecialistsCapital;
@@ -2305,6 +2369,10 @@ int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
 int CvPolicyEntry::GetWarWearinessModifier() const
 {
 	return m_iWarWearinessModifier;
+}
+int CvPolicyEntry::GetWarScoreModifier() const
+{
+	return m_iWarScoreModifier;
 }
 
 int CvPolicyEntry::GetGreatGeneralExtraBonus() const
@@ -2622,6 +2690,20 @@ int CvPolicyEntry::GetYieldFromBirthCapital(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromBirthCapital[i];
+}
+
+int CvPolicyEntry::GetYieldFromBirthRetroactive(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirthRetroactive[i];
+}
+/// Does this Policy grant yields from citizen birth in the Capital?
+int CvPolicyEntry::GetYieldFromBirthCapitalRetroactive(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirthCapitalRetroactive[i];
 }
 /// Does this Policy grant yields from constructing buildings?
 int CvPolicyEntry::GetYieldFromConstruction(int i) const
@@ -4408,10 +4490,10 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	//}
 
 	int iCost = 0;
-	iCost += (iNumPolicies* /*7*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED());
+	iCost += (int)(iNumPolicies* (/*7*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED() + GC.getPOLICY_COST_EXTRA_VALUE()));
 
 	// Exponential cost scaling
-	iCost = (int) pow((double) iCost, (double) /*1.70*/ GC.getPOLICY_COST_EXPONENT());
+	iCost = (int)pow((double)iCost, (double) /*1.70*/ GC.getPOLICY_COST_EXPONENT());
 
 	// Base cost that doesn't get exponent-ed
 	iCost += /*25*/ GC.getBASE_POLICY_COST();
@@ -4801,7 +4883,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 			}
 		}
 	}
-	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK);
+	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 	int iLoop;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
@@ -4942,6 +5024,10 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 			{
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
 				{
+					if (iFreePolicies > 0 && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted() == -1)
+					{
+						iFreePolicies += m_pPlayer->GetPlayerTraits()->GetExtraTenetsFirstAdoption();
+					}
 					m_pPlayer->ChangeNumFreeTenets(iFreePolicies, !bRevolution);
 #if defined(MOD_BALANCE_CORE)
 					if(!bRevolution)
@@ -6133,6 +6219,13 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 			{
 				iFreePolicies = pkEntry->GetSecondAdopterFreePolicies();
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+			{ 
+				if (iNumPreviousUnlockers >= 1)
+				iFreePolicies = pkEntry->GetSecondAdopterFreePolicies();
+			}
+#endif
 		}
 	}
 

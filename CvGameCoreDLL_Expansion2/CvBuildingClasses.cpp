@@ -244,6 +244,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bIsReligious(false),
 	m_bBorderObstacle(false),
 #if defined(MOD_BALANCE_CORE)
+	m_iCityAirStrikeDefense(0),
 	m_iBorderObstacleCity(-1),
 	m_iBorderObstacleWater(-1),
 	m_iWLTKDTurns(-1),
@@ -252,6 +253,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iSeaTourism(0),
 	m_iAlwaysHeal(0),
 	m_bIsCorp(false),
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	m_bPlayerBorderGainlessPillage(false),
+	m_bCityGainlessPillage(false),
 #endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
@@ -291,11 +296,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
+	m_piYieldFromPillage(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
+	m_piYieldFromSpyAttack(NULL),
+	m_piYieldFromSpyDefense(NULL),
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piScienceFromYield(NULL),
@@ -401,10 +409,13 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
+	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
+	SAFE_DELETE_ARRAY(m_piYieldFromSpyAttack);
+	SAFE_DELETE_ARRAY(m_piYieldFromSpyDefense);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
@@ -548,6 +559,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsReligious = kResults.GetBool("IsReligious");
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
 #if defined(MOD_BALANCE_CORE)
+	m_iCityAirStrikeDefense = kResults.GetInt("CityAirStrikeDefense");
 	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
 	m_iBorderObstacleWater = kResults.GetInt("BorderObstacleWater");
 	m_iWLTKDTurns = kResults.GetInt("WLTKDTurns");
@@ -556,6 +568,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
 	m_bIsCorp = kResults.GetBool("IsCorporation");
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	m_bPlayerBorderGainlessPillage = kResults.GetBool("PlayerBorderGainlessPillage");
+	m_bCityGainlessPillage = kResults.GetBool("CityGainlessPillage");
 #endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
@@ -826,10 +842,13 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromSpyAttack, "Building_YieldFromSpyAttack", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromSpyDefense, "Building_YieldFromSpyDefense", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
@@ -2229,6 +2248,11 @@ bool CvBuildingEntry::IsAnyBodyOfWater() const
 	return m_bAnyWater;
 }
 /// Is this an obstacle for just the tiles around your city?
+int CvBuildingEntry::GetCityAirStrikeDefense() const
+{
+	return m_iCityAirStrikeDefense;
+}
+/// Is this an obstacle for just the tiles around your city?
 int CvBuildingEntry::GetBorderObstacleCity() const
 {
 	return m_iBorderObstacleCity;
@@ -2261,6 +2285,19 @@ int CvBuildingEntry::GetAlwaysHeal() const
 bool CvBuildingEntry::IsCorp() const
 {
 	return m_bIsCorp;
+}
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+/// Is a border-wide nullification of the heal and gold benefits from pillaging
+bool CvBuildingEntry::IsPlayerBorderGainlessPillage() const
+{
+	return m_bPlayerBorderGainlessPillage;
+}
+
+/// Is a nullification of heal and gold benefits from pillaging this city's tiles
+bool CvBuildingEntry::IsCityGainlessPillage() const
+{
+	return m_bCityGainlessPillage;
 }
 #endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
@@ -2502,6 +2539,21 @@ int* CvBuildingEntry::GetYieldFromVictoryArray() const
 	return m_piYieldFromVictory;
 }
 
+/// Change to yield if pillaging
+int CvBuildingEntry::GetYieldFromPillage(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromPillage ? m_piYieldFromPillage[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromPillageArray() const
+{
+	return m_piYieldFromPillage;
+}
+
+
+
 /// Change to yield during golden ages
 int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const
 {
@@ -2661,6 +2713,34 @@ int* CvBuildingEntry::GetThemingYieldBonusArray() const
 {
 	return m_piThemingYieldBonus;
 }
+
+/// Array of yield changes
+int CvBuildingEntry::GetYieldFromSpyAttack(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromSpyAttack ? m_piYieldFromSpyAttack[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromSpyAttackArray() const
+{
+	return m_piYieldFromSpyAttack;
+}
+
+/// Array of yield changes
+int CvBuildingEntry::GetYieldFromSpyDefense(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromSpyDefense ? m_piYieldFromSpyDefense[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromSpyDefenseArray() const
+{
+	return m_piYieldFromSpyDefense;
+}
+
+
 #endif
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const
@@ -5078,6 +5158,26 @@ int CvCityBuildings::GetThemingBonuses() const
 		}
 	}
 #endif
+
+	return iBonus;
+}
+
+/// Accessor: Total theming bonus from all buildings in the city
+int CvCityBuildings::GetTotalNumThemedBuildings() const
+{
+	int iBonus = 0;
+
+	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo)
+		{
+			if (GetThemingBonusIndex((BuildingTypes)*iI) != -1)
+			{
+				iBonus++;
+			}
+		}
+	}
 
 	return iBonus;
 }

@@ -666,6 +666,7 @@ public:
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
 
 	int countNumAirUnits(TeamTypes eTeam) const;
+	int countNumAntiAirUnits(TeamTypes eTeam) const;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot);

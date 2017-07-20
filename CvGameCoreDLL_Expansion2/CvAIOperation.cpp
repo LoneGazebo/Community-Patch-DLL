@@ -3357,7 +3357,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 				//Nukes have hit here already, let's not target this place again.
 				if(pLoopPlot->IsFeatureFallout() && pCityPlot->getOwner() == pLoopPlot->getOwner())
 				{
-					iThisCityValue -= 1000;
+					iThisCityValue -= 5000;
 				}
 
 				if(ePlotOwner == m_eOwner)
@@ -3392,7 +3392,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 				}
 				else if (ePlotOwner != NO_PLAYER) // this will trigger a war
 				{
-					iThisCityValue -= 2000;
+					iThisCityValue -= 10000;
 				}
 	
 				// will we hit any units here?
@@ -3428,7 +3428,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 							}
 							else
 							{
-								iThisCityValue -= 2000;
+								iThisCityValue -= 10000;
 							}
 						}
 					}

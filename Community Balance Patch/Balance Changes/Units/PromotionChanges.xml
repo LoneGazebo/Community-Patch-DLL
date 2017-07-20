@@ -3325,9 +3325,9 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>58</PortraitIndex>
 			<CannotBeChosen>true</CannotBeChosen>
-			<EnemyHealChange>10</EnemyHealChange>
-			<NeutralHealChange>10</NeutralHealChange>
-			<FriendlyHealChange>10</FriendlyHealChange>
+			<EnemyHealChange>5</EnemyHealChange>
+			<NeutralHealChange>5</NeutralHealChange>
+			<FriendlyHealChange>5</FriendlyHealChange>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVERLASTING_YOUTH</PediaEntry>
@@ -3550,8 +3550,8 @@
 			<OrderPriority>3</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_1</PromotionPrereqOr1>
 			<GainsXPFromPillaging>true</GainsXPFromPillaging>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE</PediaEntry>
 		</Row>
@@ -3619,6 +3619,84 @@
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_CROSSING</PediaEntry>
 		</Row>
-		
+		<Row>
+			<Type>PROMOTION_LIGHTNING_WARFARE_GUN</Type>
+			<Description>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN</Description>
+			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<OpenAttack>15</OpenAttack>
+			<RoughAttack>15</RoughAttack>
+			<IgnoreZOC>true</IgnoreZOC>
+		</Row>
+		<Row>
+			<Type>PROMOTION_LIGHTNING_WARFARE_ARMOR</Type>
+			<Description>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR</Description>
+			<Help>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMOR</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<OpenAttack>15</OpenAttack>
+			<RoughAttack>15</RoughAttack>
+			<MovesChange>1</MovesChange>
+		</Row>
+		<Row>
+			<Type>PROMOTION_PRIZE_RULES</Type>
+			<Description>TXT_KEY_PROMOTION_PRIZE_RULES</Description>
+			<Help>TXT_KEY_PROMOTION_PRIZE_RULES_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<CannotBeChosen>true</CannotBeChosen>
+			<AttackBelowEqual50HealthMod>20</AttackBelowEqual50HealthMod>
+			<PediaEntry>TXT_KEY_PROMOTION_PRIZE_RULES</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ANTIAIR_LAND_I</Type>
+			<Description>TXT_KEY_PROMOTION_ANTIAIR_LAND_I</Description>
+			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<LandAirDefenseBonus>5</LandAirDefenseBonus>
+			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<PortraitIndex>16</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_AIR</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_I</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ANTIAIR_LAND_II</Type>
+			<Description>TXT_KEY_PROMOTION_ANTIAIR_LAND_II</Description>
+			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<LandAirDefenseBonus>5</LandAirDefenseBonus>
+			<PromotionPrereqOr1>PROMOTION_ANTIAIR_LAND_I</PromotionPrereqOr1>
+			<PortraitIndex>17</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_AIR</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ANTIAIR_LAND_III</Type>
+			<Description>TXT_KEY_PROMOTION_ANTIAIR_LAND_III</Description>
+			<Help>TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<LandAirDefenseBonus>5</LandAirDefenseBonus>
+			<PromotionPrereqOr1>PROMOTION_ANTIAIR_LAND_II</PromotionPrereqOr1>
+			<PortraitIndex>18</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_AIR</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_III</PediaEntry>
+		</Row>
 	</UnitPromotions>
 </GameData>

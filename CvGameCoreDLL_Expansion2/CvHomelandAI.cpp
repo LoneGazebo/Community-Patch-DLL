@@ -865,7 +865,7 @@ void CvHomelandAI::FindHomelandTargets()
 							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 							if((pUnit != NULL) && pUnit->IsCivilianUnit())
 							{
-								iWeight += 25;
+								iWeight += 100;
 							}
 						}
 #if !defined(MOD_CORE_REDUCE_RANDOMNESS)
@@ -882,7 +882,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible naval sentry point?
-			if (pLoopPlot->isWater() &&
+			else if (pLoopPlot->isWater() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
@@ -920,7 +920,7 @@ void CvHomelandAI::FindHomelandTargets()
 							{
 								if (pUnit->IsCivilianUnit())
 								{
-									iWeight += 25;
+									iWeight += 100;
 								}
 								else if (pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
 								{

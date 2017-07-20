@@ -81,6 +81,21 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- Allows you to define an instant yield granted when a spy is killed in a city. -->
+	<Table name="Building_YieldFromSpyDefense">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Allows you to define an instant yield granted when a spy completes a task (steal tech, etc.). -->
+	<Table name="Building_YieldFromSpyAttack">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	
+
 	<!-- FEATURE: Allows you to define a yield gained by a feature when you increase your era. -->
 	<Table name="Feature_EraYieldChanges">
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
@@ -418,6 +433,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- BUILDING: Allows you to define a building yield earned from pillaging -->
+	<Table name="Building_YieldFromPillage">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<!-- BUILDING: Allows you to define a flat yield that is gained when a building has ANY theme active. -->
 	<Table name="Building_ThemingYieldBonus">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -480,6 +502,20 @@
 
 	<!-- POLICY: Allows you to define a yield granted from citizen birth in the capital -->
 	<Table name="Policy_YieldFromBirthCapital">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from citizen birth in a city. Retroactive, one-shot bonus -->
+	<Table name="Policy_YieldFromBirthRetroactive">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield granted from citizen birth in the capital Retroactive, one-shot bonus -->
+	<Table name="Policy_YieldFromBirthCapitalRetroactive">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>

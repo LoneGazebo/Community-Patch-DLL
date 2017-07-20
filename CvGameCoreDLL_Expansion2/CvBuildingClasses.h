@@ -325,6 +325,7 @@ public:
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsAnyBodyOfWater() const;
+	int GetCityAirStrikeDefense() const;
 	int GetBorderObstacleCity() const;
 	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
@@ -333,6 +334,10 @@ public:
 	int GetSeaTourismEnd() const;
 	int GetAlwaysHeal() const;
 	bool IsCorp() const;
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool IsPlayerBorderGainlessPillage() const;
+	bool IsCityGainlessPillage() const;
 #endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
@@ -379,6 +384,9 @@ public:
 	int GetYieldFromVictory(int i) const;
 	int* GetYieldFromVictoryArray() const;
 
+	int GetYieldFromPillage(int i) const;
+	int* GetYieldFromPillageArray() const;
+
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
@@ -417,6 +425,13 @@ public:
 
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
+
+	int GetYieldFromSpyAttack(int i) const;
+	int* GetYieldFromSpyAttackArray() const;
+
+	int GetYieldFromSpyDefense(int i) const;
+	int* GetYieldFromSpyDefenseArray() const;
+
 #endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
@@ -761,6 +776,7 @@ private:
 	bool m_bIsReligious;
 	bool m_bBorderObstacle;
 #if defined(MOD_BALANCE_CORE)
+	int m_iCityAirStrikeDefense;
 	int m_iBorderObstacleCity;
 	int m_iBorderObstacleWater;
 	int m_iWLTKDTurns;
@@ -769,6 +785,10 @@ private:
 	int m_iSeaTourism;
 	int m_iAlwaysHeal;
 	bool m_bIsCorp;
+#endif
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+	bool m_bPlayerBorderGainlessPillage;
+	bool m_bCityGainlessPillage;
 #endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;
@@ -820,10 +840,13 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
+	int* m_piYieldFromPillage;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;
+	int* m_piYieldFromSpyAttack;
+	int* m_piYieldFromSpyDefense;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;
@@ -1052,6 +1075,7 @@ public:
 #else
 	int GetThemingBonuses() const;
 #endif
+	int GetTotalNumThemedBuildings() const;
 	int GetNumBuildingsFromFaith() const;
 
 	int GetCityStateTradeRouteProductionModifier() const;

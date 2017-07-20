@@ -175,6 +175,7 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
 	, m_iMultiAttackBonus("CvUnit::m_iMultiAttackBonus", m_syncArchive)
+	, m_iLandAirDefenseValue("CvUnit::m_iLandAirDefenseValue", m_syncArchive)
 #endif
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
@@ -375,6 +376,7 @@ CvUnit::CvUnit() :
 	, m_iDamageAoEFortified("CvUnit::m_iDamageAoEFortified", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
+	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -1293,6 +1295,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnKill = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
+	m_iLandAirDefenseValue = 0;
 #endif
 	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
@@ -1394,6 +1397,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iDamageAoEFortified = 0;
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
+	m_iReligiousPressureModifier = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -2150,7 +2154,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 				}
 			}
 #endif
-
+			int iWarscoremod = GET_PLAYER(ePlayer).GetWarScoreModifier();
+			if (iWarscoremod != 0)
+			{
+				iValue *= (iWarscoremod + 100);
+				iValue /= 100;
+			}
 			// My viewpoint
 			GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarValueLost(ePlayer, iValue);
 			// Bad guy's viewpoint
@@ -7273,14 +7282,14 @@ int CvUnit::GetPower() const
 	VALIDATE_OBJECT
 	int iPower = getUnitInfo().GetPower();
 
-#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (getUnitInfo().GetCombat() > 0) {
-		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (getUnitInfo().GetRangedCombat() > getUnitInfo().GetCombat()) {
+		iPower = iPower * GetBaseRangedCombatStrength() / getUnitInfo().GetRangedCombat();
 	}
 #endif
-#if defined(MOD_API_EXTENSIONS) && defined(MOD_BUGFIX_UNIT_POWER_CALC)
-	if (getUnitInfo().GetRangedCombat() > 0) {
-		iPower = iPower * GetBaseRangedCombatStrength() / getUnitInfo().GetRangedCombat();
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	else if (getUnitInfo().GetCombat() > 0) {
+		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
 	}
 #endif
 	
@@ -10115,7 +10124,12 @@ bool CvUnit::pillage()
 						}
 					}
 #endif
-
+					int iWarscoremod = GET_PLAYER(getOwner()).GetWarScoreModifier();
+					if (iWarscoremod != 0)
+					{
+						iValue *= (iWarscoremod + 100);
+						iValue /= 100;
+					}
 					// My viewpoint
 					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pPlot->getOwner(), getOwner(), iValue);
 					// Bad guy's viewpoint
@@ -10137,7 +10151,22 @@ bool CvUnit::pillage()
 				iPillageGold = GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 1");
 				iPillageGold += GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 2");
 				iPillageGold += (getPillageChange() * iPillageGold) / 100;
-
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+				if (pPlot->getOwner() != NO_PLAYER)
+				{
+					if (GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
+					{
+						iPillageGold = 0;
+					} else
+					{
+						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getWorkingCity();
+						if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
+						{
+							iPillageGold = 0;
+						}
+					}
+				}
+#endif
 				if(iPillageGold > 0)
 				{
 #if defined(MOD_BALANCE_CORE)
@@ -10210,6 +10239,8 @@ bool CvUnit::pillage()
 		pPlot->SetRoutePillaged(true);
 	}
 
+	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE);
+
 	if(!hasFreePillageMove())
 	{
 		changeMoves(-GC.getMOVE_DENOMINATOR());
@@ -10226,6 +10257,26 @@ bool CvUnit::pillage()
 
 	if(bSuccessfulNonRoadPillage)
 	{
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
+		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
+		{
+			CvCity* pCityOfThisPlot = pPlot->getWorkingCity();
+			if ( pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()) )
+			{
+				if (hasHealOnPillage())
+				{
+					// completely heal unit
+					changeDamage(-getDamage());
+				}
+				else
+				{
+					int iHealAmount = min(getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
+					changeDamage(-iHealAmount);
+				}
+			}
+		}
+#else
 		if (hasHealOnPillage())
 		{
 			// completely heal unit
@@ -10236,6 +10287,7 @@ bool CvUnit::pillage()
 			int iHealAmount = min(getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
 			changeDamage(-iHealAmount);
 		}
+#endif
 	}
 
 	return true;
@@ -10904,7 +10956,7 @@ bool CvUnit::DoSpreadReligion()
 					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
 					if(pCity->getOwner() != m_eOwner)
 					{
-						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 2), true, pCity->getOwner(), plot());
+						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 3), false, pCity->getOwner(), plot());
 					}
 #else
 					iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
@@ -11328,6 +11380,21 @@ int CvUnit::getDiscoverAmount()
 			// Beakers boost based on previous turns
 			int iPreviousTurnsToCount = m_pUnitInfo->GetBaseBeakersTurnsToCount();
 			iValue = pPlayer->GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+			//Let's make the GM a little more flexible.
+			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+			{
+				ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
+				if (eAcademy != NO_IMPROVEMENT)
+				{
+					int iAcademies = pPlayer->CountAllImprovement(eAcademy);
+					iValue *= ((iAcademies * 10) + 100);
+					iValue /= 100;
+				}
+			}
+#endif
+
 			if (pPlayer->GetGreatScientistBeakerMod() != 0)
 			{
 				iValue += (iValue * pPlayer->GetGreatScientistBeakerMod()) / 100;
@@ -11517,6 +11584,20 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 
 	iProduction = (m_pUnitInfo->GetBaseHurry() + (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation()));
 
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	//Let's make the GM a little more flexible.
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
+		if (eManufactory != NO_IMPROVEMENT)
+		{
+			int iManufactories = GET_PLAYER(getOwner()).CountAllImprovement(eManufactory);
+			iProduction *= ((iManufactories * 10) + 100);
+			iProduction /= 100;
+		}
+	}
+#endif
+
 	iProduction *= GC.getGame().getGameSpeedInfo().getUnitHurryPercent();
 	iProduction /= 100;
 
@@ -11687,6 +11768,20 @@ int CvUnit::getTradeGold(const CvPlot* /*pPlot*/) const
 
 	// Amount of Gold also increases with how far into the game we are
 	iGold += (m_pUnitInfo->GetNumGoldPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
+
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	//Let's make the GM a little more flexible.
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		ImprovementTypes eTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
+		if (eTown != NO_IMPROVEMENT)
+		{
+			int iTowns = GET_PLAYER(getOwner()).CountAllImprovement(eTown);
+			iGold *= ((iTowns * 10) + 100);
+			iGold /= 100;
+		}
+	}
+#endif
 
 	iGold *= GC.getGame().getGameSpeedInfo().getUnitTradePercent();
 	iGold /= 100;
@@ -12531,6 +12626,26 @@ int CvUnit::GetGoldenAgeTurns() const
 	if(iLengthModifier > 0)
 		iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
 
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	//GA Mod
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		int iTotalThemes = 0;
+		int iCityLoop;
+		// Loop through owner's cities.
+		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+		{
+			if (pLoopCity != NULL)
+			{
+				iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+			}
+		}
+
+		iTotalThemes = (iTotalThemes * GC.getTHEME_GREAT_WORK_GA_MULTIPLIER());
+		iGoldenAgeTurns *= (iTotalThemes + 100);
+		iGoldenAgeTurns /= 100;
+	}
+#endif
 	// Game Speed mod
 
 	iGoldenAgeTurns *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent();
@@ -12581,6 +12696,16 @@ int CvUnit::getGivePoliciesCulture()
 			// Calculate boost
 			iValue = kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 		}
+
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		{
+			int iNumGreatWorks = kPlayer.GetCulture()->GetNumGreatWorks();
+			iNumGreatWorks = (iNumGreatWorks * GC.getGREAT_WORK_CULTURE_MULTIPLIER());
+			iValue *= (iNumGreatWorks + 100);
+			iValue /= 100;
+		}
+#endif
 
 		// Modify based on game speed
 		iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
@@ -16686,10 +16811,32 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
 	pAttacker; pTargetPlot; pFromPlot;
-	if (bIncludeRand)
-		return 8 + GC.getGame().getJonRandNum(5,"air attack attrition");
+	//base value
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	{
+		int iBaseValue = getUnitInfo().GetBaseLandAirDefense();
+		if (iBaseValue == 0)
+			if (bIncludeRand && !IsCivilianUnit())
+				return GC.getGame().getJonRandNum(3, "air attack attrition");
+			else
+				return 0;
+		else
+		{
+			iBaseValue += getLandAirDefenseValue();
+
+			if (bIncludeRand)
+				return iBaseValue + GC.getGame().getJonRandNum(5, "air attack attrition");
+			else
+				return iBaseValue;
+		}
+	}
 	else
-		return 10;
+	{
+		if (bIncludeRand)
+			return 8 + GC.getGame().getJonRandNum(5, "air attack attrition");
+		else
+			return 10;
+	}	
 #else
 	if (!pAttacker)
 		return 0;
@@ -21456,6 +21603,20 @@ void CvUnit::changeMultiAttackBonus(int iChange)
 		m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
 	CvAssert(getMultiAttackBonus() >= 0);
 }
+//	--------------------------------------------------------------------------------
+int CvUnit::getLandAirDefenseValue() const
+{
+	VALIDATE_OBJECT
+		return m_iLandAirDefenseValue;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeLandAirDefenseValue(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iLandAirDefenseValue = (m_iLandAirDefenseValue + iChange);
+	CvAssert(getLandAirDefenseValue() >= 0);
+}
+
 
 
 
@@ -23722,6 +23883,19 @@ void CvUnit::ChangeGoodyHutYieldBonus(int iChange)
 	m_iGoodyHutYieldBonus += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetReligiousPressureModifier() const
+{
+	return m_iReligiousPressureModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeReligiousPressureModifier(int iChange)
+{
+	m_iReligiousPressureModifier += iChange;
+}
+
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -25752,6 +25926,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
+		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
@@ -25791,6 +25966,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		}
 		ChangeIsStrongerDamaged((thisPromotion.IsStrongerDamaged()) ? iChange : 0);
 		ChangeGoodyHutYieldBonus((thisPromotion.GetGoodyHutYieldBonus()) * iChange);
+		ChangeReligiousPressureModifier((thisPromotion.GetReligiousPressureModifier()) * iChange);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
@@ -29129,6 +29305,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp = (iExtra * 10);
 
 		iValue += iTemp + iFlavorOffense * 7;
+	}
+
+	iTemp = pkPromotionInfo->GetLandAirDefenseValue();
+	if (iTemp != 0)
+	{
+		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_AIR");
+		if(GET_PLAYER(getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategy))
+		{
+			iTemp *= 2;
+		}
+
+		iTemp += getLandAirDefenseValue() + getUnitInfo().GetBaseLandAirDefense();
+
+		iValue += iTemp + iFlavorDefense * 4;
 	}
 
 	if (pkPromotionInfo->IsGainsXPFromPillaging())

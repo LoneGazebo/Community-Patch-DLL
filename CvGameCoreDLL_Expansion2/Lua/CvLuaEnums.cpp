@@ -925,6 +925,21 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumStart(L, "ContractTypes");
 	RegisterEnum(NO_CONTRACT);
 	EnumEnd(L);
+
+	//AdvancedActions
+	EnumStart(L, "AdvancedActionTypes");
+	RegisterEnum(ADVANCED_ACTION_NONE);
+	RegisterEnum(ADVANCED_ACTION_UNIT);
+	RegisterEnum(ADVANCED_ACTION_GP);
+	RegisterEnum(ADVANCED_ACTION_BUILDING);
+	RegisterEnum(ADVANCED_ACTION_WW);
+	RegisterEnum(ADVANCED_ACTION_GOLD_THEFT);
+	RegisterEnum(ADVANCED_ACTION_SCIENCE_THEFT);
+	RegisterEnum(ADVANCED_ACTION_UNREST);
+	RegisterEnum(ADVANCED_ACTION_REBELLION);
+	RegisterEnum(ADVANCED_ACTION_FAILURE);
+	RegisterEnum(NUM_ADVANCED_ACTIONS);
+	EnumEnd(L);
 #endif
 
 

@@ -227,6 +227,8 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	local unitRange = unit.Range
 	local combatStrength = unit.Combat
 	local unitMoves = unit.Moves
+	local airstrike = unit.BaseLandAirDefense 
+
 	local unitDomainType = unit.Domain
 
 	local thisUnitType = { UnitType = unit.Type }
@@ -288,6 +290,9 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 
 	-- Combat:
 	tips:insertIf( combatStrength > 0 and S( "%s %g[ICON_STRENGTH]", L"TXT_KEY_PEDIA_COMBAT_LABEL", combatStrength ) )
+
+	-- Air Combat:
+	tips:insertIf( airstrike > 0 and S( "%s %g[ICON_AIRSTRIKE_DEFENSE]", L"TXT_KEY_AIR_STRENGTH_DEFENSE", airstrike ) )
 
 	-- Abilities:	--TXT_KEY_PEDIA_FREEPROMOTIONS_LABEL
 	tips:insertIf( #freePromotions > 0 and "[ICON_BULLET]" .. freePromotions:concat( "[NEWLINE][ICON_BULLET]" ) )
