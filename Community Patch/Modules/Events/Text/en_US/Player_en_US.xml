@@ -631,7 +631,7 @@
 			<Text>Death of a Merchant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_HELP">
-			<Text>A wealththy merchant in your empire has died, and he left behind an ambiguous will. His two sons, one a sailor and the other a banker, each have legal claim to the inheritance, and have petitioned the state for resolution. What will you decide?</Text>
+			<Text>A wealthy merchant in your empire has died, and he left behind an ambiguous will. His two sons, one a sailor and the other a banker, each have legal claim to the inheritance, and have petitioned the state for resolution. What will you decide?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_1">
 			<Text>I don't care, however I do intend to tax the inheritance.</Text>
