@@ -53,13 +53,13 @@
 			<Text>Let's focus on something simple.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_HELP">
-			<Text>Spend {1_Scaled}. 50% Chance to gain +75 [ICON_FOOD] Food in the City.</Text>
+			<Text>Spend {1_Scaled}. 50% Chance to gain +200 [ICON_FOOD] Food in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2">
 			<Text>A large investment will pay dividends.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_HELP">
-			<Text>Spend {1_Scaled}. 50% Chance that Fishing Boats near the City will gain +2 [ICON_FOOD] Food for {5_Turns}.</Text>
+			<Text>Spend {1_Scaled}. 50% Chance that Fishing Boats near the City will gain +5 [ICON_FOOD] Food for {5_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3">
 			<Text>I'd rather invest in infrastructure.</Text>
@@ -74,7 +74,7 @@
 			<Text>Fishing expedition successful!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL">
-			<Text>The fishermen from {2_City} succeeded, and all Fishing Boats near {2_City} are producing +2 [ICON_FOOD] Food!{5_Help}</Text>
+			<Text>The fishermen from {2_City} succeeded, and all Fishing Boats near {2_City} are producing +5 [ICON_FOOD] Food!{5_Help}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL_S">
 			<Text>Fishing expedition successful!</Text>
@@ -249,31 +249,31 @@
 			<Text>A skiing competition, obviously.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_1_HELP">
-			<Text>Gain 400 [ICON_GOLD] Gold and 100 [ICON_CULTURE] Culture. </Text>
+			<Text>Gain 100 [ICON_GOLD] Gold and 75 [ICON_CULTURE] Culture. </Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_2">
 			<Text>Water sports, obviously.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_2_HELP">
-			<Text>Gain 400 [ICON_GOLD] Gold and 250 [ICON_RESEARCH] Science.</Text>
+			<Text>Gain 100 [ICON_GOLD] Gold and 75 [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_3">
 			<Text>Pretty sure it was football. No, the American kind.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_3_HELP">
-			<Text>Gain 500 [ICON_GOLD] Gold.</Text>
+			<Text>Gain 200 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_4">
 			<Text>Pretty sure it was football. Yeah, the real kind.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_4_HELP">
-			<Text>Gain 500 [ICON_GOLD] Gold.</Text>
+			<Text>Gain 200 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_5">
 			<Text>A sporting event? No, it was a ceremony.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_5_HELP">
-			<Text>Gain 300 [ICON_GOLDEN_AGE] Golden Age Points.</Text>
+			<Text>Gain 400 [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 
 		<!-- Nuclear Plant -->

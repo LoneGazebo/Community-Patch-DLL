@@ -470,7 +470,7 @@
 			<Text>Decentralize it. Our people are more than capable of managing their own money.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_1_HELP">
-			<Text>Receive 1 free Social Policy.</Text>
+			<Text>All Laborers and Merchants produce +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_2">
 			<Text>Guilds should continue to manage our money.</Text>
