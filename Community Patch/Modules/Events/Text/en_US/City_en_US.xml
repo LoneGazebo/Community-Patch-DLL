@@ -249,25 +249,25 @@
 			<Text>A skiing competition, obviously.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_1_HELP">
-			<Text>Gain 200 [ICON_GOLD] Gold and 50 [ICON_CULTURE] Culture. </Text>
+			<Text>Gain 100 [ICON_GOLD] Gold and 75 [ICON_CULTURE] Culture. </Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_2">
 			<Text>Water sports, obviously.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_2_HELP">
-			<Text>Gain 200 [ICON_GOLD] Gold and 125 [ICON_RESEARCH] Science.</Text>
+			<Text>Gain 100 [ICON_GOLD] Gold and 75 [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_3">
 			<Text>Pretty sure it was football. No, the American kind.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_3_HELP">
-			<Text>Gain 250 [ICON_GOLD] Gold.</Text>
+			<Text>Gain 200 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_4">
 			<Text>Pretty sure it was football. Yeah, the real kind.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_4_HELP">
-			<Text>Gain 250 [ICON_GOLD] Gold.</Text>
+			<Text>Gain 200 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_5">
 			<Text>A sporting event? No, it was a ceremony.</Text>
