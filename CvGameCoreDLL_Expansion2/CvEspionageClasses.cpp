@@ -5026,10 +5026,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 #endif
 		LogEspionageMsg(strMsg);
 	}
-#if defined(MOD_BALANCE_CORE)
-	//Used for minor civ quests
-	pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
-#endif
+
 	bool bAttemptSuccess = false;
 	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
@@ -5053,6 +5050,9 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				int iNewInfluence = aiNewInfluenceValueTimes100[ui] - (GC.getESPIONAGE_COUP_OTHER_PLAYERS_INFLUENCE_DROP() * 100);
 				iNewInfluence = max(iNewInfluence, 0);
 				aiNewInfluenceValueTimes100[ui] = iNewInfluence;
+
+				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
+				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_pPlayer->GetID(), 1);
 			}
 		}
 

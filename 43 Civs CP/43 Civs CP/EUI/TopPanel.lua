@@ -2278,6 +2278,17 @@ local function ResourcesToolTip( control )
 					end
 				end
 			end
+
+			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
+			local tip2 = ""
+			if numResourceMisc > 0 then
+				tip2 = " " .. ColorizeAbs( numResourceMisc ) .. resource.IconString
+			end
+			if #tip2 > 0 then
+				tips:insert( "" )
+				tips:insert( Colorize(numResourceLocal) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
+				tips:insert( "[ICON_BULLET]" .. tip2 )
+			end
 			----------------------------
 			-- Import & Export Breakdown
 			----------------------------

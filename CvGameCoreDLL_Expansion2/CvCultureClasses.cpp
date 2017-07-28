@@ -5471,71 +5471,173 @@ void CvPlayerCulture::DoPublicOpinion()
 				PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 				if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE)
 				{
-					int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
-					if (iCulturalDominanceOverUs > 0)
+#if defined(MOD_BALANCE_CORE)
+					if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					{
-						if (eOtherCivIdeology == eFreedomBranch)
+						InfluenceLevelTypes eTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
+						//Only for popular+ civs.
+						if (eTheirInfluenceLevel <= INFLUENCE_LEVEL_FAMILIAR)
+							continue;
+
+						int iTheirInfluenceValue = 0;
+						if (kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) == INFLUENCE_TREND_RISING)
 						{
-							iPressureForFreedom += iCulturalDominanceOverUs;
-							if (strFreedomPressureString.size() > 0)
-							{
-								strFreedomPressureString += ", ";
-							}
-							strFreedomPressureString += kPlayer.getCivilizationShortDescription();
-							for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
-							{
-								strFreedomPressureString += "[ICON_IDEOLOGY_FREEDOM]";
-							}
+							iTheirInfluenceValue = (int)eTheirInfluenceLevel;
 						}
-						else if (eOtherCivIdeology == eAutocracyBranch)
+						else if (kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) == INFLUENCE_TREND_STATIC)
 						{
-							iPressureForAutocracy += iCulturalDominanceOverUs;
-							if (strAutocracyPressureString.size() > 0)
-							{
-								strAutocracyPressureString += ", ";
-							}
-							strAutocracyPressureString += kPlayer.getCivilizationShortDescription();
-							for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
-							{
-								strAutocracyPressureString += "[ICON_IDEOLOGY_AUTOCRACY]";
-							}
+							iTheirInfluenceValue = ((int)eTheirInfluenceLevel - 1);
 						}
-						else
+						else if (kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) == INFLUENCE_TREND_FALLING)
 						{
-							iPressureForOrder += iCulturalDominanceOverUs;
-							if (strOrderPressureString.size() > 0)
-							{
-								strOrderPressureString += ", ";
-							}
-							strOrderPressureString += kPlayer.getCivilizationShortDescription();
-							for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
-							{
-								strOrderPressureString += "[ICON_IDEOLOGY_ORDER]";
-							}
+							iTheirInfluenceValue = ((int)eTheirInfluenceLevel - 2);
 						}
+
+						InfluenceLevelTypes eOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+
+						int iOurInfluenceValue = 0;
+						if (m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer) == INFLUENCE_TREND_RISING)
+						{
+							iOurInfluenceValue = (int)eOurInfluenceLevel;
+						}
+						else if (m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer) == INFLUENCE_TREND_STATIC)
+						{
+							iOurInfluenceValue = ((int)eOurInfluenceLevel - 1);
+						}
+						else if (m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer) == INFLUENCE_TREND_FALLING)
+						{
+							iOurInfluenceValue = ((int)eOurInfluenceLevel - 2);
+						}
+
+						int iCulturalDominanceOverUs = max(0, iTheirInfluenceValue) - max(0 , iOurInfluenceValue);
+						if (iCulturalDominanceOverUs > 0)
+						{
+							if (eOtherCivIdeology == eFreedomBranch)
+							{
+								iPressureForFreedom += iCulturalDominanceOverUs;
+								if (strFreedomPressureString.size() > 0)
+								{
+									strFreedomPressureString += ", ";
+								}
+								strFreedomPressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strFreedomPressureString += "[ICON_IDEOLOGY_FREEDOM]";
+								}
+							}
+							else if (eOtherCivIdeology == eAutocracyBranch)
+							{
+								iPressureForAutocracy += iCulturalDominanceOverUs;
+								if (strAutocracyPressureString.size() > 0)
+								{
+									strAutocracyPressureString += ", ";
+								}
+								strAutocracyPressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strAutocracyPressureString += "[ICON_IDEOLOGY_AUTOCRACY]";
+								}
+							}
+							else
+							{
+								iPressureForOrder += iCulturalDominanceOverUs;
+								if (strOrderPressureString.size() > 0)
+								{
+									strOrderPressureString += ", ";
+								}
+								strOrderPressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strOrderPressureString += "[ICON_IDEOLOGY_ORDER]";
+								}
+							}
+						}						
 					}
+					else
+					{
+#endif
+						int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+						if (iCulturalDominanceOverUs > 0)
+						{
+							if (eOtherCivIdeology == eFreedomBranch)
+							{
+								iPressureForFreedom += iCulturalDominanceOverUs;
+								if (strFreedomPressureString.size() > 0)
+								{
+									strFreedomPressureString += ", ";
+								}
+								strFreedomPressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strFreedomPressureString += "[ICON_IDEOLOGY_FREEDOM]";
+								}
+							}
+							else if (eOtherCivIdeology == eAutocracyBranch)
+							{
+								iPressureForAutocracy += iCulturalDominanceOverUs;
+								if (strAutocracyPressureString.size() > 0)
+								{
+									strAutocracyPressureString += ", ";
+								}
+								strAutocracyPressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strAutocracyPressureString += "[ICON_IDEOLOGY_AUTOCRACY]";
+								}
+							}
+							else
+							{
+								iPressureForOrder += iCulturalDominanceOverUs;
+								if (strOrderPressureString.size() > 0)
+								{
+									strOrderPressureString += ", ";
+								}
+								strOrderPressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strOrderPressureString += "[ICON_IDEOLOGY_ORDER]";
+								}
+							}
+						}
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 			}
 		}
 
 		if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 		{
+			//Get a bonus for fewer followers.
+			int iNumCivsFollowingOurIdeology = GetNumCivsFollowingAnyIdeology() - GetNumCivsFollowingIdeology(eCurrentIdeology);
+			//Divide by number of ideologies.
+			iNumCivsFollowingOurIdeology /= 3;
+			if (eCurrentIdeology == eFreedomBranch)
+				iPressureForFreedom += iNumCivsFollowingOurIdeology;
+			else if (eCurrentIdeology == eOrderBranch)
+				iPressureForOrder += iNumCivsFollowingOurIdeology;
+			else if (eCurrentIdeology == eAutocracyBranch)
+				iPressureForAutocracy += iNumCivsFollowingOurIdeology;
+
 			//first ideology?
 			if (GetTurnIdeologySwitch() == -1)
 			{
 				//free 'pressure' for our ideology if we just adopted.
 				int iTurnsSinceIdeology = GC.getGame().getGameTurn() - GetTurnIdeologyAdopted();
-				int iTurnLag = 50;
+				int iTurnLag = 30;
 				iTurnLag *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurnLag /= 100;
 				iTurnsSinceIdeology = iTurnLag - iTurnsSinceIdeology;
 				iTurnsSinceIdeology /= 10;
-				if (eCurrentIdeology == eFreedomBranch)
-					iPressureForFreedom += iTurnsSinceIdeology;
-				else if (eCurrentIdeology == eOrderBranch)
-					iPressureForOrder += iTurnsSinceIdeology;
-				else if (eCurrentIdeology == eAutocracyBranch)
-					iPressureForAutocracy += iTurnsSinceIdeology;
+				if (iTurnsSinceIdeology > 0)
+				{
+					if (eCurrentIdeology == eFreedomBranch)
+						iPressureForFreedom += iTurnsSinceIdeology;
+					else if (eCurrentIdeology == eOrderBranch)
+						iPressureForOrder += iTurnsSinceIdeology;
+					else if (eCurrentIdeology == eAutocracyBranch)
+						iPressureForAutocracy += iTurnsSinceIdeology;
+				}
 			}
 			else
 			{
@@ -5546,12 +5648,15 @@ void CvPlayerCulture::DoPublicOpinion()
 				iTurnLag /= 100;
 				iTurnsSinceIdeology = iTurnLag - iTurnsSinceIdeology;
 				iTurnsSinceIdeology /= 10;
-				if (eCurrentIdeology == eFreedomBranch)
-					iPressureForFreedom += iTurnsSinceIdeology;
-				else if (eCurrentIdeology == eOrderBranch)
-					iPressureForOrder += iTurnsSinceIdeology;
-				else if (eCurrentIdeology == eAutocracyBranch)
-					iPressureForAutocracy += iTurnsSinceIdeology;
+				if (iTurnsSinceIdeology > 0)
+				{
+					if (eCurrentIdeology == eFreedomBranch)
+						iPressureForFreedom += iTurnsSinceIdeology;
+					else if (eCurrentIdeology == eOrderBranch)
+						iPressureForOrder += iTurnsSinceIdeology;
+					else if (eCurrentIdeology == eAutocracyBranch)
+						iPressureForAutocracy += iTurnsSinceIdeology;
+				}
 			}
 		}
 
@@ -5768,24 +5873,99 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 			PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 			if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE)
 			{
-				int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
-				if (iCulturalDominanceOverUs > 0)
+#if defined(MOD_BALANCE_CORE)
+				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 				{
-					if (eOtherCivIdeology == eFreedomBranch)
+					InfluenceLevelTypes eTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
+					//Only for popular+ civs.
+					if (eTheirInfluenceLevel <= INFLUENCE_LEVEL_FAMILIAR)
+						continue;
+
+					int iTheirInfluenceValue = 0;
+					if (kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) == INFLUENCE_TREND_RISING)
 					{
-						iPressureForFreedom += iCulturalDominanceOverUs;
+						iTheirInfluenceValue = (int)eTheirInfluenceLevel;
 					}
-					else if (eOtherCivIdeology == eAutocracyBranch)
+					else if (kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) == INFLUENCE_TREND_STATIC)
 					{
-						iPressureForAutocracy += iCulturalDominanceOverUs;
+						iTheirInfluenceValue = ((int)eTheirInfluenceLevel - 1);
 					}
-					else
+					else if (kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID()) == INFLUENCE_TREND_FALLING)
 					{
-						iPressureForOrder += iCulturalDominanceOverUs;
+						iTheirInfluenceValue = ((int)eTheirInfluenceLevel - 2);
+					}
+
+					InfluenceLevelTypes eOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+
+					int iOurInfluenceValue = 0;
+					if (m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer) == INFLUENCE_TREND_RISING)
+					{
+						iOurInfluenceValue = (int)eOurInfluenceLevel;
+					}
+					else if (m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer) == INFLUENCE_TREND_STATIC)
+					{
+						iOurInfluenceValue = ((int)eOurInfluenceLevel - 1);
+					}
+					else if (m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer) == INFLUENCE_TREND_FALLING)
+					{
+						iOurInfluenceValue = ((int)eOurInfluenceLevel - 2);
+					}
+
+					int iCulturalDominanceOverUs = max(0, iTheirInfluenceValue) - max(0, iOurInfluenceValue);
+					if (iCulturalDominanceOverUs > 0)
+					{
+						if (eOtherCivIdeology == eFreedomBranch)
+						{
+							iPressureForFreedom += iCulturalDominanceOverUs;
+						}
+						else if (eOtherCivIdeology == eAutocracyBranch)
+						{
+							iPressureForAutocracy += iCulturalDominanceOverUs;
+						}
+						else
+						{
+							iPressureForOrder += iCulturalDominanceOverUs;
+						}
 					}
 				}
+				else
+				{
+#endif
+					int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+					if (iCulturalDominanceOverUs > 0)
+					{
+						if (eOtherCivIdeology == eFreedomBranch)
+						{
+							iPressureForFreedom += iCulturalDominanceOverUs;
+						}
+						else if (eOtherCivIdeology == eAutocracyBranch)
+						{
+							iPressureForAutocracy += iCulturalDominanceOverUs;
+						}
+						else
+						{
+							iPressureForOrder += iCulturalDominanceOverUs;
+						}
+					}
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
+	}
+
+	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+	{
+		//Get a bonus for fewer followers.
+		int iNumCivsFollowingNewIdeology = GetNumCivsFollowingAnyIdeology() - GetNumCivsFollowingIdeology(eBranch);
+		//Divide by number of ideologies.
+		iNumCivsFollowingNewIdeology /= 3;
+		if (eBranch == eFreedomBranch)
+			iPressureForFreedom += iNumCivsFollowingNewIdeology;
+		else if (eBranch == eOrderBranch)
+			iPressureForOrder += iNumCivsFollowingNewIdeology;
+		else if (eBranch == eAutocracyBranch)
+			iPressureForAutocracy += iNumCivsFollowingNewIdeology;
 	}
 
 	if (eBranch == eFreedomBranch)
@@ -5871,8 +6051,9 @@ bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer) co
 		return false;
 	}
 
-	int iInfluenceLevel = GetInfluenceLevel(eTargetPlayer);
-	if (iInfluenceLevel > INFLUENCE_LEVEL_EXOTIC)
+	InfluenceLevelTypes eInfluenceLevel = GetInfluenceLevel(eTargetPlayer);
+	InfluenceLevelTrend eInfluenceTrend = GetInfluenceTrend(eTargetPlayer);
+	if (eInfluenceLevel > INFLUENCE_LEVEL_FAMILIAR && eInfluenceTrend >= INFLUENCE_TREND_STATIC)
 	{
 		return true;
 	}
@@ -5916,6 +6097,39 @@ bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer) co
 	}
 	return (eFirstPlayer == eTargetPlayer || eSecondPlayer == eTargetPlayer);
 #endif
+}
+
+int CvPlayerCulture::GetNumCivsFollowingIdeology(PolicyBranchTypes ePolicyBranch)
+{
+	int iFollowers = 0;
+	// determine which civs have run out of techs to steal
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+
+		if (m_pPlayer->GetID() == eOtherPlayer)
+		{
+			continue;
+		}
+
+		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == ePolicyBranch)
+			iFollowers++;
+	}
+	return iFollowers;
+}
+
+int CvPlayerCulture::GetNumCivsFollowingAnyIdeology()
+{
+	int iFollowers = 0;
+	// determine which civs have run out of techs to steal
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+
+		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+			iFollowers++;
+	}
+	return iFollowers;
 }
 
 /// How many diplomats could I possibly want now?

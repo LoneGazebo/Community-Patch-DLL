@@ -748,6 +748,12 @@ public:
 	int getCitySupplyFlat() const;
 	void changeCitySupplyFlat(int iChange);
 
+	void SetProductionRoutes(bool bValue);
+	bool IsProductionRoutes() const;
+
+	void SetFoodRoutes(bool bValue);
+	bool IsFoodRoutes() const;
+
 	int getNukeModifier() const;
 	void changeNukeModifier(int iChange);
 
@@ -1660,6 +1666,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iCityWorkingChange;
 	FAutoVariable<int, CvCity> m_iCitySupplyModifier;
 	FAutoVariable<int, CvCity> m_iCitySupplyFlat;
+	FAutoVariable<bool, CvCity> m_bAllowsProductionTradeRoutes;
+	FAutoVariable<bool, CvCity> m_bAllowsFoodTradeRoutes;
 #endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;

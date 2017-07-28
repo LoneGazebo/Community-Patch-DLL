@@ -298,6 +298,8 @@ CvCity::CvCity() :
 	, m_iCityWorkingChange("CvCity::m_iCityWorkingChange", m_syncArchive)
 	, m_iCitySupplyModifier("CvCity::m_iCitySupplyModifier", m_syncArchive)
 	, m_iCitySupplyFlat("CvCity::m_iCitySupplyFlat", m_syncArchive)
+	, m_bAllowsProductionTradeRoutes("CvCity::m_bAllowsProductionTradeRoutes", m_syncArchive)
+	, m_bAllowsFoodTradeRoutes("CvCity::m_bAllowsFoodTradeRoutes", m_syncArchive)
 #endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
@@ -1394,6 +1396,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCityWorkingChange = 0;
 	m_iCitySupplyModifier = 0;
 	m_iCitySupplyFlat = 0;
+	m_bAllowsProductionTradeRoutes = false;
+	m_bAllowsFoodTradeRoutes = false;
 #endif
 	m_iMaintenance = 0;
 	m_iHealRate = 0;
@@ -13605,6 +13609,14 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		GetCityBuildings()->ChangeBuildingDefenseMod(pBuildingInfo->GetBuildingDefenseModifier() * iChange);
 		changeCitySupplyModifier(pBuildingInfo->GetCitySupplyModifier() * iChange);
 		changeCitySupplyFlat(pBuildingInfo->GetCitySupplyFlat() * iChange);
+		if (pBuildingInfo->AllowsProductionTradeRoutes())
+		{
+			SetProductionRoutes(true);
+		}
+		if (pBuildingInfo->AllowsFoodTradeRoutes())
+		{
+			SetFoodRoutes(true);
+		}
 #endif
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeFreeExperience(pBuildingInfo->GetFreeExperience() * iChange);
@@ -18860,6 +18872,30 @@ void CvCity::changeCitySupplyFlat(int iChange)
 {
 	VALIDATE_OBJECT
 		m_iCitySupplyFlat += iChange;
+}
+
+void CvCity::SetProductionRoutes(bool bValue)
+{
+	if (m_bAllowsProductionTradeRoutes != bValue)
+	{
+		m_bAllowsProductionTradeRoutes = bValue;
+	}
+}
+bool CvCity::IsProductionRoutes() const
+{
+	return m_bAllowsProductionTradeRoutes;
+}
+
+void CvCity::SetFoodRoutes(bool bValue)
+{
+	if (m_bAllowsFoodTradeRoutes != bValue)
+	{
+		m_bAllowsFoodTradeRoutes = bValue;
+	}
+}
+bool CvCity::IsFoodRoutes() const
+{
+	return m_bAllowsFoodTradeRoutes;
 }
 #endif
 

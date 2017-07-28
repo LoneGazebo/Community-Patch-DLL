@@ -5177,12 +5177,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (iDelta <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iFlatYield *= 3;
+			iFlatYield *= 4;
 		}
 
 		//And here's what the value represents.
 		//Era = higher era, less valuable in game.
-		iActualIncrease = (iFlatYield * (350 - (iEra * 40)));
+		iActualIncrease = (iFlatYield * (400 - (iEra * 25)));
 		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
@@ -5449,6 +5449,16 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iConquestValue += (pkBuildingInfo->GetAirModifier() / 2);
 	}
+
+	for (int ik = 0; ik < GC.getNumHurryInfos(); ik++)
+	{
+		if (pkBuildingInfo->GetHurryModifier((HurryTypes)ik) <= 0)
+			iConquestValue += (pkBuildingInfo->GetHurryModifier((HurryTypes)ik) * -100);
+
+		if (pkBuildingInfo->GetHurryModifierLocal((HurryTypes)ik) <= 0)
+			iConquestValue += (pkBuildingInfo->GetHurryModifierLocal((HurryTypes)ik) * -50);
+	}
+
 	if(pkBuildingInfo->GetAlwaysHeal() > 0)
 	{
 		if (pCity != NULL)
@@ -5661,7 +5671,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 		if(pkSpecialistInfo)
 		{
-			int iNumWorkers = max(1, pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist));
+			int iNumWorkers = max(2, pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist));
 
 			iValue += (pkBuildingInfo->GetSpecificGreatPersonRateModifier(iSpecialistLoop) * iNumWorkers);
 

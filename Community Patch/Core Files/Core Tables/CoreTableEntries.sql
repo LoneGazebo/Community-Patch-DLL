@@ -271,6 +271,10 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 -- Movement speed penalty (like Great Wall) for water plots worked by a City.
 ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 
+-- One building gives all cities this ability
+ALTER TABLE Buildings ADD COLUMN 'AllowsFoodTradeRoutesGlobal' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'AllowsProductionTradeRoutesGlobal' BOOLEAN DEFAULT 0;
+
 -- Adds abiility for units to upgrade in allied CS lands.
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
 

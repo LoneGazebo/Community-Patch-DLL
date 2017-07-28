@@ -461,6 +461,7 @@ CvPlayer::CvPlayer() :
 	, m_iLandmarksTourismPercentGlobal("CvPlayer::m_iLandmarksTourismPercentGlobal", m_syncArchive)
 	, m_iGreatWorksTourismModifierGlobal("CvPlayer::m_iGreatWorksTourismModifierGlobal", m_syncArchive)
 	, m_bAllowsProductionTradeRoutesGlobal("CvPlayer::m_bAllowsProductionTradeRoutesGlobal", m_syncArchive)
+	, m_bAllowsFoodTradeRoutesGlobal("CvPlayer::m_bAllowsFoodTradeRoutesGlobal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iCenterOfMassX("CvPlayer::m_iCenterOfMassX", m_syncArchive)
@@ -1642,6 +1643,7 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
 	m_bAllowsProductionTradeRoutesGlobal = false;
+	m_bAllowsFoodTradeRoutesGlobal = false;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -12687,6 +12689,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		{
 			return false;
 		}
+
+		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnit->IsGainsXPFromScouting())
+			return false;
 	}
 
 	// Unit Healing
@@ -12773,11 +12778,19 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 	}
+	if (kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
+	{
+		if (pUnit == NULL)
+			return false;
+
+		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pUnit->IsGainsXPFromScouting())
+			return false;
+	}
 	if(pPlot == NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
 		return false;
 	}
-	if(pPlot != NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
+	if (pPlot != NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
 	{
 		bool bGood = false;
 		int iOffset = kGoodyInfo.getMapOffset();
@@ -13132,7 +13145,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 	int iGoodyModifier = pUnit != NULL ? pUnit->getUnitInfo().GetGoodyModifier() + pUnit->GetGoodyHutYieldBonus() : 0;
 
-	if (pUnit != NULL && iGoodyModifier != 0)
+	if (iGoodyModifier != 0)
 	{
 		iGold *= (100 + iGoodyModifier);
 		iGold /= 100;
@@ -13464,6 +13477,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			pBestPlot = pPlot;
 		}
 
+		int iNumPlotsRevealed = 0;
 		for(iDX = -(iRange); iDX <= iRange; iDX++)
 		{
 			for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -13477,10 +13491,19 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						if(GC.getGame().getJonRandNum(100, "Goody Map") < kGoodyInfo.getMapProb())
 						{
 							pLoopPlot->setRevealed(getTeam(), true);
+							iNumPlotsRevealed++;
 						}
 					}
 				}
 			}
+		}
+		if (pUnit != NULL && pUnit->IsGainsXPFromScouting())
+		{
+#if defined(MOD_UNITS_XP_TIMES_100)
+			pUnit->changeExperienceTimes100(iNumPlotsRevealed * 100);
+#else
+			pUnit->changeExperience(iNumPlotsRevealed);
+#endif
 		}
 	}
 
@@ -16520,6 +16543,15 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 	ChangeExtraSupplyPerPopulation(pBuildingInfo->GetCitySupplyModifierGlobal() * iChange);
 	changeCitySupplyFlatGlobal(pBuildingInfo->GetCitySupplyFlatGlobal() * iChange);
+
+	if (pBuildingInfo->AllowsProductionTradeRoutesGlobal())
+	{
+		SetProductionRoutesAllCities(true);
+	}
+	if (pBuildingInfo->AllowsFoodTradeRoutesGlobal())
+	{
+		SetFoodRoutesAllCities(true);
+	}
 #endif
 
 	if(pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
@@ -20631,11 +20663,12 @@ void CvPlayer::DoUprising()
 /// City can revolt if the empire is Super Unhappy
 void CvPlayer::DoUpdateCityRevolts()
 {
-	if(IsEmpireSuperUnhappy() && GetCulture()->GetPublicOpinionUnhappiness() > 0)
+	int iPublicUnhappiness = GetCulture()->GetPublicOpinionUnhappiness() / 5;
+	if (IsEmpireSuperUnhappy() && iPublicUnhappiness > 0)
 	{
 		if(GetCityRevoltCounter() > 0)
 		{
-			ChangeCityRevoltCounter(-1);
+			ChangeCityRevoltCounter(-iPublicUnhappiness);
 
 			// Time's up!
 			if(GetCityRevoltCounter() == 0)
@@ -20677,7 +20710,7 @@ void CvPlayer::ChangeCityRevoltCounter(int iChange)
 /// City revolt countdown - seed
 void CvPlayer::DoResetCityRevoltCounter()
 {
-	int iTurns = /*5*/ GC.getREVOLT_COUNTER_MIN();
+	int iTurns = /*5*/ GC.getREVOLT_COUNTER_MIN() * 4;
 	CvGame& theGame = GC.getGame();
 
 	// Game speed mod
@@ -29913,6 +29946,18 @@ bool CvPlayer::IsProductionRoutesAllCities() const
 {
 	return m_bAllowsProductionTradeRoutesGlobal;
 }
+
+void CvPlayer::SetFoodRoutesAllCities(bool bValue)
+{
+	if (m_bAllowsFoodTradeRoutesGlobal != bValue)
+	{
+		m_bAllowsFoodTradeRoutesGlobal = bValue;
+	}
+}
+bool CvPlayer::IsFoodRoutesAllCities() const
+{
+	return m_bAllowsFoodTradeRoutesGlobal;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -35291,7 +35336,106 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 
 	CvAssert(m_paiNumResourceUsed[eIndex] >= 0);
 }
+//	--------------------------------------------------------------------------------
+int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
+	// Mod applied to how much we have?
+	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
+	if (pkResource == NULL)
+	{
+		return 0;
+	}
+
+	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
+
+#if defined(MOD_BALANCE_CORE)
+	// Additional resources from Corporation
+	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
+	if (eCorporation != NO_CORPORATION)
+	{
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+		if (pkCorporationInfo)
+		{
+			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
+			if (iFreeResource > 0)
+			{
+				iTotalNumResource += iFreeResource;
+			}
+		}
+	}
+
+	int iCSResource = getResourceFromCSAlliances(eIndex);
+	if (iCSResource != 0)
+	{
+		iTotalNumResource += (iCSResource * GetNumCSAllies());
+	}
+#endif
+
+	if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+	{
+#if defined(MOD_BALANCE_CORE)
+		const CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity != NULL)
+			{
+				if (pLoopCity->GetResourceQuantityPerXFranchises(eIndex) > 0)
+				{
+					int iFranchises = GetCorporations()->GetNumFranchises();
+					if (iFranchises > 0)
+					{
+						iTotalNumResource += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eIndex));
+					}
+				}
+			}
+		}
+#endif
+		if (GetStrategicResourceMod() != 0)
+		{
+			iTotalNumResource *= GetStrategicResourceMod();
+			iTotalNumResource /= 100;
+		}
+	}
+
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes eFounder = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(GetID());
+	if (eFounder == NO_RELIGION)
+	{
+		eFounder = GetReligions()->GetReligionInMostCities();
+	}
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFounder, GetID());
+	if (pReligion)
+	{
+		CvCity* pHolyCity = NULL;
+		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+		if (pHolyCityPlot)
+		{
+			pHolyCity = pHolyCityPlot->getPlotCity();
+		}
+		if (pHolyCity == NULL)
+		{
+			pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+		}
+		int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eIndex, GetID(), pHolyCity, true);
+		if (iQuantityMod != 0)
+		{
+			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
+
+			iTotalNumResource *= 100 + std::min(50, iQuantityMod);
+			iTotalNumResource /= 100;
+		}
+	}
+#endif
+
+	//And remove the starter.
+	iTotalNumResource -= m_paiNumResourceTotal[eIndex];
+
+	return iTotalNumResource;
+}
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) const
 {
@@ -40560,9 +40704,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldFromBirth(eYield, (pPolicy->GetYieldFromBirth(iI) * iChange));
 		changeYieldFromBirthCapital(eYield, (pPolicy->GetYieldFromBirthCapital(iI) * iChange));
 
-		changeYieldFromBirthRetroactive(eYield, (pPolicy->GetYieldFromBirthRetroactive(iI) * iChange));
-		changeYieldFromBirthCapitalRetroactive(eYield, (pPolicy->GetYieldFromBirthCapitalRetroactive(iI) * iChange));
-
 		changeYieldFromConstruction(eYield, (pPolicy->GetYieldFromConstruction(iI) * iChange));
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
@@ -40576,6 +40717,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeArtYieldBonus(eYield, (pPolicy->GetArtYieldChanges(iI) * iChange));
 		changeMusicYieldBonus(eYield, (pPolicy->GetMusicYieldChanges(iI) * iChange));
 		changeLitYieldBonus(eYield, (pPolicy->GetLitYieldChanges(iI) * iChange));
+
+		changeYieldFromBirthRetroactive(eYield, (pPolicy->GetYieldFromBirthRetroactive(iI) * iChange));
+		changeYieldFromBirthCapitalRetroactive(eYield, (pPolicy->GetYieldFromBirthCapitalRetroactive(iI) * iChange));
 
 		if (pPolicy->GetYieldFromBirthRetroactive(eYield) != 0)
 		{

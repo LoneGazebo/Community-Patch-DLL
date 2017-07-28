@@ -274,6 +274,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bAffectSpiesNow(false),
 	m_bEspionage(false),
 	m_bAllowsFoodTradeRoutes(false),
+	m_bAllowsFoodTradeRoutesGlobal(false),
 	m_bAllowsProductionTradeRoutes(false),
 	m_bAllowsProductionTradeRoutesGlobal(false),
 	m_bNullifyInfluenceModifier(false),
@@ -592,6 +593,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bAffectSpiesNow = kResults.GetBool("AffectSpiesNow");
 	m_bEspionage = kResults.GetBool("Espionage");
 	m_bAllowsFoodTradeRoutes = kResults.GetBool("AllowsFoodTradeRoutes");
+	m_bAllowsFoodTradeRoutesGlobal = kResults.GetBool("AllowsFoodTradeRoutesGlobal");
 	m_bAllowsProductionTradeRoutes = kResults.GetBool("AllowsProductionTradeRoutes");
 	m_bAllowsProductionTradeRoutesGlobal = kResults.GetBool("AllowsProductionTradeRoutesGlobal");
 	m_bNullifyInfluenceModifier = kResults.GetBool("NullifyInfluenceModifier");
@@ -2345,6 +2347,10 @@ bool CvBuildingEntry::IsEspionage() const
 bool CvBuildingEntry::AllowsFoodTradeRoutes() const
 {
 	return m_bAllowsFoodTradeRoutes;
+}
+bool CvBuildingEntry::AllowsFoodTradeRoutesGlobal() const
+{
+	return m_bAllowsFoodTradeRoutesGlobal;
 }
 
 bool CvBuildingEntry::AllowsProductionTradeRoutes() const

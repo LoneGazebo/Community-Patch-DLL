@@ -229,7 +229,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNIT
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILDING_WALLS_HELP', 'Military Units supplied by this City''s population increased by 5%.'
+SELECT 'TXT_KEY_BUILDING_WALLS_HELP', 'Military Units supplied by this City''s population increased by 10%.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

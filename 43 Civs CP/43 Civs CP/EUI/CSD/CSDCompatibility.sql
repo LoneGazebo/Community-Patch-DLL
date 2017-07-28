@@ -183,3 +183,8 @@ UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_BASILICA';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GRAND_OSSUARY';
 UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_APOSTOLIC_PALACE';
 
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 5);

@@ -48,6 +48,11 @@ VALUES
 	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 2),
 	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 2);
 
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 5);
+
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
 VALUES

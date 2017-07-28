@@ -655,7 +655,7 @@
 			<Text>Treasure Hunter</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP">
-			<Text>+50% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
+			<Text>+25% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE">

@@ -259,58 +259,16 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 
 		if (eConnectionType == TRADE_CONNECTION_FOOD)
 		{
-			bool bAllowsFoodConnection = false;
-			const std::vector<BuildingTypes>& vBuildings = pOriginCity->GetCityBuildings()->GetAllBuildingsHere();
-			for (size_t i = 0; i<vBuildings.size(); i++)
-			{
-				BuildingTypes eBuilding = vBuildings[i];
-				if(eBuilding != NO_BUILDING)
-				{
-					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-					if (!pBuildingEntry)
-					{
-						continue;
-					}
-
-					if (pBuildingEntry && pBuildingEntry->AllowsFoodTradeRoutes())
-					{
-						bAllowsFoodConnection = true;
-					}
-				}
-			}
-
-			if (!bAllowsFoodConnection)
+			if (!GET_PLAYER(pOriginCity->getOwner()).IsFoodRoutesAllCities() && !pOriginCity->IsFoodRoutes())
 			{
 				return false;
 			}
 		}
 		else if (eConnectionType == TRADE_CONNECTION_PRODUCTION)
 		{
-			if (!GET_PLAYER(pOriginCity->getOwner()).IsProductionRoutesAllCities())
+			if (!GET_PLAYER(pOriginCity->getOwner()).IsProductionRoutesAllCities() && !pOriginCity->IsProductionRoutes())
 			{
-				bool bAllowsProductionConnection = false;
-				const std::vector<BuildingTypes>& vBuildings = pOriginCity->GetCityBuildings()->GetAllBuildingsHere();
-				for (size_t i = 0; i < vBuildings.size(); i++)
-				{
-					BuildingTypes eBuilding = vBuildings[i];
-					if (eBuilding != NO_BUILDING)
-					{
-						CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-						if (!pBuildingEntry)
-						{
-							continue;
-						}
-						if (pBuildingEntry && pBuildingEntry->AllowsProductionTradeRoutes())
-						{
-							bAllowsProductionConnection = true;
-						}
-					}
-				}
-
-				if (!bAllowsProductionConnection)
-				{
-					return false;
-				}
+				return false;
 			}
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 		}

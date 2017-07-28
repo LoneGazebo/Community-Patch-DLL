@@ -3536,7 +3536,7 @@
 			<Help>TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<GoodyHutYieldBonus>50</GoodyHutYieldBonus>
+			<GoodyHutYieldBonus>25</GoodyHutYieldBonus>
 			<PortraitIndex>11</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>

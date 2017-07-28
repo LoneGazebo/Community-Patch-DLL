@@ -189,6 +189,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	, m_aiTheyPlottedAgainstUs()
+	, m_aiTheyLoweredOurInfluence()
 	, m_abWantsDefensivePactWithPlayer()
 	, m_abWantsSneakAttack()
 	, m_aiPlayerNumTurnsAtPeace()
@@ -383,6 +384,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 
 #if defined(MOD_API_EXTENSIONS)
 	m_paiTheyPlottedAgainstUs(NULL),
+	m_paiTheyLoweredOurInfluence(NULL),
 #else
 	m_paiOtherPlayerWarmongerAmount(NULL),
 #endif
@@ -628,6 +630,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiOtherPlayerNumMajorsConquered = &m_pDiploData->m_aiOtherPlayerNumMajorsConquered[0];
 #if defined(MOD_API_EXTENSIONS)
 	m_paiTheyPlottedAgainstUs = &m_pDiploData->m_aiTheyPlottedAgainstUs[0];
+	m_paiTheyLoweredOurInfluence = &m_pDiploData->m_aiTheyLoweredOurInfluence[0];
 #else
 	m_paiOtherPlayerWarmongerAmount = &m_pDiploData->m_aiOtherPlayerWarmongerAmount[0];
 #endif
@@ -941,6 +944,7 @@ void CvDiplomacyAI::Uninit()
 	m_paiOtherPlayerNumMajorsConquered = NULL;
 #if defined(MOD_API_EXTENSIONS)
 	m_paiTheyPlottedAgainstUs = NULL;
+	m_paiTheyLoweredOurInfluence = NULL;
 #else
 	m_paiOtherPlayerWarmongerAmount = NULL;
 #endif
@@ -1070,6 +1074,7 @@ void CvDiplomacyAI::Reset()
 		
 #if defined(MOD_API_EXTENSIONS)
 		m_paiTheyPlottedAgainstUs[iI] = 0;
+		m_paiTheyLoweredOurInfluence[iI] = 0;
 #else
 		m_paiOtherPlayerWarmongerAmount[iI] = 0;
 #endif
@@ -1806,6 +1811,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 #if defined(MOD_API_EXTENSIONS)
 	ArrayWrapper<char> wrapm_paiTheyPlottedAgainstUs(MAX_MAJOR_CIVS, m_paiTheyPlottedAgainstUs);
 	kStream >> wrapm_paiTheyPlottedAgainstUs;
+
+	ArrayWrapper<char> wrapm_paiTheyLoweredOurInfluence(MAX_MAJOR_CIVS, m_paiTheyLoweredOurInfluence);
+	kStream >> wrapm_paiTheyLoweredOurInfluence;
 #else
 	ArrayWrapper<int> wrapm_paiOtherPlayerWarmongerAmount(MAX_MAJOR_CIVS, m_paiOtherPlayerWarmongerAmount);
 	kStream >> wrapm_paiOtherPlayerWarmongerAmount;
@@ -2196,6 +2204,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paiOtherPlayerNumMajorsConquered);
 #if defined(MOD_API_EXTENSIONS)
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paiTheyPlottedAgainstUs);
+	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paiTheyLoweredOurInfluence);
 #else
 	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_paiOtherPlayerWarmongerAmount);
 #endif
@@ -9893,25 +9902,25 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 				{
 					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 					{
-						iDPThem++;
+						iDPThem += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 					}
 					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(m_pPlayer->getTeam()))
 					{
-						iDPUs++;
+						iDPUs += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 					}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 					if (MOD_DIPLOMACY_CIV4_FEATURES)
 					{
 						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
 						{
-							iDPThem += 2;
+							iDPThem += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 						}
 					}
 					if (MOD_DIPLOMACY_CIV4_FEATURES)
 					{
 						if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
 						{
-							iDPUs += 2;
+							iDPUs += GET_PLAYER(eLoopPlayer).GetMilitaryMight();
 						}
 					}
 #endif
@@ -9919,12 +9928,12 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 			}
 			if(iDPThem > 0)
 			{
-				iOtherPlayerMilitary *= ((iDPThem * 50) + 100);
+				iOtherPlayerMilitary *= ((iDPThem * 75) + 100);
 				iOtherPlayerMilitary /= 100;
 			}
 			if(iDPUs > 0)
 			{
-				iMilitaryStrength *= ((iDPUs * 25) + 100);
+				iMilitaryStrength *= ((iDPUs * 75) + 100);
 				iMilitaryStrength /= 100;
 			}
 #endif
@@ -14636,159 +14645,176 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 #endif
 #if defined(MOD_BALANCE_CORE)
 				// We are at least friends
-				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
+				//if they're constantly affecting our influence, or we're friends.
+				int iThreshold = ((10 - GetMinorCivCompetitiveness()) + GC.getGame().getCurrentEra());
+				bool bThreatening = false;
+				if (GetNumTimesTheyLoweredOurInfluence(ePlayer) > 0 && GetNumTimesTheyLoweredOurInfluence(ePlayer) >= iThreshold)
+					bThreatening = true;
+				if (bThreatening || GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
 				{
+					bool bOneIsAllied = false;
 					// Other Player is Allies with this minor
-					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
 					{
-						iMinorCivDisputeWeight += iPersonalityMod;
+						if (GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_FRIENDLY || GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_PROTECTIVE)
+						{
+							iMinorCivDisputeWeight += iPersonalityMod / 2;
+						}
+						bOneIsAllied = true;
 					}
 					// Other Player is Friends with this minor
-					else if(GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(ePlayer))
+					else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(ePlayer))
 					{
 						//We're allies? Grr...
-						if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()))
+						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetPlayer()->GetID()))
 						{
-							iMinorCivDisputeWeight += (iPersonalityMod * 2);
+							iMinorCivDisputeWeight += iPersonalityMod;
+							bOneIsAllied = true;
 						}
 						else
 						{
-							iMinorCivDisputeWeight += (iPersonalityMod / 2);
+							iMinorCivDisputeWeight -= iPersonalityMod;
 						}
 					}
-					if(iMinorCivDisputeWeight > 0)
+					//Let's look at influence.
+					int iOurInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(GetPlayer()->GetID());
+					int iTheirInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
+
+					if (bOneIsAllied)
 					{
-						//Let's look at influence.
-						int iOurInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(GetPlayer()->GetID());
-						int iTheirInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
-
-						//Add in our influence.
 						iMinorCivDisputeWeight += (iOurInfluence / 5);
+						iMinorCivDisputeWeight += GetNumTimesTheyLoweredOurInfluence(ePlayer) * 10;
 
-						if(iTheirInfluence > iOurInfluence)
+						if (iTheirInfluence > iOurInfluence)
 						{
 							int iInfluenceStart = iPersonalityMod;
 							//Are our influences within 20 of each other?
-							if((iTheirInfluence - iOurInfluence) <= 20)
+							if ((iTheirInfluence - iOurInfluence) <= 20)
 							{
 								iInfluenceStart *= 40;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 40 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 40) 
+							else if ((iTheirInfluence - iOurInfluence) <= 40)
 							{
 								iInfluenceStart *= 35;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 60 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 60)
+							else if ((iTheirInfluence - iOurInfluence) <= 60)
 							{
 								iInfluenceStart *= 30;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 80 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 80)
+							else if ((iTheirInfluence - iOurInfluence) <= 80)
 							{
 								iInfluenceStart *= 20;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 100 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 100) 
+							else if ((iTheirInfluence - iOurInfluence) <= 100)
 							{
 								iInfluenceStart *= 10;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 120 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 120)
+							else if ((iTheirInfluence - iOurInfluence) <= 120)
 							{
 								iInfluenceStart *= 5;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 150 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 150)
+							else if ((iTheirInfluence - iOurInfluence) <= 150)
 							{
 								iInfluenceStart *= 3;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 200 of each other?
-							else if((iTheirInfluence - iOurInfluence) <= 200)
+							else if ((iTheirInfluence - iOurInfluence) <= 200)
 							{
 								iInfluenceStart *= 2;
 								iInfluenceStart /= 10;
 							}
 							// We have a PtP with this minor - bump it up a little bit.
-							if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
+							if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
 							{
 								iInfluenceStart *= 15;
 								iInfluenceStart /= 10;
 							}
 							iMinorCivDisputeWeight += iInfluenceStart;
 						}
-						else if(iOurInfluence > iTheirInfluence )
+						else if (iOurInfluence > iTheirInfluence)
 						{
 							int iInfluenceStart = iPersonalityMod;
 
 							//Are our influences within 20 of each other?
-							if((iOurInfluence - iTheirInfluence) <= 20)
+							if ((iOurInfluence - iTheirInfluence) <= 20)
 							{
 								iInfluenceStart *= 40;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 40 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 40) 
+							else if ((iOurInfluence - iTheirInfluence) <= 40)
 							{
 								iInfluenceStart *= 30;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 60 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 60)
+							else if ((iOurInfluence - iTheirInfluence) <= 60)
 							{
 								iInfluenceStart *= 20;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 80 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 80)
+							else if ((iOurInfluence - iTheirInfluence) <= 80)
 							{
 								iInfluenceStart *= 15;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 100 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 100) 
+							else if ((iOurInfluence - iTheirInfluence) <= 100)
 							{
 								iInfluenceStart *= 10;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 120 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 120)
+							else if ((iOurInfluence - iTheirInfluence) <= 120)
 							{
 								iInfluenceStart *= 8;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 150 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 150)
+							else if ((iOurInfluence - iTheirInfluence) <= 150)
 							{
 								iInfluenceStart *= 6;
 								iInfluenceStart /= 10;
 							}
 							//Are our influences within 200 of each other?
-							else if((iOurInfluence - iTheirInfluence) <= 200)
+							else if ((iOurInfluence - iTheirInfluence) <= 200)
 							{
 								iInfluenceStart *= 4;
 								iInfluenceStart /= 10;
 							}
 							// We have a PtP with this minor - bump it up a little bit.
-							if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
+							if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
 							{
 								iInfluenceStart *= 15;
 								iInfluenceStart /= 10;
 							}
+
 							iMinorCivDisputeWeight += iInfluenceStart;
 						}
 						//Tied? Ramp it up!
-						else if(iOurInfluence == iTheirInfluence )
+						else if (iOurInfluence == iTheirInfluence)
 						{
 							iMinorCivDisputeWeight += iOurInfluence;
 						}
+					}
+					else
+					{
+						//Add in our influence.
+						iMinorCivDisputeWeight += GetNumTimesTheyLoweredOurInfluence(ePlayer) * 20;
 					}
 				}
 #endif
@@ -16378,6 +16404,28 @@ void CvDiplomacyAI::SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iVa
 void CvDiplomacyAI::ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange)
 {
 	SetNumTimesTheyPlottedAgainstUs(ePlayer, GetNumTimesTheyPlottedAgainstUs(ePlayer) + iChange);
+	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000 */ GC.getWARMONGER_THREAT_MAJOR_CONQUERED_WEIGHT());
+}
+
+
+int CvDiplomacyAI::GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiTheyLoweredOurInfluence[ePlayer];
+}
+
+void CvDiplomacyAI::SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(iValue >= 0, "DIPLOMACY_AI: Setting number of Majors conquered to a negative value.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_paiTheyLoweredOurInfluence[ePlayer] = iValue;
+}
+
+void CvDiplomacyAI::ChangeNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iChange)
+{
+	SetNumTimesTheyLoweredOurInfluence(ePlayer, GetNumTimesTheyLoweredOurInfluence(ePlayer) + iChange);
 	//ChangeOtherPlayerWarmongerAmount(ePlayer, iChange * /*1000 */ GC.getWARMONGER_THREAT_MAJOR_CONQUERED_WEIGHT());
 }
 #endif
@@ -34439,7 +34487,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 		}
 
 		int iTotalTechs = GC.getNumTechInfos();
-		iTotalTechs *= 85;
+		iTotalTechs *= 75;
 		iTotalTechs /= 100;
 		
 		if(GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() >= iTotalTechs)
@@ -34454,7 +34502,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 				eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
 
-				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != m_pPlayer->GetID())
+				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && iPlayerLoop != GetPlayer()->GetID())
 				{
 					if (GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() > GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown())
 					{
@@ -34472,9 +34520,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 				return true;
 			}
 		}
-	}
-
-	
+	}	
 
 	return false;
 }

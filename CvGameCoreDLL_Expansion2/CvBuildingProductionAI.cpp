@@ -340,13 +340,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iBonus -= iThreat * 25;
 			}
 		}
-		if(m_pCity->IsBastion())
+		if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling())
 		{
 			iBonus -= (iNumWar * 250);
 		}
 		if( m_pCity->IsBlockaded(true) || m_pCity->IsBlockaded(false))
 		{
-			iBonus -= (iNumWar * 500);
+			iBonus -= (iNumWar * 250);
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -717,7 +717,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	iBonus += iDefense;
 
-	if (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0)
+	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
 	{
 		int iSupply = kPlayer.GetNumUnitsSupplied();
 		if (iSupply <= 0)
@@ -736,7 +736,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus /= 100;
 	}
 
-	if (pkBuildingInfo->GetCitySupplyFlat() > 0 || pkBuildingInfo->GetCitySupplyFlatGlobal() > 0)
+	if (iBonus > 0 &&  (pkBuildingInfo->GetCitySupplyFlat() > 0 || pkBuildingInfo->GetCitySupplyFlatGlobal() > 0))
 	{
 		int iSupply = kPlayer.GetNumUnitsSupplied();
 		if (iSupply <= 0)
@@ -776,11 +776,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += 1000 * m_pCity->getPopulation();
 			bGoodforGPTHappiness = true;
 		}
-	}
-	else if (m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
-	{
-		iBonus -= 2000 * m_pCity->getPopulation();
-		bGoodforGPTHappiness = false;
 	}
 	
 
@@ -994,7 +989,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			case YIELD_CULTURE:
 				if (iBoredom > 0)
 				{
-					iBoredom += (iBoredom * 10);
+					iYieldValue += (iBoredom * 10);
 					bGoodforGPTHappiness = true;
 					break;
 				}

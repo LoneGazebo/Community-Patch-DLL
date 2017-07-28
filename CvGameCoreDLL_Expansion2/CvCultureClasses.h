@@ -295,6 +295,8 @@ public:
 	int ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTypes eBranch);
 	bool WantsDiplomatDoingPropaganda(PlayerTypes ePlayer) const;
 	int GetMaxPropagandaDiplomatsWanted() const;
+	int GetNumCivsFollowingIdeology(PolicyBranchTypes ePolicyBranch);
+	int GetNumCivsFollowingAnyIdeology();
 
 	// Bonus stats
 	int GetTotalThemingBonuses() const;

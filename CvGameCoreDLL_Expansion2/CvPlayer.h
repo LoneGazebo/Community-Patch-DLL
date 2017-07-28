@@ -1633,10 +1633,11 @@ public:
 	int GetWarScoreModifier() const;
 	void ChangeWarScoreModifier(int iChange);
 
-	
-
 	void SetProductionRoutesAllCities(bool bValue);
 	bool IsProductionRoutesAllCities() const;
+
+	void SetFoodRoutesAllCities(bool bValue);
+	bool IsFoodRoutesAllCities() const;
 #endif
 
 	int getCultureBombTimer() const;
@@ -2081,6 +2082,8 @@ public:
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
+	int getNumResourcesFromOther(ResourceTypes eIndex) const;
+
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
@@ -3334,6 +3337,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCivsConstructingWonder;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
+	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

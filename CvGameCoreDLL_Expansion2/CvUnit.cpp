@@ -11892,6 +11892,7 @@ bool CvUnit::trade()
 				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isObserver() && (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(getOwner(), 1);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 					if(pNotifications)
 					{

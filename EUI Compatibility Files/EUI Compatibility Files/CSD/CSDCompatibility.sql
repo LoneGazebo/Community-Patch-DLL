@@ -40,6 +40,12 @@ INSERT INTO Policy_FaithPurchaseUnitClasses
 VALUES
 	('POLICY_PATRONAGE_FINISHER', 'UNITCLASS_GREAT_DIPLOMAT');
 
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 5);
+
 INSERT INTO Belief_GreatPersonExpendedYield
 	(BeliefType, GreatPersonType, YieldType, Yield)
 VALUES

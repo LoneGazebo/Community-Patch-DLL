@@ -4382,6 +4382,8 @@ bool CvMinorCivQuest::DoFinishQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COUP_CITY_COMPLETE");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_COUP_CITY_COMPLETE");
+		
+		pMinor->GetMinorCivAI()->SetCoupAttempted(m_eAssignedPlayer, false);
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
@@ -4636,6 +4638,9 @@ bool CvMinorCivQuest::DoCancelQuest()
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_COUP_FAILED_B");
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COUP_FAILED_B_S");
 			}
+
+			pMinor->GetMinorCivAI()->SetCoupAttempted(m_eAssignedPlayer, false);
+
 		}
 		else if(m_eType == MINOR_CIV_QUEST_DISCOVER_PLOT)
 		{
@@ -12829,7 +12834,12 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		{
 			// Notify player has met the old Ally
 			if(pNotifyTeam->isHasMet(eOldAllyTeam))
+			{
 				strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+
+				if (bPassedBySomeone && eNewAlly != NO_PLAYER)
+					GET_PLAYER(eOldAlly).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eNewAlly, 1);
+			}
 			// Notify player has NOT met the old Ally
 			else
 				strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
@@ -16076,7 +16086,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iBaseReluctanceScore = 0;
 	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iBaseReluctanceScore = -175;
+		iBaseReluctanceScore = -150;
 	}
 	else
 	{
@@ -16644,6 +16654,8 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 					ChangeFriendshipWithMajor(ePlayer, -iInfluence);
 
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eBully, 1);
+
 					if (GET_PLAYER(ePlayer).isHuman())
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
@@ -16830,6 +16842,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						continue;
 
 					ChangeFriendshipWithMajor(ePlayer, -iInfluence);
+
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eBully, 1);
 
 					if (GET_PLAYER(ePlayer).isHuman())
 					{
@@ -17474,6 +17488,9 @@ void CvMinorCivAI::DoElection()
 				{
 					int iDiminishAmount = min(GC.getESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION() * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
 					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
+					
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 			}
 		}

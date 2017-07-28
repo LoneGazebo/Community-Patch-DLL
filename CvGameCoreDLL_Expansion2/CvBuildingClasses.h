@@ -356,6 +356,7 @@ public:
 	bool AffectSpiesNow() const;
 	bool IsEspionage() const;
 	bool AllowsFoodTradeRoutes() const;
+	bool AllowsFoodTradeRoutesGlobal() const;
 	bool AllowsProductionTradeRoutes() const;
 	bool AllowsProductionTradeRoutesGlobal() const;
 	bool NullifyInfluenceModifier() const;
@@ -806,6 +807,7 @@ private:
 	bool m_bAffectSpiesNow;
 	bool m_bEspionage;
 	bool m_bAllowsFoodTradeRoutes;
+	bool m_bAllowsFoodTradeRoutesGlobal;
 	bool m_bAllowsProductionTradeRoutes;
 	bool m_bAllowsProductionTradeRoutesGlobal;
 	bool m_bNullifyInfluenceModifier;
