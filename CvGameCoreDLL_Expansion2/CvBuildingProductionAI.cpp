@@ -315,9 +315,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	else
 	{
 		//Sanitize...
-		if (iValue > 275)
+		if (iValue > 300)
 		{
-			iValue = 275;
+			iValue = 300;
 		}
 	}
 
@@ -1099,26 +1099,26 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA)
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 5) - eEra);
+				int iEraValue = ((kPlayer.GetCurrentEra() * 8) - eEra);
 				if (iEraValue > 0)
 				{
-					iBonus += (75 * iEraValue);
+					iBonus += (100 * iEraValue);
 				}
 			}
 			//No Era? Zero!
 			else
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 5));
+				int iEraValue = ((kPlayer.GetCurrentEra() * 8));
 				if (iEraValue > 0)
 				{
-					iBonus += (50 * iEraValue);
+					iBonus += (75 * iEraValue);
 				}
 			}
 		}
 	}
 	else
 	{
-		int iEraValue = ((kPlayer.GetCurrentEra() * 5));
+		int iEraValue = ((kPlayer.GetCurrentEra() * 8));
 		if (iEraValue > 0)
 		{
 			iBonus += (75 * iEraValue);

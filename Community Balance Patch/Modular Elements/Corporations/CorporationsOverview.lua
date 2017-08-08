@@ -438,7 +438,7 @@ function IsResourceValid(eResource, ePlayer)
 	if(g_MonopolyResourceType == "All") then	
 		--print( "Looking at all resources" );
 		if(ePlayer ~= -1) then
-			local iNumResources = Players[ePlayer]:GetNumResourceTotal(eResource, false) + Players[ePlayer]:GetResourceExport(eResource);
+			local iNumResources = Players[ePlayer]:GetNumResourceTotal(eResource, false, true) + Players[ePlayer]:GetResourceExport(eResource);
 			return iTotal > 0 or iNumResources > 0;
 		else
 		-- If player does not exist, then check if it's on the map only
@@ -508,7 +508,7 @@ function HookupResourceInstance(info)
 	local iNumResources = 0;
 	
 	if(info.PlayerID ~= -1) then
-		iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
+		iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false, true) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
 	end
 	
 	local iNumTotal = Map.GetNumResources(info.ResourceID);

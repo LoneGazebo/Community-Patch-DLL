@@ -576,6 +576,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvResolutionEffects& writeTo)
 	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipProduction, 0);
 	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iLimitSpaceshipPurchase, 0);
 	MOD_SERIALIZE_READ(49, loadFrom, writeTo.iIsWorldWar, 0);
+	MOD_SERIALIZE_READ(49, loadFrom, writeTo.bEmbargoIdeology, false);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(66, loadFrom, writeTo.iChangeTourism, 0);
@@ -627,6 +628,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvResolutionEffects& readFrom
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipProduction);
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iLimitSpaceshipPurchase);
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iIsWorldWar);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.bEmbargoIdeology);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.iChangeTourism);
@@ -6938,7 +6940,14 @@ void CvLeague::StartSession()
 
 	// Distribute Votes
 	AssignStartingVotes();
-
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = PlayerTypes(iPlayerLoop);
+		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+		{
+			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_DELEGATES);
+		}
+	}
 	CheckFinishSession();
 }
 
@@ -7768,6 +7777,29 @@ void CvLeague::CheckProjectsProgress()
 			CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(it->eType);
 			if (pProjectInfo)
 			{
+#if defined(MOD_BALANCE_CORE)
+				//We do the process production here, as otherwise some players might be skipped!
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+					if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
+						continue;
+
+					CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
+
+					CvCity* pLoopCity;
+					int iLoop;
+					for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					{
+						//not working on the project? ignore.
+						if (pLoopCity->getProductionProcess() != pProjectInfo->GetProcess())
+							continue;
+
+						GC.getGame().GetGameLeagues()->DoLeagueProjectContribution(eLoopPlayer, it->eType, pLoopCity->getCurrentProductionDifferenceTimes100(false, true));
+
+					}
+				}
+#endif
 				// How much do we need?
 				int iNeeded = GetProjectCost(it->eType);
 				CvAssertMsg(iNeeded != 0, "Invalid cost for League Project. Please send Anton your save file and version.");

@@ -169,6 +169,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInternalTradeRouteYieldModifier(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeRouteYieldModifierCapital(0),
+	m_iTradeRouteYieldModifierCapital(0),
 	m_iPositiveWarScoreTourismMod(0),
 #endif
 	m_bNoCSDecayAtWar (false),
@@ -276,6 +277,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromBirthRetroactive(NULL),
 	m_piYieldFromBirthCapitalRetroactive(NULL),
 	m_piYieldFromConstruction(NULL),
+	m_piYieldFromWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
@@ -342,6 +344,13 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piArtYieldChanges(NULL),
 	m_piLitYieldChanges(NULL),
 	m_piMusicYieldChanges(NULL),
+	m_piYieldFromNonSpecialistCitizens(NULL),
+	m_piYieldModifierFromGreatWorks(NULL),
+	m_piYieldModifierFromActiveSpies(NULL),
+	m_piYieldFromDelegateCount(NULL),
+	m_iMissionInfluenceModifier(0),
+	m_iHappinessPerActiveTradeRoute(0),
+	m_bCSResourcesForMonopolies(false),
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
@@ -391,6 +400,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapitalRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
+	SAFE_DELETE_ARRAY(m_piYieldFromWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
@@ -425,6 +435,10 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
 	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
 	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
+	SAFE_DELETE_ARRAY(m_piYieldFromNonSpecialistCitizens);
+	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
+	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
+	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
@@ -620,6 +634,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
+	m_iTradeRouteYieldModifierCapital = kResults.GetInt("TradeRouteYieldModifierCapital");
 #endif
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
@@ -694,6 +709,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
 	m_iReligionDistance = kResults.GetInt("ReligionDistance");
 	m_iPressureMod = kResults.GetInt("PressureMod");
+	m_iMissionInfluenceModifier = kResults.GetInt("MissionInfluenceModifier");
+	m_iHappinessPerActiveTradeRoute = kResults.GetInt("HappinessPerActiveTradeRoute");
+	m_bCSResourcesForMonopolies = kResults.GetBool("CSResourcesCountForMonopolies");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
@@ -739,6 +757,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapitalRetroactive, "Policy_YieldFromBirthCapitalRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromWonderConstruction, "Policy_YieldFromWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
@@ -1094,6 +1113,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piArtYieldChanges, "Policy_ArtYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piLitYieldChanges, "Policy_LitYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piMusicYieldChanges, "Policy_MusicYieldChanges", "PolicyType", szPolicyType);
+
+	kUtility.SetYields(m_piYieldFromNonSpecialistCitizens, "Policy_YieldFromNonSpecialistCitizens", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
@@ -2048,6 +2072,10 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifierCapital() const
 {
 	return m_iInternalTradeRouteYieldModifierCapital;
 }
+int CvPolicyEntry::GetTradeRouteYieldModifierCapital() const
+{
+	return m_iTradeRouteYieldModifierCapital;
+}
 int CvPolicyEntry::GetPositiveWarScoreTourismMod() const
 {
 	return m_iPositiveWarScoreTourismMod;
@@ -2712,6 +2740,13 @@ int CvPolicyEntry::GetYieldFromConstruction(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromConstruction[i];
 }
+/// Does this Policy grant yields from constructing buildings?
+int CvPolicyEntry::GetYieldFromWonderConstruction(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromWonderConstruction[i];
+}
 /// Does this Policy grant yields from researching techs?
 int CvPolicyEntry::GetYieldFromTech(int i) const
 {
@@ -3165,6 +3200,68 @@ int* CvPolicyEntry::GetMusicYieldChangesArray() const
 	return m_piMusicYieldChanges;
 }
 
+
+int CvPolicyEntry::GetYieldFromNonSpecialistCitizens(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromNonSpecialistCitizens ? m_piYieldFromNonSpecialistCitizens[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromNonSpecialistCitizensArray() const
+{
+	return m_piYieldFromNonSpecialistCitizens;
+}
+int CvPolicyEntry::GetYieldModifierFromGreatWorks(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldModifierFromGreatWorks ? m_piYieldModifierFromGreatWorks[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldModifierFromGreatWorksArray() const
+{
+	return m_piYieldModifierFromGreatWorks;
+}
+
+int CvPolicyEntry::GetYieldModifierFromActiveSpies(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldModifierFromActiveSpies ? m_piYieldModifierFromActiveSpies[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldModifierFromActiveSpiesArray() const
+{
+	return m_piYieldModifierFromActiveSpies;
+}
+
+int CvPolicyEntry::GetYieldFromDelegateCount(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromDelegateCount ? m_piYieldFromDelegateCount[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromDelegateCountArray() const
+{
+	return m_piYieldFromDelegateCount;
+}
+
+int CvPolicyEntry::GetMissionInfluenceModifier() const
+{
+	return m_iMissionInfluenceModifier;
+}
+
+int CvPolicyEntry::GetHappinessPerActiveTradeRoute() const
+{
+	return m_iHappinessPerActiveTradeRoute;
+}
+
+bool CvPolicyEntry::IsCSResourcesForMonopolies() const
+{
+	return m_bCSResourcesForMonopolies;
+}
 #endif
 
 /// Yield modifier for a specific BuildingClass by yield type
@@ -4178,6 +4275,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifierCapital();
 				break;
+			case POLICYMOD_TRADE_CAPITAL_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetTradeRouteYieldModifierCapital();
+				break;
 #endif
 			case POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetSharedReligionTourismModifier();
@@ -4549,9 +4649,9 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		}
 
 		//% cost increases.
-		iTier1 *= (int)(GC.getPOLICY_COST_EXPONENT() * 2);
-		iTier2 *= (int)(GC.getPOLICY_COST_EXPONENT() * 3);
-		iTier3 *= (int)(GC.getPOLICY_COST_EXPONENT() * 4);
+		iTier1 *= (int)(GC.getPOLICY_COST_EXPONENT());
+		iTier2 *= (int)(GC.getPOLICY_COST_EXPONENT() * 2);
+		iTier3 *= (int)(GC.getPOLICY_COST_EXPONENT() * 3);
 			
 		iCost *= (100 + iTier1 + iTier2 + iTier3);
 		iCost /= 100;

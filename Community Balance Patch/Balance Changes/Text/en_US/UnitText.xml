@@ -219,7 +219,7 @@
 			<Text>Naval Target Penalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
-			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
+			<Text>-20% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY">
@@ -251,7 +251,7 @@
 			<Text>Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
-			<Text>Flank attack bonus increased by 100%. Steal gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
+			<Text>Flank attack bonus increased by 100%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
 			<Text>Withering Fire</Text>
@@ -548,7 +548,7 @@
 			<Text>Glory Hounds</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP">
-			<Text>Steal gold equal to 100% of the damage inflicted on a city.</Text>
+			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4">
 			<Text>Pincer</Text>

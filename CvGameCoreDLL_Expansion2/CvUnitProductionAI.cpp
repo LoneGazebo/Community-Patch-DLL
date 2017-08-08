@@ -262,16 +262,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Sanitize...
 	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
 	{
-		if (iTempWeight > 1750)
+		if (iTempWeight > 1500)
 		{
-			iTempWeight = 1750;
+			iTempWeight = 1500;
 		}
 	}
 	else
 	{
-		if (iTempWeight > 1250)
+		if (iTempWeight > 1000)
 		{
-			iTempWeight = 1250;
+			iTempWeight = 1000;
 		}
 	}
 

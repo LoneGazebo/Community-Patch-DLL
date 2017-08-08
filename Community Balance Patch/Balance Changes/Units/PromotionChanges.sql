@@ -77,7 +77,7 @@
 
 -- Melee Ship promotions a little too high - let's tone down
 	UPDATE UnitPromotions_Domains
-	SET Modifier = '10'
+	SET Modifier = '15'
 	WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE UnitPromotions_Domains
@@ -85,7 +85,7 @@
 	WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE UnitPromotions_Domains
-	SET Modifier = '20'
+	SET Modifier = '15'
 	WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_3' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Air Promotions -- Update Air Targeting to Hit all Domains
@@ -305,7 +305,7 @@ WHERE PromotionType = 'PROMOTION_ACCURACY_3' AND UnitCombatType = 'UNITCOMBAT_SI
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Modifier)
 VALUES
-	('PROMOTION_NAVAL_MISFIRE', 'DOMAIN_SEA', -33),
+	('PROMOTION_NAVAL_MISFIRE', 'DOMAIN_SEA', -20),
 	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -33),
 	('PROMOTION_TARGETING_1', 'DOMAIN_LAND', 10),
 	('PROMOTION_TARGETING_2', 'DOMAIN_LAND', 15),

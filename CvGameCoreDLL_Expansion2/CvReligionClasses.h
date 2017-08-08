@@ -167,7 +167,8 @@ public:
 	void DoTurn();
 	void SpreadReligion();
 	void SpreadReligionToOneCity(CvCity* pCity);
-
+	bool IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pLoopCity, CvCity* pCity, bool& bConnectedWithTrade, int& iApparentDistance, int& iMaxDistance);
+	bool IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity);
 	// Functions invoked each player turn
 	void DoPlayerTurn(CvPlayer& kPlayer);
 	FOUNDING_RESULT CanCreatePantheon(PlayerTypes ePlayer, bool bCheckFaithTotal);
@@ -254,7 +255,7 @@ public:
 #endif
 	int GetNumReligionsEnhanced() const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-	int GetNumReligionsStillToFound(bool bIgnoreLocal = false) const;
+	int GetNumReligionsStillToFound(bool bIgnoreLocal = false, PlayerTypes ePlayer = NO_PLAYER) const;
 #else
 	int GetNumReligionsStillToFound() const;
 #endif
@@ -272,8 +273,7 @@ public:
 	std::vector<BeliefTypes> GetAvailableReformationBeliefs();
 #endif
 
-	int GetAdjacentCityReligiousPressure (ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, 
-		int& iNumTradeRoutesInfluencing, bool bActualValue, bool bPretendTradeConnection);
+	int GetAdjacentCityReligiousPressure(ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bActualValue, bool bPretendTradeConnection, bool bConnectedWithTrade, int iApparentDistance, int iMaxDistance);
 
 	// Great Prophet/Person information functions
 	int GetFaithGreatProphetNumber(int iNum) const;
@@ -477,18 +477,9 @@ public:
 		m_bHasPaidAdoptionBonus = bNewValue;
 	};
 #endif
-	int GetReligiousPressureModifier() const
-	{
-		return m_iReligiousPressureModifier;
-	};
-	void SetReligiousPressureModifier(int iNewValue)
-	{
-		m_iReligiousPressureModifier = iNewValue;
-	};
-	void ChangeReligiousPressureModifier(int iNewValue)
-	{
-		SetReligiousPressureModifier(m_iReligiousPressureModifier + iNewValue);
-	}
+	int GetReligiousPressureModifier(ReligionTypes eReligion) const;
+	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
+	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	int GetTotalPressure();
 	int GetPressure(ReligionTypes eReligion);
 	int GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeRoutesInvolved);
@@ -541,8 +532,8 @@ private:
 	CvCity* m_pCity;
 #if !defined(MOD_BALANCE_CORE)
 	bool m_bHasPaidAdoptionBonus;
-#endif
 	int m_iReligiousPressureModifier;
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	ReligionTypes m_majorityCityReligion;
@@ -653,7 +644,7 @@ private:
 	bool DoFaithPurchases();
 	bool BuyMissionary(ReligionTypes eReligion);
 	bool BuyInquisitor(ReligionTypes eReligion);
-	bool BuyGreatPerson(UnitTypes eUnit);
+	bool BuyGreatPerson(UnitTypes eUnit, ReligionTypes eReligion = NO_RELIGION);
 	bool BuyFaithBuilding(CvCity* pCity, BuildingTypes eBuilding);
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool BuyAnyAvailableNonFaithUnit();

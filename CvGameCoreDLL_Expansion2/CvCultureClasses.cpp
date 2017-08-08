@@ -4747,7 +4747,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 			int iMod = iTheirCities - iMyCities;
 			if(iMod != 0)
 			{
-				iMultiplier += (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() * iMod);
+				iMultiplier += ((GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2) * iMod);
 			}
 		}
 	}

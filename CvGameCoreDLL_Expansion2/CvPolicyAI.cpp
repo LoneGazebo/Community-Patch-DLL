@@ -227,10 +227,10 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					if(eFlavor == NO_FLAVOR)
 						continue;
 
-					iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
-
 					if(pkPolicyInfo->GetFlavorValue(eFlavor) > 0)
 					{
+						iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+
 						if(GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY")
 						{
 							iDiploValue += iDiploInterest;
@@ -246,9 +246,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 								{
 									if (pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
 									{
-										iWeight -= iDiploValue += iDiploInterest;
-										iDiploValue = 0;
-										iDiploInterest = 0;
+										iWeight -= iDiploInterest;
 										break;
 									}
 								}
@@ -427,7 +425,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 				iWeight += (iScienceValue / 2);
 			}
 
-			if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+			if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
 			{
 				iWeight += iConquestValue;
 			}
@@ -960,8 +958,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				int iWeight = 0;
 
 				iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
-			
-			
+					
 				int iDiploValue = 0;
 				int iScienceValue = 0;
 				int iConquestValue = 0;
@@ -973,10 +970,10 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					if (eFlavor == NO_FLAVOR)
 						continue;
 
-					iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
-
 					if (pkPolicyInfo->GetFlavorValue(eFlavor) > 0)
 					{
+						iWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+
 						if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY")
 						{
 							iDiploValue += iDiploInterest;
@@ -992,9 +989,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 								{
 									if (pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
 									{
-										iWeight -= iDiploValue += iDiploInterest;
-										iDiploValue = 0;
-										iDiploInterest = 0;
+										iWeight -= iDiploInterest;
 										break;
 									}
 								}
@@ -1153,7 +1148,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 				else
 				{
-					iWeight += (iCultureValue / 2);
+					iWeight += (iCultureValue / 3);
 				}
 				if (pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory())
 				{
@@ -1161,7 +1156,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 				else
 				{
-					iWeight += (iDiploValue / 2);
+					iWeight += (iDiploValue / 3);
 				}
 				if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSSVictory())
 				{
@@ -1169,26 +1164,24 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 				else
 				{
-					iWeight += (iScienceValue / 2);
+					iWeight += (iScienceValue / 3);
 				}
 
-				if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+				if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
 				{
 					iWeight += iConquestValue;
 				}
 				else
 				{
-					iWeight += (iConquestValue / 2);
+					iWeight += (iConquestValue / 3);
 				}
 
 				if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
-					iFreedomPriority += (iWeight / 5);
+					iFreedomPriority += (iWeight / 10);
 				else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
-					iAutocracyPriority += (iWeight / 5);
-				else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
-					iAutocracyPriority += (iWeight / 5);
+					iAutocracyPriority += (iWeight / 10);
 				else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
-					iOrderPriority += (iWeight / 5);
+					iOrderPriority += (iWeight / 10);
 			}
 		}
 	}

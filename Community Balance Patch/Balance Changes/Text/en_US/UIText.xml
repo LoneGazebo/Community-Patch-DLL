@@ -185,7 +185,7 @@
 
 		<!-- WLTKD LUA -->
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
-			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>
+			<Text>[NEWLINE] [ICON_BULLET]Building/Policy Modifier from 'We Love the King Day:' {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE">
 			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes</Text>
@@ -783,7 +783,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES">
-			<Text>[NEWLINE][ICON_BULLET]Piety Modifer: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Policy Modifer: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
 			<Text>{1_Num} {2_IconString} from following the [ICON_RELIGION] Majority Religion</Text>
@@ -810,7 +810,20 @@
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Reformation Belief</Text>
 		</Row>
-
+		
+		<Row Tag="TXT_KEY_CULTURE_FROM_GWS">
+			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GREAT_WORK] Great Works</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_SPIES">
+			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_SPY] Active Spies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_GWS">
+			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GREAT_WORK] Great Works</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_SPIES">
+			<Text>+{1_Num}% [ICON_PEACE] from [ICON_SPY] Active Spies</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
 			<Text>{1_Num} [ICON_CULTURE] from City-States</Text>
 		</Row>

@@ -468,7 +468,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (16 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
+	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (10 - iEra)); // make a little less likely as time goes on
 #else
 	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier) * (12 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
 #endif
@@ -533,6 +533,9 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iPriority += (iNum * 125);
 	}
+	//If we're lacking capitals and the game is getting close to over...let's move on.
+	else if (iEra > 5 && iNum <= 1)
+		iPriority += (-100 * iEra);
 #endif
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
 	if(GetPlayer()->IsCramped())
@@ -781,7 +784,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((iEra * iFlavorCulture * 100) / 100);
+	iPriority += ((iEra * iFlavorCulture * 150) / 100);
 #else
 	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
 #endif
@@ -1015,7 +1018,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 		if (ePaper != NO_RESOURCE && m_pPlayer->getResourceFromCSAlliances(ePaper) > 0)
 		{
-			iPriorityBonus += 25;
+			iPriorityBonus += 10 * m_pPlayer->getResourceFromCSAlliances(ePaper);
 		}
 	}
 
@@ -1157,7 +1160,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			}
 		}
 	}
-	iPriorityBonus /= 16;
+	iPriorityBonus /= 14;
 	iPriority += iPriorityBonus;
 #endif
 #if !defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
@@ -1319,7 +1322,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	// the later the game the greater the chance
 #if defined(MOD_AI_SMART_GRAND_STRATEGY)
 	int iEraBias = MOD_AI_SMART_GRAND_STRATEGY ? 4 : 0;
-	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 200 / 100;
+	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 250 / 100;
 #else
 	iPriority += m_pPlayer->GetCurrentEra() * iFlavorScience * 150 / 100;
 #endif

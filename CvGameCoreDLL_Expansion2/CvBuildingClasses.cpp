@@ -191,6 +191,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bRiver(false),
 	m_bFreshWater(false),
 	m_bAnyWater(false),
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	m_iEventRequiredActive(NO_EVENT_CHOICE),
+	m_iCityEventRequiredActive(NO_EVENT_CHOICE_CITY),
+#endif
 #if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
 	m_bPurchaseOnly(false),
@@ -778,6 +782,15 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iLandmarksTourismPercentGlobal = kResults.GetInt("GlobalLandmarksTourismPercent");
 	m_iGreatWorksTourismModifierGlobal = kResults.GetInt("GlobalGreatWorksTourismModifier");
 #endif
+
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	szTextVal = kResults.GetText("EventChoiceRequiredActive");
+	m_iEventRequiredActive = GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("CityEventChoiceRequiredActive");
+	m_iCityEventRequiredActive = GC.getInfoTypeForString(szTextVal, true);
+#endif
+
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
@@ -1506,6 +1519,18 @@ int CvBuildingEntry::GetGreatWorksTourismModifierGlobal() const
 {
 	return m_iGreatWorksTourismModifierGlobal;
 }
+
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvBuildingEntry::GetEventRequiredActive() const
+{
+	return m_iEventRequiredActive;
+}
+
+int CvBuildingEntry::GetCityEventRequiredActive() const
+{
+	return m_iCityEventRequiredActive;
+}
+#endif
 #endif
 
 /// Does this building give all units a promotion for free instantly?

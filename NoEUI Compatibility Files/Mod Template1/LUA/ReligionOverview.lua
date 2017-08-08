@@ -398,7 +398,7 @@ function RefreshYourReligion()
 	-- Add default options	
 	AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PROMPT"), "", FaithPurchaseTypes.NO_AUTOMATIC_FAITH_PURCHASE, 0);
 	
-	if (player:GetReligionCreatedByPlayer() > ReligionTypes.RELIGION_PANTHEON or Game.GetNumReligionsStillToFound() > 0) then
+	if (player:GetReligionCreatedByPlayer() > ReligionTypes.RELIGION_PANTHEON or Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) > 0) then
 	    if (player:GetCurrentEra() < GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
 			AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PROPHET"), "", FaithPurchaseTypes.FAITH_PURCHASE_SAVE_PROPHET, 0);
 		end
@@ -533,7 +533,7 @@ function RefreshWorldReligions()
 		Controls.NoWorldReligions:SetHide(false);
 	end
 	
-	local iReligionsLeft = Game.GetNumReligionsStillToFound();
+	local iReligionsLeft = Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer());
 	if (iReligionsLeft < 0) then
 		iReligionsLeft = 0;
 	end

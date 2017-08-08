@@ -268,14 +268,13 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
-			-- Occupation tooltip
-			if (iOccupationUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
-			end
-
+			
 			-- Resistance tooltip
 			if (iResistanceUnhappiness ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+			-- Occupation tooltip
+			elseif (iOccupationUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
 			end
 
 			-- Starving tooltip

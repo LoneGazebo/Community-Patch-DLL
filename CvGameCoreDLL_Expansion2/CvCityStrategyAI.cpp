@@ -5917,6 +5917,18 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				}
 			}
 		}
+		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		{
+			YieldTypes yield = (YieldTypes)ui;
+
+			if (yield == NO_YIELD)
+				continue;
+
+			if (kPlayer.getYieldModifierFromActiveSpies(yield) > 0)
+			{
+				iValue += kPlayer.getYieldModifierFromActiveSpies(yield);
+			}
+		}
 	}
 	return iValue;
 }
@@ -5950,6 +5962,18 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 			else
 			{
 				iValue -= kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
+			}
+		}
+		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		{
+			YieldTypes yield = (YieldTypes)ui;
+
+			if (yield == NO_YIELD)
+				continue;
+
+			if (kPlayer.getYieldModifierFromGreatWorks(yield) > 0)
+			{
+				iValue += kPlayer.getYieldModifierFromGreatWorks(yield);
 			}
 		}
 	}

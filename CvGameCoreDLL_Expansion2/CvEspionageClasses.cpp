@@ -2146,9 +2146,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 
 			//Rebels!
 			// In hundreds
-			int iNumRebels = (iRank * (125 + iTurnsActive)); //Based on rank of spy.
-			int iExtraRoll = (iRank * (125 + iTurnsActive)); //1+ Rebels maximum
-			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
+			int iNumRebels = (iRank * (75 + iTurnsActive)); //Based on rank of spy.
+			int iExtraRoll = (iRank * (75 + iTurnsActive)); //1+ Rebels maximum
+			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;
 			int iNumRebelTotal = iNumRebels;
 			if (iNumRebelTotal > 0)

@@ -856,7 +856,7 @@ function GetCultureTooltip(pCity)
 			else
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
 			end
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
 		end
 -- END
 
@@ -1003,6 +1003,24 @@ function GetCultureTooltip(pCity)
 				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CORPORATION", iAmount);
 			end
 		end
+
+		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE) > 0) then
+			iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE);
+			
+			if (iAmount ~= 0) then
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_GWS", iAmount);
+			end
+		end
+		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE) > 0) then
+			iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE);
+			
+			if (iAmount ~= 0) then
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_SPIES", iAmount);
+			end
+		end
+
 		local iAmount = pCity:GetCultureModFromCarnaval();
 		if (iAmount ~= 0) then
 			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
@@ -1152,6 +1170,21 @@ function GetFaithTooltip(pCity)
 		if(iYieldFromCorps ~= 0) then
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CORPORATIONS", iYieldFromCorps));
 		end
+
+		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH) > 0) then
+			iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH);
+			
+			if (iAmount ~= 0) then
+				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GWS", iAmount));
+			end
+		end
+		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH) > 0) then
+			iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH);
+			
+			if (iAmount ~= 0) then
+				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_SPIES", iAmount));
+			end
+		end
 		-- END 
 		-- CBP
 		local iFaithWLTKDMod = pCity:GetModFromWLTKD(YieldTypes.YIELD_FAITH);
@@ -1174,17 +1207,32 @@ function GetFaithTooltip(pCity)
 
 		-- CBP -- Resource Monopoly
 		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH) > 0) then
-			iAmount = pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
+			local iAmount = pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
 			
 			if (iAmount ~= 0) then
 				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", iAmount));
 			end
 		end
 		-- END
+
+		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH) > 0) then
+			local iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH);
+			
+			if (iAmount ~= 0) then
+				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GWS", iAmount));
+			end
+		end
+		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH) > 0) then
+			local iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH);
+			
+			if (iAmount ~= 0) then
+				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_SPIES", iAmount));
+			end
+		end
 		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
-			iAmount = GameDefines.PUPPET_FAITH_MODIFIER;
+			local iAmount = GameDefines.PUPPET_FAITH_MODIFIER;
 		
 			if (iAmount ~= 0) then
 				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount));

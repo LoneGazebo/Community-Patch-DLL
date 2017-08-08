@@ -180,6 +180,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
+	int GetTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
 	
 	bool IsNoCSDecayAtWar() const;
@@ -288,6 +289,7 @@ public:
 	int GetYieldFromBirthRetroactive(int i) const;
 	int GetYieldFromBirthCapitalRetroactive(int i) const;
 	int GetYieldFromConstruction(int i) const;
+	int GetYieldFromWonderConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
@@ -372,6 +374,24 @@ public:
 	int* GetLitYieldChangesArray() const;
 
 	bool IsOnlyTradeSameIdeology() const;
+
+	int GetYieldFromNonSpecialistCitizens(int i) const;
+	int* GetYieldFromNonSpecialistCitizensArray() const;
+
+	int GetYieldModifierFromGreatWorks(int i) const;
+	int* GetYieldModifierFromGreatWorksArray() const;
+
+	int GetYieldModifierFromActiveSpies(int i) const;
+	int* GetYieldModifierFromActiveSpiesArray() const;
+
+	int GetYieldFromDelegateCount(int i) const;
+	int* GetYieldFromDelegateCountArray() const;
+
+	int GetMissionInfluenceModifier() const;
+
+	bool IsCSResourcesForMonopolies() const;
+	
+	int GetHappinessPerActiveTradeRoute() const;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
@@ -540,6 +560,7 @@ private:
 
 	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
+	int m_iTradeRouteYieldModifierCapital;
 	BuildingClassTypes m_eNewCityFreeBuilding;
 
 	bool m_bNoCSDecayAtWar;
@@ -664,6 +685,7 @@ private:
 	int* m_piYieldFromBirthRetroactive;
 	int* m_piYieldFromBirthCapitalRetroactive;
 	int* m_piYieldFromConstruction;
+	int* m_piYieldFromWonderConstruction;
 	int* m_piYieldFromTech;
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
@@ -748,6 +770,13 @@ private:
 	int* m_piArtYieldChanges;
 	int* m_piLitYieldChanges;
 	int* m_piMusicYieldChanges;
+	int* m_piYieldFromNonSpecialistCitizens;
+	int* m_piYieldModifierFromGreatWorks;
+	int* m_piYieldModifierFromActiveSpies;
+	int* m_piYieldFromDelegateCount;
+	int m_iMissionInfluenceModifier;
+	int m_iHappinessPerActiveTradeRoute;
+	bool m_bCSResourcesForMonopolies;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;
@@ -906,6 +935,7 @@ enum PolicyModifierType
 	POLICYMOD_INTERNAL_TRADE_MODIFIER,
 #if defined(MOD_BALANCE_CORE)
 	POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER,
+	POLICYMOD_TRADE_CAPITAL_MODIFIER,
 #endif
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,

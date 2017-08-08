@@ -3795,7 +3795,8 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 	int iPlotLoop;
 	CvPlot* pBestPlot = NULL;
 	CvCity* pClosestCity = NULL;
-	int iBestPlotDistance = MAX_INT;
+	//We don't want the AI chasing barbs all over the world.
+	int iBestPlotDistance = 15;
 
 	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
 

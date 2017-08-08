@@ -179,6 +179,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessFromBuildings("CvPlayer::m_iHappinessFromBuildings", m_syncArchive)
 	, m_iHappinessPerCity("CvPlayer::m_iHappinessPerCity", m_syncArchive)
 	, m_iHappinessPerXPolicies("CvPlayer::m_iHappinessPerXPolicies", m_syncArchive)
+	, m_iExtraHappinessPerXPoliciesFromPolicies("CvPlayer::m_iExtraHappinessPerXPoliciesFromPolicies", m_syncArchive)
 	, m_iAdvancedStartPoints("CvPlayer::m_iAdvancedStartPoints", m_syncArchive)
 	, m_iAttackBonusTurns("CvPlayer::m_iAttackBonusTurns", m_syncArchive)
 	, m_iCultureBonusTurns("CvPlayer::m_iCultureBonusTurns", m_syncArchive)
@@ -644,6 +645,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldFromBirthCapitalRetroactive("CvPlayer::m_aiYieldFromBirthCapitalRetroactive", m_syncArchive)
 	, m_aiYieldFromDeath("CvPlayer::m_aiYieldFromDeath", m_syncArchive)
 	, m_aiYieldFromConstruction("CvPlayer::m_aiYieldFromConstruction", m_syncArchive)
+	, m_aiYieldFromwonderConstruction("CvPlayer::m_aiYieldFromwonderConstruction", m_syncArchive)
 	, m_aiYieldFromTech("CvPlayer::m_aiYieldFromTech", m_syncArchive)
 	, m_aiYieldFromBorderGrowth("CvPlayer::m_aiYieldFromBorderGrowth", m_syncArchive)
 	, m_aiYieldGPExpend("CvPlayer::m_aiYieldGPExpend", m_syncArchive)
@@ -655,6 +657,10 @@ CvPlayer::CvPlayer() :
 	, m_aiLitYieldBonus("CvPlayer::m_aiLitYieldBonus", m_syncArchive)
 	, m_aiReligionYieldRateModifier("CvPlayer::m_aiReligionYieldRateModifier", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvPlayer::m_aiGoldenAgeYieldMod", m_syncArchive)
+	, m_aiYieldFromNonSpecialistCitizens("CvPlayer::m_aiYieldFromNonSpecialistCitizens", m_syncArchive)
+	, m_aiYieldModifierFromGreatWorks("CvPlayer::m_aiYieldModifierFromGreatWorks", m_syncArchive)
+	, m_aiYieldModifierFromActiveSpies("CvPlayer::m_aiYieldModifierFromActiveSpies", m_syncArchive)
+	, m_aiYieldFromDelegateCount("CvPlayer::m_aiYieldFromDelegateCount", m_syncArchive)
 	, m_paiBuildingClassCulture("CvPlayer::m_paiBuildingClassCulture", m_syncArchive)
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal("CvPlayer::m_aiDomainFreeExperiencePerGreatWorkGlobal", m_syncArchive)
 	, m_iGarrisonsOccupiedUnhapppinessMod("CvPlayer::m_iGarrisonsOccupiedUnhapppinessMod", m_syncArchive)
@@ -690,6 +696,9 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	, m_iInvestmentModifier("CvPlayer::m_iInvestmentModifier", m_syncArchive)
+	, m_iMissionInfluenceModifier("CvPlayer::m_iMissionInfluenceModifier", m_syncArchive)
+	, m_iHappinessPerActiveTradeRoute("CvPlayer::m_iHappinessPerActiveTradeRoute", m_syncArchive)
+	, m_iCSResourcesCountMonopolies("CvPlayer::m_iCSResourcesCountMonopolies", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
@@ -1376,6 +1385,7 @@ void CvPlayer::uninit()
 	m_iHappinessFromBuildings = 0;
 	m_iHappinessPerCity = 0;
 	m_iHappinessPerXPolicies = 0;
+	m_iExtraHappinessPerXPoliciesFromPolicies = 0;
 	m_iAdvancedStartPoints = -1;
 	m_iAttackBonusTurns = 0;
 	m_iCultureBonusTurns = 0;
@@ -1644,6 +1654,9 @@ void CvPlayer::uninit()
 	m_iInvestmentModifier = 0;
 	m_bAllowsProductionTradeRoutesGlobal = false;
 	m_bAllowsFoodTradeRoutesGlobal = false;
+	m_iMissionInfluenceModifier = 0;
+	m_iHappinessPerActiveTradeRoute = 0;
+	m_iCSResourcesCountMonopolies = 0;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -1830,6 +1843,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiYieldFromConstruction.clear();
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES, 0);
 
+	m_aiYieldFromwonderConstruction.clear();
+	m_aiYieldFromwonderConstruction.resize(NUM_YIELD_TYPES, 0);
+
 	m_aiYieldFromTech.clear();
 	m_aiYieldFromTech.resize(NUM_YIELD_TYPES, 0);
 
@@ -1862,6 +1878,18 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiGoldenAgeYieldMod.clear();
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldFromNonSpecialistCitizens.clear();
+	m_aiYieldFromNonSpecialistCitizens.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldModifierFromGreatWorks.clear();
+	m_aiYieldModifierFromGreatWorks.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldModifierFromActiveSpies.clear();
+	m_aiYieldModifierFromActiveSpies.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldFromDelegateCount.clear();
+	m_aiYieldFromDelegateCount.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.clear();
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.resize(NUM_DOMAIN_TYPES, 0);
@@ -17269,7 +17297,7 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-			iTechProgress *= 2;
+			iTechProgress *= 3;
 
 			iNumCities *= (iTechProgress);
 			iNumCities /= 100;
@@ -17321,7 +17349,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-			iTechProgress *= 6;
+			iTechProgress *= 7;
 				
 			iValue *= 100;
 			iValue /= (100 + iTechProgress);
@@ -20971,6 +20999,16 @@ int CvPlayer::GetHappinessFromPolicies() const
 			iHappiness += iExtraHappinessGlobal;
 		}
 	}
+
+	if (GetHappinessFromTradeRoutes() > 0)
+	{
+		iHappiness += GetTrade()->GetNumberOfTradeRoutes();
+	}
+
+	if (GetExtraHappinessPerXPoliciesFromPolicies() > 0)
+	{
+		iHappiness += GetPlayerPolicies()->GetNumPoliciesOwned() / GetExtraHappinessPerXPoliciesFromPolicies();
+	}
 #endif
 
 	return iHappiness;
@@ -21047,7 +21085,7 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 	}
 
 	// Increase from num policies -- MOVE THIS CODE (and provide a new tool tip string) if we ever get happiness per X policies to something beside a building
-	if(m_iHappinessPerXPolicies > 0)
+	if (m_iHappinessPerXPolicies > 0)
 	{
 		iHappiness += GetPlayerPolicies()->GetNumPoliciesOwned() / m_iHappinessPerXPolicies;
 	}
@@ -21090,6 +21128,23 @@ void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
 	if(iChange != 0)
 		m_iHappinessPerXPolicies += iChange;
 }
+
+/// Returns the amount of extra Happiness per City
+int CvPlayer::GetExtraHappinessPerXPoliciesFromPolicies() const
+{
+	return m_iExtraHappinessPerXPoliciesFromPolicies;
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes amount of extra Happiness per City
+void CvPlayer::ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange)
+{
+	CvAssertMsg(m_iExtraHappinessPerXPoliciesFromPolicies >= 0, "Count of extra happiness per buildings is corrupted");
+
+	if (iChange != 0)
+		m_iExtraHappinessPerXPoliciesFromPolicies += iChange;
+}
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvPlayer::GetHappinessFromResourceMonopolies() const
 {
@@ -25475,6 +25530,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 				{
 					iValue += pLoopCity->GetYieldFromPolicyUnlock(eYield);
+					//Scale it here to avoid scaling the growth yield below.
+					if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
+					{
+						iValue *= iEra;
+					}
+
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowers;
@@ -25549,10 +25610,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					break;
 				}
+				case INSTANT_YIELD_TYPE_DELEGATES:
+				{
+					if (pLoopCity->isCapital())
+					iValue += getYieldFromDelegateCount(eYield);
+					break;
+				}			
 				
 				case INSTANT_YIELD_TYPE_CONSTRUCTION:
 				{
 					iValue += pLoopCity->GetYieldFromConstruction(eYield) + getYieldFromConstruction(eYield);
+					break;
+				}
+				case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
+				{
+					iValue += getYieldFromwonderConstruction(eYield);
 					break;
 				}
 				case INSTANT_YIELD_TYPE_BORDERS:
@@ -25853,8 +25925,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iValue /= 100;
 					}
 
-					//Exclusion for birth yields and GP expense (as we do it up above to avoid % growth and religion bonuses from being scaled).
-					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE)
+					//Exclusion for birth yields and GP expense and policy unlocks (as we do it up above to avoid % growth and religion bonuses from being scaled).
+					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK)
 					{
 						iValue *= iEra;
 					}
@@ -26183,6 +26255,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				return;
 			}
 			case INSTANT_YIELD_TYPE_CONSTRUCTION:
+			case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:
 			{
 				if(eBuilding != NO_BUILDING)
 				{
@@ -26381,6 +26454,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				localizedText << totalyieldString;
 				break;
 			}
+			case INSTANT_YIELD_TYPE_DELEGATES:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_DELEGATES");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_SPY_DEFENSE:
+			case INSTANT_YIELD_TYPE_SPY_ATTACK:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_SPIES");
+				localizedText << totalyieldString;
+				break;
+			}
+			
 			case INSTANT_YIELD_TYPE_TR_MOVEMENT:
 			{
 				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
@@ -32940,6 +33027,33 @@ void CvPlayer::changeYieldFromConstruction(YieldTypes eIndex, int iChange)
 		}
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromwonderConstruction(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiYieldFromwonderConstruction[eIndex];
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromwonderConstruction(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromwonderConstruction.setAt(eIndex, m_aiYieldFromwonderConstruction[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getYieldFromTech(YieldTypes eIndex) const
 {
@@ -33175,6 +33289,120 @@ void CvPlayer::changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 		}
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromNonSpecialistCitizens(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromNonSpecialistCitizens[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromNonSpecialistCitizens(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromNonSpecialistCitizens.setAt(eIndex, m_aiYieldFromNonSpecialistCitizens[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldModifierFromGreatWorks(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierFromGreatWorks[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldModifierFromGreatWorks(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldModifierFromGreatWorks.setAt(eIndex, m_aiYieldModifierFromGreatWorks[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldModifierFromActiveSpies(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierFromActiveSpies[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldModifierFromActiveSpies.setAt(eIndex, m_aiYieldModifierFromActiveSpies[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromDelegateCount(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromDelegateCount[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromDelegateCount.setAt(eIndex, m_aiYieldFromDelegateCount[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getReligionYieldRateModifier(YieldTypes eIndex)	const
 {
@@ -33665,6 +33893,41 @@ void CvPlayer::changeInvestmentModifier(int iChange)
 {
 	m_iInvestmentModifier += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetMissionInfluenceModifier() const
+{
+	return m_iMissionInfluenceModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeMissionInfluenceModifier(int iChange)
+{
+	m_iMissionInfluenceModifier += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetHappinessPerActiveTradeRoute() const
+{
+	return m_iHappinessPerActiveTradeRoute;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeHappinessPerActiveTradeRoute(int iChange)
+{
+	m_iHappinessPerActiveTradeRoute += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsCSResourcesCountMonopolies() const
+{
+	return (m_iCSResourcesCountMonopolies > 0);
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeCSResourcesCountMonopolies(int iChange)
+{
+	m_iCSResourcesCountMonopolies += iChange;
+}
+
+
 int CvPlayer::GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const
 {
 	if(eBuilding != NO_BUILDING)
@@ -35437,7 +35700,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	return iTotalNumResource;
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) const
+int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, bool bIncludeMinors) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -35530,11 +35793,15 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 		}
 	}
 #endif
+	if (bIncludeMinors && !IsCSResourcesCountMonopolies())
+		bIncludeMinors = false;
+
+	if (bIncludeImport || bIncludeMinors)
+		iTotalNumResource += getResourceFromMinors(eIndex);
 
 	if(bIncludeImport)
 	{
 		iTotalNumResource += getResourceImport(eIndex);
-		iTotalNumResource += getResourceFromMinors(eIndex);
 		iTotalNumResource += getResourceSiphoned(eIndex);
 	}
 
@@ -35788,7 +36055,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	{
 		if(pkResourceInfo->isMonopoly())
 		{
-			int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
+			int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			bool bGainingBonus = false;
 			bool bGainingStrategicBonus = false;
@@ -35962,7 +36229,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 /// Get the monopoly percentage owned for eResource.
 int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
 {
-	int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
+	int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
 	int iTotalNumResource = GC.getMap().getNumResources(eResource);
 
 	if (iTotalNumResource <= 0)
@@ -40299,7 +40566,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeMonopolyModPercent(pPolicy->GetMonopolyModPercent() * iChange);
 	ChangeTRVisionBoost(pPolicy->GetTRVisionBoost() * iChange);
 	ChangeTRSpeedBoost(pPolicy->GetTRSpeedBoost() * iChange);
-	ChangeExtraHappinessPerXPolicies(pPolicy->GetHappinessPerXPolicies() * iChange);
+	ChangeExtraHappinessPerXPoliciesFromPolicies(pPolicy->GetHappinessPerXPolicies() * iChange);
 	ChangePositiveWarScoreTourismMod(pPolicy->GetPositiveWarScoreTourismMod() * iChange);
 
 	ChangeIsNoCSDecayAtWar(pPolicy->IsNoCSDecayAtWar() * iChange);
@@ -40596,6 +40863,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							{
 								continue;
 							}
+
+							if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+								continue;
+
 							if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 							{
 								int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
@@ -40625,7 +40896,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							{
 								continue;
 							}
-							int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getJonRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
+							int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getJonRandNum((pkUnitEntry->GetCombat() * 2), "Random Unit bump"));
 							if(iCombatStrength > iStrengthBest)
 							{
 								iStrengthBest = iCombatStrength;
@@ -40676,6 +40947,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	changeInvestmentModifier(pPolicy->GetInvestmentModifier() * iChange);
+
+	changeMissionInfluenceModifier(pPolicy->GetMissionInfluenceModifier() * iChange);
+	changeHappinessPerActiveTradeRoute(pPolicy->GetHappinessPerActiveTradeRoute() * iChange);
+	changeCSResourcesCountMonopolies(pPolicy->IsCSResourcesForMonopolies() ? iChange : 0);
 #endif
 	if(pPolicy->IsOneShot())
 	{
@@ -40705,6 +40980,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldFromBirthCapital(eYield, (pPolicy->GetYieldFromBirthCapital(iI) * iChange));
 
 		changeYieldFromConstruction(eYield, (pPolicy->GetYieldFromConstruction(iI) * iChange));
+		changeYieldFromwonderConstruction(eYield, (pPolicy->GetYieldFromWonderConstruction(iI) * iChange));
+
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
 		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
@@ -40720,6 +40997,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		changeYieldFromBirthRetroactive(eYield, (pPolicy->GetYieldFromBirthRetroactive(iI) * iChange));
 		changeYieldFromBirthCapitalRetroactive(eYield, (pPolicy->GetYieldFromBirthCapitalRetroactive(iI) * iChange));
+
+		changeYieldFromNonSpecialistCitizens(eYield, (pPolicy->GetYieldFromNonSpecialistCitizens(iI) * iChange));
+		changeYieldModifierFromGreatWorks(eYield, (pPolicy->GetYieldModifierFromGreatWorks(iI) * iChange));
+		changeYieldModifierFromActiveSpies(eYield, (pPolicy->GetYieldModifierFromActiveSpies(iI) * iChange));
+		changeYieldFromDelegateCount(eYield, (pPolicy->GetYieldFromDelegateCount(iI) * iChange));
 
 		if (pPolicy->GetYieldFromBirthRetroactive(eYield) != 0)
 		{
@@ -44814,7 +45096,7 @@ void CvPlayer::SetBestWonderCities()
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, iGPT, false, true);
 
-			iValue += (-10 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
+			iValue += (-15 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
 
 			//Made it this far? Let's register the capital as valid as a failsafe.
 			if (pLoopCity->isCapital())

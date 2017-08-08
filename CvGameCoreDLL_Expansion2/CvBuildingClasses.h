@@ -131,6 +131,8 @@ public:
 	int GetResourceQuantityToPlace() const;
 	int GetLandmarksTourismPercentGlobal() const;
 	int GetGreatWorksTourismModifierGlobal() const;
+	int GetEventRequiredActive() const;
+	int GetCityEventRequiredActive() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -739,6 +741,10 @@ private:
 	int m_iTradeReligionModifier;
 	int m_iFreeArtifacts;
 	bool m_bAnyWater;
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	int m_iEventRequiredActive;
+	int m_iCityEventRequiredActive;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCannotFailSpies;

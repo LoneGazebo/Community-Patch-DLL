@@ -172,6 +172,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMaxRange(0),
 	m_iMultiAttackBonus(0),
 	m_iLandAirDefenseValue(0),
+	m_iDamageReductionCityAssault(0),
 	m_bMountainsDoubleMove(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -394,6 +395,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iMaxRange = kResults.GetInt("MaximumRangeRequired");
 	m_iMultiAttackBonus = kResults.GetInt("MultiAttackBonus");
 	m_iLandAirDefenseValue = kResults.GetInt("LandAirDefenseBonus");
+	m_iDamageReductionCityAssault = kResults.GetInt("DamageReductionCityAssault");
 	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -1896,6 +1898,10 @@ int CvPromotionEntry::GetMultiAttackBonus() const
 int CvPromotionEntry::GetLandAirDefenseValue() const
 {
 	return m_iLandAirDefenseValue;
+}
+int CvPromotionEntry::GetDamageReductionCityAssault() const
+{
+	return m_iDamageReductionCityAssault;
 }
 /// Accessor: Double movement in hills
 bool CvPromotionEntry::IsMountainsDoubleMove() const

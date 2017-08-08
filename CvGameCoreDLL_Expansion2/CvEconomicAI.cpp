@@ -1945,7 +1945,8 @@ void CvEconomicAI::DoHurry()
 												{
 													pUnit->setMoves(0);
 												}
-												pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
+												bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
+												pLoopCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 												if (MOD_EVENTS_CITY) {
@@ -1995,7 +1996,8 @@ void CvEconomicAI::DoHurry()
 											{
 												pUnit->setMoves(0);
 											}
-											pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
+											bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
+											pLoopCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 											if (MOD_EVENTS_CITY) {
@@ -2196,7 +2198,8 @@ void CvEconomicAI::DoHurry()
 													{
 														pUnit->setMoves(0);
 													}
-													pLoopCity->SetUnitPurchaseCooldown(pkUnitEntry->GetCooldown());
+													bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
+													pLoopCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 													if (MOD_EVENTS_CITY) {
@@ -2242,7 +2245,8 @@ void CvEconomicAI::DoHurry()
 												{
 													pUnit->setMoves(0);
 												}
-												pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
+												bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
+												pLoopCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 												if (MOD_EVENTS_CITY) {
