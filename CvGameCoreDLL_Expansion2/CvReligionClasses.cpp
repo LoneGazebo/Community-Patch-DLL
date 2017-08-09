@@ -8005,7 +8005,7 @@ bool CvReligionAI::DoFaithPurchases()
 							if (m_pPlayer->GetFaith() > 5000)
 								return false;
 
-							return true;
+							return false;
 						}
 					}
 				}
@@ -8040,7 +8040,7 @@ bool CvReligionAI::DoFaithPurchases()
 							strLogMsg += strFaith;
 							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 						}
-						return true;
+						return false;
 					}
 				}
 			}
@@ -8153,7 +8153,7 @@ bool CvReligionAI::DoFaithPurchases()
 		// FIRST PRIORITY
 		//Let's start with the highest-flavor stuff and work our way down...
 		//Are we super religious? Target all cities, and always get Missionaries.
-		if(iFlavorReligion >= 8 && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
+		if (iFlavorReligion >= 8 && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
 		{
 			if(BuyMissionary(eReligion))
 			{
@@ -8178,7 +8178,7 @@ bool CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return true;
+				return false;
 			}
 
 		}
@@ -8209,7 +8209,7 @@ bool CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return true;
+				return false;
 			}
 		}
 	}

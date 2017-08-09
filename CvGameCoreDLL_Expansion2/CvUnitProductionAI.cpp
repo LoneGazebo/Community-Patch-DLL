@@ -680,7 +680,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (30 * iAircraft);
+				iBonus += (75 * iAircraft);
 			}
 		}
 

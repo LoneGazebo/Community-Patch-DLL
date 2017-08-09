@@ -773,7 +773,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(m_pCity->IsOccupied() || !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			//Extend based on population.
-			iBonus += 1000 * m_pCity->getPopulation();
+			iBonus += 5000 * m_pCity->getPopulation();
 			bGoodforGPTHappiness = true;
 		}
 	}

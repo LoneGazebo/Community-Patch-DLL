@@ -6945,7 +6945,11 @@ void CvLeague::StartSession()
 		PlayerTypes ePlayer = PlayerTypes(iPlayerLoop);
 		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
 		{
-			GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_DELEGATES);
+			int iDelegates = CalculateStartingVotesForMember(ePlayer);
+			if (iDelegates > 0)
+			{
+				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_DELEGATES, false, NO_GREATPERSON, NO_BUILDING, iDelegates);
+			}
 		}
 	}
 	CheckFinishSession();

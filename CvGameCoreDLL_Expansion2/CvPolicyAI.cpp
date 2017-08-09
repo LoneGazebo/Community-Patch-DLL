@@ -1144,36 +1144,76 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				//And now add them in. Halve if not our main focus.
 				if (pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
-					iWeight += iCultureValue;
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+						iWeight += iCultureValue * 2;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+						iWeight += iCultureValue * 2;
+					else
+						iWeight += iCultureValue;
 				}
 				else
 				{
-					iWeight += (iCultureValue / 3);
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+						iWeight += iCultureValue / 3;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+						iWeight += iCultureValue / 3;
+					else
+						iWeight += iCultureValue / 2;
 				}
 				if (pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory())
 				{
-					iWeight += iDiploValue;
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+						iWeight += iDiploValue * 2;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+						iWeight += iDiploValue * 2;
+					else
+						iWeight += iDiploValue;
 				}
 				else
 				{
-					iWeight += (iDiploValue / 3);
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+						iWeight += iDiploValue / 3;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+						iWeight += iDiploValue / 3;
+					else
+						iWeight += iDiploValue / 2;
 				}
 				if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSSVictory())
 				{
-					iWeight += iScienceValue;
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+						iWeight += iScienceValue * 3;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
+						iWeight += iScienceValue * 2;
+					else
+						iWeight += iScienceValue;
 				}
 				else
 				{
-					iWeight += (iScienceValue / 3);
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
+						iWeight += iScienceValue / 4;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
+						iWeight += iScienceValue / 3;
+					else
+						iWeight += iScienceValue / 2;
 				}
 
 				if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
 				{
-					iWeight += iConquestValue;
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+						iWeight += iConquestValue * 3;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
+						iWeight += iConquestValue * 2;
+					else
+						iWeight += iConquestValue;
 				}
 				else
 				{
-					iWeight += (iConquestValue / 3);
+					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
+						iWeight += iConquestValue / 4;
+					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
+						iWeight += iConquestValue / 3;
+					else
+						iWeight += iConquestValue / 2;
 				}
 
 				if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)

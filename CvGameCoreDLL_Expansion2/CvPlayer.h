@@ -2073,9 +2073,11 @@ public:
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
 
+	void AreOurBordersTouching(PlayerTypes ePlayer);
+
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
-	void DoUpdateProximityToPlayer(PlayerTypes ePlayer);
+	void DoUpdateProximityToPlayer(PlayerTypes ePlayer, bool bTileCheck = false);
 
 	void UpdateResearchAgreements(int iValue);
 	int GetResearchAgreementCounter(PlayerTypes ePlayer) const;

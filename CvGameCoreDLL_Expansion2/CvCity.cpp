@@ -3405,6 +3405,31 @@ int CvCity::GetTradeRouteLandDistanceModifier() const
 	VALIDATE_OBJECT
 	return m_iTradeRouteLandDistanceModifier;
 }
+
+bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
+{
+	int iX = getX(); int iY = getY(); int iOwner = getOwner();
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner)
+		{
+			continue;
+		}
+
+		CvPlot* pAdjacentPlot;
+		for (int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
+		{
+			pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)jJ));
+			if (pAdjacentPlot != NULL && pAdjacentPlot->getOwner() == ePlayer)
+				return true;
+		}
+	}
+	return false;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 int CvCity::GetEventChoiceDuration(CityEventChoiceTypes eEventChoice) const
@@ -13736,6 +13761,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 		if (pBuildingInfo->GetReligiousPressureModifier() != 0)
 		{
+			bool bSpecificFaithOnly = false;
 			if (pBuildingInfo->IsUnlockedByBelief())
 			{
 				ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -13747,11 +13773,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if (pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pBuildingInfo->GetBuildingClassType(), getOwner(), this))
 						{
 							ChangeReligiousPressureModifier(eMajority, pBuildingInfo->GetReligiousPressureModifier() * iChange);
+							bSpecificFaithOnly = true;
 						}
 					}
 				}
 			}
-			else
+			if (!bSpecificFaithOnly)
 			{
 				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 				{
@@ -16544,6 +16571,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									{
 										continue;
 									}
+									if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+										continue;
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
 										int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
@@ -25999,6 +26028,15 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	GC.getMap().updateDeferredFog();
 
 	DoUpdateCheapestPlotInfluenceDistance();
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
+		{
+			GET_PLAYER(getOwner()).DoUpdateProximityToPlayer(eLoopPlayer, true);
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------

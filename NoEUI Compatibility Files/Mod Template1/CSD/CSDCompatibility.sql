@@ -40,6 +40,12 @@ INSERT INTO Policy_FaithPurchaseUnitClasses
 VALUES
 	('POLICY_PATRONAGE_FINISHER', 'UNITCLASS_GREAT_DIPLOMAT');
 
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 5);
+
 INSERT INTO Belief_GreatPersonExpendedYield
 	(BeliefType, GreatPersonType, YieldType, Yield)
 VALUES
@@ -47,11 +53,6 @@ VALUES
 	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_CULTURE', 2),
 	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_FAITH', 2),
 	('BELIEF_TO_GLORY_OF_GOD', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLD', 2);
-
-INSERT INTO Policy_ImprovementYieldChanges
-	(PolicyType, ImprovementType, YieldType, Yield)
-VALUES
-	('POLICY_NEW_DEAL', 'IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 5);
 
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
@@ -111,7 +112,7 @@ UPDATE Buildings SET HurryCostModifier = '-20';
 UPDATE Buildings SET HurryCostModifier = '-5' WHERE NOT WonderSplashImage = 'NULL';
 
 
-UPDATE Policies SET GreatDiplomatRateModifier = '25' WHERE Type = 'POLICY_SCHOLASTICISM';
+UPDATE Policies SET GreatDiplomatRateModifier = '25' WHERE Type = 'POLICY_PHILANTHROPY';
 
 -- Building Prereq Techs
 
@@ -121,8 +122,11 @@ UPDATE Buildings SET PrereqTech = 'TECH_RADIO' WHERE Type = 'BUILDING_FOREIGN_OF
 UPDATE Buildings SET NumPoliciesNeeded = '11' WHERE Type = 'BUILDING_SUMMER_PALACE';
 UPDATE Buildings SET NumPoliciesNeeded = '3' WHERE Type = 'BUILDING_FORUM';
 
--- Chancery Happiness Boost
-INSERT INTO Policy_BuildingClassHappiness (PolicyType, BuildingClassType, Happiness) SELECT 'POLICY_CULTURAL_DIPLOMACY', 'BUILDINGCLASS_CHANCERY', '1';
+
+UPDATE Policies
+SET MinorScienceAllies = '0'
+WHERE Type = 'POLICY_PHILANTHROPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
 
 --Philanthropy more paper!
 

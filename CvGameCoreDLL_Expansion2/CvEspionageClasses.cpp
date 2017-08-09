@@ -4941,14 +4941,23 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 
 	int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultipier) / 100);
 
-	if(iResultPercentage > 85)
+
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
-		iResultPercentage = 85;
+		iResultPercentage *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
+		iResultPercentage /= 100;
+	}
+#endif
+
+	if(iResultPercentage > 80)
+	{
+		iResultPercentage = 80;
 	}
 #if defined(MOD_BALANCE_CORE)
-	else if(iResultPercentage < 15)
+	else if(iResultPercentage < 10)
 	{
-		iResultPercentage = 15;
+		iResultPercentage = 10;
 	}
 #else
 	else if(iResultPercentage < 0)
@@ -4963,15 +4972,6 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	//{
 	//	iResultPercentage = 100 - ((iDeltaInfluence * 100) / iAdjustedAllyInfluence);
 	//}
-
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		iResultPercentage *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
-		iResultPercentage /= 100;
-	}
-#endif
-
 
 	return iResultPercentage;
 }

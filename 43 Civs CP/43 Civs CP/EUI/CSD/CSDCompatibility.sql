@@ -112,7 +112,7 @@ UPDATE Buildings SET HurryCostModifier = '-20';
 UPDATE Buildings SET HurryCostModifier = '-5' WHERE NOT WonderSplashImage = 'NULL';
 
 
-UPDATE Policies SET GreatDiplomatRateModifier = '25' WHERE Type = 'POLICY_PHILANTHROPY';
+UPDATE Policies SET GreatDiplomatRateModifier = '50' WHERE Type = 'POLICY_PHILANTHROPY';
 
 -- Building Prereq Techs
 

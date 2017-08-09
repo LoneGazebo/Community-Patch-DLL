@@ -21000,7 +21000,7 @@ int CvPlayer::GetHappinessFromPolicies() const
 		}
 	}
 
-	if (GetHappinessFromTradeRoutes() > 0)
+	if (GetHappinessPerActiveTradeRoute() > 0)
 	{
 		iHappiness += GetTrade()->GetNumberOfTradeRoutes();
 	}
@@ -25613,7 +25613,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_DELEGATES:
 				{
 					if (pLoopCity->isCapital())
-					iValue += getYieldFromDelegateCount(eYield);
+					{
+						iValue += (getYieldFromDelegateCount(eYield) * iPassYield);
+					}
 					break;
 				}			
 				
@@ -34497,7 +34499,7 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 
 //	--------------------------------------------------------------------------------
 /// Figure out how "close" we are to another player (useful for diplomacy, war planning, etc.)
-void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
+void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer, bool bTileCheck)
 {
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -34510,15 +34512,32 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 	int iNumCityConnections = 0;
 #endif
 
-#if !defined(MOD_BALANCE_CORE)
 	CvCity* pLoopMyCity;
+	int iMyCityLoop;
+#if !defined(MOD_BALANCE_CORE)
+	
 	CvCity* pLoopTheirCity;
 
-	int iMyCityLoop;
+	
 	int iTheirCityLoop;
 
 	int iTempDistance;
 #endif
+	// Loop through all of MY Cities, but only if we're close (or we just bought a tile).
+	if (GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE || bTileCheck)
+	{
+		for (pLoopMyCity = firstCity(&iMyCityLoop); pLoopMyCity != NULL; pLoopMyCity = nextCity(&iMyCityLoop))
+		{
+			if (pLoopMyCity->AreOurBordersTouching(ePlayer))
+			{
+				SetProximityToPlayer(ePlayer, PLAYER_PROXIMITY_NEIGHBORS);
+				return;
+			}
+		}
+	}
+	//only checking for connecting tiles.
+	if (bTileCheck)
+		return;
 
 #if defined(MOD_BALANCE_CORE)
 	if(GetCenterOfMassEmpire() != NULL && GET_PLAYER(ePlayer).GetCenterOfMassEmpire() != NULL)
@@ -34560,8 +34579,8 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 		{
 			eProximity = PLAYER_PROXIMITY_CLOSE;
 		}
-		// If our closest Cities are far awat from one another and our average is less than the max then we can be considered FAR
-		else if(iAverageDistanceBetweenCities < /*180*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
+		// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
+		else if(iAverageDistanceBetweenCities < /*18*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
 		{
 			eProximity = PLAYER_PROXIMITY_FAR;
 		}
@@ -45096,7 +45115,7 @@ void CvPlayer::SetBestWonderCities()
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, iGPT, false, true);
 
-			iValue += (-15 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
+			iValue += (-50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
 
 			//Made it this far? Let's register the capital as valid as a failsafe.
 			if (pLoopCity->isCapital())

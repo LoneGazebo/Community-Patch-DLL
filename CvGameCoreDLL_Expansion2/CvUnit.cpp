@@ -29369,7 +29369,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = GetDamageReductionCityAssault();
 		iTemp += (iExtra * 20);
 
-		iValue += iTemp + iFlavorOffense * 10;
+		iValue += iTemp + iFlavorOffense * 14;
 	}
 #endif
 
@@ -29468,10 +29468,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraCityAttackPercent();
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense * 3;
+		iValue += iTemp + iFlavorOffense * 4;
 		if(isRanged())
 		{
-			iValue += iFlavorRanged * 2;
+			iValue += iFlavorRanged * 5;
 		}
 	}
 
@@ -29637,9 +29637,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged);
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense);
 	}
 
 	iTemp = pkPromotionInfo->GetAttackAboveHealthMod();
@@ -29649,9 +29649,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged);
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense);
 	}
 	iTemp = pkPromotionInfo->GetAttackBelowHealthMod();
 	if (iTemp != 0)
@@ -29660,9 +29660,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 3;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 3;
 	}
 
 	

@@ -2259,10 +2259,23 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 	}
 
+
+
 	//Return score if we can't embark and they aren't on our landmass.
 	if(pCity->getArea() != pUnit->plot()->getArea())
 	{
 		if(!GET_TEAM(getTeam()).canEmbark())
+		{
+			return 0;
+		}
+	}
+
+	//are we at war with a player close to this CS? Don't go near here!
+	for (int iNeighborMajorLoop = 0; iNeighborMajorLoop < MAX_MAJOR_CIVS; iNeighborMajorLoop++)
+	{
+		PlayerTypes eOtherMajor = (PlayerTypes)iNeighborMajorLoop;
+
+		if (GET_PLAYER(eOtherMajor).isAlive() && GET_TEAM(GET_PLAYER(eOtherMajor).getTeam()).isAtWar(getTeam()) && GET_PLAYER(eOtherMajor).GetProximityToPlayer(pMinor) >= PLAYER_PROXIMITY_CLOSE)
 		{
 			return 0;
 		}

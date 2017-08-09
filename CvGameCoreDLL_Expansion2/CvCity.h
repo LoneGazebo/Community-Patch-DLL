@@ -102,6 +102,8 @@ public:
 
 	void ChangeTradeRouteLandDistanceModifier(int iValue);
 	int GetTradeRouteLandDistanceModifier() const;
+
+	bool AreOurBordersTouching(PlayerTypes ePlayer);
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)

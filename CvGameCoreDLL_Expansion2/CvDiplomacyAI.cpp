@@ -12006,6 +12006,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			// Add weight for Player's natural EXPANSION preference
 			iLandDisputeWeight *= iExpansionFlavor;
 
+			if (GetPlayer()->getNumCities() == 1 || GET_PLAYER(ePlayer).getNumCities() == 1)
+			{
+				iLandDisputeWeight /= 4;
+			}
+
 			// Now See what our new Dispute Level should be
 			if(iLandDisputeWeight >= /*400*/ GC.getLAND_DISPUTE_FIERCE_THRESHOLD())
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
@@ -13625,13 +13630,13 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			switch (GetWarmongerThreat(ePlayer))
 			{
 			case THREAT_CRITICAL:
-				iEnemyWeight += 15;
+				iEnemyWeight += 20;
 				break;
 			case THREAT_SEVERE:
-				iEnemyWeight += 5;
+				iEnemyWeight += 10;
 				break;
 			case THREAT_MAJOR:
-				iEnemyWeight += 3;
+				iEnemyWeight += 5;
 				break;
 			}
 
