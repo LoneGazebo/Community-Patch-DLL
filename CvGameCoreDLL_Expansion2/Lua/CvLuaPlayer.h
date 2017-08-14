@@ -58,6 +58,7 @@ protected:
 	static int lGetMonopolyPercent(lua_State* L);
 	static int lHasGlobalMonopoly(lua_State* L);
 	static int lHasStrategicMonopoly(lua_State* L);
+	static int lGetResourcesMisc(lua_State* L);
 #endif
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);

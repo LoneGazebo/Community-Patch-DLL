@@ -2221,11 +2221,6 @@ local function GetCultureTooltip( city )
 
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_CULTURE))
 
-	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
-	if(trculture ~= "") then
-		tips:append( L("[NEWLINE][ICON_BULLET]" .. trculture))
-	end
-
 	-- Base Yield from Misc
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END
@@ -2238,6 +2233,11 @@ local function GetCultureTooltip( city )
 
 	-- Empire Culture modifier
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_PLAYER_MOD", cityOwner and cityOwner:GetCultureCityModifier() or 0 )
+
+	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
+	if(trculture ~= "") then
+		tips:append( L("[NEWLINE][ICON_BULLET]" .. trculture))
+	end
 
 	if civ5_mode then
 		-- City Culture modifier
@@ -2261,6 +2261,11 @@ local function GetCultureTooltip( city )
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE))
 		
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE))
+
+		
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_GWS", city:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE))
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_SPIES", city:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE))
 -- END
 	end
 
@@ -2602,6 +2607,10 @@ local function GetFaithTooltip( city )
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_FAITH) )
 
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_FAITH))
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GWS", city:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH))
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GWS", city:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH))
+
 		--END
 
 		-- Puppet modifier

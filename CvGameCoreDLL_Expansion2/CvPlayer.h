@@ -687,6 +687,9 @@ public:
 	int GetExtraHappinessPerXPolicies() const;
 	void ChangeExtraHappinessPerXPolicies(int iChange);
 
+	int GetExtraHappinessPerXPoliciesFromPolicies() const;
+	void ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange);
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetHappinessFromResourceMonopolies() const;
 #endif
@@ -1633,10 +1636,11 @@ public:
 	int GetWarScoreModifier() const;
 	void ChangeWarScoreModifier(int iChange);
 
-	
-
 	void SetProductionRoutesAllCities(bool bValue);
 	bool IsProductionRoutesAllCities() const;
+
+	void SetFoodRoutesAllCities(bool bValue);
+	bool IsFoodRoutesAllCities() const;
 #endif
 
 	int getCultureBombTimer() const;
@@ -1872,6 +1876,9 @@ public:
 	int getYieldFromConstruction(YieldTypes eIndex) const;
 	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
 
+	int getYieldFromwonderConstruction(YieldTypes eIndex) const;
+	void changeYieldFromwonderConstruction(YieldTypes eIndex, int iChange);
+
 	int getYieldFromTech(YieldTypes eIndex) const;
 	void changeYieldFromTech(YieldTypes eIndex, int iChange);
 
@@ -1904,6 +1911,18 @@ public:
 
 	int getGoldenAgeYieldMod(YieldTypes eIndex)	const;
 	void changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
+
+	int getYieldFromNonSpecialistCitizens(YieldTypes eIndex)	const;
+	void changeYieldFromNonSpecialistCitizens(YieldTypes eIndex, int iChange);
+
+	int getYieldModifierFromGreatWorks(YieldTypes eIndex)	const;
+	void changeYieldModifierFromGreatWorks(YieldTypes eIndex, int iChange);
+
+	int getYieldModifierFromActiveSpies(YieldTypes eIndex)	const;
+	void changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange);
+
+	int getYieldFromDelegateCount(YieldTypes eIndex)	const;
+	void changeYieldFromDelegateCount(YieldTypes eIndex, int iChange);
 
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
@@ -2005,6 +2024,16 @@ public:
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
 	void changeInvestmentModifier(int iChange);
+
+	int GetMissionInfluenceModifier() const;
+	void changeMissionInfluenceModifier(int iChange);
+
+	int GetHappinessPerActiveTradeRoute() const;
+	void changeHappinessPerActiveTradeRoute(int iChange);
+
+	bool IsCSResourcesCountMonopolies() const;
+	void changeCSResourcesCountMonopolies(int iChange);
+
 	int GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const;
 
 	void ChangeNumCivsConstructingWonder(BuildingTypes eBuilding, int iValue);
@@ -2044,9 +2073,11 @@ public:
 	int getSpecialistExtraYield(YieldTypes eIndex) const;
 	void changeSpecialistExtraYield(YieldTypes eIndex, int iChange);
 
+	void AreOurBordersTouching(PlayerTypes ePlayer);
+
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
-	void DoUpdateProximityToPlayer(PlayerTypes ePlayer);
+	void DoUpdateProximityToPlayer(PlayerTypes ePlayer, bool bTileCheck = false);
 
 	void UpdateResearchAgreements(int iValue);
 	int GetResearchAgreementCounter(PlayerTypes ePlayer) const;
@@ -2080,7 +2111,9 @@ public:
 
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
-	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
+	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true, bool bIncludeMinors = false) const;
+	int getNumResourcesFromOther(ResourceTypes eIndex) const;
+
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
@@ -2893,6 +2926,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessFromBuildings;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerCity;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPolicies;
+	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerXPoliciesFromPolicies;
 	FAutoVariable<int, CvPlayer> m_iEspionageModifier;
 	FAutoVariable<int, CvPlayer> m_iSpyStartingRank;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -3064,6 +3098,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	FAutoVariable<int, CvPlayer> m_iInvestmentModifier;
+	FAutoVariable<int, CvPlayer> m_iMissionInfluenceModifier;
+	FAutoVariable<int, CvPlayer> m_iHappinessPerActiveTradeRoute;
+	FAutoVariable<int, CvPlayer> m_iCSResourcesCountMonopolies;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;
@@ -3318,6 +3355,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapitalRetroactive;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromConstruction;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromwonderConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromTech;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBorderGrowth;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
@@ -3329,11 +3367,16 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiLitYieldBonus;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromNonSpecialistCitizens;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldModifierFromGreatWorks;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldModifierFromActiveSpies;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDelegateCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCivsConstructingWonder;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
+	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

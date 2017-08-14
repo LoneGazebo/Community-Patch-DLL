@@ -4419,7 +4419,7 @@ int CvMilitaryAI::GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& globa
 			}
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
 			{
-				iValue *= 2;
+				iValue *= 5;
 			}
 		}
 		else
@@ -4463,7 +4463,7 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 
 			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == ePlayer)
 			{
-				iValue *= 2;
+				iValue *= 5;
 			}
 		}
 		else
@@ -7197,7 +7197,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		CvString strTemp;
 		CvString strLogString;
 		int iLandReserves = pPlayer->GetMilitaryAI()->GetLandReservesAvailable();
-		strLogString.Format("Tallying up units for %s formation. Still Needed: %d. Found: %d. Land Reserves: %d, Used: %d", thisFormation->GetType(), iRequiredSlots, iWillBeFilled, iLandReserves, iLandReservesUsed);
+		strLogString.Format("Tallying up units for %s formation. Total Needed: %d. Found: %d. Land Reserves: %d, Used: %d", thisFormation->GetType(), iRequiredSlots, iWillBeFilled, iLandReserves, iLandReservesUsed);
 		pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 	}
 

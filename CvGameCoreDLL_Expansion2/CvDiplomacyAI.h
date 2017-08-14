@@ -609,6 +609,10 @@ public:
 	int GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const;
 	void SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange);
+
+	int GetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer) const;
+	void SetNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesTheyLoweredOurInfluence(PlayerTypes ePlayer, int iChange);
 #endif
 
 	// Get the amount of warmonger hatred they generated
@@ -1730,6 +1734,7 @@ private:
 
 #if defined(MOD_API_EXTENSIONS)
 		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
+		char m_aiTheyLoweredOurInfluence[MAX_MAJOR_CIVS];
 		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 #else
 		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
@@ -2087,6 +2092,7 @@ private:
 	char* m_paiOtherPlayerNumMajorsConquered;
 #if defined(MOD_API_EXTENSIONS)
 	char* m_paiTheyPlottedAgainstUs;
+	char* m_paiTheyLoweredOurInfluence;
 	int*  m_paiOtherPlayerWarmongerAmountTimes100;
 #else
 	int*  m_paiOtherPlayerWarmongerAmount;

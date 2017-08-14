@@ -356,28 +356,34 @@
 		<Column name="Number" type="integer" default="0"/>
 	</Table>
 
-	<!-- POLICY: Allows you to define an instant yield granted when a building is constructed. (culture only - grants local border growth as well) -->
+	<!-- POLICY: Allows you to define an instant yield granted when a building is constructed.-->
 	<Table name="Policy_YieldFromConstruction">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- Same but for Wonders -->
+	<Table name="Policy_YieldFromWonderConstruction">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
-	<!-- POLICY: Allows you to define an instant yield granted when a tech is researched. (culture only) -->
+	<!-- POLICY: Allows you to define an instant yield granted when a tech is researched. -->
 	<Table name="Policy_YieldFromTech">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- POLICY: Allows you to define an instant yield granted when border growth occurrs. (all except tourism) -->
+	<!-- POLICY: Allows you to define an instant yield granted when border growth occurrs.-->
 	<Table name="Policy_YieldFromBorderGrowth">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- POLICY: Allows you to define an instant yield granted when a GP is expended. (all national yields except tourism) -->
+	<!-- POLICY: Allows you to define an instant yield granted when a GP is expended. -->
 	<Table name="Policy_YieldGPExpend">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
@@ -541,6 +547,31 @@
 	</Table>
 	<!-- POLICY: Allows you to define a yield granted from a great work type -->
 	<Table name="Policy_LitYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield % granted for every GW in a city, up to 20%! -->
+	<Table name="Policy_YieldModifierFromGreatWorks">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted for every x type of non-specialist citizens. -->
+	<Table name="Policy_YieldFromNonSpecialistCitizens">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield % granted for every active spy, up to 30%! -->
+	<Table name="Policy_YieldModifierFromActiveSpies">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define an instant yield granted for every delegate. -->
+	<Table name="Policy_YieldFromDelegateCount">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>

@@ -131,6 +131,8 @@ public:
 	int GetResourceQuantityToPlace() const;
 	int GetLandmarksTourismPercentGlobal() const;
 	int GetGreatWorksTourismModifierGlobal() const;
+	int GetEventRequiredActive() const;
+	int GetCityEventRequiredActive() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -356,6 +358,7 @@ public:
 	bool AffectSpiesNow() const;
 	bool IsEspionage() const;
 	bool AllowsFoodTradeRoutes() const;
+	bool AllowsFoodTradeRoutesGlobal() const;
 	bool AllowsProductionTradeRoutes() const;
 	bool AllowsProductionTradeRoutesGlobal() const;
 	bool NullifyInfluenceModifier() const;
@@ -739,6 +742,10 @@ private:
 	int m_iFreeArtifacts;
 	bool m_bAnyWater;
 #endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	int m_iEventRequiredActive;
+	int m_iCityEventRequiredActive;
+#endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCannotFailSpies;
 	int m_iAdvancedActionGold;
@@ -806,6 +813,7 @@ private:
 	bool m_bAffectSpiesNow;
 	bool m_bEspionage;
 	bool m_bAllowsFoodTradeRoutes;
+	bool m_bAllowsFoodTradeRoutesGlobal;
 	bool m_bAllowsProductionTradeRoutes;
 	bool m_bAllowsProductionTradeRoutesGlobal;
 	bool m_bNullifyInfluenceModifier;

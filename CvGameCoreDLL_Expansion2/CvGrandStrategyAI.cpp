@@ -262,7 +262,7 @@ void CvGrandStrategyAI::DoTurn()
 	CvString strGrandStrategyName;
 
 	//Only run this on turns we need it.
-	if ((GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY && GetNumTurnsSinceActiveSet() > /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE()) || (GetActiveGrandStrategy() == NO_AIGRANDSTRATEGY))
+	if ((GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY && GetNumTurnsSinceActiveSet() == 0) || (GetActiveGrandStrategy() == NO_AIGRANDSTRATEGY))
 	{
 		// Loop through all GrandStrategies to set their Priorities
 		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
@@ -425,15 +425,7 @@ void CvGrandStrategyAI::DoTurn()
 			SetActiveGrandStrategy(eBestGrandStrategy);
 			m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY);
 		}
-		else
-		{
-			ChangeNumTurnsSinceActiveSet(1);
-			if (GetNumTurnsSinceActiveSet() >= /*10*/ GC.getAI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE())
-			{
-				//Reset to zero.
-				SetNumTurnsSinceActiveSet(0);
-			}
-		}
+		ChangeNumTurnsSinceActiveSet(1);
 
 		LogGrandStrategies(viGrandStrategyChangeForLogging);
 	}
@@ -476,7 +468,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (12 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
+	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (10 - iEra)); // make a little less likely as time goes on
 #else
 	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier) * (12 - m_pPlayer->GetCurrentEra())); // make a little less likely as time goes on
 #endif
@@ -539,8 +531,11 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iNum = GetPlayer()->GetNumCapitalCities();
 	if(iNum > 1)
 	{
-		iPriority += (iNum * 100);
+		iPriority += (iNum * 125);
 	}
+	//If we're lacking capitals and the game is getting close to over...let's move on.
+	else if (iEra > 5 && iNum <= 1)
+		iPriority += (-100 * iEra);
 #endif
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
 	if(GetPlayer()->IsCramped())
@@ -635,7 +630,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 				{
 					if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_OFFENSE")
 					{
-						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop);
+						iPriorityBonus += pkPolicyInfo->GetFlavorValue(iFlavorLoop) * 2;
 					}
 					if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MOBILE")
 					{
@@ -689,7 +684,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 						{
 							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_OFFENSE")
 							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
 							}
 							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
 							{
@@ -763,7 +758,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 			}
 		}
 	}
-	iPriorityBonus /= 10;
+	iPriorityBonus /= 9;
 	iPriority += iPriorityBonus;
 #endif
 	return iPriority;
@@ -789,7 +784,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((iEra * iFlavorCulture * 100) / 100);
+	iPriority += ((iEra * iFlavorCulture * 150) / 100);
 #else
 	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
 #endif
@@ -1016,14 +1011,14 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 #if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
 	int iPriorityBonus = 0;
 	//Add in our base gold value.
-	iPriorityBonus += (m_pPlayer->GetTreasury()->CalculateBaseNetGold() / 15);
+	iPriorityBonus += (m_pPlayer->GetTreasury()->CalculateBaseNetGold() / 25);
 
 	if (MOD_DIPLOMACY_CITYSTATES)
 	{
 		ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 		if (ePaper != NO_RESOURCE && m_pPlayer->getResourceFromCSAlliances(ePaper) > 0)
 		{
-			iPriorityBonus += 25;
+			iPriorityBonus += 10 * m_pPlayer->getResourceFromCSAlliances(ePaper);
 		}
 	}
 
@@ -1181,7 +1176,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	{
 		// Before leagues kick in, add weight based on flavor
 		int iFlavorDiplo =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-		iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorDiplo * 150 / 100;
+		iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorDiplo * 125 / 100;
 	}
 	else
 	{
@@ -1327,7 +1322,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	// the later the game the greater the chance
 #if defined(MOD_AI_SMART_GRAND_STRATEGY)
 	int iEraBias = MOD_AI_SMART_GRAND_STRATEGY ? 4 : 0;
-	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 200 / 100;
+	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 250 / 100;
 #else
 	iPriority += m_pPlayer->GetCurrentEra() * iFlavorScience * 150 / 100;
 #endif

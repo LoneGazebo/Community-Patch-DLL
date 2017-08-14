@@ -102,6 +102,8 @@ public:
 
 	void ChangeTradeRouteLandDistanceModifier(int iValue);
 	int GetTradeRouteLandDistanceModifier() const;
+
+	bool AreOurBordersTouching(PlayerTypes ePlayer);
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -436,6 +438,10 @@ public:
 	void SetPaidAdoptionBonus(ReligionTypes eReligion, bool bNewValue);
 #endif
 
+	int GetReligiousPressureModifier(ReligionTypes eReligion) const;
+	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
+	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
+
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 
 	const CvHandicapInfo& getHandicapInfo() const;
@@ -463,9 +469,9 @@ public:
 	bool isAddsFreshWater() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetUnitPurchaseCooldown() const;
-	void SetUnitPurchaseCooldown(int iValue);
-	void ChangeUnitPurchaseCooldown(int iValue);
+	int GetUnitPurchaseCooldown(bool bCivilian = false) const;
+	void SetUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
+	void ChangeUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
 	int GetBuildingPurchaseCooldown() const;
 	void SetBuildingPurchaseCooldown(int iValue);
 	void ChangeBuildingPurchaseCooldown(int iValue);
@@ -747,6 +753,15 @@ public:
 
 	int getCitySupplyFlat() const;
 	void changeCitySupplyFlat(int iChange);
+
+	void SetProductionRoutes(bool bValue);
+	bool IsProductionRoutes() const;
+
+	void SetFoodRoutes(bool bValue);
+	bool IsFoodRoutes() const;
+
+	void SetAllowPuppetPurchase(bool bValue);
+	bool IsAllowPuppetPurchase() const;
 
 	int getNukeModifier() const;
 	void changeNukeModifier(int iChange);
@@ -1660,6 +1675,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iCityWorkingChange;
 	FAutoVariable<int, CvCity> m_iCitySupplyModifier;
 	FAutoVariable<int, CvCity> m_iCitySupplyFlat;
+	FAutoVariable<bool, CvCity> m_bAllowsProductionTradeRoutes;
+	FAutoVariable<bool, CvCity> m_bAllowsFoodTradeRoutes;
+	FAutoVariable<bool, CvCity> m_bAllowPuppetPurchase;
 #endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;
@@ -1771,6 +1789,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
 	FAutoVariable<int, CvCity> m_iNearbySettlerValue;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
+	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldownCivilian;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
 	FAutoVariable<int, CvCity> m_iCityAirStrikeDefense;
@@ -1828,6 +1847,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
 	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
 	FAutoVariable<std::vector<bool>, CvCity> m_abPaidAdoptionBonus;
+	FAutoVariable<std::vector<int>, CvCity> m_aiReligiousPressureModifier;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeaturelessTerrainWorked;

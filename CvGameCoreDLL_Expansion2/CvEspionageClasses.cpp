@@ -2146,9 +2146,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 
 			//Rebels!
 			// In hundreds
-			int iNumRebels = (iRank * (125 + iTurnsActive)); //Based on rank of spy.
-			int iExtraRoll = (iRank * (125 + iTurnsActive)); //1+ Rebels maximum
-			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
+			int iNumRebels = (iRank * (75 + iTurnsActive)); //Based on rank of spy.
+			int iExtraRoll = (iRank * (75 + iTurnsActive)); //1+ Rebels maximum
+			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;
 			int iNumRebelTotal = iNumRebels;
 			if (iNumRebelTotal > 0)
@@ -4941,14 +4941,23 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 
 	int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultipier) / 100);
 
-	if(iResultPercentage > 85)
+
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
-		iResultPercentage = 85;
+		iResultPercentage *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
+		iResultPercentage /= 100;
+	}
+#endif
+
+	if(iResultPercentage > 80)
+	{
+		iResultPercentage = 80;
 	}
 #if defined(MOD_BALANCE_CORE)
-	else if(iResultPercentage < 15)
+	else if(iResultPercentage < 10)
 	{
-		iResultPercentage = 15;
+		iResultPercentage = 10;
 	}
 #else
 	else if(iResultPercentage < 0)
@@ -4963,15 +4972,6 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	//{
 	//	iResultPercentage = 100 - ((iDeltaInfluence * 100) / iAdjustedAllyInfluence);
 	//}
-
-#if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		iResultPercentage *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
-		iResultPercentage /= 100;
-	}
-#endif
-
 
 	return iResultPercentage;
 }
@@ -5026,10 +5026,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 #endif
 		LogEspionageMsg(strMsg);
 	}
-#if defined(MOD_BALANCE_CORE)
-	//Used for minor civ quests
-	pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
-#endif
+
 	bool bAttemptSuccess = false;
 	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
@@ -5053,6 +5050,9 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 				int iNewInfluence = aiNewInfluenceValueTimes100[ui] - (GC.getESPIONAGE_COUP_OTHER_PLAYERS_INFLUENCE_DROP() * 100);
 				iNewInfluence = max(iNewInfluence, 0);
 				aiNewInfluenceValueTimes100[ui] = iNewInfluence;
+
+				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(m_pPlayer->GetID(), 1);
+				GET_PLAYER((PlayerTypes)ui).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_pPlayer->GetID(), 1);
 			}
 		}
 

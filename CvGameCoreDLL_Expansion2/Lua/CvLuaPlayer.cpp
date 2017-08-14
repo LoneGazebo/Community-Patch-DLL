@@ -65,6 +65,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMonopolyPercent);
 	Method(HasGlobalMonopoly);
 	Method(HasStrategicMonopoly);
+	Method(GetResourcesMisc);
 #endif
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
@@ -1654,6 +1655,17 @@ int CvLuaPlayer::lHasStrategicMonopoly(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetResourcesMisc(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourcesMisc(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getNumResourcesFromOther(eResource);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 //void disbandUnit(bool bAnnounce);

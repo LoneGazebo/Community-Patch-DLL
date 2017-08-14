@@ -374,6 +374,7 @@ CvUnit::CvUnit() :
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
 	, m_iDamageAoEFortified("CvUnit::m_iDamageAoEFortified", m_syncArchive)
+	, m_iDamageReductionCityAssault("CvUnit::m_iDamageReductionCityAssault", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
@@ -1395,6 +1396,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
 	m_iDamageAoEFortified = 0;
+	m_iDamageReductionCityAssault = 0;
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
@@ -5239,6 +5241,13 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		iDamage *= /*50*/ GC.getCITY_ATTACKING_DAMAGE_MOD();
 		iDamage /= 100;
+
+		//we take even less damage from cities when attacking them.
+		if (GetDamageReductionCityAssault() != 0)
+		{
+			iDamage *= (100 - GetDamageReductionCityAssault());
+			iDamage /= 100;
+		}
 	}
 
 	// Modify damage for when unit is attacking a city
@@ -11814,6 +11823,10 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 #endif
 			int iInfTimes100 = iInf * (100 + GetTradeMissionInfluenceModifier());
 			iInf = iInfTimes100 / 100;
+
+			iInfTimes100 = iInf * (100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier());
+			iInf = iInfTimes100 / 100;
+			
 		}
 	}
 	return iInf;
@@ -11892,6 +11905,7 @@ bool CvUnit::trade()
 				if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isObserver() && (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eMinor).getTeam()))
 				{
 					GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(eLoopPlayer, -iFriendship);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(getOwner(), 1);
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 					if(pNotifications)
 					{
@@ -23934,6 +23948,17 @@ void CvUnit::ChangeDamageAoEFortified(int iChange)
 	m_iDamageAoEFortified += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDamageReductionCityAssault() const
+{
+	return m_iDamageReductionCityAssault;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDamageReductionCityAssault(int iChange)
+{
+	m_iDamageReductionCityAssault += iChange;
+}
 
 #endif
 //	--------------------------------------------------------------------------------
@@ -25937,7 +25962,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
 		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
 		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
-
+		ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
 		if(thisPromotion.PromotionDuration() != 0)
 		{
 			if(bNewValue)
@@ -29337,6 +29362,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 		iValue += iTemp + iFlavorRecon * 7;
 	}
+
+	iTemp = pkPromotionInfo->GetDamageReductionCityAssault();
+	if (iTemp != 0)
+	{
+		iExtra = GetDamageReductionCityAssault();
+		iTemp += (iExtra * 20);
+
+		iValue += iTemp + iFlavorOffense * 14;
+	}
 #endif
 
 	iTemp = pkPromotionInfo->GetOpenAttackPercent();
@@ -29434,10 +29468,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraCityAttackPercent();
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense * 3;
+		iValue += iTemp + iFlavorOffense * 4;
 		if(isRanged())
 		{
-			iValue += iFlavorRanged * 2;
+			iValue += iFlavorRanged * 5;
 		}
 	}
 
@@ -29603,9 +29637,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged);
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense);
 	}
 
 	iTemp = pkPromotionInfo->GetAttackAboveHealthMod();
@@ -29615,9 +29649,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged);
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense);
 	}
 	iTemp = pkPromotionInfo->GetAttackBelowHealthMod();
 	if (iTemp != 0)
@@ -29626,9 +29660,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 3;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 3;
 	}
 
 	
@@ -29648,7 +29682,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
 	if(iTemp > 0)
 	{
-		iExtra = (12 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra = (9 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
 		iExtra *= iTemp;
 		iExtra /= 100;
 		iValue += iExtra;

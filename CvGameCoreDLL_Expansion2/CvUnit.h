@@ -1245,6 +1245,9 @@ public:
 
 	int GetDamageAoEFortified() const;
 	void ChangeDamageAoEFortified(int iChange);
+
+	int GetDamageReductionCityAssault() const;
+	void ChangeDamageReductionCityAssault(int iChange);
 #endif
 
 	int getFriendlyLandsModifier() const;
@@ -1966,6 +1969,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
+	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
 #endif

@@ -3641,6 +3641,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eDPPlayer = (PlayerTypes)iPlayerLoop;
+			TeamTypes eTeam = GET_PLAYER(eDPPlayer).getTeam();
 			if (eDPPlayer != NO_PLAYER && GET_TEAM(GET_PLAYER(eDPPlayer).getTeam()).getDefensivePactCount(GetPlayer()->getTeam()) > 0)
 			{
 				int iNumDeals = kGameDeals.GetNumCurrentDealsWithPlayer(GetPlayer()->GetID(), eDPPlayer);
@@ -3652,6 +3653,15 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						return INT_MAX;
 					}
+				}
+			}
+			//we have a defensive pact with a player?
+			if (eTeam != NO_TEAM && GET_TEAM(eTeam).IsHasDefensivePact(m_pPlayer->getTeam()))
+			{
+				//and our target has a defensive pact with this same player? Abort!
+				if (GET_TEAM(eTeam).IsHasDefensivePact(eWithTeam))
+				{
+					return INT_MAX;
 				}
 			}
 		}

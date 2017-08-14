@@ -4382,6 +4382,8 @@ bool CvMinorCivQuest::DoFinishQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COUP_CITY_COMPLETE");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_COUP_CITY_COMPLETE");
+		
+		pMinor->GetMinorCivAI()->SetCoupAttempted(m_eAssignedPlayer, false);
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
@@ -4636,6 +4638,9 @@ bool CvMinorCivQuest::DoCancelQuest()
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_COUP_FAILED_B");
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COUP_FAILED_B_S");
 			}
+
+			pMinor->GetMinorCivAI()->SetCoupAttempted(m_eAssignedPlayer, false);
+
 		}
 		else if(m_eType == MINOR_CIV_QUEST_DISCOVER_PLOT)
 		{
@@ -7988,7 +7993,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// War Major
 	else if(eQuest == MINOR_CIV_QUEST_WAR)
 	{
-
 		// This player must not have bullied us recently
 		if(IsRecentlyBulliedByMajor(ePlayer))
 			return false;
@@ -8064,6 +8068,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// Tourism Contest
 	else if(eQuest == MINOR_CIV_QUEST_CONTEST_TOURISM)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		//Don't create this quest until a player has entered the Renaissance
 		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 		EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
@@ -8077,6 +8085,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// Archaeology
 	else if(eQuest == MINOR_CIV_QUEST_ARCHAEOLOGY)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		// Any nearby camps?
 		if(GetBestNearbyDig() == NULL)
 			return false;
@@ -8084,6 +8096,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// Circumnavigation
 	else if(eQuest == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		if(!GC.getGame().circumnavigationAvailable())
 		{
 			// We can't issue circumnavigation quests
@@ -8099,6 +8115,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// LIBERATE A CITY STATE
 	else if(eQuest == MINOR_CIV_QUEST_LIBERATION)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		PlayerTypes eTargetCityState = GetBestCityStateLiberate(ePlayer);
 
 		if(eTargetCityState == NO_PLAYER)
@@ -8149,6 +8169,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 #if defined(MOD_BALANCE_CORE)
 	else if(eQuest == MINOR_CIV_QUEST_DISCOVER_PLOT)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		CvPlot* ePlot = GetTargetPlot(ePlayer);
 		if(ePlot == NULL)
 		{
@@ -8157,6 +8181,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	else if(eQuest == MINOR_CIV_QUEST_BUILD_X_BUILDINGS)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		BuildingTypes eBuilding = GetBestBuildingForQuest(ePlayer);
 		if(eBuilding == NO_BUILDING)
 		{
@@ -8165,6 +8193,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	else if(eQuest == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		if(GET_PLAYER(ePlayer).GetEspionage() == NULL || GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
 		{
 			return false;
@@ -8186,6 +8218,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	else if(eQuest == MINOR_CIV_QUEST_UNIT_COUP_CITY)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		if(GET_PLAYER(ePlayer).GetEspionage() == NULL || GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
 		{
 			return false;
@@ -8207,6 +8243,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	else if(eQuest == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
+		// This player must not have bullied us recently
+		if (IsRecentlyBulliedByMajor(ePlayer))
+			return false;
+
 		CvCity* pTargetCity = GetBestCityForQuest(ePlayer);
 		if(pTargetCity == NULL)
 		{
@@ -12829,7 +12869,12 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		{
 			// Notify player has met the old Ally
 			if(pNotifyTeam->isHasMet(eOldAllyTeam))
+			{
 				strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+
+				if (bPassedBySomeone && eNewAlly != NO_PLAYER)
+					GET_PLAYER(eOldAlly).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eNewAlly, 1);
+			}
 			// Notify player has NOT met the old Ally
 			else
 				strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
@@ -13561,6 +13606,11 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 		{
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
 			ChangeFriendshipWithMajorTimes100(eMajor, GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT());
+
+			int iJerk = /*50*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE();
+			iJerk *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iJerk /= 100;
+			SetJerk(GET_PLAYER(eMajor).getTeam(), iJerk);
 		}
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
@@ -16076,7 +16126,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iBaseReluctanceScore = 0;
 	if(MOD_BALANCE_CORE_MINORS)
 	{
-		iBaseReluctanceScore = -175;
+		iBaseReluctanceScore = -150;
 	}
 	else
 	{
@@ -16644,6 +16694,8 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 					ChangeFriendshipWithMajor(ePlayer, -iInfluence);
 
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eBully, 1);
+
 					if (GET_PLAYER(ePlayer).isHuman())
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
@@ -16830,6 +16882,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						continue;
 
 					ChangeFriendshipWithMajor(ePlayer, -iInfluence);
+
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eBully, 1);
 
 					if (GET_PLAYER(ePlayer).isHuman())
 					{
@@ -17474,6 +17528,9 @@ void CvMinorCivAI::DoElection()
 				{
 					int iDiminishAmount = min(GC.getESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION() * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
 					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
+					
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 			}
 		}

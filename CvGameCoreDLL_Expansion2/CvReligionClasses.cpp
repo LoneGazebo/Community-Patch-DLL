@@ -396,26 +396,230 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 					continue;
 				}
 
-				// Does this city have a majority religion?
-				ReligionTypes eMajorityReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
-				if(eMajorityReligion == NO_RELIGION)
+				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 				{
-					continue;
-				}
+					ReligionTypes eReligion = (ReligionTypes)iI;
 
-				int iNumTradeRoutes = 0;
-				int iPressure = GetAdjacentCityReligiousPressure (eMajorityReligion, pLoopCity, pCity, iNumTradeRoutes, true, false);
-				if (iPressure > 0)
-				{
-					pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eMajorityReligion, iPressure);
-					if (iNumTradeRoutes != 0)
+					if (!IsValidTarget(eReligion, pLoopCity, pCity))
+						continue;
+
+					if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
 					{
-						pCity->GetCityReligions()->IncrementNumTradeRouteConnections(eMajorityReligion, iNumTradeRoutes);
+						bool bConnectedWithTrade;
+						int iApparentDistance, iMaxDistance;
+						if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iApparentDistance, iMaxDistance))
+							continue;
+
+						int iNumTradeRoutes = 0;
+						int iPressure = GetAdjacentCityReligiousPressure(eReligion, pLoopCity, pCity, iNumTradeRoutes, true, false, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+						if (iPressure > 0)
+						{
+							pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure);
+							if (iNumTradeRoutes != 0)
+							{
+								pCity->GetCityReligions()->IncrementNumTradeRouteConnections(eReligion, iNumTradeRoutes);
+							}
+						}
 					}
 				}
 			}
 		}
 	}
+}
+
+bool CvGameReligions::IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity)
+{
+#if defined(MOD_BALANCE_CORE)
+	if (pFromCity->getOwner() != pToCity->getOwner())
+	{
+		if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
+		{
+			ReligionTypes ePantheon = GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+			const CvReligion* pReligion2 = GetReligion(ePantheon, pFromCity->getOwner());
+			if (pReligion2 && (pFromCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pFromCity->getOwner()).getCivilizationType())
+			{
+				return false;
+			}
+		}
+		if (GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
+		{
+			ReligionTypes ePantheon = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+			const CvReligion* pReligion2 = GetReligion(ePantheon, pToCity->getOwner());
+			if (pReligion2 && (pToCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pToCity->getOwner()).getCivilizationType())
+			{
+				return false;
+			}
+		}
+	}
+	else if (pFromCity->getOwner() == pToCity->getOwner())
+	{
+		if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
+		{
+			ReligionTypes ePantheon = GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+			const CvReligion* pReligion2 = GetReligion(ePantheon, pFromCity->getOwner());
+			if (ePantheon != eReligion && pReligion2 && (pFromCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pFromCity->getOwner()).getCivilizationType())
+			{
+				return false;
+			}
+		}
+		if (GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
+		{
+			ReligionTypes ePantheon = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+			const CvReligion* pReligion2 = GetReligion(ePantheon, pToCity->getOwner());
+			if (ePantheon != eReligion && pReligion2 && (pToCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pToCity->getOwner()).getCivilizationType())
+			{
+				return false;
+			}
+		}
+	}
+	if (!GET_PLAYER(pToCity->getOwner()).isMinorCiv() && GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsForeignReligionSpreadImmune())
+	{
+		ReligionTypes eToCityReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
+		if ((eToCityReligion != NO_RELIGION) && (eReligion != eToCityReligion))
+		{
+			return false;
+		}
+		eToCityReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities();
+		if ((eToCityReligion != NO_RELIGION) && (eReligion > RELIGION_PANTHEON) && (eReligion != eToCityReligion))
+		{
+			return false;
+		}
+	}
+	if (GET_PLAYER(pToCity->getOwner()).isMinorCiv())
+	{
+		PlayerTypes eAlly = GET_PLAYER(pToCity->getOwner()).GetMinorCivAI()->GetAlly();
+		if (eAlly != NO_PLAYER)
+		{
+			if (GET_PLAYER(eAlly).GetPlayerTraits()->IsForeignReligionSpreadImmune())
+			{
+				ReligionTypes eToCityReligion = GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false);
+				if ((eToCityReligion != NO_RELIGION) && (eReligion != eToCityReligion))
+				{
+					return false;
+				}
+				eToCityReligion = GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities();
+				if ((eToCityReligion != NO_RELIGION) && (eReligion > RELIGION_PANTHEON) && (eReligion != eToCityReligion))
+				{
+					return false;
+				}
+			}
+		}
+	}
+#endif
+
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eReligion)->IsLocalReligion())
+	{
+		// Can only spread a local religion to our own cities or City States
+		if (pToCity->getOwner() < MAX_MAJOR_CIVS && pFromCity->getOwner() != pToCity->getOwner()) {
+			return false;
+		}
+
+		// Cannot spread if either city is occupied or a puppet
+		if ((pFromCity->IsOccupied() && !pFromCity->IsNoOccupiedUnhappiness()) || pFromCity->IsPuppet() ||
+			(pToCity->IsOccupied() && !pToCity->IsNoOccupiedUnhappiness()) || pToCity->IsPuppet()) {
+			return false;
+		}
+	}
+#endif
+	return true;
+}
+
+bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity, bool& bConnectedWithTrade, int& iApparentDistance, int& iMaxDistance)
+{
+	if (eReligion <= RELIGION_PANTHEON)
+	{
+		return false;
+	}
+
+	const CvReligion* pReligion = GetReligion(eReligion, pFromCity->getOwner());
+	if (!pReligion)
+	{
+		return false;
+	}
+
+	bConnectedWithTrade = false;
+
+	if (eReligion == pFromCity->GetCityReligions()->GetReligiousMajority())
+	{
+		bConnectedWithTrade = GC.getGame().GetGameTrade()->CitiesHaveTradeConnection(pFromCity, pToCity);
+		if (bConnectedWithTrade)
+			return true;
+	}
+
+	// Are the cities within the minimum distance?
+	//Increases with era and mapsize.
+	int iEraScaler = GC.getGame().getCurrentEra() * 3;
+	iEraScaler /= 2;
+	iEraScaler *= GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
+	iEraScaler /= 100;
+
+	iMaxDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE() + iEraScaler;
+
+	// Boost to distance due to belief?
+	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(pFromCity->getOwner());
+#if defined(MOD_BALANCE_CORE)
+	//Boost from policy of other player?
+	if (GET_PLAYER(pToCity->getOwner()).GetReligionDistance() != 0)
+	{
+		if (pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
+		{
+			//Do we have a religion?
+			ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer(pToCity->getOwner());
+
+			if (ePlayerReligion <= RELIGION_PANTHEON)
+			{
+				//No..but did we adopt one?
+				ePlayerReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities();
+				//Nope, so full power.
+				if (ePlayerReligion <= RELIGION_PANTHEON)
+				{
+					iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+				}
+				//Yes, so only apply distance bonus to adopted faith.
+				else if (eReligion == ePlayerReligion)
+				{
+					iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+				}
+			}
+			//We did! Only apply bonuses if we founded this faith or it is the religion we have in most of our cities.
+			else if ((pReligion->m_eFounder == pToCity->getOwner()) || (eReligion == GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities()))
+			{
+				iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+			}
+		}
+	}
+#endif
+	if (iDistanceMod > 0)
+	{
+		iMaxDistance *= (100 + iDistanceMod);
+		iMaxDistance /= 100;
+	}
+
+	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
+	iApparentDistance = INT_MAX;
+	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pFromCity, pToCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pToCity, pFromCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pFromCity, pToCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pToCity, pFromCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+
+	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
+	
+
+	return bWithinDistance;
 }
 
 /// Religious activities at the start of a player's turn
@@ -1950,6 +2154,25 @@ int CvGameReligions::GetNumPantheonsCreated() const
 	return iRtnValue;
 }
 
+int CvGameReligions::GetNumPantheonsPossible() const
+{
+	int iRtnValue = 0;
+
+	for(int iI = 0; iI < GC.getNumBeliefInfos(); iI++)
+	{
+		BeliefTypes eBelief = (BeliefTypes)iI;
+		if (eBelief == NO_BELIEF)
+			continue;
+
+		CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
+		if (pBelief && pBelief->IsPantheonBelief())
+		{
+			iRtnValue++;
+		}
+	}
+
+	return iRtnValue;
+}
 /// List of beliefs that can be adopted by pantheons
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
 std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs(PlayerTypes ePlayer)
@@ -2103,6 +2326,12 @@ bool CvGameReligions::IsPantheonBeliefAvailable(BeliefTypes eBelief)
 			return true;
 		}
 	}
+#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
+	if (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() >= GC.getGame().GetGameReligions()->GetNumPantheonsPossible())
+	{
+		return true;
+	}
+#endif
 
 	return false;
 }
@@ -2544,12 +2773,20 @@ int CvGameReligions::GetNumReligionsEnhanced() const
 
 /// Number of religions that still can be founded on this size map
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-int CvGameReligions::GetNumReligionsStillToFound(bool bIgnoreLocal) const
+int CvGameReligions::GetNumReligionsStillToFound(bool bIgnoreLocal, PlayerTypes ePlayer) const
 #else
 int CvGameReligions::GetNumReligionsStillToFound() const
 #endif
 {
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	if (ePlayer != NO_PLAYER)
+	{
+		if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsAlwaysReligion() && GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion() <= RELIGION_PANTHEON)
+		{
+			if (GC.getMap().getWorldInfo().getMaxActiveReligions() - GetNumReligionsFounded(bIgnoreLocal) == 0)
+				return 1;
+		}
+	}
 	return (GC.getMap().getWorldInfo().getMaxActiveReligions() - GetNumReligionsFounded(bIgnoreLocal));
 #else
 	return (GC.getMap().getWorldInfo().getMaxActiveReligions() - GetNumReligionsFounded());
@@ -2993,9 +3230,7 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs()
 }
 
 /// How much pressure is exerted between these cities?
-int CvGameReligions::GetAdjacentCityReligiousPressure (
-	ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, 
-	bool bActualValue, bool bPretendTradeConnection) //if bActualValue==false, then assume bPretendTradeConnection
+int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bActualValue, bool bPretendTradeConnection, bool bConnectedWithTrade, int iApparentDistance, int iMaxDistance) //if bActualValue==false, then assume bPretendTradeConnection
 {
 	int iPressure = 0;
 	iNumTradeRoutesInfluencing = 0;
@@ -3010,308 +3245,130 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (
 	{
 		return iPressure;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(pFromCity->getOwner() != pToCity->getOwner())
-	{
-		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
-		{
-			ReligionTypes ePantheon = GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-			const CvReligion* pReligion2 = GetReligion(ePantheon, pFromCity->getOwner());
-			if (pReligion2 && (pFromCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pFromCity->getOwner()).getCivilizationType())
-			{
-				return iPressure;
-			}
-		}
-		if(GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
-		{
-			ReligionTypes ePantheon = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-			const CvReligion* pReligion2 = GetReligion(ePantheon, pToCity->getOwner());
-			if (pReligion2 && (pToCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pToCity->getOwner()).getCivilizationType())
-			{
-				return iPressure;
-			}
-		}
-	}
-	else if(pFromCity->getOwner() == pToCity->getOwner())
-	{
-		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
-		{
-			ReligionTypes ePantheon = GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-			const CvReligion* pReligion2 = GetReligion(ePantheon, pFromCity->getOwner());
-			if (ePantheon != eReligion && pReligion2 && (pFromCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pFromCity->getOwner()).getCivilizationType())
-			{
-				return iPressure;
-			}
-		}
-		if(GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
-		{
-			ReligionTypes ePantheon = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-			const CvReligion* pReligion2 = GetReligion(ePantheon, pToCity->getOwner());
-			if (ePantheon != eReligion && pReligion2 && (pToCity->GetCityReligions()->GetNumFollowers(ePantheon) > 0) && pReligion2->m_Beliefs.GetUniqueCiv() == GET_PLAYER(pToCity->getOwner()).getCivilizationType())
-			{
-				return iPressure;
-			}
-		}
-	}
-	if(!GET_PLAYER(pToCity->getOwner()).isMinorCiv() && GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsForeignReligionSpreadImmune())
-	{
-		ReligionTypes eToCityReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
-		if((eToCityReligion != NO_RELIGION) && (eReligion != eToCityReligion))
-		{
-			return iPressure;
-		}
-		eToCityReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities();
-		if((eToCityReligion != NO_RELIGION) && (eReligion > RELIGION_PANTHEON) && (eReligion != eToCityReligion))
-		{
-			return iPressure;
-		}
-	}
-	if(GET_PLAYER(pToCity->getOwner()).isMinorCiv())
-	{
-		PlayerTypes eAlly = GET_PLAYER(pToCity->getOwner()).GetMinorCivAI()->GetAlly();
-		if(eAlly != NO_PLAYER)
-		{
-			if(GET_PLAYER(eAlly).GetPlayerTraits()->IsForeignReligionSpreadImmune())
-			{
-				ReligionTypes eToCityReligion = GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false);
-				if((eToCityReligion != NO_RELIGION) && (eReligion != eToCityReligion))
-				{
-					return iPressure;
-				}
-				eToCityReligion = GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities();
-				if((eToCityReligion != NO_RELIGION) && (eReligion > RELIGION_PANTHEON) && (eReligion != eToCityReligion))
-				{
-					return iPressure;
-				}
-			}
-		}
-	}
-#endif
 
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eReligion)->IsLocalReligion()) {
-		// Can only spread a local religion to our own cities or City States
-		if (pToCity->getOwner() < MAX_MAJOR_CIVS && pFromCity->getOwner() != pToCity->getOwner()) {
-			return iPressure;
-		}
+	iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 
-		// Cannot spread if either city is occupied or a puppet
-		if ((pFromCity->IsOccupied() && !pFromCity->IsNoOccupiedUnhappiness()) || pFromCity->IsPuppet() ||
-			(pToCity->IsOccupied() && !pToCity->IsNoOccupiedUnhappiness()) || pToCity->IsPuppet()) {
-			return iPressure;
-		}
-	}
-#endif
-
-	// Are the cities within the minimum distance?
-	int iMaxDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
-
-	// Boost to distance due to belief?
-	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(pFromCity->getOwner());
-#if defined(MOD_BALANCE_CORE)
-	//Boost from policy of other player?
-	if(GET_PLAYER(pToCity->getOwner()).GetReligionDistance() != 0)
+	if (bConnectedWithTrade || bPretendTradeConnection)
 	{
-		if(pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
-		{
-			//Do we have a religion?
-			ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer(pToCity->getOwner());
-			
-			if(ePlayerReligion <= RELIGION_PANTHEON)
-			{
-				//No..but did we adopt one?
-				ePlayerReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities();
-				//Nope, so full power.
-				if(ePlayerReligion <= RELIGION_PANTHEON)
-				{
-					iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
-				}
-				//Yes, so only apply distance bonus to adopted faith.
-				else if(eReligion == ePlayerReligion)
-				{
-					iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
-				}
-			}
-			//We did! Only apply bonuses if we founded this faith or it is the religion we have in most of our cities.
-			else if((pReligion->m_eFounder == pToCity->getOwner()) || (eReligion == GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities()))
-			{
-				iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
-			}
-		}
-	}
-#endif
-	if(iDistanceMod > 0)
-	{
-		iMaxDistance *= (100 + iDistanceMod);
-		iMaxDistance /= 100;
-	}
+		if (bActualValue)
+			iNumTradeRoutesInfluencing++;
 
-	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
-	int iApparentDistance = INT_MAX;
-	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
-	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(false,pFromCity,pToCity,&path) )
-	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
-	}
-	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(false,pToCity,pFromCity,&path) )
-	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
-	}
-	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(true,pFromCity,pToCity,&path) )
-	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
-	}
-	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath(true,pToCity,pFromCity,&path) )
-	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
-	}
-
-	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
-	bool bConnectedWithTrade = bActualValue ? GC.getGame().GetGameTrade()->CitiesHaveTradeConnection(pFromCity, pToCity) : bPretendTradeConnection;
-
-	if(bWithinDistance || bConnectedWithTrade)
-	{
-		iPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-
-		//scale by relative faith output (the weaker city cannot influence the stronger city much)
-		float fFaithPowerMod = sqrt( float(pFromCity->getYieldRateTimes100(YIELD_FAITH,true)) / max(pToCity->getYieldRateTimes100(YIELD_FAITH,true),100) );
-		int iFaithPowerMod = int(100*fFaithPowerMod+0.5f);
-		if (iFaithPowerMod<100)
-		{
-			iPressure *= iFaithPowerMod;
-			iPressure /= 100;
-		}
-
-		if (bConnectedWithTrade)
-		{
-			if (bActualValue)
-				iNumTradeRoutesInfluencing++;
-
-			int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
+		int iTradeReligionModifer = GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->GetTradeReligionModifier();
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
+		iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
 #endif
 #if defined(MOD_BALANCE_CORE)
-			if(pFromCity->GetReligiousTradeModifier() != 0)
-			{
-				iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
-			}
-			int iReligionTradeMod = pReligion->m_Beliefs.GetPressureChangeTradeRoute(pFromCity->getOwner());
-			if(iReligionTradeMod != 0)
-			{
-				iTradeReligionModifer += iReligionTradeMod;
-			}
-#endif
-			if (iTradeReligionModifer != 0)
-			{
-				iPressure *= 100 + iTradeReligionModifer;
-				iPressure /= 100;
-			}
-		}
-
-		// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
-		if(IsCityStateFriendOfReligionFounder(eReligion, pToCity->getOwner()))
+		if(pFromCity->GetReligiousTradeModifier() != 0)
 		{
-			int iFriendshipMod = pReligion->m_Beliefs.GetFriendlyCityStateSpreadModifier(pFromCity->getOwner());
-			if(iFriendshipMod > 0)
-			{
-				iPressure *= (100 + iFriendshipMod);
-				iPressure /= 100;
-			}
+			iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
 		}
-
-		// Have a belief that always strengthens spread?
-		int iStrengthMod = pReligion->m_Beliefs.GetSpreadStrengthModifier(pFromCity->getOwner());
-		if(iStrengthMod > 0)
+		int iReligionTradeMod = pReligion->m_Beliefs.GetPressureChangeTradeRoute(pFromCity->getOwner());
+		if(iReligionTradeMod != 0)
 		{
-			TechTypes eDoublingTech = pReligion->m_Beliefs.GetSpreadModifierDoublingTech(pFromCity->getOwner());
-			if(eDoublingTech != NO_TECH)
-			{
-				CvPlayer& kPlayer = GET_PLAYER(pReligion->m_eFounder);
-				if(GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech(eDoublingTech))
-				{
-					iStrengthMod *= 2;
-				}
-			}
-			iPressure *= (100 + iStrengthMod);
-			iPressure /= 100;
-		}
-#if defined(MOD_BALANCE_CORE)
-		int iPolicyMod = GET_PLAYER(pFromCity->getOwner()).GetPressureMod();
-		if(iPolicyMod != 0)
-		{
-			//If the faith being spread is our founded faith, or our adopted faith...
-			if(eReligion > RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities()))))
-			{
-				//...and the target city doesn't have a majority religion, we get the bonus.
-				if(pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
-				{
-					iPressure *= (100 + iPolicyMod);
-					iPressure /= 100;
-				}
-			}
+			iTradeReligionModifer += iReligionTradeMod;
 		}
 #endif
-
-		// Strengthened spread from World Congress? (World Religion)
-		int iLeaguesMod = GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(pFromCity->getOwner(), eReligion);
-#if defined(MOD_API_EXTENSIONS)
-		// Trust the modder if they set a negative mod
-		if (iLeaguesMod != 0)
-#else
-		if (iLeaguesMod > 0)
-#endif
+		if (iTradeReligionModifer != 0)
 		{
-			iPressure *= (100 + iLeaguesMod);
-			iPressure /= 100;
-		}
-
-		// Building that boosts pressure from originating city?
-		int iModifier = pFromCity->GetCityReligions()->GetReligiousPressureModifier();
-#if defined(MOD_API_EXTENSIONS)
-		// Trust the modder if they set a negative mod
-		if (iModifier != 0)
-#else
-		if (iModifier > 0)
-#endif
-		{
-			iPressure *= (100 + iModifier);
-			iPressure /= 100;
-		}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
-		{
-			iPressure *= 120;
-			iPressure /= 100;
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
-		{
-			if(eReligion >= RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
-			{
-				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
-				if(iPopReligionModifer > 400)
-				{
-					iPopReligionModifer = 400;
-				}
-				if (iPopReligionModifer != 0)
-				{
-					iPressure *= 100 + iPopReligionModifer;
-					iPressure /= 100;
-				}
-			}
-		}
-#endif
-
-		//if there is an explicit trade route, there is no distance taper
-		if (!bConnectedWithTrade)
-		{
-			int iDistanceScale = MapToPercent( iApparentDistance, iMaxDistance, iMaxDistance/2+1 );
-			iPressure *= iDistanceScale;
+			iPressure *= 100 + iTradeReligionModifer;
 			iPressure /= 100;
 		}
 	}
+
+	// If we are spreading to a friendly city state, increase the effectiveness if we have the right belief
+	if(IsCityStateFriendOfReligionFounder(eReligion, pToCity->getOwner()))
+	{
+		int iFriendshipMod = pReligion->m_Beliefs.GetFriendlyCityStateSpreadModifier(pFromCity->getOwner());
+		if(iFriendshipMod > 0)
+		{
+			iPressure *= (100 + iFriendshipMod);
+			iPressure /= 100;
+		}
+	}
+
+	// Have a belief that always strengthens spread?
+	int iStrengthMod = pReligion->m_Beliefs.GetSpreadStrengthModifier(pFromCity->getOwner());
+	if(iStrengthMod > 0)
+	{
+		TechTypes eDoublingTech = pReligion->m_Beliefs.GetSpreadModifierDoublingTech(pFromCity->getOwner());
+		if(eDoublingTech != NO_TECH)
+		{
+			CvPlayer& kPlayer = GET_PLAYER(pReligion->m_eFounder);
+			if(GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech(eDoublingTech))
+			{
+				iStrengthMod *= 2;
+			}
+		}
+		iPressure *= (100 + iStrengthMod);
+		iPressure /= 100;
+	}
+#if defined(MOD_BALANCE_CORE)
+	int iPolicyMod = GET_PLAYER(pFromCity->getOwner()).GetPressureMod();
+	if(iPolicyMod != 0)
+	{
+		//If the faith being spread is our founded faith, or our adopted faith...
+		if(eReligion > RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities()))))
+		{
+			//...and the target city doesn't have our majority religion, we get the bonus.
+			if (pToCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+			{
+				iPressure *= (100 + iPolicyMod);
+				iPressure /= 100;
+			}
+		}
+	}
+#endif
+
+	// Strengthened spread from World Congress? (World Religion)
+	int iLeaguesMod = GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(pFromCity->getOwner(), eReligion);
+#if defined(MOD_API_EXTENSIONS)
+	// Trust the modder if they set a negative mod
+	if (iLeaguesMod != 0)
+#else
+	if (iLeaguesMod > 0)
+#endif
+	{
+		iPressure *= (100 + iLeaguesMod);
+		iPressure /= 100;
+	}
+
+	// Building that boosts pressure from originating city?
+	int iModifier = pFromCity->GetCityReligions()->GetReligiousPressureModifier(eReligion);
+#if defined(MOD_API_EXTENSIONS)
+	// Trust the modder if they set a negative mod
+	if (iModifier != 0)
+#else
+	if (iModifier > 0)
+#endif
+	{
+		iPressure *= (100 + iModifier);
+		iPressure /= 100;
+	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
+	{
+		iPressure *= 120;
+		iPressure /= 100;
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
+	{
+		if(eReligion >= RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
+		{
+			int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
+			if(iPopReligionModifer > 400)
+			{
+				iPopReligionModifer = 400;
+			}
+			if (iPopReligionModifer != 0)
+			{
+				iPressure *= 100 + iPopReligionModifer;
+				iPressure /= 100;
+			}
+		}
+	}
+#endif
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	if (MOD_RELIGION_CONVERSION_MODIFIERS) {
@@ -3333,6 +3390,48 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (
 		}
 	}
 #endif
+
+	// Does this city have a majority religion?
+	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
+	//We don't get the full value here if not the majority.
+	if (eMajorityReligion != eReligion)
+	{
+		int iNumFollowersOtherReligions = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
+		if (iNumFollowersOtherReligions > 0)
+		{
+			int iCitySize = pFromCity->getPopulation();
+
+			//Delta is the % of pressure we get.
+			int iDelta = (iNumFollowersOtherReligions * 100);
+			iDelta /= iCitySize;
+
+			iPressure *= iDelta;
+			iPressure /= 100;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	//if there is an explicit trade route, there is no distance taper
+	if (!bConnectedWithTrade && !bPretendTradeConnection)
+	{
+		//scale by relative faith output (the weaker city cannot influence the stronger city much)
+		float fFaithPowerMod = sqrt(float(pFromCity->getYieldRateTimes100(YIELD_FAITH, true)) / max(pToCity->getYieldRateTimes100(YIELD_FAITH, true), 100));
+		int iFaithPowerMod = int(100 * fFaithPowerMod + 0.5f);
+		if (iFaithPowerMod<100)
+		{
+			//25% minimum penalty
+			iPressure *= max(25, iFaithPowerMod);
+			iPressure /= 100;
+		}
+
+		int iDistanceScale = MapToPercent(iApparentDistance, iMaxDistance, iMaxDistance / 2 + 1);
+		iPressure *= iDistanceScale;
+		iPressure /= 100;
+	}
+
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
 	return iPressure;
 }
@@ -4681,9 +4780,8 @@ CvCityReligions::CvCityReligions(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_pCity(NULL),
-	m_majorityCityReligion(NO_RELIGION),
+	m_majorityCityReligion(NO_RELIGION)
 #endif
-	m_iReligiousPressureModifier(0)
 {
 	m_ReligionStatus.clear();
 }
@@ -4701,7 +4799,7 @@ void CvCityReligions::Init(CvCity* pCity)
 #if !defined(MOD_BALANCE_CORE)
 	m_bHasPaidAdoptionBonus = false;
 #endif
-	m_iReligiousPressureModifier = 0;
+
 	m_ReligionStatus.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_majorityCityReligion = NO_RELIGION;
@@ -4711,7 +4809,6 @@ void CvCityReligions::Init(CvCity* pCity)
 /// Cleanup
 void CvCityReligions::Uninit()
 {
-
 }
 
 /// Copy data from old city into new (for conquest)
@@ -4722,7 +4819,6 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 #if !defined(MOD_BALANCE_CORE)
 	SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
 #endif
-	SetReligiousPressureModifier(pOldCity->GetReligiousPressureModifier());
 
 	ReligionInCityList::iterator religionIt;
 	for(religionIt = pOldCity->m_ReligionStatus.begin(); religionIt != pOldCity->m_ReligionStatus.end(); ++religionIt)
@@ -5205,6 +5301,19 @@ int CvCityReligions::GetFollowersOtherReligions(ReligionTypes eReligion)
 	return iOtherFollowers;
 }
 
+int CvCityReligions::GetReligiousPressureModifier(ReligionTypes eReligion) const
+{
+	return m_pCity->GetReligiousPressureModifier(eReligion);
+}
+void CvCityReligions::SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue)
+{
+	m_pCity->SetReligiousPressureModifier(eReligion, iNewValue);
+}
+void CvCityReligions::ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue)
+{
+	m_pCity->ChangeReligiousPressureModifier(eReligion, iNewValue);
+}
+
 /// Total pressure exerted by all religions
 int CvCityReligions::GetTotalPressure()
 {
@@ -5257,14 +5366,20 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 					continue;
 				}
 
-				// Does this city have the matching majority religion?
-				ReligionTypes eMajorityReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
-				if(eMajorityReligion == eReligion)
-				{
-					int iNumTradeRoutes;
-					iPressure += GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure (eMajorityReligion, pLoopCity, m_pCity, iNumTradeRoutes, true, false);
-					iNumTradeRoutesInvolved += iNumTradeRoutes;
-				}
+				if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) <= 0)
+					continue;
+
+				if (!GC.getGame().GetGameReligions()->IsValidTarget(eReligion, pLoopCity, m_pCity))
+					continue;
+
+				bool bConnectedWithTrade;
+				int iApparentDistance, iMaxDistance;
+				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iApparentDistance, iMaxDistance))
+					continue;
+
+				int iNumTradeRoutes = 0;
+				iPressure += GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+				iNumTradeRoutesInvolved += iNumTradeRoutes;
 			}
 
 #if defined(MOD_BUGFIX_RELIGIOUS_SPY_PRESSURE)
@@ -5327,8 +5442,13 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	}
 
 	int iNumTradeRoutes = 0;
-	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true);
-	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false);
+
+	bool bConnectedWithTrade;
+	int iApparentDistance, iMaxDistance;
+	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+
+	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iApparentDistance, iMaxDistance);
+	int iNoTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iApparentDistance, iMaxDistance);
 
 	iAmount = (iWithTR-iNoTR);
 	return (iAmount>0);
@@ -5884,8 +6004,14 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 		pHolyCity = pHolyCityPlot->getPlotCity();
 	}
 
+	
+	//Increases with era and mapsize.
+	int iEraScaler = GC.getGame().getCurrentEra() * 3;
+	iEraScaler /= 2;
+	iEraScaler *= GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
+	iEraScaler /= 100;
 	// Are the cities within the minimum distance?
-	int iDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE();
+	int iDistance = GC.getRELIGION_ADJACENT_CITY_DISTANCE() + iEraScaler;
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier(m_pCity->getOwner(), pHolyCity);
@@ -5895,7 +6021,63 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 		iDistance /= 100;
 	}
 
-	bool bWithinDistance = (plotDistance(m_pCity->getX(), m_pCity->getY(), pOtherCity->getX(), pOtherCity->getY()) <= iDistance);
+	//Boost from policy of other player?
+	if (GET_PLAYER(pOtherCity->getOwner()).GetReligionDistance() != 0)
+	{
+		if (pOtherCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
+		{
+			//Do we have a religion?
+			ReligionTypes ePlayerReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherCity->getOwner());
+
+			if (ePlayerReligion <= RELIGION_PANTHEON)
+			{
+				//No..but did we adopt one?
+				ePlayerReligion = GET_PLAYER(pOtherCity->getOwner()).GetReligions()->GetReligionInMostCities();
+				//Nope, so full power.
+				if (ePlayerReligion <= RELIGION_PANTHEON)
+				{
+					iDistanceMod += GET_PLAYER(pOtherCity->getOwner()).GetReligionDistance();
+				}
+				//Yes, so only apply distance bonus to adopted faith.
+				else if (eReligiousMajority == ePlayerReligion)
+				{
+					iDistanceMod += GET_PLAYER(pOtherCity->getOwner()).GetReligionDistance();
+				}
+			}
+			//We did! Only apply bonuses if we founded this faith or it is the religion we have in most of our cities.
+			else if ((pReligion->m_eFounder == pOtherCity->getOwner()) || (eReligiousMajority == GET_PLAYER(pOtherCity->getOwner()).GetReligions()->GetReligionInMostCities()))
+			{
+				iDistanceMod += GET_PLAYER(pOtherCity->getOwner()).GetReligionDistance();
+			}
+		}
+	}
+	if (iDistanceMod > 0)
+	{
+		iDistance *= (100 + iDistanceMod);
+		iDistance /= 100;
+	}
+
+	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
+	int iApparentDistance = INT_MAX;
+	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pOtherCity, m_pCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, m_pCity, pOtherCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOtherCity, m_pCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, m_pCity, pOtherCity, &path))
+	{
+		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance);
+	}
+
+	bool bWithinDistance = (iApparentDistance <= iDistance);
 
 	// if not within distance, then we're using a trade route
 	if (!bWithinDistance) 
@@ -6531,17 +6713,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 	}
 #endif
 
-	if (uiVersion >= 3)
-	{
-		int iTemp;
-		loadFrom >> iTemp;
-		writeTo.SetReligiousPressureModifier(iTemp);
-	}
-	else
-	{
-		writeTo.SetReligiousPressureModifier(0);
-	}
-
 	int iEntriesToRead;
 	CvReligionInCity tempItem;
 
@@ -6569,8 +6740,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 #if !defined(MOD_BALANCE_CORE)
 	saveTo << readFrom.HasPaidAdoptionBonus();
 #endif
-
-	saveTo << readFrom.GetReligiousPressureModifier();
 
 	ReligionInCityList::const_iterator it;
 	saveTo << readFrom.m_ReligionStatus.size();
@@ -7403,8 +7572,7 @@ ReligionTypes CvReligionAI::GetReligionToSpread() const
 		}
 	}
 
-	CvGameReligions *pReligions = GC.getGame().GetGameReligions();
-	eRtnValue = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	eRtnValue = m_pPlayer->GetReligions()->GetCurrentReligion();
 	if(eRtnValue > RELIGION_PANTHEON)
 	{
 		return eRtnValue;
@@ -7772,7 +7940,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if(eProphetType != NO_UNIT)
 			{
-				if(BuyGreatPerson(eProphetType))
+				if (BuyGreatPerson(eProphetType, eReligion))
 				{
 					if(GC.getLogging())
 					{
@@ -7810,7 +7978,7 @@ bool CvReligionAI::DoFaithPurchases()
 					UnitTypes eGPType = GetDesiredFaithGreatPerson();
 					if(eGPType != NO_UNIT)
 					{
-						if(BuyGreatPerson(eGPType))
+						if (BuyGreatPerson(eGPType, (eGPType == eProphetType) ? eReligion : NO_RELIGION))
 						{
 							if(GC.getLogging())
 							{
@@ -7833,7 +8001,11 @@ bool CvReligionAI::DoFaithPurchases()
 								strLogMsg += strFaith;
 								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 							}
-							return true;
+							//If our faith is already really high, return false so we can make sure we're not overzealous in our purchase.
+							if (m_pPlayer->GetFaith() > 5000)
+								return false;
+
+							return false;
 						}
 					}
 				}
@@ -7843,7 +8015,7 @@ bool CvReligionAI::DoFaithPurchases()
 				UnitTypes eGPType = GetDesiredFaithGreatPerson();
 				if(eGPType != NO_UNIT)
 				{
-					if(BuyGreatPerson(eGPType))
+					if (BuyGreatPerson(eGPType, (eGPType == eProphetType) ? eReligion : NO_RELIGION))
 					{
 						if(GC.getLogging())
 						{
@@ -7868,7 +8040,7 @@ bool CvReligionAI::DoFaithPurchases()
 							strLogMsg += strFaith;
 							GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 						}
-						return true;
+						return false;
 					}
 				}
 			}
@@ -7880,7 +8052,7 @@ bool CvReligionAI::DoFaithPurchases()
 		{
 			if ((eProphetType != NO_UNIT) && ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/) && (m_pPlayer->GetReligions()->GetNumProphetsSpawned(true) <= iFlavorReligion))
 			{
-				if(BuyGreatPerson(eProphetType))
+				if (BuyGreatPerson(eProphetType, eReligion))
 				{
 					if(GC.getLogging())
 					{
@@ -7981,7 +8153,7 @@ bool CvReligionAI::DoFaithPurchases()
 		// FIRST PRIORITY
 		//Let's start with the highest-flavor stuff and work our way down...
 		//Are we super religious? Target all cities, and always get Missionaries.
-		if(iFlavorReligion >= 8 && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
+		if (iFlavorReligion >= 8 && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
 		{
 			if(BuyMissionary(eReligion))
 			{
@@ -8006,7 +8178,7 @@ bool CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return true;
+				return false;
 			}
 
 		}
@@ -8037,179 +8209,11 @@ bool CvReligionAI::DoFaithPurchases()
 					strLogMsg += strFaith;
 					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 				}
-				return true;
+				return false;
 			}
 		}
 	}
 	return false;
-}
-#else
-	// Save for another prophet if haven't enhanced religion yet
-	if(pMyReligion == NULL || !pMyReligion->m_bEnhanced)
-	{
-		// Unless all religions gone and we didn't start one
-		if(pMyReligion == NULL && pReligions->GetNumReligionsStillToFound() <= 0)
-		{
-			// Fill our cities with any Faith buildings possible
-			if(!BuyAnyAvailableFaithBuilding())
-			{
-#if defined(MOD_CONFIG_GAME_IN_XML)
-				if(m_pPlayer->GetCurrentEra() >= GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA))
-#else
-				if(m_pPlayer->GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL"))
-#endif
-				{
-					UnitTypes eGPType = GetDesiredFaithGreatPerson();
-					if (eGPType != NO_UNIT)
-					{
-						BuyGreatPerson(eGPType);
-
-						if(GC.getLogging())
-						{
-							strLogMsg += ", Saving for Great Person, ";
-							CvUnitEntry *pkEntry = GC.getUnitInfo(eGPType);
-							if (pkEntry)
-							{
-								strLogMsg += pkEntry->GetDescription();
-							}
-						}				
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		// Do we need a prophet pronto to reestablish our religion?
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-		UnitTypes eProphetType = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
-#else
-		UnitTypes eProphetType = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
-#endif
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-		if (eProphetType != NO_UNIT && ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/) && m_pPlayer->GetReligions()->GetNumProphetsSpawned(false) <= 5)
-#else
-		if (eProphetType != NO_UNIT && ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/) && m_pPlayer->GetReligions()->GetNumProphetsSpawned() <= 5)
-#endif
-		{
-			BuyGreatPerson(eProphetType);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Prophet, ";
-				strLogMsg += GC.getUnitInfo(eProphetType)->GetDescription();
-			}				
-		}
-
-		// Besides prophets, first priority is to convert all our non-puppet cities
-		else if(!bTooManyMissionaries && !AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
-		{
-			BuyMissionary(eReligion);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Missionary, Need to Convert Non-Puppet Cities";
-			}
-		}
-
-		// Next priority is to establish our faith building in every non-puppet city
-		else if(eFaithBuilding != NO_BUILDINGCLASS && !AreAllOurCitiesHaveFaithBuilding(eReligion, false /*bIncludePuppets*/))
-		{
-			BuyFaithBuilding(eReligion, eFaithBuilding);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Faith Building, For Our Non-Puppet Cities";
-			}
-		}
-
-		// Try to build other buildings with Faith if we took that belief
-		else if (CanBuyNonFaithBuilding())
-		{
-			if (!BuyAnyAvailableNonFaithBuilding())
-			{
-				if(GC.getLogging())
-				{
-					strLogMsg += ", Saving for Science Building, Have Reformation Belief";
-				}
-			}
-		}
-
-		// If in Industrial, see if we want to save for buying a great person
-#if defined(MOD_CONFIG_GAME_IN_XML)
-		else if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA) && GetDesiredFaithGreatPerson() != NO_UNIT)
-#else
-		else if (m_pPlayer->GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL") && GetDesiredFaithGreatPerson() != NO_UNIT)
-#endif
-		{
-			UnitTypes eGPType = GetDesiredFaithGreatPerson();
-			BuyGreatPerson(eGPType);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Great Person, ";
-				strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
-			}				
-		}
-
-		// Might as well convert puppet-cities to build our religious strength
-		else if(!bTooManyMissionaries && eFaithBuilding != NO_BUILDINGCLASS && !AreAllOurCitiesHaveFaithBuilding(eReligion, true /*bIncludePuppets*/))
-		{
-			BuyMissionary(eReligion);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Missionary, Need to Convert Puppet Cities";
-			}
-		}
-
-		// Have civs nearby to target who didn't start a religion?
-		else if(!bTooManyMissionaries && HaveNearbyConversionTarget(eReligion, false /*bCanIncludeReligionStarter*/))
-		{
-			BuyMissionary(eReligion);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Missionary, Need to Convert Cities of Non-Religion Starters";
-			}
-		}
-
-		// Have cities Inquisitors can defend?
-		else if(!HaveEnoughInquisitors(eReligion))
-		{
-			BuyInquisitor(eReligion);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Inquisitors, Need to Defend Our Cities";
-			}
-		}
-
-		// Have civs nearby to target who did start a religion?
-		else if(!bTooManyMissionaries && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
-		{
-			BuyMissionary(eReligion);
-
-			if(GC.getLogging())
-			{
-				strLogMsg += ", Saving for Missionary, Need to Convert Cities of Religion Starters";
-			}
-		}
-
-		// Any faith buildings from other religions we can buy?
-		else
-		{
-			BuyAnyAvailableFaithBuilding();
-		}
-
-		if(GC.getLogging())
-		{
-			CvString strFaith;
-			strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-			strLogMsg += strFaith;
-			GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-		}
-	}
 }
 #endif
 /// Pick the right city to purchase a missionary in
@@ -8265,7 +8269,7 @@ bool CvReligionAI::BuyInquisitor(ReligionTypes eReligion)
 }
 
 /// Pick the right city to purchase a great person in
-bool CvReligionAI::BuyGreatPerson(UnitTypes eUnit)
+bool CvReligionAI::BuyGreatPerson(UnitTypes eUnit, ReligionTypes eReligion)
 {
 	CvPlayer &kPlayer = GET_PLAYER(m_pPlayer->GetID());
 	CvCity *pCapital = kPlayer.getCapitalCity();
@@ -8274,7 +8278,7 @@ bool CvReligionAI::BuyGreatPerson(UnitTypes eUnit)
 		int iCost = pCapital->GetFaithPurchaseCost(eUnit, true /*bIncludeBeliefDiscounts*/);
 		if (iCost <= kPlayer.GetFaith())
 		{
-			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eUnit, NO_RELIGION);
+			CvCity *pBestCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eUnit, eReligion);
 			if (pBestCity)
 			{
 				pBestCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
@@ -11316,7 +11320,8 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 		{
 			if (pCapital->IsCanPurchase(false/*bTestPurchaseCost*/, false/*bTestTrainable*/, eUnit, NO_BUILDING, NO_PROJECT, YIELD_FAITH))
 			{
-				int iScore = 0;
+				//let's be diverse, as hoarding faith isn't terribly useful.
+				int iScore = max(0, 20000 - pCapital->GetFaithPurchaseCost(eUnit, true));
 				AIGrandStrategyTypes eVictoryStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
 
 				// Score it
@@ -11326,17 +11331,13 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					{
 						if (ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/))
 						{
-							iScore = 1500;
+							iScore += 2000;
 						}
 						else if (ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/))
 						{
-							iScore = 750;
+							iScore += 1000;
 						}
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-						iScore /= (1+ m_pPlayer->GetReligions()->GetNumProphetsSpawned(false));
-#else
-						iScore /= (1+ m_pPlayer->GetReligions()->GetNumProphetsSpawned());
-#endif
+
 #ifdef AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
 						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 						if (pMyReligion && !pMyReligion->m_bEnhanced)
@@ -11348,109 +11349,111 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					{
-						iScore = 1000;
+						iScore += 2000;
 					}
-					else
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						iScore = 400;
+						CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+						if (kLoopPlayer.isAlive() && !kLoopPlayer.isMinorCiv())
+						{
+							if (kLoopPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
+							{
+								iScore += 1000;
+							}
+						}
 					}
-					iScore /= (1+ m_pPlayer->getWritersFromFaith());
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					{
-						iScore = 1000;
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore /= (1+ m_pPlayer->getArtistsFromFaith());
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 					{
-						iScore = 1000;
+						iScore += 2000;
+					}
+					else if (m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
+					{
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore /= (1+ m_pPlayer->getMusiciansFromFaith());
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
 					{
-						iScore = 1000;
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore = 1000;
-					iScore /= (1+ m_pPlayer->getScientistsFromFaith());
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
 					{
-						iScore = 1000;
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore /= (1+ m_pPlayer->getMerchantsFromFaith());
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 				{
 					EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
 					if (eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
 					{
-						iScore = 2000;
+						iScore += 2000;
 					}
 					else
 					{
 #ifdef AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS
-						iScore = MAX(2000, int(AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS * m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() + 0.5));
+						iScore += MAX(1000, int(AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS * (m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() + 0.3)));
 #else
-						iScore = 500;
+						iScore += 500;
 #endif // AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS
 					}
-					iScore /= (1+ m_pPlayer->getEngineersFromFaith());
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST")&& !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
 					{
-						iScore = 1000;
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore /= (1+ m_pPlayer->getGeneralsFromFaith() + m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_GENERAL));
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 				{
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") && GC.getMap().GetAIMapHint() & ciMapHint_Naval)
 					{
-						iScore = 1000;
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore /= (1+ m_pPlayer->getAdmiralsFromFaith() + m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ADMIRAL));
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MISSIONARY"))
 				{
 					if (HaveNearbyConversionTarget(eReligion, false /*bCanIncludeReligionStarter*/))
 					{
-						iScore = 1000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) + 1);		
+						iScore += 2000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) * 3);		
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_INQUISITOR"))
@@ -11461,7 +11464,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					if (HaveEnoughInquisitors(eReligion))
 #endif // AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
 					{
-						iScore = 1000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_INQUISITOR) + 1);
+						iScore += 2000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_INQUISITOR) + 1);
 					}
 				}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -11470,17 +11473,16 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
 					if (eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
 					{
-						iScore = 800;
+						iScore += 2000;
 					}
 					if (eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_DIPLOMACY"))
 					{
-						iScore = 2000;
+						iScore += 2000;
 					}
 					else
 					{
-						iScore = 400;
+						iScore += 1000;
 					}
-					iScore /= (1+ m_pPlayer->getDiplomatsFromFaith() + m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_DIPLOMAT));
 				}
 #endif
 

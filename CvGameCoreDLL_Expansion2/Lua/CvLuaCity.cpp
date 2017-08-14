@@ -588,6 +588,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingYieldChangeFromCorporationFranchises);
 	Method(GetYieldChangeFromCorporationFranchises);
 	Method(GetTradeRouteCityMod);
+	Method(GetGreatWorkYieldMod);
+	Method(GetActiveSpyYieldMod);
 	Method(GetResourceQuantityPerXFranchises);
 	Method(GetGPRateModifierPerXFranchises);
 	Method(IsFranchised);
@@ -1146,18 +1148,38 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && pkCity->GetUnitPurchaseCooldown() > 0)
+	if(MOD_BALANCE_CORE)
 	{
-		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
-		localizedText << pkCity->GetUnitPurchaseCooldown();
-
-		const char* const localized = localizedText.toUTF8();
-		if(localized)
+		if (GC.getUnitInfo(eUnit)->GetCombat() > 0 || GC.getUnitInfo(eUnit)->GetRangedCombat() > 0)
 		{
-			if(!toolTip.IsEmpty())
-				toolTip += "[NEWLINE]";
+			if (pkCity->GetUnitPurchaseCooldown() > 0)
+			{
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
+				localizedText << pkCity->GetUnitPurchaseCooldown();
 
-			toolTip += localized;
+				const char* const localized = localizedText.toUTF8();
+				if (localized)
+				{
+					if (!toolTip.IsEmpty())
+						toolTip += "[NEWLINE]";
+
+					toolTip += localized;
+				}
+			}
+		}
+		else if(pkCity->GetUnitPurchaseCooldown(true) > 0)
+		{
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
+			localizedText << pkCity->GetUnitPurchaseCooldown();
+
+			const char* const localized = localizedText.toUTF8();
+			if (localized)
+			{
+				if (!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
 		}
 	}
 	if(eUnit != NO_UNIT)
@@ -5340,6 +5362,25 @@ int CvLuaCity::lGetTradeRouteCityMod(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 	const int iResult = (pkCity->GetTradeRouteCityMod(eIndex));
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaCity::lGetGreatWorkYieldMod(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = min(20, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromGreatWorks(eIndex) * pkCity->GetCityBuildings()->GetNumGreatWorks()));
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lGetActiveSpyYieldMod(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
 
 	lua_pushinteger(L, iResult);
 	return 1;

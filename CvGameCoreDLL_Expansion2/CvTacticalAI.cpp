@@ -6034,15 +6034,7 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 	if (!pTargetPlot)
 		return;
 
-	//this won't change
-	CvCity *pCity = pTargetPlot->getPlotCity();
-
-	bool bInterceptor = false;
-
-	if (GetProbableInterceptor(pTargetPlot) != NULL)
-		bInterceptor = true;
-
-	// Do air raids, ignore all other units
+	// Do air attacks, ignore all other units
 	bool bDone = false;
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
@@ -6051,34 +6043,27 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 		if (pUnit && pUnit->getDomainType()==DOMAIN_AIR)
 		{
 			int iCount = 0; //failsafe
-			while (pUnit->canMove() && pUnit->GetCurrHitPoints()>30 && iCount<3)
+			while (pUnit->canMove() && pUnit->GetCurrHitPoints() > 30 && iCount < pUnit->getNumAttacks())
 			{
-				//this is a bit ugly ... oh well
-				CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-				bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
-				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage()<pCity->GetMaxHitPoints());
-
-				if (!bHaveUnitTarget && !bHaveCityTarget)
+				CvPlot* pBestTarget = FindAirTargetNearTarget(pUnit, pTargetPlot);
+				if (pBestTarget != NULL)
 				{
-					bDone = true;
-					break;
-				}
+					//this won't change
+					CvCity *pCity = pBestTarget->getPlotCity();
 
-				int iDamageWeWillTake = 0;
-				if (pCity != NULL)
-					iDamageWeWillTake = pCity->GetAirStrikeDefenseDamage(pUnit, false);
-				else if (pDefender != NULL)
-					iDamageWeWillTake = pDefender->GetAirStrikeDefenseDamage(pUnit, false);
+					//this is a bit ugly ... oh well
+					CvUnit* pDefender = pBestTarget->getVisibleEnemyDefender(m_pPlayer->GetID());
+					bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
+					bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
 
-				//interceptors hurt!
-				if (bInterceptor)
-					iDamageWeWillTake *= 5;
+					if (!bHaveUnitTarget && !bHaveCityTarget)
+					{
+						bDone = true;
+						break;
+					}
 
-				//Only do this if it is a good attack!
-				if ((iDamageWeWillTake * 3) < (pUnit->GetAirCombatDamage(pDefender, pCity, false) * 2))
-				{
 					//it's a ranged attack but it uses the move mission ... air units are strange
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
 				}
 				iCount++;
 			}
@@ -6090,6 +6075,70 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 				break;
 		}
 	}
+}
+
+/// Queues up attacks on enemy units on or adjacent to army's desired center
+CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot)
+{
+	int iRange = pUnit->GetRange();
+	int iBestValue = 0;
+	CvPlot* pBestPlot = NULL;
+
+	// Loop through all appropriate targets to see if any is of concern
+	for (unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
+	{
+		// Is the target of an appropriate type?
+		if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
+			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
+			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
+		{
+			//make sure it is close to our actual target plot
+			if (plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pTargetPlot->getX(), pTargetPlot->getY()) > 3)
+				continue;
+
+			int iDistance = plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pUnit->getX(), pUnit->getY());
+			if (iDistance < iRange)
+			{
+				CvPlot* pTestPlot = GC.getMap().plot(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
+				if (pTestPlot == NULL)
+					continue;
+
+				CvCity *pCity = pTestPlot->getPlotCity();
+				CvUnit* pDefender = pTestPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+
+				bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
+				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
+
+				if (bHaveUnitTarget == NULL && bHaveCityTarget == NULL)
+					continue;
+
+				int iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) * 2;
+
+				if (pCity != NULL)
+					iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false) * 3;
+				else if (pDefender != NULL)
+					iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false) * 3;
+
+				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+					iValue *= 3;
+
+				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT || m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
+					iValue *= 2;
+
+				if (GetProbableInterceptor(pTargetPlot) != NULL)
+					iValue /= 5;
+
+				if (iValue > iBestValue)
+				{
+					iBestValue = iValue;
+					pBestPlot = pTestPlot;
+				}
+			}			
+		}
+	}
+
+	return pBestPlot;
 }
 
 void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)

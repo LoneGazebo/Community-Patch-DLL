@@ -6482,6 +6482,21 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LEVEL_UP">
 			<Text>[ICON_STRENGTH] {2_Unit} Leveled Up:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DELEGATES">
+			<Text>Total [ICON_DIPLOMAT] Delegates:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_SPIES">
+			<Text>[ICON_SPY] Spy Actions:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_YIELD_GREAT_WORK_MODIFIER">
+			<Text>[NEWLINE][ICON_BULLET]Great Works Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_SPY_MODIFIER">
+			<Text>[NEWLINE][ICON_BULLET]Active Spies Modifier: {1_Num}%</Text>
+		</Row>
+		
 
 
 		<!-- Tooltip for Investments in cities -->

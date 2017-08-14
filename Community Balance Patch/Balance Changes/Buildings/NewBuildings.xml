@@ -152,7 +152,7 @@
 			<TechEnhancedTourism>4</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_ARCHITECTURE</EnhancedYieldTech>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
-			<ConversionModifier>-20</ConversionModifier>
+			<ConversionModifier>-10</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
 			<Cost>-1</Cost>
@@ -171,7 +171,7 @@
 			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
-			<ConversionModifier>-20</ConversionModifier>
+			<ConversionModifier>-10</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ExtraMissionarySpreads>1</ExtraMissionarySpreads>
 			<ReligiousPressureModifier>50</ReligiousPressureModifier>
@@ -192,7 +192,7 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
-			<ConversionModifier>-20</ConversionModifier>
+			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<BlockGPDestructionSpies>1</BlockGPDestructionSpies>
@@ -217,7 +217,7 @@
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
-			<ConversionModifier>-20</ConversionModifier>
+			<ConversionModifier>-10</ConversionModifier>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -236,7 +236,7 @@
 			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
-			<ConversionModifier>-20</ConversionModifier>
+			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
 			<Defense>1000</Defense>
 			<ExtraCityHitPoints>50</ExtraCityHitPoints>

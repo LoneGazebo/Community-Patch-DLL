@@ -2001,12 +2001,11 @@ function RefreshCultureVictory()
 				row.strPublicOpinionToolTip = pPlayer:GetPublicOpinionTooltip();
 				
 				local iUnhappiness = -1 * pPlayer:GetPublicOpinionUnhappiness();
-
 				local strPublicOpinionUnhappiness = tostring(0);
 				if (iUnhappiness < 0) then
 					strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
 				end
-
+				
 				row.iUnhappiness = iUnhappiness;
 				row.strPublicOpinionUnhappiness = strPublicOpinionUnhappiness;
 				row.strPublicOpinionUnhappinessToolTip = pPlayer:GetPublicOpinionUnhappinessTooltip();

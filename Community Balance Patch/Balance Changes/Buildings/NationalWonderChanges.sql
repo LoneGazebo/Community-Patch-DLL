@@ -307,6 +307,11 @@ INSERT INTO Building_YieldChangesPerPop
 VALUES
 	('BUILDING_HERMITAGE', 'YIELD_CULTURE', 25);
 
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_GRAND_TEMPLE', 'BUILDINGCLASS_TEMPLE', 'YIELD_CULTURE', 1),
+	('BUILDING_GRAND_TEMPLE', 'BUILDINGCLASS_TEMPLE', 'YIELD_FAITH', 1);
 
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)

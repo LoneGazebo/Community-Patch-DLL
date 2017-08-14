@@ -1010,8 +1010,8 @@
 			<Description>TXT_KEY_PROMOTION_COASTAL_RAIDER_1</Description>
 			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>20</CityAttack>
-			<CityAttackPlunderModifier>33</CityAttackPlunderModifier>
+			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>20</DamageReductionCityAssault>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1023,8 +1023,8 @@
 			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr1>
-			<CityAttack>20</CityAttack>
-			<CityAttackPlunderModifier>33</CityAttackPlunderModifier>
+			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>20</DamageReductionCityAssault>
 			<PortraitIndex>4</PortraitIndex>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1036,8 +1036,8 @@
 			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
-			<CityAttack>20</CityAttack>
-			<CityAttackPlunderModifier>34</CityAttackPlunderModifier>
+			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>20</DamageReductionCityAssault>
 			<PortraitIndex>5</PortraitIndex>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1049,7 +1049,7 @@
 			<Help>TXT_KEY_PROMOTION_BOARDING_PARTY_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>0</PortraitIndex>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<FlankAttackModifier>50</FlankAttackModifier>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDING_PARTY_1</PediaEntry>
@@ -1061,7 +1061,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr1>
 			<PortraitIndex>1</PortraitIndex>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<FlankAttackModifier>50</FlankAttackModifier>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDING_PARTY_2</PediaEntry>
@@ -1073,7 +1073,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PortraitIndex>2</PortraitIndex>
-			<FlankAttackModifier>25</FlankAttackModifier>
+			<FlankAttackModifier>50</FlankAttackModifier>
 			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDING_PARTY_3</PediaEntry>
@@ -3536,7 +3536,7 @@
 			<Help>TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<GoodyHutYieldBonus>50</GoodyHutYieldBonus>
+			<GoodyHutYieldBonus>25</GoodyHutYieldBonus>
 			<PortraitIndex>11</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>

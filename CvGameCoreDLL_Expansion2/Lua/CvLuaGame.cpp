@@ -2790,8 +2790,9 @@ int CvLuaGame::lGetNumReligionsStillToFound(lua_State* L)
 {
 	int iRtnValue;
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_RELIGION_LOCAL_RELIGIONS)
-	const bool bIgnoreLocal	= luaL_optint(L, 1, 1);
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(bIgnoreLocal);
+	const bool bIgnoreLocal = luaL_optbool(L, 1, false);
+	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
+	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(bIgnoreLocal, ePlayer);
 #else
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound();
 #endif

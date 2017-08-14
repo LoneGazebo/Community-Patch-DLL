@@ -580,6 +580,8 @@ protected:
 	LUAAPIEXTN(GetBuildingYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetTradeRouteCityMod, int);
+	LUAAPIEXTN(GetGreatWorkYieldMod, int);
+	LUAAPIEXTN(GetActiveSpyYieldMod, int);
 	LUAAPIEXTN(GetResourceQuantityPerXFranchises, int);
 	LUAAPIEXTN(GetGPRateModifierPerXFranchises, int);
 	LUAAPIEXTN(HasOffice, bool);

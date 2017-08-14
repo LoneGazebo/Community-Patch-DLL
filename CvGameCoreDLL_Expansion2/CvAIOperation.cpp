@@ -3340,7 +3340,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 				continue;
 
 			CvPlot* pCityPlot = pLoopCity->plot();
-			int iThisCityValue = pLoopCity->getEconomicValue(enemyPlayer.GetID()) + pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage();
+			int iThisCityValue = 0;
 
 			// check to see if there is anything good or bad in the radius that we should account for
 			int iBlastRadius = min(5,max(1,GC.getNUKE_BLAST_RADIUS()));
@@ -3434,6 +3434,11 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 					}
 				}
 			}
+			
+			if (iThisCityValue <= 0)
+				continue;
+
+			iThisCityValue += pLoopCity->getEconomicValue(enemyPlayer.GetID()) + pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage();
 
 			// if this is the capital
 			if(pLoopCity->isCapital())
@@ -3795,7 +3800,8 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 	int iPlotLoop;
 	CvPlot* pBestPlot = NULL;
 	CvCity* pClosestCity = NULL;
-	int iBestPlotDistance = MAX_INT;
+	//We don't want the AI chasing barbs all over the world.
+	int iBestPlotDistance = 15;
 
 	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
 

@@ -259,58 +259,16 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 
 		if (eConnectionType == TRADE_CONNECTION_FOOD)
 		{
-			bool bAllowsFoodConnection = false;
-			const std::vector<BuildingTypes>& vBuildings = pOriginCity->GetCityBuildings()->GetAllBuildingsHere();
-			for (size_t i = 0; i<vBuildings.size(); i++)
-			{
-				BuildingTypes eBuilding = vBuildings[i];
-				if(eBuilding != NO_BUILDING)
-				{
-					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-					if (!pBuildingEntry)
-					{
-						continue;
-					}
-
-					if (pBuildingEntry && pBuildingEntry->AllowsFoodTradeRoutes())
-					{
-						bAllowsFoodConnection = true;
-					}
-				}
-			}
-
-			if (!bAllowsFoodConnection)
+			if (!GET_PLAYER(pOriginCity->getOwner()).IsFoodRoutesAllCities() && !pOriginCity->IsFoodRoutes())
 			{
 				return false;
 			}
 		}
 		else if (eConnectionType == TRADE_CONNECTION_PRODUCTION)
 		{
-			if (!GET_PLAYER(pOriginCity->getOwner()).IsProductionRoutesAllCities())
+			if (!GET_PLAYER(pOriginCity->getOwner()).IsProductionRoutesAllCities() && !pOriginCity->IsProductionRoutes())
 			{
-				bool bAllowsProductionConnection = false;
-				const std::vector<BuildingTypes>& vBuildings = pOriginCity->GetCityBuildings()->GetAllBuildingsHere();
-				for (size_t i = 0; i < vBuildings.size(); i++)
-				{
-					BuildingTypes eBuilding = vBuildings[i];
-					if (eBuilding != NO_BUILDING)
-					{
-						CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-						if (!pBuildingEntry)
-						{
-							continue;
-						}
-						if (pBuildingEntry && pBuildingEntry->AllowsProductionTradeRoutes())
-						{
-							bAllowsProductionConnection = true;
-						}
-					}
-				}
-
-				if (!bAllowsProductionConnection)
-				{
-					return false;
-				}
+				return false;
 			}
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 		}
@@ -3447,6 +3405,18 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 					iModifier += iPolicyModifier;
 #endif
+#if defined(MOD_BALANCE_CORE)
+					CvCity* pOriginCity = NULL;
+					CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
+					if (pStartPlot)
+					{
+						pOriginCity = pStartPlot->getPlotCity();
+					}
+					if (pOriginCity != NULL && (pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion()))
+					{
+						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
+					}
+#endif
 
 					iValue *= iModifier;
 					iValue /= 100;
@@ -3487,6 +3457,18 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 					int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					iModifier += iPolicyModifier;
+#endif
+#if defined(MOD_BALANCE_CORE)
+					CvCity* pOriginCity = NULL;
+					CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
+					if (pStartPlot)
+					{
+						pOriginCity = pStartPlot->getPlotCity();
+					}
+					if (pOriginCity != NULL && (pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion()))
+					{
+						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
+					}
 #endif
 				
 					iValue *= iModifier;
@@ -3534,6 +3516,18 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iModifier += iOriginRiverModifier;
 						iModifier += iCorporationModifier;
 						iModifier += iOpenBordersModifier;
+#if defined(MOD_BALANCE_CORE)
+						CvCity* pOriginCity = NULL;
+						CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
+						if (pStartPlot)
+						{
+							pOriginCity = pStartPlot->getPlotCity();
+						}
+						if (pOriginCity != NULL && (pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion()))
+						{
+							iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
+						}
+#endif
 
 						iValue *= iModifier;
 						if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsAllies(kTradeConnection.m_eOriginOwner))
@@ -3585,6 +3579,18 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iModifier += iOriginRiverModifier;
 						iModifier += iCorporationModifier;
 						iModifier += iOpenBordersModifier;
+#if defined(MOD_BALANCE_CORE)
+						CvCity* pOriginCity = NULL;
+						CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
+						if (pStartPlot)
+						{
+							pOriginCity = pStartPlot->getPlotCity();
+						}
+						if (pOriginCity != NULL && (pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion()))
+						{
+							iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
+						}
+#endif
 
 						iValue *= iModifier;
 						if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsAllies(kTradeConnection.m_eOriginOwner))
@@ -3749,9 +3755,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
-#if defined(MOD_BALANCE_CORE)
-					
-					if(pOriginCity != NULL && pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity())
+#if defined(MOD_BALANCE_CORE)				
+					if (pOriginCity != NULL && (pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion()))
 					{
 						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER);
 					}
@@ -3810,11 +3815,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iModifier += iDomainModifier;
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
 #if defined(MOD_BALANCE_CORE)
-					if(pOriginCity != NULL && pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity())
-					{
-						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER);
-					}
-					else if(pOriginCity != NULL && pOriginCity->GetCityReligions()->IsHolyCityAnyReligion())
+					if (pOriginCity != NULL && (pOriginCity == GET_PLAYER(kTradeConnection.m_eOriginOwner).getCapitalCity() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion()))
 					{
 						iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER);
 					}
@@ -4254,6 +4255,23 @@ int CvPlayerTrade::GetNumberOfInternationalTradeRoutes(bool bOutgoing)
 	}
 	return iNumConnections;
 }
+
+//Returns the number of trade routes in your empire
+int CvPlayerTrade::GetNumberOfTradeRoutes()
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			iNumConnections++;
+		}
+	}
+	return iNumConnections;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -4669,7 +4687,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if((eOwningPlayer != NO_PLAYER && !m_pPlayer->isBarbarian() && !GET_PLAYER(eOwningPlayer).isBarbarian()) && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eOwningPlayer).getTeam()))
 	{
 		// Notify Diplo AI that damage has been done
-		int iValue = (iPlunderGoldValue * 2);
+		int iValue = iPlunderGoldValue;
 		if(iValue > 0)
 		{
 			int iWarscoremod = m_pPlayer->GetWarScoreModifier();

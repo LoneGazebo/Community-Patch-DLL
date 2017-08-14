@@ -265,14 +265,14 @@ local g_cityToolTips = {
 
 				tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
-				-- Occupation tooltip
-				if (iOccupationUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
-				end
-				-- Resistance tooltip
+						-- Resistance tooltip
 				if (iResistanceUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+				-- Occupation tooltip
+				elseif (iOccupationUnhappiness ~= 0) then
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
 				end
+		
 				-- Starving tooltip
 				if (iStarvingUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);
