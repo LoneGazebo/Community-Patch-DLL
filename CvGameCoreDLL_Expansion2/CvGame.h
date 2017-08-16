@@ -402,6 +402,7 @@ public:
 	int getBuildingClassCreatedCount(BuildingClassTypes eIndex);
 	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0);
 	void incrementBuildingClassCreatedCount(BuildingClassTypes eIndex);
+	void decrementBuildingClassCreatedCount(BuildingClassTypes eIndex);
 
 	int getProjectCreatedCount(ProjectTypes eIndex);
 	bool isProjectMaxedOut(ProjectTypes eIndex, int iExtra = 0);

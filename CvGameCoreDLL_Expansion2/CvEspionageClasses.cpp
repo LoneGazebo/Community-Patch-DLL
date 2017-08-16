@@ -1765,9 +1765,12 @@ std::vector<CvAdvancedAction> CvPlayerEspionage::GetAdvancedActionPool(CvCity* p
 	//Only possible if very unhappy
 	if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
 	{
-		for (int iAdvancedActionLoop = (7 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
+		if (GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy())
 		{
-			aiAdvancedAction.push_back(ADVANCED_ACTION_REBELLION);
+			for (int iAdvancedActionLoop = (7 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
+			{
+				aiAdvancedAction.push_back(ADVANCED_ACTION_REBELLION);
+			}
 		}
 		for (int iAdvancedActionLoop = (6 - iRank); iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
 		{
@@ -2146,11 +2149,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdvan
 
 			//Rebels!
 			// In hundreds
-			int iNumRebels = (iRank * (75 + iTurnsActive)); //Based on rank of spy.
-			int iExtraRoll = (iRank * (75 + iTurnsActive)); //1+ Rebels maximum
+			int iNumRebels = (iRank * iTurnsActive); //Based on rank of spy.
+			int iExtraRoll = (iRank * iTurnsActive); //1+ Rebels maximum
 			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;
-			int iNumRebelTotal = iNumRebels;
+			int iNumRebelTotal = max(3, iNumRebels);
 			if (iNumRebelTotal > 0)
 			{
 				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pCity, iNumRebelTotal, false, false, false, false);
@@ -2475,16 +2478,15 @@ void CvPlayerEspionage::DoAdvancedActionLogging(CvAdvancedAction eAdvancedAction
 				strMsg.Format("Advanced Action: Science pilfered. Science: %d,", iPassValue);
 				break;
 			}
-			case ADVANCED_ACTION_UNREST:
+			case ADVANCED_ACTION_REBELLION:
 			{
 				strAAMsg.Format("Advanced Action: Caused rebellion. Units: %d,", iPassValue);
 				break;
 			}
-			case ADVANCED_ACTION_REBELLION:
+			case ADVANCED_ACTION_UNREST:
 			{
-				strAAMsg.Format("Advanced Action: Caused rebellion, Food lost: %d,", iPassValue);
+				strAAMsg.Format("Advanced Action: Caused unrest, Food lost: %d,", iPassValue);
 				break;
-
 			}
 			case ADVANCED_ACTION_FAILURE:
 			{
@@ -3057,7 +3059,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 				int iRemainder = 0;
 				if (GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
 				{
-					if (pCity->GetBlockRebellion() <= 0)
+					if (GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy() && pCity->GetBlockRebellion() <= 0)
 					{
 						int iPercent = (aiAdvancedActionTotals[(int)ADVANCED_ACTION_REBELLION] * 100 / iTotalAdvancedActions);
 						iRemainder += iPercent;

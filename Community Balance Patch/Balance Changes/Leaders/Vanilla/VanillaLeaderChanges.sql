@@ -462,17 +462,13 @@ UPDATE Buildings
 SET CitySupplyFlat = '2'
 WHERE Type = 'BUILDING_DOJO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
--- Napoleon -- Plunders artwork!
+-- Napoleon -- GWAM from combat!
 UPDATE Traits
-SET FreeGreatWorkOnConquest = '1'
+SET CultureBonusModifierConquest = '40'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET CultureBonusModifierConquest = '50'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET ProductionBonusModifierConquest = '25'
+SET ProductionBonusModifierConquest = '40'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -481,6 +477,10 @@ WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 UPDATE Traits
 SET MultipleAttackBonus = '10'
+WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET CityConquestGWAM = '50'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate yields when finishing a Trade Route. 
@@ -951,4 +951,4 @@ VALUES
 INSERT INTO Trait_GreatPersonCostReduction
 	(TraitType, GreatPersonType, Modifier)
 VALUES
-	('TRAIT_POPULATION_GROWTH', 'GREATPERSON_PROPHET', -50);
+	('TRAIT_POPULATION_GROWTH', 'GREATPERSON_PROPHET', -35);

@@ -497,6 +497,21 @@ void CvTacticalAnalysisMap::BuildEnemyUnitList()
 // Indicate the plots we might want to move to that the enemy can attack
 void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 {
+	PromotionTypes eDamagePromotion = NO_PROMOTION;
+	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+	{
+		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+		if (pkPromotionInfo != NULL)
+		{
+			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
+			{
+				eDamagePromotion = eLoopPromotion;
+				break;
+			}
+		}
+	}
+
 	for(unsigned int iUnitIndex = 0;  iUnitIndex < m_EnemyUnits.size(); iUnitIndex++)
 	{
 		CvUnit* pUnit = getUnit(m_EnemyUnits[iUnitIndex]);
@@ -582,7 +597,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 					// Check adjacent plots for enemy citadels
 					if(!m_pCells[iI].IsSubjectToAttack())
 					{
-						if ( pPlot->IsNearEnemyCitadel( m_ePlayer ) )
+						if (pPlot->IsNearEnemyCitadel(m_ePlayer, 0, eDamagePromotion))
 								m_pCells[iI].SetSubjectToAttack(true);
 
 						for(unsigned int iCityIndex = 0;  iCityIndex < m_EnemyCities.size(); iCityIndex++)

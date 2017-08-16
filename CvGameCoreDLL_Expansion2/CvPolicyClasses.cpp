@@ -4116,7 +4116,7 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 	for(int i = 0; i < iNumPolicies; i++)
 	{
 		// Do we have this policy?
-		if(m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		if(HasPolicy((PolicyTypes)i) && !IsPolicyBlocked((PolicyTypes)i))
 		{
 			// Yes, so add it to our counts
 			switch(eType)

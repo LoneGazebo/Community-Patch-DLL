@@ -2996,7 +2996,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	{
 #if defined(MOD_BALANCE_CORE)
 		//Do we have more/equal workers than/to cities?
-		int iNumCities = max(1, iCurrentNumCities);
+		int iNumCities = max(1, iCurrentNumCities)+1;
 #else
 		int iNumCities = max(1, (iCurrentNumCities * 3) / 4);
 #endif
@@ -4219,6 +4219,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						if (pCity->GetPlayer()->GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson) > 0)
 						{
 							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson);
+						}
+						if (pCity->GetPlayer()->GetPlayerTraits()->GetCityConquestGWAM() > 0)
+						{
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetCityConquestGWAM();
 						}
 						int iNumPuppets = pCity->GetPlayer()->GetNumPuppetCities();
 						if(iNumPuppets > 0)

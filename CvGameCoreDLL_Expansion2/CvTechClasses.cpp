@@ -2167,6 +2167,7 @@ void CvTeamTechs::Reset()
 	int iI;
 
 	m_eLastTechAcquired = NO_TECH;
+	m_iNumTechs = 0;
 
 	for(iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
 	{
@@ -2190,6 +2191,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_eLastTechAcquired;
+	kStream >> m_iNumTechs;
 
 	// Read the number of techs
 	int iNumSavedTechs;
@@ -2226,6 +2228,7 @@ void CvTeamTechs::Write(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_eLastTechAcquired;
+	kStream << m_iNumTechs;
 
 	if(m_pTechs != NULL && m_pTechs->GetNumTechs())
 	{
@@ -2314,33 +2317,18 @@ void CvTeamTechs::SetLastTechAcquired(TechTypes eTech)
 /// How many total Techs does this team have?
 int CvTeamTechs::GetNumTechsKnown() const
 {
-	int iNumTechs = 0;
-
-	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
-	{
-		if(HasTech((TechTypes) iTechLoop))
-		{
-			iNumTechs++;
-		}
-	}
-
-	return iNumTechs;
+	return m_iNumTechs;
+}
+void CvTeamTechs::ChangeNumTechsKnown(int iChange)
+{
+	if (iChange != 0)
+		m_iNumTechs += iChange;
 }
 
 /// Has this team researched all techs once?
 bool CvTeamTechs::HasResearchedAllTechs() const
 {
-	int iNumTechs = 0;
-
-	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
-	{
-		if(HasTech((TechTypes) iTechLoop) || GetTechCount((TechTypes)iTechLoop) > 0)
-		{
-			iNumTechs++;
-		}
-	}
-
-	return (iNumTechs >= m_pTechs->GetNumTechs());
+	return (m_iNumTechs >= m_pTechs->GetNumTechs());
 }
 
 /// Accessor: set whether team owns a tech

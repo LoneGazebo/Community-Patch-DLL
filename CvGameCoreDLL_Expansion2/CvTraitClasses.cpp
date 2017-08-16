@@ -108,6 +108,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTourismToGAP(0),
 	m_iInfluenceMeetCS(0),
 	m_iMultipleAttackBonus(0),
+	m_iCityConquestGWAM(0),
 	m_iEventTourismBoost(0),
 	m_iEventGP(0),
 	m_iWLTKDCulture(0),
@@ -734,6 +735,10 @@ int CvTraitEntry::GetInfluenceMeetCS() const
 int CvTraitEntry::GetMultipleAttackBonus() const
 {
 	return m_iMultipleAttackBonus;
+}
+int CvTraitEntry::GetCityConquestGWAM() const
+{
+	return m_iCityConquestGWAM;
 }
 int CvTraitEntry::GetEventTourismBoost() const
 {
@@ -1956,6 +1961,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iInfluenceMeetCS						= kResults.GetInt("InfluenceMeetCS");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
 	m_iMultipleAttackBonus					= kResults.GetInt("MultipleAttackBonus");
+	m_iCityConquestGWAM						= kResults.GetInt("CityConquestGWAM");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
 	m_iEventGP								= kResults.GetInt("EventGP");
 	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
@@ -3073,6 +3079,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iInfluenceMeetCS += trait->GetInfluenceMeetCS();
 			m_iMultipleAttackBonus += trait->GetMultipleAttackBonus();
+			m_iCityConquestGWAM += trait->GetCityConquestGWAM();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();		
 			m_iWLTKDGPImprovementModifier += trait->GetWLTKDGPImprovementModifier();
@@ -3669,6 +3676,7 @@ void CvPlayerTraits::Reset()
 	m_iTourismToGAP = 0;
 	m_iInfluenceMeetCS = 0;
 	m_iMultipleAttackBonus = 0;
+	m_iCityConquestGWAM = 0;
 	m_iEventTourismBoost = 0;
 	m_iWonderProductionModifierToBuilding = 0;
 	m_iPolicyGEorGM = 0;
@@ -5571,6 +5579,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iInfluenceMeetCS, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iMultipleAttackBonus, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iCityConquestGWAM, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iEventTourismBoost, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iEventGP, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iWLTKDCulture, 0);
@@ -6139,6 +6148,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
 	MOD_SERIALIZE_WRITE(kStream, m_iInfluenceMeetCS);
 	MOD_SERIALIZE_WRITE(kStream, m_iMultipleAttackBonus);
+	MOD_SERIALIZE_WRITE(kStream, m_iCityConquestGWAM);
 	MOD_SERIALIZE_WRITE(kStream, m_iEventTourismBoost);
 	MOD_SERIALIZE_WRITE(kStream, m_iEventGP);
 	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDCulture);

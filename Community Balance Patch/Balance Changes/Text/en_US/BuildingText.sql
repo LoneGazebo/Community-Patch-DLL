@@ -463,7 +463,7 @@ SELECT 'TXT_KEY_BUILDING_STONEHENGE_HELP', 'Grants 50 [ICON_PEACE] Faith when co
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production increases by +10%. [NEWLINE][NEWLINE]Receive 30 [ICON_CULTURE] Culture when a Great Person is expended, scaling with Era. Receive a free Stone Works in the City.'
+SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production increases by +10%. [NEWLINE][NEWLINE]Receive a free Stone Works in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_MAUSOLEUM_HALICARNASSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

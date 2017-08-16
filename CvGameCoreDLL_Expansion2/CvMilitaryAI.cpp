@@ -2436,6 +2436,21 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
 	int iNumBlocked = 0;
 
+	PromotionTypes eDamagePromotion = NO_PROMOTION;
+	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+	{
+		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+		if (pkPromotionInfo != NULL)
+		{
+			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
+			{
+				eDamagePromotion = eLoopPromotion;
+				break;
+			}
+		}
+	}
+
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;
 	int iNumTough = 0;
@@ -2466,7 +2481,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if ( pLoopPlot->IsNearEnemyCitadel( GetPlayer()->GetID() ) )
+			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0, eDamagePromotion))
 				bHarmful = true;
 
 			//makes us slow
@@ -5999,10 +6014,14 @@ void CvMilitaryAI::UpdateWarType()
 {
 	int iEnemyWater = 0;
 	int iEnemyLand = 0;
+	int iEnemyWaterCities = 0;
+	int iEnemyLandCities = 0;
 	int iLoop;
 
 	int iFriendlyLand = 0;
 	int iFriendlySea = 0;
+	int iFriendlyLandCities = 0;
+	int iFriendlySeaCities = 0;
 
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
@@ -6046,21 +6065,21 @@ void CvMilitaryAI::UpdateWarType()
 					{
 						if (pLoopCity->isCoastal())
 						{
-							iFriendlySea += 50;
+							iFriendlySeaCities += 50;
 						}
 						else
 						{
-							iFriendlyLand += 50;
+							iFriendlyLandCities += 50;
 						}
 						if (pLoopCity->IsInDanger(eLoopPlayer))
 						{
 							if (pLoopCity->isCoastal())
 							{
-								iFriendlySea += 50;
+								iFriendlySeaCities += 50;
 							}
 							else
 							{
-								iFriendlyLand += 50;
+								iFriendlyLandCities += 50;
 							}
 						}
 					}
@@ -6143,24 +6162,58 @@ void CvMilitaryAI::UpdateWarType()
 						{
 							if (pLoopCity->isCoastal())
 							{
-								iFriendlySea += 50;
+								iFriendlySeaCities += 50;
 							}
 							else
 							{
-								iFriendlyLand += 50;
+								iFriendlyLandCities += 50;
 							}
 						}
 						if(pLoopCity->isCoastal())
 						{
-							iEnemyWater += 50;
+							iEnemyWaterCities += 50;
 						}
 						else
 						{
-							iEnemyLand += 50;
+							iEnemyLandCities += 50;
 						}
 					}
 				}
 			}
+			if (iEnemyWater > 0)
+			{
+				iEnemyWater += iEnemyWaterCities;
+			}
+			else
+			{
+				iEnemyWater += (iEnemyWaterCities / 10);
+			}
+			if (iEnemyLand > 0)
+			{
+				iEnemyLand += iEnemyLandCities;
+			}
+			else
+			{
+				iEnemyLand += (iEnemyLandCities / 10);
+			}
+
+			if (iFriendlySea > 0)
+			{
+				iFriendlySea += iFriendlySeaCities;
+			}
+			else
+			{
+				iFriendlySea += (iFriendlySeaCities / 10);
+			}
+			if (iFriendlyLand > 0)
+			{
+				iFriendlyLand += iFriendlyLandCities;
+			}
+			else
+			{
+				iFriendlyLand += (iFriendlyLandCities / 10);
+			}
+
 			if (iEnemyWater > iFriendlySea && m_aiWarFocus[eLoopPlayer] != 2)
 			{
 				if (GC.getLogging() && GC.getAILogging())

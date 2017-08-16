@@ -2857,11 +2857,11 @@ void CvUnitPromotions::UpdateCache()
 	m_terrainPassableCache.clear();
 	m_featurePassableCache.clear();
 
-	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-	{
-		m_unitClassDefenseMod.push_back( GetUnitClassDefenseMod((UnitClassTypes)iI) );
-		m_unitClassAttackMod.push_back( GetUnitClassAttackMod((UnitClassTypes)iI) );
-	}
+	//for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	//{
+	//	m_unitClassDefenseMod.push_back( GetUnitClassDefenseMod((UnitClassTypes)iI) );
+	//	m_unitClassAttackMod.push_back( GetUnitClassAttackMod((UnitClassTypes)iI) );
+	//}
 
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{

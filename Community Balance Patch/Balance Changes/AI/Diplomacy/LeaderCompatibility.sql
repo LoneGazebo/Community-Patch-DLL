@@ -5,26 +5,26 @@ BEGIN
 
 UPDATE Leaders SET Personality=CASE
 WHEN (DoFWillingness >= 6 OR Loyalty >= 6) THEN 'PERSONALITY_COALITION' 
-WHEN (VictoryCompetitiveness >= 6 OR DenounceWillingness >= 6) THEN 'PERSONALITY_CONQUEROR'
+WHEN (VictoryCompetitiveness >= 6 OR Meanness >= 8) THEN 'PERSONALITY_CONQUEROR'
 WHEN (DiploBalance >= 6 OR MinorCivCompetitiveness >= 6) THEN 'PERSONALITY_DIPLOMAT'
-WHEN (Boldness >= 6 OR WarmongerHate >= 6) THEN 'PERSONALITY_EXPANSIONIST'
+WHEN (Boldness >= 7 OR WonderCompetitiveness <= 3) THEN 'PERSONALITY_EXPANSIONIST'
 ELSE Personality END
 WHERE Type = NEW.Type;
 
 UPDATE Leaders
-SET WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5
+SET WonderCompetitiveness=6, MinorCivCompetitiveness=5, Boldness=4, WarmongerHate=7, DenounceWillingness=5, DoFWillingness=7, VictoryCompetitiveness=6, DiploBalance=7, Loyalty=8, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5
 WHERE Type = NEW.Type AND Personality = 'PERSONALITY_COALITION';
 
 UPDATE Leaders
-SET WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=5, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9
+SET WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=6, DoFWillingness=3, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=3, Chattiness=4, Meanness=9
 WHERE Type = NEW.Type AND Personality = 'PERSONALITY_CONQUEROR';
 
 UPDATE Leaders
-SET WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3
+SET WonderCompetitiveness=7, MinorCivCompetitiveness=8, Boldness=2, WarmongerHate=5, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=6, DiploBalance=8, Loyalty=7, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3
 WHERE Type = NEW.Type AND Personality = 'PERSONALITY_DIPLOMAT';
 
 UPDATE Leaders
-SET WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7
+SET WonderCompetitiveness=3, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=3, DenounceWillingness=4, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=4, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7
 WHERE Type = NEW.Type AND Personality = 'PERSONALITY_EXPANSIONIST';
 
 END;

@@ -1334,6 +1334,26 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 #endif
 
 	CvPlayerManager::Refresh(true);
+
+	//refresh tactical AI as well!
+	for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+	{
+		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+		{
+			kAttackingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+			{
+				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+				if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
+				{
+					kDefendingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+				}
+			}
+		}
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1361,6 +1381,36 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	{
 		return;
 	}
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	setAtWar(eTeam, true, bAggressor);
+	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
+#else
+	setAtWar(eTeam, true);
+	GET_TEAM(eTeam).setAtWar(GetID(), true);
+#endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	if (MOD_EVENTS_WAR_AND_PEACE)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	}
+	else
+	{
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	}
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 	if(!isBarbarian())
@@ -1589,35 +1639,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			}
 		}
 	}
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	setAtWar(eTeam, true, bAggressor);
-	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
-#else
-	setAtWar(eTeam, true);
-	GET_TEAM(eTeam).setAtWar(GetID(), true);
-#endif
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (MOD_EVENTS_WAR_AND_PEACE) 
-	{
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
-	} 
-	else 
-	{
-#endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(GetID());
-			args->Push(eTeam);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
-		}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	}
-#endif
 
 	// One shot things
 	DoNowAtWarOrPeace(eTeam, true);
@@ -6537,6 +6558,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 			if(1 == GetTeamTechs()->GetTechCount(eIndex))
 			{
+				if (bNewValue)
+					GetTeamTechs()->ChangeNumTechsKnown(1);
+				else
+					GetTeamTechs()->ChangeNumTechsKnown(-1);
+
 				if(bAnnounce)
 				{
 					if(GC.getGame().isFinalInitialized())
@@ -6549,6 +6575,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		else
 		{
 			GetTeamTechs()->SetHasTech(eIndex, bNewValue);
+
+			if (bNewValue)
+				GetTeamTechs()->ChangeNumTechsKnown(1);
+			else
+				GetTeamTechs()->ChangeNumTechsKnown(-1);
 
 #if defined(MOD_BALANCE_CORE)
 			if (bNewValue)

@@ -11671,6 +11671,15 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		else
 			iChangeThisTurn += /*-100*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN();
 
+		//Influence decay increases the higher your influence over 100;
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		{
+			int iInfluenceTotal = iBaseFriendship * -1;
+			iInfluenceTotal;
+
+			if (iInfluenceTotal < 0)
+				iChangeThisTurn += iInfluenceTotal;
+		}
 		// Decay modified (Trait, policies, shared religion, etc.)
 		int iDecayMod = 100;
 		iDecayMod += GET_PLAYER(ePlayer).GetMinorFriendshipDecayMod();
@@ -12090,6 +12099,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	{
 		m_eAlly = GetPermanentAlly();
 		GET_PLAYER(GetPermanentAlly()).RefreshCSAlliesFriends();
+		GET_PLAYER(GetPermanentAlly()).UpdateHappinessFromMinorCivs();
 		return;
 	}
 #endif
@@ -12172,10 +12182,12 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	if (eNewAlly != NO_PLAYER)
 	{
 		GET_PLAYER(eNewAlly).RefreshCSAlliesFriends();
+		GET_PLAYER(eNewAlly).UpdateHappinessFromMinorCivs();
 	}
 	if (eOldAlly != NO_PLAYER)
 	{
 		GET_PLAYER(eOldAlly).RefreshCSAlliesFriends();
+		GET_PLAYER(eOldAlly).UpdateHappinessFromMinorCivs();
 	}
 
 	// Declare war on Ally's enemies

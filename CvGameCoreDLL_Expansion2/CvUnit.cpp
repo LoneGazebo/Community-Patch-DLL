@@ -343,6 +343,8 @@ CvUnit::CvUnit() :
 	, m_extraTerrainDefensePercent("CvUnit::m_extraTerrainDefensePercent", m_syncArchive/*, true*/)
 	, m_extraFeatureAttackPercent("CvUnit::m_extraFeatureAttackPercent", m_syncArchive/*, true*/)
 	, m_extraFeatureDefensePercent("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
+	, m_extraUnitClassAttackMod("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
+	, m_extraUnitClassDefenseMod("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
 	, m_extraUnitCombatModifier("CvUnit::m_extraUnitCombatModifier", m_syncArchive/*, true*/)
 	, m_unitClassModifier("CvUnit::m_unitClassModifier", m_syncArchive/*, true*/)
 	, m_iMissionTimer("CvUnit::m_iMissionTimer", m_syncArchive)
@@ -1590,6 +1592,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_extraFeatureDefensePercent.dirtyGet().clear();
 		m_extraFeatureAttackPercent.dirtyGet().clear();
 
+		m_extraUnitClassAttackMod.dirtyGet().clear();
+		m_extraUnitClassDefenseMod.dirtyGet().clear();
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_yieldFromKills.clear();
 		m_yieldFromBarbarianKills.clear();
@@ -1737,6 +1742,9 @@ void CvUnit::uninitInfos()
 	m_extraTerrainDefensePercent.dirtyGet().clear();
 	m_extraFeatureAttackPercent.dirtyGet().clear();
 	m_extraFeatureDefensePercent.dirtyGet().clear();
+
+	m_extraUnitClassAttackMod.dirtyGet().clear();
+	m_extraUnitClassDefenseMod.dirtyGet().clear();
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
@@ -18652,7 +18660,7 @@ int CvUnit::unitClassAttackModifier(UnitClassTypes eUnitClass) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eUnitClass >= 0, "eUnitClass is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass is expected to be within maximum bounds (invalid Index)");
-	return m_Promotions.GetUnitClassAttackMod(eUnitClass);
+	return getUnitClassAttackMod(eUnitClass);
 }
 
 
@@ -18662,7 +18670,7 @@ int CvUnit::unitClassDefenseModifier(UnitClassTypes eUnitClass) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eUnitClass >= 0, "eUnitClass is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass is expected to be within maximum bounds (invalid Index)");
-	return m_Promotions.GetUnitClassDefenseMod(eUnitClass);
+	return getUnitClassDefenseMod(eUnitClass);
 }
 
 
@@ -22497,14 +22505,14 @@ void CvUnit::changeExtraAttacks(int iChange)
 
 //	--------------------------------------------------------------------------------
 // Citadel
-bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot) const
+bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot, PromotionTypes ePromotion) const
 {
 	VALIDATE_OBJECT
 
 	if (pInPlot == NULL)
 		pInPlot = plot();
 
-	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage);
+	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage, ePromotion);
 }
 
 //	--------------------------------------------------------------------------------
@@ -25413,6 +25421,68 @@ void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 		setInfoBarDirty(true);
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getUnitClassAttackMod(UnitClassTypes eUnitClass) const
+{
+	const std::map<UnitClassTypes, int>& m_map = m_extraUnitClassAttackMod.get();
+	std::map<UnitClassTypes, int>::const_iterator it = m_map.find(eUnitClass);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeUnitClassAttackMod(UnitClassTypes eUnitClass, int iChange)
+{
+	if (iChange != 0)
+	{
+		std::map<UnitClassTypes, int>& m_map = m_extraUnitClassAttackMod.dirtyGet();
+		if (m_map.find(eUnitClass) != m_map.end())
+		{
+			m_map[eUnitClass] += iChange;
+			if (m_map[eUnitClass] == 0)
+				m_map.erase(eUnitClass);
+		}
+		else
+			m_map[eUnitClass] = iChange;
+
+		setInfoBarDirty(true);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getUnitClassDefenseMod(UnitClassTypes eUnitClass) const
+{
+	const std::map<UnitClassTypes, int>& m_map = m_extraUnitClassDefenseMod.get();
+	std::map<UnitClassTypes, int>::const_iterator it = m_map.find(eUnitClass);
+	if (it != m_map.end())
+		return it->second;
+	else
+		return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eUnitClass, int iChange)
+{
+	if (iChange != 0)
+	{
+		std::map<UnitClassTypes, int>& m_map = m_extraUnitClassDefenseMod.dirtyGet();
+		if (m_map.find(eUnitClass) != m_map.end())
+		{
+			m_map[eUnitClass] += iChange;
+			if (m_map[eUnitClass] == 0)
+				m_map.erase(eUnitClass);
+		}
+		else
+			m_map[eUnitClass] = iChange;
+
+		setInfoBarDirty(true);
+	}
+}
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
@@ -26152,6 +26222,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 
 			changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
+
+			changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
+			changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
 		}
 
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
@@ -29468,10 +29541,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraCityAttackPercent();
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense * 4;
+		iValue += iTemp + iFlavorOffense * 5;
 		if(isRanged())
 		{
-			iValue += iFlavorRanged * 5;
+			iValue += iFlavorRanged * 9;
 		}
 	}
 

@@ -116,6 +116,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iInfluenceGold > 0) then
 		strInfluenceValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_GOLD_EXPLAINED", strOtherLeaderName, iInfluenceGold / 100);
 	end
+	local strHolyCapitalValue = "";
+	local iHolyCapitalYield = pPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+	if (iHolyCapitalYield ~= 0) then
+		strHolyCapitalValue = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+	end
 -- END
 
 	local strDomainModifier = "";
@@ -261,6 +266,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 		strResult = strResult .. strOpenBordersModifier;
 		strResult = strResult .. "[NEWLINE]";
 	end
+
+	if (strHolyCapitalValue ~= "") then
+		strResult = strResult .. strHolyCapitalValue;
+		strResult = strResult .. "[NEWLINE]";
+	end
 -- END
 	
 	if (strDomainModifier ~= "") then
@@ -329,6 +339,22 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_TOTAL", strOriginLeaderName, iOriginScience);				
 			end
 		end
+
+		-- CBP
+		local strCorporateModifier = "";
+		local iCorporateModifier = pOriginPlayer:GetInternationalTradeRouteCorporationModifierScience(pOriginCity, pTargetCity, eDomain, true);
+		if (iCorporateModifier ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE", iCorporateModifier);		
+		end
+
+		local strHolyCapitalValue = "";
+		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		if (iHolyCapitalYield ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+		end
+	-- END
 	end
 	
 	if (iDestScience > 0) then
@@ -357,14 +383,6 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 		end
 
 	end
--- CBP
-	local strCorporateModifier = "";
-	local iCorporateModifier = pOriginPlayer:GetInternationalTradeRouteCorporationModifierScience(pOriginCity, pTargetCity, eDomain, true);
-	if (iCorporateModifier ~= 0) then
-		strResult = strResult .. "[NEWLINE]";
-		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE", iCorporateModifier);		
-	end
--- END
 
 	return strResult;
 end
@@ -418,6 +436,13 @@ function BuildTradeRouteCultureToolTipString (pOriginCity, pTargetCity, eDomain)
 				strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_TOTAL", strOriginLeaderName, iOriginCulture);				
 			end
 		end
+
+		local strHolyCapitalValue = "";
+		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		if (iHolyCapitalYield ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+		end
 	end
 	
 	if (iDestCulture > 0) then
@@ -458,6 +483,13 @@ function BuildTradeRouteProductionToolTipString (pOriginCity, pTargetCity, eDoma
 
 	if (iOriginProduction > 0) then
 		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_PRODUCTION", iOriginProduction);
+		
+		local strHolyCapitalValue = "";
+		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		if (iHolyCapitalYield ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+		end
 	end
 
 	return strResult;
@@ -472,6 +504,52 @@ function BuildTradeRouteFoodToolTipString (pOriginCity, pTargetCity, eDomain)
 
 	if (iOriginFood > 0) then
 		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_FOOD", iOriginFood);
+
+		local strHolyCapitalValue = "";
+		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		if (iHolyCapitalYield ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+		end
+	end
+
+	return strResult;
+end
+
+function BuildTradeRouteProductionInternalToolTipString (pOriginCity, pTargetCity, eDomain)
+
+	local strResult = "";
+	local iPlayer = pOriginCity:GetOwner();
+	local pOriginPlayer = Players[iPlayer];
+
+	local iOriginProduction  = pOriginPlayer:GetInternationalTradeRouteProduction(pOriginCity, pTargetCity, eDomain, false) / 100;
+
+	if (iOriginProduction > 0) then	
+		local strHolyCapitalValue = "";
+		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		if (iHolyCapitalYield ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+		end
+	end
+
+	return strResult;
+end
+function BuildTradeRouteFoodInternalToolTipString (pOriginCity, pTargetCity, eDomain)
+
+	local strResult = "";
+	local iPlayer = pOriginCity:GetOwner();
+	local pOriginPlayer = Players[iPlayer];
+
+	local iOriginFood  = pOriginPlayer:GetInternationalTradeRouteFood(pOriginCity, pTargetCity, eDomain, false) / 100;
+
+	if (iOriginFood > 0) then
+		local strHolyCapitalValue = "";
+		local iHolyCapitalYield = pOriginPlayer:GetHolyCityCapitalTradeRouteYieldModifier(pOriginCity, pTargetCity);
+		if (iHolyCapitalYield ~= 0) then
+			strResult = strResult .. "[NEWLINE]";
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YIELD_MODIFIER", iHolyCapitalYield);
+		end
 	end
 
 	return strResult;
@@ -523,6 +601,20 @@ function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomai
 			strResult = strResult .. strFoodToolTip;
 		end
 		--END
+	else
+		local strProductionToolTip = BuildTradeRouteProductionInternalToolTipString(pOriginCity, pTargetCity, eDomain);
+		local strFoodToolTip = BuildTradeRouteFoodInternalToolTipString(pOriginCity, pTargetCity, eDomain);
+
+		if (strProductionToolTip ~= "") then
+			strResult = strProductionToolTip;
+		end
+		if (strFoodToolTip ~= "") then
+			if (strResult ~= "") then
+				strResult = strResult .. "[NEWLINE][NEWLINE]";
+			end
+		
+			strResult = strResult .. strFoodToolTip;
+		end
 	end
 	
 	return strResult;

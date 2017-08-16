@@ -478,6 +478,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
 	, m_iIdeologyPoint("CvPlayer::m_iIdeologyPoint", m_syncArchive)
 	, m_iXCSAlliesLowersPolicyNeedWonders("CvPlayer::m_iXCSAlliesLowersPolicyNeedWonders", m_syncArchive)
+	, m_iHappinessFromMinorCivs("CvPlayer::m_iHappinessFromMinorCivs", m_syncArchive)
 	, m_iPositiveWarScoreTourismMod("CvPlayer::m_iPositiveWarScoreTourismMod", m_syncArchive)
 	, m_iIsNoCSDecayAtWar("CvPlayer::m_iIsNoCSDecayAtWar", m_syncArchive)
 	, m_iCanBullyFriendlyCS("CvPlayer::m_iCanBullyFriendlyCS", m_syncArchive)
@@ -1346,6 +1347,7 @@ void CvPlayer::uninit()
 	m_iHappinessPerXPopulationGlobal = 0;
 	m_iIdeologyPoint = 0;
 	m_iXCSAlliesLowersPolicyNeedWonders = 0;
+	m_iHappinessFromMinorCivs = 0;
 	m_iPositiveWarScoreTourismMod = 0;
 	m_iIsNoCSDecayAtWar = 0;
 	m_iCanBullyFriendlyCS = 0;
@@ -3402,6 +3404,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->IsFreeGreatWorkOnConquest())
 			{
 				DoFreeGreatWorkOnConquest(pOldCity->getOwner(), pOldCity);
+			}
+			if (GetPlayerTraits()->GetCityConquestGWAM() > 0)
+			{
+				doInstantGWAM(NO_GREATPERSON, pOldCity->getName(), true);
 			}
 #if defined(MOD_BALANCE_CORE)
 			if (GetPlayerTraits()->IsExpansionWLTKD())
@@ -10855,6 +10861,7 @@ void CvPlayer::doTurn()
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
 		RefreshCSAlliesFriends();
+		UpdateHappinessFromMinorCivs();
 #endif
 		DoUpdateCramped();
 
@@ -11383,6 +11390,21 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
+	PromotionTypes eDamagePromotion = NO_PROMOTION;
+	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+	{
+		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+		if (pkPromotionInfo != NULL)
+		{
+			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
+			{
+				eDamagePromotion = eLoopPromotion;
+				break;
+			}
+		}
+	}
+
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -11391,7 +11413,7 @@ void CvPlayer::DoUnitReset()
 
 		// then damage it again
 		int iCitadelDamage;
-		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage) && !pLoopUnit->isInvisible(NO_TEAM,false,false))
+		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL, eDamagePromotion) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -22764,14 +22786,19 @@ void CvPlayer::ChangeCSAlliesLowersPolicyNeedWonders(int iChange)
 /// Happiness from Minors
 int CvPlayer::GetHappinessFromMinorCivs() const
 {
+	return m_iHappinessFromMinorCivs;
+}
+
+void CvPlayer::UpdateHappinessFromMinorCivs()
+{
 	int iHappiness = 0;
 	PlayerTypes eMinor;
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		eMinor = (PlayerTypes) iMinorLoop;
+		eMinor = (PlayerTypes)iMinorLoop;
 		iHappiness += GetHappinessFromMinor(eMinor);
 	}
-	return iHappiness;
+	m_iHappinessFromMinorCivs = iHappiness;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25529,17 +25556,19 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 				{
-					iValue += pLoopCity->GetYieldFromPolicyUnlock(eYield);
+					int iScaleValue = pLoopCity->GetYieldFromPolicyUnlock(eYield);
 					//Scale it here to avoid scaling the growth yield below.
-					if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
+					if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 					{
-						iValue *= iEra;
+						iScaleValue *= iEra;
 					}
+					iValue += iScaleValue;
 
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowers;
 					}
+					
 					break;
 				}
 				case INSTANT_YIELD_TYPE_INSTANT:
@@ -26557,10 +26586,15 @@ CvString CvPlayer::getInstantYieldText(InstantYieldType iType) const
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	return m_aistrInstantYield[iType];
 }
-void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName)
+void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strName, bool bConquest)
 {
 	CvCity* pCapital = getCapitalCity();
-	int iEventGP = GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson);
+	int iEventGP = 0;
+	if (bConquest)
+		iEventGP += GetPlayerTraits()->GetCityConquestGWAM();
+	else
+		iEventGP += GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson);
+
 	if (pCapital != NULL && iEventGP > 0)
 	{
 		int iGPWriter = 0;
@@ -26612,12 +26646,30 @@ void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName
 			CvNotifications* pNotification = GetNotifications();
 			if (pNotification)
 			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU");
-				strMessage << iGPWriter;
-				strMessage << iGPArtist;
-				strMessage << iGPMusician;
-				strMessage << strUnitName.c_str();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S");
+				Localization::String strMessage = "";
+				if (bConquest)
+				{
+					strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_CONQUEST");
+					strMessage << iGPWriter;
+					strMessage << iGPArtist;
+					strMessage << iGPMusician;
+					strMessage << strName.c_str();
+				}
+				else
+				{
+					strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU");
+					strMessage << iGPWriter;
+					strMessage << iGPArtist;
+					strMessage << iGPMusician;
+					strMessage << strName.c_str();
+				}
+				
+				Localization::String strSummary = "";
+				if (bConquest)
+					strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_CONQUEST_S");
+				else
+					strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S");
+
 				pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 		}

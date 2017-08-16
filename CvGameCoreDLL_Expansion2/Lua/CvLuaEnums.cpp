@@ -212,6 +212,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 	RegisterEnum(YIELD_GOLDEN_AGE_POINTS);
+	RegisterEnum(YIELD_GREAT_ADMIRAL_POINTS);
+	RegisterEnum(YIELD_GREAT_GENERAL_POINTS);
 #endif
 	RegisterEnum(NUM_YIELD_TYPES);
 	EnumEnd(L);

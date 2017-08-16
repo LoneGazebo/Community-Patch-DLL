@@ -20200,7 +20200,7 @@ int CvCity::getUnhappinessFromCultureNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
 
-	int iModifier = getThresholdAdditions();
+	int iModifier = getThresholdAdditions(YIELD_CULTURE);
 	iModifier += getThresholdSubtractions(YIELD_CULTURE, iMod);
 
 	iThreshold *= (iModifier + 100);
@@ -20284,7 +20284,7 @@ int CvCity::getUnhappinessFromScienceNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
-	int iModifier = getThresholdAdditions();
+	int iModifier = getThresholdAdditions(YIELD_SCIENCE);
 	iModifier += getThresholdSubtractions(YIELD_SCIENCE, iMod);
 
 	iThreshold *= (iModifier + 100);
@@ -20365,7 +20365,7 @@ int CvCity::getUnhappinessFromDefenseNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
 
-	int iModifier = getThresholdAdditions();
+	int iModifier = getThresholdAdditions(YIELD_PRODUCTION);
 	iModifier += getThresholdSubtractions(YIELD_PRODUCTION, iMod);
 
 	iThreshold *= (iModifier + 100);
@@ -20442,7 +20442,7 @@ int CvCity::getUnhappinessFromGoldNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
-	int iModifier = getThresholdAdditions();
+	int iModifier = getThresholdAdditions(YIELD_GOLD);
 	iModifier += getThresholdSubtractions(YIELD_GOLD, iMod);
 
 	iThreshold *= (iModifier + 100);

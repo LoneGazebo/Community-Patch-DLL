@@ -806,7 +806,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
 			if (eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
-				iBonus += 10000;
+				iBonus += 100000;
 			}
 			else
 			{
@@ -814,7 +814,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iBonus += 10000;
+				iBonus += 100000;
 			}
 			else if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
@@ -833,12 +833,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if(m_pCity->getSpaceProductionModifier() > 0)
 				{
-					iBonus += (m_pCity->getSpaceProductionModifier() * 50);
+					iBonus += (m_pCity->getSpaceProductionModifier() * 100);
 				}
 				else
 				{
-					iBonus -= 300;
+					iBonus -= 5000;
 				}
+				//Don't zero out because of this penalty.
+				if (iBonus <= 0)
+					iBonus = 1;
 			}
 		}
 
@@ -1100,8 +1103,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iFlavorExpansion = 1;
 			}
+
+			//We got this far? Let's add in era desire as well.
+			int iEra = GC.getGame().getCurrentEra();
 			
-			int iSettlerDesire = (iFlavorExpansion * iSettleValuation);
+			int iSettlerDesire = ((iFlavorExpansion + iEra) * iSettleValuation);
 			iBonus += iSettlerDesire;
 		}
 	}
@@ -1237,12 +1243,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 			if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 			{
-				iBonus += (150 * iCurrentNumCities);
+				iBonus += (400 * iCurrentNumCities);
 			}
 			AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 			{
-				iBonus += (250 * iCurrentNumCities);
+				iBonus += (600 * iCurrentNumCities);
 			}
 		}
 	}

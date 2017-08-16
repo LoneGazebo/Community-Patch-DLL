@@ -496,13 +496,13 @@
 
 		<!-- Cathedral/Mosque/Pagoda-->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Farms near this City generate +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Farms and Pastures near this City generate +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
 			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. +20% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. +2 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. +1 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_THRONE_ROOM">
@@ -670,7 +670,7 @@
 			<Text>A runestone is typically a raised stone with a runic inscription, but the term can also be applied to inscriptions on boulders and on bedrock. The tradition began in the 4th century and lasted into the 12th century, but most of the runestones date from the late Viking Age. Most runestones are located in Scandinavia, but there are also scattered runestones in locations that were visited by Norsemen during the Viking Age. Runestones are often memorials to dead men. Runestones were usually brightly coloured when erected, though this is no longer evident as the colour has worn off.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>Gain an instant boost of 25 [ICON_CULTURE] Culture. Whenever you pillage a Tile, gain +5 [ICON_PRODUCTION] Production and[ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water.</Text>
+			<Text>Whenever you pillage a Tile, gain +10 [ICON_PRODUCTION] Production and[ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]+25% [ICON_PRODUCTION] Production towards Land and Naval Melee units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
 			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Runestones produce [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production when you defeat a Unit. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
