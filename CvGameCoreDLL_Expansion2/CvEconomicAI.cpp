@@ -4118,16 +4118,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		return false;
 	}
 
-	//do not check this here, it can lead to a situation where we have e.g. 3 settler but don't found any cities
-	//we won't disband them because we have good plots to settle, and we are running "no more expand" because we have 3 settlers
-	/*
-	EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
-	{
-		return false;
-	}
-	*/
-
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
 		CvUnit* pLoopUnit = vSettlers[i];

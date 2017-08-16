@@ -326,7 +326,7 @@ CvCity::CvCity() :
 	, m_iTradeRouteLandDistanceModifier("CvCity::m_iTradeRouteLandDistanceModifier", m_syncArchive)
 	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
 	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
-	, m_iNearbySettlerValue("CvCity::m_iNearbySettlerValue", m_syncArchive)
+	, m_iDummy("CvCity::m_iDummy", m_syncArchive)
 	, m_iThreatRank("CvCity::m_iThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iUnitPurchaseCooldownCivilian("CvCity::m_iUnitPurchaseCooldownCivilian", m_syncArchive)
@@ -1506,7 +1506,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradeRouteSeaDistanceModifier = 0;
 	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradePrioritySea = 0;
-	m_iNearbySettlerValue = 0;
+	m_iDummy = 0;
 	m_iThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iUnitPurchaseCooldownCivilian = 0;
@@ -2764,7 +2764,6 @@ void CvCity::doTurn()
 	//Do bad barb stuff!
 	DoBarbIncursion();
 	updateEconomicValue();
-	UpdateNearbySettleSites();
 	UpdateGrowthFromTourism();
 
 	CvUnit* pLoopUnit;
@@ -3291,93 +3290,6 @@ int CvCity::GetTradePrioritySea() const
 {
 	VALIDATE_OBJECT
 	return m_iTradePrioritySea;
-}
-
-void CvCity::UpdateNearbySettleSites()
-{
-	if(GET_PLAYER(getOwner()).isBarbarian() || GET_PLAYER(getOwner()).isHuman() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
-	{
-		return;
-	}
-
-	int iSettlerDistance;
-	int iDistanceDropoff;
-	int iValue;
-	int iDanger;
-	int iBestValue = 0;
-	m_iNearbySettlerValue = 0;
-
-	int iSettlerX = getX();
-	int iSettlerY = getY();
-
-	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE();
-	int iDistanceDropoffMod = GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
-	int iBeginSearchX = iSettlerX - iEvalDistance;
-	int iBeginSearchY = iSettlerY - iEvalDistance;
-	int iEndSearchX   = iSettlerX + iEvalDistance;
-	int iEndSearchY   = iSettlerY + iEvalDistance;
-
-	CvMap& kMap = GC.getMap();
-
-	TeamTypes eUnitTeam = getTeam();
-
-	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-	int iCapArea = NULL;
-	if(pCapital != NULL)
-	{
-		iCapArea = pCapital->getArea();
-	}
-
-	for(int iPlotX = iBeginSearchX; iPlotX != iEndSearchX; iPlotX++)
-	{
-		for(int iPlotY = iBeginSearchY; iPlotY != iEndSearchY; iPlotY++)
-		{
-			CvPlot* pPlot = kMap.plot(iPlotX, iPlotY);
-			if(!pPlot)
-			{
-				continue;
-			}
-
-			//if (!pPlot->isVisible(pUnit->getTeam(), false /*bDebug*/))
-			if(!pPlot->isRevealed(eUnitTeam))
-			{
-				continue;
-			}
-
-			// Can't actually found here!
-			if(!GET_PLAYER(getOwner()).canFound(iPlotX, iPlotY))
-			{
-				continue;
-			}
-
-			// Do we have to check if this is a safe place to go?
-			if(!pPlot->isVisibleEnemyUnit(GET_PLAYER(getOwner()).GetID()))
-			{
-				iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
-
-				iValue = GET_PLAYER(getOwner()).getPlotFoundValue(iPlotX, iPlotY) / 100;
-
-				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
-				iValue = iValue * (100 - iDistanceDropoff) / 100;
-				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
-				if(iDanger < 1000)
-				{
-					iValue = ((1000 - iDanger) * iValue) / 6650;
-
-					if(iValue > iBestValue)
-					{
-						iBestValue = iValue;
-					}
-				}
-			}
-		}
-	}
-	m_iNearbySettlerValue = iBestValue;
-}
-int CvCity::GetNearbySettleSiteValue() const
-{
-	VALIDATE_OBJECT
-	return m_iNearbySettlerValue;
 }
 
 void CvCity::ChangeTradeRouteSeaDistanceModifier(int iValue)

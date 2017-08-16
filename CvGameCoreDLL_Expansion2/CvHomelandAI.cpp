@@ -8296,6 +8296,7 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		// Embarked and in danger? We need to do something!
 		if (pUnit->isEmbarked())
 		{
+			pTargetPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}

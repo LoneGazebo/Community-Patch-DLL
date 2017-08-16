@@ -175,19 +175,9 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 	{
 		int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iNumUnits);
 
-		//naval needs less space with ocean travel.
-		if (IsNavalOperation())
-		{
-			if (GET_PLAYER(pArmy->GetOwner()).CanCrossOcean())
-			{
-				iRange--;
-			}
-			else
-			{
-				iRange++;
-			}
-		}
-		
+		//naval needs more space without ocean travel.
+		if (IsNavalOperation() && !GET_PLAYER(pArmy->GetOwner()).CanCrossOcean())
+			iRange++;
 
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{

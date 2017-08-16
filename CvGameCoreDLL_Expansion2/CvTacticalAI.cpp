@@ -4144,13 +4144,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		// Check to make sure escort can get to civilian
 		if(pOperation->GetMusterPlot() != NULL)
 		{
-			//nothing to do?
-			if(pEscort && plotDistance(*pCivilian->plot(),*pEscort->plot())<2)
-			{
-				return;
-			}
 			//civilian and escort have not yet met up
-			else if(pEscort && plotDistance(*pCivilian->plot(),*pEscort->plot())>=2)
+			if(pEscort)
 			{
 				//civilian is already there
 				if(pCivilian->plot() == pOperation->GetMusterPlot())
@@ -4407,6 +4402,9 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				CvPlot* pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
 				if(pCommonPlot != NULL)
 				{
+					if (pCivilian->GetDanger(pCommonPlot) == INT_MAX)
+						pCommonPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian, true, false, true);
+
 					bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
 					ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
 					if(GC.getLogging() && GC.getAILogging())

@@ -953,6 +953,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return 0;
 		}
+
+		EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+		if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
+		{
+			return 0;
+		}
+
 		int iFirstUnitID = 0;
 		//There's a settler waiting here? Abort!
 		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, iFirstUnitID) > 0)
@@ -984,127 +991,118 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		
-		int iSettleValuation = m_pCity->GetNearbySettleSiteValue();
-		if(iSettleValuation <= 0)
+		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+
+		if (GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
 		{
-			return 0;
-		}
-		//We have a good spot? Okay, let's see how important that is to us.
-		else
-		{
-			int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-
-			if (GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
+			EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+			if (eExpandOther != NO_ECONOMICAISTRATEGY)
 			{
-				// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
-				EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-				if (eExpandOther != NO_ECONOMICAISTRATEGY)
-				{
-					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
-					{
-						iFlavorExpansion += 4;
-					}
-				}
-
-				EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
-				if (eExpandOtherOffshore != NO_ECONOMICAISTRATEGY)
-				{
-					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
-					{
-						iFlavorExpansion += 4;
-					}
-				}
-			}
-
-			// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
-			EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-			if (eEarlyExpand != NO_ECONOMICAISTRATEGY)
-			{
-				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 				{
 					iFlavorExpansion += 4;
 				}
 			}
 
-			// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
-			EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
-			if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
+			EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
+			if (eExpandOtherOffshore != NO_ECONOMICAISTRATEGY)
 			{
-				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
 				{
-					iFlavorExpansion += 5;
+					iFlavorExpansion += 4;
 				}
 			}
+		}
 
-			if(kPlayer.getSettlerProductionModifier() > 0)
+		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
+		EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+		if (eEarlyExpand != NO_ECONOMICAISTRATEGY)
+		{
+			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 			{
-				iFlavorExpansion += 2;
+				iFlavorExpansion += 4;
 			}
-			if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
-			{
-				iFlavorExpansion += 2;
-			}
-			if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
-			{
-				iFlavorExpansion += 2;
-			}
-			if (GC.getGame().getCurrentEra() > kPlayer.getNumCities() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+		}
+
+		// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
+		EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+		if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
+		{
+			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 			{
 				iFlavorExpansion += 5;
 			}
-
-			if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-			{
-				iFlavorExpansion -= 4;
-			}
-			if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-			{
-				iFlavorExpansion -= 3;
-			}
-			if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true)) > 0)
-			{
-				iFlavorExpansion -= 3;
-			}
-			else if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true)) > 0 || kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AUTHORITY", true)) > 0)
-			{
-				iFlavorExpansion += 3;
-			}
-			MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-			// scale based on flavor and world size
-			if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-			{
-				iFlavorExpansion -= 3;
-			}
-
-			AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
-			bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-
-			if (bSeekingCultureVictory)
-			{
-				iFlavorExpansion -= 2;
-			}
-
-			eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
-			bool bSeekingSSVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
-
-			if (bSeekingSSVictory)
-			{
-				iFlavorExpansion -= 2;
-			}
-
-			int iNumCities = kPlayer.getNumCities();
-			
-			iFlavorExpansion -= iNumCities;
-			
-			if(iFlavorExpansion <= 0)
-			{
-				iFlavorExpansion = 1;
-			}
-			
-			int iSettlerDesire = (iFlavorExpansion * iSettleValuation);
-			iBonus += iSettlerDesire;
 		}
+
+		if(kPlayer.getSettlerProductionModifier() > 0)
+		{
+			iFlavorExpansion += 2;
+		}
+		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
+		{
+			iFlavorExpansion += 2;
+		}
+		if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
+		{
+			iFlavorExpansion += 2;
+		}
+		if (GC.getGame().getCurrentEra() > kPlayer.getNumCities() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+		{
+			iFlavorExpansion += 5;
+		}
+
+		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+		{
+			iFlavorExpansion -= 4;
+		}
+		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+		{
+			iFlavorExpansion -= 3;
+		}
+		if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true)) > 0)
+		{
+			iFlavorExpansion -= 3;
+		}
+		else if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true)) > 0 || kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AUTHORITY", true)) > 0)
+		{
+			iFlavorExpansion += 3;
+		}
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		// scale based on flavor and world size
+		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+		{
+			iFlavorExpansion -= 3;
+		}
+
+		AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
+		bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+
+		if (bSeekingCultureVictory)
+		{
+			iFlavorExpansion -= 2;
+		}
+
+		eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
+		bool bSeekingSSVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+
+		if (bSeekingSSVictory)
+		{
+			iFlavorExpansion -= 2;
+		}
+
+		int iNumCities = kPlayer.getNumCities();
+			
+		iFlavorExpansion -= iNumCities;
+			
+		if(iFlavorExpansion <= 0)
+		{
+			iFlavorExpansion = 1;
+		}
+			
+		iBonus += (iFlavorExpansion * 1000);
 	}
+
 	if(!kPlayer.isMinorCiv())
 	{
 		//Archaeologists? Only if we have digs nearby.

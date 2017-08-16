@@ -44917,12 +44917,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
 			continue;
 
-		if(pPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
-		{
-			vBadPlots.push_back(pPlot);
-			continue;
-		}
-
 		if(pPlot->getNumUnits() > 0)
 		{
 			IDInfo* pUnitNode = pPlot->headUnitNode();
@@ -44953,7 +44947,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	{
 		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 		bool isDangerous = false;
-		int iDistanceToSettler = plotDistance(*pTestPlot,*(pUnit->plot()));
+
+		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+		bool bCanReachThisTurn = (it != reachablePlots.end() && it->iTurns==0);
 
 		//check if it's too close to an enemy
 		for (size_t j=0; j<vBadPlots.size(); j++)
@@ -44962,7 +44958,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				continue;
 
 			int iDistanceToDanger = plotDistance(*pTestPlot,*(vBadPlots[j]));
-			if (iDistanceToDanger<5 && iDistanceToSettler>1)
+			if (iDistanceToDanger<4 && !bCanReachThisTurn)
 			{
 				isDangerous = true;
 				break;
@@ -44973,8 +44969,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (!isDangerous && !bWantOffshore)
 		{
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
-			//also consider settler plot here in case of re-targeting an operation
-			if (iDistanceToCity>4 && iDistanceToSettler>1)
+			//also consider distance to settler here in case of re-targeting an operation
+			if (iDistanceToCity>4 && !bCanReachThisTurn)
 				isDangerous = true;
 		}
 
@@ -44982,7 +44978,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (!isDangerous && !bWantOffshore)
 		{
 			//if the target plot is more than 6 turns away it's unsafe by definition
-			ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
 			if (it==reachablePlots.end() || it->iTurns>=6)
 				isDangerous = true;
 		}

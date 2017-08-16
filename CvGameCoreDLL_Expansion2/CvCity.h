@@ -94,9 +94,6 @@ public:
 	void SetTradePrioritySea(int iValue);
 	int GetTradePrioritySea(void) const;
 
-	void UpdateNearbySettleSites();
-	int GetNearbySettleSiteValue() const;
-
 	void ChangeTradeRouteSeaDistanceModifier(int iValue);
 	int GetTradeRouteSeaDistanceModifier() const;
 
@@ -1787,7 +1784,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iThreatRank;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
-	FAutoVariable<int, CvCity> m_iNearbySettlerValue;
+	FAutoVariable<int, CvCity> m_iDummy;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldownCivilian;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;

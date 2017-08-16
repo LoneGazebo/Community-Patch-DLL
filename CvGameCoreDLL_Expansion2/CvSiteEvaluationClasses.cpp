@@ -728,16 +728,28 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
+	if (iTotalProductionValue > 2 * iTotalFoodValue)
+	{
+		iValueModifier -= 5 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
+	}
+
 	if ( iTotalProductionValue > 4*iTotalFoodValue )
 	{
 		iValueModifier -= 10 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
+		if (pDebug) vQualifiersNegative.push_back("(V) very unbalanced yields (lacking food)");
+	}
+
+	if (iTotalFoodValue > 5 * iTotalProductionValue)
+	{
+		iValueModifier -= 10 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
 	if ( iTotalFoodValue > 10*iTotalProductionValue )
 	{
-		iValueModifier -= 10 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) very unbalanced yields (lacking hammers)");
 	}
 
 	if (pPlot->isRiver())
