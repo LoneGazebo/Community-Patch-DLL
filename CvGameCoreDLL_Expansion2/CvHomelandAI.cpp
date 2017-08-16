@@ -333,7 +333,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	return pBestPlot;
 }
 
-
 // PRIVATE METHODS
 
 /// Choose which moves to emphasize this turn
@@ -3524,10 +3523,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		}
 
 		//performance: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
-		const CvPathNodeArray& lastPath = pUnit->GetPathNodeArray();
-		if (lastPath.size()>11u)
+		if ( pUnit->GetMissionAIType()==MISSIONAI_EXPLORE && pUnit->GetMissionAIPlot() && plotDistance(*pUnit->plot(),*pUnit->GetMissionAIPlot())>10 )
 		{
-			CvPlot* pDestPlot = lastPath.GetFinalPlot();
+			CvPlot* pDestPlot = pUnit->GetMissionAIPlot();
 			const std::vector<SPlotWithScore>& vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit->getDomainType());
 
 			SPlotWithScore dummy(pDestPlot,0);
@@ -3536,11 +3534,15 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), 
 					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING, 
 					false, false, MISSIONAI_EXPLORE, pDestPlot);
+
 				if (!pUnit->canMove())
 				{
 					UnitProcessed(pUnit->GetID());
 					continue;
 				}
+
+				//don't want everybody running to the same place
+				m_pPlayer->GetEconomicAI()->RemoveExploreTarget(pUnit->getDomainType(),pDestPlot);
 			}
 		}
 
@@ -3606,10 +3608,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			}
 		}
 
-		int iUnitX = pUnit->getX();
-		int iUnitY = pUnit->getY();
-
-		const CvPlot* pCurPlot = GC.getMap().plot( iUnitX, iUnitY );
 		CvPlot* pBestPlot = NULL;
 		int iBestPlotScore = 0;
 		
@@ -3666,7 +3664,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
 			if(iScoreBase > 0)
 			{
-				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
+				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pUnit->plot());
 				int iScoreExtra = 0;
 
 				//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
@@ -3761,10 +3759,23 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				else
 					pBestPlot = 0;
 			}
+
+			//don't want everybody running to the same place
+			if (pBestPlot)
+				m_pPlayer->GetEconomicAI()->RemoveExploreTarget(pUnit->getDomainType(),pBestPlot);
 		}
 
 		if(pBestPlot && pBestPlot != pUnit->plot())
 		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				CvString strTemp = pUnit->getUnitInfo().GetDescription();
+				strLogString.Format("%s Explored to %s target, To X: %d, Y: %d, From X: %d, Y: %d",
+					strTemp.GetCString(), bFoundNearbyExplorePlot ? "nearby" : "distant", pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 
 				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING,
 				false, false, MISSIONAI_EXPLORE, pBestPlot);
@@ -3772,21 +3783,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			// Only mark as done if out of movement - we'll do a second pass later
 			if (!pUnit->canMove())
 				UnitProcessed(pUnit->GetID());
-
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				CvString strTemp = pUnit->getUnitInfo().GetDescription();
-				if (bFoundNearbyExplorePlot)
-				{
-					strLogString.Format("%s Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
-				}
-				else
-				{
-					strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
-				}
-				LogHomelandMessage(strLogString);
-			}
 		}
 		else //no target
 		{
@@ -8292,7 +8288,7 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 {
 	if(pUnit->GeneratePath(pTargetPlot,iFlags))
 	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags);
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags, false, false, MISSIONAI_HOMEMOVE, pTargetPlot);
 		return true;
 	}
 	else

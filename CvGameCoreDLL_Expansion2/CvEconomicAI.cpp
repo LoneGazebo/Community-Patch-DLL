@@ -1046,6 +1046,7 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 	strLog += str;
 }
 
+#if defined(MOD_BALANCE_CORE)
 const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
 {
 	if(m_bExplorationPlotsDirty)
@@ -1055,7 +1056,39 @@ const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes
 
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
-#if defined(MOD_BALANCE_CORE)
+
+bool CvEconomicAI::RemoveExploreTarget(DomainTypes eDomain, CvPlot * pPlot)
+{
+	struct PrPlotDistanceSmallerThan
+	{
+		int dist;
+		CvPlot* ref;
+		PrPlotDistanceSmallerThan(CvPlot* p, int d) : dist(d), ref(p) {}
+		bool operator()(const SPlotWithScore& test) const {
+			if (ref && test.pPlot)
+				return plotDistance(*test.pPlot, *ref) < dist;
+			return true;
+		}
+	};
+
+	std::vector<SPlotWithScore>& plots = (eDomain == DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
+	plots.erase( std::remove_if(plots.begin(), plots.end(), PrPlotDistanceSmallerThan(pPlot, 3)), plots.end() );
+
+	if (eDomain == DOMAIN_SEA && plots.size()!=m_vPlotsToExploreSea.size())
+	{
+		m_vPlotsToExploreSea = plots;
+		return true;
+	}
+
+	if (eDomain == DOMAIN_LAND && plots.size() != m_vPlotsToExploreLand.size())
+	{
+		m_vPlotsToExploreLand = plots;
+		return true;
+	}
+
+	return false;
+}
+
 void CvEconomicAI::SetExplorersNeeded(int iValue)
 {
 	if(iValue != m_iExplorersNeeded)
@@ -1063,10 +1096,12 @@ void CvEconomicAI::SetExplorersNeeded(int iValue)
 		m_iExplorersNeeded = iValue;
 	}
 }
+
 int CvEconomicAI::GetExplorersNeeded() const
 {
 	return m_iExplorersNeeded;
 }
+
 void CvEconomicAI::SetNavalExplorersNeeded(int iValue)
 {
 	if(iValue != m_iNavalExplorersNeeded)
@@ -1074,11 +1109,11 @@ void CvEconomicAI::SetNavalExplorersNeeded(int iValue)
 		m_iNavalExplorersNeeded = iValue;
 	}
 }
+
 int CvEconomicAI::GetNavalExplorersNeeded() const
 {
 	return m_iNavalExplorersNeeded;
 }
-#endif
 //	---------------------------------------------------------------------------
 //compute score for yet-to-be revealed plots
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
@@ -1149,6 +1184,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 
 	return iResultValue;
 }
+#endif
 
 /// Request that the AI set aside this much money
 void CvEconomicAI::StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority)

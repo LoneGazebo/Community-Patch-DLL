@@ -452,8 +452,9 @@ void CvTacticalAI::CommandeerUnits()
 		//LogTacticalMessage( CvString::format("looking to recruit %s %d at (%d,%d) with %d hp",
 		//	pLoopUnit->getName().c_str(),pLoopUnit->GetID(),pLoopUnit->getX(),pLoopUnit->getY(),pLoopUnit->GetCurrHitPoints()).c_str() );
 
-		// reset mission AI so we don't see stale information
-		if (pLoopUnit->GetMissionAIType()==MISSIONAI_ASSAULT)
+		// reset mission AI so we don't see stale information (debugging only)
+		// careful with explorers though, for performance reasons their mission is persistent
+		if (pLoopUnit->GetMissionAIType()!=MISSIONAI_EXPLORE)
 			pLoopUnit->SetMissionAI(NO_MISSIONAI,NULL,NULL);
 
 		//if we cannot heal in the capital, we can heal nowhere ...
@@ -6436,7 +6437,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 
 						if ( IsGoodPlotForStaging(m_pPlayer,pLoopPlot,pUnit->getDomainType()==DOMAIN_SEA) )
 						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY());
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlot->getX(), pLoopPlot->getY(), 0, false, false, MISSIONAI_BUILD);
 							TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 							bMoveMade = true;
 
@@ -6519,7 +6520,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 						TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 					// Move to the lowest danger value found
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
 
 					//see if we can do damage after retreating
 					if (pUnit->canMove() && pUnit->canRangeStrike())
@@ -7149,11 +7150,11 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 
 		if (pUnit->GeneratePath(pTarget,iFlags))
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 			bResult = true;
 
 			//for inspection in GUI
-			pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTarget,NULL);
+			pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
 		}
 
 		if(!bSaveMoves && bResult)
@@ -8709,7 +8710,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
 
 		//for inspection in GUI
-		pUnit->SetMissionAI(MISSIONAI_ASSAULT,pTarget,NULL);
+		pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
 
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
@@ -13309,7 +13310,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
 			if (bPrecondition)
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER); //don't take any detours because of danger
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER, false, false, MISSIONAI_OPMOVE); //don't take any detours because of danger
 			bPostcondition = (pUnit->plot() == pToPlot); //plot changed
 			break;
 		case STacticalAssignment::A_RANGEATTACK:
