@@ -424,7 +424,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	int iGoodPlotsInRing1 = 0;
+	int iGoodPlotsInRing1 = 0, iGoodPlotsInRing2 = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -499,15 +499,18 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iTotalStrategicValue += iStrategicValue;
 
 			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
+
+			// need at least some food in ring 1
+			if (iDistance == 1 &&  iFoodValue > 0)
+				iGoodPlotsInRing1++;
+			// and some hammers within ring 2
+			if (iDistance > 0 && iDistance < 3 && iProductionValue > 0)
+				iGoodPlotsInRing2++;
 		}
 
 		// for the central plot
 		if (iDistance==0)
 			if (pDebug) vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
-
-		// need at least some good plots in immediate range
-		if (iDistance==1 && iPlotValue>0)
-			iGoodPlotsInRing1++;
 
 		// avoid this
 		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
@@ -601,21 +604,20 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	if (iGoodPlotsInRing1<2)
-		return 0;
-
 	//take into account only the best 80% of the plots - in the near term the city will not work all plots anyways
 	std::stable_sort( workablePlots.begin(), workablePlots.end() );
 	size_t iIrrelevantPlots = workablePlots.size()*20/100;
 	for (size_t idx=iIrrelevantPlots; idx<workablePlots.size(); idx++)
-	{
-		SPlotWithScore& ref = workablePlots[idx];
-		iTotalPlotValue += ref.score;
-	}
+		iTotalPlotValue += workablePlots[idx].score;
 
-	if (iTotalPlotValue<0)
+	//hard cutoffs
+	if (iTotalPlotValue < 0)
 		return 0;
-	
+	if (iGoodPlotsInRing1 < 1)
+		return 0;
+	if (iGoodPlotsInRing2 < 1)
+		return 0;
+
 	//civ-specific bonuses
 	if (pPlayer)
 	{
@@ -730,25 +732,25 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 	if (iTotalProductionValue > 2 * iTotalFoodValue)
 	{
-		iValueModifier -= 5 * iTotalPlotValue / 100;
+		iValueModifier -= 10 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
 	if ( iTotalProductionValue > 4*iTotalFoodValue )
 	{
-		iValueModifier -= 10 * iTotalPlotValue / 100;
+		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) very unbalanced yields (lacking food)");
 	}
 
 	if (iTotalFoodValue > 5 * iTotalProductionValue)
 	{
-		iValueModifier -= 10 * iTotalPlotValue / 100;
+		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
 	if ( iTotalFoodValue > 10*iTotalProductionValue )
 	{
-		iValueModifier -= 20 * iTotalPlotValue / 100;
+		iValueModifier -= 40 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) very unbalanced yields (lacking hammers)");
 	}
 

@@ -3787,81 +3787,43 @@ CvPlot* OperationalAIHelpers::FindBestCoastalBombardmentTarget(PlayerTypes ePlay
 /// Find the barbarian camp we want to eliminate
 CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppMuster)
 {
-	int iPlotLoop;
 	CvPlot* pBestPlot = NULL;
 	CvCity* pClosestCity = NULL;
-	//We don't want the AI chasing barbs all over the world.
-	int iBestPlotDistance = 15;
-
+	int iBestScore = 0;
 	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
 
-	// look for good captured civilians of ours (settlers and workers, not missionaries) 
-	// these will be even more important than just a camp
-	// btw - the AI will cheat here - as a human I would use a combination of memory and intuition to find these, since our current AI has neither of these...
-	CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-
-	CvUnit* pLoopUnit = NULL;
-	int iLoop;
-	for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
+	// Look at map for Barbarian camps
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		if (pLoopUnit->GetOriginalOwner() != BARBARIAN_PLAYER && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER))
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		if (pPlot->getImprovementType() != eBarbCamp)
+			continue;
+
+		// slight AI cheating - enough if adjacent plot is revealed
+		if (!pPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()) && !pPlot->isAdjacentRevealed(GET_PLAYER(ePlayer).getTeam()))
+			continue;
+
+		// bonus for captured civilians (settlers and workers, not missionaries)
+		int iDummy;
+		int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 2;
+
+		int iCityLoop;
+		// Loop through each of our cities
+		for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
-			CvCity* pLoopCity;
-			int iCityLoop;
-			// Loop through each of our cities
-			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+			if(pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+				continue;
+
+			int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+			if(pPlot->getArea() != pLoopCity->getArea())
+				iCurPlotDistance *= 2;
+
+			int iScore = 1000 - iCurPlotDistance + iBonus;
+			if (iScore > iBestScore)
 			{
-				if(pLoopUnit->plot()->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
-				{
-					continue;
-				}
-
-				int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pLoopUnit->getX(), pLoopUnit->getY());
-					
-				if (iCurPlotDistance < iBestPlotDistance)
-				{
-					pBestPlot = pLoopUnit->plot();
-					iBestPlotDistance = iCurPlotDistance;
-					pClosestCity = pLoopCity;
-				}
-			}
-		}
-	}
-
-	if (pBestPlot == NULL)
-	{
-		// Look at map for Barbarian camps - don't check if they are revealed ... that's the cheating part
-		for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-			if (pPlot->getImprovementType() == eBarbCamp)
-			{
-				CvCity* pLoopCity;
-				int iCityLoop;
-				// Loop through each of our cities
-				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						if(pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
-						{
-							continue;
-						}
-
-						int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
-						if(pPlot->getArea() != pLoopCity->getArea())
-						{
-							iCurPlotDistance *= 2;
-						}
-
-						if (iCurPlotDistance < iBestPlotDistance)
-						{
-							pBestPlot = pPlot;
-							iBestPlotDistance = iCurPlotDistance;
-							pClosestCity = pLoopCity;
-						}
-					}
-				}
+				pBestPlot = pPlot;
+				iBestScore = iScore;
+				pClosestCity = pLoopCity;
 			}
 		}
 	}

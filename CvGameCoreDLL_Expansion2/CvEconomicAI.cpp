@@ -2579,8 +2579,8 @@ void CvEconomicAI::DoReconState()
 	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, true);
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
-	// estimate one explorer per x open plots, depending on personality
-	int iPlotsPerExplorer = 30 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
+	int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	SetExplorersNeeded(iNumExplorersNeededTimes100 / 100);
@@ -2652,16 +2652,11 @@ void CvEconomicAI::DoReconState()
 	// NAVAL RECON ACROSS THE ENTIRE MAP
 
 	// No coastal cities?  Moot point...
-	CvCity* pLoopCity;
 	int iCityLoop;
 	bool bFoundCoastalCity = false;
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bFoundCoastalCity; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-	{
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bFoundCoastalCity; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		if(pLoopCity->isCoastal())
-		{
 			bFoundCoastalCity = true;
-		}
-	}
 
 	if(!bFoundCoastalCity)
 	{
@@ -2671,9 +2666,9 @@ void CvEconomicAI::DoReconState()
 	{
 		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, true);
 		int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
-		int iPlotsPerExplorer = 30 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
 
-		// estimate one explorer per x open plots
+		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
+		int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
 		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
 
 		SetNavalExplorersNeeded(iNumExplorersNeededTimes100 / 100);
