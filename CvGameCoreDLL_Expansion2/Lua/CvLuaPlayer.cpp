@@ -1219,6 +1219,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCurrentOfficeBenefit);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
+	Method(GetHolyCityCapitalTradeRouteYieldModifier);
 	Method(GetInternationalTradeRouteTotal);
 	Method(GetInternationalTradeRouteScience);
 #if defined(MOD_BALANCE_CORE)
@@ -4616,6 +4617,35 @@ int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetHolyCityCapitalTradeRouteYieldModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	int iResult = 0;
+	if (pOriginCity->isCapital() || pOriginCity->GetCityReligions()->IsHolyCityAnyReligion())
+	{
+		if (pOriginCity->getOwner() == pDestCity->getOwner())
+		{
+			iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER);
+		}
+		else
+		{
+			iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER);
+		}
+	}
+	else
+	{
+		if (pOriginCity->getOwner() == pDestCity->getOwner())
+		{
+			iResult += pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -4708,6 +4738,8 @@ int CvLuaPlayer::lGetInternationalTradeRouteProduction(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
+	else
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_PRODUCTION;
 
 	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_PRODUCTION, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4732,6 +4764,8 @@ int CvLuaPlayer::lGetInternationalTradeRouteFood(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
+	else
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_FOOD;
 
 	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_FOOD, bOrigin);
 	lua_pushinteger(L, iResult);

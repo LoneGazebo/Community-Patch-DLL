@@ -588,6 +588,7 @@ void CvPlayerCorporations::DestroyCorporation()
 		if(pCity->HasBuilding(eHeadquarters))
 		{
 			pCity->GetCityBuildings()->SetNumRealBuilding(eHeadquarters, 0);
+			GC.getGame().decrementBuildingClassCreatedCount(eHeadquartersClass);
 		}
 
 		// City has office?

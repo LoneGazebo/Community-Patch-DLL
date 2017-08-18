@@ -7835,6 +7835,14 @@ void CvGame::incrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
 	m_paiBuildingClassCreatedCount[eIndex]++;
 }
 
+//	--------------------------------------------------------------------------------
+void CvGame::decrementBuildingClassCreatedCount(BuildingClassTypes eIndex)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiBuildingClassCreatedCount[eIndex]--;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvGame::getProjectCreatedCount(ProjectTypes eIndex)

@@ -851,7 +851,7 @@ public:
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
 
-	bool IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage=NULL) const;
+	bool IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage=NULL, PromotionTypes ePromotion = NO_PROMOTION) const;
 
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;

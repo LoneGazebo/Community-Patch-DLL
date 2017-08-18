@@ -1146,7 +1146,7 @@ public:
 	void changeExtraAttacks(int iChange);
 
 	// Citadel
-	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
+	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL, PromotionTypes ePromotion = NO_PROMOTION) const;
 
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1437,6 +1437,12 @@ public:
 	void changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange);
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange);
+
+	int getUnitClassAttackMod(UnitClassTypes eUnitClass) const;
+	void changeUnitClassAttackMod(UnitClassTypes eUnitClass, int iChange);
+
+	int getUnitClassDefenseMod(UnitClassTypes eUnitClass) const;
+	void changeUnitClassDefenseMod(UnitClassTypes eUnitClass, int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int getYieldFromKills(YieldTypes eIndex) const;
@@ -2035,6 +2041,8 @@ protected:
 	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainDefensePercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureAttackPercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureDefensePercent;
+	FAutoVariable<std::map<UnitClassTypes, int>, CvUnit> m_extraUnitClassAttackMod;
+	FAutoVariable<std::map<UnitClassTypes, int>, CvUnit> m_extraUnitClassDefenseMod;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvUnit> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromScouting;

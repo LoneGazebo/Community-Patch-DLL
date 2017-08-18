@@ -229,6 +229,15 @@
 			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY">
+			<Text>Naval Inaccuracy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY_HELP">
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
+		</Row>
+
+		
+
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
 			<Text>Covering Fire I</Text>
 		</Row>
@@ -555,6 +564,20 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4_HELP">
 			<Text>+50% bonus to [COLOR_POSITIVE_TEXT]Flank Attack[ENDCOLOR] [ICON_STRENGTH] Combat Strength bonus.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_VIKING">
+			<Text>Viking</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
+			<Text>Costs no [ICON_MOVES] Movement points to Pillage. Gain 200% of damage dealt to Cities as [ICON_GOLD] Gold. 25% [ICON_STRENGTH] Combat Strength on Pillaged Tiles, and -25% [ICON_STRENGTH] Damage from Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
+			<Text>Longboat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
+			<Text>Costs no [ICON_MOVES] Movement points to Pillage. Gain 200% of damage dealt to Cities as [ICON_GOLD] Gold. Ignores Zone of Control, and takes -20% [ICON_STRENGTH] Damage from Cities.</Text>
 		</Row>
 
 

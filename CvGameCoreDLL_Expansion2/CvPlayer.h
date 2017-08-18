@@ -804,6 +804,7 @@ public:
 	int GetVassalCSBonusModifier() const;
 #endif
 
+	void UpdateHappinessFromMinorCivs();
 	int GetHappinessFromMinorCivs() const;
 	int GetHappinessFromMinor(PlayerTypes eMinor) const;
 
@@ -1175,7 +1176,7 @@ public:
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
-	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName);
+	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -2908,6 +2909,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
 	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
+	FAutoVariable<int, CvPlayer> m_iHappinessFromMinorCivs;
 	FAutoVariable<int, CvPlayer> m_iPositiveWarScoreTourismMod;
 	FAutoVariable<int, CvPlayer> m_iIsNoCSDecayAtWar;
 	FAutoVariable<int, CvPlayer> m_iCanBullyFriendlyCS;

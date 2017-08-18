@@ -2154,7 +2154,7 @@ int CvGameReligions::GetNumPantheonsCreated() const
 	return iRtnValue;
 }
 
-int CvGameReligions::GetNumPantheonsPossible() const
+int CvGameReligions::GetNumPantheonsPossible(bool bExcludeUnique) const
 {
 	int iRtnValue = 0;
 
@@ -2167,7 +2167,17 @@ int CvGameReligions::GetNumPantheonsPossible() const
 		CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
 		if (pBelief && pBelief->IsPantheonBelief())
 		{
-			iRtnValue++;
+			if (bExcludeUnique)
+			{
+				if (pBelief->GetRequiredCivilization() == NO_CIVILIZATION)
+				{
+					iRtnValue++;
+				}
+			}
+			else
+			{
+				iRtnValue++;
+			}
 		}
 	}
 
@@ -2327,7 +2337,7 @@ bool CvGameReligions::IsPantheonBeliefAvailable(BeliefTypes eBelief)
 		}
 	}
 #if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-	if (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() >= GC.getGame().GetGameReligions()->GetNumPantheonsPossible())
+	if (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() >= GC.getGame().GetGameReligions()->GetNumPantheonsPossible(true))
 	{
 		return true;
 	}
@@ -3357,9 +3367,9 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		if(eReligion >= RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
 		{
 			int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
-			if(iPopReligionModifer > 400)
+			if(iPopReligionModifer > 350)
 			{
-				iPopReligionModifer = 400;
+				iPopReligionModifer = 350;
 			}
 			if (iPopReligionModifer != 0)
 			{
@@ -8499,7 +8509,12 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 
 	iRtnValue += iScorePlayer;
 
-	iRtnValue += GC.getGame().getJonRandNum((60-(GC.getGame().getHandicapInfo().GetID()*5)), "Faith rand weight.");
+	int iRand = 0;
+	if (iRtnValue > 0)
+	{
+		iRand = GC.getGame().getJonRandNum((100 - (GC.getGame().getHandicapInfo().GetID() * 5)), "Faith rand weight.");
+		iRtnValue += iRand;
+	}
 
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -8521,7 +8536,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 		strBaseString += playerName + ", ";
 
 		strDesc = GetLocalizedText(pEntry->getShortDescription());
-		strTemp.Format("Belief, %s, Plot: %d, City: %d, Player: %d", strDesc.GetCString(), iScorePlot, iScoreCity, iScorePlayer);
+		strTemp.Format("Belief, %s, Plot: %d, City: %d, Player: %d, Rand: %d", strDesc.GetCString(), iScorePlot, iScoreCity, iScorePlayer, iRand);
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}
@@ -9906,6 +9921,10 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 
 	if (iGPTemp != 0)
 	{
+		if (m_pPlayer->GetPlayerTraits()->GetCityConquestGWAM() > 0)
+		{
+			iGPTemp *= 2;
+		}
 		for (int iK = 0; iK < GC.getNumGreatPersonInfos(); iK++)
 		{
 			if (m_pPlayer->GetPlayerTraits()->GetGreatPersonGWAM((GreatPersonTypes)iK) != 0)

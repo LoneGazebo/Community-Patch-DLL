@@ -10,57 +10,66 @@ UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE  DoFWillingness 
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE  Loyalty >= 6;
 UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE  DiploBalance >= 6;
 UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE  MinorCivCompetitiveness >= 6;
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE  Boldness >= 6;
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE  WarmongerHate >= 6;
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE  Boldness >= 7;
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE  WonderCompetitiveness <= 3;
 
 -- Leaders
 
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_ASHURBANIPAL';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_HARALD';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_ATTILA';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_ODA_NOBUNAGA';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_GENGHIS_KHAN';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_NAPOLEON';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_MONTEZUMA';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_AUGUSTUS';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_ASKIA';
-UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    , WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Type = 'LEADER_SHAKA';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_PACAL';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_SEJONG';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_PACHACUTI';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_ELIZABETH';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_MARIA_I';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_CASIMIR';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_ENRICO_DANDOLO';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_KAMEHAMEHA';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_WILLIAM';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_ISABELLA';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_WASHINGTON';
 
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_PACAL';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_SEJONG';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_PACHACUTI';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_ELIZABETH';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_MARIA_I';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_CASIMIR';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_ENRICO_DANDOLO';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_KAMEHAMEHA';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_WILLIAM';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_ISABELLA';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Type = 'LEADER_WASHINGTON';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_ASHURBANIPAL';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_HARALD';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_ATTILA';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_ODA_NOBUNAGA';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_GENGHIS_KHAN';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_NAPOLEON';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_MONTEZUMA';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_AUGUSTUS';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_ASKIA';
+UPDATE Leaders SET Personality='PERSONALITY_CONQUEROR'    WHERE Type = 'LEADER_SHAKA';
 
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_HIAWATHA';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_BOUDICCA';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_POCATELLO';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_MARIA';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_PEDRO';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_GANDHI';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_AHMAD_ALMANSUR';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_BISMARCK';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_RAMKHAMHAENG';
-UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Type = 'LEADER_SELASSIE';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_HIAWATHA';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_BOUDICCA';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_POCATELLO';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_MARIA';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_PEDRO';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_GANDHI';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_AHMAD_ALMANSUR';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_BISMARCK';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_RAMKHAMHAENG';
+UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     WHERE Type = 'LEADER_SELASSIE';
 
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_THEODORA';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_HARUN_AL_RASHID';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_NEBUCHADNEZZAR';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_DIDO';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_ALEXANDER';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_CATHERINE';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_RAMESSES';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_WU_ZETIAN';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_SULEIMAN';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_DARIUS';
-UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' , WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Type = 'LEADER_GAJAH_MADA';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_THEODORA';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_HARUN_AL_RASHID';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_NEBUCHADNEZZAR';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_DIDO';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_ALEXANDER';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_CATHERINE';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_RAMESSES';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_WU_ZETIAN';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_SULEIMAN';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_DARIUS';
+UPDATE Leaders SET Personality='PERSONALITY_EXPANSIONIST' WHERE Type = 'LEADER_GAJAH_MADA';
+
+
+UPDATE Leaders SET WonderCompetitiveness=6, MinorCivCompetitiveness=7, Boldness=4, WarmongerHate=7, DenounceWillingness=9, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=7, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=5 WHERE Personality = 'PERSONALITY_COALITION';
+
+UPDATE Leaders SET WonderCompetitiveness=4, MinorCivCompetitiveness=3, Boldness=6, WarmongerHate=3, DenounceWillingness=7, DoFWillingness=2, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=5, Neediness=6, Forgiveness=2, Chattiness=4, Meanness=9 WHERE Personality = 'PERSONALITY_CONQUEROR';
+
+UPDATE Leaders SET WonderCompetitiveness=8, MinorCivCompetitiveness=9, Boldness=2, WarmongerHate=9, DenounceWillingness=3, DoFWillingness=8, VictoryCompetitiveness=8, DiploBalance=6, Loyalty=9, Neediness=8, Forgiveness=6, Chattiness=4, Meanness=3 WHERE Personality = 'PERSONALITY_DIPLOMAT';
+
+UPDATE Leaders SET WonderCompetitiveness=2, MinorCivCompetitiveness=5, Boldness=8, WarmongerHate=5, DenounceWillingness=5, DoFWillingness=4, VictoryCompetitiveness=8, DiploBalance=2, Loyalty=3, Neediness=2, Forgiveness=4, Chattiness=4, Meanness=7 WHERE Personality = 'PERSONALITY_EXPANSIONIST';
 
 -------------------------------------------------------------------------------------NATIONALISTS-------------------------------------------------------------------------------------
 UPDATE Leader_MajorCivApproachBiases SET Bias =    8 WHERE LeaderType = 'LEADER_ASHURBANIPAL'         AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';

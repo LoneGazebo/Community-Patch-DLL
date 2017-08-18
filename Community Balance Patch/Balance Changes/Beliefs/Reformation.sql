@@ -103,7 +103,7 @@ VALUES
 
 INSERT INTO Belief_GreatWorkYieldChanges(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_UNITY_OF_PROPHETS', 'YIELD_CULTURE', '1');
+	('BELIEF_UNITY_OF_PROPHETS', 'YIELD_CULTURE', '2');
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)

@@ -44,6 +44,9 @@ INSERT INTO Policy_SpecialistExtraYields
 VALUES
 	('POLICY_ORGANIZED_RELIGION', 'YIELD_FAITH', 1);
 
+DELETE FROM Policy_BuildingClassYieldChanges
+WHERE PolicyType = 'POLICY_ORGANIZED_RELIGION';
+
 -- Mandate of Heaven (Now Trade Fairs)
 UPDATE Policies
 SET FaithCostModifier = '0'

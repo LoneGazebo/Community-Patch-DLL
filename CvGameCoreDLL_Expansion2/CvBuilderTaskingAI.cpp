@@ -401,7 +401,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 	//maybe a lighthouse is just as good?
 	if (pPlayerCapital->isCoastal() && pTargetCity->isCoastal() && pPlayerCapital->isMatchingArea(pTargetCity->plot()))
-		if (iNetGoldTimes100<0)
+		if (iNetGoldTimes100<500)
 			return;
 
 	//see if the new route makes sense economically
@@ -417,26 +417,27 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		int iSideBenefits = iRoadLength * 80;
+		int iSideBenefits = iRoadLength * 70;
 		// give an additional bump if we're almost done (don't get distracted)
-		if (iPlotsNeeded<3)
-			iSideBenefits += 200;
+		if (iPlotsNeeded<=3)
+			iSideBenefits += 10000;
 
 		if(pTargetCity->getUnhappinessFromConnection() > 0)
 		{
-			//assume one unhappiness is worth 5 gold per turn
-			iSideBenefits += (pTargetCity->getUnhappinessFromConnection() * 500);
+			//assume one unhappiness is worth 10 gold per turn
+			iSideBenefits += (pTargetCity->getUnhappinessFromConnection() * 1000);
 		}
 
 		if(bIndustrialRoute)
 		{
-			iSideBenefits = iPlotsNeeded * 100 + pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
+			iSideBenefits += (pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD());
 		}
 
-		int iProfit = iGoldForRoute + iSideBenefits - (iPlotsNeeded*iMaintenancePerTile);
+		//bring it out of the hundreds
+		int iProfit = (iGoldForRoute + iSideBenefits - ((iRoadLength + iWildPlots)*iMaintenancePerTile)) / 100;
 		if (iProfit < 0)
 			return;
-		else if (iNetGoldTimes100<0 && iProfit<-iNetGoldTimes100)
+		else if (iNetGoldTimes100<=0 && iProfit<-iNetGoldTimes100)
 			return;
 		else
 			sValue = min(iProfit, MAX_SHORT);
@@ -870,6 +871,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddChopDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddScrubFalloutDirectives(pUnit, pPlot, iMoveTurnsAway);
+		AddRepairTilesDirectives(pUnit, pPlot, iMoveTurnsAway);
+		AddRemoveRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
 	}
 
 	// we need to evaluate the tiles outside of our territory to build roads
@@ -1124,6 +1127,9 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		return;
 	}
 
+	if (pPlot->IsImprovementPillaged())
+		return;
+
 	// loop through the build types to find one that we can use
 	BuildTypes eBuild;
 	BuildTypes eOriginalBuild;
@@ -1157,22 +1163,15 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		{
 			if(eImprovement == eExistingPlotImprovement)
 			{
-				if(pPlot->IsImprovementPillaged())
+				if(pkImprovementInfo->IsAdjacentCity())
 				{
-					eBuild = m_eRepairBuild;
+					//break if adjacent already here.
+					break;
 				}
 				else
 				{
-					if(pkImprovementInfo->IsAdjacentCity())
-					{
-						//break if adjacent already here.
-						break;
-					}
-					else
-					{
-						// this plot already has the appropriate improvement to use the resource
-						continue;
-					}
+					// this plot already has the appropriate improvement to use the resource
+					continue;
 				}
 			}
 			else
@@ -1192,12 +1191,6 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			//if we're building a great person improvement, putting it on a resource is the last resort ...
 			if (pkImprovementInfo->IsCreatedByGreatPerson())
 				iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
-
-			if(eBuild == m_eRepairBuild)
-			{
-				eDirectiveType = BuilderDirective::REPAIR;
-				iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
-			}
 
 			iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
 
@@ -1339,6 +1332,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			}
 		}
 	}
+
+	if (pPlot->IsImprovementPillaged())
+		return;
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE && !m_bEvaluateAdjacent)
 	{
@@ -1395,19 +1392,12 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		if(eImprovement == pPlot->getImprovementType())
 		{
-			if(pPlot->IsImprovementPillaged())
-			{
-				eBuild = m_eRepairBuild;
+			if(m_bLogging){
+				CvString strTemp;
+				strTemp.Format("Weight,eImprovement == pPlot->getImprovementType(),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eImprovement, pPlot->getX(), pPlot->getY());
+				LogInfo(strTemp, m_pPlayer);
 			}
-			else
-			{
-				if(m_bLogging){
-					CvString strTemp;
-					strTemp.Format("Weight,eImprovement == pPlot->getImprovementType(),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eImprovement, pPlot->getX(), pPlot->getY());
-					LogInfo(strTemp, m_pPlayer);
-				}
-				continue;
-			}
+			continue;
 		}
 		else
 		{
@@ -1515,11 +1505,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT;
 		int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
-		if(eBuild == m_eRepairBuild)
-		{
-			eDirectiveType = BuilderDirective::REPAIR;
-			iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
-		}
 #if !defined(MOD_API_UNIFIED_YIELDS)
 		else if(pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
 		{
@@ -1568,6 +1553,86 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 }
 
 /// Adds a directive if the unit can construct a road in the plot
+void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+{
+	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
+
+	// if the player can't build a route, bail out!
+	if (eBestRouteType == NO_ROUTE)
+	{
+		return;
+	}
+
+	if (pPlot->getRouteType() == NO_ROUTE)
+	{
+		return;
+	}
+
+	if (pPlot->isCity())
+		return;
+
+	// the plot was not flagged this turn, so ignore
+	bool bShouldRoadThisTile = (pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn()) && (pPlot->GetBuilderAIScratchPadPlayer() == pUnit->getOwner());
+	if (bShouldRoadThisTile)
+	{
+		return;
+	}
+
+	if (pPlot->IsCityConnection(m_pPlayer->GetID()))
+		return;
+
+	// find the route build
+	BuildTypes eRouteBuild = NO_BUILD;
+
+	RouteTypes eRoute = pPlot->GetBuilderAIScratchPadRoute();
+	for (int i = 0; i < GC.getNumBuildInfos(); i++)
+	{
+		BuildTypes eBuild = (BuildTypes)i;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if (pkBuild && pkBuild->getRoute() == eRoute)
+		{
+			eRouteBuild = eBuild;
+			break;
+		}
+	}
+
+	if (eRouteBuild == NO_BUILD)
+	{
+		return;
+	}
+
+	CvUnitEntry& kUnitInfo = pUnit->getUnitInfo();
+	if (!kUnitInfo.GetBuilds(eRouteBuild))
+	{
+		return;
+	}
+
+	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES();
+	BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::REMOVE_ROAD;
+
+	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
+	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false);
+	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+
+	BuilderDirective directive;
+	directive.m_eDirective = eDirectiveType;
+	directive.m_eBuild = NO_BUILD;
+	directive.m_eResource = NO_RESOURCE;
+	directive.m_sX = pPlot->getX();
+	directive.m_sY = pPlot->getY();
+	directive.m_sMoveTurnsAway = iMoveTurnsAway;
+
+	if (m_bLogging)
+	{
+		CvString strTemp;
+		strTemp.Format("RemoveRouteDirectives, adding, x: %d y: %d, Weight, %d", pPlot->getX(), pPlot->getY(), iWeight);
+		LogInfo(strTemp, m_pPlayer);
+	}
+
+	m_aDirectives.push_back(directive, iWeight);
+}
+
+/// Adds a directive if the unit can construct a road in the plot
 void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway, int iGold)
 {
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
@@ -1582,6 +1647,9 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	{
 		return;
 	}
+
+	if (pPlot->IsRoutePillaged())
+		return;
 
 	// the plot was not flagged this turn, so ignore
 	bool bShouldRoadThisTile = (pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn()) && (pPlot->GetBuilderAIScratchPadPlayer() == pUnit->getOwner());
@@ -1608,22 +1676,16 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 
 	// find the route build
 	BuildTypes eRouteBuild = NO_BUILD;
-	if(pPlot->IsRoutePillaged())
+
+	RouteTypes eRoute = pPlot->GetBuilderAIScratchPadRoute();
+	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
-		eRouteBuild = m_eRepairBuild;
-	}
-	else
-	{
-		RouteTypes eRoute = pPlot->GetBuilderAIScratchPadRoute();
-		for(int i = 0; i < GC.getNumBuildInfos(); i++)
+		BuildTypes eBuild = (BuildTypes)i;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if(pkBuild && pkBuild->getRoute() == eRoute)
 		{
-			BuildTypes eBuild = (BuildTypes)i;
-			CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-			if(pkBuild && pkBuild->getRoute() == eRoute)
-			{
-				eRouteBuild = eBuild;
-				break;
-			}
+			eRouteBuild = eBuild;
+			break;
 		}
 	}
 
@@ -1653,11 +1715,6 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 
 	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES();
 	BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_ROUTE;
-	if(eRouteBuild == m_eRepairBuild)
-	{
-		iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR();
-		eDirectiveType = BuilderDirective::REPAIR;
-	}
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false);
@@ -1700,6 +1757,9 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	{
 		return;
 	}
+
+	if (pPlot->IsImprovementPillaged())
+		return;
 
 	// check to see if a resource is here. If so, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1906,7 +1966,58 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		}
 	}
 }
+void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
+{
+	// if it's not within a city radius
+	if (!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
+	{
+		return;
+	}
 
+	//nothing pillaged here? hmm...
+	if (!pPlot->IsImprovementPillaged() && !pPlot->IsRoutePillaged())
+	{
+		return;
+	}
+
+	int iWeight = GC.getBUILDER_TASKING_BASELINE_REPAIR() * 100;
+
+	iWeight = GetBuildCostWeight(iWeight, pPlot, m_eRepairBuild);
+	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
+	iWeight += iBuildTimeWeight;
+
+#if defined(MOD_BALANCE_CORE)
+	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+#endif
+
+	if (iWeight > 0)
+	{
+		BuilderDirective directive;
+		directive.m_eDirective = BuilderDirective::REPAIR;
+		directive.m_eBuild = m_eRepairBuild;
+		directive.m_eResource = NO_RESOURCE;
+		directive.m_sX = pPlot->getX();
+		directive.m_sY = pPlot->getY();
+		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eChopBuild);
+		directive.m_sMoveTurnsAway = iMoveTurnsAway;
+
+		if (m_bLogging)
+		{
+			CvString strTemp;
+			strTemp.Format("BuildTimeWeight, %d, Weight, %d", iBuildTimeWeight, iWeight);
+			LogInfo(strTemp, m_pPlayer);
+		}
+
+		m_aDirectives.push_back(directive, iWeight);
+	}
+	else
+	{
+		if (m_bLogging)
+		{
+			LogInfo("Add repair directive, Weight is zero!", m_pPlayer);
+		}
+	}
+}
 // Everything means less than zero, hey
 void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
@@ -1923,7 +2034,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 
 	if(pPlot->getFeatureType() == m_eFalloutFeature && pUnit->canBuild(pPlot, m_eFalloutRemove))
 	{
-		int iWeight = GC.getBUILDER_TASKING_BASELINE_SCRUB_FALLOUT();
+		int iWeight = GC.getBUILDER_TASKING_BASELINE_SCRUB_FALLOUT() * 1000;
 		//int iTurnsAway = FindTurnsAway(pUnit, pPlot);
 #if !defined(MOD_BALANCE_CORE)
 		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
@@ -2240,14 +2351,6 @@ int CvBuilderTaskingAI::GetBuildCostWeight(int iWeight, CvPlot* pPlot, BuildType
 /// Get the weight determined by the building time of the item
 int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreFeatureTime, int iAdditionalTime)
 {
-	// if we need to repair this plot, replace the build with a repair build
-	if((GC.getBuildInfo(eBuild)->getImprovement() != NO_IMPROVEMENT && pPlot->IsImprovementPillaged()) || (GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && pPlot->IsRoutePillaged()))
-	{
-		// find a repair directive to replace
-		// find the repair build
-		eBuild = m_eRepairBuild;
-	}
-
 	int iBuildTimeNormal = pPlot->getBuildTime(eBuild, m_pPlayer->GetID());
 	int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, m_pPlayer->GetID(), pUnit->workRate(true), pUnit->workRate(true));
 	int iBuildTime = min(iBuildTimeNormal, iBuildTurnsLeft);

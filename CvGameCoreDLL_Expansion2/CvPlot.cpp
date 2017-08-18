@@ -14344,7 +14344,7 @@ bool CvPlot::HasWrittenArtifact() const
 
 //	--------------------------------------------------------------------------------
 // Citadel
-bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
+bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage, PromotionTypes ePromotion) const
 {
 	VALIDATE_OBJECT
 
@@ -14385,23 +14385,13 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 			}
 		}
 	}
-	for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+	
+	if(ePromotion != NO_PROMOTION && IsWithinDistanceOfUnitPromotion(ePlayer, ePromotion, 1, false, true))
 	{
-		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-		if(pkPromotionInfo != NULL)
-		{
-			if(pkPromotionInfo->GetNearbyEnemyDamage() > 0)
-			{
-				if(IsWithinDistanceOfUnitPromotion(ePlayer, eLoopPromotion, 1, false, true))
-				{
-					iDamage = pkPromotionInfo->GetNearbyEnemyDamage();
-					if(piCitadelDamage)
-						*piCitadelDamage = iDamage;
-					return true;
-				}
-			}
-		}
+		iDamage = GC.getPromotionInfo(ePromotion)->GetNearbyEnemyDamage();
+		if(piCitadelDamage)
+			*piCitadelDamage = iDamage;
+		return true;
 	}
 
 	return false;

@@ -134,6 +134,7 @@ public:
 	int GetTourismToGAP() const;
 	int GetInfluenceMeetCS() const;
 	int GetMultipleAttackBonus() const;
+	int GetCityConquestGWAM() const;
 	int GetEventTourismBoost() const;
 	int GetEventGP() const;
 	int GetWLTKDCulture() const;
@@ -455,6 +456,7 @@ protected:
 	int m_iTourismToGAP;
 	int m_iInfluenceMeetCS;
 	int m_iMultipleAttackBonus;
+	int m_iCityConquestGWAM;
 	int m_iEventTourismBoost;
 	int m_iEventGP;
 	int m_iWonderProductionModifierToBuilding;
@@ -1021,6 +1023,10 @@ public:
 	int GetMultipleAttackBonus() const
 	{
 		return m_iMultipleAttackBonus;
+	};
+	int GetCityConquestGWAM() const
+	{
+		return m_iCityConquestGWAM;
 	};
 	int GetEventTourismBoost() const
 	{
@@ -1783,6 +1789,7 @@ private:
 	int m_iTourismToGAP;
 	int m_iInfluenceMeetCS;
 	int m_iMultipleAttackBonus;
+	int m_iCityConquestGWAM;
 	int m_iEventTourismBoost;
 	int m_iWLTKDGPImprovementModifier;
 	int m_iGrowthBoon;

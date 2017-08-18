@@ -213,7 +213,7 @@ public:
 	BeliefTypes GetBeliefInPantheon(PlayerTypes ePlayer) const;
 	bool HasCreatedPantheon(PlayerTypes ePlayer) const;
 	int GetNumPantheonsCreated() const;
-	int GetNumPantheonsPossible() const;
+	int GetNumPantheonsPossible(bool bExcludeUnique = false) const;
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
 	std::vector<BeliefTypes> GetAvailablePantheonBeliefs(PlayerTypes ePlayer=NO_PLAYER);
 #else

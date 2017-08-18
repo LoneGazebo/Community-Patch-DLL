@@ -2191,7 +2191,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//won't give up the city at any price if we're not friends
 			if(bOurs)
 			{
-				iItemValue *= 300;
+				iItemValue *= 200;
 			}
 			else
 			{
@@ -2202,7 +2202,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//won't give up the city at any price if we're not friends
 			if (bOurs)
 			{
-				iItemValue *= 500;
+				iItemValue *= 200;
 			}
 			else
 			{
@@ -2213,7 +2213,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//won't give up the city at any price if we're not friends
 			if (bOurs)
 			{
-				iItemValue *= 600;
+				iItemValue *= 150;
 			}
 			else
 			{
@@ -2224,7 +2224,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//won't give up the city at any price if we're not friends
 			if (bOurs)
 			{
-				iItemValue *= 700;
+				iItemValue *= 200;
 			}
 			else
 			{
@@ -2235,7 +2235,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//won't give up the city at any price if we're not friends
 			if (bOurs)
 			{
-				iItemValue *= 900;
+				iItemValue *= 75;
 			}
 			else
 			{
@@ -2247,7 +2247,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//won't give up the city at any price if we're not friends
 			if (bOurs)
 			{
-				iItemValue *= 1200;
+				iItemValue *= 50;
 			}
 			else
 			{

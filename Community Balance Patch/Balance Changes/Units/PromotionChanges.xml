@@ -3698,5 +3698,49 @@
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ANTIAIR_LAND_III</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_VIKING</Type>
+			<Description>TXT_KEY_PROMOTION_VIKING</Description>
+			<Help>TXT_KEY_PROMOTION_VIKING_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_VIKING</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<CityAttackPlunderModifier>200</CityAttackPlunderModifier>
+			<FreePillageMoves>true</FreePillageMoves>
+			<PillageBonusStrength>25</PillageBonusStrength>
+			<DamageReductionCityAssault>25</DamageReductionCityAssault>
+		</Row>
+		<Row>
+			<Type>PROMOTION_LONGBOAT</Type>
+			<Description>TXT_KEY_PROMOTION_LONGBOAT</Description>
+			<Help>TXT_KEY_PROMOTION_LONGBOAT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_LONGBOAT</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<CityAttackPlunderModifier>200</CityAttackPlunderModifier>
+			<FreePillageMoves>true</FreePillageMoves>
+			<PillageBonusStrength>25</PillageBonusStrength>
+			<DamageReductionCityAssault>20</DamageReductionCityAssault>
+			<IgnoreZOC>true</IgnoreZOC>
+		</Row>
+		<Row>
+			<Type>PROMOTION_NAVAL_INACCURACY</Type>
+			<Description>TXT_KEY_PROMOTION_NAVAL_INACCURACY</Description>
+			<Help>TXT_KEY_PROMOTION_NAVAL_INACCURACY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<OrderPriority>1</OrderPriority>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>57</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_INACCURACY</PediaEntry>
+		</Row>
 	</UnitPromotions>
 </GameData>

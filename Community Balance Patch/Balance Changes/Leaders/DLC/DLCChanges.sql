@@ -220,19 +220,20 @@ VALUES
 INSERT INTO Building_SeaPlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_JELLING_STONES', 'YIELD_FOOD', 1),
+	('BUILDING_JELLING_STONES', 'YIELD_FOOD', 2),
 	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 1);
+
+INSERT INTO Building_UnitCombatProductionModifiers
+	(BuildingType, UnitCombatType, Modifier)
+VALUES
+	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
+	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 50);
 
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
 VALUES 
-	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 5),
-	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 5);
-
-INSERT INTO Building_InstantYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 25);
+	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 10),
+	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 10);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -806,7 +806,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
 			if (eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
-				iBonus += 10000;
+				iBonus += 100000;
 			}
 			else
 			{
@@ -814,7 +814,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iBonus += 10000;
+				iBonus += 100000;
 			}
 			else if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
@@ -833,12 +833,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if(m_pCity->getSpaceProductionModifier() > 0)
 				{
-					iBonus += (m_pCity->getSpaceProductionModifier() * 50);
+					iBonus += (m_pCity->getSpaceProductionModifier() * 100);
 				}
 				else
 				{
-					iBonus -= 300;
+					iBonus -= 5000;
 				}
+				//Don't zero out because of this penalty.
+				if (iBonus <= 0)
+					iBonus = 1;
 			}
 		}
 
@@ -1100,7 +1103,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion = 1;
 		}
 			
-		iBonus += (iFlavorExpansion * 1000);
+		iBonus += (iFlavorExpansion * 1000); //maybe prospective city site valuation should also play a role ...
 	}
 
 	if(!kPlayer.isMinorCiv())
@@ -1235,12 +1238,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 			if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 			{
-				iBonus += (150 * iCurrentNumCities);
+				iBonus += (400 * iCurrentNumCities);
 			}
 			AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 			{
-				iBonus += (250 * iCurrentNumCities);
+				iBonus += (600 * iCurrentNumCities);
 			}
 		}
 	}
