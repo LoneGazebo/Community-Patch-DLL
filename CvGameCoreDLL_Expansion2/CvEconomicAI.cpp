@@ -1092,6 +1092,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 	int iLargeScore = 80;
 	int iJackpot = 1000;
 
+	//adjacent plots should be unrevealed, but the target itself needs to be revealed
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
 		return 0;
 

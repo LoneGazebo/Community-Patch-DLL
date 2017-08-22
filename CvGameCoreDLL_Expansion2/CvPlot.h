@@ -669,7 +669,7 @@ public:
 	int countNumAntiAirUnits(TeamTypes eTeam) const;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	int GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot);
+	int GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit);
 #endif
 
 	int getFoundValue(PlayerTypes eIndex);

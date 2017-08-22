@@ -10775,35 +10775,38 @@ void CvPlot::updateYield()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
+int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 {
-	if (!pPlayer)
+	if (!pPlayer || !pUnit || pPlayer->getNumCities()==0)
 		return 0;
 
-	//give a bonus to fertile tiles that are close to our own territory
-	int iDistToOwnCities = pPlayer->GetCityDistanceInEstimatedTurns(this);
-	int iDistRef = pPlayer->GetCityDistanceInEstimatedTurns(pRefPlot);
-	
-	if(!pPlayer->GetID() == getOwner())
+	CvPlot* pRefPlot = pUnit->plot();
+
+	//land based exploration - give a bonus to fertile tiles that are close to our own territory
+	if (pUnit->getDomainType() == DOMAIN_LAND)
 	{
-		int iFertilityBonus = 0;
-		if ( pPlayer->getCapitalCity() )
+		int iBonus = 0;
+		if (pPlayer->getCapitalCity())
 		{
 			//do not use the founding values here, they are expensive to compute
-			int iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(this,true);
-			int iRefFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlayer->getCapitalCity()->plot(),true);
-			iFertilityBonus = range( (iFertility*100) / MAX(1,iRefFertility), 0, 100);
+			int iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(this, true);
+			int iRefFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlayer->getCapitalCity()->plot(), true);
+			iBonus = range((iFertility * 100) / MAX(1, iRefFertility), 0, 100);
 		}
-		if(getOwner() == NO_PLAYER)
-		{
-			iFertilityBonus += 50;
-		}
-		if (iDistToOwnCities>iDistRef)
-			return iFertilityBonus;
-		else
-			return iFertilityBonus+20;
+
+		if (getOwner() == NO_PLAYER)
+			iBonus += 20;
+
+		int iDistToOwnCities = pPlayer->GetCityDistanceInEstimatedTurns(this);
+		int iDistRef = pPlayer->GetCityDistanceInEstimatedTurns(pRefPlot);
+		if (iDistToOwnCities < iDistRef)
+			iBonus += 20;
+
+		return iBonus;
 	}
-	return 0;
+
+	//naval exploration - the further away, the better
+	return pPlayer->GetCityDistanceInPlots(this) - pPlayer->GetCityDistanceInPlots(pRefPlot);
 }
 
 #endif

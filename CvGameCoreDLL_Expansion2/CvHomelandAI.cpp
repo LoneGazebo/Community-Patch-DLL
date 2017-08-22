@@ -3661,7 +3661,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
 			if(iScoreBase > 0)
 			{
-				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pUnit->plot());
+				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pUnit);
 				int iScoreExtra = 0;
 
 				//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
