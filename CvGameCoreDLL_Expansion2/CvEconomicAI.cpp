@@ -1057,38 +1057,6 @@ const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
 
-bool CvEconomicAI::RemoveExploreTarget(DomainTypes eDomain, CvPlot * pPlot)
-{
-	struct PrPlotDistanceSmallerThan
-	{
-		int dist;
-		CvPlot* ref;
-		PrPlotDistanceSmallerThan(CvPlot* p, int d) : dist(d), ref(p) {}
-		bool operator()(const SPlotWithScore& test) const {
-			if (ref && test.pPlot)
-				return plotDistance(*test.pPlot, *ref) < dist;
-			return true;
-		}
-	};
-
-	std::vector<SPlotWithScore>& plots = (eDomain == DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
-	plots.erase( std::remove_if(plots.begin(), plots.end(), PrPlotDistanceSmallerThan(pPlot, 3)), plots.end() );
-
-	if (eDomain == DOMAIN_SEA && plots.size()!=m_vPlotsToExploreSea.size())
-	{
-		m_vPlotsToExploreSea = plots;
-		return true;
-	}
-
-	if (eDomain == DOMAIN_LAND && plots.size() != m_vPlotsToExploreLand.size())
-	{
-		m_vPlotsToExploreLand = plots;
-		return true;
-	}
-
-	return false;
-}
-
 void CvEconomicAI::SetExplorersNeeded(int iValue)
 {
 	if(iValue != m_iExplorersNeeded)
@@ -2608,6 +2576,8 @@ void CvEconomicAI::DoReconState()
 			}
 		}
 
+		LogEconomyMessage(CvString::format("Creating new land explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
+
 		//choose the one who is farthest out
 		if (!eligibleExplorers.empty())
 		{
@@ -2694,6 +2664,8 @@ void CvEconomicAI::DoReconState()
 					}
 				}
 			}
+
+			LogEconomyMessage(CvString::format("Creating new sea explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 
 			//choose the one who is farthest out
 			if (!eligibleExplorers.empty())
@@ -3294,6 +3266,7 @@ void CvEconomicAI::UpdateExplorePlots()
 	std::stable_sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
 	std::stable_sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
 
+	LogEconomyMessage(CvString::format("Updating exploration plots, found %d land and %d sea targets",m_vPlotsToExploreLand.size(),m_vPlotsToExploreSea.size()));
 	m_bExplorationPlotsDirty = false;
 }
 
@@ -4089,6 +4062,10 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 
 	// Never run this strategy for a human player
 	if(pPlayer->isHuman())
+		return false;
+
+	// Won't be allowed to settle ...
+	if (pPlayer->IsEmpireVeryUnhappy())
 		return false;
 
 	// Look at map for loose settlers

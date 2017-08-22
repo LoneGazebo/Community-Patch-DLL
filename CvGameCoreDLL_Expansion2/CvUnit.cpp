@@ -4420,7 +4420,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	DomainTypes eDomain = getDomainType();
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
-	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0)
+	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0 && AI_getUnitAIType() != UNITAI_EXPLORE)
 		return false;
 #endif
 

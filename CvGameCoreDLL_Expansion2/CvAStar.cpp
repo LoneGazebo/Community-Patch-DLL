@@ -1369,7 +1369,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
-	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman())
+	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman() && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		return FALSE;
 #endif
 

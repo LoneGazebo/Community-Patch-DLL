@@ -174,7 +174,6 @@ public:
 
 	static int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
 	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
-	bool RemoveExploreTarget(DomainTypes eDomain, CvPlot* pPlot);
 #else
 	FFastVector<int>& GetExplorationPlots();
 	FFastVector<int>& GetExplorationPlotRatings();

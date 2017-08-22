@@ -3540,9 +3540,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					UnitProcessed(pUnit->GetID());
 					continue;
 				}
-
-				//don't want everybody running to the same place
-				m_pPlayer->GetEconomicAI()->RemoveExploreTarget(pUnit->getDomainType(),pDestPlot);
 			}
 		}
 
@@ -3759,10 +3756,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				else
 					pBestPlot = 0;
 			}
-
-			//don't want everybody running to the same place
-			if (pBestPlot)
-				m_pPlayer->GetEconomicAI()->RemoveExploreTarget(pUnit->getDomainType(),pBestPlot);
 		}
 
 		if(pBestPlot && pBestPlot != pUnit->plot())

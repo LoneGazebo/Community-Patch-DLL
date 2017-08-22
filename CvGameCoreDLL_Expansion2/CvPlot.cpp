@@ -4174,8 +4174,8 @@ bool CvPlot::isRevealedGoody(TeamTypes eTeam) const
 void CvPlot::removeGoody()
 {
 	setImprovementType(NO_IMPROVEMENT);
-	// Make sure the player's redo their goody hut searches
-	for(int i = 0; i < MAX_PLAYERS; i++)
+	// Make sure the players redo their goody hut searches
+	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
 			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
