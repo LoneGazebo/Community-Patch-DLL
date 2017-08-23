@@ -1046,6 +1046,7 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 	strLog += str;
 }
 
+#if defined(MOD_BALANCE_CORE)
 const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
 {
 	if(m_bExplorationPlotsDirty)
@@ -1055,7 +1056,7 @@ const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes
 
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvEconomicAI::SetExplorersNeeded(int iValue)
 {
 	if(iValue != m_iExplorersNeeded)
@@ -1063,10 +1064,12 @@ void CvEconomicAI::SetExplorersNeeded(int iValue)
 		m_iExplorersNeeded = iValue;
 	}
 }
+
 int CvEconomicAI::GetExplorersNeeded() const
 {
 	return m_iExplorersNeeded;
 }
+
 void CvEconomicAI::SetNavalExplorersNeeded(int iValue)
 {
 	if(iValue != m_iNavalExplorersNeeded)
@@ -1074,11 +1077,11 @@ void CvEconomicAI::SetNavalExplorersNeeded(int iValue)
 		m_iNavalExplorersNeeded = iValue;
 	}
 }
+
 int CvEconomicAI::GetNavalExplorersNeeded() const
 {
 	return m_iNavalExplorersNeeded;
 }
-#endif
 //	---------------------------------------------------------------------------
 //compute score for yet-to-be revealed plots
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
@@ -1089,6 +1092,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 	int iLargeScore = 80;
 	int iJackpot = 1000;
 
+	//adjacent plots should be unrevealed, but the target itself needs to be revealed
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
 		return 0;
 
@@ -1149,6 +1153,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 
 	return iResultValue;
 }
+#endif
 
 /// Request that the AI set aside this much money
 void CvEconomicAI::StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority)
@@ -2543,8 +2548,8 @@ void CvEconomicAI::DoReconState()
 	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, true);
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
-	// estimate one explorer per x open plots, depending on personality
-	int iPlotsPerExplorer = 30 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
+	int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	SetExplorersNeeded(iNumExplorersNeededTimes100 / 100);
@@ -2571,6 +2576,8 @@ void CvEconomicAI::DoReconState()
 				}
 			}
 		}
+
+		LogEconomyMessage(CvString::format("Creating new land explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 
 		//choose the one who is farthest out
 		if (!eligibleExplorers.empty())
@@ -2616,16 +2623,11 @@ void CvEconomicAI::DoReconState()
 	// NAVAL RECON ACROSS THE ENTIRE MAP
 
 	// No coastal cities?  Moot point...
-	CvCity* pLoopCity;
 	int iCityLoop;
 	bool bFoundCoastalCity = false;
-	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bFoundCoastalCity; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-	{
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bFoundCoastalCity; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		if(pLoopCity->isCoastal())
-		{
 			bFoundCoastalCity = true;
-		}
-	}
 
 	if(!bFoundCoastalCity)
 	{
@@ -2635,9 +2637,9 @@ void CvEconomicAI::DoReconState()
 	{
 		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, true);
 		int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
-		int iPlotsPerExplorer = 30 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
 
-		// estimate one explorer per x open plots
+		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
+		int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
 		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
 
 		SetNavalExplorersNeeded(iNumExplorersNeededTimes100 / 100);
@@ -2663,6 +2665,8 @@ void CvEconomicAI::DoReconState()
 					}
 				}
 			}
+
+			LogEconomyMessage(CvString::format("Creating new sea explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 
 			//choose the one who is farthest out
 			if (!eligibleExplorers.empty())
@@ -3263,6 +3267,7 @@ void CvEconomicAI::UpdateExplorePlots()
 	std::stable_sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
 	std::stable_sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
 
+	LogEconomyMessage(CvString::format("Updating exploration plots, found %d land and %d sea targets",m_vPlotsToExploreLand.size(),m_vPlotsToExploreSea.size()));
 	m_bExplorationPlotsDirty = false;
 }
 
@@ -4060,6 +4065,10 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	if(pPlayer->isHuman())
 		return false;
 
+	// Won't be allowed to settle ...
+	if (pPlayer->IsEmpireVeryUnhappy())
+		return false;
+
 	// Look at map for loose settlers
 	std::vector<CvUnit*> vSettlers;
 	int iUnitLoop = 0;
@@ -4081,16 +4090,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
-
-	//do not check this here, it can lead to a situation where we have e.g. 3 settler but don't found any cities
-	//we won't disband them because we have good plots to settle, and we are running "no more expand" because we have 3 settlers
-	/*
-	EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
-	{
-		return false;
-	}
-	*/
 
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
@@ -4819,19 +4818,19 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 		return false;
 	}
 
-	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	if (iFlavorExpansion < pStrategy->GetWeightThreshold())
-	{
-		return false;
-	}
-
 	if ( !pPlayer->HaveGoodSettlePlot(-1) )
 	{
 		return false;
 	}
 
-	return true;
+	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
+	if(iFlavorExpansion >= pStrategy->GetWeightThreshold())
+	{
+		return true;
+	}
+
+	return false;
 }
 
 bool EconomicAIHelpers::IsTestStrategy_GrowLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)

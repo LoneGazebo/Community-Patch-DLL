@@ -1216,69 +1216,20 @@ void getMissionAIString(CvString& strString, MissionAITypes eMissionAI)
 	case NO_MISSIONAI:
 		strString = "NO_MISSIONAI";
 		break;
-
-	case MISSIONAI_SHADOW:
-		strString = "MISSIONAI_SHADOW";
+	case MISSIONAI_BUILD:
+		strString = "AI_BUILD";
 		break;
-	case MISSIONAI_GROUP:
-		strString = "MISSIONAI_GROUP";
-		break;
-	case MISSIONAI_LOAD_ASSAULT:
-		strString = "MISSIONAI_LOAD_ASSAULT";
-		break;
-	case MISSIONAI_LOAD_SETTLER:
-		strString = "MISSIONAI_LOAD_SETTLER";
-		break;
-	case MISSIONAI_LOAD_SPECIAL:
-		strString = "MISSIONAI_LOAD_SPECIA";
-		break;
-	case MISSIONAI_GUARD_CITY:
-		strString = "MISSIONAI_GUARD_CITY";
-		break;
-	case MISSIONAI_GUARD_RESOURCE:
-		strString = "MISSIONAI_GUARD_RESOURCE";
-		break;
-	case MISSIONAI_GUARD_SPY:
-		strString = "MISSIONAI_GUARD_SPY";
-		break;
-	case MISSIONAI_ATTACK_SPY:
-		strString = "MISSIONAI_ATTACK_SPY";
-		break;
-	case MISSIONAI_SPREAD:
-		strString = "MISSIONAI_SPREAD";
-		break;
-	case MISSIONAI_CONSTRUCT:
-		strString = "MISSIONAI_CONSTRUCT";
-		break;
-	case MISSIONAI_HURRY:
-		strString = "MISSIONAI_HURRY";
-		break;
-	case MISSIONAI_GREAT_WORK:
-		strString = "MISSIONAI_GREAT_WORK";
+	case MISSIONAI_TACTMOVE:
+		strString = "AI_TACTMOVE";
 		break;
 	case MISSIONAI_EXPLORE:
-		strString = "MISSIONAI_EXPLORE";
+		strString = "AI_EXPLORE";
 		break;
-	case MISSIONAI_BLOCKADE:
-		strString = "MISSIONAI_BLOCKADE";
+	case MISSIONAI_HOMEMOVE:
+		strString = "AI_HOMEMOVE";
 		break;
-	case MISSIONAI_PILLAGE:
-		strString = "MISSIONAI_PILLAGE";
-		break;
-	case MISSIONAI_FOUND:
-		strString = "MISSIONAI_FOUND";
-		break;
-	case MISSIONAI_BUILD:
-		strString = "MISSIONAI_BUILD";
-		break;
-	case MISSIONAI_ASSAULT:
-		strString = "MISSIONAI_ASSAULT";
-		break;
-	case MISSIONAI_CARRIER:
-		strString = "MISSIONAI_CARRIER";
-		break;
-	case MISSIONAI_PICKUP:
-		strString = "MISSIONAI_PICKUP";
+	case MISSIONAI_OPMOVE:
+		strString = "AI_OPMOVE";
 		break;
 
 	default:

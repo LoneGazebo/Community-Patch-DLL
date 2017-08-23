@@ -102,6 +102,7 @@
 			<Type>BUILDINGCLASS_COAL_PLANT</Type>
 			<DefaultBuilding>BUILDING_COAL_PLANT</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_COAL_PLANT</Description>
+			<MaxPlayerInstances>5</MaxPlayerInstances>
 		</Row>
 		<Row>
 			<Type>BUILDINGCLASS_HERBALIST</Type>

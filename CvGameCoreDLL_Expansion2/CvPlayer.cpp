@@ -25978,11 +25978,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if ((pLoopCity->getProduction() < pLoopCity->getProductionNeeded()) && pLoopCity->isProduction())
 						{
 							pLoopCity->changeProduction(iValue);
-
-							if (pLoopCity->getProduction() > pLoopCity->getProductionNeeded() && !pLoopCity->isProductionProcess())
-							{
-								pLoopCity->popOrder(0, !pLoopCity->isProductionProcess(), true);
-							}
 						}
 						else
 						{
@@ -40847,7 +40842,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeGarrisonsOccupiedUnhapppinessMod(pPolicy->GetGarrisonsOccupiedUnhapppinessMod() * iChange);
 		changeTradeReligionModifier(pPolicy->GetTradeReligionModifier() * iChange);
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
-		ChangeIncreasedQuestInfluence(pPolicy->GetIncreasedQuestInfluence() * iChange);
+		if (pPolicy->GetIncreasedQuestInfluence() != 0)
+		{
+			ChangeIncreasedQuestInfluence(pPolicy->GetIncreasedQuestInfluence() * iChange);
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+				if (ePlayer != NO_PLAYER && kPlayer.isMinorCiv() && kPlayer.isAlive())
+				{
+					kPlayer.GetMinorCivAI()->RecalculateRewards(GetID());				
+				}
+			}
+		}
 		changeCitadelBoost(pPolicy->GetCitadelBoost() * iChange);
 		changePuppetProdMod(pPolicy->GetPuppetProdMod() * iChange);
 		changeOccupiedProdMod(pPolicy->GetOccupiedProdMod() * iChange);
@@ -44897,9 +44904,15 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent && !pPlot->isCoastalLand())
 			iScale = 1;
 
-		//if we want offshore expansion, distance mostly doesn't matter, use a flat scale below a threshold
+		//if we want offshore expansion, distance doesn't matter
 		if (bWantOffshore && bOffshore)
-			iScale = max(iScale,70);
+			iScale = 100;
+
+		//bonus if the plot is in a desirable (large) area
+		if (pPlot->getArea() == iBestArea)
+			iScale += 40;
+		if (pPlot->getArea() == iSecondBestArea)
+			iScale += 20;
 
 		if (iScale==0)
 		{
@@ -44969,12 +44982,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
 			continue;
 
-		if(pPlot->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
-		{
-			vBadPlots.push_back(pPlot);
-			continue;
-		}
-
 		if(pPlot->getNumUnits() > 0)
 		{
 			IDInfo* pUnitNode = pPlot->headUnitNode();
@@ -45005,7 +45012,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	{
 		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 		bool isDangerous = false;
-		int iDistanceToSettler = plotDistance(*pTestPlot,*(pUnit->plot()));
+
+		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+		bool bCanReachThisTurn = (it != reachablePlots.end() && it->iTurns==0);
 
 		//check if it's too close to an enemy
 		for (size_t j=0; j<vBadPlots.size(); j++)
@@ -45014,7 +45023,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				continue;
 
 			int iDistanceToDanger = plotDistance(*pTestPlot,*(vBadPlots[j]));
-			if (iDistanceToDanger<5 && iDistanceToSettler>1)
+			if (iDistanceToDanger<4 && !bCanReachThisTurn)
 			{
 				isDangerous = true;
 				break;
@@ -45025,8 +45034,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (!isDangerous && !bWantOffshore)
 		{
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
-			//also consider settler plot here in case of re-targeting an operation
-			if (iDistanceToCity>4 && iDistanceToSettler>1)
+			//also consider distance to settler here in case of re-targeting an operation
+			if (iDistanceToCity>4 && !bCanReachThisTurn)
 				isDangerous = true;
 		}
 
@@ -45034,7 +45043,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (!isDangerous && !bWantOffshore)
 		{
 			//if the target plot is more than 6 turns away it's unsafe by definition
-			ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
 			if (it==reachablePlots.end() || it->iTurns>=6)
 				isDangerous = true;
 		}

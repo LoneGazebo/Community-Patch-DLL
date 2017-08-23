@@ -3928,11 +3928,9 @@ void CvMilitaryAI::DoBarbs()
 	// SEE IF THERE ARE OPERATIONS THAT NEED TO BE ABORTED
 
 	// Are we willing to risk pressing forward vs. barbarians?
-	bool bWillingToAcceptRisk = (m_iTotalThreatWeight / 2) < GetBarbarianThreatTotal();
-	if(m_pPlayer->GetPlayerTraits()->GetLandBarbarianConversionPercent() > 0)
-	{
-		bWillingToAcceptRisk = true;
-	}
+	bool bWillingToAcceptRisk = (m_iTotalThreatWeight / 2) < GetBarbarianThreatTotal() ||
+		m_pPlayer->GetPlayerTraits()->GetLandBarbarianConversionPercent() > 0 || 
+		IsUsingStrategy(eStrategyBarbsCritical);
 
 	// if they have one of our civilians
 	CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
@@ -3946,10 +3944,7 @@ void CvMilitaryAI::DoBarbs()
 			break;
 		}
 	}
-	if(!bWillingToAcceptRisk && IsUsingStrategy(eStrategyBarbsCritical))
-	{
-		bWillingToAcceptRisk = true;
-	}
+
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	int iMinorLoop;
 	PlayerTypes eMinor;
@@ -3979,6 +3974,7 @@ void CvMilitaryAI::DoBarbs()
 		}
 	}
 #endif
+
 	//Let's hunt barbs if we want to expand
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))

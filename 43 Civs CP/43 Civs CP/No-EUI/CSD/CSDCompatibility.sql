@@ -26,7 +26,7 @@ VALUES
 INSERT INTO Belief_SpecialistYieldChanges
 	(BeliefType, SpecialistType, YieldType, Yield)
 VALUES
-	('BELIEF_RELIGIOUS_ART', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_GOLD', 2);
+	('BELIEF_RELIGIOUS_ART', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_GOLD', 1);
 
 INSERT INTO Tech_SpecialistYieldChanges
 	(TechType, SpecialistType, YieldType, Yield)

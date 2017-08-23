@@ -7275,6 +7275,12 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		return true;
 	}
 #endif
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetPlayer()->GetID()))
+		return true;
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetPlayer()->GetID()))
 	{
@@ -7293,30 +7299,20 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		return true;
 	}
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetPlayer()->GetID()))
-		return true;
-#endif
+
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	if(!m_pPlayer->IsCramped() && GET_PLAYER(ePlayer).getNumCities() < m_pPlayer->getNumCities())
+	if(m_pPlayer->IsCramped() || (GET_PLAYER(ePlayer).getNumCities() * 3) > (m_pPlayer->getNumCities() * 2))
 #else
 	if(GetPlayer()->GetProximityToPlayer(ePlayer) != PLAYER_PROXIMITY_NEIGHBORS)
 #endif
 	{
-		return false;
+		return true;
 	}
 
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-	if (eApproach < MAJOR_CIV_APPROACH_AFRAID)
+	if (eApproach >= MAJOR_CIV_APPROACH_AFRAID)
 	{
-		return false;
-	}
-	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
-	{
-	case STRENGTH_IMMENSE:
-	case STRENGTH_POWERFUL:
-	case STRENGTH_STRONG:
-		return false;
+		return true;
 	}
 #if defined(MOD_BALANCE_CORE)
 	EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
@@ -7387,14 +7383,13 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-	if (IsMusteringForAttack(ePlayer))
+	if (IsMusteringForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
 	{
 		return false;
 	}
-	if (IsWantsSneakAttack(ePlayer))
-	{
+	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
 		return false;
-	}
+
 	if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()) || IsDoFAccepted(ePlayer))
 	{
 		return true;
@@ -7402,19 +7397,14 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 #endif
 
 	MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
-	if (eApproach < MAJOR_CIV_APPROACH_AFRAID)
+	if (eApproach >= MAJOR_CIV_APPROACH_AFRAID)
 	{
-		return false;
+		return true;
 	}
-	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
+	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 	{
-	case STRENGTH_IMMENSE:
-	case STRENGTH_POWERFUL:
-		return false;
+		return true;
 	}
-
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
-		return false;
 
 #if defined(MOD_BALANCE_CORE)
 	if (!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).GetDiplomacyAI()->MusteringForNeighborAttack(m_pPlayer->GetID()))
@@ -20967,6 +20957,14 @@ void CvDiplomacyAI::DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStateme
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		// They must be able to declare war on us
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+#else
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
+#endif
+			return;
+
 		if(IsPlayerMadeAttackCityStatePromise(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_PROTECTED_CITY_STATE;
@@ -20998,6 +20996,13 @@ void CvDiplomacyAI::DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploState
 	// Attacked a City State we're protective towards
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		// They must be able to declare war on us
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+#else
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
+#endif
+			return;
 		if(GetTurnsSincePlayerAttackedProtectedMinor(ePlayer) == 0)
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_ATTACKED_PROTECTED_CITY_STATE;
@@ -21030,6 +21035,14 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		// They must be able to declare war on us
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+#else
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
+#endif
+			return;
+
 		// Bullied a City State we're protective towards
 		if(GetTurnsSincePlayerBulliedProtectedMinor(ePlayer) == 0)
 		{
@@ -21212,6 +21225,13 @@ void CvDiplomacyAI::DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploSta
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		// They must be able to declare war on us
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+#else
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
+#endif
+			return;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
 			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
@@ -21251,6 +21271,13 @@ void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStat
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		// They must be able to declare war on us
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+#else
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
+#endif
+			return;
 		PlayerTypes eMinor;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
@@ -22891,6 +22918,14 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+		// They must be able to declare war on us
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), ePlayer))
+#else
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
+#endif
+			return;
+
 		if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_MINOR_CIV_COMPETITION;
@@ -40798,7 +40833,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	iAverageOpinionScore /= aOurTeam.size();
 	MajorCivOpinionTypes eOpinion = (MajorCivOpinionTypes) iAverageOpinionScore;
 
-	if(eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+	if (eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
 		return false;
 
 	// We possess more capitals than them
@@ -40828,12 +40863,16 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// Player is not a threat
-	if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
+	if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
+		return false;
+
+	// Player is not a threat
+	if (GetPlayerEconomicStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
 		return false;
 
 	// Are we dominating them in some way?
 	InfluenceLevelTypes eInfluence = GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer);
-	if(eInfluence >= INFLUENCE_LEVEL_INFLUENTIAL)
+	if(eInfluence >= INFLUENCE_LEVEL_POPULAR)
 		return false;
 
 	// No voluntary capitulation if there's less than 50% of the players ever alive
@@ -40845,7 +40884,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	// Do we think this player is a warmonger?
-	if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
+	if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
 		return false;
 
 	// Differing ideologies?
@@ -40872,7 +40911,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// If they are economically strong, consider vassalage
 	StrengthTypes eEconomyStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
 	if(eEconomyStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 70;
+		iWantVassalageScore += 60;
 	else if(eEconomyStrength == STRENGTH_POWERFUL)
 		iWantVassalageScore += 40;
 	else if(eEconomyStrength == STRENGTH_STRONG)
@@ -40889,13 +40928,13 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// If they are militarily strong, consider vassalage
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if(eMilitaryStrength == STRENGTH_IMMENSE)
-		iWantVassalageScore += 70;
+		iWantVassalageScore += 60;
 	else if(eMilitaryStrength == STRENGTH_POWERFUL)
 		iWantVassalageScore += 45;
 	else if(eMilitaryStrength == STRENGTH_STRONG)
 		iWantVassalageScore += 25;
 	else
-		iWantVassalageScore += -15;
+		iWantVassalageScore += -50;
 
 	// Small bonus for being a threat to us
 	ThreatTypes eMilitaryThreat = GetMilitaryThreat(ePlayer);
@@ -41017,10 +41056,10 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	iWantVassalageScore /= 100;
 
 	// Reduce score based on at war count
-	iWantVassalageScore -= 15 * kTheirTeam.getAtWarCount(true);
+	iWantVassalageScore -= 20 * kTheirTeam.getAtWarCount(true);
 
 	// Reduce score based on number of his vassals
-	iWantVassalageScore -= 15 * kTheirTeam.GetNumVassals();
+	iWantVassalageScore -= 20 * kTheirTeam.GetNumVassals();
 
 	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
 
@@ -41069,55 +41108,55 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	// How are we being treated?
 	VassalTreatmentTypes eVassalTreatment = GetVassalTreatmentLevel(ePlayer);
 	if(eVassalTreatment == VASSAL_TREATMENT_ENSLAVED)
-		iChance += 50;
+		iChance += 80;
 	else if(eVassalTreatment == VASSAL_TREATMENT_UNHAPPY)
-		iChance += 33;
+		iChance += 60;
 	else if(eVassalTreatment == VASSAL_TREATMENT_MISTREATED)
-		iChance += 25;
+		iChance += 40;
 	else if(eVassalTreatment == VASSAL_TREATMENT_DISAGREE)
-		iChance += 10;
+		iChance += 20;
 	else
 		iChance += 0;
 
 	// More likely to break vassals off with distant players than close neighbors
 	PlayerProximityTypes eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
 	if(eProximity == PLAYER_PROXIMITY_DISTANT)
-		iChance += 20;
+		iChance += 30;
 	else if(eProximity == PLAYER_PROXIMITY_DISTANT)
-		iChance += 10;
+		iChance += 15;
 
 	MajorCivApproachTypes eSurfaceApproach = GetMajorCivApproach(ePlayer, true);
 
 	// if the current approach is a dangerous approach
 	if (eSurfaceApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eSurfaceApproach == MAJOR_CIV_APPROACH_WAR)
 	{
-		iChance += 15;
+		iChance += 25;
 	}
 
 	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
 	if(eMilitaryStrength == STRENGTH_PATHETIC)
-		iChance += 60;
+		iChance += 100;
 	else if(eMilitaryStrength == STRENGTH_WEAK)
-		iChance += 35;
+		iChance += 60;
 	else if(eMilitaryStrength == STRENGTH_POOR)
-		iChance += 20;
+		iChance += 40;
 	else if(eMilitaryStrength == STRENGTH_AVERAGE)
-		iChance += 0;
+		iChance += 10;
 	else if(eMilitaryStrength == STRENGTH_STRONG)
-		iChance += -30;
+		iChance += -40;
 	else if(eMilitaryStrength == STRENGTH_POWERFUL)
-		iChance += -50;
+		iChance += -60;
 	else
 		iChance += -40;
 
 	// How will a war against ePlayer go?
 	WarProjectionTypes eWarProjection = GetWarProjection(ePlayer);
 	if(eWarProjection == WAR_PROJECTION_VERY_GOOD)
-		iChance += 30;
+		iChance += 40;
 	else if(eWarProjection == WAR_PROJECTION_GOOD)
-		iChance += 20;
+		iChance += 30;
 	if(eWarProjection == WAR_PROJECTION_STALEMATE)
-		iChance += 0;
+		iChance += 5;
 	else if(eWarProjection == WAR_PROJECTION_DEFEAT)
 		iChance += -20;
 	else if(eWarProjection == WAR_PROJECTION_DESTRUCTION)
@@ -41134,41 +41173,41 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Modifier based on number of wars currently fighting
-	iChance *= (100 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true) * 15);
+	iChance *= (100 + GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getAtWarCount(true) * 20);
 	iChance /= 100;
 
 	// Master losing all of us wars at the moment - not protecting us
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
-		iChance *= 300;
+		iChance *= 500;
 		iChance /= 100;
 	}
 
 	// We're bigger than him? Bail!
 	if (GET_PLAYER(ePlayer).getTotalPopulation() < GET_PLAYER(GetPlayer()->GetID()).getTotalPopulation())
 	{
-		iChance *= 300;
+		iChance *= 500;
 		iChance /= 100;
 	}
 
 	// Master is aggressive against us
 	if(GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM)
 	{
-		iChance *= 85;
+		iChance *= 80;
 		iChance /= 100;
 	}
 
 	// if we're a warmonger
 	if(IsGoingForWorldConquest())
 	{
-		iChance *= 140;
+		iChance *= 500;
 		iChance /= 100;
 	}
 
 	// Master in anarchy?
 	if(GET_PLAYER(ePlayer).IsAnarchy())
 	{
-		iChance *= 300;
+		iChance *= 500;
 		iChance /= 100;
 	}
 
@@ -43590,6 +43629,9 @@ int CvDiplomacyAI::IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJust
 	// Teammates
 	if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
 		return NEUTRAL;
+
+	if (IsVassal(ePlayer))
+		return ACCEPT;
 
 	// If we have a pending coop war against this player then execute the attack
 	for(int iI=0; iI < MAX_MAJOR_CIVS; iI++)

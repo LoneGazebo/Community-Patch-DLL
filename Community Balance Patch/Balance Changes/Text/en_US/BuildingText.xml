@@ -275,7 +275,7 @@
 			<Text>Agribusiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT">
-			<Text>Coal Plant</Text>
+			<Text>Coal Refinery</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD">
 			<Text>Mine Field</Text>
@@ -302,7 +302,7 @@
 			<Text>The Agribusiness is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. An Agribusiness helps your City grow more quickly, however the use of Horses is a risky tradeoff during an era in which Cavalry is still quite powerful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_STRATEGY">
-			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal and you have already built a Factory in the City. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
+			<Text>The Coal Refinery is a Modern-era building which can only be constructed in 5 Cities total. The Coal Refinery helps your Production and produces 3 Coal Resources, however it negatively impacts Poverty and has a high maintenance cost.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
 			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. The Minefield increases coastal city defense by +8, hit points by 50, and reduces the movement of enemy naval units and embarked units by 1.</Text>
@@ -329,7 +329,7 @@
 			<Text>+15% [ICON_FOOD] Food in City.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
-			<Text>+34% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City. Requires a Factory in the City.</Text>
+			<Text>+15% [ICON_PRODUCTION] Production. Produces 3 [ICON_RES_COAL] Coal. Greatly increases [ICON_HAPPINESS_3] Poverty. Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
 			<Text>Requires 1 [ICON_RES_IRON] Iron. Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.</Text>
@@ -356,7 +356,7 @@
 			<Text>Agribusiness is the business of agricultural production. The term was coined in 1957 by Goldberg and Davis. It includes agrichemicals, breeding, crop production (farming and contract farming), distribution, farm machinery, processing, and seed supply, as well as marketing and retail sales. All agents of the food and fiber value chain and those institutions that influence it are part of the agribusiness system. Within the agriculture industry, "agribusiness" is used simply as a portmanteau of agriculture and business, referring to the range of activities and disciplines encompassed by modern food production. There are academic degrees in and departments of agribusiness, agribusiness trade associations, agribusiness publications, and so forth, worldwide. Examples of agribusinesses include seed and agrichemical producers like Dow AgroSciences, DuPont, Monsanto, and Syngenta; AB Agri (part of Associated British Foods) animal feeds, biofuels, and micro-ingredients, ADM, grain transport and processing; John Deere, farm machinery producer; Ocean Spray, farmer's cooperative; and Purina Farms, agritourism farm.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COAL_PLANT_TEXT">
-			<Text>A fossil fuel power station burns fossil fuels such as coal, natural gas or petroleum (oil) to produce electricity. Central station fossil-fuel power plants are designed on a large scale for continuous operation. In many countries, such plants provide most of the electrical energy used. Fossil-fuel power stations have machinery to convert the heat energy of combustion into mechanical energy, which then operates an electrical generator. The prime mover may be a steam turbine, a gas turbine or, in small plants, a reciprocating internal combustion engine. All plants use the energy extracted from expanding gas, either steam or combustion gases. Very few MHD generators have been built which directly convert the energy of moving hot gas into electricity.</Text>
+			<Text>Refined coal is the product of the application of a coal upgrading technology that removes moisture and certain pollutants from lower-rank coals such as sub-bituminous and lignite (brown) coals and raising their calorific values. Coal refining or upgrading technologies are typically pre-combustion treatments and/or processes that alter the characteristics of a coal before it is burned. The goals of pre-combustion coal upgrading technologies are to increase efficiency and reduce emissions when coal is burned. Depending on the situation, pre-combustion technology can be used in place of or as a supplement to post-combustion technologies to control emissions from coal-fueled boilers. A primary benefit of refined coal is the capacity to reduce the net volume of carbon emissions that is currently emitted from power generators and would reduce the amount of emissions that is proposed to be managed via emerging carbon sequestration methodologies. Refined coal technologies have primarily been developed in the United States, several similar technologies have been researched, developed and tested in Victoria, Australia, including the Densified coal technology (Coldry Process) developed to alter the chemical bonds of brown coal to create a product that is cleaner, stable (not prone to spontaneous combustion), exportable and of sufficiently high calorific value to be a black coal equivalent.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MINEFIELD_TEXT">
 			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>
@@ -670,10 +670,10 @@
 			<Text>A runestone is typically a raised stone with a runic inscription, but the term can also be applied to inscriptions on boulders and on bedrock. The tradition began in the 4th century and lasted into the 12th century, but most of the runestones date from the late Viking Age. Most runestones are located in Scandinavia, but there are also scattered runestones in locations that were visited by Norsemen during the Viking Age. Runestones are often memorials to dead men. Runestones were usually brightly coloured when erected, though this is no longer evident as the colour has worn off.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>Whenever you pillage a Tile, gain +10 [ICON_PRODUCTION] Production and[ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]+25% [ICON_PRODUCTION] Production towards Land and Naval Melee units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water.</Text>
+			<Text>Whenever you pillage a Tile Improvement, gain +5 [ICON_PRODUCTION] Production and[ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]+25% [ICON_PRODUCTION] Production towards Land and Naval Melee units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Forms a [ICON_CONNECTED] City Connection with the [ICON_CAPITAL] Capital over water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
-			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Runestones produce [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production when you defeat a Unit. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
+			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Runestones produce [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production when you pillage a Tile Improvement (Roads and Railroads do not count), generates more Food from ocean tiles, and increases production of melee land and naval units. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON">
 			<Text>Seowon</Text>

@@ -4420,7 +4420,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	DomainTypes eDomain = getDomainType();
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
-	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0)
+	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0 && AI_getUnitAIType() != UNITAI_EXPLORE)
 		return false;
 #endif
 
@@ -7550,23 +7550,20 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 
 		if(pLoopPlot != NULL)
 		{
-			if(pLoopPlot->area() == pPlot->area())
+			pUnitNode = pLoopPlot->headUnitNode();
+
+			while(pUnitNode != NULL)
 			{
-				pUnitNode = pLoopPlot->headUnitNode();
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
-				while(pUnitNode != NULL)
+				if(pLoopUnit && pLoopUnit->getTeam() == getTeam() && pLoopUnit->getDomainType() == getDomainType())
 				{
-					pLoopUnit = ::getUnit(*pUnitNode);
-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+					int iHeal = pLoopUnit->getAdjacentTileHeal();
 
-					if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
+					if(iHeal > iBestHealFromUnits)
 					{
-						int iHeal = pLoopUnit->getAdjacentTileHeal();
-
-						if(iHeal > iBestHealFromUnits)
-						{
-							iBestHealFromUnits = iHeal;
-						}
+						iBestHealFromUnits = iHeal;
 					}
 				}
 			}
@@ -10110,6 +10107,9 @@ bool CvUnit::pillage()
 			if(pPlot->getTeam() != getTeam())
 			{
 #if defined(MOD_BALANCE_CORE)
+
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE);
+
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
 				{
 					// Notify Diplo AI that damage has been done
@@ -10255,8 +10255,6 @@ bool CvUnit::pillage()
 	{
 		pPlot->SetRoutePillaged(true);
 	}
-
-	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE);
 
 	if(!hasFreePillageMove())
 	{

@@ -9205,9 +9205,26 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		}
 #if defined(MOD_BALANCE_CORE)
 		updateYield();
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+			if (ePlayer != NO_PLAYER && kPlayer.isMinorCiv() && kPlayer.isAlive())
+			{
+				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+				{
+					PlayerTypes eActivePlayer = (PlayerTypes)iPlayerLoop2;
+					CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
+					if (eActivePlayer != NO_PLAYER && kActivePlayer.isAlive() && kActivePlayer.isMajorCiv() && kActivePlayer.getTeam() == GetID())
+					{
+						kPlayer.GetMinorCivAI()->RecalculateRewards(eActivePlayer);
+					}
+				}
+			}
+		}
 #endif
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
+		if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
 		{
 			PlayerTypes ePlayer;
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
