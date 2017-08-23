@@ -25978,11 +25978,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if ((pLoopCity->getProduction() < pLoopCity->getProductionNeeded()) && pLoopCity->isProduction())
 						{
 							pLoopCity->changeProduction(iValue);
-
-							if (pLoopCity->getProduction() > pLoopCity->getProductionNeeded() && !pLoopCity->isProductionProcess())
-							{
-								pLoopCity->popOrder(0, !pLoopCity->isProductionProcess(), true);
-							}
 						}
 						else
 						{
@@ -40847,7 +40842,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeGarrisonsOccupiedUnhapppinessMod(pPolicy->GetGarrisonsOccupiedUnhapppinessMod() * iChange);
 		changeTradeReligionModifier(pPolicy->GetTradeReligionModifier() * iChange);
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
-		ChangeIncreasedQuestInfluence(pPolicy->GetIncreasedQuestInfluence() * iChange);
+		if (pPolicy->GetIncreasedQuestInfluence() != 0)
+		{
+			ChangeIncreasedQuestInfluence(pPolicy->GetIncreasedQuestInfluence() * iChange);
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+				if (ePlayer != NO_PLAYER && kPlayer.isMinorCiv() && kPlayer.isAlive())
+				{
+					kPlayer.GetMinorCivAI()->RecalculateRewards(GetID());				
+				}
+			}
+		}
 		changeCitadelBoost(pPolicy->GetCitadelBoost() * iChange);
 		changePuppetProdMod(pPolicy->GetPuppetProdMod() * iChange);
 		changeOccupiedProdMod(pPolicy->GetOccupiedProdMod() * iChange);

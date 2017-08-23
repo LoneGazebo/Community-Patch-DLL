@@ -291,6 +291,7 @@ public:
 	void DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewAlly);
 #if defined(MOD_GLOBAL_CS_NO_ALLIED_SKIRMISHES)
 	void DoTestEndSkirmishes(PlayerTypes eNewAlly);
+	void RecalculateRewards(PlayerTypes ePlayer);
 #endif
 
 	void DoTurnStatus();

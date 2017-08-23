@@ -302,15 +302,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (bCombat)
 		{
 			int iNumUnits = kPlayer.getNumMilitaryUnits();
+			
+			if (iNumUnits <= 3)
+				iBonus += 1000;
+
 			int iNumCities = kPlayer.getNumCities();
-			int iEra = (kPlayer.GetCurrentEra() + 1) * iNumCities;
-			if (iNumUnits >= iEra)
+			int iEra = (kPlayer.GetCurrentEra() + 4) * iNumCities;
+			if (iNumUnits > iEra)
 			{
 				return 0;
 			}
 			else
 			{
-				iBonus += (iEra - iNumUnits) * 50;
+				iBonus += (iEra - iNumUnits) * 500;
 			}
 		}
 	}
@@ -631,12 +635,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Land Units Critically Needed?
 		else if (eDomain == DOMAIN_LAND)
 		{
-			if(bCombat)
+			if (bCombat)
 			{
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize() * 2;
 				int iValue = iDesired - iCurrent;
-				if(bAtWar)
+				if (bAtWar)
 				{
 
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -660,13 +664,30 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iValue *= 5;
 					}
 				}
-				else if(bAlone)
+				else if (bAlone)
 				{
 					iValue /= 10;
 				}
-				if(iValue > 0)
+				if (iValue > 0)
 				{
 					iBonus += iValue;
+				}
+
+				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)
+				{
+					CvUnit* pLoopUnit2;
+					for (int iUnitLoop = 0; iUnitLoop < m_pCity->plot()->getNumUnits(); iUnitLoop++)
+					{
+						pLoopUnit2 = m_pCity->plot()->getUnitByIndex(iUnitLoop);
+						if (pLoopUnit2->isFound() && pLoopUnit2->getArmyID() == -1)
+						{
+							iBonus += 1000;
+						}
+						else if (pLoopUnit2->isFound() && pLoopUnit2->getArmyID() != -1)
+						{
+							iBonus += 500;
+						}
+					}
 				}
 			}
 		}
@@ -993,9 +1014,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return 0;
 		}
-		
+	
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-
 		if (GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
 		{
 			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
@@ -1004,18 +1024,23 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 				{
-					iFlavorExpansion += 4;
+					iFlavorExpansion += 10;
 				}
-			}
 
-			EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
-			if (eExpandOtherOffshore != NO_ECONOMICAISTRATEGY)
-			{
-				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
+				EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
+				if (eExpandOtherOffshore != NO_ECONOMICAISTRATEGY)
 				{
-					iFlavorExpansion += 4;
+					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
+					{
+						iFlavorExpansion += 10;
+					}
 				}
 			}
+		}
+
+		if (m_pCity->plot()->getNumDefenders(kPlayer.GetID()) <= 0)
+		{
+			iFlavorExpansion -= 10;
 		}
 
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
@@ -1024,7 +1049,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 			{
-				iFlavorExpansion += 4;
+				iFlavorExpansion += 10;
 			}
 		}
 
@@ -1034,48 +1059,48 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 			{
-				iFlavorExpansion += 5;
+				iFlavorExpansion += 15;
 			}
 		}
 
 		if(kPlayer.getSettlerProductionModifier() > 0)
 		{
-			iFlavorExpansion += 2;
+			iFlavorExpansion += 5;
 		}
 		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
 		{
-			iFlavorExpansion += 2;
+			iFlavorExpansion += 5;
 		}
 		if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 		{
-			iFlavorExpansion += 2;
+			iFlavorExpansion += 5;
 		}
 		if (GC.getGame().getCurrentEra() > kPlayer.getNumCities() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
 		{
-			iFlavorExpansion += 5;
+			iFlavorExpansion += 10;
 		}
 
 		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 		{
-			iFlavorExpansion -= 4;
+			iFlavorExpansion -= 10;
 		}
 		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 		{
-			iFlavorExpansion -= 3;
+			iFlavorExpansion -= 10;
 		}
 		if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true)) > 0)
 		{
-			iFlavorExpansion -= 3;
+			iFlavorExpansion -= 5;
 		}
 		else if (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_LIBERTY", true)) > 0 || kPlayer.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AUTHORITY", true)) > 0)
 		{
-			iFlavorExpansion += 3;
+			iFlavorExpansion += 10;
 		}
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		// scale based on flavor and world size
 		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			iFlavorExpansion -= 3;
+			iFlavorExpansion -= 10;
 		}
 
 		AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -1083,7 +1108,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if (bSeekingCultureVictory)
 		{
-			iFlavorExpansion -= 2;
+			iFlavorExpansion -= 10;
 		}
 
 		eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -1091,7 +1116,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if (bSeekingSSVictory)
 		{
-			iFlavorExpansion -= 2;
+			iFlavorExpansion -= 10;
 		}
 
 		int iNumCities = kPlayer.getNumCities();
@@ -1102,10 +1127,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iFlavorExpansion = 1;
 		}
-			
-		iBonus += (iFlavorExpansion * 1000); //maybe prospective city site valuation should also play a role ...
-	}
+		if (pkUnitEntry->IsFoundMid())
+			iFlavorExpansion += 10;
+		else if (pkUnitEntry->IsFoundLate())
+			iFlavorExpansion += 20;
+		else if (pkUnitEntry->IsFoundAbroad())
+			iFlavorExpansion += 10;
 
+		//We got this far? Let's add in era desire as well.
+		int iEra = GC.getGame().getCurrentEra();
+			
+		int iSettlerDesire = ((iFlavorExpansion + iEra) * 1250);
+		iBonus += iSettlerDesire;
+	}
 	if(!kPlayer.isMinorCiv())
 	{
 		//Archaeologists? Only if we have digs nearby.

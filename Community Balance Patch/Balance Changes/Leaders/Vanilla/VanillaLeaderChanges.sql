@@ -647,6 +647,11 @@ VALUES
 	('BUILDING_DOJO', 'YIELD_SCIENCE', 5),
 	('BUILDING_DOJO', 'YIELD_CULTURE', 3);
 
+INSERT INTO Building_SpecialistYieldChangesLocal
+	(BuildingType, SpecialistType, YieldType, Yield)
+VALUES
+	('BUILDING_BURIAL_TOMB', 'SPECIALIST_MERCHANT', 'YIELD_GOLD', 1);
+
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 VALUES

@@ -958,6 +958,21 @@ bool CvMinorCivQuest::IsPartialQuest() const
 {
 	return m_bPartialQuest;
 }
+void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
+{
+	if (!GetPlayer()->isAlive())
+		return;
+
+	if (m_QuestsGiven.size() <= 0)
+		return;
+
+	QuestListForPlayer::iterator itr_quest;
+	for (itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+	{
+		if (itr_quest != NULL)
+			itr_quest->CalculateRewards(ePlayer);
+	}
+}
 void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 {
 	if(ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER)
@@ -984,6 +999,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		if(pkSmallAwardInfo->GetInfluence() > 0)
 		{
 			int iBonus = pkSmallAwardInfo->GetInfluence();
+			iBonus *= iEra;
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
@@ -1018,11 +1034,14 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
+			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus /= 100;
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
 		{
 			int iBonus = pkSmallAwardInfo->GetAdmiralPoints();
+			iBonus *= iEra;
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
@@ -1067,11 +1086,16 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
+			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus /= 100;
+
 			SetAdmiralPoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGeneralPoints() > 0)
 		{
 			int iBonus = pkSmallAwardInfo->GetGeneralPoints();
+
+			iBonus *= iEra;
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
@@ -1116,6 +1140,9 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
+			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus /= 100;
+
 			SetGeneralPoints(iBonus);
 		}
 		if(pkSmallAwardInfo->GetCulture() > 0)
@@ -1211,6 +1238,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
+			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iBonus /= 100;
 			SetExperience(iBonus);
 		}
 		if(pkSmallAwardInfo->GetFaith() > 0)
@@ -11672,7 +11701,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iChangeThisTurn += /*-100*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN();
 
 		//Influence decay increases the higher your influence over 100;
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 1000)
 		{
 			int iInfluenceTotal = iBaseFriendship * -1;
 			iInfluenceTotal;

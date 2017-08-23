@@ -4944,13 +4944,20 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	if(eMajority >= RELIGION_PANTHEON)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-		if(pReligion)
+		if (pReligion)
 		{
-			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
+			if (eYield == YIELD_CULTURE)
+				iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
+			else
+				iSecondaryYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
+			
 			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				iSecondaryYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+				if (eYield == YIELD_CULTURE)
+					iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+				else
+					iSecondaryYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
 			}
 		}
 	}
