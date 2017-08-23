@@ -27283,7 +27283,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		SetActivityType(ACTIVITY_AWAKE);
 		if(eOldAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->UpdateExplorePlotsFromScratch(); // these need to be rebuilt
 		}
 
 		// if canceling automation, cancel on cargo as well
@@ -27309,7 +27309,7 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		}
 		else if(m_eAutomateType == AUTOMATE_EXPLORE)
 		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->SetExplorationPlotsDirty(); // these need to be rebuilt
+			GET_PLAYER(getOwner()).GetEconomicAI()->UpdateExplorePlotsFromScratch(); // these need to be rebuilt
 		}
 	}
 }

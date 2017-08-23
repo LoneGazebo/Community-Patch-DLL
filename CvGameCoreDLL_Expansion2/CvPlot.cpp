@@ -4178,7 +4178,7 @@ void CvPlot::removeGoody()
 	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 	}
 }
 
@@ -10954,7 +10954,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			{
 				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
 				for (size_t i = 0; i < vPlayers.size(); i++)
-					GET_PLAYER(vPlayers[i]).GetEconomicAI()->SetExplorationPlotsDirty();
+					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 			}
 		}
 		else
