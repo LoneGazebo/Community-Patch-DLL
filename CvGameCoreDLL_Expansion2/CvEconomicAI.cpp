@@ -2523,6 +2523,7 @@ void CvEconomicAI::DoReconState()
 
 		// Increase number of explorers
 		vector< pair<int,int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+		vector< pair<int, int> > eligibleExplorersDeepwater;
 		for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
 			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
@@ -2534,12 +2535,17 @@ void CvEconomicAI::DoReconState()
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
-					eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
+					if (pLoopUnit->canCrossOceans())
+						eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+					else
+						eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
 				}
 			}
 		}
 
-		LogEconomyMessage(CvString::format("Creating new land explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
+		//prefer oceangoing ships if we have any
+		if (!eligibleExplorersDeepwater.empty())
+			eligibleExplorers = eligibleExplorersDeepwater;
 
 		//choose the one who is farthest out
 		if (!eligibleExplorers.empty())
@@ -2631,8 +2637,6 @@ void CvEconomicAI::DoReconState()
 					}
 				}
 			}
-
-			LogEconomyMessage(CvString::format("Creating new sea explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 
 			//choose the one who is farthest out
 			if (!eligibleExplorers.empty())
