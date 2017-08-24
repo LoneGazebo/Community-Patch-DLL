@@ -148,7 +148,7 @@ public:
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
-	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bConvert = false);
+	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
@@ -235,7 +235,9 @@ public:
 
 	bool isCargo() const;
 	void setTransportUnit(CvUnit* pTransportUnit);
-
+#if defined(MOD_CARGO_SHIPS)
+	SpecialUnitTypes specialUnitCargoLoad() const;
+#endif
 	SpecialUnitTypes specialCargo() const;
 	DomainTypes domainCargo() const;
 	int cargoSpace() const;

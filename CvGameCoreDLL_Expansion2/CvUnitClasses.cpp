@@ -90,6 +90,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #endif
 #if defined(MOD_CARGO_SHIPS)
 	m_iCargoCombat(0),
+	m_iSpecialUnitCargoLoad(NO_SPECIALUNIT),
 #endif
 	m_iCombatLimit(0),
 	m_iRangedCombat(0),
@@ -397,6 +398,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	{
 		m_iUnitPromotionType = m_iUnitCombatType;
 	}
+#endif
+#if defined(MOD_CARGO_SHIPS)
+	szTextVal = kResults.GetText("SpecialUnitCargoLoad");
+	m_iSpecialUnitCargoLoad = GC.getInfoTypeForString(szTextVal, true);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("ResourceType");
@@ -1021,6 +1026,14 @@ int CvUnitEntry::GetSpecialCargo() const
 {
 	return m_iSpecialCargo;
 }
+
+/// Allows this Special unit type to be loaded onto a cargo ship (e.g. Great People)
+#if defined(MOD_CARGO_SHIPS)
+int CvUnitEntry::GetSpecialUnitCargoLoad() const
+{
+	return m_iSpecialUnitCargoLoad;
+}
+#endif
 
 /// Is there a class of units (domain) that this unit carries
 int CvUnitEntry::GetDomainCargo() const

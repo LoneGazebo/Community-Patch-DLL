@@ -1029,6 +1029,9 @@ ALTER TABLE Units ADD ConvertOnDamage BOOLEAN DEFAULT 0;
 -- Unit will convert to another UnitType if "ConvertOnDamage" and "DamageThreshold" are defined.
 ALTER TABLE Units ADD ConvertUnit TEXT DEFAULT NULL REFERENCES Units(Type);
 
+-- Special Units that have a different Special rating can be modified here to load on to ships (e.g. Great People).
+ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialUnits(Type);
+
 -- Unit will convert to another UnitType. Must define a "ConvertOnDamage" and the "ConvertUnit" Type
 ALTER TABLE Units ADD DamageThreshold INTEGER DEFAULT 0;
 

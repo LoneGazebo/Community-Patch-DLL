@@ -24938,7 +24938,8 @@ void CvCity::updateStrengthValue()
 			CvPlot* pTarget = plot();
 			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 			{
-				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral())
+				//iamblichos - updated to allow units(or combat generals/admirals) that have the general promotion to boost city strength 
+				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral() || pTarget->getUnitByIndex(iUnitLoop)->GetGreatGeneralCount() > 0 || pTarget->getUnitByIndex(iUnitLoop)->GetGreatAdmiralCount() > 0)
 				{
 					iStrengthFromUnits *= 2;
 					break;
