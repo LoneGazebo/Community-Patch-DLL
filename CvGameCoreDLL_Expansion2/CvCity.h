@@ -522,10 +522,7 @@ public:
 	bool isAdjacentToArea(int iAreaID) const;
 	bool isMatchingArea(const CvPlot* pTestPlot) const;
 	bool hasSharedAdjacentArea(const CvCity* pOtherCity) const;
-#if defined(MOD_BALANCE_CORE)
-	void setDistanceToOtherCity(CvCity* pOtherCity, int iValue);
-	int getDistanceToOtherCity(CvCity* pOtherCity) const;
-#endif
+
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;

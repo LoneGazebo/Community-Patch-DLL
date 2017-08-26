@@ -963,7 +963,7 @@ void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 	if (!GetPlayer()->isAlive())
 		return;
 
-	if (m_QuestsGiven.empty() || m_QuestsGiven.size() <= ePlayer)
+	if (m_QuestsGiven.empty() || m_QuestsGiven.size() <= (size_t)ePlayer)
 		return;
 
 	QuestListForPlayer::iterator itr_quest;

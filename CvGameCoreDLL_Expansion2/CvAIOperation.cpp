@@ -283,17 +283,18 @@ void CvAIOperation::BuildListOfUnitsWeStillNeedToBuild()
 	{
 		CvArmyAI* pThisArmy = thisPlayer.getArmyAI(m_viArmyIDs[uiI]);
 		// if it is still waiting on initial units
-		if(pThisArmy)
+		if(pThisArmy && pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
 		{
-			if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+			int iThisFormationIndex = pThisArmy->GetFormationIndex();
+			if(iThisFormationIndex != NO_MUFORMATION)
 			{
-				int iThisFormationIndex = pThisArmy->GetFormationIndex();
-				if(iThisFormationIndex != NO_MUFORMATION)
+				CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
+				if(thisFormation)
 				{
-					CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iThisFormationIndex);
-					if(thisFormation)
+					for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
 					{
-						for(int iThisSlotIndex = 0; iThisSlotIndex < thisFormation->getNumFormationSlotEntries(); iThisSlotIndex++)
+						//is it still open?
+						if (pThisArmy->GetFormationSlot(iThisSlotIndex)->GetUnitID()<0)
 						{
 							OperationSlot thisOperationSlot;
 							thisOperationSlot.m_iOperationID = m_iID;
@@ -303,19 +304,19 @@ void CvAIOperation::BuildListOfUnitsWeStillNeedToBuild()
 						}
 					}
 				}
-				else
-				{
+			}
+			else
+			{
 #if defined(MOD_BALANCE_CORE)
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("ERROR - No Formation Type for Army!! Eek!");
-						LogOperationSpecialMessage(strMsg);
-					}
-#endif
-					// punt -- sub-class should be taking care of this
-					CvAssertMsg(false,"A sub-class should have dealt with this");
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("ERROR - No Formation Type for Army!! Eek!");
+					LogOperationSpecialMessage(strMsg);
 				}
+#endif
+				// punt -- sub-class should be taking care of this
+				CvAssertMsg(false,"A sub-class should have dealt with this");
 			}
 		}
 	}
@@ -503,13 +504,6 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	bool rtnValue = true;
 	bool success;
 	std::deque<OperationSlot>::iterator it;
-
-	// Copy over the list
-	std::deque<OperationSlot> secondList = m_viListOfUnitsWeStillNeedToBuild;
-
-	// Clear main list
-	m_viListOfUnitsWeStillNeedToBuild.clear();
-
 	CvString strMsg;
 
 	//Every turn, expand our search until we fill this up (or abort).
@@ -563,6 +557,10 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 			UnitChoices.SortItems();
 
+			// Copy over the list
+			std::deque<OperationSlot> secondList = m_viListOfUnitsWeStillNeedToBuild;
+			// Clear main list
+			m_viListOfUnitsWeStillNeedToBuild.clear();
 			for (it = secondList.begin(); it != secondList.end(); ++it)
 			{
 				success = FindBestFitReserveUnit(*it, UnitChoices);
@@ -581,10 +579,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 					{
 						CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(it->m_iArmyID);
 						if (pArmy)
-						{
 							pArmy->GetFormationSlot(it->m_iSlotID)->SetUnitID(ARMYSLOT_NOT_INCLUDING_IN_OPERATION);
-
-						}
 					}
 				}
 			}
@@ -634,6 +629,10 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 		UnitChoices.SortItems();
 
+		// Copy over the list
+		std::deque<OperationSlot> secondList = m_viListOfUnitsWeStillNeedToBuild;
+		// Clear main list
+		m_viListOfUnitsWeStillNeedToBuild.clear();
 		for (it = secondList.begin(); it != secondList.end(); ++it)
 		{
 			success = FindBestFitReserveUnit(*it, UnitChoices);
@@ -651,10 +650,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 				{
 					CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(it->m_iArmyID);
 					if (pArmy)
-					{
 						pArmy->GetFormationSlot(it->m_iSlotID)->SetUnitID(ARMYSLOT_NOT_INCLUDING_IN_OPERATION);
-
-					}
 				}
 			}
 		}
@@ -1600,14 +1596,13 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (pInitialUnit)
 		pArmyAI->AddUnit(pInitialUnit->GetID(),0);
 
-	// Find the list of units we need to build before starting this operation in earnest
-	BuildListOfUnitsWeStillNeedToBuild();
-
+	SetTurnStarted(GC.getGame().getGameTurn());
 	pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 	m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
 	LogOperationSpecialMessage("Initial stage is recruiting");
 
-	SetTurnStarted(GC.getGame().getGameTurn());
+	// Find the list of units we need to build before starting this operation in earnest
+	BuildListOfUnitsWeStillNeedToBuild();
 
 	//see if we can switch to gathering stage
 	CheckTransitionToNextStage();
@@ -2165,22 +2160,28 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 			pMusterPlot = pClosestCity->plot();
 	}
 
-	//Let's not muster in the city - it is hard to this because of garrisons - and we don't want to steal it
+	//problem: naval op but settler in a landlocked city
+	if (IsNavalOperation() && pMusterPlot->isCity() && !pMusterPlot->getPlotCity()->isCoastal())
+	{
+		CvCity* pMusterCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(eOwner, pMusterPlot);
+		if (pMusterCity)
+			pMusterPlot = pMusterCity->plot();
+	}
+
+	//Let's not muster directly in the city - it is hard to this because of garrisons - and we don't want to steal it
 	//todo: choose a muster plot on the way to the target!
 	if(pMusterPlot->isCity())
 	{
-		for (int iCityPlotLoop = 0; iCityPlotLoop < pMusterPlot->getPlotCity()->GetNumWorkablePlots(); iCityPlotLoop++)
+		for (int iCityPlotLoop = 0; iCityPlotLoop < RING3_PLOTS; iCityPlotLoop++)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(pMusterPlot->getX(), pMusterPlot->getY(), iCityPlotLoop);
 
 			// Invalid plot or not owned by this player
 			if (pLoopPlot == NULL || pLoopPlot->getOwner() != eOwner) 
-			{
 				continue;
-			}
 
 			//No water and not impassable
-			if(IsNavalOperation() && !pLoopPlot->isWater())
+			if(IsNavalOperation() && !(pLoopPlot->isWater() && pLoopPlot->area()->getNumTiles()>GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 				continue;
 
 			if(!IsNavalOperation() && pLoopPlot->isWater())

@@ -5215,9 +5215,10 @@ std::vector<int> CvPlot::getAllAdjacentAreas() const
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		CvPlot* pAdjacentPlot = aNeighbors[iI];
-		//exclude our own area!
+		//exclude our own area! also, simply deduplication, but no guarantee for unique values in result
 		if(pAdjacentPlot != NULL && pAdjacentPlot->getArea() != getArea())
-			result.push_back(pAdjacentPlot->getArea());
+			if (result.empty() || result.back()!=pAdjacentPlot->getArea())
+				result.push_back(pAdjacentPlot->getArea());
 	}
 
 	return result;

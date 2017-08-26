@@ -44677,6 +44677,8 @@ int CvPlayer::GetBestSettleAreas(int& iFirstArea, int& iSecondArea)
 			continue;
 
 		float fScore = (float)pLoopArea->getTotalFoundValue();
+		if (fScore <= 0)
+			continue;
 
 		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 		if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
@@ -45120,6 +45122,7 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 void CvPlayer::SetBestWonderCities()
 {
 	int iGPT = GetTreasury()->CalculateBaseNetGold();
+	bool bIsCapitalCompetitive = isCapitalCompetitive();
 	
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -45144,8 +45147,6 @@ void CvPlayer::SetBestWonderCities()
 			if(GetReligions()->GetCurrentReligion(false) == NO_RELIGION)
 				continue;
 		}
-			
-		int iValidCities = 0;
 
 		int iLoopCity;
 		CvCity* pLoopCity = NULL;
@@ -45177,23 +45178,24 @@ void CvPlayer::SetBestWonderCities()
 
 			iValue += (-50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
 
-			//Made it this far? Let's register the capital as valid as a failsafe.
-			if (pLoopCity->isCapital())
-			{
-				iValidCities++;
-			}
 			if (iValue > iBestValue)
 			{
 				iBestValue = iValue;
 				pBestCity = pLoopCity;
 			}
 		}
-		if (pBestCity != NULL && !pBestCity->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
+
+		//default to capital if no other option (for world wonders only if we have a chance)
+		if (!pBestCity && (bIsCapitalCompetitive || ::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo())) )
+			pBestCity = getCapitalCity();
+
+		if (pBestCity)
 		{
 			pBestCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
 
 			int iLoopCity;
 			CvCity* pLoopCity = NULL;
+
 			// Remove from all other cities.
 			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 			{
@@ -45217,38 +45219,36 @@ void CvPlayer::SetBestWonderCities()
 				pLog->Msg(strBaseString);
 			}
 		}
-		//No city? Set capital as best.
-		else if (getCapitalCity() != NULL && iValidCities > 0 && !getCapitalCity()->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
-		{
-			getCapitalCity()->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
-
-			int iLoopCity;
-			CvCity* pLoopCity = NULL;
-			// Remove from all other cities.
-			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
-			{
-				if (pLoopCity != getCapitalCity())
-					pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
-			}
-
-			if ((GC.getLogging() && GC.getAILogging()))
-			{
-				CvString playerName;
-				FILogFile* pLog;
-				CvString strBaseString;
-				CvString strOutBuf;
-				CvString strFileName = "CustomMods.csv";
-				playerName = getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
-				strOutBuf.Format("No best, so Capital ( %s ) is the best city to construct %s", getCapitalCity()->getName().GetCString(), pkeBuildingInfo->GetDescription());
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
-		}
 	}
 }
+
+//to avoid hardcoding any hammers per pop values, we look at hammers per pop for all other capitals
+//however, we don't look at the total hammers, because that would be cheating :)
+bool CvPlayer::isCapitalCompetitive()
+{
+	if (!getCapitalCity())
+		return false;
+
+	int iSum = 0;
+	int iCount = 0;
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER( (PlayerTypes)iPlayer );
+		if (!kPlayer.isAlive() || !kPlayer.getCapitalCity())
+			continue;
+
+		iSum += kPlayer.getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION,false) / kPlayer.getCapitalCity()->getPopulation();
+		iCount++;
+	}
+
+	int iThreshold = iSum / iCount;
+	//venice exception
+	if (GetPlayerTraits()->IsNoAnnexing())
+		iThreshold -= iThreshold / 3;
+
+	return (getCapitalCity()->getYieldRateTimes100(YIELD_PRODUCTION,false) / getCapitalCity()->getPopulation()) >= iThreshold;
+}
+
 #endif
 //	--------------------------------------------------------------------------------
 /// Special ability where city-states gift great people

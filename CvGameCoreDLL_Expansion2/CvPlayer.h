@@ -2515,6 +2515,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void SetBestWonderCities();
+	bool isCapitalCompetitive();
 #endif
 	void DoAdoptedGreatPersonCityStatePolicy();
 	bool IsAlliesGreatPersonBiasApplied() const;
