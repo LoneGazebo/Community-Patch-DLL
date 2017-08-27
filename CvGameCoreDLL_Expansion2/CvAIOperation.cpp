@@ -1579,6 +1579,7 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 		return false;
 
 	//this is for the operation
+	LogOperationStart();
 	SetTargetPlot(pTargetPlot);
 	SetMusterPlot(pMusterPlot);
 
@@ -1609,6 +1610,7 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	//maybe we can even switch to movement stage
 	CheckTransitionToNextStage();
 
+	//do it again to see whether recruitment was successful
 	LogOperationStart();
 	return true;
 }
@@ -2172,7 +2174,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 	//todo: choose a muster plot on the way to the target!
 	if(pMusterPlot->isCity())
 	{
-		for (int iCityPlotLoop = 0; iCityPlotLoop < RING3_PLOTS; iCityPlotLoop++)
+		for (int iCityPlotLoop = 1; iCityPlotLoop < RING3_PLOTS; iCityPlotLoop++)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(pMusterPlot->getX(), pMusterPlot->getY(), iCityPlotLoop);
 

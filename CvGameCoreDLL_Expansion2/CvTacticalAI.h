@@ -1070,6 +1070,7 @@ public:
 	int getNumAdjacentEnemies() const { return nEnemyCombatUnitsAdjacent; }
 	int getNumAdjacentFriendlies() const { return nFriendlyCombatUnitsAdjacent; }
 	int getNumAdjacentFirstlineFriendlies() const { return nFriendlyFirstlineUnitsAdjacent; }
+
 	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
 	bool isEnemyCity() const { return bBlockedByEnemyCity; }
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
@@ -1077,8 +1078,13 @@ public:
 	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
+
 	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer); //set initial state depending on current plot status
-	void update(CvTacticalPosition& currentPosition, bool bFriendlyCombatUnitPresent, bool bEnemyUnitPresent, bool bEnemyCityPresent, bool bSupportPresent);	//set fictional state
+	//update fictional state
+	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
+	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
+	void enemyUnitRangeKill();
+
 	void findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return bValid; }
 	void setValid(bool bState) { bValid=bState; }

@@ -4155,10 +4155,23 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 					CvArea* pArea = GC.getMap().getArea(iFinalArea);
 					if(pArea != NULL)
 					{
-						if(pArea->GetID() != iInitialSettlerArea)
-							pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY_OVERSEAS, NO_PLAYER, iFinalArea);
+						if (pArea->GetID() != iInitialSettlerArea)
+						{
+							//we are about to start a naval op, but can we pull that off?
+							if (bIsSafe)
+								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_QUICK, NO_PLAYER, iFinalArea);
+							else
+							{
+								CvCity* pPossibleMusterCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(pPlayer->GetID(), pLoopUnit->plot());
+								//if there is no city from which to launch a naval op, pretend it's a regular "local" founding op
+								if (pPossibleMusterCity)
+									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_OVERSEAS, NO_PLAYER, iFinalArea);
+								else
+									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+							}
+						}
 						else
-							pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+							pPlayer->addAIOperation(bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
 						return true;
 					}
 				}
