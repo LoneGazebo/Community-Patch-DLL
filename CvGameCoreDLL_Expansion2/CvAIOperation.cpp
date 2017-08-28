@@ -228,6 +228,7 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
 	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
 		return FNEW(CvAIOperationAntiBarbarian(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_FOUND_CITY:
+	case AI_OPERATION_FOUND_CITY_OVERSEAS: //should not be used anymore ...
 		return FNEW(CvAIOperationCivilianFoundCity(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_MERCHANT_DELEGATION:
 		return FNEW(CvAIOperationCivilianMerchantDelegation(), c_eCiv5GameplayDLL, 0);
@@ -243,8 +244,6 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
 		return FNEW(CvAIOperationNavalSuperiority(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
 		return FNEW(CvAIOperationNavalOnlyCityAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_FOUND_CITY_OVERSEAS:
-		return FNEW(CvAIOperationCivilianFoundCityOverseas(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_FOUND_CITY_QUICK:
 		return FNEW(CvAIOperationCivilianFoundCityQuick(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_PILLAGE_ENEMY:
@@ -2162,15 +2161,15 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 			pMusterPlot = pClosestCity->plot();
 	}
 
-	//problem: naval op but settler in a landlocked city
-	if (IsNavalOperation() && pMusterPlot->isCity() && !pMusterPlot->getPlotCity()->isCoastal())
+	//problem: naval op but civilian not in a coastal city
+	if (IsNavalOperation() && !(pMusterPlot->isCity() && pMusterPlot->getPlotCity()->isCoastal()))
 	{
 		CvCity* pMusterCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(eOwner, pMusterPlot);
 		if (pMusterCity)
 			pMusterPlot = pMusterCity->plot();
 	}
 
-	//Let's not muster directly in the city - it is hard to this because of garrisons - and we don't want to steal it
+	//Let's not muster directly in the city - escort might conflict with garrison
 	//todo: choose a muster plot on the way to the target!
 	if(pMusterPlot->isCity())
 	{
@@ -3152,52 +3151,6 @@ MultiunitFormationTypes CvAIOperationNavalInvasion::GetFormation() const
 	//varies with era
 	return MilitaryAIHelpers::GetCurrentBestFormationTypeForNavalAttack();
 }
-/// Start the civilian off to a new target plot
-bool CvAIOperationCivilianFoundCityOverseas::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
-{
-	CvPlot* pCurrentTarget = GetTargetPlot();
-
-	// Find best city site
-	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,pCurrentTarget?pCurrentTarget->getArea():-1,!IsEscorted());
-
-	// No targets at all! Abort
-	if(pBetterTarget == NULL)
-	{
-		SetToAbort( AI_ABORT_NO_TARGET );
-		return false;
-	}
-
-	// If this is a new target, switch to it
-	if(pBetterTarget != pCurrentTarget)
-	{
-		//throw out any ships on the wrong water body - todo: isn't this a bit early?
-		std::vector<int> aiUnitsToRemove;
-		for (CvUnit* pUnit = pArmy->GetFirstUnit(); pUnit; pUnit = pArmy->GetNextUnit())
-		{
-			if (pUnit->TurnsToReachTarget(pBetterTarget,CvUnit::MOVEFLAG_APPROX_TARGET_RING1,MAX_INT) == MAX_INT)
-				aiUnitsToRemove.push_back(pUnit->GetID());
-		}
-		for (std::vector<int>::iterator it = aiUnitsToRemove.begin(); it != aiUnitsToRemove.end(); ++it)
-			pArmy->RemoveUnit((*it));
-
-		//set the new target - may be inland!
-		SetTargetPlot(pBetterTarget);
-		pArmy->SetGoalPlot(pBetterTarget);
-
-		//find the best muster plot
-		CvCity* pBestMuster = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner,pCivilian->plot());
-		CvPlot *pMusterPlot = pBestMuster ? MilitaryAIHelpers::GetCoastalPlotNearPlot(pBestMuster->plot()) : NULL;
-		if(pMusterPlot != NULL)
-		{
-			SetMusterPlot(pMusterPlot);
-			pArmy->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
-			SetTurnStarted(GC.getGame().getGameTurn());
-			return true;
-		}
-	}
-
-	return false;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationNavalInvasionSneaky
@@ -4052,7 +4005,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 				{
 					//naval units are fast and terrain is easy. if there's a path we assume we can attack it
 					//we enforce the same area for naval ops, everything else leads to problems later
-					if (pMusterPlot->getArea() != pTargetPlot->getArea())
+					if ((pMusterPlot->getArea() != pLoopUnit->plot()->getArea()) || (pMusterPlot->getArea() != pTargetPlot->getArea()))
 					{
 						iTurnDistance = INT_MAX;
 						return false;
