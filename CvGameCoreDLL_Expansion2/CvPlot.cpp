@@ -4254,29 +4254,12 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 #endif
 		return true;
 	}
-
-	if ( getTeam() == NO_TEAM)
+	// in no-mans land or enemy territory
+	else if (bIsPassableImprovement)
 	{
-		// In no-mans land ...
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
-		if (getNumUnits() == 0)
+		//may enter unoccupied enemy fortifications (cities are handled elsewhere)
+		if (getBestDefender(NO_PLAYER, ePlayer) == NULL)
 			return true;
-
-		// ... make sure there are only friendly units here
-		const IDInfo* pUnitNode = headUnitNode();
-		while (pUnitNode != NULL) {
-			if ((pUnitNode->eOwner >= 0) && pUnitNode->eOwner < MAX_PLAYERS) {
-				CvUnit* pLoopUnit = (GET_PLAYER(pUnitNode->eOwner).getUnit(pUnitNode->iID));
-
-				if (pLoopUnit && (eTeam == pLoopUnit->getTeam())) {
-					// Any friendly unit will do
-					return true;
-				}
-			}
-
-			pUnitNode = nextUnitNode(pUnitNode);
-		}
 	}
 
 	return false;

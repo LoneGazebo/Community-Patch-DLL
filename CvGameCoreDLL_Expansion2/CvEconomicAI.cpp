@@ -4157,14 +4157,14 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 					{
 						if (pArea->GetID() != iInitialSettlerArea)
 						{
-							//we are about to start a naval op, but can we pull that off?
+							//we are about to start a naval op, but does that even make sense?
 							if (bIsSafe)
 								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_QUICK, NO_PLAYER, iFinalArea);
 							else
 							{
+								//check preconditions for naval op, otherwise pretend it's a regular founding op
 								CvCity* pPossibleMusterCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(pPlayer->GetID(), pLoopUnit->plot());
-								//if there is no city from which to launch a naval op, pretend it's a regular "local" founding op
-								if (pPossibleMusterCity)
+								if (pPossibleMusterCity && pBestSettle->isCoastalLand())
 									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_OVERSEAS, NO_PLAYER, iFinalArea);
 								else
 									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
