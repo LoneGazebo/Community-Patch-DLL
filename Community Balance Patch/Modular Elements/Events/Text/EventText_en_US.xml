@@ -14,7 +14,7 @@
 			<Text>The unwashed masses should remain unwashed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_1_HELP">
-			<Text>Receive a free Great Person of your choice.</Text>
+			<Text>50% to Receive a free Great Person of your choice and one turn of [ICON_REVOLT] Revolution.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_2">
