@@ -53,31 +53,25 @@
 			<Text>Let's focus on something simple.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_HELP">
-			<Text>Spend {1_Scaled}. 50% Chance to gain +200 [ICON_FOOD] Food in the City.</Text>
+			<Text>Spend {1_Scaled}. Gain {2_InstantYield} Food in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2">
 			<Text>A large investment will pay dividends.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_HELP">
-			<Text>Spend {1_Scaled}. 50% Chance that Fishing Boats near the City will gain +5 [ICON_FOOD] Food for {5_Turns}.</Text>
+			<Text>Spend {1_Scaled}. Fishing Boats near the City will gain +5 [ICON_FOOD] Food for {5_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3">
-			<Text>I'd rather invest in infrastructure.</Text>
+			<Text>I'd rather invest in something much lucrative...</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_HELP">
-			<Text>Spend {1_Scaled}. A Harbor is constructed in the City.</Text>
+			<Text>Invest {1_Scaled}. 50% chance for a Harbor to be constructed in the City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_SUCCESSFUL">
-			<Text>The fishermen from {2_City} succeeded on their voyage, and have returned with a large haul of fish!{5_Help}</Text>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_SUCCESSFUL">
+			<Text>The investment in {2_City} was successful and paved for construction!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_SUCCESSFUL_S">
-			<Text>Fishing expedition successful!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL">
-			<Text>The fishermen from {2_City} succeeded, and all Fishing Boats near {2_City} are producing +5 [ICON_FOOD] Food!{5_Help}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL_S">
-			<Text>Fishing expedition successful!</Text>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_SUCCESSFUL_S">
+			<Text>Harbor Constructed!</Text>
 		</Row>
 
 		<!-- Amphitheater -->
@@ -336,6 +330,12 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_1_HELP">
 			<Text>A mineshaft near the City has collapsed, killing all the workers and pillaging the Mine.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_2">
+			<Text>Mine Collapse in Fix</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_2_HELP">
+			<Text>A mineshaft near the City has collapsed, killing all the workers and pillaging the Mine. The government however responded quick with reaction to restoring the Mine to its use. Spending {1_YieldCost}.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_1">
 			<Text>Forest Fire</Text>
 		</Row>
@@ -442,6 +442,12 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1_HELP">
 			<Text>A blight has devestated the farmland near this City. Up to two Farms near the City are pillaged.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_2">
+			<Text>Pestilence Curved</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_2_HELP">
+			<Text>A blight has devestated the farmland near this City. The farmers took {1_YieldCost} to prevent all the farmland from falling apart.</Text>
+		</Row>
 
 		<!-- Flooding -->
 		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1">
@@ -449,6 +455,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1_HELP">
 			<Text>The City's river has flooded, devastating the nearby farmland and damaging the City's buildings. Up to 3 Farms are pillaged, and some buildings may be destroyed as well.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_2">
+			<Text>Flooding in terms of priority</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_2_HELP">
+			<Text>The City's river has flooded, devastating the nearby farmland and damaging the City's buildings. People spent {1_YieldCost} efforts to save the farmlands, while some buildings may be destroyed.</Text>
 		</Row>
 
 		<!-- Hurricane -->
