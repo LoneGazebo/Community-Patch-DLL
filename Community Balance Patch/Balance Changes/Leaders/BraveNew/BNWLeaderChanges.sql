@@ -145,6 +145,10 @@ UPDATE Traits
 SET NoConnectionUnhappiness = '1'
 WHERE Type = 'TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_CANDI', 'FEATURE_OASIS', 'YIELD_GOLD', 2);
 
 -- Maria I
 
