@@ -101,6 +101,11 @@ UPDATE Buildings
 SET FreeBuildingThisCity = 'BUILDINGCLASS_LIBRARY'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
+INSERT INTO Building_GoldenAgeYieldMod
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ROYAL_LIBRARY', 'YIELD_SCIENCE', 20);
+
 -- Enrico - Unique Building (Piazza) -- SEE XML
 UPDATE Traits
 SET FreeUnitPrereqTech = 'TECH_HORSEBACK_RIDING'
@@ -145,6 +150,10 @@ UPDATE Traits
 SET NoConnectionUnhappiness = '1'
 WHERE Type = 'TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_CANDI', 'FEATURE_OASIS', 'YIELD_GOLD', 2);
 
 -- Maria I
 
