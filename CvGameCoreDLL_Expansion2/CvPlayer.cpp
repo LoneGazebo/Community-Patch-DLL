@@ -44890,12 +44890,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		//check for new continent
 		const CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
 		const CvCity* pCapital = getCapitalCity();
-		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
+
+		//ignore if not interesting
 		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
-		if(!bOffshore || !bNewContinent)
-		{
-			bWantOffshore = false;
-		}
+		if (bWantOffshore && !bOffshore)
+			continue;
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
@@ -44903,6 +44902,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
+		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
 		if (bNewContinent && !pPlot->isCoastalLand())
 			iScale = 1;
 
@@ -45033,19 +45033,19 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		}
 
 		//if it's too far from our existing cities, it's dangerous
-		if (!isDangerous && !bWantOffshore)
+		if (!isDangerous)
 		{
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider distance to settler here in case of re-targeting an operation
-			if (iDistanceToCity>4 && !bCanReachThisTurn)
+			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
 				isDangerous = true;
 		}
 
-		//could be close but take many turns to get there ...
-		if (!isDangerous && !bWantOffshore)
+		//could be close but it takes many turns to get there ...
+		if (!isDangerous)
 		{
-			//if the target plot is more than 6 turns away it's unsafe by definition
-			if (it==reachablePlots.end() || it->iTurns>=6)
+			//if the target plot is more than 4 turns away it's unsafe by definition
+			if (it==reachablePlots.end() || it->iTurns>4)
 				isDangerous = true;
 		}
 
