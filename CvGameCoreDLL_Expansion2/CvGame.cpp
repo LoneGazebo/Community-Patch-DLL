@@ -131,6 +131,7 @@ CvGame::CvGame() :
 	m_aiPreviousVotesCast = NULL;
 	m_aiNumVotesForTeam = NULL;
 	m_aiTeamCompetitionWinnersScratchPad = NULL;
+	m_aiGreatestMonopolyPlayer = NULL;
 
 	m_pabSpecialUnitValid = NULL;
 
@@ -1018,6 +1019,7 @@ void CvGame::uninit()
 	SAFE_DELETE_ARRAY(m_aiPreviousVotesCast);
 	SAFE_DELETE_ARRAY(m_aiNumVotesForTeam);
 	SAFE_DELETE_ARRAY(m_aiTeamCompetitionWinnersScratchPad);
+	SAFE_DELETE_ARRAY(m_aiGreatestMonopolyPlayer);
 
 	SAFE_DELETE_ARRAY(m_pabSpecialUnitValid);
 
@@ -1216,6 +1218,19 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	if(!bConstructorCall)
 	{
+		
+		CvAssertMsg(m_aiGreatestMonopolyPlayer == NULL, "about to leak memory, CvGame::m_aiGreatestMonopolyPlayer");
+		m_aiGreatestMonopolyPlayer = FNEW(int[GC.getNumResourceInfos()], c_eCiv5GameplayDLL, 0);
+		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
+		{
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo((ResourceTypes)iI);
+			if (!pkResourceInfo)
+			{
+				continue;
+			}
+			m_aiGreatestMonopolyPlayer[iI] = NO_PLAYER;
+		}
+
 		CvAssertMsg(m_paiUnitCreatedCount==NULL, "about to leak memory, CvGame::m_paiUnitCreatedCount");
 		m_paiUnitCreatedCount = FNEW(int[GC.getNumUnitInfos()], c_eCiv5GameplayDLL, 0);
 		for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
@@ -8212,6 +8227,7 @@ void CvGame::doTurn()
 	{
 		doVictoryRandomization();
 	}
+	UpdateGreatestPlayerResourceMonopoly();
 #endif
 	// Victory stuff
 	testVictory();
@@ -8693,7 +8709,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		CvAssert(pstartUnit);
 		if (pstartUnit)
 		{
-			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
+			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCombatUnit())
 			{
 				pstartUnit->kill(false);		// Could not find a spot!
 			}
@@ -8720,7 +8736,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				CvAssert(pmUnit);
 				if (pmUnit)
 				{
-					if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
+					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCombatUnit())
 					{
 						pmUnit->kill(false);		// Could not find a spot!
 					}
@@ -8742,7 +8758,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					CvAssert(pUnit);
 					if (pUnit)
 					{
-						if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCombatUnit())
 						{
 							pUnit->kill(false);		// Could not find a spot!
 						}
@@ -10899,6 +10915,9 @@ void CvGame::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iLastTurnCSSurrendered, 0);
+
+	ArrayWrapper<int> wrapm_aiGreatestMonopolyPlayer(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
+	kStream >> wrapm_aiGreatestMonopolyPlayer;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_READ(66, kStream, m_iLargestBasePotential, 0);
@@ -11154,6 +11173,7 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
 	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
+	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_WRITE(kStream, m_iLargestBasePotential);
@@ -13803,34 +13823,56 @@ int CvGame::GetNumCorporationsFounded() const
 }
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-
-PlayerTypes CvGame::GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const
+void CvGame::UpdateGreatestPlayerResourceMonopoly(ResourceTypes eTestResource)
 {
-	const CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-	if(pkResource == NULL)
-		return NO_PLAYER;
-	if(!pkResource->isMonopoly())
-		return NO_PLAYER;
-
-	PlayerTypes eGreatestMonopolyPlayer = NO_PLAYER;
-	PlayerTypes eLoopPlayer;
-	int iMax = 0;
-	for(int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iLoopPlayer;
+		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
 
-		if(!GET_PLAYER(eLoopPlayer).isAlive()) continue;
+		//got a specific one in mind?
+		if (eTestResource != NO_RESOURCE && eResource != eTestResource)
+			continue;
 
-		int iMonopolyPercent = GET_PLAYER(eLoopPlayer).GetMonopolyPercent(eResource);
-		if(iMonopolyPercent > iMax)
+		const CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource == NULL)
+			continue;
+		if (!pkResource->isMonopoly())
+			continue;
+
+		m_aiGreatestMonopolyPlayer[eResource] = NO_PLAYER;
+
+		PlayerTypes eGreatestMonopolyPlayer = NO_PLAYER;
+		PlayerTypes eLoopPlayer;
+		int iMax = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
-			iMax = iMonopolyPercent;
-			eGreatestMonopolyPlayer = eLoopPlayer;
-		}
-	}
+			eLoopPlayer = (PlayerTypes)iLoopPlayer;
 
-	return eGreatestMonopolyPlayer;
+			if (!GET_PLAYER(eLoopPlayer).isAlive()) continue;
+
+			int iMonopolyPercent = GET_PLAYER(eLoopPlayer).GetMonopolyPercent(eResource);
+			if (iMonopolyPercent > iMax)
+			{
+				iMax = iMonopolyPercent;
+				eGreatestMonopolyPlayer = eLoopPlayer;
+			}
+		}
+		m_aiGreatestMonopolyPlayer[eResource] = eGreatestMonopolyPlayer;
+	}
 }
 
+int CvGame::GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const
+{
+	return m_aiGreatestMonopolyPlayer[eResource];
+}
+
+int CvGame::GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) const
+{
+	PlayerTypes eGreatestPlayer = (PlayerTypes)m_aiGreatestMonopolyPlayer[eResource];
+	if (eGreatestPlayer == NO_PLAYER)
+		return 0;
+
+	return GET_PLAYER(eGreatestPlayer).GetMonopolyPercent(eResource);
+}
 #endif
 #endif

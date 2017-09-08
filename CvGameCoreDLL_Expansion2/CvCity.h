@@ -522,10 +522,7 @@ public:
 	bool isAdjacentToArea(int iAreaID) const;
 	bool isMatchingArea(const CvPlot* pTestPlot) const;
 	bool hasSharedAdjacentArea(const CvCity* pOtherCity) const;
-#if defined(MOD_BALANCE_CORE)
-	void setDistanceToOtherCity(CvCity* pOtherCity, int iValue);
-	int getDistanceToOtherCity(CvCity* pOtherCity) const;
-#endif
+
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;
@@ -777,6 +774,9 @@ public:
 
 	int GetNumTradeRouteBonus() const;
 	void ChangeNumTradeRouteBonus(int iChange);
+
+	int GetCityConnectionTradeRouteGoldModifier() const;
+	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
 
 	bool isAreaBorderObstacle() const;
 
@@ -1699,6 +1699,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iTradeRouteSeaGoldBonus;
 	FAutoVariable<int, CvCity> m_iTradeRouteLandGoldBonus;
 	FAutoVariable<int, CvCity> m_iNumTradeRouteBonus;
+	FAutoVariable<int, CvCity> m_iCityConnectionTradeRouteGoldModifier;
 	FAutoVariable<int, CvCity> m_iCultureUpdateTimer;
 	FAutoVariable<int, CvCity> m_iCitySizeBoost;
 	FAutoVariable<int, CvCity> m_iSpecialistFreeExperience;

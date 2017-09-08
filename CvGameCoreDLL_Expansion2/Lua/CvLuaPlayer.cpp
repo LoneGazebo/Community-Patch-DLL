@@ -66,6 +66,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasGlobalMonopoly);
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
+	Method(IsShowImports);
 #endif
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
@@ -1667,6 +1668,14 @@ int CvLuaPlayer::lGetResourcesMisc(lua_State* L)
 	return 1;
 }
 
+// -----------------------------------------------------------------------------
+// int CvPlayer::IsShowImports()
+int CvLuaPlayer::lIsShowImports(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushboolean(L, (pkPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies() || pkPlayer->IsCSResourcesCountMonopolies()));
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //void disbandUnit(bool bAnnounce);
@@ -11983,7 +11992,7 @@ int CvLuaPlayer::lGetPlayerBuildingClassYieldChange(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if(pkPlayer)
 	{
-		int iChange = pkPlayer->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+		int iChange = pkPlayer->GetBuildingClassYieldChange(eBuildingClass, eYieldType) + pkPlayer->GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
 		lua_pushinteger(L, iChange);
 
 		return 1;

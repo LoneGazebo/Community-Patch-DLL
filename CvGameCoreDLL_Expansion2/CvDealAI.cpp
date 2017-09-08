@@ -1611,12 +1611,33 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	{
 		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
 			return 0;
-		if (GetPlayer()->getNumResourceAvailable(eResource) > 0)
+		if (GetPlayer()->getNumResourceAvailable(eResource) > 0 && !GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 			return 0;
 
 		if (GetPlayer()->IsEmpireUnhappy())
 		{
 			iItemValue += GetPlayer()->GetUnhappiness() * 2;
+		}
+
+		if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && GetPlayer()->GetMonopolyPercent(eResource) < GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource))
+		{
+			int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
+			int iNumResourceImported = GetPlayer()->getNumResourceTotal(eResource, true, true);
+			//we don't want resources that won't get us a bonus.
+			bool bBad = false;
+			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 0)
+				{
+					bBad = true;
+					return 0;
+				}
+			}
+			if (!bBad)
+			{
+				iItemValue *= (100 + GetPlayer()->GetMonopolyPercent(eResource));
+				iItemValue /= 100;
+			}
 		}
 		
 		int iFactor = 1;
@@ -1968,21 +1989,41 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 					}
 				}
 			}
+			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && GetPlayer()->GetMonopolyPercent(eResource) < GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource))
+			{
+				int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
+				//we don't want resources that won't get us a bonus.
+				bool bBad = false;
+				for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+				{
+					if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0)
+					{
+						return 0;
+					}
+				}
+				if (!bBad)
+				{
+					//More we have compared to them, the less what they have is worth, and vice-versa!
+					iItemValue *= (100 + (GetPlayer()->GetMonopolyPercent(eResource) * 2));
+					iItemValue /= 100;
+				}
+			}
+			else
+			{
+				//Decrease value based on number we have.
+				int iNumRemaining = (GetPlayer()->getNumResourceAvailable(eResource));
+				//20% minimum.
+				iItemValue -= min((iItemValue / 5), (iNumRemaining * 20));
 
-			//Decrease value based on number we have.
-			int iNumRemaining = (GetPlayer()->getNumResourceAvailable(eResource));
-			//20% minimum.
-			iItemValue -= min((iItemValue/5), (iNumRemaining * 20));
+				if (iItemValue <= 0)
+					iItemValue = 1;
 
-			if (iItemValue <= 0)
-				iItemValue = 1;
-
-			//How much do they have compared to us?
-			int iResourceRatio = GetResourceRatio(eOtherPlayer, GetPlayer()->GetID(), eResource);
-
-			//More we have compared to them, the less what they have is worth, and vice-versa!
-			iItemValue *= 100;
-			iItemValue /= (100 + iResourceRatio);
+				//How much do they have compared to us?
+				int iResourceRatio = GetResourceRatio(eOtherPlayer, GetPlayer()->GetID(), eResource);
+				//More we have compared to them, the less what they have is worth, and vice-versa!
+				iItemValue *= 100;
+				iItemValue /= (100 + iResourceRatio);
+			}
 
 			// Approach is important
 			switch (GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false))
@@ -2584,6 +2625,28 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		iItemValue /= pkStdSpeedInfo->GetDealDuration();
 	}
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		// Item is worth 20% less if it's owner is a vassal
+		if (bFromMe)
+		{
+			// If it's my item and I'm the vassal of the other player, accept it.
+			if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetMaster() == GET_PLAYER(GetPlayer()->GetID()).getTeam())
+			{
+				return iItemValue;
+			}
+		}
+		else
+		{
+			// If it's their item and they're my vassal, accept it.
+			if (GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_PLAYER(eOtherPlayer).getTeam())
+			{
+				return iItemValue;
+			}
+		}
+	}
+#endif
+
 	if(bFromMe)  // giving the other player an embassy in my capital
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -2675,6 +2738,28 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		return 50;
 #else
 	int iItemValue = 100;
+#endif
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		// Item is worth 20% less if it's owner is a vassal
+		if (bFromMe)
+		{
+			// If it's my item and I'm the vassal of the other player, accept it.
+			if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetMaster() == GET_PLAYER(GetPlayer()->GetID()).getTeam())
+			{
+				return iItemValue;
+			}
+		}
+		else
+		{
+			// If it's their item and they're my vassal, accept it.
+			if (GET_TEAM(GetPlayer()->getTeam()).GetMaster() == GET_PLAYER(eOtherPlayer).getTeam())
+			{
+				return iItemValue;
+			}
+		}
+	}
 #endif
 
 	// Me giving Open Borders to the other guy
@@ -5070,6 +5155,30 @@ void CvDealAI::DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontC
 				if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
 				{
 					iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ false, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, iDealDuration, bUseEvenValue);
+
+					if (iItemValue > 0 && GET_PLAYER(eMyPlayer).GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+					{
+						if(GetPlayer()->GetMonopolyPercent(eResource) < GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource))
+						{
+							int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
+							int iNumResourceImported = GetPlayer()->getNumResourceTotal(eResource, true, true);
+							//we don't want resources that won't get us a bonus.
+							bool bBad = false;
+							for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+							{
+								if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 0)
+								{
+									bBad = true;
+									break;
+								}
+							}
+							if (!bBad)
+							{
+								iItemValue *= (125 + GetPlayer()->GetMonopolyPercent(eResource));
+								iItemValue /= 100;
+							}
+						}
+					}
 
 					// If adding this to the deal doesn't take it over the limit, do it (pick best option below)
 #if defined(MOD_BALANCE_CORE)

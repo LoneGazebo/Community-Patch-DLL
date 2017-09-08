@@ -322,8 +322,6 @@ void CvEconomicAI::Reset()
 	}
 #endif
 
-	m_bExplorationPlotsDirty = true;
-
 	for(uint ui = 0; ui < NUM_PURCHASE_TYPES; ui++)
 	{
 		CvPurchaseRequest request;
@@ -378,8 +376,6 @@ void CvEconomicAI::Read(FDataStream& kStream)
 	{
 		kStream >> m_auiYields[ui];
 	}
-
-	kStream >> m_bExplorationPlotsDirty;
 
 	kStream >> iEntriesToRead;
 
@@ -484,8 +480,6 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	{
 		kStream << m_auiYields[ui];
 	}
-
-	kStream << m_bExplorationPlotsDirty;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	kStream << m_vPlotsToExploreLand.size();
@@ -1049,11 +1043,6 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 #if defined(MOD_BALANCE_CORE)
 const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
 {
-	if(m_bExplorationPlotsDirty)
-	{
-		UpdateExplorePlots();
-	}
-
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
 
@@ -1084,7 +1073,7 @@ int CvEconomicAI::GetNavalExplorersNeeded() const
 }
 //	---------------------------------------------------------------------------
 //compute score for yet-to-be revealed plots
-int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
+int EconomicAIHelpers::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
 	int iSmallScore = 5;
@@ -1121,8 +1110,11 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			FeatureTypes eFeature = pLoopPlot->getFeatureType();
 			if (eDomainType==DOMAIN_LAND && !bEmbarked)
 			{
-				if (pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(pPlayer->GetID()))
-					//we're not very interested in these "useless" plots
+				if (pLoopPlot->isIce())
+					//there is nothing interesting here
+					continue;
+				else if (pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(pPlayer->GetID()))
+					//we're not very interested in these plots
 					iResultValue += iSmallScore;
 				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
 					//flatland forest/jungle is meh
@@ -1133,11 +1125,14 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			}
 			else
 			{
-				if (!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(pPlayer->GetID()))
-					//we're here to find new land!
+				if (pLoopPlot->isIce())
+					//there is nothing interesting here
+					continue;
+				else if (!pLoopPlot->isWater() && pLoopPlot->isValidMovePlot(pPlayer->GetID()))
+					//after all we're here to find new land!
 					iResultValue += iLargeScore;
-				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3)
-					//punching into the unknown, I see?
+				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3 || pLoopPlot->isShallowWater())
+					//punching into the unknown. or land nearby
 					iResultValue += iMediumScore;
 				else
 					iResultValue += iSmallScore;
@@ -2480,8 +2475,8 @@ void CvEconomicAI::DoReconState()
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
 
-	//important!
-	SetExplorationPlotsDirty();
+	//important. do this exactly once per turn.
+	UpdateExplorePlotsFromScratch();
 	m_eReconState = RECON_STATE_NEUTRAL;
 	m_eNavalReconState = RECON_STATE_NEUTRAL;
 
@@ -2503,44 +2498,9 @@ void CvEconomicAI::DoReconState()
 		return;
 	}
 
-	// Never desperate for explorers if we are at war
+	// Less desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
-	{
-		if(GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
-		{
-			m_eReconState = RECON_STATE_ENOUGH;
-			m_eNavalReconState = RECON_STATE_ENOUGH;
-#if defined(MOD_BALANCE_CORE)
-			// Return all/most scouts to normal unit AI since have enough recon
-			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
-			{
-				if(pLoopUnit != NULL)
-				{
-					if((pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE) || (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA))
-					{
-						pLoopUnit->AI_setUnitAIType(pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Assigning explorers back to attack AI because of WAR. %s, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
-							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-					}
-				}
-			}
-#endif
-			return;
-		}
-	}
-
-	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
-	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded() < 3 )
-	{
-		// Need recon at least until we have some cities
-		m_eReconState = RECON_STATE_NEEDED;
-		m_eNavalReconState = RECON_STATE_NEEDED;
-	}
+	bool bWar = (eStrategyAtWar != NO_MILITARYAISTRATEGY) && GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar);
 
 	// RECON ON OUR HOME CONTINENT
 
@@ -2551,11 +2511,13 @@ void CvEconomicAI::DoReconState()
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
 	int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
+	if (bWar)
+		iNumExplorersNeededTimes100 /= 2;
 
 	SetExplorersNeeded(iNumExplorersNeededTimes100 / 100);
 
 	//there is a slight hysteresis here to avoid unit AI flipping back and forth
-	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || (m_eReconState == RECON_STATE_NEEDED && iNumExploringUnits==0))
+	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50)
 	{
 		m_eReconState = RECON_STATE_NEEDED;
 
@@ -2577,8 +2539,6 @@ void CvEconomicAI::DoReconState()
 			}
 		}
 
-		LogEconomyMessage(CvString::format("Creating new land explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
-
 		//choose the one who is farthest out
 		if (!eligibleExplorers.empty())
 		{
@@ -2586,33 +2546,35 @@ void CvEconomicAI::DoReconState()
 			CvUnit* pNewExplorer = m_pPlayer->getUnit( eligibleExplorers.back().second );
 			pNewExplorer->AI_setUnitAIType(UNITAI_EXPLORE);
 			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Assigning %s as a land explorer, X: %d, Y: %d", pNewExplorer->getName().GetCString(), pNewExplorer->getX(), pNewExplorer->getY());
-				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
+				LogEconomyMessage(CvString::format("Creating new land explorer (%s %d). Have %d, want %d, candidates %d",
+					pNewExplorer->getName().GetCString(), pNewExplorer->GetID(), iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 		}
 	}
 	else if(iNumExploringUnits*100 > iNumExplorersNeededTimes100+50)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 
-		// Reduce number of explorers
-		for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		// Reduce number of explorers by one
+		vector< pair<int, int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
-			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 			{
-				pLoopUnit->AI_setUnitAIType(pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Assigning exploring %s back to attack AI, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
-					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-
-				//one is enough for this turn
-				break;
+				int iDistance = m_pPlayer->GetCityDistanceInPlots(pLoopUnit->plot());
+				eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));
 			}
+		}
+
+		//choose the one who is closest
+		if (!eligibleExplorers.empty())
+		{
+			std::sort(eligibleExplorers.begin(), eligibleExplorers.end());
+			CvUnit* pExplorer = m_pPlayer->getUnit(eligibleExplorers.front().second);
+
+			pExplorer->AI_setUnitAIType(pExplorer->getUnitInfo().GetDefaultUnitAIType());
+			if (GC.getLogging() && GC.getAILogging())
+				LogEconomyMessage(CvString::format("Retiring land explorer (%s %d). Have %d, want %d, candidates %d",
+					pExplorer->getName().GetCString(), pExplorer->GetID(), iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 		}
 	}
 	else
@@ -2640,17 +2602,21 @@ void CvEconomicAI::DoReconState()
 
 		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
 		int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
-		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
+		int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
+		if (bWar)
+			iNumExplorersNeededTimes100 /= 2;
 
 		SetNavalExplorersNeeded(iNumExplorersNeededTimes100 / 100);
 
 		//there is a slight hysteresis here to avoid unit AI flipping back and forth
-		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || (m_eNavalReconState == RECON_STATE_NEEDED && iNumExploringUnits==0))
+		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50)
 		{
 			m_eNavalReconState = RECON_STATE_NEEDED;
 
 			// Send one additional boat out as a scout every round until we don't need recon anymore.
-			vector< pair<int,int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+			vector< pair<int,int> > eligibleExplorersCoast; //distance / id (don't store pointers for stable sorting!)
+			vector< pair<int, int> > eligibleExplorersDeepwater;
+			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
@@ -2661,12 +2627,17 @@ void CvEconomicAI::DoReconState()
 					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
 					{
 						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
-						eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
+
+						if (pLoopUnit->isHasPromotion(ePromotionOceanImpassable))
+							eligibleExplorersCoast.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+						else
+							eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
 					}
 				}
 			}
 
-			LogEconomyMessage(CvString::format("Creating new sea explorer. Have %d, want %d, candidates %d", iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
+			//prefer oceangoing ships if we have any
+			vector< pair<int,int> > eligibleExplorers = eligibleExplorersDeepwater.empty() ? eligibleExplorersCoast : eligibleExplorersDeepwater;
 
 			//choose the one who is farthest out
 			if (!eligibleExplorers.empty())
@@ -2675,33 +2646,35 @@ void CvEconomicAI::DoReconState()
 				CvUnit* pNewExplorer = m_pPlayer->getUnit( eligibleExplorers.back().second );
 				pNewExplorer->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
 				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Assigning %s as a naval explorer, X: %d, Y: %d", pNewExplorer->getName().GetCString(), pNewExplorer->getX(), pNewExplorer->getY());
-					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
+					LogEconomyMessage(CvString::format("Creating new naval explorer (%s %d). Have %d, want %d, candidates %d",
+						pNewExplorer->getName().GetCString(), pNewExplorer->GetID(), iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 			}
 		}
 		else if(iNumExploringUnits*100 > iNumExplorersNeededTimes100+50)
 		{
 			m_eNavalReconState = RECON_STATE_ENOUGH;
 
-			// Return all/most boats to normal unit AI since have enough recon
-			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+			// Return one boat to normal unit AI since have enough recon
+			vector< pair<int, int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+			for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
 				{
-					pLoopUnit->AI_setUnitAIType(pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Assigning naval explorer back to attack sea AI to %s, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-
-					//one is enough for this turn
-					break;
+					int iDistance = m_pPlayer->GetCityDistanceInPlots(pLoopUnit->plot());
+					eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));
 				}
+			}
+
+			//choose the one who is closest
+			if (!eligibleExplorers.empty())
+			{
+				std::sort(eligibleExplorers.begin(), eligibleExplorers.end());
+				CvUnit* pExplorer = m_pPlayer->getUnit(eligibleExplorers.front().second);
+
+				pExplorer->AI_setUnitAIType(pExplorer->getUnitInfo().GetDefaultUnitAIType());
+				if (GC.getLogging() && GC.getAILogging())
+					LogEconomyMessage(CvString::format("Retiring naval explorer (%s %d). Have %d, want %d, candidates %d",
+						pExplorer->getName().GetCString(), pExplorer->GetID(), iNumExploringUnits, iNumExplorersNeededTimes100 / 100, eligibleExplorers.size()));
 			}
 		}
 		else
@@ -3183,17 +3156,50 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 }
 #endif
 
+void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWater, bool bAllowDeepWater, std::vector<SPlotWithScore>& landTargets, std::vector<SPlotWithScore>& seaTargets)
+{
+	if (pPlot == NULL)
+		return;
+
+	//allow AI to see the next tile, a human can guess as well
+	if (!pPlot->isAdjacentRevealed(pPlayer->getTeam()))
+		return;
+
+	if (pPlot->isWater())
+	{
+		if (pPlot->isShallowWater() || bAllowDeepWater)
+		{
+			int iScore = EconomicAIHelpers::ScoreExplorePlot2(pPlot, pPlayer, DOMAIN_SEA, false);
+			if (iScore <= 0)
+				return;
+
+			// add an entry for this plot
+			seaTargets.push_back(SPlotWithScore(pPlot, iScore));
+
+			// close coast is also interesting for embarked scouting
+			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistanceInEstimatedTurns(pPlot)<8)
+				landTargets.push_back(SPlotWithScore(pPlot, iScore));
+		}
+	}
+	else
+	{
+		int iScore = EconomicAIHelpers::ScoreExplorePlot2(pPlot, pPlayer, DOMAIN_LAND, false);
+		if (iScore <= 0)
+			return;
+
+		if (pPlayer->getCapitalCity() && pPlot->getArea() != pPlayer->getCapitalCity()->getArea() && !bAllowShallowWater)
+			return;
+
+		// add an entry for this plot
+		landTargets.push_back(SPlotWithScore(pPlot, iScore));
+	}
+}
+
 /// Go through the plots for the exploration automation to evaluate
-void CvEconomicAI::UpdateExplorePlots()
+void CvEconomicAI::UpdateExplorePlotsFromScratch()
 {
 	m_vPlotsToExploreLand.clear();
 	m_vPlotsToExploreSea.clear();
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && MOD_BALANCE_CORE_MILITARY_LOGGING;
-	CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
-	FILogFile* pLog= bLogging ? LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp ) : NULL;
-#endif
 
 	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean();
 	bool bCanEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
@@ -3201,64 +3207,30 @@ void CvEconomicAI::UpdateExplorePlots()
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(pPlot == NULL)
-			continue;
-
-		//allow AI to see the next tile, a human can guess as well
-		if(!pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
-			continue;
-
-		if(pPlot->isWater())
-		{
-			if (pPlot->isShallowWater() || bNeedToLookAtDeepWaterAlso)
-			{
-				int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_SEA, false);
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-				if (bLogging && pLog) 
-				{
-					CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-						pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
-					pLog->Msg( dump.c_str() );
-				}
-#endif
-
-				if(iScore <= 0)
-					continue;
-
-				// add an entry for this plot
-				m_vPlotsToExploreSea.push_back( SPlotWithScore(pPlot, iScore) );
-
-				// close coast is also interesting for embarked scouting
-				if (pPlot->isShallowWater() && bCanEmbark && m_pPlayer->GetCityDistanceInEstimatedTurns(pPlot)<8)
-					m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
-			}
-		}
-		else
-		{
-			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_LAND, false);
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-			if (bLogging && pLog) 
-			{
-				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-					pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
-				pLog->Msg( dump.c_str() );
-			}
-#endif
-
-			if(iScore <= 0)
-				continue;
-
-			if(m_pPlayer->getCapitalCity() && pPlot->getArea() != m_pPlayer->getCapitalCity()->getArea() && !bCanEmbark)
-				continue;
-
-			// add an entry for this plot
-			m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
-		}
+		TestExplorationPlot(pPlot, m_pPlayer, bCanEmbark, bNeedToLookAtDeepWaterAlso, m_vPlotsToExploreLand, m_vPlotsToExploreSea);
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && MOD_BALANCE_CORE_MILITARY_LOGGING;
+	CvString fname = CvString::format("ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn());
+	FILogFile* pLog = bLogging ? LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp) : NULL;
+	if (bLogging && pLog)
+	{
+		for (size_t i = 0; i < m_vPlotsToExploreLand.size(); i++)
+		{
+			CvPlot* pPlot = m_vPlotsToExploreLand[i].pPlot;
+			CvString dump = CvString::format("%d,%d,%d,%d,%d,%d\n",
+				pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotsToExploreLand[i].score);
+			pLog->Msg(dump.c_str());
+		}
+		for (size_t i = 0; i < m_vPlotsToExploreSea.size(); i++)
+		{
+			CvPlot* pPlot = m_vPlotsToExploreSea[i].pPlot;
+			CvString dump = CvString::format("%d,%d,%d,%d,%d,%d\n",
+				pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotsToExploreSea[i].score);
+			pLog->Msg(dump.c_str());
+		}
+	}
 	if (pLog)
 		pLog->Close();
 #endif
@@ -3268,7 +3240,43 @@ void CvEconomicAI::UpdateExplorePlots()
 	std::stable_sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
 
 	LogEconomyMessage(CvString::format("Updating exploration plots, found %d land and %d sea targets",m_vPlotsToExploreLand.size(),m_vPlotsToExploreSea.size()));
-	m_bExplorationPlotsDirty = false;
+}
+
+void CvEconomicAI::UpdateExplorePlotsLocally(CvPlot* pPlot)
+{
+	if (!pPlot)
+		return;
+
+	int iRange = 3; //must be <=5
+
+	struct PrPlotDistanceSmallerThan
+	{
+		int dist;
+		CvPlot* ref;
+		PrPlotDistanceSmallerThan(CvPlot* p, int d) : dist(d), ref(p) {}
+		bool operator()(const SPlotWithScore& test) const {
+			if (ref && test.pPlot)
+				return plotDistance(*test.pPlot, *ref) < dist;
+			return true;
+		}
+	};
+
+	//first remove the plots in the neighborhood of our ref plot
+	m_vPlotsToExploreSea.erase(std::remove_if(m_vPlotsToExploreSea.begin(), m_vPlotsToExploreSea.end(), PrPlotDistanceSmallerThan(pPlot, iRange)), m_vPlotsToExploreSea.end());
+	m_vPlotsToExploreLand.erase(std::remove_if(m_vPlotsToExploreLand.begin(), m_vPlotsToExploreLand.end(), PrPlotDistanceSmallerThan(pPlot, iRange)), m_vPlotsToExploreLand.end());
+
+	//then add them again with their new valuation
+	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean();
+	bool bCanEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
+	{
+		CvPlot* pTestPlot = iterateRingPlots(pPlot, i);
+		TestExplorationPlot(pTestPlot, m_pPlayer, bCanEmbark, bNeedToLookAtDeepWaterAlso, m_vPlotsToExploreLand, m_vPlotsToExploreSea);
+	}
+
+	//sort again
+	std::stable_sort(m_vPlotsToExploreLand.begin(), m_vPlotsToExploreLand.end());
+	std::stable_sort(m_vPlotsToExploreSea.begin(), m_vPlotsToExploreSea.end());
 }
 
 CvUnit* CvEconomicAI::FindWorkerToScrap()
@@ -4141,18 +4149,12 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				if(pLoopUnit->IsCombatUnit()) 
 				{
 					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_QUICK, NO_PLAYER, iFinalArea);
+					return true;
 				}
 				else
 				{
-					CvArea* pArea = GC.getMap().getArea(iFinalArea);
-					if(pArea != NULL)
-					{
-						if(pArea->GetID() != iInitialSettlerArea)
-							pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY_OVERSEAS, NO_PLAYER, iFinalArea);
-						else
-							pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
-						return true;
-					}
+					pPlayer->addAIOperation(bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+					return true;
 				}
 			}
 		}

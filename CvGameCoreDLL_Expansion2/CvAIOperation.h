@@ -24,7 +24,7 @@ enum AIOperationTypes
 	INVALID_AI_OPERATION = -1,
 	AI_OPERATION_FOUND_CITY,
     AI_OPERATION_FOUND_CITY_QUICK,
-	AI_OPERATION_FOUND_CITY_OVERSEAS,
+	AI_OPERATION_FOUND_CITY_OVERSEAS, //not used anymore, too many pathfinding issues with the naval escort
 
 	AI_OPERATION_DESTROY_BARBARIAN_CAMP,
     AI_OPERATION_PILLAGE_ENEMY,
@@ -611,36 +611,6 @@ public:
 
 private:
 
-};
-
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvAIOperationCivilianFoundCityOverseas
-//!  \brief		Found a city on a different continent
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvAIOperationCivilianFoundCityOverseas : public CvAIOperationCivilianFoundCity
-{
-public:
-
-	CvAIOperationCivilianFoundCityOverseas() {}
-	virtual ~CvAIOperationCivilianFoundCityOverseas() {}
-
-	virtual int GetOperationType() const
-	{
-		return AI_OPERATION_FOUND_CITY_OVERSEAS;
-	}
-	virtual const char* GetOperationName() const
-	{
-		return "AI_OPERATION_FOUND_CITY_OVERSEAS";
-	}
-	virtual MultiunitFormationTypes GetFormation() const
-	{
-		return MUFORMATION_COLONIZATION_PARTY;
-	}
-	virtual bool IsNavalOperation() const { return true; }
-
-protected:
-	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

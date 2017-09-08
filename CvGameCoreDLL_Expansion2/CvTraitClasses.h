@@ -157,6 +157,7 @@ public:
 	bool IsWarsawPact() const;
 	bool IsFreeZuluPikemanToImpi() const;
 	bool IsPermanentYieldsDecreaseEveryEra() const;
+	bool IsImportsCountTowardsMonopolies() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -473,6 +474,7 @@ protected:
 	bool m_bWarsawPact;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
+	bool m_bImportsCountTowardsMonopolies;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1115,6 +1117,10 @@ public:
 	bool IsPermanentYieldsDecreaseEveryEra() const
 	{
 		return m_bPermanentYieldsDecreaseEveryEra;
+	};
+	bool IsImportsCountTowardsMonopolies() const
+	{
+		return m_bImportsCountTowardsMonopolies;
 	};
 	bool IsWarsawPact() const
 	{
@@ -1817,6 +1823,7 @@ private:
 	bool m_bWarsawPact;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
+	bool m_bImportsCountTowardsMonopolies;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

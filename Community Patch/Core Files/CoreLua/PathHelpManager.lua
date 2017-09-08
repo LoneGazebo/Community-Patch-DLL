@@ -30,7 +30,7 @@ Events.UIPathFinderUpdate.Add( OnPath );
 function BuildNode( data )
     local instance = m_InstanceManager:GetInstance();
 	
-	local wholeturns = (data.turn/10);
+	local wholeturns = math.floor(data.turn/10);
 	local remainder = data.turn - wholeturns*10;
 
 	if ( remainder == 0) then

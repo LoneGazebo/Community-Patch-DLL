@@ -683,7 +683,7 @@ void CvCityCitizens::DoTurn()
 		{
 			iUnhappyAverage /= iNumCities;
 		}
-		if(iThisCityValue >= iUnhappyAverage)
+		if(iThisCityValue > iUnhappyAverage)
 		{
 			if(!IsForcedAvoidGrowth())
 			{
@@ -696,6 +696,17 @@ void CvCityCitizens::DoTurn()
 			if(!IsNoAutoAssignSpecialists())
 			{
 				SetNoAutoAssignSpecialists(true);
+			}
+		}
+		else
+		{
+			if (IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if (IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
 			}
 		}
 	}
@@ -1573,14 +1584,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 
 	if(pPlayer->isHuman())
 	{
-		iFlavorGold = 5;
-		iFlavorScience = 5;
-		iFlavorCulture = 5;
-		iFlavorProduction = 5;
-		iFlavorFaith = 5;
-		iFlavorHappiness = 5;
-		iFlavorGrowth = 5;
-		iFlavorDiplomacy = 5;
+		iFlavorGold = 7;
+		iFlavorScience = 7;
+		iFlavorCulture = 7;
+		iFlavorProduction = 7;
+		iFlavorFaith = 7;
+		iFlavorHappiness = 7;
+		iFlavorGrowth = 7;
+		iFlavorDiplomacy = 7;
 	}
 	else
 	{
@@ -1623,7 +1634,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 2), 1));
 		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
-			iPenalty += iRemainder * 3;
+			iPenalty += iRemainder * 2;
 		}
 		else if(eFocus == NO_CITY_AI_FOCUS_TYPE && !bAvoidGrowth)
 		{
@@ -1678,7 +1689,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iValue *= 4;
+				iValue *= 10;
 			}
 			if(eYield == YIELD_FOOD)
 			{
@@ -1749,25 +1760,25 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 				case YIELD_GOLD:
 					if (m_pCity->getUnhappinessFromGold() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				case YIELD_SCIENCE:
 					if (m_pCity->getUnhappinessFromScience() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				case YIELD_CULTURE:
 					if (m_pCity->getUnhappinessFromScience() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				case YIELD_FAITH:
 					if (m_pCity->getUnhappinessFromReligion() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				}
@@ -1851,7 +1862,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatScientistRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -1863,7 +1874,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatWriterRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
@@ -1875,7 +1886,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatArtistRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -1887,7 +1898,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatMusicianRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -1895,7 +1906,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatMerchantRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
@@ -1903,7 +1914,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatEngineerRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -1912,7 +1923,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
 		if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			iMod *= 2;
+			iMod *= 5;
 		}
 	}
 #endif

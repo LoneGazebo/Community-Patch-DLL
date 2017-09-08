@@ -131,6 +131,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bWarsawPact(false),
 	m_bFreeZuluPikemanToImpi(false),
 	m_bPermanentYieldsDecreaseEveryEra(false),
+	m_bImportsCountTowardsMonopolies(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -807,6 +808,10 @@ bool CvTraitEntry::IsFreeZuluPikemanToImpi() const
 bool CvTraitEntry::IsPermanentYieldsDecreaseEveryEra() const
 {
 	return m_bPermanentYieldsDecreaseEveryEra;
+}
+bool CvTraitEntry::IsImportsCountTowardsMonopolies() const
+{
+	return m_bImportsCountTowardsMonopolies;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1983,6 +1988,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bWarsawPact							= kResults.GetBool("WarsawPact");
 	m_bFreeZuluPikemanToImpi				= kResults.GetBool("FreeZuluPikemanToImpi");
 	m_bPermanentYieldsDecreaseEveryEra		= kResults.GetBool("PermanentYieldsDecreaseEveryEra");
+	m_bImportsCountTowardsMonopolies		= kResults.GetBool("ImportsCountTowardsMonopolies");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -3076,6 +3082,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bPermanentYieldsDecreaseEveryEra = true;
 			}
+			if (trait->IsImportsCountTowardsMonopolies())
+			{
+				m_bImportsCountTowardsMonopolies = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iInfluenceMeetCS += trait->GetInfluenceMeetCS();
 			m_iMultipleAttackBonus += trait->GetMultipleAttackBonus();
@@ -3692,6 +3702,7 @@ void CvPlayerTraits::Reset()
 	m_bWarsawPact = false;
 	m_bFreeZuluPikemanToImpi = false;
 	m_bPermanentYieldsDecreaseEveryEra = false;
+	m_bImportsCountTowardsMonopolies = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -5602,6 +5613,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bWarsawPact, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6171,6 +6183,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bWarsawPact);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
 	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
+	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

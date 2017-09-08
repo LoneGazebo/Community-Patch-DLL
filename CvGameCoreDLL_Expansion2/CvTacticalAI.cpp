@@ -8897,7 +8897,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 
 		// Value them based on their explore value
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-		int iValue = CvEconomicAI::ScoreExplorePlot2(pConsiderPlot, m_pPlayer, pUnit->getDomainType(), false);
+		int iValue = EconomicAIHelpers::ScoreExplorePlot2(pConsiderPlot, m_pPlayer, pUnit->getDomainType(), false);
 #else
 		int iValue = CvEconomicAI::ScoreExplorePlot(pConsiderPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
 #endif
@@ -12020,20 +12020,37 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 	}
 }
 
-void CvTacticalPlot::update(CvTacticalPosition& currentPosition, bool bFriendlyCombatUnitPresent, bool bEnemyUnitPresent, bool bEnemyCityPresent, bool bSupportPresent)
+void CvTacticalPlot::friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat)
 {
-	bBlockedByFriendlyCombatUnit = bFriendlyCombatUnitPresent;
-	bBlockedByEnemyCombatUnit = bEnemyUnitPresent;
-	bBlockedByEnemyCity = bEnemyCityPresent;
-	bEnemyCivilianPresent = bEnemyUnitPresent; //same logic, when moving into a plot, both enemy combat units and civilians are removed
+	bBlockedByEnemyCombatUnit = false;
+	bBlockedByEnemyCity = false;
+	bEnemyCivilianPresent = false;
 
-	//should we do this in updateType maybe?
-	if (bSupportUnitPresent && !bSupportPresent)
-		changeNeighboringUnitCount(currentPosition, false, -1);
-	if (!bSupportUnitPresent && bSupportPresent)
+	if (bFriendlyUnitIsCombat)
+		bBlockedByFriendlyCombatUnit = true;
+
+	if (!bFriendlyUnitIsCombat) //multiple support units per plot should not happen ...
+	{
+		bSupportUnitPresent = true;
 		changeNeighboringUnitCount(currentPosition, false, +1);
+	}
+}
 
-	bSupportUnitPresent = bSupportPresent;
+void CvTacticalPlot::friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat)
+{
+	if (bFriendlyUnitIsCombat)
+		bBlockedByFriendlyCombatUnit = false;
+
+	if (!bFriendlyUnitIsCombat)
+	{
+		bSupportUnitPresent = false;
+		changeNeighboringUnitCount(currentPosition, false, -1);
+	}
+}
+
+void CvTacticalPlot::enemyUnitRangeKill()
+{
+	bBlockedByEnemyCombatUnit = false;
 }
 
 void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates)
@@ -12755,8 +12772,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
 		bVisibilityChange = true;
-		oldTactPlot.update(*this, false, false, false, false);
-		newTactPlot.update(*this, itUnit->isCombatUnit(), false, false, itUnit->isSupportUnit());
+		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
+		newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit());
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
@@ -12775,7 +12792,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			OutputDebugString("inconsistent number of attacks\n");
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iAttacksLeft--;
-		newTactPlot.update(*this, false, false, newTactPlot.isEnemyCity(),false);
+		newTactPlot.enemyUnitRangeKill();
 		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
 		bRecomputeAllMoves = true; //ZOC changed
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
@@ -12804,8 +12821,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			killedEnemies.insert(pEnemy->GetID());
 		}
 
-		oldTactPlot.update(*this, false, false, false, false);
-		newTactPlot.update(*this, true, false, false, false);
+		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());
+		newTactPlot.friendlyUnitMovingIn(*this, itUnit->isCombatUnit());
 		updateTacticalPlotTypes(newAssignment.iToPlotIndex);
 		bRecomputeAllMoves = true; //ZOC changed
 		if (newAssignment.iRemainingMoves==0)

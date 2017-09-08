@@ -253,9 +253,10 @@ int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) cons
 	iGold += (pNonCapitalCity->getPopulation() * iTradeRouteCityGoldMultiplier);	// City Multiplier
 	iGold += GetCityConnectionTradeRouteGoldChange() * 100;
 
-	if(GetCityConnectionTradeRouteGoldModifier() != 0)
+	int iMod = GetCityConnectionTradeRouteGoldModifier() + pNonCapitalCity->GetCityConnectionTradeRouteGoldModifier();
+	if (iMod != 0)
 	{
-		iGold *= (100 + GetCityConnectionTradeRouteGoldModifier());
+		iGold *= (100 + iMod);
 		iGold /= 100;
 	}
 

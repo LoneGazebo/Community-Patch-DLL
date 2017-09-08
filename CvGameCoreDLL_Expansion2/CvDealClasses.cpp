@@ -528,7 +528,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 #endif
 				{
 					// Can't trade Luxury if the other player already has one
-					if(pToPlayer->getNumResourceAvailable(eResource) > 0)
+					if(pToPlayer->getNumResourceAvailable(eResource) > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 					{
 						return false;
 					}

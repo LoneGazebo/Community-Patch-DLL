@@ -184,7 +184,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
 			<RivalTerritory>true</RivalTerritory>
-			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>15</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>21</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>

@@ -455,7 +455,9 @@ public:
 	PlayerTypes GetCorporationFounder( CorporationTypes eCorporation ) const;
 	int GetNumCorporationsFounded() const;
 #if defined (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	PlayerTypes GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
+	void UpdateGreatestPlayerResourceMonopoly(ResourceTypes eResource = NO_RESOURCE);
+	int GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
+	int GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) const;
 #endif
 #endif
 
@@ -796,6 +798,7 @@ protected:
 	int m_iGoldAverage;
 	int m_iGlobalPopulation;
 	int m_iLastTurnCSSurrendered;
+	int* m_aiGreatestMonopolyPlayer;
 #endif
 
 	CvString m_strScriptData;

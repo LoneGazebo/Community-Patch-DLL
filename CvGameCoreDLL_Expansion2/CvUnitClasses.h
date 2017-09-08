@@ -91,6 +91,7 @@ public:
 #endif
 #if defined(MOD_CARGO_SHIPS)
 	int CargoCombat() const;
+	int GetSpecialUnitCargoLoad() const;
 #endif
 	void SetCombat(int iNum);
 	int GetCombatLimit() const;
@@ -315,6 +316,7 @@ private:
 #endif
 #if defined(MOD_CARGO_SHIPS)
 	int m_iCargoCombat;
+	int m_iSpecialUnitCargoLoad;
 #endif
 	int m_iCombatLimit;
 	int m_iRangedCombat;

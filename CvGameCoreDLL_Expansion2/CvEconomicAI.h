@@ -172,7 +172,6 @@ public:
 	void SetNavalExplorersNeeded(int iValue);
 	int GetNavalExplorersNeeded() const;
 
-	static int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
 	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
 #else
 	FFastVector<int>& GetExplorationPlots();
@@ -233,8 +232,8 @@ public:
 		return m_iVisibleAntiquitySitesNeutral;
 	};
 #endif
-	void UpdateExplorePlots();
-	void SetExplorationPlotsDirty() { m_bExplorationPlotsDirty = true; }
+	void UpdateExplorePlotsFromScratch();
+	void UpdateExplorePlotsLocally(CvPlot* pRefPlot);
 
 	void LogEconomyMessage(const CvString& strMsg);
 
@@ -287,9 +286,6 @@ private:
 	int m_iVisibleAntiquitySitesNeutral;
 #endif
 
-	// Cached AI parameters
-	bool m_bExplorationPlotsDirty;
-
 	// used for the log monitor
 	FFastVector<uint> m_auiYields;
 
@@ -323,6 +319,7 @@ FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);
 
 namespace EconomicAIHelpers
 {
+int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued

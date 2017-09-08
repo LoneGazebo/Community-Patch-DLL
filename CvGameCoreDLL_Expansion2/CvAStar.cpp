@@ -1444,7 +1444,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 					return FALSE;
 
 				//in addition to the danger check (which increases path cost), a hard exclusion if the enemy navy dominates the area
-				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit())
+				if ( pCacheData->isAIControl() && pUnit->IsCombatUnit() )
 					if ( GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pToPlot) || pToPlot->GetNumEnemyUnitsAdjacent(eUnitTeam,DOMAIN_SEA)>0)
 						return FALSE;
 			}
@@ -1555,6 +1555,14 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		{
 			std::vector<int> vAreas = pToPlot->getAllAdjacentAreas();
 			bAllow = (std::find(vAreas.begin(),vAreas.end(),pFromPlot->getArea()) != vAreas.end());
+			//cities are even more complicated ...
+			if (!bAllow && pFromPlot->isCity())
+			{
+				std::vector<int> cityAreas = pFromPlot->getAllAdjacentAreas();
+				std::vector<int> shared(MAX(vAreas.size(), cityAreas.size()));
+				std::vector<int>::iterator result = std::set_intersection(vAreas.begin(), vAreas.end(), cityAreas.begin(), cityAreas.end(), shared.begin());
+				bAllow = (result != shared.begin());
+			}
 		}
 
 		if (!bAllow)

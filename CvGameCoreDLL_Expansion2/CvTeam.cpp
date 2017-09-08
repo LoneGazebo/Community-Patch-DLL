@@ -9211,7 +9211,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 			if (ePlayer != NO_PLAYER && kPlayer.isMinorCiv() && kPlayer.isAlive())
 			{
-				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 				{
 					PlayerTypes eActivePlayer = (PlayerTypes)iPlayerLoop2;
 					CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);

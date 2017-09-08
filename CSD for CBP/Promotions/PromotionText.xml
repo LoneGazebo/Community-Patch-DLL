@@ -87,7 +87,7 @@
 			<Text>+5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NOBILITY_HELP">
-			<Text>+5 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State, and the ability to enter a rival player's territory without an Open Borders agreement.</Text>
+			<Text>+15 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State, and the ability to enter a rival player's territory without an Open Borders agreement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET_HELP">
 			<Text>Grants +1 [ICON_MOVES] movement, +1 Sight, +10% Combat Bonus when attacking, and the ability to heal in non-friendly waters.</Text>

@@ -4178,7 +4178,7 @@ void CvPlot::removeGoody()
 	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		if(GET_PLAYER((PlayerTypes)i).isAlive())
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->SetExplorationPlotsDirty();
+			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 	}
 }
 
@@ -4219,7 +4219,7 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 {
 	ImprovementTypes eImprovement = getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable() && !IsImprovementPillaged();
 	bool bIsCityOrPassable = isCity() || bIsPassableImprovement;
 
 	// Not a city or a fort
@@ -4254,29 +4254,12 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 #endif
 		return true;
 	}
-
-	if ( getTeam() == NO_TEAM)
+	// in no-mans land or enemy territory
+	else if (bIsPassableImprovement)
 	{
-		// In no-mans land ...
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
-		if (getNumUnits() == 0)
+		//may enter unoccupied enemy fortifications (cities are handled elsewhere)
+		if (getBestDefender(NO_PLAYER, ePlayer) == NULL)
 			return true;
-
-		// ... make sure there are only friendly units here
-		const IDInfo* pUnitNode = headUnitNode();
-		while (pUnitNode != NULL) {
-			if ((pUnitNode->eOwner >= 0) && pUnitNode->eOwner < MAX_PLAYERS) {
-				CvUnit* pLoopUnit = (GET_PLAYER(pUnitNode->eOwner).getUnit(pUnitNode->iID));
-
-				if (pLoopUnit && (eTeam == pLoopUnit->getTeam())) {
-					// Any friendly unit will do
-					return true;
-				}
-			}
-
-			pUnitNode = nextUnitNode(pUnitNode);
-		}
 	}
 
 	return false;
@@ -5215,9 +5198,10 @@ std::vector<int> CvPlot::getAllAdjacentAreas() const
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		CvPlot* pAdjacentPlot = aNeighbors[iI];
-		//exclude our own area!
+		//exclude our own area! also, simply deduplication, but no guarantee for unique values in result
 		if(pAdjacentPlot != NULL && pAdjacentPlot->getArea() != getArea())
-			result.push_back(pAdjacentPlot->getArea());
+			if (result.empty() || result.back()!=pAdjacentPlot->getArea())
+				result.push_back(pAdjacentPlot->getArea());
 	}
 
 	return result;
@@ -10954,7 +10938,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			{
 				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
 				for (size_t i = 0; i < vPlayers.size(); i++)
-					GET_PLAYER(vPlayers[i]).GetEconomicAI()->SetExplorationPlotsDirty();
+					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 			}
 		}
 		else

@@ -1017,11 +1017,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		if(iWaterPriority >= 0)
 		{
 			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 500 - (iWaterPriority * 50);
+			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
 		}
 		if(iLandPriority >= 0)
 		{
-			iLandRoutes = 500 - (iLandPriority * 50);
+			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
 		}
 
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
@@ -1307,14 +1307,14 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 		int iWaterRoutes = -1;
 		int iLandRoutes = -1;
 
-		if(iWaterPriority >= 0)
+		if (iWaterPriority >= 0)
 		{
 			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 500 - (iWaterPriority * 50);
+			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
 		}
-		if(iLandPriority >= 0)
+		if (iLandPriority >= 0)
 		{
-			iLandRoutes = 500 - (iLandPriority * 50);
+			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
 		}
 
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)

@@ -118,6 +118,33 @@
 			<IconAtlas>CSD_ATLAS</IconAtlas>
 		</Row>
 	</Units>
+	<UnitGameplay2DScripts>
+		<Row>
+			<UnitType>UNIT_AMBASSADOR</UnitType>
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_DIPLOMAT</UnitType>
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_EMISSARY</UnitType>
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ENVOY</UnitType>
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
+			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+	</UnitGameplay2DScripts>
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_EMISSARY</UnitType>
