@@ -158,14 +158,12 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_EHRENHALLE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
-			<CapitalsToVotes>1</CapitalsToVotes>
+			<CapitalsToVotes>2</CapitalsToVotes>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
 			<MinAreaSize>-1</MinAreaSize>
-			<EnhancedYieldTech>TECH_BALLISTICS</EnhancedYieldTech>
-			<TechEnhancedTourism>15</TechEnhancedTourism>
 			<ConquestProb>0</ConquestProb>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -212,7 +210,6 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
-			<FreeBuildingThisCity>BUILDINGCLASS_CHANCERY</FreeBuildingThisCity>
 			<FreePromotion>PROMOTION_NOBILITY</FreePromotion>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<Quote>TXT_KEY_WONDER_SUMMER_PALACE_QUOTE</Quote>
@@ -728,7 +725,7 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
-			<FlavorType>FLAVOR_RELIGION</FlavorType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>60</Flavor>
 		</Row>
 		<Row>
@@ -885,7 +882,7 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
-			<YieldType>YIELD_FAITH</YieldType>
+			<YieldType>YIELD_TOURISM</YieldType>
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldChanges>
@@ -904,6 +901,11 @@
 			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldModifiers>
 	<Building_ResourceQuantity>
@@ -985,5 +987,53 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_SUMMER_PALACE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_CHANCERY</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SUMMER_PALACE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_CHANCERY</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
 	</Building_BuildingClassYieldChanges>
+	
+		
+	<Building_YieldPerFriend>
+		<Row>
+			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CHANCERY</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldPerFriend>
+	<Building_YieldPerAlly>
+		<Row>
+			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CHANCERY</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldPerAlly>
 </GameData>

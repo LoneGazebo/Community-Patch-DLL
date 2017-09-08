@@ -5553,6 +5553,56 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	}
 #endif
 
+	//Buildings enabled by the old policy branch should be destroyed.
+	int iLoop;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		if (pLoopCity != NULL)
+		{
+			CvPlayer &kCityPlayer = GET_PLAYER(pLoopCity->getOwner());
+			for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+			{
+				const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
+				BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+					if (pkBuilding)
+					{
+						bool bApplies = false;
+						if (pkBuilding->GetPolicyBranchType() == eOldBranchType)
+						{
+							bApplies = true;
+						}
+						else if (pkBuilding->GetPolicyType() != NO_POLICY)
+						{
+							CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo((PolicyTypes)pkBuilding->GetPolicyType());
+							if (pkLoopPolicyInfo)
+							{
+								// This policy belongs to our branch
+								if (pkLoopPolicyInfo->GetPolicyBranchType() == eOldBranchType)
+								{
+									bApplies = true;
+								}
+							}
+						}
+						if (bApplies && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+
+							//release the WW back into the wild.
+							if (pkBuilding->GetBuildingClassInfo().getMaxGlobalInstances() != -1)
+							{
+								GC.getGame().decrementBuildingClassCreatedCount((BuildingClassTypes)iBuildingClassLoop);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 	if (GC.getGame().getActivePlayer() == m_pPlayer->GetID())
 	{
 		DLLUI->setDirty(Policies_DIRTY_BIT, true);

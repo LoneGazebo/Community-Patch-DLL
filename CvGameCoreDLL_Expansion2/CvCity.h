@@ -775,6 +775,9 @@ public:
 	int GetNumTradeRouteBonus() const;
 	void ChangeNumTradeRouteBonus(int iChange);
 
+	int GetCityConnectionTradeRouteGoldModifier() const;
+	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
+
 	bool isAreaBorderObstacle() const;
 
 	bool IsResistance() const;
@@ -1696,6 +1699,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iTradeRouteSeaGoldBonus;
 	FAutoVariable<int, CvCity> m_iTradeRouteLandGoldBonus;
 	FAutoVariable<int, CvCity> m_iNumTradeRouteBonus;
+	FAutoVariable<int, CvCity> m_iCityConnectionTradeRouteGoldModifier;
 	FAutoVariable<int, CvCity> m_iCultureUpdateTimer;
 	FAutoVariable<int, CvCity> m_iCitySizeBoost;
 	FAutoVariable<int, CvCity> m_iSpecialistFreeExperience;

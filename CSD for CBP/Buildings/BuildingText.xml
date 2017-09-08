@@ -76,16 +76,16 @@
 			<Text>Receive 1 free Great Diplomat when completed. +1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Imperial Seal[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
-			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Nobility[ENDCOLOR] Promotion. Provides a free Chancery in the city in which it is built.</Text>
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Nobility[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP">
 			<Text>Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Research Agreement[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_HELP">
-			<Text>Requires Autocracy. +15 [ICON_TOURISM] Tourism and +15 [ICON_PEACE] Faith in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in all cities. The cost goes up the more cities there are in the empire.</Text>
+			<Text>Requires Autocracy. +15 [ICON_TOURISM] Tourism and +25% [ICON_PRODUCTION] Production in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_HELP">
-			<Text>Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Declaration of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in all cities. The cost goes up the more cities there are in the empire.</Text>
+			<Text>Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_HELP">
 			<Text>Receive an additional Trade Route. Grants all naval units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% Combat Strength when attacking, +1 [ICON_MOVES] Movement, +1 Sight, and the ability to heal outside of friendly territory.</Text>
@@ -131,7 +131,7 @@
 			<Text>Build this world wonder to receive a permanent boost to your relations with city-states through better-trained Diplomatic Units. Provides a free Great Diplomat to send to nearby city-states.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_STRATEGY">
-			<Text>Build this wonder for your Diplomatic Units to be able to enter a rival's territory without an Open Borders agreement centuries before anyone else. Provides a free Chancery in the city in which it is built. </Text>
+			<Text>Build this wonder for your Diplomatic Units to be able to enter a rival's territory without an Open Borders agreement centuries before anyone else. Boosts the potency of all Chancercies in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY">
 			<Text>This National Wonder cannot be built unless the civilization has a Public School built in all of its cities. Build this national wonder to receive additional votes in the World Congress based on the number of Research Agreements you currently have with other players. You will also receive a large boost to the Culture and Science output of the city where it is built.</Text>

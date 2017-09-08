@@ -507,13 +507,19 @@ function HookupResourceInstance(info)
 	
 	local iNumResources = 0;
 	
-	if(info.PlayerID ~= -1) then
-		iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false, true) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
-	end
-	
 	local iNumTotal = Map.GetNumResources(info.ResourceID);
 
-	instance.PercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN", iNumResources, iNumTotal);
+	if(info.PlayerID ~= -1) then
+		if(Players[info.PlayerID]:IsShowImports()) then
+			iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false, false) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
+			iNumImports = Players[info.PlayerID]:GetResourceImport(info.ResourceID);
+			iNumMinors = Players[info.PlayerID]:GetResourceFromMinors(info.ResourceID);
+			instance.PercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS", iNumResources, iNumTotal, iNumImports, iNumMinors);
+		else
+			iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false, false) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
+			instance.PercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN", iNumResources, iNumTotal);
+		end
+	end
 
 	instance.PercentLabel:LocalizeAndSetText("TXT_KEY_CPO_MP_MONOPOLY_PERCENT", info.MonopolyPercent);
 end

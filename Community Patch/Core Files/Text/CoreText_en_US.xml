@@ -2611,7 +2611,7 @@
 		<Row Tag="TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST">
 			<Text>{1_PlyrName} first to complete {@2_PrjctName}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_UNKNOWN_FIRST">
+		<Row Tag="TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_FIRST">
 			<Text>{@1_PrjctName} was completed first in a far away land!</Text>
 		</Row>
 

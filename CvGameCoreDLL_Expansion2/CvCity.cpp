@@ -201,6 +201,7 @@ CvCity::CvCity() :
 	, m_iTradeRouteLandGoldBonus("CvCity::m_iTradeRouteLandGoldBonus", m_syncArchive)
 	, m_iTradeRouteTargetBonus("CvCity::m_iTradeRouteTargetBonus", m_syncArchive)
 	, m_iNumTradeRouteBonus("CvCity::m_iNumTradeRouteBonus", m_syncArchive)
+	, m_iCityConnectionTradeRouteGoldModifier("CvCity::m_iCityConnectionTradeRouteGoldModifier", m_syncArchive)
 	, m_unitBeingBuiltForOperation()
 	, m_bNeverLost("CvCity::m_bNeverLost", m_syncArchive)
 	, m_bDrafted("CvCity::m_bDrafted", m_syncArchive)
@@ -1429,6 +1430,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradeRouteSeaGoldBonus = 0;
 	m_iTradeRouteLandGoldBonus = 0;
 	m_iNumTradeRouteBonus = 0;
+	m_iCityConnectionTradeRouteGoldModifier = 0;
 	m_iTradeRouteTargetBonus = 0;
 	m_iCultureUpdateTimer = 0;
 	m_iCitySizeBoost = 0;
@@ -10808,7 +10810,8 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	{
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iTechProgress /= 2;
+		iTechProgress *= 75;
+		iTechProgress /= 100;
 		if(iTechProgress > 0)
 		{
 			iCost *= (100 + iTechProgress);
@@ -12055,6 +12058,13 @@ int CvCity::getProductionModifier(ProcessTypes eProcess, CvString* toolTipSink) 
 	VALIDATE_OBJECT
 	int iMultiplier = getGeneralProductionModifiers(toolTipSink);
 	iMultiplier += GET_PLAYER(getOwner()).getProductionModifier(eProcess, toolTipSink);
+
+	// Trait Bonus from Conquest
+	if (GET_PLAYER(getOwner()).GetProductionBonusTurnsConquest() > 0)
+	{
+		int iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetProductionBonusModifierConquest();
+		iMultiplier += iTempMod;
+	}
 
 	return iMultiplier;
 }
@@ -13902,6 +13912,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeTradeRouteLandGoldBonus(pBuildingInfo->GetTradeRouteLandGoldBonus() * iChange);
 		ChangeTradeRouteRecipientBonus(pBuildingInfo->GetTradeRouteRecipientBonus() * iChange);
 		ChangeNumTradeRouteBonus(pBuildingInfo->GetTradeRouteLandGoldBonus() * iChange);
+		ChangeCityConnectionTradeRouteGoldModifier(pBuildingInfo->GetCityConnectionTradeRouteGoldModifier() * iChange);
 		
 
 		if (pBuildingInfo->AffectSpiesNow() && iChange > 0)
@@ -19059,7 +19070,18 @@ void CvCity::ChangeNumTradeRouteBonus(int iChange)
 		m_iNumTradeRouteBonus += iChange;
 }
 
-
+//	--------------------------------------------------------------------------------
+int CvCity::GetCityConnectionTradeRouteGoldModifier() const
+{
+	VALIDATE_OBJECT
+		return m_iCityConnectionTradeRouteGoldModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeCityConnectionTradeRouteGoldModifier(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iCityConnectionTradeRouteGoldModifier += iChange;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvCity::IsResistance() const
@@ -24938,7 +24960,8 @@ void CvCity::updateStrengthValue()
 			CvPlot* pTarget = plot();
 			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 			{
-				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral())
+				//iamblichos - updated to allow units(or combat generals/admirals) that have the general promotion to boost city strength 
+				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral() || pTarget->getUnitByIndex(iUnitLoop)->GetGreatGeneralCount() > 0 || pTarget->getUnitByIndex(iUnitLoop)->GetGreatAdmiralCount() > 0)
 				{
 					iStrengthFromUnits *= 2;
 					break;

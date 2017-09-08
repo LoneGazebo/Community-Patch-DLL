@@ -152,7 +152,10 @@
 			<Text>Potential Strategic and Global Monopoly Bonuses:[NEWLINE][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN">
-			<Text>{1_Num} of {2_Total} in World</Text>
+			<Text>Out of {2_Total} in World:[NEWLINE]Direct control: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS">
+			<Text>Out of {2_Total} in World:[NEWLINE]Direct control: {1_Num}[NEWLINE]Import: {3_Import}[NEWLINE]From City-States: {4_CS}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HOVER_INFO">
 			<Text>(Hover over Corporation Icon or Name for details.)</Text>

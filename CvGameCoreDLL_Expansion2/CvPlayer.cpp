@@ -21024,7 +21024,7 @@ int CvPlayer::GetHappinessFromPolicies() const
 
 	if (GetHappinessPerActiveTradeRoute() > 0)
 	{
-		iHappiness += GetTrade()->GetNumberOfTradeRoutes();
+		iHappiness += (GetTrade()->GetNumberOfTradeRoutes() * GetHappinessPerActiveTradeRoute());
 	}
 
 	if (GetExtraHappinessPerXPoliciesFromPolicies() > 0)
@@ -24443,7 +24443,7 @@ bool CvPlayer::isGoldenAge() const
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::changeGoldenAgeTurns(int iChange, int iValue)
+void CvPlayer::changeGoldenAgeTurns(int iChange, int iValue, bool bFree)
 #else
 void CvPlayer::changeGoldenAgeTurns(int iChange)
 #endif
@@ -24466,112 +24466,10 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 			if(isGoldenAge())
 			{
-				ChangeNumGoldenAges(1);
-#if defined(MOD_BALANCE_CORE)
-				//Instant Boost
-				CvCity* pCapitalCity = getCapitalCity();
-				if(pCapitalCity != NULL)
+				if (!bFree)
 				{
-					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pCapitalCity);
+					ChangeNumGoldenAges(1);
 				}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
-				if (GetGoldenAgeTourism() > 0)
-				{
-					int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
-					ChangeNumHistoricEvents(1);
-					// Culture boost based on previous turns
-					if (iTourism > 0)
-					{
-						GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-						CvCity* pCapitalCity = getCapitalCity();
-
-						if (GetID() == GC.getGame().getActivePlayer())
-						{
-							if (pCapitalCity != NULL)
-							{
-								char text[256] = { 0 };
-								float fDelay = 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
-								CvNotifications* pNotification = GetNotifications();
-								if (pNotification)
-								{
-									CvString strMessage;
-									CvString strSummary;
-									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
-									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
-								}
-							}
-						}
-					}
-				}
-				if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
-				{
-					int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
-					iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iValue2 /= 100;
-					int iLoop;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
-						}
-					}
-					CvNotifications* pNotification = GetNotifications();
-					if (pNotification)
-					{
-						CvString strMessage;
-						CvString strSummary;
-						strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
-						strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
-						pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
-					}
-				}
-				if (GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() > 0)
-				{
-					ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * 1);
-				}
-#endif
-
-				locString = Localization::Lookup("TXT_KEY_NOTIFICATION_GOLDEN_AGE_BEGUN");
-				locString << getCivilizationAdjectiveKey();
-				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), locString.toUTF8(), -1, -1);
-
-				gDLL->GameplayGoldenAgeStarted();
-
-#if defined(MOD_EVENTS_GOLDEN_AGE)
-				if (MOD_EVENTS_GOLDEN_AGE) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
-				}
-#endif
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-				if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman())
-				{
-					int iYieldHandicap = DoDifficultyBonus();
-					if((GC.getLogging() && GC.getAILogging()))
-					{
-						CvString strLogString;
-						strLogString.Format("CBP AI DIFFICULTY BONUS FROM GOLDEN AGE: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
-						GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-				}
-#endif
-#if defined(MOD_BALANCE_CORE)
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
-					}
-				}
-#endif
 			}
 			else
 			{
@@ -24617,6 +24515,115 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 				pNotifications->Add(eNotification, locString.toUTF8(), locSummaryString.toUTF8(), -1, -1, -1);
 			}
+		}
+
+		if (iChange > 0)
+		{
+#if defined(MOD_BALANCE_CORE)
+			//Instant Boost
+			CvCity* pCapitalCity = getCapitalCity();
+			if (pCapitalCity != NULL)
+			{
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pCapitalCity);
+			}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+			if (GetGoldenAgeTourism() > 0)
+			{
+				int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
+				ChangeNumHistoricEvents(1);
+				// Culture boost based on previous turns
+				if (iTourism > 0)
+				{
+					GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+					CvCity* pCapitalCity = getCapitalCity();
+
+					if (GetID() == GC.getGame().getActivePlayer())
+					{
+						if (pCapitalCity != NULL)
+						{
+							char text[256] = { 0 };
+							float fDelay = 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+							DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
+							CvNotifications* pNotification = GetNotifications();
+							if (pNotification)
+							{
+								CvString strMessage;
+								CvString strSummary;
+								strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GOLDEN_AGE", iTourism);
+								strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+								pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCapitalCity->getX(), pCapitalCity->getY(), GetID());
+							}
+						}
+					}
+				}
+			}
+			if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
+			{
+				int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
+				iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue2 /= 100;
+				int iLoop;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
+					}
+				}
+				CvNotifications* pNotification = GetNotifications();
+				if (pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
+					strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
+					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
+				}
+			}
+			if (GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() > 0)
+			{
+				ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * 1);
+			}
+#endif
+
+			locString = Localization::Lookup("TXT_KEY_NOTIFICATION_GOLDEN_AGE_BEGUN");
+			locString << getCivilizationAdjectiveKey();
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), locString.toUTF8(), -1, -1);
+
+			gDLL->GameplayGoldenAgeStarted();
+
+#if defined(MOD_EVENTS_GOLDEN_AGE)
+			if (MOD_EVENTS_GOLDEN_AGE) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+			if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman())
+			{
+				int iYieldHandicap = DoDifficultyBonus();
+				if ((GC.getLogging() && GC.getAILogging()))
+				{
+					CvString strLogString;
+					strLogString.Format("CBP AI DIFFICULTY BONUS FROM GOLDEN AGE: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			CvCity* pLoopCity;
+			int iLoop;
+			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if (pLoopCity != NULL)
+				{
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
+				}
+			}
+#endif
 		}
 
 		if(GetID() == GC.getGame().getActivePlayer())
@@ -25933,11 +25940,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if (iPassYield != 0 && iLevelUpYield > 0)
 					{
 						int iMetric = ((((iPassYield * iPassYield) - (2 * iPassYield) + 1)) * iLevelUpYield);
-						if (!isHuman())
-						{
-							int iDivisor = max(1, (GC.getGame().getHandicapInfo().getAIFreeXPPercent() / 30));
-							iMetric /= iDivisor;
-						}
+						if (iMetric <= 0)
+							iMetric = 1;
+
 						iValue += iMetric;
 					}
 					break;
@@ -36122,6 +36127,11 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 		if(pkResourceInfo->isMonopoly())
 		{
 			int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
+			if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+			{
+				iOwnedNumResource += getResourceImport(eResource);
+			}
+
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			bool bGainingBonus = false;
 			bool bGainingStrategicBonus = false;
@@ -36129,16 +36139,29 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 			bool bLosingStrategicBonus = false;
 			if(iTotalNumResource > 0)
 			{
-				if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 				{
+					int iThreshold = max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD());
 					//Do we have +50% of this resource under our control?
-					if(((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
+					bool bValid = false;
+					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
+					{
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+							bValid = true;
+					}
+					else
+					{
+						if (((iOwnedNumResource * 100) / iTotalNumResource) > iThreshold)
+							bValid = true;
+					}
+					if (bValid)
 					{
 						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
 						SetHasGlobalMonopoly(eResource, true);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 					else
 					{
@@ -36147,6 +36170,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							bLosingBonus = true;
 						}
 						SetHasGlobalMonopoly(eResource, false);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 				}
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -36159,6 +36183,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							bGainingStrategicBonus = true;
 						}
 						SetHasStrategicMonopoly(eResource, true);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 					else
 					{
@@ -36167,15 +36192,31 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							bLosingStrategicBonus = true;
 						}
 						SetHasStrategicMonopoly(eResource, false);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 					//Do we also have 50% of this resource under our control?
-					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
+					int iThreshold = max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD());
+
+					bool bValid = false;
+					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
+					{
+						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold)
+							bValid = true;
+					}
+					else
+					{
+						if (((iOwnedNumResource * 100) / iTotalNumResource) > iThreshold)
+							bValid = true;
+					}
+
+					if (bValid)
 					{
 						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
 						SetHasGlobalMonopoly(eResource, true);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 					else
 					{
@@ -36184,6 +36225,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							bLosingBonus = true;
 						}
 						SetHasGlobalMonopoly(eResource, false);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -36196,6 +36238,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							bLosingBonus = true;
 						}
 						SetHasGlobalMonopoly(eResource, false);
+						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 				}
 			}
@@ -36296,6 +36339,10 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
 {
 	int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
+	if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+	{
+		iOwnedNumResource += getResourceImport(eResource);
+	}
 	int iTotalNumResource = GC.getMap().getNumResources(eResource);
 
 	if (iTotalNumResource <= 0)
@@ -36545,7 +36592,11 @@ void CvPlayer::changeResourceImport(ResourceTypes eIndex, int iChange)
 		CvAssert(getResourceImport(eIndex) >= 0);
 
 		CalculateNetHappiness();
-		
+
+		if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+		{
+			CheckForMonopoly(eIndex);
+		}
 	}
 }
 
@@ -45166,11 +45217,11 @@ void CvPlayer::SetBestWonderCities()
 			if (iWaterPriority >= 0)
 			{
 				//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-				iWaterRoutes = 500 - (iWaterPriority * 50);
+				iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
 			}
 			if (iLandPriority >= 0)
 			{
-				iLandRoutes = 500 - (iLandPriority * 50);
+				iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
 			}
 
 			//Best? Do it!

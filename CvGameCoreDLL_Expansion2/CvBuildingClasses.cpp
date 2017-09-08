@@ -151,6 +151,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iTradeRouteSeaGoldBonus(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteLandGoldBonus(0),
+	m_iCityConnectionTradeRouteGoldModifier(0),
 	m_iCityStateTradeRouteProductionModifier(0),
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier(0),
@@ -683,6 +684,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iTradeRouteSeaGoldBonus = kResults.GetInt("TradeRouteSeaGoldBonus");
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteLandGoldBonus = kResults.GetInt("TradeRouteLandGoldBonus");
+	m_iCityConnectionTradeRouteGoldModifier = kResults.GetInt("CityConnectionGoldModifier");
 	m_iCityStateTradeRouteProductionModifier = kResults.GetInt("CityStateTradeRouteProductionModifier");
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = kResults.GetInt("ConversionModifier");
@@ -2025,6 +2027,11 @@ int CvBuildingEntry::GetTradeRouteLandDistanceModifier() const
 int CvBuildingEntry::GetTradeRouteLandGoldBonus() const
 {
 	return m_iTradeRouteLandGoldBonus;
+}
+
+int CvBuildingEntry::GetCityConnectionTradeRouteGoldModifier() const
+{
+	return m_iCityConnectionTradeRouteGoldModifier;
 }
 
 int CvBuildingEntry::GetCityStateTradeRouteProductionModifier() const

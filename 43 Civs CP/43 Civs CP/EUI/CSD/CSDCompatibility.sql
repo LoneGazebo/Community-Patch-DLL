@@ -21,7 +21,7 @@ UPDATE Units SET ObsoleteTech = 'TECH_INDUSTRIALIZATION' WHERE Type = 'UNIT_ENVO
 INSERT INTO Trait_SpecialistYieldChanges
 	(TraitType, SpecialistType, YieldType, Yield)
 VALUES
-	('TRAIT_SCHOLARS_JADE_HALL', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 2);
+	('TRAIT_SCHOLARS_JADE_HALL', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Belief_SpecialistYieldChanges
 	(BeliefType, SpecialistType, YieldType, Yield)

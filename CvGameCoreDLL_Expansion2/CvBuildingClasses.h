@@ -282,6 +282,7 @@ public:
 	int GetTradeRouteSeaGoldBonus() const;
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteLandGoldBonus() const;
+	int GetCityConnectionTradeRouteGoldModifier() const;
 	int GetCityStateTradeRouteProductionModifier() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetExtraLeagueVotes() const;
@@ -695,6 +696,7 @@ private:
 	int m_iTradeRouteSeaGoldBonus;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteLandGoldBonus;
+	int m_iCityConnectionTradeRouteGoldModifier;
 	int m_iCityStateTradeRouteProductionModifier;
 	int m_iGreatScientistBeakerModifier;
 	int m_iExtraLeagueVotes;

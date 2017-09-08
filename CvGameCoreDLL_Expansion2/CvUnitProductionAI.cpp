@@ -1024,7 +1024,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 				{
-					iFlavorExpansion += 10;
+					iFlavorExpansion += 20;
 				}
 
 				EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
@@ -1032,7 +1032,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
 					{
-						iFlavorExpansion += 10;
+						iFlavorExpansion += 15;
 					}
 				}
 			}
@@ -1040,7 +1040,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if (m_pCity->plot()->getNumDefenders(kPlayer.GetID()) <= 0)
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 15;
 		}
 
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
@@ -1049,7 +1049,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 			{
-				iFlavorExpansion += 10;
+				iFlavorExpansion += 15;
 			}
 		}
 
@@ -1059,9 +1059,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 			{
-				iFlavorExpansion += 15;
+				iFlavorExpansion += 30;
 			}
 		}
+
+		AICityStrategyTypes eFeeder = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
+		if (eFeeder != NO_AICITYSTRATEGY)
+		{
+			if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeeder))
+			{
+				iFlavorExpansion += 30;
+			}
+		}	
 
 		if(kPlayer.getSettlerProductionModifier() > 0)
 		{
@@ -1128,11 +1137,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion = 1;
 		}
 		if (pkUnitEntry->IsFoundMid())
-			iFlavorExpansion += 10;
-		else if (pkUnitEntry->IsFoundLate())
 			iFlavorExpansion += 20;
+		else if (pkUnitEntry->IsFoundLate())
+			iFlavorExpansion += 30;
 		else if (pkUnitEntry->IsFoundAbroad())
-			iFlavorExpansion += 10;
+			iFlavorExpansion += 20;
+		//not special and we're in the middle ages? deemphasize.
+		else if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (int)kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+		{
+			iFlavorExpansion -= 20;
+		}
 
 		//We got this far? Let's add in era desire as well.
 		int iEra = GC.getGame().getCurrentEra();

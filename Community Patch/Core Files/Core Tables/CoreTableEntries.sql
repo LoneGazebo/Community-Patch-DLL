@@ -112,6 +112,10 @@ ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' BOOLEAN DEFAULT 0;
 
+-- Imports count towards monopolies.
+
+ALTER TABLE Traits ADD COLUMN 'ImportsCountTowardsMonopolies' BOOLEAN DEFAULT 0;
+
 -- No unhappiness from religious strife.
 
 ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
@@ -274,6 +278,9 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 -- One building gives all cities this ability
 ALTER TABLE Buildings ADD COLUMN 'AllowsFoodTradeRoutesGlobal' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'AllowsProductionTradeRoutesGlobal' BOOLEAN DEFAULT 0;
+
+-- Local city connection strong
+ALTER TABLE Buildings ADD COLUMN 'CityConnectionGoldModifier' INTEGER DEFAULT 0;
 
 -- Adds abiility for units to upgrade in allied CS lands.
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
@@ -926,6 +933,10 @@ ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
+ALTER TABLE Buildings ADD COLUMN 'EventChoiceRequiredActive' TEXT DEFAULT NULL;
+ALTER TABLE Buildings ADD COLUMN 'CityEventChoiceRequiredActive' TEXT DEFAULT NULL;
+
+
 -- Resources
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
@@ -1028,6 +1039,9 @@ ALTER TABLE Units ADD ConvertOnDamage BOOLEAN DEFAULT 0;
 
 -- Unit will convert to another UnitType if "ConvertOnDamage" and "DamageThreshold" are defined.
 ALTER TABLE Units ADD ConvertUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+
+-- Special Units that have a different Special rating can be modified here to load on to ships (e.g. Great People).
+ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialUnits(Type);
 
 -- Unit will convert to another UnitType. Must define a "ConvertOnDamage" and the "ConvertUnit" Type
 ALTER TABLE Units ADD DamageThreshold INTEGER DEFAULT 0;

@@ -57,7 +57,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY' AND EXISTS (SELECT * FRO
 -- Assyria
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for Great Works of Writing, and comes with both a free Great Work and a free Library in the City. Every Great Work of Writing you control grants +5 XP to units created in any City (maximum of 45 XP).[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own. [NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production if Themed.'
+SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for Great Works of Writing, and comes with both a free Great Work and a free Library in the City. Every Great Work of Writing you control grants +5 XP to units created in any City (maximum of 45 XP).[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own. [NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
  
 UPDATE Language_en_US
@@ -217,7 +217,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUN
 -- Celts
 --------------------
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom. When completed, it provides a modest sum of [ICON_CULTURE] Culture and starts 10 turns of ''We Love the King Day'' in the City.[NEWLINE] Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.'
+SELECT 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom. When completed, it provides a modest sum of [ICON_CULTURE] Culture and starts 15 turns of ''We Love the King Day'' in the City.[NEWLINE] Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -282,7 +282,7 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY' AND EXISTS (SELECT * FROM 
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = 'Receive a free unique Egyptian [ICON_GREAT_WORK] Artifact when constructed.[NEWLINE][NEWLINE]When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output. Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold, and Merchant Specialists in this City gain +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Receive a free unique Egyptian [ICON_GREAT_WORK] Artifact when constructed.[NEWLINE][NEWLINE]When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output. Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold, Merchant Specialists in this City gain +1 [ICON_GOLD] Gold, and this City''s [ICON_CONNECTED] Connection to the [ICON_CAPITAL] Capital generates +50% [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -457,7 +457,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_LANDSKNECHT' AND EXISTS (SELECT * FROM COMMUNITY 
 -- Greece
 --------------------
 UPDATE Language_en_US
-SET Text = 'City-State [ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. Each City-State alliance boosts the [ICON_STRENGTH] Strength of owned and allied Units by +4% (up to +20% total).'
+SET Text = 'City-State [ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. Each City-State alliance boosts the [ICON_STRENGTH] Strength of owned and allied Units by +5% (up to +25% total).'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -553,7 +553,7 @@ SET Text = 'In addition to the regular abilities of the Garden, the Candi provid
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When you found or conquer a City, one of three unique Luxuries will appear next to or under the City. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
+SET Text = 'When you found or conquer a City, one of three unique Luxuries will appear next to or under the City.'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -615,11 +615,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_STRATEGY' AND EXISTS (SELECT * FROM COMM
 -- Japan
 --------------------
 UPDATE Language_en_US
-SET Text = 'When Units promote, gain [ICON_CULTURE] Culture and [ICON_RESEARCH] Science based on their current Level. Civs without [ICON_INTERNATIONAL_TRADE] Trade Routes from you cannot send you [ICON_INTERNATIONAL_TRADE] Trade Routes and have a -50% [ICON_TOURISM] Tourism penalty with you.'
+SET Text = '+1 [ICON_RESEARCH] Science and [ICON_PEACE] Faith from Defense and Military Training Buildings. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, receive [ICON_GREAT_WORK] Great Artist, Writer, and Musician Points in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Sakoku'
+SET Text = 'Shogunate'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -769,7 +769,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_BERBER_CAVALRY' AND EXISTS (SELECT * FROM COMMUNI
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+4 [ICON_CULTURE] Culture for each different Luxury Resource you import from other Civilizations and City-States, +6 [ICON_GOLD] Gold for each different Luxury Resource you export to other Civilizations. Bonuses scale with Era.'
+SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold for each different Luxury Resource you import or export from other Civilizations and City-States, scaling with Era. Can import duplicate Resources, and imports count towards Resource Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -843,7 +843,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_SOLIDARITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 -- Polynesia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 Sight when embarked. Can embark and move over Oceans immediately. +2 [ICON_FOOD] Food from Fishing Boats and Atolls, and melee Naval Units can construct Fishing Boats.'
+SET Text = '+1 Sight when embarked, can always embark and move over Oceans. +2 [ICON_FOOD] Food from Fishing Boats and Atolls, and melee Naval Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 

@@ -297,7 +297,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 		if (iNumCivsAlreadyBuilding > 0)
 		{
-			iValue -= (150 * iNumCivsAlreadyBuilding);
+			iValue -= (200 * iNumCivsAlreadyBuilding);
 		}
 
 		// Adjust weight for this wonder down based on number of other players currently working on it
@@ -310,7 +310,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iNumOthersConstructing++;
 			}
 		}
-		iValue -= (iNumOthersConstructing * 100);
+		iValue -= (iNumOthersConstructing * 200);
+
+		//probably early game, so if we haven't started yet, we're probably not going to win this one.
+		if (kPlayer.getNumCities() == 1 && !bIsVenice)
+		{
+			iValue -= (iNumOthersConstructing * 50);
+		}
 	}
 	else
 	{
@@ -448,31 +454,31 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	bool bGoodforGPTHappiness = false;
 
 	//No Sea Trade Connections?
-	if(pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0)
+	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0 || pkBuildingInfo->AllowsWaterRoutes())
 	{
 		CvCity* pCapital = kPlayer.getCapitalCity();
-		if(pkBuildingInfo->AllowsWaterRoutes())
+		if (pkBuildingInfo->AllowsWaterRoutes())
 		{
 			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 			{
-				iBonus -= 100;
+				iBonus -= 250;
 			}
-			else if(iNumSeaConnection <= 0 && pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+			else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
 			{
-				iBonus += 50;
+				iBonus += 100 * max(1, m_pCity->getPopulation());
 			}
 
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
-			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
+			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
 			{
-				iBonus += 50;
+				iBonus += 50 * max(1, iNumSeaConnection);
 			}
 
 			int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
 			if (iUnhappyConnection > 0)
 			{
-				iBonus += (iUnhappyConnection * 50);
+				iBonus += (iUnhappyConnection * 100);
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -491,9 +497,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
-			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
+			if (kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
 			{
-				iBonus += 50;
+				iBonus += 50 * max(1, iNumSeaConnection);
 			}
 		}
 	}

@@ -4219,7 +4219,7 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 {
 	ImprovementTypes eImprovement = getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable() && !IsImprovementPillaged();
 	bool bIsCityOrPassable = isCity() || bIsPassableImprovement;
 
 	// Not a city or a fort

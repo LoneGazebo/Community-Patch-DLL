@@ -977,7 +977,7 @@ public:
 	int getGoldenAgeTurns() const;
 	bool isGoldenAge() const;
 #if defined(MOD_BALANCE_CORE)
-	void changeGoldenAgeTurns(int iChange, int iValue = 0);
+	void changeGoldenAgeTurns(int iChange, int iValue = 0, bool bFree = false);
 #else
 	void changeGoldenAgeTurns(int iChange);
 #endif

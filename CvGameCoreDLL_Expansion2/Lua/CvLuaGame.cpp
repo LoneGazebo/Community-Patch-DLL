@@ -2461,7 +2461,7 @@ int CvLuaGame::lGetNumAvailableCorporations(lua_State* L)
 int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
 {
 	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 1);
-	int iReturn = (int) GC.getGame().GetGreatestPlayerResourceMonopoly(eResource);
+	int iReturn = GC.getGame().GetGreatestPlayerResourceMonopoly(eResource);
 	lua_pushinteger(L, iReturn);
 	return 1;
 }

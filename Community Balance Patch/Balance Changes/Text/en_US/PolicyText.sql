@@ -457,7 +457,7 @@ WHERE Tag = 'TXT_KEY_POLICY_COMMERCE_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Mercenary Army
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from Windmills, Workshops, and Factories. [ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE]Windmills, Workshops, and Factories generate +5% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold each. [ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.'
 WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -484,12 +484,12 @@ WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Mercantilism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE]+2 [ICON_RESEARCH] Science and +2 [ICON_CULTURE] Culture from every Customs House, Bank, and Stock Exchange.'
+SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE]Markets, Caravansaries, Customs Houses, Banks, and Stock Exchanges generate +3% [ICON_RESEARCH] Science and [ICON_CULTURE] Culture each. +100% [ICON_PRODUCTION] Production speed of Train Stations and Seaports.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Entrepreneurship
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]Great Merchants are earned 25% faster. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from every Mine, Quarry, and Lumbermill.'
+SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]Great Merchants are earned 50% faster. +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every Mine, Quarry, and Lumbermill.'
 WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --Protectionism
@@ -824,7 +824,7 @@ WHERE Tag = 'TXT_KEY_POLICY_CONSULATES_HELP' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Scholasticism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE]Gain additional [ICON_SPY] Spies (based on number of City-States in game). +3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every active [ICON_SPY] Spy or [ICON_DIPLOMAT] Diplomat (up to 30%).'
+SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE]Gain additional [ICON_SPY] Spies (based on number of City-States in game). +3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every active [ICON_SPY] Spy or [ICON_DIPLOMAT] Diplomat (up to 30%). +5 [ICON_RESEARCH] Science from Constabularies and Police Stations.'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -842,7 +842,7 @@ SET Text = 'Exchange Markets'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE]Resources from City-States count towards Global Monopolies. +1 [ICON_INTERNATIONAL_TRADE] Trade Route, and +1 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE]Resources from City-States count towards Global Monopolies. +1 [ICON_INTERNATIONAL_TRADE] Trade Route, and +2 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -881,7 +881,7 @@ WHERE Tag = 'TXT_KEY_PIETY_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 -- Piety Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Fealty[ENDCOLOR] is best for empires focused on [ICON_RELIGION] Religion, City [ICON_PRODUCTION] Infrastructure, and [ICON_FOOD] Growth.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] -25% [ICON_PEACE] Faith costs for purchasing Buildings, Missionaries, and Inquisitors.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Fealty policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +1 [ICON_GOLD] Gold, [ICON_FOOD] Food, and [ICON_PRODUCTION] Production in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Taj Mahal[ENDCOLOR].[NEWLINE][ICON_BULLET] The [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Shared Religion[ENDCOLOR] is increased by 25%.[NEWLINE][ICON_BULLET] Cities that follow your [ICON_RELIGION] Majority Religion generate +3 of every Yield.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Fealty[ENDCOLOR] is best for empires focused on [ICON_RELIGION] Religion, City [ICON_PRODUCTION] Infrastructure, and [ICON_FOOD] Growth.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] -25% [ICON_PEACE] Faith costs for purchasing Buildings, Missionaries, and Inquisitors.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Fealty policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +1 [ICON_GOLD] Gold and [ICON_FOOD] Food in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Taj Mahal[ENDCOLOR].[NEWLINE][ICON_BULLET] The [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Shared Religion[ENDCOLOR] is increased by 25%.[NEWLINE][ICON_BULLET] Cities that follow your [ICON_RELIGION] Majority Religion generate +2 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Organized Religion

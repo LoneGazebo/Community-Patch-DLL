@@ -1984,7 +1984,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
-void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConvert)
+void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply)
 {
 	//nothing to do
 	if (bDelay && isDelayedDeath())
@@ -2273,35 +2273,33 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bConver
 				}
 			}
 		}
+		if (bSupply && getUnitInfo().GetSupplyCapBoost() != 0)
+		{
+			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+			{
+				GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(getUnitInfo().GetSupplyCapBoost());
+				if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = { 0 };
+					float fDelay = 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", getUnitInfo().GetSupplyCapBoost());
+					DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+					CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+					if (pNotification)
+					{
+						CvString strMessage;
+						CvString strSummary;
+						strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), getUnitInfo().GetSupplyCapBoost());
+						strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
+						pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, getX(), getY(), getOwner());
+					}
+				}
+			}
+		}
 #endif
 		startDelayedDeath();
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if (!bConvert && ePlayer == NO_PLAYER && getUnitInfo().GetSupplyCapBoost() != 0)
-	{
-		if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
-		{
-			GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(getUnitInfo().GetSupplyCapBoost());
-			if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
-			{
-				char text[256] = { 0 };
-				float fDelay = 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", getUnitInfo().GetSupplyCapBoost());
-				DLLUI->AddPopupText(getX(), getY(), text, fDelay);
-				CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-				if (pNotification)
-				{
-					CvString strMessage;
-					CvString strSummary;
-					strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), getUnitInfo().GetSupplyCapBoost());
-					strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
-					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, getX(), getY(), getOwner());
-				}
-			}
-		}
-	}
-#endif
 
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	if(MOD_GLOBAL_NO_LOST_GREATWORKS && !bDelay)
@@ -6145,32 +6143,36 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 				}
 
 #if defined(MOD_EVENTS_REBASE)
-				if (MOD_EVENTS_REBASE) {
-					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanLoadAt, getOwner(), GetID(), targetPlot.getX(), targetPlot.getY()) == GAMEEVENTRETURN_TRUE) {
+				if (MOD_EVENTS_REBASE)
+				{
+					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanLoadAt, getOwner(), GetID(), targetPlot.getX(), targetPlot.getY()) == GAMEEVENTRETURN_TRUE)
+					{
 						return true;
 					}
-				} else {
-#endif
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem)
+				}
+				else
 				{
-					CvLuaArgsHandle args;
-					args->Push(getOwner());
-					args->Push(GetID());
-					args->Push(targetPlot.getX());
-					args->Push(targetPlot.getY());
-
-					// Attempt to execute the game events.
-					// Will return false if there are no registered listeners.
-					bool bResult = false;
-					if (LuaSupport::CallTestAny(pkScriptSystem, "CanLoadAt", args.get(), bResult))
+#endif
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
 					{
-						// Check the result.
-						if (bResult == true) {
-							return true;
+						CvLuaArgsHandle args;
+						args->Push(getOwner());
+						args->Push(GetID());
+						args->Push(targetPlot.getX());
+						args->Push(targetPlot.getY());
+
+						// Attempt to execute the game events.
+						// Will return false if there are no registered listeners.
+						bool bResult = false;
+						if (LuaSupport::CallTestAny(pkScriptSystem, "CanLoadAt", args.get(), bResult))
+						{
+							// Check the result.
+							if (bResult == true) {
+								return true;
+							}
 						}
 					}
-				}
 #if defined(MOD_EVENTS_REBASE)
 				}
 #endif
@@ -7386,7 +7388,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 	if(!bTestVisible)
 	{
 		// Embarked Units can't heal
-		if(pPlot->needsEmbarkation(this))
+		if(pPlot->needsEmbarkation(this) && !isCargo())
 		{
 			return false;
 		}
@@ -8176,12 +8178,7 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 
 	pTargetPlot = GC.getMap().plot(iX, iY);
 	int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
-#if defined(MOD_GLOBAL_RELOCATION)
-	// Remove the water check as we could teleport onto a pontoon bridge
-	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags))
-#else
 	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags) || pTargetPlot->isWater())
-#endif
 	{
 		return false;
 	}
@@ -12574,7 +12571,7 @@ bool CvUnit::goldenAge()
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 #if defined(MOD_BALANCE_CORE)
 	int iValue = kPlayer.GetGoldenAgeProgressMeter();
-	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
 #else
 	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns);
 #endif
@@ -18707,7 +18704,14 @@ void CvUnit::setyieldmodifier(YieldTypes eYield, int iValue)
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_yieldModifier[eYield] = (m_yieldModifier[eYield] + iValue);
 }
-
+//	--------------------------------------------------------------------------------
+#if defined(MOD_CARGO_SHIPS)
+SpecialUnitTypes CvUnit::specialUnitCargoLoad() const
+{
+	VALIDATE_OBJECT
+		return((SpecialUnitTypes)(m_pUnitInfo->GetSpecialUnitCargoLoad()));
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 SpecialUnitTypes CvUnit::specialCargo() const
@@ -18756,6 +18760,38 @@ bool CvUnit::isFull() const
 int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_CARGO_SHIPS)
+	if(MOD_CARGO_SHIPS)
+	{
+		if(specialCargo() != NO_SPECIALUNIT && specialUnitCargoLoad() == NO_SPECIALUNIT)
+		{
+			if(specialCargo() != eSpecialCargo)
+			{
+				return 0;
+			}
+		}
+		if(specialCargo() != NO_SPECIALUNIT && specialUnitCargoLoad() != NO_SPECIALUNIT)
+		{
+			if(eSpecialCargo != specialCargo())
+			{
+				if(eSpecialCargo != specialUnitCargoLoad())
+				{
+					return 0;
+				}
+			}
+		}
+	}
+	else
+	{
+		if(specialCargo() != NO_SPECIALUNIT)
+		{
+			if(specialCargo() != eSpecialCargo)
+			{
+				return 0;
+			}
+		}
+	}
+#else
 	if(specialCargo() != NO_SPECIALUNIT)
 	{
 		if(specialCargo() != eSpecialCargo)
@@ -18763,7 +18799,7 @@ int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDom
 			return 0;
 		}
 	}
-
+#endif
 	if(domainCargo() != NO_DOMAIN)
 	{
 		if(domainCargo() != eDomainCargo)
@@ -18771,47 +18807,8 @@ int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDom
 			return 0;
 		}
 	}
-#if defined(MOD_CARGO_SHIPS)
-	if(MOD_CARGO_SHIPS)
-	{
-		IDInfo* pUnitNode;
-		CvUnit* pLoopUnit;
-		CvPlot* pPlot;
-		if(domainCargo() == DOMAIN_LAND)
-		{
-			pPlot = plot();
-			pUnitNode = pPlot->headUnitNode();
-			while (pUnitNode != NULL)
-			{
-				pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
-				if(pLoopUnit != NULL)
-				{
-					CvPlot* pAdjacentPlot;
-					int iI;
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-						if(pAdjacentPlot != NULL)
-						{
-							if(pLoopUnit->isCargo() && pLoopUnit->IsCanAttackWithMove() && pLoopUnit->canMoveInto(*pAdjacentPlot, MOVEFLAG_ATTACK))
-							{
-								return std::max(0, (cargoSpace() - getCargo() + 1));
-							}
-						}
-					}
-				}
-			}
-			return std::max(0, (cargoSpace() - getCargo()));
-		}
-		else
- 			return std::max(0, (cargoSpace() - getCargo()));
-	}
-	else
-		return std::max(0, (cargoSpace() - getCargo()));
-#else
+
 	return std::max(0, (cargoSpace() - getCargo()));
-#endif
 }
 
 
@@ -19388,39 +19385,6 @@ if (!bDoEvade)
 			}
 		}
 		DoNearbyUnitPromotion(this, pNewPlot);
-		if(isConvertUnit())
-		{
-			CvUnit* pConvertUnit = NULL;
-			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo)
-				{
-					if(pkPromotionInfo->GetConvertDomainUnit() != NO_UNIT)
-					{
-						if((pNewPlot->getDomain() == pkPromotionInfo->GetConvertDomain()) && (this->isHasPromotion(eLoopPromotion)) && (pkPromotionInfo->getRequiredUnit() == this->getUnitType()))
-						{
-							UnitAITypes eAIType = NO_UNITAI;
-							const CvUnitEntry* pkUnitType = GC.getUnitInfo(pkPromotionInfo->GetConvertDomainUnit());
-							if(pkUnitType != NULL)
-							{
-								eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-								CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(pkPromotionInfo->GetConvertDomainUnit(), this->getX(), this->getY(), eAIType, NO_DIRECTION, false, false, 0, 0, NO_CONTRACT, false);
-								pConvertUnit = pNewUnit;
-							}
-						}
-					}
-				}
-			}
-			if(pConvertUnit != NULL)
-			{
-				this->setEmbarked(false);
-				pConvertUnit->convert(this, true);
-				pConvertUnit->setupGraphical();
-				pConvertUnit->finishMoves();
-			}
-		}
 #endif
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
@@ -20056,6 +20020,37 @@ if (!bDoEvade)
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_ENEMY_SUMMARY");
 					pNotifications->Add(NOTIFICATION_ENEMY_IN_TERRITORY, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, getUnitType(), getOwner());
 				}
+			}
+		}
+		if(isConvertUnit())
+		{
+			CvUnit* pConvertUnit = NULL;
+			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+				if(pkPromotionInfo)
+				{
+					if(pkPromotionInfo->GetConvertDomainUnit() != NO_UNIT)
+					{
+						if((pNewPlot->getDomain() == pkPromotionInfo->GetConvertDomain()) && (this->isHasPromotion(eLoopPromotion)) && (pkPromotionInfo->getRequiredUnit() == this->getUnitType()))
+						{
+							UnitAITypes eAIType = NO_UNITAI;
+							const CvUnitEntry* pkUnitType = GC.getUnitInfo(pkPromotionInfo->GetConvertDomainUnit());
+							if(pkUnitType != NULL)
+							{
+								eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+								CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(pkPromotionInfo->GetConvertDomainUnit(), this->getX(), this->getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
+								pConvertUnit = pNewUnit;
+							}
+						}
+					}
+				}
+			}
+			if(pConvertUnit != NULL)
+			{
+				this->kill(true, NO_PLAYER, false);
+				pConvertUnit->finishMoves();
 			}
 		}
 	}
@@ -25610,7 +25605,14 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
+	{
+		return false;
+	}
+#endif
 	//Out-ranged?
 	if (pkPromotionInfo->GetMinRange() != 0 && pkPromotionInfo->GetMinRange() > GetRange())
 		return false;

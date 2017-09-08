@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 7/23/2014 10:41:04 PM -->
 <GameData>
-	<Building_GrowthExtraYield>
+	<!--<Building_GrowthExtraYield>
 		<Row>
 			<BuildingType>BUILDING_CHANCERY</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
@@ -17,5 +17,5 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>15</Yield>
 		</Row>
-	</Building_GrowthExtraYield>
+	</Building_GrowthExtraYield>-->
 </GameData>
