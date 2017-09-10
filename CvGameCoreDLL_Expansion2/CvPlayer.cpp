@@ -10502,7 +10502,8 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 //	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
 {
-	m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false,true);
+	if (!m_pDangerPlots->IsKnownAttacker(pUnit->getOwner(),pUnit->GetID()))
+		m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false,true);
 }
 
 //	-----------------------------------------------------------------------------------------------

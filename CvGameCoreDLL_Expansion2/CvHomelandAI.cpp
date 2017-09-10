@@ -6085,6 +6085,8 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 // Get a missionary to the best city, then spread the word
 void CvHomelandAI::ExecuteMissionaryMoves()
 {
+	vector<int> vBurnedTargets;
+
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -6095,9 +6097,11 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 		}
 
 		int iTargetTurns; //todo: don't pick the same target for all missionaries
-		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseMissionaryTargetCity(pUnit, &iTargetTurns);
+		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseMissionaryTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
+			vBurnedTargets.push_back(pTarget->plot()->GetPlotIndex());
+
 			if(iTargetTurns==0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
@@ -6136,15 +6140,9 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			else
 			{
 				MoveCivilianToGarrison(pUnit);
-				// slewis - this was removed because a unit would eat all its moves. So if it didn't do anything this turn, it wouldn't be able to work 
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				if (!m_pPlayer->isHuman())
-				{
-					pUnit->finishMoves();
-				}		
 			}
 			UnitProcessed(pUnit->GetID());
-			continue;
 		}
 #endif
 	}

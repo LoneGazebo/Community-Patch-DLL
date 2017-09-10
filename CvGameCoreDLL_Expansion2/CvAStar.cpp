@@ -2251,6 +2251,10 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	if (current->m_iMoves == 0)
 		return false;
 
+	//stop nodes don't make sense if we're only after the reachable plots
+	if (!HasValidDestination())
+		return false;
+
 	//can't stop - nothing to do
 	if (!CanEndTurnAtNode(current))
 		return false;
