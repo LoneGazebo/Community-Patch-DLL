@@ -10507,9 +10507,9 @@ void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvPlayer::UpdateDangerPlots()
+void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
 {
-	m_pDangerPlots->UpdateDanger(false, false);
+	m_pDangerPlots->UpdateDanger(false, false, bKeepKnownUnits);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -11068,7 +11068,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
-			UpdateDangerPlots();
+			UpdateDangerPlots(false);
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();

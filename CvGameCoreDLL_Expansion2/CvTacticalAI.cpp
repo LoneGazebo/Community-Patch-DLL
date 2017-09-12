@@ -4663,8 +4663,8 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 	bool bFoundEnoughDeploymentPlots = false;
 	if (ScoreDeploymentPlots(pTarget, pArmy, iUnits, 0, iRange))
 	{
-		// Did we get as many possible plots as units?
-		if (m_TempTargets.size() >= (unsigned)iUnits)
+		// Did we enough plots with some to spare?
+		if (m_TempTargets.size() > (unsigned)iUnits+1)
 		{
 			bFoundEnoughDeploymentPlots = true;
 		}
@@ -6619,7 +6619,8 @@ void CvTacticalAI::ExecuteHeals()
 		}
 
 		//ranged attack before fleeing
-		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
+		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>1 && pUnit->canRangeStrike())
+			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 		//find a suitable spot for healing
 		if (pUnit->getDomainType() == DOMAIN_LAND)
@@ -10675,7 +10676,7 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, Reacha
 {
 	resultSet.clear();
 
-	if (!pUnit || !pUnit->IsCanAttackRanged() || pUnit->isOutOfAttacks())
+	if (!pUnit || !pUnit->IsCanAttackRanged())
 		return false;
 
 	int iRange = min(5,max(1,pUnit->GetRange()));
@@ -11618,7 +11619,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
 		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer());
 
-	//this is only for melee attacks
+	//this is only for melee attacks - ranged attacks are handled separately
 	if (currentPlot.isEnemy())
 	{
 		//don't attack cities if the real target is something else
@@ -11704,12 +11705,12 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		};
 
 		int iDistanceScore = iDistanceScores[unit.eStrategy][currentPlot.getType()];
+		//parthian moves: no use staying close after we made our attack
+		if (unit.iMovesLeft>0 && iMaxAttacks==0)
+			iDistanceScore = currentPlot.getNumAdjacentEnemies() > 0 ? -1 : 2;
+
 		if (iDistanceScore<0)
 			return result;
-
-		//parthian moves: no use staying close after we made our attack
-		if (plot.iMovesLeft>0 && iMaxAttacks==0)
-			iDistanceScore = currentPlot.getNumAdjacentEnemies() > 0 ? 1 : 2;
 
 		//check all plots we could possibly attack from here
 		std::vector<int> vDamageRatios;
@@ -12892,24 +12893,26 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	if (newAssignment.eType != STacticalAssignment::A_MOVE)
 		iTotalScore += newAssignment.iScore;
 
-	//are we done or can we do further moves with this unit?
-	if (iUnitEndTurnPlot>0)
+	if (newAssignment.eType == STacticalAssignment::A_BLOCKED)
+		availableUnits.erase(itUnit);
+	else
 	{
-		if (newAssignment.eType != STacticalAssignment::A_BLOCKED)
+		//are we done or can we do further moves with this unit?
+		if (iUnitEndTurnPlot > 0)
 		{
 			//since we will end the turn here, add the score of the position to the total
 			int iEndTurnScore = newAssignment.bIsCombat ?
 				ScorePlotForCombatUnit(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore :
 				ScorePlotForSupportUnit(*itUnit, SMovePlot(iUnitEndTurnPlot), *this).iScore;
 			iTotalScore += iEndTurnScore;
+
+			//add an explicit end turn if necessary
+			if (newAssignment.eType != STacticalAssignment::A_ENDTURN)
+				assignedMoves.push_back(STacticalAssignment(iUnitEndTurnPlot, iUnitEndTurnPlot, newAssignment.iUnitID, 0, newAssignment.bIsCombat, iEndTurnScore, STacticalAssignment::A_ENDTURN));
+
+			//now we can invalidate the iterator!
+			availableUnits.erase(itUnit);
 		}
-
-		//add an explicit end turn if necessary
-		if (newAssignment.eType != STacticalAssignment::A_ENDTURN && newAssignment.eType != STacticalAssignment::A_BLOCKED)
-			assignedMoves.push_back(STacticalAssignment(iUnitEndTurnPlot, iUnitEndTurnPlot, newAssignment.iUnitID, 0, newAssignment.bIsCombat, 0, STacticalAssignment::A_ENDTURN));
-
-		//now we can invalidate the iterator!
-		availableUnits.erase( itUnit );
 	}
 
 	return true;

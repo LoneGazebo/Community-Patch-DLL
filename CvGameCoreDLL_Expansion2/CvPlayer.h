@@ -221,7 +221,7 @@ public:
 #else
 	void InitDangerPlots();
 #endif
-	void UpdateDangerPlots();
+	void UpdateDangerPlots(bool bKeepKnownUnits);
 	void SetDangerPlotsDirty();
 
 	bool isHuman() const;

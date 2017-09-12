@@ -150,7 +150,7 @@ public:
 	void Uninit();
 	void Reset();
 
-	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false);
+	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false, bool bKeepKnownUnits = false);
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);

@@ -13,19 +13,17 @@
 #include "CvDangerPlots.h"
 //	-----------------------------------------------------------------------------------------------
 //	Loop through all the players and update cached values
-void CvPlayerManager::Refresh(bool /*bWarDeclaration*/)
+void CvPlayerManager::Refresh(bool bWarDeclaration)
 {
 	//include the barbarians!
 	for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_PLAYERS; iPlayerCivLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
-
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		// Must be alive
 		if(!kPlayer.isAlive())
 			continue;
 
-#if defined(MOD_BALANCE_CORE)
 		//this is called after a declaration of war and after loading a savegame
 		kPlayer.invalidatePlotFoundValues();
 		kPlayer.SetDangerPlotsDirty();
@@ -33,9 +31,9 @@ void CvPlayerManager::Refresh(bool /*bWarDeclaration*/)
 		kPlayer.UpdateAreaEffectPlots();
 		kPlayer.UpdateFractionOriginalCapitalsUnderControl();
 		kPlayer.UpdateCurrentAndFutureWars();
-#else
-		if(kPlayer.m_pDangerPlots && kPlayer.m_pDangerPlots->IsDirty())
-			kPlayer.UpdateDangerPlots();
-#endif
+
+		//only after loading, force danger update (danger plots are not serialized!)
+		if(!bWarDeclaration && kPlayer.m_pDangerPlots)
+			kPlayer.UpdateDangerPlots(true);
 	}
 }
