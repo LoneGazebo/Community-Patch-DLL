@@ -2022,11 +2022,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 
 		if (GET_PLAYER(m_eOwner).isMajorCiv() && plot())
 			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
-
-#if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
-		//important - zoc has probably changed
-		GET_PLAYER(ePlayer).ResetReachablePlotsForAllUnits();
-#endif
 	}
 #endif
 
