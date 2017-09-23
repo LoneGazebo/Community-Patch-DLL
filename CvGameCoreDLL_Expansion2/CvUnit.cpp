@@ -28407,7 +28407,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		return;
 
 	//any mission resets the cache
-	ClearReachablePlots();
+ 	ClearReachablePlots();
 
 	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
 	{

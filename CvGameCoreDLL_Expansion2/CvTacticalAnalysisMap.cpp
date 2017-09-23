@@ -1229,6 +1229,9 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 /// Retrieve a dominance zone by closest city
 CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(CvCity* pCity, bool bWater)
 {
+	if (!pCity)
+		return false;
+
 	CvTacticalDominanceZone* pZone;
 	for(int iI = 0; iI < GetNumZones(); iI++)
 	{

@@ -403,16 +403,17 @@ void CvMap::PrecalcNeighbors()
 			//set up neighborhood indices
 			for(int iDirection = 0; iDirection < NUM_DIRECTION_TYPES+2; iDirection++)
 			{
-				// convert to hex-space coordinates - is this really necessary? can't we do it in cartesian also?
+				// convert to hex-space and back
 				iHX = xToHexspaceX(iX , iY);
 				iHY = iY;
 				iHX += GC.getPlotDirectionX()[iDirection];
 				iHY += GC.getPlotDirectionY()[iDirection];
+
 				iNX = hexspaceXToX(iHX, iHY);
 				iNY = iHY;
-
 				iNX = coordRange(iNX, iW, m_bWrapX);
 				iNY = coordRange(iNY, iH, m_bWrapY);
+
 				pNeighbors[iDirection] = isPlot(iNX, iNY) ? (m_pMapPlots+plotNum(iNX,iNY)) : NULL;
 			}
 

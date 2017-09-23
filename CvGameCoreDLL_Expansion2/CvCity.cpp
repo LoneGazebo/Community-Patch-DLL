@@ -25378,6 +25378,9 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	int iPLOT_INFLUENCE_WATER_COST =			/* 20*/ GC.getPLOT_INFLUENCE_WATER_COST();
 	int iPLOT_INFLUENCE_YIELD_POINT_COST =		/*-10*/	GC.getPLOT_INFLUENCE_YIELD_POINT_COST();
 	int iPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST = /*1000*/ GC.getPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST();
+	int iPLOT_INFLUENCE_ADJACENT_NW_COST = -3;
+	int iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST = -2;
+	int iPLOT_INFLUENCE_ADJACENT_ENEMY_COST = -1;
 
 	int iYieldLoop;
 	int iDirectionLoop;
@@ -25544,6 +25547,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 					// all other things being equal move towards unclaimed resources
 					bool bUnownedNaturalWonderAdjacentCount = false;
+					bool bEnemyPlotAdjacent = false;
 					for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), ((DirectionTypes)iI));
@@ -25559,27 +25563,33 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 									// if we are close enough to work, or this is not a bonus resource
 									if (iPlotDistance <= iWorkPlotDistance || GC.getResourceInfo(eAdjacentResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
 									{
-										--iInfluenceCost;
+										iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST;
 									}
 								}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-								if (pAdjacentPlot->IsNaturalWonder(true))
-#else
-								if (pAdjacentPlot->IsNaturalWonder())
-#endif
+
+								if (iPlotDistance <= iWorkPlotDistance) // grab for this city
 								{
-									if (iPlotDistance <= iWorkPlotDistance) // grab for this city
-									{
+	#if defined(MOD_PSEUDO_NATURAL_WONDER)
+									if (pAdjacentPlot->IsNaturalWonder(true))
+	#else
+									if (pAdjacentPlot->IsNaturalWonder())
+	#endif
 										bUnownedNaturalWonderAdjacentCount = true;
-									}
-									--iInfluenceCost; // but we will slightly grow towards it for style in any case
+
+									if (pAdjacentPlot->getOwner() != NO_PLAYER && pAdjacentPlot->getTeam() != getTeam())
+										bEnemyPlotAdjacent = true;
 								}
 							}
 						}
 					}
 
 					// move towards unclaimed NW
-					iInfluenceCost += bUnownedNaturalWonderAdjacentCount ? -1 : 0;
+					if (bUnownedNaturalWonderAdjacentCount)
+						iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_NW_COST;
+
+					// move towards enemy
+					if (bEnemyPlotAdjacent)
+						iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_ENEMY_COST;
 
 					// Plots not adjacent to another Plot acquired by this City are pretty much impossible to get
 					bFoundAdjacentOwnedByCity = false;
