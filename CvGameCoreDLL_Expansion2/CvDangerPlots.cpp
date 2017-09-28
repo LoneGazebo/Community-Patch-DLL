@@ -86,9 +86,6 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
 
-	if(IsKnownAttacker(pLoopUnit->getOwner(),pLoopUnit->GetID()))
-		return false;
-
 	//for ranged every plot we can enter with movement left is a base for attack
 	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
 
@@ -96,7 +93,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
-	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,-1,set<int>());
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),set<int>());
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
@@ -139,7 +136,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 }
 
 /// Updates the danger plots values to reflect threats across the map
-void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibility)
+void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibility, bool bKeepKnownUnits)
 {
 	// danger plots have not been initialized yet, so no need to update
 	if(!m_bArrayAllocated)
@@ -155,7 +152,8 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 
 	//units we know from last turn
 	UnitSet previousKnownUnits = m_knownUnits;
-	m_knownUnits.clear();
+	if (!bKeepKnownUnits)
+		m_knownUnits.clear();
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
@@ -181,24 +179,25 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		CvUnit* pLoopUnit = NULL;
 		for(pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
-			UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility, true);
-
-			//if there are invisible plots next to this unit, other enemies might be hiding there
-			if (!bIgnoreVisibility)
+			if (UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility, true))
 			{
-				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
-				for (int i = 0; i < 6; i++)
+				//if there are invisible plots next to this unit, other enemies might be hiding there
+				if (!bIgnoreVisibility)
 				{
-					CvPlot* pNeighbor = aNeighbors[i];
-					if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
+					CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
+					for (int i = 0; i < 6; i++)
 					{
-						//only ring 1 for now
-						for (int j=RING0_PLOTS; j<RING1_PLOTS; j++)
+						CvPlot* pNeighbor = aNeighbors[i];
+						if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
 						{
-							CvPlot* pPlot = iterateRingPlots(pNeighbor,j);
-							if (pPlot)
-								//note: we accept duplicate indices in m_fogDanger by design
-								m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
+							//only ring 1 for now
+							for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
+							{
+								CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
+								if (pPlot)
+									//note: we accept duplicate indices in m_fogDanger by design
+									m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
+							}
 						}
 					}
 				}
@@ -245,7 +244,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		if (ShouldIgnorePlayer(it->first))
 			continue;
 
-		if (m_knownUnits.find(*it) == m_knownUnits.end())
+		if (m_knownUnits.find(*it) == m_knownUnits.end() || bKeepKnownUnits)
 		{
 			CvUnit* pVanishedUnit = GET_PLAYER(it->first).getUnit(it->second);
 

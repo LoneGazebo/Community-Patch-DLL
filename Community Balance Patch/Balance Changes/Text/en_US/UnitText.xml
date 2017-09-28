@@ -135,7 +135,7 @@
 			<Text>Pilum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP">
-			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent enemy units take 10 Damage at the beginning of every turn.</Text>
+			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent enemy units take 10 Damage at the beginning of every turn. [COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
@@ -213,7 +213,7 @@
 			<Text>Atlatl Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
-			<Text>+50% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units.</Text>
+			<Text>+50% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units.[COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Naval Target Penalty</Text>

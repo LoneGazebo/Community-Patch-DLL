@@ -4740,23 +4740,16 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 		{
 			iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 		}
-		int iMyCities = m_pPlayer->getNumCities();
-		int iTheirCities = kPlayer.getNumCities();
-		if(iTheirCities > iMyCities)
-		{
-			int iMod = iTheirCities - iMyCities;
-			if(iMod != 0)
-			{
-				iMultiplier += ((GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2) * iMod);
-			}
-		}
 	}
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if(iBoredom != 0)
+		if (m_pPlayer->getUnhappinessFromCityCulture() < iBoredom)
 		{
-			iMultiplier += (iBoredom * 3);
+			if (iBoredom != 0)
+			{
+				iMultiplier += (iBoredom * 3);
+			}
 		}
 	}
 
@@ -4954,29 +4947,16 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	{
-		int iMyCities = m_pPlayer->getNumCities();
-		int iTheirCities = kPlayer.getNumCities();
-		if(iTheirCities > iMyCities)
-		{
-			int iMod = iTheirCities - iMyCities;
-			if(iMod != 0)
-			{
-				iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() * iMod);
-				if(iMod != 0)
-				{
-					szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_EMPIRE_SIZE", iMod) + "[ENDCOLOR]";
-				}
-			}
-		}
-	}
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		int iBoredom = (kPlayer.getUnhappinessFromCityCulture() * 3);
-		if(iBoredom != 0)
+		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
+		if (m_pPlayer->getUnhappinessFromCityCulture() < iBoredom)
 		{
-			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iBoredom) + "[ENDCOLOR]";
+			iBoredom *= 3;
+			if (iBoredom != 0)
+			{
+				szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_BOREDOM", iBoredom) + "[ENDCOLOR]";
+			}
 		}
 	}
 	if (m_pPlayer->GetPositiveWarScoreTourismMod() != 0)
@@ -6904,12 +6884,16 @@ void CvCityCulture::CalculateBaseTourism()
 	if (iNumCities != 0)
 	{
 		// Mod for City Count
-		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
+		iMod -= kPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= (iNumCities - 1);
 
 		if (iMod >= 75)
 			iMod = 75;
+
+		if (iMod <= 0)
+			iMod = 0;
 
 		iMod *= -1;
 		iModifier += iMod;
@@ -7108,12 +7092,16 @@ int CvCityCulture::GetBaseTourism()
 	if (iNumCities != 0)
 	{
 		// Mod for City Count
-		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
+		iMod -= kPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= (iNumCities - 1);
 
 		if (iMod >= 75)
 			iMod = 75;
+
+		if (iMod <= 0)
+			iMod = 0;
 
 		iMod *= -1;
 		iModifier += iMod;
@@ -7288,23 +7276,16 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		{
 			iMultiplier += GC.getTOURISM_MODIFIER_DIPLOMAT();
 		}
-		int iMyCities = kCityPlayer.getNumCities();
-		int iTheirCities = kPlayer.getNumCities();
-		if(iTheirCities > iMyCities)
-		{
-			int iMod = iTheirCities - iMyCities;
-			if(iMod != 0)
-			{
-				iMultiplier += (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() * iMod);
-			}
-		}
 	}
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		int iBoredom = kPlayer.getUnhappinessFromCityCulture();
-		if(iBoredom != 0)
+		if (kCityPlayer.getUnhappinessFromCityCulture() < iBoredom)
 		{
-			iMultiplier += (iBoredom * 3);
+			if (iBoredom != 0)
+			{
+				iMultiplier += (iBoredom * 3);
+			}
 		}
 	}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -7770,12 +7751,16 @@ CvString CvCityCulture::GetTourismTooltip()
 		if (iNumCities != 0)
 		{
 			// Mod for City Count
-			iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 3);	// Default is 5, gets smaller on larger maps
+			iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
+			iMod -= kCityPlayer.GetTourismCostXCitiesMod();
 
 			iMod *= (iNumCities - 1);
 
 			if (iMod >= 75)
 				iMod = 75;
+
+			if (iMod <= 0)
+				iMod = 0;
 
 			iMod *= -1;
 		}

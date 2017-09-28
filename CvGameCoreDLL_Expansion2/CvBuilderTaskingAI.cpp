@@ -3409,6 +3409,9 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, CvUnit* pUnit,
 		return;
 	}
 
+	if (GC.getBuildInfo(directive.m_eBuild) == NULL)
+		return;
+
 	CvString strLog;
 	CvString strTemp;
 

@@ -965,16 +965,14 @@ private:
 
 	CTacticalUnitArray m_CurrentMoveUnits;
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
-	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL > m_MovePriorityList;
+	std::vector<CvTacticalMove> m_MovePriorityList;
 
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
-#if defined(MOD_BALANCE_CORE)
 	TacticalList m_NavalTargets;
-#endif
 
-	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_Postures; //persistent!
+	std::vector<CvTacticalPosture> m_Postures; //persistent!
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
@@ -992,14 +990,14 @@ private:
 	int m_iCurrentUnitTargetIndex;
 
 	int m_iCurrentTempZoneIndex;
-	FStaticVector<CvTemporaryZone, SAFE_ESTIMATE_NUM_TEMP_ZONES, true, c_eCiv5GameplayDLL, 0> m_TempZones;
-	FStaticVector<CvTacticalTarget, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
+	std::vector<CvTemporaryZone> m_TempZones;
+	std::vector<CvTacticalTarget> m_TempTargets;
 
 	// Blocking (and flanking) position data
-	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_PotentialBlocks;
-	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_TemporaryBlocks;
-	FStaticVector<CvBlockingUnit, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_ChosenBlocks;
-	FStaticVector<CvBlockingUnit, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_NewlyChosen;
+	std::vector<CvBlockingUnit> m_PotentialBlocks;
+	std::vector<CvBlockingUnit> m_TemporaryBlocks;
+	std::vector<CvBlockingUnit> m_ChosenBlocks;
+	std::vector<CvBlockingUnit> m_NewlyChosen;
 
 	// Operational AI support data
 	std::vector<CvOperationUnit> m_OperationUnits;
@@ -1217,7 +1215,7 @@ namespace TacticalAIHelpers
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
 	bool CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iDeployRange);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);
-	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, int iMaxDistance=5);
+	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);

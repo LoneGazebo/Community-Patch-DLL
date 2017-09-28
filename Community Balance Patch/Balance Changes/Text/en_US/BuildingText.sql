@@ -471,7 +471,7 @@ SET Text = '''We Love the King Day'' begins in the City. During ''We Love the Ki
 WHERE Tag = 'TXT_KEY_WONDER_MAUSOLEUM_HALICARNASSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_FOOD] Food in all cities. +15% [ICON_PRODUCTION] Production when building ranged units. Free Granary in the City.'
+SET Text = '+10% [ICON_FOOD] Food in all cities. +15% [ICON_PRODUCTION] Production when building ranged units. Free Herbalist in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_TEMPLE_ARTEMIS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

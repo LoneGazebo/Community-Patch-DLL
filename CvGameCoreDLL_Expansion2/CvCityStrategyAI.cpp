@@ -4785,17 +4785,17 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eResource == NO_RESOURCE)
 			continue;
 
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL)
+			continue;
+
 		bool bWater = false;
-		if (GC.getResourceInfo(eResource)->isTerrain(TERRAIN_COAST) || GC.getResourceInfo(eResource)->isTerrain(TERRAIN_OCEAN))
+		if (pkResourceInfo->isTerrain(TERRAIN_COAST) || pkResourceInfo->isTerrain(TERRAIN_OCEAN))
 		{
 			bWater = true;
 			if (!pCity->isCoastal())
 				continue;
 		}
-
-		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo == NULL)
-			continue;
 		
 		if (!GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
 			continue;

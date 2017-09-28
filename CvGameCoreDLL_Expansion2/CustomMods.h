@@ -71,17 +71,9 @@
 /// unrevealed plots are impassable instead of passable by default
 #define MOD_CORE_UNREVEALED_IMPASSABLE
 
-/// visible tiles stay visible until the end of the turn
-#define MOD_CORE_DELAYED_VISIBILITY
-
-/// experimental performance improvement
-#define MOD_CORE_CACHE_REACHABLE_PLOTS
-
-/// unrevealed plots are impassable instead of passable by default
-#define MOD_CORE_UNREVEALED_IMPASSABLE
-
 /// for better multiplayer experience
 #define MOD_CORE_REDUCE_RANDOMNESS
+
 #define MOD_CORE_RESILIENT_PANTHEONS
 
 ///	air units take a flat amount of damage in each air strike (plus interceptions)
@@ -403,6 +395,7 @@
 #define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
 #define MOD_BALANCE_NO_GAP_DURING_GA				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_NO_GAP_DURING_GA())
 #define MOD_BALANCE_DYNAMIC_UNIT_SUPPLY				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_DYNAMIC_UNIT_SUPPLY())
+#define MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV())
 #endif
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -1483,6 +1476,7 @@ public:
 	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
 	MOD_OPT_DECL(BALANCE_NO_GAP_DURING_GA);
 	MOD_OPT_DECL(BALANCE_DYNAMIC_UNIT_SUPPLY);
+	MOD_OPT_DECL(BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

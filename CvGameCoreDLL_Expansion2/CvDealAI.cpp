@@ -2088,10 +2088,12 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	int iItemValue = (bOurs) ? 25000 : 20000;
 
 	//If at war, halve the value (that way it'll fit in a peace deal's valuation model).
-	if (!sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
-	{
+	if (sellingPlayer.IsAtWarWith(buyingPlayer.GetID()))
 		iItemValue /= 2;
-	}
+
+	//obviously the seller doesn't really want it
+	if (pCity->IsRazing())
+		iItemValue /= 2;
 
 	//economic value is important
 	int iEconomicValue = pCity->getEconomicValue(buyingPlayer.GetID());
@@ -2203,7 +2205,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	iItemValue += goldPerPlot * 8 * iInternalBorderCount;
 
 	//re-use the gold value as a general unit and penalize unhappy citizens
-	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot;
+	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot * 3;
 
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{

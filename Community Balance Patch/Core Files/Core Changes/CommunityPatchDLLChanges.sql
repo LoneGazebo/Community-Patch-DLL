@@ -230,6 +230,10 @@ UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_DYNAMIC_UNIT_SUPPLY';
 
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV';
+
 UPDATE GameOptions SET "Default" = 1 WHERE Type = 'GAMEOPTION_EVENTS';
 
 UPDATE CustomModOptions SET Value=1 WHERE Name='GLOBAL_CS_GIFTS';  

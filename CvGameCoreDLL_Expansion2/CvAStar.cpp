@@ -1585,7 +1585,7 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, const S
 		iScale = 67;
 	else if (pToPlot->isRoughGround())
 		iScale = 200;
-	else if (pFromPlot->isWater() != pToPlot->isWater())
+	else if (pFromPlot->isWater() != pToPlot->isWater() && !pFromPlot->isCity() && !pToPlot->isCity())
 		iScale = 200; //dis/embarkation
 	else if (pFromPlot->isWater() && pToPlot->isWater())
 		iScale = 67; //movement on water is usually faster
@@ -2249,6 +2249,10 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 {
 	//we're stopping anyway - nothing to do
 	if (current->m_iMoves == 0)
+		return false;
+
+	//stop nodes don't make sense if we're only after the reachable plots
+	if (!HasValidDestination())
 		return false;
 
 	//can't stop - nothing to do

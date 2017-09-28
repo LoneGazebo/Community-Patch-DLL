@@ -112,6 +112,7 @@ public:
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
 	int GetHappinessPerXPolicies() const;
+	int GetHappinessPerXGreatWorks() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -298,6 +299,7 @@ public:
 	int GetGreatScientistBeakerModifier() const;
 	int GetGreatEngineerHurryModifier() const;
 	int GetTechCostXCitiesMod() const;
+	int GetTourismCostXCitiesMod() const;
 	int GetCitadelBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
@@ -693,6 +695,7 @@ private:
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryModifier;
 	int m_iTechCostXCitiesMod;
+	int m_iTourismCostXCitiesMod;
 	int m_iIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;
@@ -739,6 +742,7 @@ private:
 	int m_iTRSpeedBoost;
 	int m_iTRVisionBoost;
 	int m_iHappinessPerXPolicies;
+	int m_iHappinessPerXGreatWorks;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

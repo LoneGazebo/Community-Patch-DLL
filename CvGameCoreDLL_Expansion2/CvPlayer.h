@@ -221,7 +221,7 @@ public:
 #else
 	void InitDangerPlots();
 #endif
-	void UpdateDangerPlots();
+	void UpdateDangerPlots(bool bKeepKnownUnits);
 	void SetDangerPlotsDirty();
 
 	bool isHuman() const;
@@ -689,6 +689,9 @@ public:
 
 	int GetExtraHappinessPerXPoliciesFromPolicies() const;
 	void ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange);
+
+	int GetHappinessPerXGreatWorks() const;
+	void ChangeHappinessPerXGreatWorks(int iChange);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetHappinessFromResourceMonopolies() const;
@@ -1160,6 +1163,9 @@ public:
 	int GetTechCostXCitiesModifier() const;
 	void SetTechCostXCitiesModifier(int iValue);
 	void ChangeTechCostXCitiesModifier(int iChange);
+
+	int GetTourismCostXCitiesMod() const;
+	void ChangeTourismCostXCitiesMod(int iChange);
 
 	int GetGreatGeneralCombatBonus() const;
 	void SetGreatGeneralCombatBonus(int iValue);
@@ -2930,6 +2936,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessPerCity;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPolicies;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerXPoliciesFromPolicies;
+	FAutoVariable<int, CvPlayer> m_iHappinessPerXGreatWorks;
 	FAutoVariable<int, CvPlayer> m_iEspionageModifier;
 	FAutoVariable<int, CvPlayer> m_iSpyStartingRank;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -3046,6 +3053,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatScientistBeakerModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatEngineerHurryMod;
 	FAutoVariable<int, CvPlayer> m_iTechCostXCitiesModifier;
+	FAutoVariable<int, CvPlayer> m_iTourismCostXCitiesMod;
 	FAutoVariable<int, CvPlayer> m_iGreatEngineerRateModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatPersonExpendGold;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)

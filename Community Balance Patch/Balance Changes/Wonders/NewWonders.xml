@@ -211,7 +211,7 @@
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<MinorFriendshipChange>35</MinorFriendshipChange>
+			<MinorFriendshipChange>100</MinorFriendshipChange>
 			<ConquestProb>100</ConquestProb>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<WonderSplashImage>CernSplash.dds</WonderSplashImage>

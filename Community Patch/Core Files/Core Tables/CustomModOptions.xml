@@ -1039,6 +1039,8 @@
 	<Row Class="6" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
 	<!-- Enable to allow war score and time to affect unit supply during wars. -->
 	<Row Class="6" Name="BALANCE_DYNAMIC_UNIT_SUPPLY" Value="0"/>
+	<!-- Beliefs with a 'RequiredCivilization' component are now only for that civ bonus-wise. -->
+	<Row Class="6" Name="BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

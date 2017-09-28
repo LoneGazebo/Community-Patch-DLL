@@ -337,7 +337,7 @@ end
 
 function VassalSelected( ePlayer )
 
-	if not Players[Game.GetActivePlayer()]:IsTurnActive() or Game.IsProcessingMessages() then
+	if not Players[Game.GetActivePlayer()]:IsTurnActive() then
 		return;
 	end
 

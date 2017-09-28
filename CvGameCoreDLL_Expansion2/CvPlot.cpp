@@ -9750,7 +9750,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		{
 			iYield += pWorkingCity->GetEventImprovementYield(getImprovementType(), eYield);
 		}
-		if(getResourceType() != NO_RESOURCE)
+		if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 		{
 			iYield += pWorkingCity->GetEventResourceYield(getResourceType(), eYield);
 		}

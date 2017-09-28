@@ -174,6 +174,12 @@
 	SET Text = '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Damage from Cities reduced by 20%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_COASTAL_RAIDER_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+-- fixed spear throw
+	UPDATE Language_en_US
+	SET Text = 'Before engaging in melee, this unit has an extra attack. [COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_GUNPOWDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	
 -- Wolfpack extremely strong
 
 	UPDATE Language_en_US

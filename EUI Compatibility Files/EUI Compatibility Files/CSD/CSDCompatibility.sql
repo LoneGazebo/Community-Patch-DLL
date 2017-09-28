@@ -28,6 +28,12 @@ INSERT INTO Belief_SpecialistYieldChanges
 VALUES
 	('BELIEF_RELIGIOUS_ART', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_GOLD', 1);
 
+INSERT INTO Belief_ImprovementYieldChanges
+	(BeliefType, ImprovementType, YieldType, Yield)
+VALUES
+	('BELIEF_UNITY_OF_PROPHETS', 'IMPROVEMENT_EMBASSY', 'YIELD_FAITH', 4),
+	('BELIEF_UNITY_OF_PROPHETS', 'IMPROVEMENT_EMBASSY', 'YIELD_SCIENCE', 4);
+
 INSERT INTO Tech_SpecialistYieldChanges
 	(TechType, SpecialistType, YieldType, Yield)
 VALUES
@@ -40,6 +46,10 @@ INSERT INTO Policy_FaithPurchaseUnitClasses
 VALUES
 	('POLICY_PATRONAGE_FINISHER', 'UNITCLASS_GREAT_DIPLOMAT');
 
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_TRADITION_FINISHER', 'IMPROVEMENT_EMBASSY', 'YIELD_FOOD', 1);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)

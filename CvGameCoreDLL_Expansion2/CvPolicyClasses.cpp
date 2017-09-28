@@ -102,6 +102,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
 	m_iHappinessPerXPolicies(0),
+	m_iHappinessPerXGreatWorks(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -286,6 +287,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatScientistBeakerModifier(0),
 	m_iGreatEngineerHurryModifier(0),
 	m_iTechCostXCitiesMod(0),
+	m_iTourismCostXCitiesMod(0),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
 	m_iPuppetProdMod(0),
@@ -539,6 +541,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
+	m_iHappinessPerXGreatWorks = kResults.GetInt("HappinessPerXGreatWorks");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -699,6 +702,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iGreatEngineerHurryModifier = kResults.GetInt("GreatEngineerHurryModifier");
 	m_iTechCostXCitiesMod = kResults.GetInt("TechCostXCitiesMod");
+	m_iTourismCostXCitiesMod = kResults.GetInt("TourismCostXCitiesMod");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
@@ -1707,6 +1711,11 @@ int CvPolicyEntry::GetTRSpeedBoost() const
 int CvPolicyEntry::GetHappinessPerXPolicies() const
 {
 	return m_iHappinessPerXPolicies;
+}
+
+int CvPolicyEntry::GetHappinessPerXGreatWorks() const
+{
+	return m_iHappinessPerXGreatWorks;
 }
 #endif
 /// Happiness from each connected Luxury Resource
@@ -2786,6 +2795,11 @@ int CvPolicyEntry::GetGreatEngineerHurryModifier() const
 int CvPolicyEntry::GetTechCostXCitiesMod() const
 {
 	return m_iTechCostXCitiesMod;
+}
+
+int CvPolicyEntry::GetTourismCostXCitiesMod() const
+{
+	return m_iTourismCostXCitiesMod;
 }
 /// Citadel Boost?
 int CvPolicyEntry::GetCitadelBoost() const

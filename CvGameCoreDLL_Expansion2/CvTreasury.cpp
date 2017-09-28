@@ -384,13 +384,13 @@ int CvTreasury::GetGoldPerTurnFromTraits() const
 		{
 			iEra = 1;
 		}
-		return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
+		return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
 	}
 	else
 	{
 #endif
 #if defined(MOD_BALANCE_CORE)
-	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
+	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
 #else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
 #endif

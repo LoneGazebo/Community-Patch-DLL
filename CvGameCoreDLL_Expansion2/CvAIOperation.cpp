@@ -3817,7 +3817,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		//Is it a garrison we can spare?
 		if (pLoopUnit->IsGarrisoned())
 		{
-			CvTacticalDominanceZone* pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopUnit->plot());
+			CvTacticalDominanceZone* pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopUnit->plot()->getPlotCity(),false);
 			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 				return false;
 		}
@@ -3920,7 +3920,9 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	//don't pull out units from zones we need to defend
 	CvTacticalDominanceZone *pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pLoopUnit->plot());
 	if (pZone && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
-		return false;
+		//exception: ships in harbor
+		if (pLoopUnit->getDomainType()!=DOMAIN_SEA || !pLoopUnit->plot()->isCity())
+			return false;
 
 	//don't take explorers
 	if (unitInfo == NULL || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
