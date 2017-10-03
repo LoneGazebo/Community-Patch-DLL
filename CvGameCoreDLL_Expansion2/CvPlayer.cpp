@@ -180,6 +180,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerCity("CvPlayer::m_iHappinessPerCity", m_syncArchive)
 	, m_iHappinessPerXPolicies("CvPlayer::m_iHappinessPerXPolicies", m_syncArchive)
 	, m_iExtraHappinessPerXPoliciesFromPolicies("CvPlayer::m_iExtraHappinessPerXPoliciesFromPolicies", m_syncArchive)
+	, m_iHappinessPerXGreatWorks("CvPlayer::m_iHappinessPerXGreatWorks", m_syncArchive)
 	, m_iAdvancedStartPoints("CvPlayer::m_iAdvancedStartPoints", m_syncArchive)
 	, m_iAttackBonusTurns("CvPlayer::m_iAttackBonusTurns", m_syncArchive)
 	, m_iCultureBonusTurns("CvPlayer::m_iCultureBonusTurns", m_syncArchive)
@@ -227,6 +228,7 @@ CvPlayer::CvPlayer() :
 	, m_iGreatScientistBeakerModifier("CvPlayer::m_iGreatScientistBeakerModifier", m_syncArchive)
 	, m_iGreatEngineerHurryMod("CvPlayer::m_iGreatEngineerHurryMod", m_syncArchive)
 	, m_iTechCostXCitiesModifier("CvPlayer::m_iTechCostXCitiesModifier", m_syncArchive)
+	, m_iTourismCostXCitiesMod("CvPlayer::m_iTourismCostXCitiesMod", m_syncArchive)
 	, m_iGreatEngineerRateModifier("CvPlayer::m_iGreatEngineerRateModifier", m_syncArchive)
 	, m_iGreatPersonExpendGold("CvPlayer::m_iGreatPersonExpendGold", m_syncArchive)
 	, m_iMaxGlobalBuildingProductionModifier("CvPlayer::m_iMaxGlobalBuildingProductionModifier", m_syncArchive)
@@ -1388,6 +1390,7 @@ void CvPlayer::uninit()
 	m_iHappinessPerCity = 0;
 	m_iHappinessPerXPolicies = 0;
 	m_iExtraHappinessPerXPoliciesFromPolicies = 0;
+	m_iHappinessPerXGreatWorks = 0;
 	m_iAdvancedStartPoints = -1;
 	m_iAttackBonusTurns = 0;
 	m_iCultureBonusTurns = 0;
@@ -1479,6 +1482,7 @@ void CvPlayer::uninit()
 	m_iGreatScientistBeakerModifier = 0;
 	m_iGreatEngineerHurryMod = 0;
 	m_iTechCostXCitiesModifier = 0;
+	m_iTourismCostXCitiesMod = 0;
 	m_iGreatEngineerRateModifier = 0;
 	m_iGreatPersonExpendGold = 0;
 	m_iMaxGlobalBuildingProductionModifier = 0;
@@ -18108,7 +18112,7 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 int CvPlayer::GetJONSCulturePerTurnFromTraits() const
 {
 #if defined(MOD_API_UNIFIED_YIELDS)
-	return (GetYieldPerTurnFromTraits(YIELD_CULTURE) + GetYieldPerTurnFromResources(YIELD_CULTURE, false, true));
+	return (GetYieldPerTurnFromTraits(YIELD_CULTURE) + GetYieldPerTurnFromResources(YIELD_CULTURE, true, true));
 #else
 	return GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_CULTURE) * GetTrade()->GetNumDifferentTradingPartners();
 #endif
@@ -21168,6 +21172,21 @@ void CvPlayer::ChangeExtraHappinessPerXPoliciesFromPolicies(int iChange)
 		m_iExtraHappinessPerXPoliciesFromPolicies += iChange;
 }
 
+/// Returns the amount of extra Happiness per City
+int CvPlayer::GetHappinessPerXGreatWorks() const
+{
+	return m_iHappinessPerXGreatWorks;
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes amount of extra Happiness per City
+void CvPlayer::ChangeHappinessPerXGreatWorks(int iChange)
+{
+	CvAssertMsg(m_iHappinessPerXGreatWorks  >= 0, "Count of extra happiness per buildings is corrupted");
+
+	if (iChange != 0)
+		m_iHappinessPerXGreatWorks += iChange;
+}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvPlayer::GetHappinessFromResourceMonopolies() const
 {
@@ -25725,6 +25744,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if(pReligion)
 						{
 							iValue += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
+							//Scale it here to avoid scaling the growth yield below.
+							if (bEraScale)
+							{
+								iValue *= iEra;
+							}
 						}
 					}
 					break;
@@ -27050,6 +27074,22 @@ void CvPlayer::ChangeTechCostXCitiesModifier(int iChange)
 {
 	SetTechCostXCitiesModifier(GetTechCostXCitiesModifier() + iChange);
 }
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+int CvPlayer::GetTourismCostXCitiesMod() const
+{
+	return m_iTourismCostXCitiesMod;
+}
+
+//	--------------------------------------------------------------------------------
+// Do we get extra beakers from using Great Scientists?
+void CvPlayer::ChangeTourismCostXCitiesMod(int iChange)
+{
+	m_iTourismCostXCitiesMod += iChange;
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////
 int CvPlayer::GetGreatGeneralCombatBonus() const
@@ -40685,6 +40725,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeTRVisionBoost(pPolicy->GetTRVisionBoost() * iChange);
 	ChangeTRSpeedBoost(pPolicy->GetTRSpeedBoost() * iChange);
 	ChangeExtraHappinessPerXPoliciesFromPolicies(pPolicy->GetHappinessPerXPolicies() * iChange);
+	ChangeHappinessPerXGreatWorks(pPolicy->GetHappinessPerXGreatWorks() * iChange);
 	ChangePositiveWarScoreTourismMod(pPolicy->GetPositiveWarScoreTourismMod() * iChange);
 
 	ChangeIsNoCSDecayAtWar(pPolicy->IsNoCSDecayAtWar() * iChange);
@@ -40754,6 +40795,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeGreatScientistBeakerMod(pPolicy->GetGreatScientistBeakerModifier() * iChange);
 	ChangeGreatEngineerHurryMod(pPolicy->GetGreatEngineerHurryModifier() * iChange);
 	ChangeTechCostXCitiesModifier(pPolicy->GetTechCostXCitiesMod() * iChange);
+	ChangeTourismCostXCitiesMod(pPolicy->GetTourismCostXCitiesMod() * iChange);
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -46532,7 +46574,7 @@ CvString CvPlayer::GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) con
 
 		bSatisfied = iPopPercent >= GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD();
 		bAnySatisfied = bAnySatisfied || bSatisfied;
-		szTemp += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD(), iPopPercent) + "[ENDCOLOR][NEWLINE]";
+		szTemp += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_POP_PERCENT_TT", GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD(), iPopPercent) + "[ENDCOLOR][NEWLINE]";
 		
 		int iMasterCityPercent = 0;
 		int iMasterPopPercent = 0;

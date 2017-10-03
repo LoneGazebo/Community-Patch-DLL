@@ -1787,12 +1787,19 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 #endif
 #if defined(MOD_BALANCE_CORE)
 			bool bFree = false;
-			if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
+			if (ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE())
+			{
+				if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
+				{
+					bGivePromotion = false;
+				}
+			}
+			else if (ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
 			{
 				//Can't embark yet, or the unit should auto get it?
-				if(pUnit->isHasPromotion(ePromotion))
+				if (pUnit->isHasPromotion(ePromotion) || getUnitInfo().GetFreePromotions(ePromotion))
 				{
-					if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage() && getUnitInfo().GetFreePromotions(ePromotion))
+					if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage())
 					{
 						bGivePromotion = true;
 					}
@@ -2134,12 +2141,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			}
 			if(IsCivilianUnit() && pPlot && !pPlot->isCity())
 			{
-				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
+				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper() && GetOriginalOwner() == getOwner())
 				{
 					if(IsGreatPerson())
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (4 * iEra));
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
 					}
 					else
 					{
@@ -2147,14 +2153,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 					}
 				}
 			}
-			else if(IsCivilianUnit() && pPlot && pPlot->isCity())
+			else if (IsCivilianUnit() && pPlot && pPlot->isCity() && GetOriginalOwner() == getOwner())
 			{
-				iValue = GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / 4;
 				if(!IsGreatGeneral() && !IsGreatAdmiral() && !IsSapper())
 				{
 					if(IsGreatPerson())
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (2 * iEra));
 					}
 				}
 			}
@@ -27082,6 +27087,9 @@ bool CvUnit::IsSelected() const
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsFirstTimeSelected() const
 {
+	if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
+		return false;
+
 	VALIDATE_OBJECT
 	if(IsSelected() && m_iEverSelectedCount == 1)
 	{
@@ -27096,6 +27104,9 @@ bool CvUnit::IsFirstTimeSelected() const
 //	--------------------------------------------------------------------------------
 void CvUnit::IncrementFirstTimeSelected()
 {
+	if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
+		return;
+
 	VALIDATE_OBJECT
 	if(m_iEverSelectedCount < 2)
 	{

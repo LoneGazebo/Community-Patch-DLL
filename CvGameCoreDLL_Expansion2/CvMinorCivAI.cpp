@@ -11704,7 +11704,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 1000)
 		{
 			int iInfluenceTotal = iBaseFriendship * -1;
-			iInfluenceTotal;
+			iInfluenceTotal /= 10;
 
 			if (iInfluenceTotal < 0)
 				iChangeThisTurn += iInfluenceTotal;

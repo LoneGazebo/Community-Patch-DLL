@@ -278,7 +278,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
-			<GlobalGreatPeopleRateModifier>15</GlobalGreatPeopleRateModifier>
+			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>

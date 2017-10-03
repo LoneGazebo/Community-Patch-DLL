@@ -19168,7 +19168,7 @@ bool CvCity::DoRazingTurn()
 		{
 			CvPlot* pkPlot = plot();
 
-			pkPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_RAZED_CITY(), getOriginalOwner(), getOwner());
+			pkPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_RAZED_CITY(), getOwner() , getOriginalOwner());
 
 			kPlayer.disband(this);
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, getOwner(), "", pkPlot->getX(), pkPlot->getY());
@@ -19556,6 +19556,13 @@ int CvCity::GetLocalHappiness() const
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
 	int iLocalHappiness = GetBaseHappinessFromBuildings();
+
+	if (kPlayer.GetHappinessPerXGreatWorks() != 0)
+	{
+		int iGW = GetCityBuildings()->GetNumGreatWorks();
+		iGW /= kPlayer.GetHappinessPerXGreatWorks();
+		iLocalHappiness += iGW;
+	}
 
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)

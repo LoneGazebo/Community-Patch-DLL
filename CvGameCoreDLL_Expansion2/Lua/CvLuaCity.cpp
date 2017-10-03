@@ -3389,6 +3389,10 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
 			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers, pkCity->getOwner(), pkCity);
+			if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+			{
+				iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYieldType, pkCity->getOwner(), pkCity);
+			}
 			BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{

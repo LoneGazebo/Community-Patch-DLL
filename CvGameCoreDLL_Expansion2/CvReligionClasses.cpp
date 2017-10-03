@@ -7678,7 +7678,7 @@ void CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 	// Have cities Inquisitors can defend?
 	if (pMyReligion->m_bEnhanced)
 	{
-		if ((eReligion != NO_RELIGION) && !HaveEnoughInquisitors(eReligion) && !pCity->GetCityReligions()->HasFriendlyInquisitor(eReligion))
+		if ((eReligion != NO_RELIGION) && (eReligion == GetReligionToSpread()) && !HaveEnoughInquisitors(eReligion) && !pCity->GetCityReligions()->HasFriendlyInquisitor(eReligion))
 		{
 			UnitTypes eInquisitor = kPlayer.GetSpecificUnitType("UNITCLASS_INQUISITOR", true);
 

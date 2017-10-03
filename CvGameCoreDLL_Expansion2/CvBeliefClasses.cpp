@@ -1914,6 +1914,11 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 				}
 			}
 		}
+		if (MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != NO_CIVILIZATION)
+		{
+			if (pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+				return false;
+		}
 	}
 	return true;
 }

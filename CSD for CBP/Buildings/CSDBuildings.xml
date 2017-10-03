@@ -299,7 +299,7 @@
 			<GoldenAge>true</GoldenAge>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<GPExpendInfluence>10</GPExpendInfluence>
+			<GPExpendInfluence>25</GPExpendInfluence>
 			<ConquestProb>100</ConquestProb>
 			<DisplayPosition>1</DisplayPosition>
 			<IconAtlas>BW_ATLAS_2</IconAtlas>

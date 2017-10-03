@@ -2834,19 +2834,23 @@ void CvDiplomacyAI::DoCounters()
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if(!IsAtWar(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if(!IsAtWar(eLoopPlayer))
 				{
 					if(GetNumTimesRazed(eLoopPlayer) > 0)
 					{
 						if(GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_FRIEND)
 						{
-							ChangeNumTimesRazed(eLoopPlayer, -3);
+							ChangeNumTimesRazed(eLoopPlayer, -10);
 						}
 						else if(GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_NEUTRAL)
 						{
-							ChangeNumTimesRazed(eLoopPlayer, -2);
+							ChangeNumTimesRazed(eLoopPlayer, -5);
 						}
 						else if(GetMajorCivOpinion(eLoopPlayer) >= MAJOR_CIV_OPINION_COMPETITOR)
+						{
+							ChangeNumTimesRazed(eLoopPlayer, -3);
+						}
+						else
 						{
 							ChangeNumTimesRazed(eLoopPlayer, -1);
 						}
@@ -22012,7 +22016,7 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 			if(IsOpenBordersExchangeAcceptable(ePlayer))
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_OPEN_BORDERS_EXCHANGE;
-				int iTurnsBetweenStatements = 15;
+				int iTurnsBetweenStatements = 25;
 #if defined(MOD_BALANCE_CORE)
 				if(GetNeediness() > 7)
 				{
@@ -22115,7 +22119,7 @@ void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes&
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForOpenBorders(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_OPEN_BORDERS_OFFER;
-			int iTurnsBetweenStatements = 15;
+			int iTurnsBetweenStatements = 25;
 #if defined(MOD_BALANCE_CORE)
 			if(GetNeediness() > 7)
 			{
@@ -26337,6 +26341,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			bDeclareWar = true;
 
+			if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+				bDeclareWar = false;
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 			GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
 #else
@@ -26503,6 +26510,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				bDeclareWar = true;
 
+				if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+					bDeclareWar = false;
+
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
 #else
@@ -26592,6 +26602,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #endif
 			{
 				bDeclareWar = true;
+
+				if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+					bDeclareWar = false;
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
@@ -26949,6 +26962,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					{
 						bDeclareWar = false;
 					}
+					if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
+						bDeclareWar = false;
 #endif
 				}
 				if(bDeclareWar)
@@ -33170,10 +33185,11 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 	{
 		// Full credit for first one
 		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN();
+		iOpinionWeight /= 2;
 		// Partial credit for any after first
 		if (iNumCivs > 1)
 		{
-			iOpinionWeight += ((GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() / 3) * (iNumCivs - 1));
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() / 4) * (iNumCivs - 1));
 		}
 	}
 #else
@@ -33182,13 +33198,13 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 		iOpinionWeight += (/*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() * GetNumCiviliansReturnedToMe(ePlayer));
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(iOpinionWeight > 0)
+	if(iOpinionWeight != 0)
 	{
 		int iTurn = GC.getGame().getGameSpeedInfo().GetDealDuration();
-		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > iTurn)
+		if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= iTurn)
 		{
 			iOpinionWeight /= 2;
-			if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) > (iTurn * 2))
+			if((GC.getGame().getGameTurn() - GetCiviliansReturnedToMeTurn(ePlayer)) >= (iTurn * 2))
 			{
 				iOpinionWeight = 0;
 			}
@@ -34202,10 +34218,10 @@ int CvDiplomacyAI::GetCitiesRazedScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNumTimesRazed(ePlayer) > 0)
 	{
-		iOpinionWeight += max((GetNumTimesRazed(ePlayer) / 5), 50);
+		iOpinionWeight += min(GetNumTimesRazed(ePlayer), 50);
 
 		//We high enough up to incur a global penalty?
-		if(((GetNumTimesRazed(ePlayer) / 5) >= 100) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
+		if((GetNumTimesRazed(ePlayer) >= 50) && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller())
 		{
 			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetCivilianKiller(true);
 		}
@@ -34224,7 +34240,7 @@ int CvDiplomacyAI::GetCitiesRazedGlobalScore(PlayerTypes ePlayer)
 	{
 		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsCivilianKiller() && GetCitiesRazedScore(ePlayer) <= 0)
 		{
-			iOpinionWeight += (/*100*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 3);
+			iOpinionWeight += (/*100*/ GC.getOPINION_WEIGHT_NUKED_MAX() / 5);
 		}
 	}
 
