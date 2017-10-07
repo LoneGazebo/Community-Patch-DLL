@@ -28088,7 +28088,8 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 		}
 	}
 
-	if (UnitPathTo(iX, iY, iFlags, -1, true) >= 0)
+	int iResult = UnitPathTo(iX, iY, iFlags, -1, true);
+	if (iResult >= 0 || iResult==MOVE_RESULT_DONE)
 	{
 		PublishQueuedVisualizationMoves();
 		return true;
