@@ -824,7 +824,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... possible sentry point?
-			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && 
+			else if( (pLoopPlot->getOwner() == m_pPlayer->GetID() || pLoopPlot->isAdjacentPlayer(m_pPlayer->GetID())) && !pLoopPlot->isWater() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot)>1)
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
@@ -1446,116 +1446,37 @@ void CvHomelandAI::PlotMovesToSafety()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if (!pUnit)
+			continue;
+
+		int iDangerLevel = pUnit->GetDanger();
+		if (iDangerLevel == 0)
+			continue;
+
+		bool bAddUnit = false;
+
+		// civilian always ready to flee, except if danger is due to fallout, somebody needs to clean that up
+		if (pUnit->IsCivilianUnit())
 		{
-			// Danger value of plot must be greater than 0
-			CvPlot* pPlot = pUnit->plot();
-#if defined(MOD_BALANCE_CORE)
-			bool bFallout = false;
-			if (pPlot != NULL)
-			{
-				if (!pUnit->IsCanDefend() && pPlot->getFeatureType() == FEATURE_FALLOUT && (pUnit->ignoreFeatureDamage() || (pUnit->getDamage() <= (pUnit->GetMaxHitPoints() / 2))))
-				{
-					bFallout = true;
-				}
-			}
-			else
+			if ( pUnit->plot()->getFeatureType() != FEATURE_FALLOUT || pUnit->getDamage() > pUnit->GetCurrHitPoints())
+				bAddUnit = true;
+		}
+		else
+		{
+			//land barbarians don't flee
+			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
 				continue;
 
-			int iDangerLevel = pUnit->GetDanger(pPlot);
-#else
-			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
-#endif
-			if(iDangerLevel > 0)
-			{
-				bool bAddUnit = false;
+			//everybody else flees: this is homeland AI, avoid any danger here
+			bAddUnit = true;
+		}
 
-				// If civilian (or embarked unit) always ready to flee
-				// slewis - 4.18.2013 - Problem here is that a combat unit that is a boat can get stuck in a city hiding from barbarians on the land
-				if(!pUnit->IsCanDefend())
-				{
-#if defined(MOD_BALANCE_CORE)
-					if(!bFallout)
-					{
-#endif
-					if (pUnit->IsAutomated() && pUnit->GetBaseCombatStrength() > 0)
-					{
-						// then this is our special case
-					}
-					else
-					{
-						bAddUnit = true;
-					}
-#if defined(MOD_BALANCE_CORE)
-					}
-#endif
-				}
-
-				// Also may be true if a damaged combat unit
-				else if(pUnit->getDamage()>0)
-				{
-#if defined(MOD_BALANCE_CORE)
-					int iTurnDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
-#endif
-					if(pUnit->isBarbarian())
-					{
-						// Barbarian combat units - only naval units flee (but they flee if have taken ANY damage)
-						if(pUnit->getDomainType() == DOMAIN_SEA)
-						{
-							bAddUnit = true;
-						}
-					}
-
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-#if defined(MOD_BALANCE_CORE)
-					else if(iTurnDamage > 0 && (pUnit->getDamage() > pUnit->GetCurrHitPoints()))
-					{
-						bAddUnit = true;
-					}
-#endif
-					// Everyone else flees at more than 70% damage
-					else if(MOD_AI_SMART_FLEE_FROM_DANGER && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>70))
-					{
-						bAddUnit = true;
-					}
-					// Everyone else flees at less than 50% combat strength (works for zero CS also)
-					else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 < pUnit->GetBaseCombatStrength())
-					{
-						bAddUnit = true;
-					}
-#if defined(MOD_CORE_PER_TURN_DAMAGE)
-					// Everyone flees under (heavy) enemy fire
-					else if(pUnit->isProjectedToDieNextTurn())
-					{
-						bAddUnit = true;
-					}
-#endif
-#else
-					// Everyone else flees at less than or equal to 50% combat strength
-					else if(pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
-					{
-						bAddUnit = true;
-					}
-#endif
-				}
-
-				// Also flee if danger is really high in current plot (but not if we're barbarian)
-				else if (!pUnit->isBarbarian() && pUnit->getArmyID() == -1 && !pUnit->IsRecentlyDeployedFromOperation())
-				{
-					if(iDangerLevel > pUnit->GetCurrHitPoints()*1.5)
-					{
-						bAddUnit = true;
-					}
-				}
-
-				if(bAddUnit)
-				{
-					// Just one unit involved in this move to execute
-					CvHomelandUnit unit;
-					unit.SetID(pUnit->GetID());
-					m_CurrentMoveUnits.push_back(unit);
-				}
-			}
+		if(bAddUnit)
+		{
+			// Just one unit involved in this move to execute
+			CvHomelandUnit unit;
+			unit.SetID(pUnit->GetID());
+			m_CurrentMoveUnits.push_back(unit);
 		}
 	}
 
@@ -3351,8 +3272,10 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 					LogHomelandMessage(strLogString);
 				}
 			}
+			else
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
-		pUnit->finishMoves();
+
 		UnitProcessed(pUnit->GetID());
 	}
 }

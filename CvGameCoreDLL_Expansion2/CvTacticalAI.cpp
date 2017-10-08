@@ -3009,6 +3009,9 @@ void CvTacticalAI::PlotHealMoves()
 	list<int>::iterator it;
 	m_CurrentMoveUnits.clear();
 
+	//not all units go through ExecuteHeals
+	std::set<int> passiveAggressive;
+
 	// Loop through all recruited units
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
@@ -3020,17 +3023,29 @@ void CvTacticalAI::PlotHealMoves()
 
 			CvPlot* pUnitPlot = pUnit->plot();
 			int iAcceptableDamage = 20;
+
 			//allow some more damage outside of our borders
 			if (pUnitPlot->getOwner() != pUnit->getOwner())
 				iAcceptableDamage = 40;
-			//these should fortify as much as possible, especially near enemies
-			if (pUnit->GetDamageAoEFortified() > 0 && pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 1) != NULL)
+
+			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
 				m_HealingUnits.insert(pUnit->GetID());
-			//normal
-			else if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
-				m_HealingUnits.insert(pUnit->GetID());
+
+			//units with area damage if fortified should fortify as much as possible if near enemies
+			if (pUnit->GetDamageAoEFortified() > 0 && pUnit->canFortify(pUnitPlot) &&
+				pUnit->getDamage() >= pUnit->healRate(pUnitPlot) &&
+				pUnitPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType()) > 0)
+			{
+				passiveAggressive.insert(pUnit->GetID());
+				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				pUnit->SetFortifiedThisTurn(true);
+			}
 		}
 	}
+
+	//can't do this directly, otherwise we invalidate the iterator for m_CurrentTurnUnits
+	for (set<int>::iterator it = passiveAggressive.begin(); it != passiveAggressive.end(); ++it)
+		UnitProcessed(*it);
 
 	if(m_HealingUnits.size() > 0)
 	{
@@ -4013,9 +4028,8 @@ void CvTacticalAI::ReviewUnassignedUnits()
 				MissionTypes eMission = pUnit->canFortify(pUnit->plot()) ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
 				pUnit->PushMission(eMission);
 				if (pUnit->canFortify(pUnit->plot()))
-				{
 					pUnit->SetFortifiedThisTurn(true);
-				}
+
 				pUnit->SetTurnProcessed(true);
 			}
 			else if ( pUnit->getDomainType()==DOMAIN_LAND )
@@ -6618,10 +6632,6 @@ void CvTacticalAI::ExecuteHeals()
 							pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
 						LogTacticalMessage(strLogString);
 					}
-				}
-				else if (pUnit->GetDamageAoEFortified() > 0)
-				{
-					pBetterPlot = pUnit->plot();
 				}
 				else //flee
 				{
