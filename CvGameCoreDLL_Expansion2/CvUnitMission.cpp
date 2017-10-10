@@ -656,7 +656,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 							if (iSteps == 0)
 								iETA = iThisETA;
 						}
-						else if (iThisETA == CvUnit::MOVE_RESULT_DONE)
+						else if (iThisETA == CvUnit::MOVE_RESULT_NEXT_TURN)
 						{
 							bAction = true;
 							bDone = true;

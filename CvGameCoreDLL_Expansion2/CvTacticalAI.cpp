@@ -3015,30 +3015,33 @@ void CvTacticalAI::PlotHealMoves()
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if(!pUnit)
+			continue;
+
+		//the really bad cases have already been added in CommandeerUnits
+		//now we need to take care of the units which are damaged and have nothing else to do
+
+		CvPlot* pUnitPlot = pUnit->plot();
+		if (!pUnitPlot)
+			continue;
+		int iAcceptableDamage = 20;
+
+		//allow some more damage outside of our borders
+		if (pUnitPlot->getOwner() != pUnit->getOwner())
+			iAcceptableDamage = 40;
+
+		if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
+			m_HealingUnits.insert(pUnit->GetID());
+
+		//units with area damage if fortified should fortify as much as possible if near enemies
+		if (pUnit->GetDamageAoEFortified() > 0 && pUnit->canFortify(pUnitPlot) &&
+			pUnit->getDamage() >= pUnit->healRate(pUnitPlot) && pUnit->GetDanger()<pUnit->GetCurrHitPoints() &&
+			pUnitPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL)==false &&
+			pUnitPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType()) > 0)
 		{
-			//the really bad cases have already been added in CommandeerUnits
-			//now we need to take care of the units which are damaged and have nothing else to do
-
-			CvPlot* pUnitPlot = pUnit->plot();
-			int iAcceptableDamage = 20;
-
-			//allow some more damage outside of our borders
-			if (pUnitPlot->getOwner() != pUnit->getOwner())
-				iAcceptableDamage = 40;
-
-			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
-				m_HealingUnits.insert(pUnit->GetID());
-
-			//units with area damage if fortified should fortify as much as possible if near enemies
-			if (pUnit->GetDamageAoEFortified() > 0 && pUnit->canFortify(pUnitPlot) &&
-				pUnit->getDamage() >= pUnit->healRate(pUnitPlot) &&
-				pUnitPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType()) > 0)
-			{
-				passiveAggressive.insert(pUnit->GetID());
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
+			passiveAggressive.insert(pUnit->GetID());
+			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			pUnit->SetFortifiedThisTurn(true);
 		}
 	}
 

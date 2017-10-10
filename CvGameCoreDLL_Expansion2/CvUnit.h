@@ -123,7 +123,7 @@ public:
 	{
 		//values >= 0 are valid
 		MOVE_RESULT_CANCEL		= 0xFFFFFFFE,		//cannot continue mission
-		MOVE_RESULT_DONE		= 0xFFFFFFFD,		//mission accomplished
+		MOVE_RESULT_NEXT_TURN	= 0xFFFFFFFD,		//continue next turn
 		MOVE_RESULT_ATTACK		= 0xFFFFFFFC,		//move resulted in an attack
 		MOVE_RESULT_NO_TARGET	= 0xFFFFFFFB,		//attack not required
 	};

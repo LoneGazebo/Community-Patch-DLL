@@ -27903,7 +27903,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	LOG_UNIT_MOVES_MESSAGE_OSTR( std::string("UnitPathTo() : player ") << GET_PLAYER(getOwner()).getName() << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << iX << std::string(", ") << iY);
 
 	if (at(iX, iY))
-		return MOVE_RESULT_DONE;
+		return MOVE_RESULT_CANCEL;
 
 	CvAssert(!IsBusy());
 	CvAssert(getOwner() != NO_PLAYER);
@@ -27973,7 +27973,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet
 				if (pDestPlot && pDestPlot->getX()==getX() && pDestPlot->getY()==getY())
-					return MOVE_RESULT_DONE;
+					return MOVE_RESULT_CANCEL;
 			}
 
 			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
@@ -28052,7 +28052,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 					m_kLastPath[i].m_iTurns--;
 
 				//means we're done for this turn
-				return MOVE_RESULT_DONE;
+				return MOVE_RESULT_NEXT_TURN;
 			}
 		}
 		else
@@ -28089,7 +28089,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	}
 
 	int iResult = UnitPathTo(iX, iY, iFlags, -1, true);
-	if (iResult >= 0 || iResult==MOVE_RESULT_DONE)
+	if (iResult >= 0 || iResult==MOVE_RESULT_NEXT_TURN)
 	{
 		PublishQueuedVisualizationMoves();
 		return true;
