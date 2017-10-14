@@ -28615,7 +28615,7 @@ void CvCity::doGrowth()
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("%s is growing to %d. Net food per turn is %d/100. Have %d/100 food, will keep %d/100.", 
+				strLogString.Format("%s is growing to %d. Net food per turn is %d/100. Have %d/100 food, need %d, will keep %d/100.", 
 					getName().c_str(), getPopulation()+1, foodDifferenceTimes100(), getFoodTimes100(), growthThreshold(), iNewFood100);
 				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 			}

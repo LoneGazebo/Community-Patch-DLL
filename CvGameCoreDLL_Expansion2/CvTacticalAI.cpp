@@ -12171,7 +12171,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
 		unitAfterAttack.iMovesLeft = 0;
-		SMovePlot unitPlot = *reachablePlots.find(unit.iPlotIndex);
+		ReachablePlots::iterator it = reachablePlots.find(unit.iPlotIndex);
+
+		//this should definitely not happen
+		if (it == reachablePlots.end())
+			return vector<STacticalAssignment>();
+
+		SMovePlot unitPlot = *it;
 		int endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, unitPlot, *this).iScore;
 
 		set<int> rangeAttackPlots;
