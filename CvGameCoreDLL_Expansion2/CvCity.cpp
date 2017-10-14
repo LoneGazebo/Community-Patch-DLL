@@ -28577,9 +28577,9 @@ void CvCity::doGrowth()
 		return;
 	}
 #endif
-	int iDiff = foodDifferenceTimes100();
+	int iFoodPerTurn100 = foodDifferenceTimes100();
 
-	if(iDiff < 0)
+	if(iFoodPerTurn100 < 0)
 	{
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 		if(pNotifications)
@@ -28593,12 +28593,13 @@ void CvCity::doGrowth()
 		}
 	}
 
-	changeFoodTimes100(iDiff);
-	changeFoodKept(iDiff/100);
+	changeFoodTimes100(iFoodPerTurn100);
+	changeFoodKept(iFoodPerTurn100 /100);
 
 	setFoodKept(range(getFoodKept(), 0, ((growthThreshold() * getMaxFoodKeptPercent()) / 100)));
 
-	if(getFood() >= growthThreshold())
+	//can't grow while starving
+	if(getFood() >= growthThreshold() && iFoodPerTurn100 > 0)
 	{
 		if(GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
 		{
@@ -28606,7 +28607,20 @@ void CvCity::doGrowth()
 		}
 		else
 		{
-			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
+			//overflow is limited to kept food + one turn's surplus
+			int iFoodAfterGrowth = getFoodTimes100() - growthThreshold() * 100 + getFoodKept() * 100;
+			int iMaxFoodAfterGrowth = getFoodKept() * 100 + iFoodPerTurn100;
+			int iNewFood100 = max(0, min(iFoodAfterGrowth, iMaxFoodAfterGrowth));
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("%s is growing to %d. Net food per turn is %d/100. Have %d/100 food, will keep %d/100.", 
+					getName().c_str(), getPopulation()+1, foodDifferenceTimes100(), getFoodTimes100(), growthThreshold(), iNewFood100);
+				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+
+			setFoodTimes100(iNewFood100);
 			changePopulation(1);
 
 			// Only show notification if the city is small
@@ -28624,14 +28638,11 @@ void CvCity::doGrowth()
 			}
 		}
 	}
-	else if(getFood() < 0)
+	//starving
+	else if(getFood() < 0 && getPopulation() > 1)
 	{
-		changeFood(-(getFood()));
-
-		if(getPopulation() > 1)
-		{
-			changePopulation(-1);
-		}
+		setFood(0);
+		changePopulation(-1);
 	}
 }
 

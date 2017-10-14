@@ -6893,10 +6893,10 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 			if (pOriginPlot != pBestUnit->plot())
 			{
 				pBestUnit->PushMission(CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY(), pOriginPlot->getX(), pOriginPlot->getY());
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging() && GC.getAILogging() && pBestUnit->plot()->isCity())
 				{
 					CvString strLogString;
-					strLogString.Format("Changing trade route home city from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
+					strLogString.Format("Changing trade route home city from %s to %s", pBestUnit->plot()->getPlotCity()->getName().c_str(), pOriginCity->getName().c_str());
 					LogHomelandMessage(strLogString);
 				}
 			}
