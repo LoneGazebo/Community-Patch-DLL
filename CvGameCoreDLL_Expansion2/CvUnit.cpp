@@ -28792,7 +28792,7 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft) const
 {
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING;
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER;
 
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
@@ -28804,13 +28804,16 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
 	// caching this is a bit dangerous as the result depends on many circumstances we aren't aware of here
 	// but we do it anyway and reset it generously (turn start, new mission, enemy killed)
-	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags)
+	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags && 
+		plot()->GetPlotIndex()==m_lastReachablePlotsStart && getMoves()==m_lastReachablePlotsMoves)
 		return m_lastReachablePlots;
 
 	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
 
 	m_lastReachablePlots = result;
 	m_lastReachablePlotsFlags = iFlags;
+	m_lastReachablePlotsFlags = plot()->GetPlotIndex();
+	m_lastReachablePlotsFlags = getMoves();
 	return result;
 #else
 	return TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
@@ -28940,6 +28943,8 @@ void CvUnit::ClearReachablePlots()
 {
 	m_lastReachablePlots.clear();
 	m_lastReachablePlotsFlags = 0xFFFFFFFF;
+	m_lastReachablePlotsStart = 0xFFFFFFFF;
+	m_lastReachablePlotsMoves = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

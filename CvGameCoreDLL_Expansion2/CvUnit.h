@@ -2101,6 +2101,8 @@ protected:
 
 	mutable ReachablePlots m_lastReachablePlots;
 	mutable uint m_lastReachablePlotsFlags;
+	mutable uint m_lastReachablePlotsStart;
+	mutable uint m_lastReachablePlotsMoves;
 
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheOrigin;
