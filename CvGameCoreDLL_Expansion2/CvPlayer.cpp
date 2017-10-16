@@ -472,6 +472,7 @@ CvPlayer::CvPlayer() :
 	, m_iReferenceFoundValue("CvPlayer::m_iReferenceFoundValue", m_syncArchive)
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
 	, m_iFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
+	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	, m_iBaseLuxuryHappiness("CvPlayer::m_iBaseLuxuryHappiness", m_syncArchive)
@@ -1941,6 +1942,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aistrInstantYield.clear();
 	m_aistrInstantYield.resize(NUM_INSTANT_YIELD_TYPES);
+
+	m_viInstantYieldsTotal.clear();
+	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
+
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -17151,28 +17156,31 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// This is based on the switch in CvEconomicAI::LogMonitor() that calls different methods for culture and faith
 	// I've added this here as a "safe guard"
-	if (eYield == YIELD_CULTURE) 
+	if (eYield == YIELD_CULTURE)
 	{
-		return GetTotalJONSCulturePerTurn();
-	} 
-	else if (eYield == YIELD_FAITH) 
-	{
-		return GetTotalFaithPerTurn();
+		return GetTotalJONSCulturePerTurn() + m_viInstantYieldsTotal[YIELD_CULTURE] / (GC.getGame().getElapsedGameTurns() + 1);
 	}
-	else if(eYield == YIELD_TOURISM)
+	else if (eYield == YIELD_FAITH)
 	{
-		return GetCulture()->GetTourism();
+		return GetTotalFaithPerTurn() + m_viInstantYieldsTotal[YIELD_FAITH] / (GC.getGame().getElapsedGameTurns() + 1);
+	}
+	else if (eYield == YIELD_TOURISM)
+	{
+		return GetCulture()->GetTourism() + m_viInstantYieldsTotal[YIELD_TOURISM] / (GC.getGame().getElapsedGameTurns() + 1);
 	}
 #endif
 
 	const CvCity* pLoopCity;
 	int iTotalYield = 0;
 	int iLoop = 0;
-	
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iTotalYield += pLoopCity->getYieldRateTimes100(eYield, false);
 	}
+
+	//average accumulated instant yields over elapsed turns
+	iTotalYield += (m_viInstantYieldsTotal[eYield] * 100) / (GC.getGame().getElapsedGameTurns() + 1);
 
 	return iTotalYield / 100;
 }
@@ -19524,6 +19532,7 @@ int CvPlayer::DoDifficultyBonus()
 		iHandicap = pHandicapInfo->getAIDifficultyBonus();
 		iYieldHandicap = (iHandicap * iEra * 5);
 	}
+
 	if(iHandicap > 0)
 	{				
 		GetTreasury()->ChangeGold(iYieldHandicap);
@@ -25423,7 +25432,6 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain)
 {
-
 	//No minors or barbs here, please!
 	if(isMinorCiv() || isBarbarian())
 		return;
@@ -25992,6 +26000,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iValue *= iEra;
 					}
 				}
+
+				//keep track of what we're doing
+				m_viInstantYieldsTotal.setAt(eYield, m_viInstantYieldsTotal[eYield] + iValue);
+
 				switch(eYield)
 				{
 					case YIELD_FOOD:
@@ -31172,10 +31184,12 @@ int CvPlayer::calculateEconomicMight() const
 {
 	int iEconomicMight = 5;
 	iEconomicMight += getTotalPopulation();
+
 	iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
+
 	if(IsEmpireUnhappy())
 	{
 		iEconomicMight += GetExcessHappiness() * 10;

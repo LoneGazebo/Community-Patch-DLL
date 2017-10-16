@@ -2896,6 +2896,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
