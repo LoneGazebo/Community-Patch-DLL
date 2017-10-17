@@ -2176,7 +2176,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_ppiInstantYieldHistoryValues.clear();
-		m_ppiInstantYieldHistoryValues.resize(GC.getGame().getMaxTurns());
+		m_ppiInstantYieldHistoryValues.resize(GC.getGame().getEstimateEndTurn());
 		for (unsigned int i = 0; i < m_ppiInstantYieldHistoryValues.size(); ++i)
 		{
 			m_ppiInstantYieldHistoryValues[i] = yield;
@@ -39274,6 +39274,10 @@ void CvPlayer::changeInstantYieldValue(YieldTypes eYield, int iValue)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getInstantYieldValue(YieldTypes eYield, int iTurn) const
 {
+	//catch for CTD
+	if (iTurn <= 0 || iTurn >= GC.getGame().getEstimateEndTurn())
+		return 0;
+
 	return m_ppiInstantYieldHistoryValues[iTurn][eYield];
 }
 
@@ -39286,6 +39290,9 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 		int TurnsBack = 0;
 		YieldTypes eYield = (YieldTypes)i;
 		if (eYield == NO_YIELD)
+			continue;
+
+		if (GC.getYieldInfo(eYield) == NULL)
 			continue;
 
 		//current turn
