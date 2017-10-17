@@ -3048,7 +3048,7 @@
 			<Description>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</Description>
 			<Help>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<AttackMod>15</AttackMod>
+			<AttackMod>20</AttackMod>
 			<PortraitIndex>59</PortraitIndex>
 			<CannotBeChosen>true</CannotBeChosen>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>

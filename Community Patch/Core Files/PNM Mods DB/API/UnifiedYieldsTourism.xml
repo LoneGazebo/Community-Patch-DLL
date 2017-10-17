@@ -17,7 +17,13 @@
 
 	<Defines>
 		<Row Name="PUPPET_TOURISM_MODIFIER">
-			<Value>-25</Value>
+			<Value>0</Value>
+		</Row>
+		<Row Name="PUPPET_GROWTH_MODIFIER">
+			<Value>0</Value>
+		</Row>
+		<Row Name="PUPPET_PRODUCTION_MODIFIER">
+			<Value>0</Value>
 		</Row>
 	</Defines>
 

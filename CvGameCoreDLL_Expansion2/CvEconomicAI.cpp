@@ -949,6 +949,8 @@ void CvEconomicAI::DoTurn()
 	if(!m_pPlayer->isHuman())
 	{
 		DoHurry();
+		//let's do this twice, to make sure we're using all our money.
+		DoHurry();
 		DoPlotPurchases();
 		DisbandExtraWorkers();
 		DisbandExtraArchaeologists();

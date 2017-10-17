@@ -996,46 +996,21 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 							}
 						}
 						//War
-						if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE")
-						{
-							iConquestValue += iConquestInterest;
-							iCultureValue += iCultureInterest;
-						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING")
+						if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED")
 						{
 							iConquestValue += iConquestInterest;
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE")
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RECON" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE")
 						{
 							iConquestValue += iConquestInterest;
-							iDiploValue += iDiploInterest;
 						}
 						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ANTIAIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR_CARRIER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIRLIFT")
 						{
 							iConquestValue += iConquestInterest;
-							iCultureValue += iCultureInterest;
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL")
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RECON")
 						{
 							iConquestValue += iConquestInterest;
-							iScienceValue += iScienceInterest;
-						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RECON")
-						{
-							iConquestValue += iConquestInterest;
-							iCultureValue += iCultureInterest;
-							iDiploValue += iDiploInterest;
-						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED")
-						{
-							iConquestValue += iConquestInterest;
-							iCultureValue += iCultureInterest;
-						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RECON")
-						{
-							iDiploValue += iDiploInterest;
-							iConquestValue += iConquestInterest;
-							iCultureValue += iCultureInterest;
 						}
 						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_EXPANSION")
 						{
@@ -1070,13 +1045,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_INFRASTRUCTURE")
 						{
 							iDiploValue += iDiploInterest;
-							iConquestValue += iConquestInterest;
-						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE")
-						{
 							iCultureValue += iCultureInterest;
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE")
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WATER_CONNECTION" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_TRADE_DESTINATION" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_LAND_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_SEA_TRADE_ROUTE")
 						{
 							iCultureValue += iCultureInterest;
 						}
@@ -1105,16 +1076,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 							iCultureValue += iCultureInterest;
 							iScienceValue += iScienceInterest;
 						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WATER_CONNECTION" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_I_TRADE_DESTINATION")
-						{
-							iCultureValue += iCultureInterest;
-							iScienceValue += iScienceInterest;
-						}
 						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_USE_NUKE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NUKE")
-						{
-							iConquestValue += iConquestInterest;
-						}
-						else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE")
 						{
 							iConquestValue += iConquestInterest;
 						}
@@ -1129,23 +1091,23 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					}
 				}
 
-				iConquestValue *= (100 + (iConquestInterest / 10));
+				iConquestValue *= (100 + (iConquestInterest / 5));
 				iConquestValue /= 100;
 
-				iCultureValue *= (100 + (iCultureInterest / 10));
+				iCultureValue *= (100 + (iCultureInterest / 9));
 				iCultureValue /= 100;
 
-				iDiploValue *= (100 + (iDiploInterest / 10));
+				iDiploValue *= (100 + (iDiploInterest / 8));
 				iDiploValue /= 100;
 
-				iScienceValue *= (100 + (iScienceInterest / 10));
+				iScienceValue *= (100 + (iScienceInterest / 9));
 				iScienceValue /= 100;
 
 				//And now add them in. Halve if not our main focus.
 				if (pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
-						iWeight += iCultureValue * 2;
+						iWeight += iCultureValue * 3;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
 						iWeight += iCultureValue * 2;
 					else
@@ -1154,7 +1116,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				else
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
-						iWeight += iCultureValue / 3;
+						iWeight += iCultureValue / 4;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
 						iWeight += iCultureValue / 3;
 					else
@@ -1163,7 +1125,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				if (pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory())
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
-						iWeight += iDiploValue * 2;
+						iWeight += iDiploValue * 3;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
 						iWeight += iDiploValue * 2;
 					else
@@ -1172,7 +1134,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				else
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
-						iWeight += iDiploValue / 3;
+						iWeight += iDiploValue / 4;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
 						iWeight += iDiploValue / 3;
 					else
@@ -1181,7 +1143,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSSVictory())
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
-						iWeight += iScienceValue * 3;
+						iWeight += iScienceValue * 2;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
 						iWeight += iScienceValue * 2;
 					else
@@ -1190,7 +1152,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				else
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
-						iWeight += iScienceValue / 4;
+						iWeight += iScienceValue / 3;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
 						iWeight += iScienceValue / 3;
 					else
@@ -1200,11 +1162,11 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
 				{
 					if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
-						iWeight += iConquestValue * 3;
+						iWeight += iConquestValue * 6;
 					else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
-						iWeight += iConquestValue * 2;
+						iWeight += iConquestValue * 4;
 					else
-						iWeight += iConquestValue;
+						iWeight += iConquestValue / 2;
 				}
 				else
 				{
@@ -1227,9 +1189,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 	stage = "After Tenet Weights and Flavors";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-
+#endif
 	//This was a dumb reason to weigh an ideology branch.
-#else
+
 	int iHappinessPoliciesInBranch;
 	iHappinessDelta = GetBranchBuildingHappiness(pPlayer, eFreedomBranch);
 	iHappinessPoliciesInBranch = GetNumHappinessPolicies(pPlayer, eFreedomBranch);
@@ -1252,7 +1214,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 
 	stage = "After Tenet Happiness Boosts";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	bool bFirstIdeology = true;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -1373,7 +1335,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					iGPThreshold *= iPolicyGEorGM;
 					iGPThreshold /= 100;
 				
-					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold);
+					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
 					if(pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{
 						iGPThreshold /= 100;

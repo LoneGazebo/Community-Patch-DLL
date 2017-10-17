@@ -1789,7 +1789,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			bool bFree = false;
 			if (ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE())
 			{
-				if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
 				{
 					bGivePromotion = false;
 				}
@@ -8968,7 +8968,6 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			}
 
 #if defined(MOD_BALANCE_CORE)
-			bool bGood = false;
 			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
 			{
 				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
@@ -8977,25 +8976,23 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 					// invalid TradeUnit
 					continue;
 				}
+
+				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+				if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+					continue;
+
 				CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
 				if (eCorporation != NO_CORPORATION)
 				{
 					CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
 					if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
 					{
-						continue;
+						return false;
 					}
 				}
-				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-				if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
-				{
-					bGood = true;
-				}
+				return true;
 			}
-			if(!bGood)
-			{
-				return false;
-			}
+			return false;
 #else
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 			if (eTradeUnitOwner == NO_PLAYER)
@@ -9022,7 +9019,6 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 #endif
 #endif
 		}
-
 		return true;
 	}
 	else
@@ -16733,7 +16729,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
 	}
 #endif
-	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() - iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
+	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() + iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
 
@@ -27903,7 +27899,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	LOG_UNIT_MOVES_MESSAGE_OSTR( std::string("UnitPathTo() : player ") << GET_PLAYER(getOwner()).getName() << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << iX << std::string(", ") << iY);
 
 	if (at(iX, iY))
-		return MOVE_RESULT_DONE;
+		return MOVE_RESULT_CANCEL;
 
 	CvAssert(!IsBusy());
 	CvAssert(getOwner() != NO_PLAYER);
@@ -27973,7 +27969,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet
 				if (pDestPlot && pDestPlot->getX()==getX() && pDestPlot->getY()==getY())
-					return MOVE_RESULT_DONE;
+					return MOVE_RESULT_CANCEL;
 			}
 
 			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
@@ -28052,7 +28048,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 					m_kLastPath[i].m_iTurns--;
 
 				//means we're done for this turn
-				return MOVE_RESULT_DONE;
+				return MOVE_RESULT_NEXT_TURN;
 			}
 		}
 		else
@@ -28088,7 +28084,8 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 		}
 	}
 
-	if (UnitPathTo(iX, iY, iFlags, -1, true) >= 0)
+	int iResult = UnitPathTo(iX, iY, iFlags, -1, true);
+	if (iResult >= 0 || iResult==MOVE_RESULT_NEXT_TURN)
 	{
 		PublishQueuedVisualizationMoves();
 		return true;
@@ -28791,7 +28788,7 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft) const
 {
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING;
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER;
 
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
@@ -28803,13 +28800,16 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 #if defined(MOD_CORE_CACHE_REACHABLE_PLOTS)
 	// caching this is a bit dangerous as the result depends on many circumstances we aren't aware of here
 	// but we do it anyway and reset it generously (turn start, new mission, enemy killed)
-	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags)
+	if (!m_lastReachablePlots.empty() && iFlags == m_lastReachablePlotsFlags && 
+		plot()->GetPlotIndex()==m_lastReachablePlotsStart && getMoves()==m_lastReachablePlotsMoves)
 		return m_lastReachablePlots;
 
 	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
 
 	m_lastReachablePlots = result;
 	m_lastReachablePlotsFlags = iFlags;
+	m_lastReachablePlotsFlags = plot()->GetPlotIndex();
+	m_lastReachablePlotsFlags = getMoves();
 	return result;
 #else
 	return TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
@@ -28939,6 +28939,8 @@ void CvUnit::ClearReachablePlots()
 {
 	m_lastReachablePlots.clear();
 	m_lastReachablePlotsFlags = 0xFFFFFFFF;
+	m_lastReachablePlotsStart = 0xFFFFFFFF;
+	m_lastReachablePlotsMoves = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

@@ -465,7 +465,7 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			itemImage = instance.TechAwardImage
 
 		elseif type == NotificationTypes.NOTIFICATION_PLAYER_DEAL_RECEIVED then
-			itemInfo = GameInfo.Leaders[ iExtraGameData ]
+			itemInfo = GameInfo.Leaders[ iGameValue ]
 			itemImage = instance.DiplomacyPlayerImage
 
 		elseif type == NotificationTypes.NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER then

@@ -132,6 +132,7 @@ public:
 	int GetAllianceCSStrength() const;
 	int GetTourismGABonus() const;
 	int GetTourismToGAP() const;
+	int GetGoldToGAP() const;
 	int GetInfluenceMeetCS() const;
 	int GetMultipleAttackBonus() const;
 	int GetCityConquestGWAM() const;
@@ -158,6 +159,8 @@ public:
 	bool IsFreeZuluPikemanToImpi() const;
 	bool IsPermanentYieldsDecreaseEveryEra() const;
 	bool IsImportsCountTowardsMonopolies() const;
+	bool IsCanPurchaseNavalUnitsFaith() const;
+	bool IsIgnorePuppetPenalties() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -455,6 +458,7 @@ protected:
 	bool m_bNoOpenTrade;
 	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
+	int m_iGoldToGAP;
 	int m_iInfluenceMeetCS;
 	int m_iMultipleAttackBonus;
 	int m_iCityConquestGWAM;
@@ -475,6 +479,8 @@ protected:
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
+	bool m_bCanPurchaseNavalUnitsFaith;
+	bool m_bIgnorePuppetPenalties;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1018,6 +1024,10 @@ public:
 	{
 		return m_iTourismToGAP;
 	};
+	int GetGoldToGAP() const
+	{
+		return m_iGoldToGAP;
+	};
 	int GetInfluenceMeetCS() const
 	{
 		return m_iInfluenceMeetCS;
@@ -1121,6 +1131,14 @@ public:
 	bool IsImportsCountTowardsMonopolies() const
 	{
 		return m_bImportsCountTowardsMonopolies;
+	};
+	bool IsCanPurchaseNavalUnitsFaith() const
+	{
+		return m_bCanPurchaseNavalUnitsFaith;
+	};
+	bool IsIgnorePuppetPenalties() const
+	{
+		return m_bIgnorePuppetPenalties;
 	};
 	bool IsWarsawPact() const
 	{
@@ -1793,6 +1811,7 @@ private:
 	bool m_bNoOpenTrade;
 	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
+	int m_iGoldToGAP;
 	int m_iInfluenceMeetCS;
 	int m_iMultipleAttackBonus;
 	int m_iCityConquestGWAM;
@@ -1824,6 +1843,8 @@ private:
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
+	bool m_bCanPurchaseNavalUnitsFaith;
+	bool m_bIgnorePuppetPenalties;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

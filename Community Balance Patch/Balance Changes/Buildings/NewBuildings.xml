@@ -699,10 +699,11 @@
 			<Strategy>TXT_KEY_BUILDING_VENETIAN_ARSENALE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<CitySupplyModifier>25</CitySupplyModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>600</Defense>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
-			<TrainedFreePromotion>PROMOTION_ARSENALE</TrainedFreePromotion>
+			<FreePromotion>PROMOTION_ARSENALE</FreePromotion>
 			<NationalPopRequired>15</NationalPopRequired>
 			<NumCityCostMod>10</NumCityCostMod>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
@@ -924,8 +925,8 @@
 			<MinAreaSize>10</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<Water>true</Water>
-			<Defense>800</Defense>
-			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<Defense>1500</Defense>
+			<ExtraCityHitPoints>300</ExtraCityHitPoints>
 			<BorderObstacleWater>1</BorderObstacleWater>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

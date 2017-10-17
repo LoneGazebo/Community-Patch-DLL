@@ -352,11 +352,8 @@ public:
 	void GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 
-#if defined(MOD_BALANCE_CORE)
-	int	ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism);
-#else
-	int	ScoreInternationalTR (const TradeConnection& kTradeConnection);
-#endif
+	std::vector<int> ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism);
+
 	//generic method
 	int ScoreInternalTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 

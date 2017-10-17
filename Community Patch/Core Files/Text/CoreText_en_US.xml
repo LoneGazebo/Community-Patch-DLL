@@ -5811,28 +5811,28 @@
 
 		<!-- Arabia -->
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS">
-			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
+			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST">
-			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
+			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER">
-			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
+			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST">
-			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
+			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN">
-			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
+			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT">
-			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
+			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER">
-			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
+			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT">
-			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
+			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science, +2 [ICON_GOLD] Gold, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS">
@@ -6489,6 +6489,23 @@
 			<Text>[ICON_SPY] Spy Actions:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER">
+			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and over the past {1_Num} Turn(s)[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE">
+			<Text>[NEWLINE]        [ICON_BULLET] Average: +{1_Num} Per Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES">
+			<Text>[NEWLINE]        [ICON_BULLET] Per-City Average: +{1_Num} Per Turn</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TOTAL">
+			<Text>[ICON_BULLET] {2_YieldIcon} {3_YieldColorString}{1_YieldType}[ENDCOLOR]: {4_Num}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER_EMPTY">
+			<Text>Instant Yields are gained in many ways, including Policies, Beliefs, and Buildings. A sum of Instant Yields earned from this turn, and the past 10 turns, will be listed here.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_GREAT_WORK_MODIFIER">
 			<Text>[NEWLINE][ICON_BULLET]Great Works Modifier: {1_Num}%</Text>
@@ -6632,6 +6649,8 @@
 		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_17">
 			<Text>Sarcophagus of Ptolemy I</Text>
 		</Row>
+		
+		
 
 		<!--Policies-->
 		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">

@@ -960,6 +960,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldenAgePointsFromEmpire();
+	int GetGoldenAgePointsFromCities();
 #endif
 	void DoProcessGoldenAge();
 
@@ -2385,6 +2386,10 @@ public:
 	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
 	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
 
+	int getInstantYieldValue(YieldTypes eYield, int iTurn) const;
+	void changeInstantYieldValue(YieldTypes eYield, int iValue);
+	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
+
 	// Arbitrary Script Data
 	std::string getScriptData() const;
 	void setScriptData(std::string szNewValue);
@@ -2896,6 +2901,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
+	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
@@ -3504,6 +3510,8 @@ protected:
 
 	std::vector<CvString> m_ReplayDataSets;
 	std::vector<TurnData> m_ReplayDataSetValues;
+
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiInstantYieldHistoryValues;
 
 	void doResearch();
 	void doWarnings();

@@ -110,6 +110,10 @@ UPDATE Traits
 SET FreeUnitPrereqTech = 'TECH_HORSEBACK_RIDING'
 WHERE Type = 'TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+SET IgnorePuppetPenalties = 'true'
+WHERE Type = 'TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 INSERT INTO Trait_PerPuppetGreatPersonRateModifier
 	(TraitType, GreatPersonType, Modifier)
 VALUES
@@ -492,7 +496,7 @@ VALUES
 	('BUILDING_VENETIAN_ARSENALE', 'BUILDINGCLASS_NATIONAL_EPIC'),
 	('BUILDING_MURANO_GLASSWORKS', 'BUILDINGCLASS_NATIONAL_EPIC');
 
-INSERT INTO Building_ImprovementYieldChanges
+INSERT INTO Building_ImprovementYieldChangesGlobal
 	(BuildingType, ImprovementType, YieldType, Yield)
 VALUES
 	('BUILDING_MURANO_GLASSWORKS', 'IMPROVEMENT_ACADEMY', 'YIELD_TOURISM', 2),
@@ -514,6 +518,11 @@ INSERT INTO Building_HurryModifiers
 	(BuildingType, HurryType, HurryCostModifier)
 VALUES
 	('BUILDING_RIALTO_DISTRICT', 'HURRY_GOLD', -10);
+
+INSERT INTO Building_HurryModifiersLocal
+	(BuildingType, HurryType, HurryCostModifier)
+VALUES
+	('BUILDING_RIALTO_DISTRICT', 'HURRY_GOLD', -5);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresOwner, AIPriority)

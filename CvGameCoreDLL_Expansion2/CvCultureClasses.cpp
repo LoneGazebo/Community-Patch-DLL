@@ -5190,6 +5190,8 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 			ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
 		}
 	}
+	//store off this data
+	m_pPlayer->changeInstantYieldValue(YIELD_TOURISM, iTourism);
 }
 
 // PRIVATE METHODS
@@ -7356,6 +7358,12 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		szRtnValue += "[NEWLINE][NEWLINE]";
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES", iTraitBonuses);
+	}
+	if (m_pCity->IsPuppet() && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	{
+		int iTempMod = GC.getPUPPET_TOURISM_MODIFIER();
+		szRtnValue += "[NEWLINE][NEWLINE]";
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_PUPPET", iTempMod);
 	}
 #endif
 

@@ -238,6 +238,7 @@ protected:
 	static int lGetNumGreatPeople(lua_State* L);
 	static int lGetBaseGreatPeopleRate(lua_State* L);
 	static int lGetGreatPeopleRate(lua_State* L);
+	static int lGetSpecialistRate(lua_State* L);
 	static int lGetTotalGreatPeopleRateModifier(lua_State* L);
 	static int lChangeBaseGreatPeopleRate(lua_State* L);
 	static int lGetGreatPeopleRateModifier(lua_State* L);

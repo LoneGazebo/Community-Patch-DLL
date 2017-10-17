@@ -3323,9 +3323,16 @@ bool CvLeague::CanProposeRepeal(int iResolutionID, PlayerTypes eProposer, CvStri
 		bValid = false;
 	}
 
+	int iChoice = 0;
+	CvActiveResolution* ActiveRevolution = GetActiveResolution(iResolutionID);
+	if (ActiveRevolution != NULL)
+	{
+		iChoice = ActiveRevolution->GetVoterDecision()->GetDecision();
+	}
+
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	if (MOD_EVENTS_RESOLUTIONS) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanPropose, eProposer, iResolutionID, 0, false) == GAMEEVENTRETURN_FALSE) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanPropose, eProposer, iResolutionID, iChoice, false) == GAMEEVENTRETURN_FALSE) {
 			bValid = false;
 		}
 	}
@@ -3886,13 +3893,16 @@ RepealProposalList CvLeague::GetRepealProposalsOnHold() const
 	return m_vRepealProposalsOnHold;
 }
 
-CvActiveResolution* CvLeague::GetActiveResolution(int iResolutionID)
+CvActiveResolution* CvLeague::GetActiveResolution(int iResolutionID, int iValue)
 {
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
-		if (it->GetID() == iResolutionID)
+		if (it->GetType() == iResolutionID)
 		{
-			return it;
+			if (iValue == -1)
+				return it;
+			else if (iValue == it->GetProposerDecision()->GetDecision())
+				return it;
 		}
 	}
 	return NULL;
@@ -10654,7 +10664,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		for (int i = 0; i < iVotes; i++)
 		{
 			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-			VoteConsideration chosen = vConsiderations.ChooseByWeight(&fcn, "Choosing a vote to allocate");
+			VoteConsideration chosen = vConsiderations.ChooseFromTopChoices(MIN(vConsiderations.size(), LeagueHelpers::AI_CHOOSE_PROPOSAL_FROM_TOP), &fcn, "Choosing a vote to allocate");
 			if (chosen.bEnact)
 			{
 				pLeague->DoVoteEnact(chosen.iID, GetPlayer()->GetID(), 1, chosen.iChoice);
@@ -12919,10 +12929,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	//Reducing Tourism
 	if(pProposal->GetEffects()->iChangeTourism < 0)
 	{
-		if(bSeekingCultureVictory)
+		if(bSeekingCultureVictory || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
 			//Boo!
-			iScore -= 5000;
+			iScore -= 10000;
 		}
 		int iTotalCivs = GC.getGame().countMajorCivsAlive();
 		int iCivs = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
@@ -12977,10 +12987,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	//Increasing Tourism
 	if(pProposal->GetEffects()->iChangeTourism > 0)
 	{
-		if(bSeekingCultureVictory)
+		if (bSeekingCultureVictory || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
 			//Yay!
-			iScore += 5000;
+			iScore += 10000;
 		}
 		int iTotalCivs = GC.getGame().countMajorCivsAlive();
 		int iCivs = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
@@ -13133,6 +13143,15 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				break;
 			}
 		}
+	}
+
+	if (iScore != 0)
+	{
+		int iRandom = GC.getGame().getSmallFakeRandNum(50, iScore);
+		if (iChoice == LeagueHelpers::CHOICE_NO || !bEnact)
+			iRandom *= -1;
+
+		iScore += iRandom;
 	}
 
 	// == Post-Processing ==
@@ -13514,12 +13533,28 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 
 	// Choose by weight from the top N
 	CvAssertMsg(vConsiderations.size() > 0, "No proposals available for the AI to make. Please send Anton your save file and version.");
+
 	if (vConsiderations.size() > 0)
 	{
 		vConsiderations.SortItems();
 
+		for (int i = 0; i < vConsiderations.size(); i++)
+		{
+			ProposalConsideration proposal = vConsiderations.GetElement(i);
+			LogProposalConsidered(&proposal, proposal.iChoice, vConsiderations.GetWeight(i), false);
+		}
+
 		// Even if we don't like anything, make sure we have something to choose from
-		if (vConsiderations.GetTotalWeight() <= 0)
+		bool bNothingGood = true;
+		for (int i = 0; i < vConsiderations.size(); i++)
+		{
+			if (vConsiderations.GetWeight(i) > 0)
+			{
+				bNothingGood = false;
+				break;
+			}
+		}
+		if (bNothingGood)
 		{
 			for (int i = 0; i < vConsiderations.size(); i++)
 			{
@@ -13593,6 +13628,61 @@ int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution
 	CvAssert(bFoundYes);
 
 	return iYesScore;
+}
+
+void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre)
+{
+	std::vector<ResolutionTypes> vInactive = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetInactiveResolutions();
+	ActiveResolutionList vActive = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetActiveResolutions();
+	if (vInactive.empty())
+		return;
+
+	ResolutionTypes eResolution = NO_RESOLUTION;
+
+	if (pProposal->bEnact)
+	{
+		eResolution = vInactive[pProposal->iIndex];
+	}
+	else
+	{
+		eResolution = vActive[pProposal->iIndex].GetType();
+	}
+
+	CvAssert(pProposal != NULL);
+	if (!(pProposal != NULL)) return;
+	CvString sMessage = "";
+
+	sMessage += ",";
+	sMessage += GetPlayer()->getCivilizationShortDescription();
+	sMessage += ",- - -";
+	sMessage += ",Evaluating for Proposal";
+	if (pProposal->bEnact)
+		sMessage += ", ENACT";
+	else
+		sMessage += ", REPEAL";
+	if (!bPre)
+		sMessage += ", POST SORT";
+
+	sMessage += ",";
+	CvAssert(pProposal != NULL);
+	if (pProposal != NULL)
+	{
+		sMessage += GC.getResolutionInfo(eResolution)->GetDescription();
+	}
+
+	sMessage += ",";
+	CvAssert(iChoice != LeagueHelpers::CHOICE_NONE);
+	if (iChoice != LeagueHelpers::CHOICE_NONE)
+	{
+		sMessage += LeagueHelpers::GetTextForChoice(GC.getResolutionInfo(eResolution)->GetProposerDecision(), iChoice);
+	}
+
+	sMessage += ",";
+	CvString sTemp;
+	sTemp.Format("%d", iScore);
+	sMessage += sTemp;
+
+	GC.getGame().GetGameLeagues()->LogLeagueMessage(sMessage);
 }
 
 void CvLeagueAI::LogVoteChoiceConsidered(CvEnactProposal* pProposal, int iChoice, int iScore)

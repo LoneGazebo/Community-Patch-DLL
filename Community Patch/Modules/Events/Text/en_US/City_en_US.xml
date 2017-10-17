@@ -324,17 +324,29 @@
 		</Row>
 
 		<!-- Disasters -->
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE">
+			<Text>Mining Accident</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_HELP">
+			<Text>A mineshaft near the City struck some kind of liquid reservoir, and has begun filling with fluid.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_1">
-			<Text>Mine Collapse</Text>
+			<Text>Collapse the tunnels to preserve what we can.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_1_HELP">
-			<Text>A mineshaft near the City has collapsed, killing all the workers and pillaging the Mine.</Text>
+			<Text>Bury the compromised branch of the Mine. It enters the Pillaged state.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_2">
-			<Text>Mine Collapse in Fix</Text>
+			<Text>Reassign engineers from the City to close-off the breach with minimal loss of tunnel access.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_2_HELP">
-			<Text>A mineshaft near the City has collapsed, killing all the workers and pillaging the Mine. The government however responded quick with reaction to restoring the Mine to its use. Spending {1_YieldCost}.</Text>
+			<Text>Delay the City's current building project by {1_YieldCost} but save the Mine.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_3">
+			<Text>The fluid appears to be rich in oil. Use our ground-penetrating radar to pinpoint the reserve and begin extraction!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_3_HELP">
+			<Text>Spend {1_YieldCost} to receive 1 [ICON_RES_OIL] Oil.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_1">
 			<Text>Forest Fire</Text>
@@ -436,31 +448,55 @@
 		</Row>
 
 		<!-- Pestilence -->
-		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1">
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE">
 			<Text>Pestilence</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_HELP">
+			<Text>Crops are found rotting in the earth. It is not clear how far the infection has spread, but a large part of the harvest has been compromised.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1">
+			<Text>Burn the blighted fields.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1_HELP">
-			<Text>A blight has devestated the farmland near this City. Up to two Farms near the City are pillaged.</Text>
+			<Text>The farming communities near the City are devastated. Up to two Farms near the City enter the Pillaged state.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_2">
-			<Text>Pestilence Curved</Text>
+			<Text>Attempt to replant before winter.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_2_HELP">
-			<Text>A blight has devestated the farmland near this City. The farmers took {1_YieldCost} to prevent all the farmland from falling apart.</Text>
+			<Text>Take {1_YieldCost} from the City's Granary in order to seed another set of crops and allow the region's agriculture to continue as normal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_3">
+			<Text>Design a bespoke fungicide to eradicate the disease.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_3_HELP">
+			<Text>Allocate {1_YieldCost} of researchers to permenantly increase the yield of nearby Farms by +1 [ICON_FOOD] Food.</Text>
 		</Row>
 
 		<!-- Flooding -->
-		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1">
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING">
 			<Text>Floods</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_HELP">
+			<Text>The City's river level has risen dangerously high, threatening the City and surrounding countryside.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1">
+			<Text>Endure the floods.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1_HELP">
-			<Text>The City's river has flooded, devastating the nearby farmland and damaging the City's buildings. Up to 3 Farms are pillaged, and some buildings may be destroyed as well.</Text>
+			<Text>Up to 3 Farms are Pillaged, and some buildings may be destroyed as well.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_2">
-			<Text>Flooding in terms of priority</Text>
+			<Text>Send labourers to construct flood defenses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_2_HELP">
-			<Text>The City's river has flooded, devastating the nearby farmland and damaging the City's buildings. People spent {1_YieldCost} efforts to save the farmlands, while some buildings may be destroyed.</Text>
+			<Text>Reallocate {1_YieldCost} from the City's building project to save the farmlands, though some buildings may still be destroyed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_3">
+			<Text>Design a control system at the Hydro Plant to regulate the River's water level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_3_HELP">
+			<Text>Allocate {1_YieldCost} of researchers to permenantly solve flooding in this region. Receive a boost of {4_GPChange}.</Text>
 		</Row>
 
 		<!-- Hurricane -->

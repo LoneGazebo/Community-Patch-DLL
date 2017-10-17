@@ -302,57 +302,8 @@ end
 -------------------------------------------------
 --given a city and GP, returns the progress per turn
 function getRateOfChange(city, specialistInfo, player)
-	local iCount = city:GetSpecialistCount( specialistInfo.ID );
-	local iGPPChange = specialistInfo.GreatPeopleRateChange * iCount * 100;
-	for building in GameInfo.Buildings() do
-		local buildingID = building.ID;
-		if building.SpecialistType == specialistInfo.Type then
-			if (city:IsHasBuilding(buildingID)) then
-				iGPPChange = iGPPChange + building.GreatPeopleRateChange * 100;
-			end
-		end
-	end
+	local iGPPChange = city:GetSpecialistRate(specialistInfo.ID);
 	if iGPPChange > 0 then
-		local iMod = 0;
-		
-		-- Generic GP mods
-		local iPlayerMod = player:GetGreatPeopleRateModifier();
-		local iCityMod = city:GetGreatPeopleRateModifier();
-		local iGoldenAgeMod = 0;
-		local bGoldenAge = (player:GetGoldenAgeTurns() > 0);
-		
-		-- GP mods by type		
-		if (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_WRITER") then
-			iPlayerMod = iPlayerMod + player:GetGreatWriterRateModifier();
-			if (bGoldenAge and player:GetGoldenAgeGreatWriterRateModifier() > 0) then
-				iGoldenAgeMod = iGoldenAgeMod + player:GetGoldenAgeGreatWriterRateModifier();
-			end
-		elseif (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_ARTIST") then
-			iPlayerMod = iPlayerMod + player:GetGreatArtistRateModifier();
-			if (bGoldenAge and player:GetGoldenAgeGreatArtistRateModifier() > 0) then
-				iGoldenAgeMod = iGoldenAgeMod + player:GetGoldenAgeGreatArtistRateModifier();
-			end
-		elseif (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_MUSICIAN") then
-			iPlayerMod = iPlayerMod + player:GetGreatMusicianRateModifier();
-			if (bGoldenAge and player:GetGoldenAgeGreatMusicianRateModifier() > 0) then
-				iGoldenAgeMod = iGoldenAgeMod + player:GetGoldenAgeGreatMusicianRateModifier();
-			end
-		elseif (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_DIPLOMAT") then -- Gazebo CSD
-			iPlayerMod = iPlayerMod + player:GetGreatDiplomatRateModifier();
-			if (bGoldenAge and player:GetGoldenAgeGreatDiplomatRateModifier() > 0) then
-				iGoldenAgeMod = iGoldenAgeMod + player:GetGoldenAgeGreatDiplomatRateModifier();
-			end
-		elseif (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_SCIENTIST") then
-			iPlayerMod = iPlayerMod + player:GetGreatScientistRateModifier();
-		elseif (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_MERCHANT") then
-			iPlayerMod = iPlayerMod + player:GetGreatMerchantRateModifier();
-		elseif (specialistInfo.GreatPeopleUnitClass == "UNITCLASS_ENGINEER") then
-			iPlayerMod = iPlayerMod + player:GetGreatEngineerRateModifier();
-		end
-		
-		local iMod = iPlayerMod + iCityMod + iGoldenAgeMod;
-		iGPPChange = (iGPPChange * (100 + iMod)) / 100;
-		
 		return math.floor(iGPPChange/100);
 	else
 		return 0;

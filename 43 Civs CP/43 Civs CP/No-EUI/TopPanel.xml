@@ -5,7 +5,8 @@
 
 	<Stack Anchor="L,T" Offset="10,6" Padding="10" StackGrowth="Right" ID="TopPanelInfoStack">
 
-		<TextButton Anchor="C,T" Offset="0,0" String="000 Turn"  Color="Science" ID="SciencePerTurn" ToolTipType="TooltipTypeTopPanel" />
+
+	<TextButton Anchor="C,T" Offset="0,0" String="000 Turn"  Color="Science" ID="SciencePerTurn" ToolTipType="TooltipTypeTopPanel" />
 
 		<TextButton Anchor="C,T" Offset="-0,0" String="000,000 Turn: Total 000,000" ColorLayer0="255,235,0,255"  ID="GoldPerTurn" ToolTipType="TooltipTypeTopPanel" />
 
@@ -20,8 +21,10 @@
     <TextButton Anchor="C,T" String="Tourism!" ColorLayer0="255,255,200,255"  ID="TourismString" ToolTipType="TooltipTypeTopPanel"/>
 
     <TextButton Anchor="C,T" String="FAITH!" ColorLayer0="255,255,200,255"  ID="FaithString" ToolTipType="TooltipTypeTopPanel"/>
-  
-    <TextButton Anchor="C,T" String="RESOURCES!" ColorLayer0="255,0,255,255"  ID="ResourceString" ToolTipType="TooltipTypeTopPanel"/>
+
+	<TextButton Anchor="C,T" Offset="0,0" String="INSTANT!"  ColorLayer0="255,255,255,255" ID="InstantYields" ToolTipType="TooltipTypeTopPanel" />
+
+	<TextButton Anchor="C,T" String="RESOURCES!" ColorLayer0="255,0,255,255"  ID="ResourceString" ToolTipType="TooltipTypeTopPanel"/>
 
 	<TextButton Anchor="C,T" String="MANPOWER!" ColorLayer0="255,0,255,255"  ID="UnitSupplyString" ToolTipType="TooltipTypeTopPanel"/>
 		

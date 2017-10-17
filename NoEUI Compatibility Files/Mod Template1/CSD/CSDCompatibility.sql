@@ -107,6 +107,12 @@ VALUES
 	('IMPROVEMENT_EMBASSY', 'TECH_ATOMIC_THEORY', 'YIELD_SCIENCE', 1),
 	('IMPROVEMENT_EMBASSY', 'TECH_TELECOM', 'YIELD_CULTURE', 1);
 
+INSERT INTO Building_ImprovementYieldChangesGlobal
+	(BuildingType, ImprovementType, YieldType, Yield)
+VALUES
+	('BUILDING_MURANO_GLASSWORKS', 'IMPROVEMENT_EMBASSY', 'YIELD_FOOD', 2),
+	('BUILDING_MURANO_GLASSWORKS', 'IMPROVEMENT_EMBASSY', 'YIELD_TOURISM', 2);
+
 INSERT INTO Automates
 	(Type, Description, Help, DisabledHelp, HotKey, OrderPriority, Command, Automate, Visible, IconIndex, IconAtlas)
 VALUES

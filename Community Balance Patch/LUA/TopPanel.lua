@@ -23,6 +23,10 @@ function UpdateData()
 				Controls.MenuButton:SetText(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_MENU")));
 				Controls.MenuButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_MENU_TOOLTIP"));
 			end
+
+			local strInstantYields = "[ICON_CAPITAL]";
+
+			Controls.InstantYields:SetText(strInstantYields);
 			-----------------------------
 			-- Update science stats
 			-----------------------------
@@ -376,6 +380,7 @@ Controls.InternationalTradeRoutes:RegisterCallback( Mouse.eLClick, OnTradeRouteC
 
 -- Tooltip init
 function DoInitTooltips()
+	Controls.InstantYields:SetTooltipCallback(InstantYieldHandler);
 	Controls.SciencePerTurn:SetToolTipCallback( ScienceTipHandler );
 	Controls.GoldPerTurn:SetToolTipCallback( GoldTipHandler );
 	Controls.HappinessString:SetToolTipCallback( HappinessTipHandler );
@@ -1472,6 +1477,24 @@ function UnitSupplyHandler(control)
 
 		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction);
 	end
+
+	if(strUnitSupplyToolTip ~= "") then
+		tipControlTable.TopPanelMouseover:SetHide(false);
+		tipControlTable.TooltipLabel:SetText( strUnitSupplyToolTip );
+	else
+		tipControlTable.TopPanelMouseover:SetHide(true);
+	end
+    
+    -- Autosize tooltip
+    tipControlTable.TopPanelMouseover:DoAutoSize();
+end
+
+function InstantYieldHandler(control)
+
+	local iPlayerID = Game.GetActivePlayer();
+	local pPlayer = Players[iPlayerID];
+
+	local strInstantYieldToolTip = pPlayer:GetInstantYieldHistoryTooltip(10);
 
 	if(strUnitSupplyToolTip ~= "") then
 		tipControlTable.TopPanelMouseover:SetHide(false);

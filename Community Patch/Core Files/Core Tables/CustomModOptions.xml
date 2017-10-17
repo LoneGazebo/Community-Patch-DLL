@@ -735,7 +735,7 @@
 
     <!-- Events sent about resolutions (v51) -->
     <!--   GameEvents.PlayerCanPropose.Add(function(iPlayer, iResolution, iChoice, bEnact) return true end) -->
-    <!--   GameEvents.ResolutionResult.Add(function(iResolution, iChoice, bEnact, bPassed) end) -->
+    <!--   GameEvents.ResolutionResult.Add(function(iResolution, iPlayer, iChoice, bEnact, bPassed) end) -->
     <Row Class="3" Name="EVENTS_RESOLUTIONS" Value="0"/>
 
     <!-- Event sent when a nuke is fired (v19) -->
@@ -1041,6 +1041,8 @@
 	<Row Class="6" Name="BALANCE_DYNAMIC_UNIT_SUPPLY" Value="0"/>
 	<!-- Beliefs with a 'RequiredCivilization' component are now only for that civ bonus-wise. -->
 	<Row Class="6" Name="BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
+	<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->
+	<Row Class="6" Name="BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY" Value="0"/>
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

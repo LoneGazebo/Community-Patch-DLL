@@ -406,6 +406,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCapitalUnhappinessMod);
 	Method(GetTraitCityUnhappinessMod);
 	Method(GetTraitPopUnhappinessMod);
+	Method(IsIgnorePuppetPenalties);
 	Method(IsHalfSpecialistUnhappiness);
 
 	Method(GetHappinessPerGarrisonedUnit);
@@ -1438,6 +1439,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllWorkedTerrain);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetInstantYieldHistoryTooltip);
 	Method(GetDisabledTooltip);
 	Method(GetScaledEventChoiceValue);
 	Method(IsEventChoiceActive);
@@ -2864,14 +2866,8 @@ int CvLuaPlayer::lGetGAPFromReligion(lua_State* L)
 int CvLuaPlayer::lGetGAPFromCities(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iGAP = 0;
-	CvCity* pLoopCity;
-	int iLoop;
-
-	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
-	{
-		iGAP += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
-	}
+	
+	const int iGAP = pkPlayer->GetGoldenAgePointsFromCities();
 	lua_pushinteger(L, iGAP);
 	return 1;
 }
@@ -4073,6 +4069,15 @@ int CvLuaPlayer::lGetTraitPopUnhappinessMod(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iResult = pkPlayer->GetPlayerTraits()->GetPopulationUnhappinessModifier();
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsIgnorePuppetPenalties(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->GetPlayerTraits()->IsIgnorePuppetPenalties();
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 
@@ -9562,7 +9567,7 @@ int CvLuaPlayer::lGetIndustryHistory(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	unsigned int uiTurn = (unsigned int)luaL_checkint(L, 2);
-	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_AGRICULTURE");
+	unsigned int uiDataSet = pkPlayer->getReplayDataSetIndex("REPLAYDATASET_INDUSTRY");
 	lua_pushinteger(L, pkPlayer->getReplayDataValue(uiDataSet, uiTurn));
 	return 1;
 }
@@ -13713,6 +13718,9 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushboolean(L, pkPlayerEspionage->IsDiplomat(uiSpy));
 		lua_setfield(L, t, "IsDiplomat");
 
+		lua_pushboolean(L, pkPlayerEspionage->IsThief(uiSpy));
+		lua_setfield(L, t, "IsThief");
+
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_ESPIONAGE)
 		lua_pushboolean(L, pSpy->m_bPassive);
 		lua_setfield(L, t, "Passive");
@@ -14932,6 +14940,15 @@ int CvLuaPlayer::lDisbandContractUnits(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaPlayer::lGetInstantYieldHistoryTooltip(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int Turns = lua_tointeger(L, 2);
+	const CvString string = pkPlayer->getInstantYieldHistoryTooltip(GC.getGame().getGameTurn(), Turns);
+
+	lua_pushstring(L, string.c_str());
+	return 1;
+}
 int CvLuaPlayer::lGetDisabledTooltip(lua_State* L)
 {
 	CvString DisabledTT = "";

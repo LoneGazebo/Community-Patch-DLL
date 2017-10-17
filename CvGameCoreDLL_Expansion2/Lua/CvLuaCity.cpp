@@ -246,6 +246,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumGreatPeople);
 	Method(GetBaseGreatPeopleRate);
 	Method(GetGreatPeopleRate);
+	Method(GetSpecialistRate);
 	Method(GetTotalGreatPeopleRateModifier);
 	Method(ChangeBaseGreatPeopleRate);
 	Method(GetGreatPeopleRateModifier);
@@ -2831,6 +2832,20 @@ int CvLuaCity::lGetGreatPeopleRate(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::getGreatPeopleRate);
 }
+
+int CvLuaCity::lGetSpecialistRate(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
+	int Rate = 0;
+	if (eSpecialist != NO_SPECIALIST)
+	{
+		Rate = pkCity->GetCityCitizens()->GetSpecialistRate(eSpecialist);
+	}
+	lua_pushinteger(L, Rate);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int getTotalGreatPeopleRateModifier();
 int CvLuaCity::lGetTotalGreatPeopleRateModifier(lua_State* L)

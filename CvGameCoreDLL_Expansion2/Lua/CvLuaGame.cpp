@@ -3093,7 +3093,8 @@ int CvLuaGame::lDoRepealResolution(lua_State* L)
 	{
 		const ResolutionTypes iResolutionType = static_cast<ResolutionTypes>(luaL_checkint(L, 1));
 		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-		CvActiveResolution* pResolution = pLeague->GetActiveResolution(iResolutionType);
+		const int iValue = lua_tointeger(L, 3);
+		CvActiveResolution* pResolution = pLeague->GetActiveResolution(iResolutionType, iValue);
 		if (pResolution)
 		{
 			CvRepealProposal fakeProposal(pResolution, ePlayer);

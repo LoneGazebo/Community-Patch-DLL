@@ -1415,7 +1415,7 @@ void CvTacticalAI::FindTacticalTargets()
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							iWeight += 10;
 
-						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || pWorkingCity->IsBlockaded(true))
+						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || (pWorkingCity->isCoastal() && pWorkingCity->IsBlockaded(true)))
 							iWeight *= 2;
 
 						if (pWorkingCity->IsBastion())
@@ -2898,7 +2898,6 @@ void CvTacticalAI::PlotPlunderTradePlotMoves (DomainTypes eDomain)
 						LogTacticalMessage(strMsg, false);
 					}
 				}
-				pUnit->finishMoves();
 			
 				// Delete this unit from those we have to move
 				UnitProcessed(pUnit->GetID());
@@ -3009,28 +3008,46 @@ void CvTacticalAI::PlotHealMoves()
 	list<int>::iterator it;
 	m_CurrentMoveUnits.clear();
 
+	//not all units go through ExecuteHeals
+	std::set<int> passiveAggressive;
+
 	// Loop through all recruited units
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
-		{
-			//the really bad cases have already been added in CommandeerUnits
-			//now we need to take care of the units which are damaged and have nothing else to do
+		if(!pUnit)
+			continue;
 
-			CvPlot* pUnitPlot = pUnit->plot();
-			int iAcceptableDamage = 20;
-			//allow some more damage outside of our borders
-			if (pUnitPlot->getOwner() != pUnit->getOwner())
-				iAcceptableDamage = 40;
-			//these should fortify as much as possible, especially near enemies
-			if (pUnit->GetDamageAoEFortified() > 0 && pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 1) != NULL)
-				m_HealingUnits.insert(pUnit->GetID());
-			//normal
-			else if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
-				m_HealingUnits.insert(pUnit->GetID());
+		//the really bad cases have already been added in CommandeerUnits
+		//now we need to take care of the units which are damaged and have nothing else to do
+
+		CvPlot* pUnitPlot = pUnit->plot();
+		if (!pUnitPlot)
+			continue;
+		int iAcceptableDamage = 20;
+
+		//allow some more damage outside of our borders
+		if (pUnitPlot->getOwner() != pUnit->getOwner())
+			iAcceptableDamage = 40;
+
+		if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
+			m_HealingUnits.insert(pUnit->GetID());
+
+		//units with area damage if fortified should fortify as much as possible if near enemies
+		if (pUnit->GetDamageAoEFortified() > 0 && pUnit->canFortify(pUnitPlot) &&
+			pUnit->getDamage() >= pUnit->healRate(pUnitPlot) && pUnit->GetDanger()<pUnit->GetCurrHitPoints() &&
+			pUnitPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL)==false &&
+			pUnitPlot->GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType()) > 0)
+		{
+			passiveAggressive.insert(pUnit->GetID());
+			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			pUnit->SetFortifiedThisTurn(true);
 		}
 	}
+
+	//can't do this directly, otherwise we invalidate the iterator for m_CurrentTurnUnits
+	for (set<int>::iterator it = passiveAggressive.begin(); it != passiveAggressive.end(); ++it)
+		UnitProcessed(*it);
 
 	if(m_HealingUnits.size() > 0)
 	{
@@ -3058,9 +3075,8 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			}
 			else
 			{
-				if (TacticalAIHelpers::PerformOpportunityAttack(currentDefender))
-					currentDefender->finishMoves();
-				else if (currentDefender->canFortify(pPlot))
+				TacticalAIHelpers::PerformOpportunityAttack(currentDefender);
+				if (currentDefender->canFortify(pPlot))
 				{
 					currentDefender->PushMission(CvTypes::getMISSION_FORTIFY());
 					currentDefender->SetFortifiedThisTurn(true);
@@ -4013,9 +4029,8 @@ void CvTacticalAI::ReviewUnassignedUnits()
 				MissionTypes eMission = pUnit->canFortify(pUnit->plot()) ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
 				pUnit->PushMission(eMission);
 				if (pUnit->canFortify(pUnit->plot()))
-				{
 					pUnit->SetFortifiedThisTurn(true);
-				}
+
 				pUnit->SetTurnProcessed(true);
 			}
 			else if ( pUnit->getDomainType()==DOMAIN_LAND )
@@ -4177,7 +4192,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							return;	
 						}
 
-						pCivilian->finishMoves();
 						UnitProcessed(pCivilian->GetID());
 					}
 				}
@@ -4218,7 +4232,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							pOperation->SetMusterPlot(pBetterPlot);
 						}
 					}
-					pCivilian->finishMoves();
 					UnitProcessed(pCivilian->GetID());
 				}
 				else
@@ -4411,14 +4424,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 
 		// now we're done
 		UnitProcessed(pCivilian->GetID());
-		if (!bSaveMoves)
-			pCivilian->finishMoves();
-
 		if (pEscort)
-		{
-			pEscort->finishMoves();
 			UnitProcessed(pEscort->GetID());
-		}
 
 		// logging
 		if(GC.getLogging() && GC.getAILogging())
@@ -4440,7 +4447,6 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
 			LogTacticalMessage(strLogString);
 		}
-		pUnit->finishMoves();
 		UnitProcessed(pUnit->GetID());
 	}
 }
@@ -5928,10 +5934,10 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 	if(pUnit)
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-		pUnit->finishMoves();
 
 		// Delete this unit from those we have to move
-		UnitProcessed(m_CurrentMoveUnits[0].GetID());
+		if (!pUnit->canMove())
+			UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -5964,10 +5970,10 @@ void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 		}
 		else
 			MoveToEmptySpaceNearTarget(pUnit,pTargetPlot,DOMAIN_LAND,23);
-		pUnit->finishMoves();
 
 		// Delete this unit from those we have to move
-		UnitProcessed(m_CurrentMoveUnits[0].GetID());
+		if (!pUnit->canMove())
+			UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -5986,9 +5992,8 @@ void CvTacticalAI::ExecutePlunderTradeUnit(CvPlot* pTargetPlot)
 		else
 			MoveToEmptySpaceNearTarget(pUnit,pTargetPlot,NO_DOMAIN,23);
 
-		pUnit->finishMoves();
-		// Delete this unit from those we have to move
-		UnitProcessed(m_CurrentMoveUnits[0].GetID());
+		if (!pUnit->canMove())
+			UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -6001,10 +6006,10 @@ void CvTacticalAI::ExecuteParadropPillage(CvPlot* pTargetPlot)
 	{
 		pUnit->PushMission(CvTypes::getMISSION_PARADROP(), pTargetPlot->getX(), pTargetPlot->getY());
 		pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-		pUnit->finishMoves();
 
 		// Delete this unit from those we have to move
-		UnitProcessed(m_CurrentMoveUnits[0].GetID());
+		if (!pUnit->canMove())
+			UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -6360,7 +6365,6 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				{
 					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, pUnit->getDomainType(), 12))
 					{
-						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
 						
 						if(GC.getLogging() && GC.getAILogging())
@@ -6508,7 +6512,6 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 				}
 
-				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -6618,10 +6621,6 @@ void CvTacticalAI::ExecuteHeals()
 							pUnit->getName().GetCString(), pUnit->GetID(), vAttackers[0]->getX(), vAttackers[0]->getY());
 						LogTacticalMessage(strLogString);
 					}
-				}
-				else if (pUnit->GetDamageAoEFortified() > 0)
-				{
-					pBetterPlot = pUnit->plot();
 				}
 				else //flee
 				{
@@ -6768,7 +6767,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 							}
 						}
 #endif
-						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -6780,7 +6778,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					}
 					else
 					{
-						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -6801,7 +6798,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 
 					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_SEA,12))
 					{
-						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -6814,7 +6810,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					}
 					else
 					{
-						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -7137,10 +7132,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		}
 
 		if(!bSaveMoves && bResult)
-		{
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
-			pUnit->finishMoves();
-		}
 	}
 
 	if (bResult)
@@ -7232,7 +7224,6 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 			if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
-			pUnit->finishMoves();
 			UnitProcessed(m_CurrentMoveUnits[0].GetID());
 			pUnit->SetTacticalAIPlot(NULL);
 
@@ -7575,7 +7566,6 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 
 				if (bMoveMade)
 				{
-					pUnit->finishMoves();
 					UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
 
 					if(GC.getLogging() && GC.getAILogging())
@@ -7662,7 +7652,6 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 					}
 				}
 
-				pUnit->finishMoves();
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -9608,7 +9597,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					LogTacticalMessage(strMsg);
 				}
 				UnitProcessed(pGeneral->GetID());
-				pGeneral->finishMoves();
 				continue;
 			}
 		}
@@ -9700,14 +9688,13 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				if(pDefender || pGeneral->GetDanger(pMovePlot)==0)
 				{
 					ExecuteMoveToPlot(pGeneral, pMovePlot);
-					pGeneral->finishMoves();
 					UnitProcessed(pGeneral->GetID());
 
 					//defender must stay here now, whether he wants to or not
-					if(pDefender && pDefender->canMove())
+					if(pDefender)
 					{
 						TacticalAIHelpers::PerformRangedOpportunityAttack(pDefender);
-						pDefender->finishMoves();
+						pDefender->PushMission(CvTypes::getMISSION_SKIP());
 						UnitProcessed(pDefender->GetID());
 					}
 
@@ -9728,7 +9715,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				if(pSafestPlot != NULL)
 				{
 					pGeneral->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafestPlot->getX(), pSafestPlot->getY());
-					pGeneral->finishMoves();
 					UnitProcessed(pGeneral->GetID());						
 				}
 			}
@@ -12185,7 +12171,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
 		unitAfterAttack.iMovesLeft = 0;
-		SMovePlot unitPlot = *reachablePlots.find(unit.iPlotIndex);
+		ReachablePlots::iterator it = reachablePlots.find(unit.iPlotIndex);
+
+		//this should definitely not happen
+		if (it == reachablePlots.end())
+			return vector<STacticalAssignment>();
+
+		SMovePlot unitPlot = *it;
 		int endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, unitPlot, *this).iScore;
 
 		set<int> rangeAttackPlots;

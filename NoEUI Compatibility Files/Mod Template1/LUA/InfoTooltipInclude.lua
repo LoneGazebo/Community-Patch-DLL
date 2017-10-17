@@ -1065,7 +1065,7 @@ function GetCultureTooltip(pCity)
 		end
 -- END		
 		-- Puppet modifier
-		if (pCity:IsPuppet()) then
+		if (pCity:IsPuppet() and not Players[pCity:GetOwner()]:IsIgnorePuppetPenalties()) then
 			iAmount = GameDefines.PUPPET_CULTURE_MODIFIER;
 			
 			if (iAmount ~= 0) then
@@ -1241,7 +1241,7 @@ function GetFaithTooltip(pCity)
 		end
 		
 		-- Puppet modifier
-		if (pCity:IsPuppet()) then
+		if (pCity:IsPuppet() and not Players[pCity:GetOwner()]:IsIgnorePuppetPenalties()) then
 			local iAmount = GameDefines.PUPPET_FAITH_MODIFIER;
 		
 			if (iAmount ~= 0) then

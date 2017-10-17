@@ -596,7 +596,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(bCombat)
 			{
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumNavalUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize() * 2;
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize() * 5;
 				int iValue = iDesired - iCurrent;
 				
 				if(bAtWar)
@@ -619,12 +619,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 					if (kPlayer.GetMilitaryAI()->GetWarType() == 2)
 					{
-						iValue *= 5;
+						iValue *= 10;
 					}
 				}
 				else if(bAlone)
 				{
-					iValue *= 5;
+					iValue *= 10;
 				}
 				if(iValue > 0)
 				{
@@ -638,7 +638,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (bCombat)
 			{
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize() * 2;
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize() * 5;
 				int iValue = iDesired - iCurrent;
 				if (bAtWar)
 				{
@@ -661,12 +661,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 					if (kPlayer.GetMilitaryAI()->GetWarType() == 1)
 					{
-						iValue *= 5;
+						iValue *= 10;
 					}
 				}
 				else if (bAlone)
 				{
-					iValue /= 10;
+					iValue /= 15;
 				}
 				if (iValue > 0)
 				{
@@ -1362,12 +1362,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//Let's try to build our units in our best cities only.
 			if(m_pCity == kPlayer.GetBestMilitaryCity((UnitCombatTypes)pkUnitEntry->GetUnitCombatType()))
 			{
-				iBonus += 150;
+				iBonus += 500;
 			}
 			//Let's try to build our units in our best cities only. More cities we have, the more this matters.
 			if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, (DomainTypes)pkUnitEntry->GetDomainType()))
 			{
-				iBonus += 150;
+				iBonus += 500;
 			}
 		}
 		//Promotion Bonus
@@ -1423,20 +1423,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				//////Let's get the military unit AI type we have the least of and boost the lowest type.
 				if(kPlayer.GetArmyDiversity() == (int)pkUnitEntry->GetDefaultUnitAIType())
 				{
-					iBonus += 250;
+					iBonus += 500;
 				}
 				else
-					iBonus += -100;
+					iBonus += -250;
 			}
 			else if (eDomain == DOMAIN_SEA)
 			{
 				//////Let's get the military unit AI type we have the least of and boost the lowest type.
 				if (kPlayer.GetNavyDiversity() == (int)pkUnitEntry->GetDefaultUnitAIType())
 				{
-					iBonus += 250;
+					iBonus += 500;
 				}
 				else
-					iBonus += -100;
+					iBonus += -250;
 			}
 		}
 	}

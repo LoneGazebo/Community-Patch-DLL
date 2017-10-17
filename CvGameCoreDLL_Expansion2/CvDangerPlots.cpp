@@ -129,7 +129,8 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 			m_DangerPlots[aNeighbors[iI]->GetPlotIndex()].m_bEnemyAdjacent = true;
 	}
 
-	if (bRemember)
+	//only track invisible attackers for AI players
+	if (bRemember && !GET_PLAYER(m_ePlayer).isHuman())
 		AddKnownAttacker(pLoopUnit->getOwner(),pLoopUnit->GetID());
 
 	return true;
@@ -146,17 +147,15 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	int iGridSize = GC.getMap().numPlots();
 	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
 	for(int i = 0; i < iGridSize; i++)
-	{
 		m_DangerPlots[i].clear();
-	}
-
-	//units we know from last turn
-	UnitSet previousKnownUnits = m_knownUnits;
-	if (!bKeepKnownUnits)
-		m_knownUnits.clear();
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
+
+	//units we know from last turn (maintained only for AI, humans must remember on their own)
+	UnitSet previousKnownUnits = m_knownUnits;
+	if (!bKeepKnownUnits)
+		m_knownUnits.clear();
 
 	// for each opposing civ
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
@@ -554,8 +553,8 @@ bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 		return true;
 	}
 
-	//invisible but revealed camp. count the unit there anyways
-	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !pUnit->isHuman());
+	//invisible but revealed camp. count the unit there anyways (for AI)
+	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !GET_PLAYER(m_ePlayer).isHuman());
 
 	if(!pUnit->plot()->isVisible(GET_PLAYER(m_ePlayer).getTeam()) && !bIgnoreVisibility)
 	{

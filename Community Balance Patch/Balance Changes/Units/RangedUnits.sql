@@ -165,4 +165,10 @@ VALUES
 	INSERT INTO Unit_FreePromotions (UnitType, PromotionType) SELECT 'UNIT_FIELD_GUN' , 'PROMOTION_INDIRECT_FIRE' WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 
+	--fix some flavors
+	UPDATE Unit_Flavors SET Flavor = '11' WHERE UnitType = 'UNIT_MACHINE_GUN';
+	UPDATE Unit_Flavors SET Flavor = '9' WHERE UnitType = 'UNIT_ANTI_TANK_GUN';
+	UPDATE Unit_Flavors SET FlavorType = 'FLAVOR_MOBILE' WHERE FlavorType = 'FLAVOR_DEFENSE' AND UnitType = 'UNIT_ANTI_TANK_GUN';
+
+
 	

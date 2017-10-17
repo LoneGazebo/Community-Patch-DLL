@@ -37,10 +37,10 @@
 	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base reduction of unhappiness threshold for Puppet cities. -50% is default.
+-- Base reduction of unhappiness threshold for Puppet cities. -25% is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-50'
+	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 25% is default.

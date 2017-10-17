@@ -172,7 +172,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				{
 					iModifier -= 100;
 				}
-				if (m_pCity->IsBlockaded(true))
+				if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
 				{
 					iModifier -= 100;
 				}
@@ -215,7 +215,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				{
 					iModifier += 1000;
 				}
-				else if (m_pCity->IsBlockaded(true))
+				else if (m_pCity->isCoastal() && m_pCity->IsBlockaded(true))
 				{
 					iModifier += 150;
 				}
@@ -225,20 +225,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				}
 				//None of these things?
 				else
-					iModifier -= 500;
+					return 0;
 			}
 		}
 		//Tiny army? Eek!
 		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
 		{
-			iModifier -= 500;
+			iModifier -= 1000;
 		}
 
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		// scale based on flavor and world size
 		if (eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			iModifier -= 500;
+			iModifier -= 1000;
 		}
 
 		if (m_pCity->getUnhappinessFromDefense() > 0)
@@ -246,7 +246,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			iModifier += (m_pCity->getUnhappinessFromDefense() * 5);
 		}
 		if (kPlayer.isMinorCiv())
-			iModifier /= 2;
+			iModifier /= 5;
 	}
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
@@ -265,12 +265,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if(eYield == NO_YIELD)
 			continue;
 
-		if(m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-		{
-			iModifier += 60;
-		}
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
+			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
+			{
+				iModifier += 150;
+			}
 			switch(eYield)
 			{
 				case YIELD_GOLD:
