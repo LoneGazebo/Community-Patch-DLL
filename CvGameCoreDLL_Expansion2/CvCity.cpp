@@ -26644,10 +26644,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #endif
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-				int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
+				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
 				int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 				iOverflow = std::min(iMaxOverflow, iOverflow);
-				if(iOverflow > 0)
+				if (iOverflow > 0)
 				{
 					changeOverflowProductionTimes100(iOverflow);
 				}
@@ -26718,10 +26718,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
-				int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
+				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
 				int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 				iOverflow = std::min(iMaxOverflow, iOverflow);
-				if(iOverflow > 0)
+				if (iOverflow > 0)
 				{
 					changeOverflowProductionTimes100(iOverflow);
 				}
@@ -26797,10 +26797,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			iProductionNeeded = getProductionNeeded(eCreateProject) * 100;
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
 			int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
-			int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
+			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
 			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 			iOverflow = std::min(iMaxOverflow, iOverflow);
-			if(iOverflow > 0)
+			if (iOverflow > 0)
 			{
 				changeOverflowProductionTimes100(iOverflow);
 			}
@@ -26830,9 +26830,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
 			int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
-			int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
+			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
 			iOverflow = std::min(iMaxOverflow, iOverflow);
-			if(iOverflow > 0)
+			if (iOverflow > 0)
 			{
 				changeOverflowProductionTimes100(iOverflow);
 			}
@@ -28643,20 +28643,7 @@ void CvCity::doGrowth()
 		}
 		else
 		{
-			//overflow is limited to kept food + one turn's surplus
-			int iFoodAfterGrowth = getFoodTimes100() - growthThreshold() * 100 + getFoodKept() * 100;
-			int iMaxFoodAfterGrowth = getFoodKept() * 100 + iFoodPerTurn100;
-			int iNewFood100 = max(0, min(iFoodAfterGrowth, iMaxFoodAfterGrowth));
-
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("%s is growing to %d. Net food per turn is %d/100. Have %d/100 food, need %d, will keep %d/100.", 
-					getName().c_str(), getPopulation()+1, foodDifferenceTimes100(), getFoodTimes100(), growthThreshold(), iNewFood100);
-				GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-			}
-
-			setFoodTimes100(iNewFood100);
+			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
 			changePopulation(1);
 
 			// Only show notification if the city is small
