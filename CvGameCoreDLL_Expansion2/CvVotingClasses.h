@@ -78,7 +78,7 @@ namespace LeagueHelpers
 	const int CHOICE_NO = 0;
 	const int CHOICE_YES = 1;
 
-	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 6;
+	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 3;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	// Moved to xml, use
@@ -528,7 +528,7 @@ public:
 	CvRepealProposal* GetRepealProposal(int iResolutionID);
 	RepealProposalList GetRepealProposals() const;
 	RepealProposalList GetRepealProposalsOnHold() const;
-	CvActiveResolution* GetActiveResolution(int iResolutionID);
+	CvActiveResolution* GetActiveResolution(int iResolutionID, int iValue = -1);
 	ActiveResolutionList GetActiveResolutions() const;
 	int GetNumResolutionsEverEnacted() const;
 	int GetNumProposersPerSession() const;
@@ -954,6 +954,7 @@ private:
 	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution);
 
 	// Logging
+	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre);
 	void LogVoteChoiceConsidered(CvEnactProposal* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceConsidered(CvRepealProposal* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice, int iVotes);

@@ -286,6 +286,8 @@ end
 local function UpdateTopPanelNow()
 
 	g_requestTopPanelUpdate = false
+
+	Controls.InstantYieldsIcon:SetText( S("[ICON_CAPITAL]") )
 	-----------------------------
 	-- Update science stats
 	-----------------------------
@@ -2106,6 +2108,24 @@ if civ5_mode and gk_mode then
 	Controls.FaithIcon:RegisterCallback( Mouse.eRClick, OnFaithRClick )
 	Controls.FaithIcon:SetToolTipCallback( requestTextToolTip )
 	Controls.FaithIcon:SetHide( false )
+end
+
+if civ5_mode and gk_mode then 
+	g_toolTipHandler.InstantYieldsIcon = function()-- control )
+		local iPlayerID = Game.GetActivePlayer();
+		local pPlayer = Players[iPlayerID];
+
+		local strInstantYieldToolTip = pPlayer:GetInstantYieldHistoryTooltip(10);
+
+		local tips = table()
+
+		tips:insert( strInstantYieldToolTip )	
+
+		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+	end
+
+	Controls.InstantYieldsIcon:SetToolTipCallback( requestTextToolTip )
+	Controls.InstantYieldsIcon:SetHide( false )
 end
 
 -------------------------------------------------

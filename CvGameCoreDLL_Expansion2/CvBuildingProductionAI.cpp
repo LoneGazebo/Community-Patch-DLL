@@ -350,7 +350,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iBonus -= (iNumWar * 250);
 		}
-		if( m_pCity->IsBlockaded(true) || m_pCity->IsBlockaded(false))
+		if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
 		{
 			iBonus -= (iNumWar * 250);
 		}

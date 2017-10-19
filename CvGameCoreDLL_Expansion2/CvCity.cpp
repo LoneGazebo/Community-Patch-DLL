@@ -2733,8 +2733,7 @@ void CvCity::doTurn()
 		if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
 		{
 			int iPile = getYieldRate(YIELD_PRODUCTION, false);
-			iPile *= 10;
-			iPile /= 100;
+			iPile /= 10;
 
 			iHitsHealed += iPile;
 		}
@@ -6397,7 +6396,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 					if(iBonus != 0)
 					{
-						GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iBonus * 100);
+						GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iBonus * 100, true);
 					}
 				}
 			}
@@ -15542,7 +15541,13 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			}
 		}
 #endif
-
+		if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+		{
+			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER();
+			iTotalMod += iTempMod;
+			if (iTempMod != 0)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+		}
 		// Religion growth mod
 		int iReligionGrowthMod = 0;
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -17123,7 +17128,7 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
 
 	// Puppet?
-	if(IsPuppet())
+	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
 	}
@@ -17431,7 +17436,7 @@ int CvCity::GetFaithPerTurn() const
 	iModifier = getBaseYieldRateModifier(YIELD_FAITH);
 
 	// Puppet?
-	if(IsPuppet())
+	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
 	{
 		iModifier += GC.getPUPPET_FAITH_MODIFIER();
 	}
@@ -21623,7 +21628,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	//Blockade
 	if (eIndex == YIELD_GOLD && isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
-		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && IsBlockaded(true))
+		if (GC.getBLOCKADE_GOLD_PENALTY() != 0 && isCoastal() && IsBlockaded(true))
 		{
 			iTempMod = GC.getBLOCKADE_GOLD_PENALTY();
 			iModifier += iTempMod;
@@ -21826,7 +21831,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 
 	// Puppet
-	if(IsPuppet())
+	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
 	{
 		switch(eIndex)
 		{
@@ -21842,6 +21847,14 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iTempMod = GC.getPUPPET_GOLD_MODIFIER();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#if defined(MOD_BUGFIX_MINOR)
+			break;
+#endif
+		case YIELD_PRODUCTION:
+			iTempMod = GC.getPUPPET_PRODUCTION_MODIFIER();
+			iModifier += iTempMod;
+			if (iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #if defined(MOD_BUGFIX_MINOR)
 			break;
@@ -25005,9 +25018,6 @@ void CvCity::updateStrengthValue()
 	{
 		int iPile = getYieldRate(YIELD_PRODUCTION, false);
 
-		iPile *= 10;
-		iPile /= 100;
-
 		iStrengthValue += iPile;
 	}
 #endif
@@ -26634,7 +26644,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #endif
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+				int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
 				int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 				iOverflow = std::min(iMaxOverflow, iOverflow);
 				if(iOverflow > 0)
@@ -26708,7 +26718,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
-				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+				int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
 				int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 				iOverflow = std::min(iMaxOverflow, iOverflow);
 				if(iOverflow > 0)
@@ -26787,7 +26797,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 			iProductionNeeded = getProductionNeeded(eCreateProject) * 100;
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
 			int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+			int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
 			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 			iOverflow = std::min(iMaxOverflow, iOverflow);
 			if(iOverflow > 0)
@@ -26820,7 +26830,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
 			int iOverflow = getSpecialistProductionTimes100(eSpecialist) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+			int iMaxOverflow = getYieldRateTimes100(YIELD_PRODUCTION, false);
 			iOverflow = std::min(iMaxOverflow, iOverflow);
 			if(iOverflow > 0)
 			{
@@ -27598,7 +27608,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && (NO_BUILDING != eBuildingType))
+			if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && (NO_BUILDING != eBuildingType))
 			{
 				//Have we already invested here?
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
@@ -27606,6 +27616,24 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				if(IsBuildingInvestment(eBuildingClass))
 				{
 					return false;
+				}
+				//Exploit prevention
+				int AmountComplete = GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
+				if (AmountComplete > 0)
+				{
+					int AmountNeeded = max(1, getProductionNeeded(eBuildingType));
+					AmountComplete /= AmountNeeded;
+
+					int iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+					const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+					if (::isWorldWonderClass(kBuildingClassInfo))
+					{
+						iTotalDiscount /= 2;
+					}
+					iTotalDiscount *= -1;
+
+					if (AmountComplete >= iTotalDiscount)
+						return false;
 				}
 			}
 #endif
@@ -27725,6 +27753,10 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 			if(pkUnitInfo)
 			{
+				//naval units are only for the UA!
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPurchaseNavalUnitsFaith())
+					return false;
+
 #if defined(MOD_BUGFIX_MINOR)
 				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
 #else
@@ -27734,11 +27766,13 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					return false;
 				}
 #if defined(MOD_BALANCE_CORE)
+				bool bSpecificBeliefNeeded = false;
 				const CvReligion *pReligion2 = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 				if (pReligion2)
 				{
 					if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
 					{
+						bSpecificBeliefNeeded = true;
 						if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 						{
 							if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
@@ -27812,6 +27846,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 							return false;
 						}
 					}
+					if (bSpecificBeliefNeeded)
+						return false;
 #endif
 					// Missionaries, Inquisitors and Prophets
 					// We need a full religion and not just a pantheon,

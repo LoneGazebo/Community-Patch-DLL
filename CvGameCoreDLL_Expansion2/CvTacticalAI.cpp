@@ -1415,7 +1415,7 @@ void CvTacticalAI::FindTacticalTargets()
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							iWeight += 10;
 
-						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || pWorkingCity->IsBlockaded(true))
+						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || (pWorkingCity->isCoastal() && pWorkingCity->IsBlockaded(true)))
 							iWeight *= 2;
 
 						if (pWorkingCity->IsBastion())

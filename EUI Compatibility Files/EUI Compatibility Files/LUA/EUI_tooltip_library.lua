@@ -2271,7 +2271,7 @@ local function GetCultureTooltip( city )
 
 	-- Puppet modifier
 	local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
-	if puppetMod ~= 0 then
+	if (puppetMod ~= 0 and not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
 		tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
 	end
 
@@ -2614,7 +2614,9 @@ local function GetFaithTooltip( city )
 		--END
 
 		-- Puppet modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+		if (not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+		end
 
 		-- Citizens breakdown
 		tips:insert( "----------------")

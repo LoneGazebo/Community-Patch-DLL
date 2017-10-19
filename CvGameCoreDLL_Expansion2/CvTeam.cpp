@@ -1415,6 +1415,8 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 	if(!isBarbarian())
 	{
+		GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
+		SetAllowsOpenBordersToTeam(eTeam, false);
 		GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
 		CloseEmbassyAtTeam(eTeam);
 		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
@@ -1422,6 +1424,12 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
 		EvacuateDiplomatsAtTeam(eTeam);
 		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
+		if (MOD_BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY && IsHasDefensivePact(eTeam))
+		{
+			SetHasDefensivePact(eTeam, false);
+			GET_TEAM(eTeam).SetHasDefensivePact(GetID(), false);
+			SetBrokenMilitaryPromise(true);
+		}
 		//Diplo Stuff ONLY triggers if we were the aggressor AND this wasn't a defensive pact/vassal(C4DF)
 		if(!bDefensivePact && bAggressor)
 		{
@@ -8604,10 +8612,13 @@ void CvTeam::cancelDefensivePacts()
 		{
 			if(kTeam.isAlive())
 			{
-				if(IsHasDefensivePact(eTeam))
+				if (IsHasDefensivePact(eTeam))
 				{
-					SetHasDefensivePact(eTeam, false);
-					kTeam.SetHasDefensivePact(GetID(), false);
+					if (!MOD_BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY)
+					{
+						SetHasDefensivePact(eTeam, false);
+						kTeam.SetHasDefensivePact(GetID(), false);
+					}
 				}
 			}
 		}

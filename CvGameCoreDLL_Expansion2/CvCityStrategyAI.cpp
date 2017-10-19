@@ -1194,7 +1194,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 
 #if defined(MOD_BALANCE_CORE)
 /// Pick the next build for a city (unit, building)
-CvCityBuildable CvCityStrategyAI::ChooseHurry()
+CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchase)
 {
 	int iBldgLoop, iUnitLoop, iTempWeight;
 	CvCityBuildable buildable;
@@ -1207,48 +1207,67 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
+	YieldTypes ePurchaseYield = YIELD_GOLD;
+	if (bFaithPurchase)
+		ePurchaseYield = YIELD_FAITH;
+
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
 	m_BuildablesPrecheck.clear();
 	
-	// Check units for operations first
-	eUnitForOperation = m_pCity->GetUnitForOperation();
-	if(eUnitForOperation != NO_UNIT)
+	if (!bFaithPurchase)
 	{
-		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
-		buildable.m_iIndex = (int)eUnitForOperation;
-		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
-		iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
-		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
-		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
-		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
-		if(iTempWeight > 0)
-		{						
-			m_BuildablesPrecheck.push_back(buildable, iTempWeight);
-			kPlayer.GetMilitaryAI()->BumpNumberOfTimesOpsBuildSkippedOver();
-		}
-	}
-	// Next units for sneak attack armies
-	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
-	if(eUnitForArmy != NO_UNIT)
-	{
-		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
-		buildable.m_iIndex = (int)eUnitForArmy;
-		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
-		iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
-		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
-		if(iTempWeight > 0)
+		// Check units for operations first
+		eUnitForOperation = m_pCity->GetUnitForOperation();
+		if (eUnitForOperation != NO_UNIT)
 		{
-			m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
+			buildable.m_iIndex = (int)eUnitForOperation;
+			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
+			iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
+			int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
+			iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+			iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
+			if (iTempWeight > 0)
+			{
+				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+				kPlayer.GetMilitaryAI()->BumpNumberOfTimesOpsBuildSkippedOver();
+			}
+		}
+		// Next units for sneak attack armies
+		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
+		if (eUnitForArmy != NO_UNIT)
+		{
+			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
+			buildable.m_iIndex = (int)eUnitForArmy;
+			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
+			iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
+			int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+			iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+			if (iTempWeight > 0)
+			{
+				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+			}
 		}
 	}
 
 	// Loop through adding the available units
 	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
-	{	
+	{
+		if (bFaithPurchase)
+		{
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
+			if (pUnitEntry)
+			{
+				if (pUnitEntry->IsSpreadReligion() || pUnitEntry->IsRemoveHeresy())
+					continue;
+
+				if (pUnitEntry->GetFaithCost() <= 0 || pUnitEntry->GetSpecialUnitType() != NO_SPECIALUNIT)
+					continue;
+			}
+		}
 		// Make sure this unit can be built now
-		if(m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+		if (m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, ePurchaseYield))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
@@ -1264,28 +1283,31 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	}
 	
 	// Loop through adding the available buildings
-	for(iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
+	if (!bUnitOnly)
 	{
-		const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iBldgLoop);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
-
-		//Skip if null
-		if(pkBuildingInfo == NULL)
-			continue;
-
-		// Make sure this building can be built now
-		if(m_pCity->IsCanPurchase(true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, YIELD_GOLD))
+		for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
-			buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
-			buildable.m_iIndex = iBldgLoop;
-			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eLoopBuilding, 0);
+			const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iBldgLoop);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
 
-			iTempWeight = m_pBuildingProductionAI->GetWeight(eLoopBuilding);
+			//Skip if null
+			if (pkBuildingInfo == NULL)
+				continue;
 
-			// Save it for later
-			if(iTempWeight > 0)
+			// Make sure this building can be built now
+			if (m_pCity->IsCanPurchase(true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
 			{
-				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+				buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
+				buildable.m_iIndex = iBldgLoop;
+				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eLoopBuilding, 0);
+
+				iTempWeight = m_pBuildingProductionAI->GetWeight(eLoopBuilding);
+
+				// Save it for later
+				if (iTempWeight > 0)
+				{
+					m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+				}
 			}
 		}
 	}
@@ -1382,6 +1404,17 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes, iGPT);
+					int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
+					if (AmountComplete > 0)
+					{
+						int AmountNeeded = max(1, GetCity()->getProductionNeeded(eBuildingType));
+						AmountComplete /= AmountNeeded;
+						if (AmountComplete < 50)
+						{
+							iNewWeight *= (100 + AmountComplete);
+							iNewWeight /= AmountComplete;
+						}
+					}
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);

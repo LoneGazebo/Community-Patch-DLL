@@ -4963,7 +4963,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 					iGPThreshold *= iPolicyGEorGM;
 					iGPThreshold /= 100;
 				
-					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold);
+					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
 					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{
 						iGPThreshold /= 100;
@@ -5516,7 +5516,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 					iGPThreshold *= iPolicyGEorGM;
 					iGPThreshold /= 100;
 				
-					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold);
+					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
 					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{
 						iGPThreshold /= 100;

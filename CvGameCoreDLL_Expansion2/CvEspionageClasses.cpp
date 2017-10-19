@@ -589,9 +589,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							Localization::String strNotification;
 							if (pSpy->m_bIsThief)
 							{
-								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW_S");
+								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GREAT_WORK_S");
 								strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
-								strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW");
+								strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GREAT_WORK");
 								strNotification << GetSpyRankName(pSpy->m_eRank);
 							}
 							else
@@ -661,6 +661,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			return;
 		}
 		BuildStealableTechList(eCityOwner);
+#if defined(MOD_BALANCE_CORE)
+		BuildStealableGWList(eCityOwner);
+#endif
 		pCityEspionage->Process(ePlayer);
 		// if the rate is too low, reassign the spy
 		if (pCityEspionage->m_aiRate[m_pPlayer->GetID()] < 100)
@@ -5523,9 +5526,14 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 
 	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if (m_pPlayer->GetEspionage()->GetSpyIndexInCity(pLoopCity) != -1)
+		int iSpy = m_pPlayer->GetEspionage()->GetSpyIndexInCity(pLoopCity);
+		if (iSpy != -1)
 		{
-			int iNumGreatWorks = pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
+			CvEspionageSpy* pSpy = &(m_aSpyList[iSpy]);
+			if (!pSpy->m_bIsThief)
+				continue;
+
+			int iNumGreatWorks = pLoopCity->GetCityBuildings()->GetNumGreatWorks();
 
 			if (iNumGreatWorks <= 0)
 				continue;
@@ -5767,6 +5775,13 @@ void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttac
 		kMessage.m_iGWIndex = iGreatWorkIndex;
 	}
 #endif
+
+#if defined(MOD_EVENTS_ESPIONAGE)
+	if (MOD_EVENTS_ESPIONAGE) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EspionageNotificationData, iCityX, iCityY, eAttackingPlayer, m_pPlayer->GetID(), iSpyResult, eStolenTech, eBuilding, eUnit, bUnrest, iValue, iScienceValue, bRebel, iGreatWorkIndex);
+	}
+#endif
+
 	m_aSpyNotificationMessages.push_back(kMessage);
 }
 
@@ -8936,6 +8951,10 @@ void CvEspionageAI::DoTurn()
 					{
 						bWantThief = true;
 					}
+					else if (GET_PLAYER(pCity->getOwner()).GetDiplomacyAI()->IsGoingForCultureVictory())
+					{
+						bWantThief = true;
+					}
 				}
 				
 				pEspionage->MoveSpyTo(pCity, uiSpy, false, bWantThief);
@@ -9068,7 +9087,7 @@ void CvEspionageAI::StealTechnology()
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-/// Checks to see if there are any technologies to steal
+/// Checks to see if there are any GWs to steal
 /// If so, steals them!
 void CvEspionageAI::StealGreatWork()
 {
@@ -9200,18 +9219,6 @@ void CvEspionageAI::StealGreatWork()
 															}
 														}
 													}
-													iHeistLocationCounter++;
-
-													// recalculate the num techs to steal list
-													pEspionage->BuildStealableGWList((PlayerTypes)uiDefendingPlayer);
-													if (pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumGWToStealList[uiDefendingPlayer] > 0)
-													{
-														pEspionage->m_aiNumGWToStealList[uiDefendingPlayer]--;
-													}
-													else
-													{
-														pEspionage->m_aiNumGWToStealList[uiDefendingPlayer] = 0;
-													}
 												}
 											}
 										}
@@ -9221,6 +9228,18 @@ void CvEspionageAI::StealGreatWork()
 						}
 					}
 				}
+			}
+			iHeistLocationCounter++;
+
+			// recalculate the num techs to steal list
+			pEspionage->BuildStealableGWList((PlayerTypes)uiDefendingPlayer);
+			if (pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumGWToStealList[uiDefendingPlayer] > 0)
+			{
+				pEspionage->m_aiNumGWToStealList[uiDefendingPlayer]--;
+			}
+			else
+			{
+				pEspionage->m_aiNumGWToStealList[uiDefendingPlayer] = 0;
 			}
 		}
 	}

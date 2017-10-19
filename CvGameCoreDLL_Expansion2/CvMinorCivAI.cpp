@@ -499,7 +499,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 					// Does this Specialist spawn a GP?
 					if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
 					{				
-						kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100);
+						kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100, true);
 					}
 				}
 			}
@@ -531,7 +531,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 							// Does this Specialist spawn a GP?
 							if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
 							{				
-								pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100);
+								pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100, true);
 							}
 						}
 					}
@@ -729,7 +729,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 					// Does this Specialist spawn a GP?
 					if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
 					{				
-						kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100);
+						kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100, true);
 					}
 				}
 			}
@@ -760,7 +760,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 							// Does this Specialist spawn a GP?
 							if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
 							{				
-								pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100);
+								pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100, true);
 							}
 						}
 					}
@@ -5860,8 +5860,11 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 
 						// Give the gifts to this team member
 						GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(iGoldGift);
+						GET_PLAYER(ePlayer).changeInstantYieldValue(YIELD_GOLD, iGoldGift);
 						GET_PLAYER(ePlayer).changeJONSCulture(iCultureGift);
+						GET_PLAYER(ePlayer).changeInstantYieldValue(YIELD_CULTURE, iCultureGift);
 						GET_PLAYER(ePlayer).ChangeFaith(iFaithGift);
+						GET_PLAYER(ePlayer).changeInstantYieldValue(YIELD_FAITH, iFaithGift);
 
 						iGift = iGoldGift + iCultureGift + iFaithGift;
 
@@ -5922,18 +5925,27 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 
 									if (pBestCity != NULL) {
 										pBestCity->changeFood(iFoodGift);
+										GET_PLAYER(ePlayer).changeInstantYieldValue(YIELD_FOOD, iFoodGift);
 									}
 								}
 							}
 						}
-					} else {
-#endif
-						// Gold gift
-						GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(iGoldGift);
-
+					}
+					else 
+					{
+#endif				
+						if (iGoldGift != 0)
+						{
+							// Gold gift
+							GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(iGoldGift);
+							GET_PLAYER(ePlayer).changeInstantYieldValue(YIELD_GOLD, iGoldGift);
+						}
 						// Faith gift
-						if(iFaithGift > 0)
+						if (iFaithGift > 0){
+
 							GET_PLAYER(ePlayer).ChangeFaith(iFaithGift);
+							GET_PLAYER(ePlayer).changeInstantYieldValue(YIELD_FAITH, iFaithGift);
+						}
 #if defined(MOD_GLOBAL_CS_GIFTS)
 					}
 #endif
@@ -13746,7 +13758,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 	{
 		bool bValid = false;
 
-		if (IsAllies(eMajor))
+		if (IsAllies(eMajor) || GetPermanentAlly() == eMajor)
 		{
 			bValid = true;
 		}

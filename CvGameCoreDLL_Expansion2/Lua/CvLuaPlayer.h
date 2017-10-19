@@ -389,6 +389,7 @@ protected:
 	static int lGetCapitalUnhappinessMod(lua_State* L);
 	static int lGetTraitCityUnhappinessMod(lua_State* L);
 	static int lGetTraitPopUnhappinessMod(lua_State* L);
+	static int lIsIgnorePuppetPenalties(lua_State* L);
 	static int lIsHalfSpecialistUnhappiness(lua_State* L);
 
 	static int lGetHappinessPerGarrisonedUnit(lua_State* L);
@@ -1436,6 +1437,7 @@ protected:
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	static int lGetInstantYieldHistoryTooltip(lua_State* L);
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);

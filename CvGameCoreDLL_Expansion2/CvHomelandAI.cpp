@@ -938,7 +938,7 @@ void CvHomelandAI::FindHomelandTargets()
 						}
 						if (m_pPlayer->IsAtWar())
 						{
-							if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || pWorkingCity->IsBlockaded(true))
+							if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || (pWorkingCity->isCoastal() && pWorkingCity->IsBlockaded(true)))
 							{
 								iWeight *= 10;
 							}

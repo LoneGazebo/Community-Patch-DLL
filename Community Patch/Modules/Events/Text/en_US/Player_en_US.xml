@@ -571,37 +571,37 @@
 		
 		<!-- Advisor Squabble -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE">
-			<Text>Debate in Council</Text>
+			<Text>Special Session</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_HELP">
-			<Text>Your advisors approach you, each looking harried and frustrated. Apparently they've been arguing back and forth all night trying to find an idea to deliver to you, yet their differences were irreconcilable. They come to you, then, with four proposals, each of which may bring benefit to your empire. Which idea do you like?</Text>
+			<Text>A diplomatic summit has been called to assess the budget of the World Congress. All our rival nations will be there, aiming to frustrate us. We must be shrewd if we are to come away richer than we entered.[NEWLINE][NEWLINE]Given we can only work to one of many competing goals, who will you place at the head of our delegation?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_1">
-			<Text>Host a gala at the Palace.</Text>
+			<Text>International trade and friendship are the ultimate forces for good in this world. Appoint our Foreign Advisor to the head of the delegation. Tears down tariffs, closed borders and all other barriers to closer coorperation and understanding!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_1_HELP">
-			<Text>Your Foreign Advisor claims that this will give us a long celebration of WLTKD in the Capital!</Text>
+			<Text>All Customs Houses produce +2 [ICON_TOURISM] Tourism. Begin {4_Turns} of [COLOR_POSITIVE_TEXT]WLTKD[ENDCOLOR] in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2">
-			<Text>Fund a research grant on 'the nature and origins of efficiency.'</Text>
+			<Text>Only by working together will we be able to unravel the secrets of the universe! Place our Science Advisor in charge. We must come away with a leading voice in the world's greatest scientific organisations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_HELP">
-			<Text>Your Science Advisor claims that this will grant us {1_YieldCost} and a small chance for a free technology.</Text>
+			<Text>Your Science Advisor claims that this will benefit us and additional {1_YieldCost} with a sixteen point six six chance for a Free Technology. Repeating, of course.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_3">
-			<Text>Send merchants on a foreign trade expedition.</Text>
+			<Text>A summit like this gives us an unprecedented opportunity to enact cross-border monetary policy. If our Economic Advisor plays her cards right, we should be able to unlock vast amounts of capital. Now, and in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_3_HELP">
-			<Text>Your Economic Advisor claims that this will provide {2_InstantYield}.</Text>
+			<Text>Gain an injection of {2_InstantYield}. Banks permanently increase [ICON_GOLD] Gold output by 5%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_4">
-			<Text>Host a grand tournament of champions in your Capital.</Text>
+			<Text>The idea of an international peacekeeping organisation has gathered support around the world. We cannot allow such a force to exist without being at its head. Send our Military Advisor as our chief representative. Argue strongly for this army, and for our men as its leaders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_4_HELP">
-			<Text>Your Military Advisor claims that this will give us a few fighters around the Capital.</Text>
+			<Text>The nations of the world respect your resolve, earning you {2_InstantYield}. A new army appears near the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_SUCCESSFUL">
-			<Text>Your Science Advisor notes that the research grant was successful. You gain: {4_EventChoiceHelpText}.[NEWLINE]Now that's efficiency!</Text>
+			<Text>Your Science Advisor notes that our leverage over the international research council has successfully unlocked a new technology.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_SUCCESSFUL_S">
 			<Text>Research Grant</Text>

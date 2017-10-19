@@ -1789,7 +1789,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			bool bFree = false;
 			if (ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE())
 			{
-				if (GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
 				{
 					bGivePromotion = false;
 				}
@@ -8968,7 +8968,6 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			}
 
 #if defined(MOD_BALANCE_CORE)
-			bool bGood = false;
 			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
 			{
 				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
@@ -8977,25 +8976,23 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 					// invalid TradeUnit
 					continue;
 				}
+
+				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+				if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+					continue;
+
 				CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
 				if (eCorporation != NO_CORPORATION)
 				{
 					CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
 					if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
 					{
-						continue;
+						return false;
 					}
 				}
-				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-				if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
-				{
-					bGood = true;
-				}
+				return true;
 			}
-			if(!bGood)
-			{
-				return false;
-			}
+			return false;
 #else
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 			if (eTradeUnitOwner == NO_PLAYER)
@@ -9022,7 +9019,6 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 #endif
 #endif
 		}
-
 		return true;
 	}
 	else
@@ -16733,7 +16729,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
 	}
 #endif
-	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() - iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
+	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() + iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
 

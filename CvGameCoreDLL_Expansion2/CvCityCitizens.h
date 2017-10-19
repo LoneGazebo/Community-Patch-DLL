@@ -137,6 +137,8 @@ public:
 	// Specialists
 	void DoSpecialists();
 
+	int GetSpecialistRate(SpecialistTypes eSpecialist);
+
 	bool IsCanAddSpecialistToBuilding(BuildingTypes eBuilding);
 	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced);
 #if defined(MOD_BALANCE_CORE)
@@ -173,7 +175,7 @@ public:
 
 	int GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) const;
 	int GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex) const;
-	void ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iChange);
+	void ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iChange, bool bCheckForSpawn = false);
 #if defined(MOD_BALANCE_CORE)
 	void DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove);
 #else

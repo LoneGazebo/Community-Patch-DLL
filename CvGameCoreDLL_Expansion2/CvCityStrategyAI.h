@@ -203,7 +203,7 @@ public:
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	CvCityBuildable ChooseHurry();
+	CvCityBuildable ChooseHurry(bool bUnitOnly = false, bool bFaithPurchase = false);
 	void LogHurryMessage(CvString& strMsg);
 #endif
 	void DoTurn();

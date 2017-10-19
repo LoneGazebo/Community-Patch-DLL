@@ -106,6 +106,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bNoOpenTrade(false),
 	m_bGoldenAgeOnWar(false),
 	m_iTourismToGAP(0),
+	m_iGoldToGAP(0),
 	m_iInfluenceMeetCS(0),
 	m_iMultipleAttackBonus(0),
 	m_iCityConquestGWAM(0),
@@ -132,6 +133,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_bFreeZuluPikemanToImpi(false),
 	m_bPermanentYieldsDecreaseEveryEra(false),
 	m_bImportsCountTowardsMonopolies(false),
+	m_bCanPurchaseNavalUnitsFaith(false),
+	m_bIgnorePuppetPenalties(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -729,6 +732,10 @@ int CvTraitEntry::GetTourismToGAP() const
 {
 	return m_iTourismToGAP;
 }
+int CvTraitEntry::GetGoldToGAP() const
+{
+	return m_iGoldToGAP;
+}
 int CvTraitEntry::GetInfluenceMeetCS() const
 {
 	return m_iInfluenceMeetCS;
@@ -812,6 +819,14 @@ bool CvTraitEntry::IsPermanentYieldsDecreaseEveryEra() const
 bool CvTraitEntry::IsImportsCountTowardsMonopolies() const
 {
 	return m_bImportsCountTowardsMonopolies;
+}
+bool CvTraitEntry::IsCanPurchaseNavalUnitsFaith() const
+{
+	return m_bCanPurchaseNavalUnitsFaith;
+}
+bool CvTraitEntry::IsIgnorePuppetPenalties() const
+{
+	return m_bIgnorePuppetPenalties;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1965,6 +1980,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bGoldenAgeOnWar						= kResults.GetBool("GoldenAgeOnWar");
 	m_iInfluenceMeetCS						= kResults.GetInt("InfluenceMeetCS");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
+	m_iGoldToGAP							 = kResults.GetInt("GoldToGAP");
 	m_iMultipleAttackBonus					= kResults.GetInt("MultipleAttackBonus");
 	m_iCityConquestGWAM						= kResults.GetInt("CityConquestGWAM");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
@@ -1989,6 +2005,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bFreeZuluPikemanToImpi				= kResults.GetBool("FreeZuluPikemanToImpi");
 	m_bPermanentYieldsDecreaseEveryEra		= kResults.GetBool("PermanentYieldsDecreaseEveryEra");
 	m_bImportsCountTowardsMonopolies		= kResults.GetBool("ImportsCountTowardsMonopolies");
+	m_bCanPurchaseNavalUnitsFaith			= kResults.GetBool("CanPurchaseNavalUnitsFaith");
+	m_bIgnorePuppetPenalties				= kResults.GetBool("IgnorePuppetPenalties");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -3086,7 +3104,16 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bImportsCountTowardsMonopolies = true;
 			}
+			if (trait->IsCanPurchaseNavalUnitsFaith())
+			{
+				m_bCanPurchaseNavalUnitsFaith = true;
+			}
+			if (trait->IsIgnorePuppetPenalties())
+			{
+				m_bIgnorePuppetPenalties = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
+			m_iGoldToGAP += trait->GetGoldToGAP();
 			m_iInfluenceMeetCS += trait->GetInfluenceMeetCS();
 			m_iMultipleAttackBonus += trait->GetMultipleAttackBonus();
 			m_iCityConquestGWAM += trait->GetCityConquestGWAM();
@@ -3684,6 +3711,7 @@ void CvPlayerTraits::Reset()
 	m_bNoOpenTrade = false;
 	m_bGoldenAgeOnWar = false;
 	m_iTourismToGAP = 0;
+	m_iGoldToGAP = 0;
 	m_iInfluenceMeetCS = 0;
 	m_iMultipleAttackBonus = 0;
 	m_iCityConquestGWAM = 0;
@@ -3703,6 +3731,8 @@ void CvPlayerTraits::Reset()
 	m_bFreeZuluPikemanToImpi = false;
 	m_bPermanentYieldsDecreaseEveryEra = false;
 	m_bImportsCountTowardsMonopolies = false;
+	m_bCanPurchaseNavalUnitsFaith = false;
+	m_bIgnorePuppetPenalties = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -5588,6 +5618,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismGABonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iGoldToGAP, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iInfluenceMeetCS, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iMultipleAttackBonus, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iCityConquestGWAM, 0);
@@ -5614,6 +5645,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bCanPurchaseNavalUnitsFaith, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bIgnorePuppetPenalties, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6158,6 +6191,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismGABonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
+	MOD_SERIALIZE_WRITE(kStream, m_iGoldToGAP);
 	MOD_SERIALIZE_WRITE(kStream, m_iInfluenceMeetCS);
 	MOD_SERIALIZE_WRITE(kStream, m_iMultipleAttackBonus);
 	MOD_SERIALIZE_WRITE(kStream, m_iCityConquestGWAM);
@@ -6184,6 +6218,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
 	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
 	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
+	MOD_SERIALIZE_WRITE(kStream, m_bCanPurchaseNavalUnitsFaith);
+	MOD_SERIALIZE_WRITE(kStream, m_bIgnorePuppetPenalties);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

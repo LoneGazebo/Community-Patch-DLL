@@ -432,7 +432,7 @@ function RelocateAgent(agentID, city)
 	if(plot ~= nil) then
 		city = plot:GetPlotCity();
 		if(city ~= nil) then
-			strActivityTT = pActivePlayer:GetSpyChanceAtCity(city, agent.AgentID, OptionsManager.IsNoBasicHelp());
+			strActivityTT = activePlayer:GetSpyChanceAtCity(city, agent.AgentID, OptionsManager.IsNoBasicHelp());
 		end
 	end
 	
@@ -540,10 +540,17 @@ function RefreshAgents()
 			agentEntry.DiplomatIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.DiplomatIcon:SetHide(false);
 			agentEntry.AgentIcon:SetHide(true);
+			agentEntry.ThiefIcon:SetHide(true);
+		elseif(v.IsThief)then
+			agentEntry.ThiefIcon:SetToolTipString(szSpyRankTooltip);
+			agentEntry.ThiefIcon:SetHide(false);
+			agentEntry.AgentIcon:SetHide(true);
+			agentEntry.DiplomatIcon:SetHide(true);
 		else
 			agentEntry.AgentIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.AgentIcon:SetHide(false);
 			agentEntry.DiplomatIcon:SetHide(true);
+			agentEntry.ThiefIcon:SetHide(true);
 		end
 		
 		

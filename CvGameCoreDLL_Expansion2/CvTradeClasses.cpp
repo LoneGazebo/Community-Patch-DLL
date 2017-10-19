@@ -5704,23 +5704,20 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 	}
 }
 
-/// Score TR
-#if defined(MOD_BALANCE_CORE)
-int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism)
-#else
-int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
-#endif
+/// Score 
+std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism)
 {
+	std::vector<int> ValuesVector;
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
 	{
-		return 0;
+		return ValuesVector;
 	}
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 	{
-		return 0;
+		return ValuesVector;
 	}
 
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
@@ -5735,10 +5732,10 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 
 	if (!pToCity || !pFromCity)
-		return 0;
+		return ValuesVector;
 
 	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
-		return 0;
+		return ValuesVector;
 
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
@@ -5815,7 +5812,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	{		
 		if(pFromCity->getUnhappinessFromGold() > 0)
 		{
-			iGoldAmount *= (pFromCity->getUnhappinessFromGold() + 1);
+			iGoldAmount *= (pFromCity->getUnhappinessFromGold() * 10);
 		}
 	}
 	//If we are somewhat influential, let's count that here.
@@ -5830,7 +5827,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
 				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
-					iGoldAmount += pFromCity->GetLandTourismBonus();
+					iGoldAmount += pFromCity->GetLandTourismBonus() * 25;
 				}
 			}
 		}
@@ -5843,7 +5840,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
 				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
-					iGoldAmount += pFromCity->GetSeaTourismBonus();
+					iGoldAmount += pFromCity->GetSeaTourismBonus() * 25;
 				}
 			}
 		}
@@ -5856,11 +5853,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 #if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much gold they make.
-	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_AFRAID)
 	{
 		iOtherGoldAmount /= 10;
 	}
-	else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
+	else if (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_NEUTRAL)
 	{
 		iOtherGoldAmount /= 10;
 	}
@@ -5876,64 +5873,142 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	}
 
 	// tech
+	int iAdjustedTechDifferenceP1fromP2 = 0;
 	int iTechDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
+	if (iTechDifferenceP1fromP2 > 0)
+	{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+#else
+		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
+		iAdjustedTechDifferenceP1fromP2 = max(iCeilTechDifference, 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (iAdjustedTechDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+		{
+			iAdjustedTechDifferenceP1fromP2 *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+		}
+#endif
+
+		// Policy bump
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+
+		iAdjustedTechDifferenceP1fromP2 += iPolicyBump;
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		if(pFromCity->getUnhappinessFromScience() > 0)
 		{
-			iTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
+			iAdjustedTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
 		}
 	}
 #endif
 	int iTechDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eDestOwner,   kTradeConnection.m_eOriginOwner);
-#ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-	if (bIsToMinor)
-		iTechDifferenceP2fromP1 = 0;
-#endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
+	int iAdjustedTechDifferenceP2fromP1 = 0;
+	if (iTechDifferenceP2fromP1 > 0)
+	{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+#else
+		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
+		iAdjustedTechDifferenceP2fromP1 = max(iCeilTechDifference, 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (iTechDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra() > 0))
+		{
+			iAdjustedTechDifferenceP2fromP1 *= GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra();
+		}
+#endif
+
+		// Policy bump
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).GetExtraCultureandScienceTradeRoutes();
+
+		iAdjustedTechDifferenceP2fromP1 += iPolicyBump;
+	}
+
 #if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much science they make.
-	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+	if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
-		iTechDifferenceP2fromP1 /= 2;
+		iAdjustedTechDifferenceP2fromP1 /= 3;
 	}
-	else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
+	else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_NEUTRAL)
 	{
-		iTechDifferenceP2fromP1 /= 2;
+		iAdjustedTechDifferenceP2fromP1 /= 3;
 	}
 #endif
-	int iTechDelta = iTechDifferenceP1fromP2 - iTechDifferenceP2fromP1;
+	int iTechDelta = iAdjustedTechDifferenceP1fromP2 - iAdjustedTechDifferenceP2fromP1;
 
 	// culture
 	int iCultureDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
+	
+	int iAdjustedCultureDifferenceP1fromP2 = 0;
+	if (iCultureDifferenceP1fromP2 > 0)
+	{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+#else
+		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
+		iAdjustedCultureDifferenceP1fromP2 = max(iCeilCultureDifference, 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (iAdjustedCultureDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+		{
+			iAdjustedCultureDifferenceP1fromP2 *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+		}
+#endif				
+		// Policy bump
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+
+		iAdjustedCultureDifferenceP1fromP2 += iPolicyBump;
+	}
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
 		if (pFromCity->getUnhappinessFromCulture() > 0)
 		{
-			iCultureDifferenceP1fromP2 += pFromCity->getUnhappinessFromCulture();
+			iAdjustedCultureDifferenceP1fromP2 += pFromCity->getUnhappinessFromCulture();
 		}
 	}
 #endif
 	int iCultureDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
-#ifdef AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-	if (bIsToMinor)
-		iCultureDifferenceP2fromP1 = 0;
-#endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
+	int iAdjustedCultureDifferenceP2fromP1 = 0;
+	if (iCultureDifferenceP2fromP1 > 0)
+	{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+#else
+		int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
+		iAdjustedCultureDifferenceP2fromP1 = max(iCeilCultureDifference, 1);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if (iAdjustedCultureDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+		{
+			iAdjustedCultureDifferenceP2fromP1 *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+		}
+#endif				
+		// Policy bump
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+
+		iAdjustedCultureDifferenceP2fromP1 += iPolicyBump;
+	}
+
 #if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//If we are friends with the player, let's not care about how much science they make.
-	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+	if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) >= MAJOR_CIV_APPROACH_NEUTRAL)
 	{
-		iCultureDifferenceP2fromP1 /= 2;
+		iAdjustedCultureDifferenceP2fromP1 /= 3;
 	}
-	else if (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
+	else if (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_NEUTRAL)
 	{
-		iCultureDifferenceP2fromP1 /= 2;
+		iAdjustedCultureDifferenceP2fromP1 /= 3;
 	}
 #endif
-	int iCultureDelta = iCultureDifferenceP1fromP2 - iCultureDifferenceP2fromP1;
+	int iCultureDelta = iAdjustedCultureDifferenceP1fromP2 - iAdjustedCultureDifferenceP2fromP1;
 
 	// religion
 	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
@@ -5996,10 +6071,15 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	iScore += (iGoldDelta * max(1, (iFlavorGold / 2)));
-	iScore += (iTechDelta *  max(3, (iFlavorScience / 2))); // 3 science = 1 gold
-	iScore += (iCultureDelta * max(5, (iFlavorCulture / 2))); // 5 culture = 1 gold
-	iScore += (iReligionDelta *  max(2, (iFlavorReligion / 2))); // 2 religion = 1 gold
+	int iGoldScore = iGoldDelta / max(1, (10-iFlavorGold));
+	int iScienceScore = (iTechDelta *  iFlavorScience);
+	int iCultureScore = (iCultureDelta * iFlavorCulture);
+	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
+	iScore += iGoldScore + iScienceScore + iCultureScore + iReligionScore;
+
+	//abort if we're negative
+	if(iScore <= 0)
+		return ValuesVector;
 #else
 	iScore += iGoldDelta;
 	iScore += iTechDelta * 3; // 3 science = 1 gold
@@ -6029,7 +6109,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	}
 	int iDistance = (kTradeConnection.m_aPlotList.size() / 3);
 	iDistance += iDangerSum;
-	int iEra = m_pPlayer->GetCurrentEra() + 1; // More international trade late game, please.
+	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
 	iScore = ((iScore * (iEra)) / max(1, (iDistance)));
 #else
 	iScore = (iScore * 10) / iDangerSum;
@@ -6227,10 +6307,16 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	}
 	if(m_pPlayer->IsAtWar())
 	{
-		iScore /= max(3, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
+		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 	}
+	ValuesVector.push_back(iScore);
+	ValuesVector.push_back(iCultureScore);
+	ValuesVector.push_back(iGoldScore);
+	ValuesVector.push_back(iScienceScore);
+	ValuesVector.push_back(iReligionScore);
+
 #endif
-	return iScore;
+	return ValuesVector;
 }
 
 /// Score Food TR
@@ -6319,14 +6405,14 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	//indirect connection to capital also counts
 	if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->getUnhappinessFromConnection() <= 0)
 	{
-		iScore *= 3;
+		iScore *= 2;
 	}
 
 #if defined(MOD_BALANCE_CORE)
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
 	if(iGPT <= 0)
 	{
-		iScore -= (iGPT * -2);
+		iScore += (iGPT * 5);
 	}
 #endif
 
@@ -6381,7 +6467,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	//internal traderoutes should be preferred when at war
 	if(m_pPlayer->IsAtWar())
 	{
-		iScore *= MAX(5, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
+		iScore *= MAX(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
 	}
 #if defined(MOD_BALANCE_CORE)
 	// turn it up some for Conquest of the World player during golden ages
@@ -6391,7 +6477,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	}
 #endif
 
-	return (iScore * 10) / (iDistance + iDangerSum);
+	return (iScore * 2) / (iDistance + iDangerSum);
 }
 
 int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList)
@@ -6436,6 +6522,10 @@ struct TRSortElement
 {
 	TradeConnection m_kTradeConnection;
 	int m_iScore;
+	int m_iGoldScore;
+	int m_iCultureScore;
+	int m_iReligionScore;
+	int m_iScienceScore;
 };
 
 struct SortTR
@@ -6562,14 +6652,16 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 	if (apProductionTargetCities.size() > 0)
 	{
+		int iBestScore = -1;
 		aProductionSortedTR.clear();
 		for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 		{
 			TRSortElement kElement;
 			kElement.m_kTradeConnection = aTradeConnectionList[ui];
 			kElement.m_iScore = ScoreProductionTR(aTradeConnectionList[ui], apProductionTargetCities);
-			if (kElement.m_iScore > 0)
+			if (kElement.m_iScore > iBestScore)
 			{
+				iBestScore = kElement.m_iScore;
 				aProductionSortedTR.push_back(kElement);
 			}
 		}
@@ -6629,14 +6721,16 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 			}
 			if (apWonderTargetCities.size() > 0)
 			{
+				int iBestScore = -1;
 				aWonderSortedTR.clear();
 				for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 				{
 					TRSortElement kElement;
 					kElement.m_kTradeConnection = aTradeConnectionList[ui];
 					kElement.m_iScore = ScoreWonderTR(aTradeConnectionList[ui], apWonderTargetCities);
-					if (kElement.m_iScore > 0)
+					if (kElement.m_iScore > iBestScore)
 					{
+						iBestScore = kElement.m_iScore;
 						aWonderSortedTR.push_back(kElement);
 					}
 				}
@@ -6653,17 +6747,25 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 	// GOLD GOLD GOLD GOLD
 	aGoldSortedTR.clear();
+	int iBestScore = -1;
 	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 	{
 		TRSortElement kElement;
 		kElement.m_kTradeConnection = aTradeConnectionList[ui];
-#if defined(MOD_BALANCE_CORE)
-		kElement.m_iScore = ScoreInternationalTR(aTradeConnectionList[ui],bHaveTourism);
-#else
-		kElement.m_iScore = ScoreInternationalTR(aTradeConnectionList[ui]);
-#endif
-		if (kElement.m_iScore > 0)
+		std::vector<int>ValuesVector;
+		ValuesVector = ScoreInternationalTR(aTradeConnectionList[ui], bHaveTourism);
+		if (ValuesVector.size() > 0)
 		{
+			kElement.m_iScore = ValuesVector[0];
+			kElement.m_iCultureScore = ValuesVector[1];
+			kElement.m_iGoldScore = ValuesVector[2];
+			kElement.m_iScienceScore = ValuesVector[3];
+			kElement.m_iReligionScore = ValuesVector[4];
+		}
+
+		if (kElement.m_iScore > iBestScore)
+		{
+			iBestScore = kElement.m_iScore;
 			aGoldSortedTR.push_back(kElement);
 		}
 	}
@@ -6717,6 +6819,90 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		aTradeConnectionList.push_back(aTotalList[ui].m_kTradeConnection);
 	}
 
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		for (uint ui = 0; ui < aTotalList.size(); ui++)
+		{
+			DomainTypes eDomain = aTotalList[ui].m_kTradeConnection.m_eDomain;
+			TradeConnectionType eConnectionType = aTotalList[ui].m_kTradeConnection.m_eConnectionType;
+			CvCity* pOriginCity = GC.getMap().plot(aTotalList[ui].m_kTradeConnection.m_iOriginX, aTotalList[ui].m_kTradeConnection.m_iOriginY)->getPlotCity();
+			CvCity* pDestCity = GC.getMap().plot(aTotalList[ui].m_kTradeConnection.m_iDestX, aTotalList[ui].m_kTradeConnection.m_iDestY)->getPlotCity();
+
+			if (pOriginCity == NULL || pDestCity == NULL)
+				continue;
+
+			if (GC.getLogging())
+			{
+				CvString strMsg;
+				CvString strDomain;
+				switch (eDomain)
+				{
+				case DOMAIN_LAND:
+					strDomain = "land";
+					break;
+				case DOMAIN_SEA:
+					strDomain = "sea";
+					break;
+				}
+
+				CvString strTRType;
+				switch (eConnectionType)
+				{
+				case TRADE_CONNECTION_FOOD:
+					strTRType = "food";
+					break;
+				case TRADE_CONNECTION_PRODUCTION:
+					strTRType = "production";
+					break;
+#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+				case TRADE_CONNECTION_WONDER_RESOURCE:
+					strTRType = "wonder resource";
+					break;
+#endif
+				case TRADE_CONNECTION_INTERNATIONAL:
+					strTRType = "international";
+					break;
+				}
+
+				if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+				{
+					strMsg.Format("Trade Route Options, %s, %s, %s, %i, %s, Total Value: %i, ScienceValue: %i, GoldValue: %i, CultureValue: %i, ReligionValue: %i",
+						strDomain.c_str(),
+						pOriginCity->getName().c_str(),
+						pDestCity->getName().c_str(),
+						aTotalList[ui].m_kTradeConnection.m_aPlotList.size(),
+						strTRType.c_str(),
+						aTotalList[ui].m_iScore,
+						aTotalList[ui].m_iScienceScore,
+						aTotalList[ui].m_iGoldScore,
+						aTotalList[ui].m_iCultureScore,
+						aTotalList[ui].m_iReligionScore);
+				}
+				else
+				{
+					strMsg.Format("Trade Route Options, %s, %s, %s, %i, %s, Total Value: %i",
+						strDomain.c_str(),
+						pOriginCity->getName().c_str(),
+						pDestCity->getName().c_str(),
+						aTotalList[ui].m_kTradeConnection.m_aPlotList.size(),
+						strTRType.c_str(),
+						aTotalList[ui].m_iScore);
+				}
+				
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "TradeRouteChoices.csv";
+				playerName = GET_PLAYER(pOriginCity->getOwner()).getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strBaseString += strMsg;
+				pLog->Msg(strBaseString);
+			}
+		}
+	}
 	//Reset values.
 	int iOriginCityLoop;
 	CvCity* pOriginLoopCity = NULL;
