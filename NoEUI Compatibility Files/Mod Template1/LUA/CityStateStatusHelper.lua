@@ -19,6 +19,8 @@ local kNegBarRange = 81;
 local kBarIconAtlas = "CITY_STATE_INFLUENCE_METER_ICON_ATLAS";
 local kBarIconNeutralIndex = 4;
 
+local iEmbassy = GameInfoTypes.IMPROVEMENT_EMBASSY
+
 -- The order of precedence in which the quest icons and tooltip points are displayed
 ktQuestsDisplayOrder = {
 	-- Global quests are first
