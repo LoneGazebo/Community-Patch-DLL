@@ -38,6 +38,8 @@ local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
 
 local newLine = civ5_mode and "[NEWLINE]" or "/n"
 
+local iEmbassy = GameInfoTypes.IMPROVEMENT_EMBASSY
+
 --[[
 local GetCityStateStatusRow = GetCityStateStatusRow
 local GetCityStateStatusType = GetCityStateStatusType
@@ -433,7 +435,11 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		-- Status
 		tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		table_insert( tips, tip )
-
+		if minorPlayer:GetImprovementCount(iEmbassy) > 0 then
+			table_insert( tips, L"[COLOR_NEGATIVE_TEXT]Embassy Established.[ENDCOLOR]")
+		else
+			table_insert( tips, L"[COLOR_POSITIVE_TEXT]Establish an Embassy Available![ENDCOLOR]")
+		end
 		-- Influence change
 		if gk_mode then
 			local influenceAnchor = minorPlayer:GetMinorCivFriendshipAnchorWithMajor(majorPlayerID)
