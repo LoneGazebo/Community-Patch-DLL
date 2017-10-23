@@ -312,7 +312,12 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 										    
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE_TT", strShortDescKey);
 	end
-	
+	-- Embassy Check
+	if pMinor:GetImprovementCount(iEmbassy) > 0 then
+		strStatusTT = strStatusTT .. "[NEWLINE][COLOR_NEGATIVE_TEXT][ICON_CITY_STATE] Embassy Established.[ENDCOLOR]";
+	else
+		strStatusTT = strStatusTT .. "[NEWLINE][COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]";
+	end
 	-- Influence change
 	if (iInfluence ~= iInfluenceAnchor) then
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
