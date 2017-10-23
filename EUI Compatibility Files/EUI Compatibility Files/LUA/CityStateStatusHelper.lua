@@ -436,9 +436,9 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		table_insert( tips, tip )
 		if minorPlayer:GetImprovementCount(iEmbassy) > 0 then
-			table_insert( tips, L"[COLOR_NEGATIVE_TEXT]Embassy Established.[ENDCOLOR]")
+			table_insert( tips, L"[COLOR_NEGATIVE_TEXT][ICON_CITY_STATE] Embassy Established.[ENDCOLOR]")
 		else
-			table_insert( tips, L"[COLOR_POSITIVE_TEXT]Establish an Embassy Available![ENDCOLOR]")
+			table_insert( tips, L"[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]")
 		end
 		-- Influence change
 		if gk_mode then
