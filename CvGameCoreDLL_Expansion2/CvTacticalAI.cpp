@@ -5038,6 +5038,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 			if(pCell->IsSubjectToAttack())
 			{
 				iScore -= 100;
+				bSafeForDeployment = false;
 			}
 
 			//todo: maybe avoid "slow" plot? but ending the turn there is usually good.
@@ -11236,7 +11237,8 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 	else
 	{
 		//for melee attack check whether the attacker can actually go where the defender is
-		if (pDefenderPlot && !pAttacker->canMoveInto(*pDefenderPlot,CvUnit::MOVEFLAG_ATTACK))
+		//the defender might only be there hypothetically - so an empty plot is a valid target 
+		if (pDefenderPlot && !pAttacker->canMoveOrAttackInto(*pDefenderPlot))
 			return 0;
 
 		if (pAttacker->isRangedSupportFire())
@@ -11844,7 +11846,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		result.iScore = 1;
 		return result;
 	}
-	
+
 	//extra penalty for high danger plots
 	//todo: take into account self damage from previous attacks
 	float fDanger = float(iDanger)/(pUnit->GetCurrHitPoints()+1);

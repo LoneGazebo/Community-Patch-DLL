@@ -90,6 +90,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
 
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
+	//ideally we would use a NO_ZOC_FROM_WEAK_UNITS flag, but that would mean a crude hack or a recursion
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
@@ -956,7 +957,12 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 						{
 							int iAttackerDamage = 0; //ignore this
 							if (pAttacker->plot() != m_pPlot)
-								iPlotDamage += TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit,pAttacker,m_pPlot,pAttacker->plot(),iAttackerDamage);
+							{
+								int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage);
+								if (!m_pPlot->isVisible(pAttacker->getTeam()))
+									iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+								iPlotDamage += iDamage;
+							}
 						}
 					}
 				}
@@ -1023,7 +1029,14 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 
 		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)
-			iPlotDamage += TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit,pAttacker,m_pPlot,pAttacker->plot(),iAttackerDamage);
+		{
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage);
+
+			if (!m_pPlot->isVisible(pAttacker->getTeam()))
+				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
+
+			iPlotDamage += iDamage;
+		}
 	}
 
 	// Damage from cities

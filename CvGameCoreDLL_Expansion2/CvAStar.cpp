@@ -503,17 +503,6 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		if (!check)
 			continue;
 
-		//check if we already found a better way ...
-		if (check->m_eCvAStarListType == CVASTARLIST_OPEN || check->m_eCvAStarListType == CVASTARLIST_CLOSED)
-		{
-			if ((check->m_iTurns < node->m_iTurns) || (check->m_iTurns == node->m_iTurns && check->m_iMoves > node->m_iMoves))
-			{
-				LogNodeAction(node, m_iRounds, NS_OBSOLETE);
-				continue;
-			}
-		}
-
-		//now the real checks
 		m_iTestedNodes++;
 		if(udFunc(udValid, node, check, m_sData))
 		{
