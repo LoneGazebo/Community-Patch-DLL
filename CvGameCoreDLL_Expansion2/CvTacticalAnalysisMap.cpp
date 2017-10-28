@@ -583,33 +583,27 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+
+		//important
+		m_pCells[iI].SetVisibleToEnemy(pPlot->isVisibleToEnemy(m_ePlayer));
+
 		if(m_pCells[iI].IsRevealed() && !m_pCells[iI].IsImpassableTerrain() && !m_pCells[iI].IsImpassableTerritory())
 		{
-			// Friendly cities always safe
-			if(!m_pCells[iI].IsFriendlyCity())
-			{
-				if(!pPlot->isVisibleToEnemy(m_ePlayer))
-				{
-					m_pCells[iI].SetNotVisibleToEnemy(true);
-				}
-				else
-				{
-					// Check adjacent plots for enemy citadels
-					if(!m_pCells[iI].IsSubjectToAttack())
-					{
-						if (pPlot->IsNearEnemyCitadel(m_ePlayer, 0, eDamagePromotion))
-								m_pCells[iI].SetSubjectToAttack(true);
+			// Check adjacent plots for enemy citadels
+			if (pPlot->IsNearEnemyCitadel(m_ePlayer, 0, eDamagePromotion))
+					m_pCells[iI].SetSubjectToAttack(true);
 
-						for(unsigned int iCityIndex = 0;  iCityIndex < m_EnemyCities.size(); iCityIndex++)
-						{
-							CvCity* pCity = getCity( m_EnemyCities[iCityIndex] );
-							if (pCity->canRangeStrikeAt( pPlot->getX(), pPlot->getY() ))
-								m_pCells[iI].SetSubjectToAttack(true);
-						}
-					}
-				}
+			for(unsigned int iCityIndex = 0;  iCityIndex < m_EnemyCities.size(); iCityIndex++)
+			{
+				CvCity* pCity = getCity( m_EnemyCities[iCityIndex] );
+				if (pCity->canRangeStrikeAt( pPlot->getX(), pPlot->getY() ))
+					m_pCells[iI].SetSubjectToAttack(true);
 			}
 		}
+
+		//safe by definition
+		if (m_pCells[iI].IsFriendlyCity() && !pPlot->getPlotCity()->isInDangerOfFalling())
+			m_pCells[iI].SetSubjectToAttack(false);
 	}
 }
 

@@ -29,7 +29,7 @@ enum eTacticalAnalysisFlags
     TACTICAL_FLAG_VISIBLE                    = 0x00000002, // Is this plot visible to this player?
     TACTICAL_FLAG_IMPASSABLE_TERRAIN         = 0x00000004, // Is this terrain impassable to this player?
     TACTICAL_FLAG_IMPASSABLE_TERRITORY       = 0x00000008, // Is this neutral territory impassable to this player?
-    TACTICAL_FLAG_NOT_VISIBLE_TO_ENEMY       = 0x00000010, // A tile no enemy unit can see?
+    TACTICAL_FLAG_VISIBLE_TO_ENEMY			 = 0x00000010, // A tile an enemy unit can see?
     TACTICAL_FLAG_SUBJECT_TO_ENEMY_ATTACK    = 0x00000020, // Enemy can strike at a unit here
     TACTICAL_FLAG_ENEMY_CAN_REACH_WITH_MOVES = 0x00000040, // Enemy can move to this tile and still have movement left this turn
     TACTICAL_FLAG_FRIENDLY_TURN_END_TILE     = 0x00000080, // Is one of our friendly units ending its move here?
@@ -93,13 +93,13 @@ public:
 	{
 		SetBit(TACTICAL_FLAG_IMPASSABLE_TERRITORY, bNewValue);
 	};
-	bool IsNotVisibleToEnemy()
+	bool IsVisibleToEnemy()
 	{
-		return GetBit(TACTICAL_FLAG_NOT_VISIBLE_TO_ENEMY);
+		return GetBit(TACTICAL_FLAG_VISIBLE_TO_ENEMY);
 	};
-	void SetNotVisibleToEnemy(bool bNewValue)
+	void SetVisibleToEnemy(bool bNewValue)
 	{
-		SetBit(TACTICAL_FLAG_NOT_VISIBLE_TO_ENEMY, bNewValue);
+		SetBit(TACTICAL_FLAG_VISIBLE_TO_ENEMY, bNewValue);
 	};
 	bool IsSubjectToAttack()
 	{

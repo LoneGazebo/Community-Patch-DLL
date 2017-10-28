@@ -4900,7 +4900,10 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 		{
 			//find a unit that's a little bit further back, and then try to move it to this good plot
 			CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
-			if(FindClosestOperationUnit( pIdealUnitPlot, unitMovePlots, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, false))
+			bool bSuitableForRanged = (pLoopPlot->isCity() && pLoopPlot->IsFriendlyTerritory(m_pPlayer->GetID())) ||
+										pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pLoopPlot->getDomain(), NULL, false)==0;
+
+			if(FindClosestOperationUnit( pIdealUnitPlot, unitMovePlots, bSuitableForRanged /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, false))
 			{
 				CvUnit* pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 				if(GC.getLogging() && GC.getAILogging())
@@ -5035,11 +5038,17 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 				iScore = 1000 - (iPlotDistance * 100);
 			}
 
+			//when in doubt, stay out of sight
+			if(pCell->IsVisibleToEnemy())
+				iScore -= 8;
+
+			//avoid enemies right now
 			if(pCell->IsSubjectToAttack())
-			{
 				iScore -= 100;
+
+			//be careful with ranged units here
+			if (pCell->IsVisibleToEnemy() && pCell->IsSubjectToAttack())
 				bSafeForDeployment = false;
-			}
 
 			//todo: maybe avoid "slow" plot? but ending the turn there is usually good.
 			//need to know a unit's previous position before making the call ...
@@ -11850,7 +11859,6 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	//extra penalty for high danger plots
 	//todo: take into account self damage from previous attacks
 	float fDanger = float(iDanger)/(pUnit->GetCurrHitPoints()+1);
-	fDanger *= fDanger; //square it
 
 	//todo: take into account mobility at the proposed plot
 	//todo: take into account ZOC when ending the turn
