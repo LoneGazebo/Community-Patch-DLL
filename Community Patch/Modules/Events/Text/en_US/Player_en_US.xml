@@ -50,10 +50,10 @@
 
 		<!-- Meteor -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_DESCRIPTION">
-			<Text>A meteor has landed!</Text>
+			<Text>Shooting Stars</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_HELP">
-			<Text>With a bright flash of light and a huge crash, a meteor has landed near one of our cities. Your officials collected the meteorite and brought it to the capital for study. What should they do with it?</Text>
+			<Text>Last night a series of bright flashes of light filled the sky as a meteor shower visited our planet. Large meteorites have landed across the world. Your officials have collected one such specimen and brought it to the Capital for study. What should they do with it?</Text>
 		</Row>	
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1">
 			<Text>Break it up and send it to the Forge.</Text>
@@ -65,22 +65,22 @@
 			<Text>Your smiths were able to break large lumps of iron out of the meteor, and can forge fine swords and spears from the material.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1_SUCCESSFUL_S">
-			<Text>[ICON_RES_IRON] Iron extracted from meteor!</Text>
+			<Text>[ICON_RES_IRON] Iron extracted from meteorite!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2">
-			<Text>Divide it up and give it to our priests.</Text>
+			<Text>A gift from the heavens should be divided up and given to our priests.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2_HELP">
 			<Text>+1 [ICON_PEACE] Faith in all Shrines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3">
-			<Text>Put it next to my throne.</Text>
+			<Text>Carve into decorative objects to be placed in my throne room.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3_HELP">
 			<Text>+2 [ICON_CULTURE] Culture from Palace.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4">
-			<Text>Donate it to the universities.</Text>
+			<Text>Donate it to the Universities for study.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4_HELP">
 			<Text>+1 [ICON_RESEARCH] Science from all Universities.</Text>
