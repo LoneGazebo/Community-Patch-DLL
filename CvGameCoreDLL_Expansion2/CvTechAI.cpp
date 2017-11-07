@@ -142,7 +142,7 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 				{
 					if(m_pCurrentTechs->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
 					{
-						paiTempWeights[iTech] += 1000;
+						paiTempWeights[iTech] += 10;
 					}
 				}
 			}

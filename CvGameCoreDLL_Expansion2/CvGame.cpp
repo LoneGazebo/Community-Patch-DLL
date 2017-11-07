@@ -8112,6 +8112,23 @@ void CvGame::doTurn()
 #if defined(MOD_BALANCE_CORE)
 	GetGameCorporations()->DoTurn();
 	GetGameContracts()->DoTurn();
+
+	for (int iLoop = 0; iLoop < GC.getNumResourceInfos(); iLoop++)
+	{
+		const ResourceTypes eResource = static_cast<ResourceTypes>(iLoop);
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource && pkResource->isMonopoly())
+		{
+			UpdateGreatestPlayerResourceMonopoly(eResource);
+			for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			{
+				if (GET_PLAYER((PlayerTypes)iI).isAlive())
+				{
+					GET_PLAYER((PlayerTypes)iI).CheckForMonopoly(eResource);
+				}
+			}
+		}
+	}
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)

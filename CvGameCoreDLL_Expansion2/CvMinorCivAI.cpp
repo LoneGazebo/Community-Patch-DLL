@@ -17933,7 +17933,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		return false;
 
 	// Only allowed to improve Luxury and Strategic resources
-	ResourceTypes eResource = pPlot->getResourceType();
+	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
 	if(eResource == NO_RESOURCE)
 	{
 		return false;

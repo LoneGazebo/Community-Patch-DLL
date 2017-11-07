@@ -3323,11 +3323,14 @@ bool CvLeague::CanProposeRepeal(int iResolutionID, PlayerTypes eProposer, CvStri
 		bValid = false;
 	}
 
-	int iChoice = 0;
-	CvActiveResolution* ActiveRevolution = GetActiveResolution(iResolutionID);
-	if (ActiveRevolution != NULL)
+	int iChoice = -1;
+	// Must already be active
+	for (uint iIndex = 0; iIndex < m_vActiveResolutions.size(); iIndex++)
 	{
-		iChoice = ActiveRevolution->GetVoterDecision()->GetDecision();
+		if (m_vActiveResolutions[iIndex].GetID() == iResolutionID)
+		{
+			iChoice = m_vActiveResolutions[iIndex].GetProposerDecision()->GetDecision();
+		}
 	}
 
 #if defined(MOD_EVENTS_RESOLUTIONS)

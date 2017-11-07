@@ -1793,6 +1793,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				{
 					bGivePromotion = false;
 				}
+				//Can't embark yet, or the unit should auto get it?
+				else if ((pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade()) || getUnitInfo().GetFreePromotions(ePromotion))
+				{
+					bGivePromotion = true;
+				}
 			}
 			else if (ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
 			{
@@ -5792,6 +5797,9 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 	{
 		return false;
 	}
+
+	if (getDamage() > 0)
+		return false;
 
 	// Minors
 	if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
@@ -12035,6 +12043,14 @@ bool CvUnit::canBuyCityState(const CvPlot* pPlot, bool bTestVisible) const
 		{
 			return false;
 		}
+
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (MOD_EVENTS_MINORS_INTERACTION) {
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner, pPlot->getOwner()) == GAMEEVENTRETURN_FALSE) {
+				return false;
+			}
+		}
+#endif
 	}
 
 	return true;
@@ -12906,7 +12922,10 @@ bool CvUnit::blastTourism()
 	CvPlayer &kUnitOwner = GET_PLAYER(getOwner());
 
 	// Apply to target
-	kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismBlast);
+	kUnitOwner.GetCulture()->ChangeInfluenceOn(eOwner, iTourismBlast, true, true);
+
+	//store off this data
+	GET_PLAYER(getOwner()).changeInstantYieldValue(YIELD_TOURISM, iTourismBlast);
 
 	// Apply lesser amount to other civs
 	int iTourismBlastOthers = iTourismBlast * iTourismBlastPercentOthers / 100;
@@ -12917,7 +12936,7 @@ bool CvUnit::blastTourism()
 
 		if (eLoopPlayer != eOwner && eLoopPlayer != getOwner() && kUnitOwner.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			kUnitOwner.GetCulture()->ChangeInfluenceOn(eLoopPlayer, iTourismBlastOthers);
+			kUnitOwner.GetCulture()->ChangeInfluenceOn(eLoopPlayer, iTourismBlastOthers, true, true);
 		}
 	}
 

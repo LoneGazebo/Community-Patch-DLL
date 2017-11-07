@@ -3415,6 +3415,12 @@ void CvCityCitizens::DoSpecialists()
 			int iGPThreshold = GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
 			ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPPChange);
 
+#if defined(MOD_EVENTS_CITY)
+			if (MOD_EVENTS_CITY) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityPrepared, GetCity()->getOwner(), GetCity(), eSpecialist, iGPPChange, iGPThreshold);
+			}
+#endif
+
 			// Enough to spawn a GP?
 			if (GetSpecialistGreatPersonProgress(eSpecialist) >= iGPThreshold)
 			{

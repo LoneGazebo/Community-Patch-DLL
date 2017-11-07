@@ -15583,7 +15583,6 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			if(iTempMod != 0)
 			{
 				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
-				iTotalMod += iTempMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
 		}
@@ -21420,11 +21419,12 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if (iPantheon > 0)
 				{
-					if (iPantheon > 8)
-					{
-						iPantheon = 8;
-					}
-					iYieldValue += (iPantheon * iYield);
+					iPantheon = min(iPantheon, 8);
+
+					iPantheon *= iYield;
+					iPantheon /= 100;
+
+					iYieldValue += iPantheon;
 				}
 			}
 
@@ -21477,7 +21477,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			int iLuxYield = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
 			if (iLuxYield > 0)
 			{
-				int iNumHappinessResources = 0;
+				int iNumBonuses = 0;
 				ResourceTypes eResource;
 				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 				{
@@ -21485,12 +21485,13 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 
 					if (kPlayer.GetHappinessFromLuxury(eResource) > 0)
 					{
-						iNumHappinessResources++;
+						if ((kPlayer.getNumResourceTotal(eResource, kPlayer.GetPlayerTraits()->IsImportsCountTowardsMonopolies(), kPlayer.IsCSResourcesCountMonopolies()) + kPlayer.getResourceExport(eResource)) > 0)
+							iNumBonuses++;
 					}
 				}
-				if (iNumHappinessResources > 0)
+				if (iNumBonuses > 0)
 				{
-					iLuxYield *= iNumHappinessResources;
+					iLuxYield *= iNumBonuses;
 					iYieldValue += iLuxYield;
 				}
 			}
@@ -21763,7 +21764,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 	}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (eIndex != YIELD_FOOD))
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		// Do we get increased yields from a resource monopoly?
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
@@ -26820,12 +26821,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		{
 			eSpecialist = ((SpecialistTypes)(pOrderNode->iData1));
 
-#if defined(MOD_EVENTS_CITY)
-			if (MOD_EVENTS_CITY) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityPrepared, getOwner(), GetID(), eSpecialist, false, false);
-			}
-#endif
-
 			iProductionNeeded = getProductionNeeded(eSpecialist) * 100;
 
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
@@ -27632,7 +27627,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					}
 					iTotalDiscount *= -1;
 
-					if (AmountComplete >= iTotalDiscount)
+
+					if (AmountComplete >= (100 - iTotalDiscount))
 						return false;
 				}
 			}
@@ -27766,18 +27762,32 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					return false;
 				}
 #if defined(MOD_BALANCE_CORE)
-				bool bSpecificBeliefNeeded = false;
+				bool bSpecificBeliefBlocked = false;
 				const CvReligion *pReligion2 = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 				if (pReligion2)
 				{
-					if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
+					BeliefTypes SpecificBelief = pReligion2->m_Beliefs.GetSpecificFaithBuyingEnabledBelief(eUnitType);
+					if (SpecificBelief != NO_BELIEF && SpecificBelief != NULL)
 					{
-						bSpecificBeliefNeeded = true;
-						if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+						bSpecificBeliefBlocked = true;
+						TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+						TechTypes eObsoleteTech = (TechTypes)pkUnitInfo->GetObsoleteTech();
+						if (ePrereqTech != -1 || eObsoleteTech != -1)
 						{
-							if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+							if (!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 							{
-								return true;
+								return false;
+							}
+						}
+						if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
+						{
+							bSpecificBeliefBlocked = false;
+							if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+							{
+								if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+								{
+									return true;
+								}
 							}
 						}
 					}
@@ -27846,7 +27856,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 							return false;
 						}
 					}
-					if (bSpecificBeliefNeeded)
+					if (bSpecificBeliefBlocked)
 						return false;
 #endif
 					// Missionaries, Inquisitors and Prophets

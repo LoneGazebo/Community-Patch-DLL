@@ -785,7 +785,7 @@
 //   GameEvents.CityTrained.Add(function(iPlayer, iCity, iUnit, bGold, bFaith) end)
 //   GameEvents.CityConstructed.Add(function(iPlayer, iCity, iBuilding, bGold, bFaith) end)
 //   GameEvents.CityCreated.Add(function(iPlayer, iCity, iProject, bGold, bFaith) end)
-//   GameEvents.CityPrepared.Add(function(iPlayer, iCity, iSpecialist, bGold, bFaith) end) (v33)
+//   GameEvents.CityPrepared.Add(function(iPlayer, iCity, iSpecialist, iAmount, iNeeded) end) (v33)
 //   GameEvents.CityBoughtPlot.Add(function(iPlayer, iCity, iPlotX, iPlotY, bGold, bCulture) end)
 //   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end)
 #define MOD_EVENTS_CITY                             gCustomMods.isEVENTS_CITY()
@@ -1114,7 +1114,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
 #define GAMEEVENT_CityConstructed				"CityConstructed",				"iiibb"
 #define GAMEEVENT_CityCreated					"CityCreated",					"iiibb"
-#define GAMEEVENT_CityPrepared					"CityPrepared",					"iiibb"
+#define GAMEEVENT_CityPrepared					"CityPrepared",					"iiiii"
 #define GAMEEVENT_CitySoldBuilding				"CitySoldBuilding",				"iii"
 #define GAMEEVENT_CityTrained					"CityTrained",					"iiibb"
 #define GAMEEVENT_CustomMissionCompleted		"CustomMissionCompleted",		"iiiiiii"
@@ -1190,7 +1190,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_ReligionCanHaveBelief			"ReligionCanHaveBelief",		"iii"
 #define GAMEEVENT_ReligionEnhanced				"ReligionEnhanced",				"iiii"
 #define GAMEEVENT_ReligionFounded				"ReligionFounded",				"iiiiiiii"
-#define GAMEEVENT_ReligionReformed				"ReligionReformed",				"iiiiiii"
+#define GAMEEVENT_ReligionReformed				"ReligionReformed",				"iii"
 #define GAMEEVENT_ResolutionProposing			"ResolutionProposing",			"ii"
 #define GAMEEVENT_ResolutionResult				"ResolutionResult",				"iiibb"
 #define GAMEEVENT_ResolutionVoting				"ResolutionVoting",				"ii"

@@ -943,7 +943,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 				}
 
-				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// kill spy off
 				ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1355,7 +1355,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						}
 					}
 
-					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+					GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 					// kill spy off
 					ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1950,7 +1950,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 					}
 				}
 
-				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// level up the defending spy
 				int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];

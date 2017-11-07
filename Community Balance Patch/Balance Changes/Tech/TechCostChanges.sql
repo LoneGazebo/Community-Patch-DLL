@@ -19,6 +19,7 @@ UPDATE Technologies SET Cost =   10000 WHERE GridX = 15; --7700
 UPDATE Technologies SET Cost =   11000 WHERE GridX = 16; --8800
 UPDATE Technologies SET Cost =   12000 WHERE GridX = 17; --9500
 UPDATE Technologies SET Cost =   14000 WHERE GridX = 18; --NEW!
+UPDATE Technologies SET Cost =   18000 WHERE GridX = 19; --NEW!
 
 
 -- Speed Change

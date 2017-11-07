@@ -4667,8 +4667,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 				{
 					strOut += "V ";
 				}
-
-				if(pCell->IsNotVisibleToEnemy())
+				if(pCell->IsVisibleToEnemy())
 				{
 					strOut += "N ";
 				}

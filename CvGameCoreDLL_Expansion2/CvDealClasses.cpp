@@ -576,6 +576,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if(pCity->isCapital())
 				return false;
 
+			if (pCity->getDamage() > 0 && !pFromTeam->isAtWar(pToTeam->GetID()))
+				return false;
+
 			// Can't trade a city to a human in an OCC game
 			if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eToPlayer).isHuman())
 				return false;

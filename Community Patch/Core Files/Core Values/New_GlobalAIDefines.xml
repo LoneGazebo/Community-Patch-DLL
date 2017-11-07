@@ -125,7 +125,7 @@
 
 		<Update>
 			
-			<Set Value="5" />
+			<Set Value="6" />
 			<Where Name="RELIGION_BELIEF_SCORE_CITY_MULTIPLIER" />
 		</Update>
 		

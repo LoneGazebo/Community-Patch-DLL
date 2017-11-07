@@ -36213,19 +36213,19 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	{
 		if(pkResourceInfo->isMonopoly())
 		{
-			int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
-			if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-			{
-				iOwnedNumResource += getResourceImport(eResource);
-			}
-
-			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			bool bGainingBonus = false;
 			bool bGainingStrategicBonus = false;
 			bool bLosingBonus = false;
 			bool bLosingStrategicBonus = false;
-			if(iTotalNumResource > 0)
+			int iTotalNumResource = GC.getMap().getNumResources(eResource);
+			if (iTotalNumResource > 0)
 			{
+				int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
+				if (GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+				{
+					iOwnedNumResource += getResourceImport(eResource);
+				}
+				
 				if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 				{
 					int iThreshold = max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD());
@@ -36246,18 +36246,18 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
-						SetHasGlobalMonopoly(eResource, true);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
+						SetHasGlobalMonopoly(eResource, true);						
 					}
 					else
 					{
 						if(m_pabHasGlobalMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
 						SetHasGlobalMonopoly(eResource, false);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 				}
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -36268,18 +36268,18 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 						if(m_pabHasStrategicMonopoly[eResource] == false)
 						{
 							bGainingStrategicBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
 						SetHasStrategicMonopoly(eResource, true);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 					else
 					{
 						if(m_pabHasStrategicMonopoly[eResource] == true)
 						{
 							bLosingStrategicBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
 						SetHasStrategicMonopoly(eResource, false);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 					//Do we also have 50% of this resource under our control?
 					int iThreshold = max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD());
@@ -36301,18 +36301,19 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
 						SetHasGlobalMonopoly(eResource, true);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
+						
 					}
 					else
 					{
 						if(m_pabHasGlobalMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
 						SetHasGlobalMonopoly(eResource, false);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -36323,11 +36324,16 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 						if(m_pabHasGlobalMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
+							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 						}
 						SetHasGlobalMonopoly(eResource, false);
-						GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
 					}
 				}
+			}
+			else
+			{
+				SetHasGlobalMonopoly(eResource, false);
+
 			}
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -44604,7 +44610,7 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 				iCivCount++;
 		}
 
-		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / iCivCount;
+		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / max(1, (iCivCount-1));
 	}
 }
 

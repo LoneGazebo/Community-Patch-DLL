@@ -427,13 +427,13 @@
 			<Text>Stupa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith, Golden Age Points, and, once you have researched Architecture, Tourism in the City.</Text>
+			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith, Golden Age Points and Tourism in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_TEXT">
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points +4 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points +4 [ICON_TOURISM] Tourism. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">

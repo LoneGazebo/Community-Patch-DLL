@@ -96,7 +96,7 @@ SET Text = '+33% [ICON_PRODUCTION] Production when building Mounted Units. Incre
 WHERE Tag = 'TXT_KEY_BUILDING_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'Mines worked by this City gain +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.'
+SET Text = 'Mines worked by this City gain +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -459,7 +459,7 @@ SET Text = 'Tile improvement construction speed increased by 25% and a Settler a
 WHERE Tag = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All units gain +15% [ICON_STRENGTH] combat strength when attacking cities. Reduces [ICON_HAPPINESS_3] Crime in all cities. Receive a free Forge in the City.'
+SET Text = 'All units gain +15% [ICON_STRENGTH] combat strength when attacking cities. Reduces [ICON_HAPPINESS_3] Crime in all cities. Receive a free Barracks in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -467,7 +467,7 @@ SELECT 'TXT_KEY_BUILDING_STONEHENGE_HELP', 'Grants 50 [ICON_PEACE] Faith when co
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production increases by +10%. [NEWLINE][NEWLINE]Receive a free Stone Works in the City.'
+SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold increase by +10%. [NEWLINE][NEWLINE]Receive a free Stone Works in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_MAUSOLEUM_HALICARNASSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

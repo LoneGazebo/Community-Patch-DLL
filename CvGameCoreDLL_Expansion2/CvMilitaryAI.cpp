@@ -2206,7 +2206,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		fDesirability /= 100;
 	}
 
-	if (target.m_pTargetCity->IsOriginalCapital())
+	if (target.m_pTargetCity->IsOriginalCapital() && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory())
 	{
 		fDesirability *= GC.getAI_MILITARY_CAPTURING_ORIGINAL_CAPITAL();
 		fDesirability /= 100;

@@ -1790,9 +1790,10 @@ int CvReligionBeliefs::GetNumBeliefs() const
 #if defined(MOD_BALANCE_CORE)
 bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
 {
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	if(ePlayer != NO_PLAYER)
 	{
+		CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
 		if(eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsFounderBelief())
 		{
 			if(!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer))
@@ -1894,9 +1895,17 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 				}
 				if (bHolyCityOnly)
 				{
-					if (eReligion == RELIGION_PANTHEON && GET_PLAYER(ePlayer).getCapitalCity() != pCity)
+					if (eReligion == RELIGION_PANTHEON)
 					{
-						return false;
+						if (GET_PLAYER(ePlayer).getCapitalCity() != pCity)
+						{
+							return false;
+						}
+						ReligionTypes eParentReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion(false);
+						if (eParentReligion != NO_RELIGION && eReligion != eParentReligion)
+						{
+							eReligion = eParentReligion;
+						}
 					}
 					if (eReligion > RELIGION_PANTHEON)
 					{
@@ -3475,6 +3484,24 @@ bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerType
 	}
 
 	return false;
+}
+
+/// Is there a belief that allows faith buying of specific units?
+BeliefTypes CvReligionBeliefs::GetSpecificFaithBuyingEnabledBelief(UnitTypes eUnit) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if (pBeliefs->GetEntry(i) == NULL)
+			continue;
+
+		if (pBeliefs->GetEntry(i)->IsFaithUnitPurchaseSpecific((int)eUnit))
+		{
+			return GetBelief(i);
+		}
+	}
+	return NO_BELIEF;
 }
 #endif
 /// Is there a belief that allows us to convert adjacent barbarians?

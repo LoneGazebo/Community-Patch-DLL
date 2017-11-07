@@ -5188,10 +5188,11 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
+
+			//store off this data
+			m_pPlayer->changeInstantYieldValue(YIELD_TOURISM, iTourism);
 		}
 	}
-	//store off this data
-	m_pPlayer->changeInstantYieldValue(YIELD_TOURISM, iTourism);
 }
 
 // PRIVATE METHODS

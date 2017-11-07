@@ -9619,19 +9619,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					int iReligionChange = 0;
 					bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement(pWorkingCity->getOwner());
 					bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement(pWorkingCity->getOwner());
-					if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
+					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
 					{		
-						if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
-						{
-							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
-						}
+						iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
 					}
-					else if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement)
+					else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT)
 					{		
-						if(bRequiresNoImprovement && getImprovementType() != NO_IMPROVEMENT)
-						{
-							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);
-						}
+						iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner(), pWorkingCity);						
 					}
 					else
 					{
@@ -9647,19 +9641,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 						int iReligionChange = 0;
 						bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovement();
 						bool bRequiresImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresImprovement();
-						if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
+						if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
 						{		
-							if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
-							{
-								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
-							}
+							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
 						}
-						else if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement)
+						else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT)
 						{		
-							if(bRequiresNoImprovement && getImprovementType() != NO_IMPROVEMENT)
-							{
-								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
-							}
+							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
 						}
 						else
 						{

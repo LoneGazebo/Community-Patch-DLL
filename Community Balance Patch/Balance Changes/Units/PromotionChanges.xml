@@ -948,6 +948,7 @@
 			<Description>TXT_KEY_PROMOTION_HELI_AMBUSH_1</Description>
 			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_1</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>3</PortraitIndex>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -971,6 +972,7 @@
 			<Description>TXT_KEY_PROMOTION_MOBILITY_1</Description>
 			<Help>TXT_KEY_PROMOTION_MOBILITY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<MovesChange>1</MovesChange>
 			<PortraitIndex>33</PortraitIndex>
@@ -1330,6 +1332,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<AllowsEmbarkation>true</AllowsEmbarkation>
 			<EmbarkedAllWater>true</EmbarkedAllWater>
+			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
 			<EmbarkExtraVisibility>2</EmbarkExtraVisibility>
 			<PortraitIndex>22</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
