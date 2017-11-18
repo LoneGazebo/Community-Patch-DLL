@@ -4782,7 +4782,7 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 		}
 
 		// see where our units can go
-		SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,5);
+		SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,2);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		unitMovePlots[it->GetUnitID()] = GC.GetPathFinder().GetPlotsInReach(pOpUnit->plot(), data);
 	}
@@ -5307,7 +5307,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		}
 
 		// see where our units can go
-		SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,5);
+		SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,2);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		unitMovePlots[it->GetUnitID()] = GC.GetPathFinder().GetPlotsInReach(pOpUnit->plot(), data);
 	}
@@ -7452,7 +7452,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		for(opUnitIt it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 		{
 			CvUnit *pOpUnit = m_pPlayer->getUnit(it->GetUnitID());
-			SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,5);
+			SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,2);
 			data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 			unitMovePlots[it->GetUnitID()] = GC.GetPathFinder().GetPlotsInReach(pOpUnit->plot(), data);
 		}
@@ -8410,7 +8410,8 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 			if (!bIncludeRanged)
 				continue;
 
-			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(), pLoopUnit->getDomainType(), NULL, false) > 0)
+			//we don't want enemies close by
+			if (pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(), pLoopUnit->getDomainType(), NULL, false) > 0)
 				iPenalty = 2;
 		}
 		else //melee
@@ -8418,7 +8419,8 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 			if (bRangedOnly)
 				continue;
 
-			if (bCombatExpected && pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(),pLoopUnit->getDomainType())==0)
+			//we want enemies close by
+			if (pTarget->GetNumEnemyUnitsAdjacent(pLoopUnit->getTeam(),pLoopUnit->getDomainType())==0)
 				iPenalty = 1;
 		}
 		
@@ -8432,13 +8434,11 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, const std::map<int,
 			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 			if (itPlot!=itUnit->second.end())
 			{
-				int iTurns = itPlot->iTurns + iPenalty;
-
 				CvTacticalUnit unit;
 				unit.SetID(pLoopUnit->GetID());
-				unit.SetAttackStrength(1000 - iTurns);
+				unit.SetAttackStrength(1000 - iPenalty - itPlot->iTurns);
 				unit.SetHealthPercent(10, 10);
-				unit.SetMovesToTarget(iTurns);
+				unit.SetMovesToTarget(itPlot->iTurns);
 				m_CurrentMoveUnits.push_back(unit);
 				rtnValue = true;
 			}
