@@ -19931,12 +19931,14 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 {
 	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
-	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
-	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	iTech /= max(1, GC.getNumTechInfos());
-	
-	iModifier += iTech;
+
+	int iDeviation100 = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 - GC.getGame().GetGlobalTechAverage();
+	// Add 8 to smooth out sudden changes in the ancient era
+	int iRelativeScaledDeviationPercent = int( (iDeviation100*GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER()*100) / (GC.getGame().GetGlobalTechAverage()+800) );
+
+	//Tech leader is punished a bit, but no bonus for laggards
+	if (iRelativeScaledDeviationPercent>0)
+		iModifier += iRelativeScaledDeviationPercent;
 
 	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
 	int iPopMod = getPopulation() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER();
