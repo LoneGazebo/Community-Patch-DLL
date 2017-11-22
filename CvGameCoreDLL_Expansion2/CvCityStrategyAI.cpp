@@ -1412,7 +1412,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 						if (AmountComplete < 50)
 						{
 							iNewWeight *= (100 + AmountComplete);
-							iNewWeight /= AmountComplete;
+							iNewWeight /= max(1,AmountComplete);
 						}
 					}
 					if(iNewWeight > 0)
