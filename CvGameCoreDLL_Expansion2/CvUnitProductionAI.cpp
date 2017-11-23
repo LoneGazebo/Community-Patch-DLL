@@ -1016,6 +1016,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+		iFlavorExpansion -= kPlayer.getNumCities();
+
 		if (GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
 		{
 			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
@@ -1040,7 +1042,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if (m_pCity->plot()->getNumDefenders(kPlayer.GetID()) <= 0)
 		{
-			iFlavorExpansion -= 15;
+			iFlavorExpansion -= 5;
 		}
 
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
@@ -1114,44 +1116,32 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
 		bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-
 		if (bSeekingCultureVictory)
 		{
 			iFlavorExpansion -= 10;
 		}
-
-		eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
 		bool bSeekingSSVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
-
 		if (bSeekingSSVictory)
 		{
-			iFlavorExpansion -= 10;
+			iFlavorExpansion -= 5;
 		}
 
-		int iNumCities = kPlayer.getNumCities();
-			
-		iFlavorExpansion -= iNumCities;
-			
-		if(iFlavorExpansion <= 0)
-		{
-			iFlavorExpansion = 1;
-		}
+		//bonuses for late founding units
 		if (pkUnitEntry->IsFoundMid())
 			iFlavorExpansion += 20;
 		else if (pkUnitEntry->IsFoundLate())
 			iFlavorExpansion += 30;
 		else if (pkUnitEntry->IsFoundAbroad())
 			iFlavorExpansion += 20;
-		//not special and we're in the middle ages? deemphasize.
-		else if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (int)kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
-		{
-			iFlavorExpansion -= 20;
-		}
 
-		//We got this far? Let's add in era desire as well.
-		int iEra = GC.getGame().getCurrentEra();
-			
-		int iSettlerDesire = ((iFlavorExpansion + iEra) * 1250);
+		//not special and we're in the renaissance? deemphasize.
+		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && (int)kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_RENAISSANCE", true /*bHideAssert*/))
+			iFlavorExpansion -= 20;
+
+		if (iFlavorExpansion <= 0)
+			iFlavorExpansion = 1;
+
+		int iSettlerDesire = (iFlavorExpansion * 1250);
 		iBonus += iSettlerDesire;
 	}
 	if(!kPlayer.isMinorCiv())
