@@ -1392,7 +1392,7 @@ void CvHomelandAI::PlotHealMoves()
 			if (MOD_AI_SMART_HEALING) 
 			{
 				CvPlot* unitPlot = pUnit->plot();
-				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && pUnit->GetDanger() > 0)
 				{
 					iHealingLimit /= 2;
 				}
@@ -7559,7 +7559,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		if (bIgnore)
 			continue;
 
-		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
+		if (pUnit->GetDanger(pTarget) == 0)
 		{
 			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
 			{
