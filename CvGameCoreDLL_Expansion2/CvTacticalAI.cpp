@@ -13394,6 +13394,25 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case STacticalAssignment::A_MELEEKILL:
 			bPrecondition = (pUnit->plot() == pFromPlot) && (pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy present
+			//because of randomness in previous combat results, it may happen that we cannot actually kill the enemy
+			if (bPrecondition)
+			{
+				int iDamageDealt = 0, iDamageReceived = 0;
+				if (pToPlot->isEnemyCity(*pUnit))
+				{
+					CvCity* pCity = pToPlot->getPlotCity();
+					iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pUnit, pUnit->plot(), iDamageReceived);
+					if (iDamageDealt + 1 < (pCity->GetMaxHitPoints()-pCity->getDamage()))
+						bPrecondition = false;
+				}
+				else
+				{
+					CvUnit* pEnemy = pToPlot->getBestDefender(NO_PLAYER, ePlayer, pUnit);
+					iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pEnemy->plot(), pUnit->plot(), iDamageReceived);
+					if (iDamageDealt + 1 < pEnemy->GetCurrHitPoints())
+						bPrecondition = false;
+				}
+			}
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY());
 			bPostcondition = (pUnit->plot() == pToPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy gone
