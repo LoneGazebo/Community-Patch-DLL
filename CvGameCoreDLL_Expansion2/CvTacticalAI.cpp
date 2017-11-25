@@ -2156,8 +2156,8 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			{
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
-				// Don't want to hammer away to try and take down a city for more than 12 turns
-				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / 12))
+				// Don't want to hammer away to try and take down a city for more than X turns
+				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / 23))
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
