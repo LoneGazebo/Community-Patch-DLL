@@ -477,8 +477,6 @@ public:
 	void SetGoldAverage(int iValue);
 	int GetGlobalPopulation() const;
 	void SetGlobalPopulation(int iValue);
-	int GetGlobalTechAverage() const;
-	void SetGlobalTechAverage(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestPotential();
@@ -799,7 +797,6 @@ protected:
 	int m_iDefenseAverage;
 	int m_iGoldAverage;
 	int m_iGlobalPopulation;
-	int m_iGlobalTechAverage;
 	int m_iLastTurnCSSurrendered;
 	int* m_aiGreatestMonopolyPlayer;
 #endif

@@ -1148,7 +1148,6 @@ void CvGame::uninit()
 	m_iDefenseAverage = 0;
 	m_iGoldAverage = 0;
 	m_iGlobalPopulation = 0;
-	m_iGlobalTechAverage = 0;
 	m_iLastTurnCSSurrendered = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -10537,14 +10536,14 @@ uint CvGame::getNumReplayMessages() const
 //	--------------------------------------------------------------------------------
 void CvGame::updateGlobalAverage()
 {
+	CvCity* pLoopCity;
 	int iCityLoop;
-	int iTotalPopulation = 0;
+	PlayerTypes eLoopPlayer;
+	int iPopulation, iTotalPopulation = 0;
 	int iCultureYield = 0;
 	int iScienceYield = 0;
 	int iDefenseYield = 0;
 	int iGoldYield = 0;
-	int iTechCount100 = 0;
-	int iPlayerCount = 0;
 
 	std::vector<float> vfCultureYield;
 	std::vector<float> vfScienceYield;
@@ -10553,38 +10552,38 @@ void CvGame::updateGlobalAverage()
 
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 		{
-			for(CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 			{
-				int iPopulation = pLoopCity->getPopulation();
+				if(pLoopCity != NULL)
+				{
+					iPopulation = pLoopCity->getPopulation();
 					
-				iTotalPopulation += iPopulation;
+					iTotalPopulation += iPopulation;
 
-				//Uncultured
-				iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100;
-				float iCultureAvg = iCultureYield / (float)iPopulation;
-				vfCultureYield.push_back((float)iCultureAvg);
+					//Uncultured
+					iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100;
+					float iCultureAvg = iCultureYield / (float)iPopulation;
+					vfCultureYield.push_back((float)iCultureAvg);
 
-				//Illiteracy
-				iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
-				float iScienceAvg = iScienceYield / (float)iPopulation;
-				vfScienceYield.push_back((float)iScienceAvg);
+					//Illiteracy
+					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
+					float iScienceAvg = iScienceYield / (float)iPopulation;
+					vfScienceYield.push_back((float)iScienceAvg);
 					
-				//Disorder
-				iDefenseYield = pLoopCity->getStrengthValue(false);
-				float iDefenseAvg = iDefenseYield / (float)iPopulation;
-				vfDefenseYield.push_back((float)iDefenseAvg);
+					//Disorder
+					iDefenseYield = pLoopCity->getStrengthValue(false);
+					float iDefenseAvg = iDefenseYield / (float)iPopulation;
+					vfDefenseYield.push_back((float)iDefenseAvg);
 
-				//Poverty
-				iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
-				float iGoldAvg = iGoldYield / (float)iPopulation;
-				vfGoldYield.push_back((float)iGoldAvg);
+					//Poverty
+					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
+					float iGoldAvg = iGoldYield / (float)iPopulation;
+					vfGoldYield.push_back((float)iGoldAvg);
+				}		
 			}
-
-			iTechCount100 += GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100;
-			iPlayerCount++;
 		}
 	}
 	//Cannot define median if calculations are at zero.
@@ -10608,7 +10607,6 @@ void CvGame::updateGlobalAverage()
 	SetDefenseAverage((int)vfDefenseYield[n]);
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
-	SetGlobalTechAverage(iTechCount100/iPlayerCount);
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)
@@ -10645,13 +10643,6 @@ void CvGame::SetGlobalPopulation(int iValue)
 	m_iGlobalPopulation = iValue;
 }
 //	--------------------------------------------------------------------------------
-void CvGame::SetGlobalTechAverage(int iValue)
-{
-	float fAlpha = 0.2f;
-	int iAverage = int(0.5f + (iValue * fAlpha) + (GetGlobalTechAverage() * (1 - fAlpha)));
-	m_iGlobalTechAverage = iAverage;
-}
-//	--------------------------------------------------------------------------------
 int CvGame::GetCultureAverage() const
 {
 	return m_iCultureAverage;
@@ -10672,10 +10663,6 @@ int CvGame::GetGlobalPopulation() const
 {
 	return m_iGlobalPopulation;
 }	
-int CvGame::GetGlobalTechAverage() const
-{
-	return m_iGlobalTechAverage;
-}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvGame::SetHighestPotential()
@@ -10929,7 +10916,6 @@ void CvGame::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
-	MOD_SERIALIZE_READ(55, kStream, m_iGlobalTechAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iLastTurnCSSurrendered, 0);
 
 	ArrayWrapper<int> wrapm_aiGreatestMonopolyPlayer(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
@@ -11188,7 +11174,6 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
-	MOD_SERIALIZE_WRITE(kStream, m_iGlobalTechAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iLastTurnCSSurrendered);
 	kStream << ArrayWrapper<int>(GC.getNumResourceInfos(), m_aiGreatestMonopolyPlayer);
 #endif
