@@ -2769,6 +2769,9 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 		if(!pPlot->canBuild(eCitadel, GetID()))
 			continue;
 
+		if (pPlot->getWorkingCity() && pPlot->getWorkingCity()->IsRazing())
+			continue;
+
 		//defense yield
 		if(pPlot->GetDefenseBuildValue(GetID()) <= 0)
 			continue;

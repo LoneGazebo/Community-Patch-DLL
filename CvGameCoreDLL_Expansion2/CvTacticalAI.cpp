@@ -13337,6 +13337,15 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 
 	//this deletes the whole tree with all child positions
 	delete initialPosition;
+
+	//if we had to bail because of memory issues
+	if (result.empty() && vUnits.size()>10 && (openPositionsHeap.size()>5000 || discardedPositions.size()>5000))
+	{
+		OutputDebugString("retry with fewer units ...\n");
+		vector<CvUnit*> vUnits2( vUnits.begin(), vUnits.begin()+vUnits.size()/2 );
+		return FindBestAssignmentsForUnits(vUnits2, pTarget, eAggLvl, iMaxBranches, iMaxFinishedPositions, result);
+	}
+
 	return !result.empty();
 }
 
