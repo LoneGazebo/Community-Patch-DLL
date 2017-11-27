@@ -7006,6 +7006,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvSeaLevelInfo& writeTo)
 //======================================================================================================
 CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
+	m_iDefenseValue(0),
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
 {
@@ -7020,6 +7021,12 @@ CvProcessInfo::~CvProcessInfo()
 int CvProcessInfo::getTechPrereq() const
 {
 	return m_iTechPrereq;
+}
+
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValue() const
+{
+	return m_iDefenseValue;
 }
 
 //------------------------------------------------------------------------------
@@ -7047,6 +7054,8 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	const char* szTechPrereq = kResults.GetText("TechPrereq");
 	m_iTechPrereq = GC.getInfoTypeForString(szTechPrereq, true);
+
+	m_iDefenseValue = kResults.GetInt("DefenseValue");
 
 	const char* szProcessType = GetType();
 

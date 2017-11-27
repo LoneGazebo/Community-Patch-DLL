@@ -509,6 +509,7 @@ public:
 	bool IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	BeliefTypes GetSpecificFaithBuyingEnabledBelief(UnitTypes eUnit) const;
 #endif
 	bool IsConvertsBarbarians(PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	bool IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

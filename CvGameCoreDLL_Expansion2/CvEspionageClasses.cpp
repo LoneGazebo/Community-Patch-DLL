@@ -943,7 +943,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 				}
 
-				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// kill spy off
 				ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1027,7 +1027,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
 					}
 
-					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 6);
+					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 				}
 				else
 				{
@@ -1355,7 +1355,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						}
 					}
 
-					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+					GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 					// kill spy off
 					ExtractSpyFromCity(uiSpyIndex); // move the dead body out so that someone else can move in
@@ -1950,7 +1950,7 @@ void CvPlayerEspionage::AttemptAdvancedActions(uint uiSpyIndex)
 					}
 				}
 
-				m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
+				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_DEFENSE, false, NO_GREATPERSON, NO_BUILDING, (pSpy->m_eRank + 1), true, NO_PLAYER, NULL, false, pCity);
 
 				// level up the defending spy
 				int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
@@ -4881,9 +4881,9 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	int iDeltaInfluence = iAllyInfluence - iMyInfluence;
 #if defined(MOD_BALANCE_CORE)
 	iDeltaInfluence /= 2;
-	if(iDeltaInfluence >  8500)
+	if(iDeltaInfluence >  7000)
 	{
-		iDeltaInfluence = 8500;
+		iDeltaInfluence = 7000;
 	}
 #endif
 	//float fNobodyBonus = 0.5;
@@ -4955,14 +4955,14 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	}
 #endif
 
-	if(iResultPercentage > 80)
+	if(iResultPercentage > 70)
 	{
-		iResultPercentage = 80;
+		iResultPercentage = 70;
 	}
 #if defined(MOD_BALANCE_CORE)
-	else if(iResultPercentage < 10)
+	else if(iResultPercentage < 5)
 	{
-		iResultPercentage = 10;
+		iResultPercentage = 5;
 	}
 #else
 	else if(iResultPercentage < 0)
@@ -5205,7 +5205,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 
 	if (bAttemptSuccess)
 	{
-		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, (m_aSpyList[uiSpyIndex].m_eRank + 1));
+		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 	}
 
 	// Update City banners and game info
@@ -9043,7 +9043,7 @@ void CvEspionageAI::StealTechnology()
 			pEspionage->m_aiNumSpyActionsDone[eDefendingPlayer]++;
 #endif
 			
-			m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 6);
+			m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 
 			// send out notifications to the parties that were stolen from
 			CvPlot* pPlot = GC.getMap().plot(pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iX, pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iY);
@@ -9109,8 +9109,6 @@ void CvEspionageAI::StealGreatWork()
 		{
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0, "pEspionage->m_aPlayerStealableGWList[uiPlayer] list is empty. Not good");
-
-			m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 6);
 			
 			int iGrab = GC.getGame().getJonRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), "Random roll to see if we should attempt a coup");
 			int iCityLoop;
@@ -9187,6 +9185,8 @@ void CvEspionageAI::StealGreatWork()
 														GC.GetEngineUserInterface()->AddPopup(kPopup);
 													}
 													pEspionage->m_aiNumSpyActionsDone[eDefendingPlayer]++;
+
+													m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 
 													// send out notifications to the parties that were stolen from
 													CvPlot* pPlot = GC.getMap().plot(pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iX, pEspionage->m_aHeistLocations[uiDefendingPlayer][iHeistLocationCounter].m_iY);

@@ -3953,8 +3953,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	if((m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy()) || m_pPlayer->IsEmpireVeryUnhappy())
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -m_pPlayer->GetCulture()->GetWarWeariness();
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -m_pPlayer->GetCulture()->GetWarWeariness();
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -m_pPlayer->GetCulture()->GetWarWeariness() * 10;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -m_pPlayer->GetCulture()->GetWarWeariness() * 10;
 	}
 
 	////////////////////////////////////
@@ -6901,6 +6901,44 @@ void CvDiplomacyAI::DoTestDemandReady()
 #endif
 		}
 	}
+	if (IsDemandReady() && eDemandTarget != NO_PLAYER)
+	{
+		DiploStatementTypes eStatement;
+
+		// We can use this deal pointer to form a trade offer
+		CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
+
+		// These can be used for info about deal items, e.g. what Minor Civ we're telling the guy to stay away from, etc.
+		int iData1;
+		int iData2;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			//End the gift exchange at the start of each round.
+			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eDemandTarget, false);
+			GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eDemandTarget, false);
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		pDeal->SetRequestingPlayer(NO_PLAYER);
+#endif
+#if defined(MOD_BALANCE_CORE)
+		//Clear this data out before any deals are offered.
+		SetCantMatchDeal(eDemandTarget, false);
+#endif
+
+		eStatement = NO_DIPLO_STATEMENT_TYPE;
+
+		iData1 = -1;
+		iData2 = -1;
+
+		pDeal->ClearItems();
+		pDeal->SetFromPlayer(GetPlayer()->GetID());
+		pDeal->SetToPlayer(eDemandTarget);
+
+		DoMakeDemand(eDemandTarget, eStatement, pDeal);
+	}
 }
 
 /// Are we ready to make a demand to GetDemandTargetPlayer?
@@ -7594,11 +7632,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					{
 						if (iWarScore <= 0)
 						{
-							iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
+							iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness());
 						}
 						else
 						{
-							iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
+							iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness());
 						}
 					}
 #endif
@@ -8043,11 +8081,11 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 
 		int iWarWeariness = m_pPlayer->GetCulture()->GetWarWeariness();
-		iWantPeace += (iWarWeariness / 5);
+		iWantPeace += (iWarWeariness / 4);
 
 		if (iWarWeariness > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
-			iWantPeace += (iWarWeariness / 5);
+			iWantPeace += (iWarWeariness / 3);
 		}
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
@@ -19474,8 +19512,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		// Some things we don't say to teammates
 		if(GetPlayer()->getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
-			DoMakeDemand(ePlayer, eStatement, pDeal);
-
 			// STATEMENTS - all members but ePlayer passed by address
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -20879,6 +20915,7 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer, DiploStatementTypes& eStat
 				{
 					// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
 					pDeal->ClearItems();
+					DeclareWar(ePlayer);
 				}
 			}
 		}
@@ -21823,27 +21860,27 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_LUXURY_TRADE;
 			int iTurnsBetweenStatements = 15;
 #if defined(MOD_BALANCE_CORE)
-				if(GetNeediness() > 7)
-				{
-					iTurnsBetweenStatements /= 2;
-				}
-				int iMessage = 0;
-				int iMessageMax = MAX_INT;
-				PlayerTypes eLoopPlayer;
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(GetNeediness() > 7)
+			{
+				iTurnsBetweenStatements /= 2;
+			}
+			int iMessage = 0;
+			int iMessageMax = MAX_INT;
+			PlayerTypes eLoopPlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-					if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+				if(eLoopPlayer != NULL && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && eLoopPlayer != ePlayer)
+				{
+					iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
+					if(iMessage < iMessageMax)
 					{
-						iMessage = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetNumTurnsSinceStatementSent(ePlayer, eTempStatement);
-						if(iMessage < iMessageMax)
-						{
-							iMessageMax = iMessage;
-						}
+						iMessageMax = iMessage;
 					}
 				}
-				if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
+			}
+			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
 #else
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 #endif
@@ -34694,16 +34731,20 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 	if(eVictory != NO_VICTORY)
 	{
 		ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
-		if (GET_TEAM(GetPlayer()->getTeam()).getProjectCount(ApolloProgram) >= 1)
+		if (GET_TEAM(GetPlayer()->getTeam()).getProjectCount((ProjectTypes)ApolloProgram) >= 1)
 		{
 			return true;
 		}
 
 		int iTotalTechs = GC.getNumTechInfos();
-		iTotalTechs *= 75;
+		iTotalTechs *= 90;
+		iTotalTechs /= 100;
+
+		int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+		iTotalTechs *= 90;
 		iTotalTechs /= 100;
 		
-		if(GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() >= iTotalTechs)
+		if (iOurTechs >= iTotalTechs)
 		{
 			PlayerTypes eLoopPlayer;
 			int iNumCivsAheadScience = 0;
@@ -34728,7 +34769,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 					iNumCivsAlive++;
 				}
 			}
-			if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
+			if (iNumCivsAlive > 0 && iNumCivsAheadScience > (iNumCivsBehindScience * 2))
 			{
 				return true;
 			}
@@ -40913,8 +40954,8 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	int iWantVassalageScore = 0;
 
 	// Small bonus for voluntary vassalage depending on opinion
-	if(eOpinion == MAJOR_CIV_OPINION_NEUTRAL)
-		iWantVassalageScore += -10;
+	if(eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
+		iWantVassalageScore += -20;
 	else if(eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
 		iWantVassalageScore += 5;
 	else if(eOpinion == MAJOR_CIV_OPINION_FRIEND)
@@ -40933,7 +40974,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	else if(eEconomyStrength == STRENGTH_STRONG)
 		iWantVassalageScore += 20;
 	else if(eEconomyStrength == STRENGTH_AVERAGE)
-		iWantVassalageScore += -10;
+		iWantVassalageScore += -20;
 	else if(eEconomyStrength == STRENGTH_POOR)
 		iWantVassalageScore += -40;
 	else if(eEconomyStrength == STRENGTH_WEAK)
@@ -40950,18 +40991,18 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	else if(eMilitaryStrength == STRENGTH_STRONG)
 		iWantVassalageScore += 25;
 	else
-		iWantVassalageScore += -50;
+		iWantVassalageScore += -100;
 
 	// Small bonus for being a threat to us
 	ThreatTypes eMilitaryThreat = GetMilitaryThreat(ePlayer);
 	if(eMilitaryThreat == THREAT_CRITICAL)
-		iWantVassalageScore += 15;
+		iWantVassalageScore += 20;
 	else if(eMilitaryThreat == THREAT_SEVERE)
 		iWantVassalageScore += 10;
 	else if(eMilitaryThreat == THREAT_MAJOR)
 		iWantVassalageScore += 5;
-	else if(eMilitaryThreat == THREAT_MINOR)
-		iWantVassalageScore += -5;
+	else if(eMilitaryThreat <= THREAT_MINOR)
+		iWantVassalageScore += -20;
 	else
 		iWantVassalageScore += 0;
 
@@ -40973,17 +41014,12 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	else
 		iTechPercent = iOurTechs * 100 / iTheirTechs;
 
-	// We have a lot more techs than them!
-	if(iTechPercent > 125)
+	// We are at a similar tech level!
+	if(iTechPercent > 95)
 		return false;
 
-	// Doing fine
-	if(iTechPercent >= 100)
-		iWantVassalageScore += -15;
-	else if(iTechPercent >= 95)
-		iWantVassalageScore += 0;
 	// Lagging behind
-	else if(iTechPercent >= 85)
+	if(iTechPercent >= 85)
 		iWantVassalageScore += 10;
 	else if(iTechPercent >= 75)
 		iWantVassalageScore += 20;
@@ -40991,7 +41027,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	else if(iTechPercent >= 65)
 		iWantVassalageScore += 30;
 	else
-		iWantVassalageScore += 50;
+		iWantVassalageScore += 40;
 
 	// Small mod based on happiness
 	if(GetPlayer()->GetExcessHappiness() < 0)
@@ -41018,12 +41054,12 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Adjust score based on civ flavors
-	iWantVassalageScore += (iExpansionFlavor - GC.getDEFAULT_FLAVOR_VALUE())		* -2;	// expansionist civs don't like vassalage too much
-	iWantVassalageScore += (iOffenseFlavor - GC.getDEFAULT_FLAVOR_VALUE())			* -2;	// offensive civs don't like vassalage too much
+	iWantVassalageScore += (iExpansionFlavor - GC.getDEFAULT_FLAVOR_VALUE()) * -2;	// expansionist civs don't like vassalage too much
+	iWantVassalageScore += (iOffenseFlavor - GC.getDEFAULT_FLAVOR_VALUE()) * -2;	// offensive civs don't like vassalage too much
 	iWantVassalageScore += (iMilitaryTrainingFlavor - GC.getDEFAULT_FLAVOR_VALUE())	* -2;	// offensive civs don't like vassalage too much
-	iWantVassalageScore += (iDefenseFlavor - GC.getDEFAULT_FLAVOR_VALUE())			* 2;	// defensive civs like vassalage a lot
-	iWantVassalageScore += (iCultureFlavor - GC.getDEFAULT_FLAVOR_VALUE())			* 2;	// cultural civs prefer vassalage
-	iWantVassalageScore += (iWonderFlavor - GC.getDEFAULT_FLAVOR_VALUE())			* 2;	// wonder civs don't mind vassalage
+	iWantVassalageScore += (iDefenseFlavor - GC.getDEFAULT_FLAVOR_VALUE());	// defensive civs like vassalage a lot
+	iWantVassalageScore += (iCultureFlavor - GC.getDEFAULT_FLAVOR_VALUE());	// cultural civs prefer vassalage
+	iWantVassalageScore += (iWonderFlavor - GC.getDEFAULT_FLAVOR_VALUE());	// wonder civs don't mind vassalage
 
 	// Modifier based on proximity
 	switch(GetPlayer()->GetProximityToPlayer(ePlayer))

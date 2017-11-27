@@ -3323,11 +3323,14 @@ bool CvLeague::CanProposeRepeal(int iResolutionID, PlayerTypes eProposer, CvStri
 		bValid = false;
 	}
 
-	int iChoice = 0;
-	CvActiveResolution* ActiveRevolution = GetActiveResolution(iResolutionID);
-	if (ActiveRevolution != NULL)
+	int iChoice = -1;
+	// Must already be active
+	for (uint iIndex = 0; iIndex < m_vActiveResolutions.size(); iIndex++)
 	{
-		iChoice = ActiveRevolution->GetVoterDecision()->GetDecision();
+		if (m_vActiveResolutions[iIndex].GetID() == iResolutionID)
+		{
+			iChoice = m_vActiveResolutions[iIndex].GetProposerDecision()->GetDecision();
+		}
 	}
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
@@ -11779,7 +11782,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		// We are better than average
 		if (fTechRatio < 0.0f)
 		{
-			int iFactor = 30;
+			int iFactor = 400;
 			iScore += (int) (fTechRatio * iFactor);
 			if (bSeekingScienceVictory)
 			{
@@ -11794,12 +11797,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		// At or worse than average
 		else
 		{
-			int iFactor = 50;
+			int iFactor = 400;
 			iScore += (int) (fTechRatio * iFactor);
 			if (bSeekingScienceVictory)
 			{
 #if defined(MOD_BALANCE_CORE)
-				iScore += 100;
+				iScore += 500;
 #else
 				iScore += 40;
 #endif
@@ -11982,7 +11985,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 #if defined(MOD_BALANCE_CORE)
 					if (MOD_BALANCE_CORE) 
-						iScore += 1000;
+						iScore += 2000;
 					else
 #endif
 					iScore += 25;
@@ -12005,6 +12008,25 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					else if (iPercent >= 40)
 					{
 						iScore += 200;
+					}
+				}
+
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+					if (eLoopPlayer == GetPlayer()->GetID())
+						continue;
+
+					if (!GET_PLAYER(eLoopPlayer).isAlive())
+						continue;
+
+					if (GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == eTargetIdeology)
+					{
+						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
+						{
+							iScore -= 250;
+						}
 					}
 				}
 			}
@@ -12261,132 +12283,91 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			PlayerTypes ePlayer = GetPlayer()->GetID();
 			TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 			CvTeam* pPlayerTeam = &GET_TEAM(ePlayerTeam);
+
+			//And ally of CS
+			PlayerTypes eAlliedPlayer = NO_PLAYER;
+			eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
 			PlayerProximityTypes eProximity;
 			eProximity = GET_PLAYER(eTargetCityState).GetProximityToPlayer(ePlayer);
 
-			//And potential ally of CS
-			PlayerTypes eAlliedPlayer = NO_PLAYER;
-			eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
+			int iInfluence = 60 - GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
 
-			if(eAlliedPlayer != NO_PLAYER)
+			if (eAlliedPlayer != NO_PLAYER)
 			{
 				TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
 				MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
-				MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eAlliedPlayer, /*bHideTrueFeelings*/ true);
 
-				if(eAlliedPlayer != ePlayer)
+				if (eAlliedPlayer != ePlayer)
 				{
-					if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) < 40)
+					if (eProposer == ePlayer)
 					{
-						if(pPlayerTeam->isAtWar(eAlliedTeam))
-						{
-							iScore += 125;
-						}
-						if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
-						{
-							iScore += -50;
-						}
-						if (eOpinion == MAJOR_CIV_OPINION_ALLY)
-						{
-							iScore -= 50;
-						}
-						else if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
-						{
-							iScore += 35;
-						}
-						if(bSeekingDiploVictory)
-						{
-							iScore -= 1000;
-						}
+						iScore += iInfluence * 2;
 					}
 					else
 					{
-						if(pPlayerTeam->isAtWar(eAlliedTeam))
-						{
-							iScore += 25;
-						}
-						if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
-						{
-							iScore += -50;
-						}
-						if (eOpinion == MAJOR_CIV_OPINION_ALLY)
-						{
-							iScore -= 100;
-						}
-						else if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
-						{
-							iScore += 12;
-						}
-						if(bSeekingDiploVictory)
-						{
-							iScore -= 5000;
-						}
+						iScore += iInfluence;
+					}
+
+					if (pPlayerTeam->isAtWar(eAlliedTeam))
+					{
+						iScore += 20;
+					}
+					if (ePlayerTeam == eAlliedTeam)
+					{
+						iScore += -20;
+					}
+					if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
+					{
+						iScore += -20;
+					}
+					if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iScore += 20;
+					}
+					if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						iScore += -20;
 					}
 				}
-				else if(eAlliedPlayer == ePlayer)
+				else
 				{
-					iScore += -5000;
+					iScore += iInfluence * 4;
 				}
 			}
 			else
 			{
-				if(bSeekingDiploVictory)
+				if (eProposer == ePlayer)
 				{
-					iScore -= 2000;
+					iScore += iInfluence;
 				}
-			}
-			if((GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) >= 40) && (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) < 60))
-			{
-				iScore += -50;
-			}
-			else if((GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) >= 60) && (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) < 100))
-			{
-				iScore += -100;
-			}
-			else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) >= 100)
-			{
-				iScore += -150;
-			}
-			else
-			{
-				iScore += 30;
-			}
-			// Do they have a resource we lack?
-			int iResourcesWeLack = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetNumResourcesMajorLacks(ePlayer);
-			if(iResourcesWeLack > 0)
-			{
-				iScore -= 30;
+				else
+				{
+					iScore += iInfluence / 2;
+				}
 			}
 			if (eProximity == PLAYER_PROXIMITY_DISTANT)
 			{
 				iScore += 15;
 			}
-			else if(eProximity == PLAYER_PROXIMITY_FAR)
+			else if (eProximity == PLAYER_PROXIMITY_FAR)
 			{
-				iScore += 8;
+				iScore += 5;
 			}
-			else if(eProximity == PLAYER_PROXIMITY_CLOSE)
+			else if (eProximity == PLAYER_PROXIMITY_CLOSE)
 			{
-				iScore -= 15;
+				iScore += -5;
 			}
-			else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+			else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 			{
-				iScore -= 50;
+				iScore += -15;
 			}
-			if(eAlliedPlayer != ePlayer)
+
+			if (bSeekingDiploVictory)
 			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_FRIENDLY)
-				{
-					iScore += 8;
-				}
-				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_PROTECTIVE)
-				{
-					iScore += 10;
-				}
-				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_IGNORE)
-				{
-					iScore -= 5;
-				}
+				if (bEnact)
+					iScore /= 2;
+				else
+					iScore *= 2;
 			}
 		}
 	}
@@ -12400,202 +12381,169 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 			CvTeam* pPlayerTeam = &GET_TEAM(ePlayerTeam);
 
+			if (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() == ePlayer)
+			{
+				iScore += 5000;
+			}
+
 			//And potential ally of CS
 			PlayerTypes eAlliedPlayer = NO_PLAYER;
 			eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
 			PlayerProximityTypes eProximity;
 			eProximity = GET_PLAYER(eTargetCityState).GetProximityToPlayer(ePlayer);
 			
-			if(eAlliedPlayer != NO_PLAYER)
-			{
-				TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
-				MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+			int iInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
+			iInfluence /= 4;
 
-				if(eAlliedPlayer != ePlayer)
-				{
-					if(eProposer == ePlayer)
-					{
-						iScore += 1500;
-					}
-					else
-					{
-						if (pPlayerTeam->isAtWar(eAlliedTeam))
-						{
-							iScore += 65;
-						}
-						if (ePlayerTeam == eAlliedTeam)
-						{
-							iScore -= 250;
-						}
-						if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
-						{
-							iScore += -250;
-						}
-						if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
-						{
-							iScore += 75;
-						}
-						if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
-						{
-							iScore += -100;
-						}
-					}
-				}
-				else if(eAlliedPlayer == ePlayer)
-				{
-					if(eProposer == ePlayer)
-					{
-						if(bSeekingDiploVictory)
-						{
-							if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 100)
-							{
-								iScore += 1000;
-							}
-							else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 200)
-							{
-								iScore += 500;
-							}
-							else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 300)
-							{
-								iScore += 250;
-							}
-							else
-							{
-								iScore += 500;
-							}
-						}
-						else
-						{
-							iScore += 100;
-						}
-					}
-					else
-					{
-						if(bSeekingDiploVictory)
-						{
-							if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 100)
-							{
-								iScore += -5000;
-							}
-							else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 200)
-							{
-								iScore += -2000;
-							}
-							else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 300)
-							{
-								iScore += -1000;
-							}
-							else
-							{
-								iScore += -500;
-							}
-						}
-						else
-						{
-							iScore += -100;
-						}
-					}
-				}
-			}
-			else if(eAlliedPlayer == NO_PLAYER)
-			{
-				if(eProposer == ePlayer)
-				{
-					if(bSeekingDiploVictory)
-					{
-						if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 0)
-						{
-							iScore += 2000;
-						}
-						else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 30)
-						{
-							iScore += 1000;
-						}
-						else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) < 60)
-						{
-							iScore += 500;
-						}
-						else
-						{
-							iScore += 250;
-						}
-					}
-					else
-					{
-						iScore += 75;
-					}
-				}
-				else
-				{
-					if(bSeekingDiploVictory)
-					{
-						if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 0)
-						{
-							iScore += -2000;
-						}
-						else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) <= 30)
-						{
-							iScore += -1000;
-						}
-						else if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) < 60)
-						{
-							iScore += -500;
-						}
-						else
-						{
-							iScore += -100;
-						}
-					}
-					else
-					{
-						iScore += -50;
-					}
-				}
-			}
 			if (eProposer == ePlayer)
 			{
 				// Do they have a resource we lack?
 				int iResourcesWeLack = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetNumResourcesMajorLacks(ePlayer);
 				if (iResourcesWeLack > 0)
 				{
-					iScore += 50;
+					iScore += 25 * iResourcesWeLack;
 				}
+
+				if (eAlliedPlayer != ePlayer && eAlliedPlayer != NO_PLAYER)
+				{
+					TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
+					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+
+					if (pPlayerTeam->isAtWar(eAlliedTeam))
+					{
+						iScore += 50;
+					}
+					if (ePlayerTeam == eAlliedTeam)
+					{
+						iScore -= 25;
+					}
+					if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
+					{
+						iScore += -50;
+					}
+					if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iScore += 50;
+					}
+					if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						iScore += -50;
+					}
+					if (iScore > 0)
+					{
+						iScore += iInfluence;
+					}
+				}
+				else
+				{
+					if (iScore > 0)
+					{
+						iScore += max(0, 50 - iInfluence);
+					}
+				}
+
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_FRIENDLY)
 				{
-					iScore += 10;
+					iScore += 15;
 				}
 				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_PROTECTIVE)
 				{
-					iScore += 18;
+					iScore += 15;
 				}
 				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_IGNORE)
 				{
-					iScore -= 20;
+					iScore -= 25;
 				}
 				if (eProximity == PLAYER_PROXIMITY_DISTANT)
 				{
-					iScore += -15;
+					iScore += 15;
 				}
 				else if (eProximity == PLAYER_PROXIMITY_FAR)
 				{
-					iScore += -10;
+					iScore += 10;
 				}
 				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
 				{
-					iScore += 10;
+					iScore += -10;
 				}
 				else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 				{
-					iScore += 25;
+					iScore += -15;
+				}
+				if (bSeekingDiploVictory)
+				{
+					iScore *= 2;
 				}
 			}
 			else
 			{
-				iScore += -50;
-			}
-			if(GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() == ePlayer)
-			{
-				iScore += 2500;
+				if (eAlliedPlayer != ePlayer && eAlliedPlayer != NO_PLAYER)
+				{
+					TeamTypes eAlliedTeam = GET_PLAYER(eAlliedPlayer).getTeam();
+					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eAlliedPlayer);
+
+					if (pPlayerTeam->isAtWar(eAlliedTeam))
+					{
+						iScore += 5;
+					}
+					if (ePlayerTeam == eAlliedTeam)
+					{
+						iScore -= 100;
+					}
+					if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eAlliedPlayer))
+					{
+						iScore += -100;
+					}
+					if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iScore += 10;
+					}
+					if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						iScore += -50;
+					}
+					if (iInfluence > 0)
+					{
+						iScore += ((iInfluence * -1) / 5);
+					}
+				}
+				else
+				{
+					iScore -= 1000;
+				}
+
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_FRIENDLY)
+				{
+					iScore -= 10;
+				}
+				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_PROTECTIVE)
+				{
+					iScore -= 10;
+				}
+				else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivApproach(eTargetCityState) == MINOR_CIV_APPROACH_IGNORE)
+				{
+					iScore += 5;
+				}
+				if (eProximity == PLAYER_PROXIMITY_DISTANT)
+				{
+					iScore -= 10;
+				}
+				else if (eProximity == PLAYER_PROXIMITY_FAR)
+				{
+					iScore -= 5;
+				}
+				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+				{
+					iScore += 5;
+				}
+				else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					iScore += 10;
+				}
+				if (bSeekingDiploVictory)
+				{
+					iScore *= 2;
+				}
 			}
 		}
 	}
@@ -12624,7 +12572,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if(eTargetPlayer == GetPlayer()->GetID())
 				{
-					iScore -= 350 * max(iAllies, 1);
+					iScore -= 400 * max(iAllies, 1);
 				}
 				else
 				{
@@ -12640,9 +12588,20 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (pPlayerTeam->isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
 					{
-						iScore += 100;
+						iScore += 150;
 					}
 					if (eDispute >= DISPUTE_LEVEL_STRONG)
+					{
+						if(iAllies > 0)
+						{
+							iScore += (iAllies * 50);
+						}
+						else
+						{
+							iScore += 50 * eDispute;
+						}
+					}
+					if (eBlock >= BLOCK_LEVEL_STRONG)
 					{
 						if(iAllies > 0)
 						{
@@ -12650,32 +12609,21 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 						else
 						{
-							iScore += 25 * eDispute;
-						}
-					}
-					if (eBlock >= BLOCK_LEVEL_STRONG)
-					{
-						if(iAllies > 0)
-						{
-							iScore += (iAllies * 20);
-						}
-						else
-						{
-							iScore += 20 * eBlock;
+							iScore += 25 * eBlock;
 						}
 					}
 					if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
 					{			
 						if(iAllies > 0)
 						{
-							iScore += (iAllies * 15);
+							iScore += (iAllies * 20);
 						}
 					}
 					else
 					{
 						if(iAllies > 0)
 						{
-							iScore -= (iAllies * 15);
+							iScore -= (iAllies * 20);
 						}
 					}
 				}
@@ -13490,7 +13438,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 			if (pLeague->CanProposeRepeal(iID, GetPlayer()->GetID()))
 			{
 				ProposalConsideration consideration(/*bEnact*/ false, iResolutionIndex, LeagueHelpers::CHOICE_NONE);
-				int iScore = ScoreProposal(pLeague, &vActive[iResolutionIndex]);
+				int iScore = ScoreProposal(pLeague, &vActive[iResolutionIndex], true);
 				vConsiderations.push_back(consideration, iScore);
 			}
 		}
@@ -13510,7 +13458,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 					if (pLeague->CanProposeEnact(eResolution, GetPlayer()->GetID(), LeagueHelpers::CHOICE_NONE))
 					{
 						ProposalConsideration consideration(/*bEnact*/ true, iResolutionIndex, LeagueHelpers::CHOICE_NONE);
-						int iScore = ScoreProposal(pLeague, eResolution, LeagueHelpers::CHOICE_NONE);
+						int iScore = ScoreProposal(pLeague, eResolution, LeagueHelpers::CHOICE_NONE, true);
 						vConsiderations.push_back(consideration, iScore);
 					}
 				}
@@ -13522,7 +13470,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 						if (pLeague->CanProposeEnact(eResolution, GetPlayer()->GetID(), iChoice))
 						{
 							ProposalConsideration consideration(/*bEnact*/ true, iResolutionIndex, iChoice);
-							int iScore = ScoreProposal(pLeague, eResolution, iChoice);
+							int iScore = ScoreProposal(pLeague, eResolution, iChoice, true);
 							vConsiderations.push_back(consideration, iScore);
 						}
 					}
@@ -13576,9 +13524,9 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 	}
 }
 
-int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice)
+int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice, bool bIsProposing)
 {
-	CvEnactProposal fakeProposal(/*iID*/-1, eResolution, pLeague->GetID(), /*eProposalPlayer*/NO_PLAYER, iChoice);
+	CvEnactProposal fakeProposal(/*iID*/-1, eResolution, pLeague->GetID(), bIsProposing ? GetPlayer()->GetID() : /*eProposalPlayer*/NO_PLAYER, iChoice);
 
 	// How much do we like our YES vote on this proposal?
 	int iYesScore = 0;
@@ -13603,9 +13551,9 @@ int CvLeagueAI::ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, in
 	return iYesScore;
 }
 
-int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution)
+int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, bool bIsProposing)
 {
-	CvRepealProposal fakeProposal(pResolution, /*eProposalPlayer*/NO_PLAYER);
+	CvRepealProposal fakeProposal(pResolution, bIsProposing ? GetPlayer()->GetID() : /*eProposalPlayer*/NO_PLAYER);
 
 	// How much do we like our YES vote on this proposal?
 	int iYesScore = 0;

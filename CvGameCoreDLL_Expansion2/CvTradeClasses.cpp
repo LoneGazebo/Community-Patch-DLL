@@ -1660,6 +1660,9 @@ int CvGameTrade::GetPolicyDifference(PlayerTypes ePlayer, PlayerTypes ePlayer2)
 		return 0;
 	}
 
+	if (!MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		return 0;
+
 	if (GET_PLAYER(ePlayer2).isMinorCiv() || GET_PLAYER(ePlayer2).isBarbarian())
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -2388,6 +2391,10 @@ void CvPlayerTrade::MoveUnits (void)
 									if (iTourism > 0)
 									{
 										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
+
+										//store off this data
+										GET_PLAYER(pOriginCity->getOwner()).changeInstantYieldValue(YIELD_TOURISM, iTourism);
+
 										// Show tourism spread
 										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
 										{
@@ -2442,6 +2449,10 @@ void CvPlayerTrade::MoveUnits (void)
 									if (iTourism > 0)
 									{
 										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iTourism, true, true);
+
+										//store off this data
+										GET_PLAYER(pOriginCity->getOwner()).changeInstantYieldValue(YIELD_TOURISM, iTourism);
+
 										// Show tourism spread
 										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
 										{

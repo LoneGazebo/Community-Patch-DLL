@@ -273,6 +273,9 @@
 		<Row Name="THEME_GREAT_WORK_GA_MULTIPLIER">
 			<Value>0</Value>
 		</Row>
+		<Row Name="MINOR_MAX_XP_VALUE">
+			<Value>-1</Value>
+		</Row>
 	</Defines>
 	
 	<!-- Specialists -->

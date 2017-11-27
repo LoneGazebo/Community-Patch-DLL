@@ -5667,8 +5667,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 		// Ideally we want the actual meeting player, but we'll have to settle for the lead player of the team
 		// most of the time they will be one and the same
 		PlayerTypes eMeetingPlayer = GET_TEAM(eTeam).getLeaderID();
-		CvPlayer* pMeetingPlayer = &GET_PLAYER(eMeetingPlayer);
-		if (!(pMeetingPlayer->isMinorCiv() || pMeetingPlayer->isBarbarian()) && pMeetingPlayer->isAlive())
+		if (!GET_TEAM(eTeam).isMinorCiv() && !GET_TEAM(eTeam).isBarbarian() && eMeetingPlayer != NO_PLAYER && GET_PLAYER(eMeetingPlayer).isAlive())
 		{
 			MinorCivTraitTypes eTrait = GetTrait();
 			MinorCivPersonalityTypes eRealPersonality = GetPersonality();
@@ -8148,7 +8147,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		}
 
 		//Give this quest out once the player can cross oceans.
-		if(!GET_PLAYER(ePlayer).CanCrossOcean())
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech(GC.getGame().getOceanPassableTech()))
 		{
 			return false;
 		}
@@ -12033,12 +12032,22 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 	ResourceTypes eResource;
 	ResourceUsageTypes eUsage;
 	int iResourceQuantity;
+
+	PlayerTypes TechTestPlayer = NO_PLAYER;
+	if (eNewAlly != NO_PLAYER)
+		TechTestPlayer = eNewAlly;
+	else if (eOldAlly != NO_PLAYER)
+		TechTestPlayer = eOldAlly;
+
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkResourceInfo == NULL)
+			continue;
+
+		if (TechTestPlayer != NO_PLAYER && (TechTypes)pkResourceInfo->getTechReveal() != NO_TECH && !GET_TEAM(GET_PLAYER(TechTestPlayer).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
 			continue;
 
 		eUsage = pkResourceInfo->getResourceUsage();
@@ -17526,7 +17535,12 @@ void CvMinorCivAI::DoElection()
 					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 				}
 
-				ChangeFriendshipWithMajor(ePlayer, GC.getESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION(), false);
+				int iValue = GC.getESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION();
+				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+				{
+					iValue *= GC.getGame().getCurrentEra();
+				}
+				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
 #if !defined(NO_ACHIEVEMENTS)
 				//Achievements!
@@ -17580,6 +17594,10 @@ void CvMinorCivAI::DoElection()
 				if (GetEffectiveFriendshipWithMajorTimes100(ePlayer) > 0)
 				{
 					int iDiminishAmount = min(GC.getESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION() * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
+					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+					{
+						iDiminishAmount *= GC.getGame().getCurrentEra();
+					}
 					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
 					
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
@@ -17933,7 +17951,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		return false;
 
 	// Only allowed to improve Luxury and Strategic resources
-	ResourceTypes eResource = pPlot->getResourceType();
+	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
 	if(eResource == NO_RESOURCE)
 	{
 		return false;

@@ -1275,10 +1275,10 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 	// == Grand Strategy ==
 	AIGrandStrategyTypes eGrandStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
-	bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
-	bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-	bool bSeekingScienceVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+	bool bSeekingDiploVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
+	bool bSeekingConquestVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") ) || m_pPlayer->GetDiplomacyAI()->IsCloseToDominationVictory();
+	bool bSeekingCultureVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE") ) || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
+	bool bSeekingScienceVictory = (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP") ) || m_pPlayer->GetDiplomacyAI()->IsCloseToSSVictory();
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;
@@ -1297,7 +1297,7 @@ void CvPlayerTechs::SetGSPriorities()
 
 			if(pkTechInfo->GetFlavorValue(eFlavor) > 0)
 			{
-				if(bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"))
+				if (bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GOLD"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
@@ -1328,7 +1328,6 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-
 			}
 		}
 		//Let's look at grandstrategy values for units as well and add those in to techs.
@@ -1339,23 +1338,29 @@ void CvPlayerTechs::SetGSPriorities()
 
 			if (pkUnitInfo && pkUnitInfo->GetPrereqAndTech() == iTechLoop)
 			{
-				if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
-				{
-					m_piGSTechPriority[iTechLoop]++;
-					if (bSeekingConquestVictory)
-					{
-						m_piGSTechPriority[iTechLoop]++;
-					}
-				}
 				if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate())
 				{
 					m_piGSTechPriority[iTechLoop]++;
+				}
+				if (bSeekingConquestVictory)
+				{
+					if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
+					{
+						m_piGSTechPriority[iTechLoop]++;
+					}
 				}
 				if (bSeekingScienceVictory && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-
+				if (bSeekingDiploVictory && pkUnitInfo->IsTrade())
+				{
+					m_piGSTechPriority[iTechLoop]++;
+				}
+				if (bSeekingCultureVictory && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+				{
+					m_piGSTechPriority[iTechLoop]++;
+				}
 			}
 		}
 	}

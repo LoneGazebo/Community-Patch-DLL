@@ -5,11 +5,16 @@ WHERE Happiness = '4';
 INSERT INTO Resource_YieldChangeFromMonopoly
 	(ResourceType, YieldType, Yield)
 VALUES
-	('RESOURCE_TEA', 'YIELD_PRODUCTION', 2),
-	('RESOURCE_CORAL', 'YIELD_GOLD', 3),
-	('RESOURCE_AMBER', 'YIELD_SCIENCE', 1),
-	('RESOURCE_JADE', 'YIELD_CULTURE', 1),
-	('RESOURCE_OLIVE', 'YIELD_FOOD', 2);
+	('RESOURCE_PERFUME', 'YIELD_GOLD', 3),
+	('RESOURCE_TOBACCO', 'YIELD_FAITH', 2),
+	('RESOURCE_CORAL', 'YIELD_SCIENCE', 2);
+
+INSERT INTO Resource_CityYieldModFromMonopoly
+	(ResourceType, YieldType, Yield)
+VALUES
+	('RESOURCE_OLIVE', 'YIELD_FOOD', 10),
+	('RESOURCE_COFFEE', 'YIELD_PRODUCTION', 10),
+	('RESOURCE_TEA', 'YIELD_CULTURE', 10);
 
 -- Temple -- Amber
 
@@ -114,18 +119,12 @@ SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '2';
 
 -- Monopoly Information
 
-INSERT INTO Resource_YieldChangeFromMonopoly
-	(ResourceType, YieldType, Yield)
-VALUES
-	('RESOURCE_TOBACCO', 'YIELD_FAITH', 2);
-
-	INSERT INTO Resource_CityYieldModFromMonopoly
-	(ResourceType, YieldType, Yield)
-VALUES
-	('RESOURCE_COFFEE', 'YIELD_PRODUCTION', 10);
-
 	UPDATE Resources
 	SET IsMonopoly = '1'
+	WHERE Type = 'RESOURCE_AMBER';
+
+	UPDATE Resources
+	SET MonopolyHappiness = '6'
 	WHERE Type = 'RESOURCE_AMBER';
 
 	UPDATE Resources
@@ -141,11 +140,15 @@ VALUES
 	WHERE Type = 'RESOURCE_GLASS';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '5'
+	SET MonopolyHappiness = '6'
 	WHERE Type = 'RESOURCE_GLASS';
 
 	UPDATE Resources
 	SET IsMonopoly = '1'
+	WHERE Type = 'RESOURCE_JADE';
+
+	UPDATE Resources
+	SET MonopolyGALength = '25'
 	WHERE Type = 'RESOURCE_JADE';
 
 	UPDATE Resources
@@ -165,10 +168,6 @@ VALUES
 	WHERE Type = 'RESOURCE_PERFUME';
 
 	UPDATE Resources
-	SET MonopolyHappiness = '5'
-	WHERE Type = 'RESOURCE_PERFUME';
-
-	UPDATE Resources
 	SET IsMonopoly = '1'
 	WHERE Type = 'RESOURCE_TEA';
 
@@ -181,7 +180,7 @@ VALUES
 	-- Other Text
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS'
-	WHERE MonopolyHappiness = 5;
+	WHERE MonopolyHappiness = 6;
 
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH'
@@ -189,23 +188,15 @@ VALUES
 
 	-- Yield Text
 	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION'
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE'
 	WHERE Type = 'RESOURCE_TEA';
 
 	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD'
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE'
 	WHERE Type = 'RESOURCE_CORAL';
 
 	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE'
-	WHERE Type = 'RESOURCE_AMBER';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE'
-	WHERE Type = 'RESOURCE_JADE';
-
-	UPDATE Resources
-	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD'
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD'
 	WHERE Type = 'RESOURCE_OLIVE';
 
 	UPDATE Resources
@@ -215,6 +206,10 @@ VALUES
 	UPDATE Resources
 	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH'
 	WHERE Type = 'RESOURCE_TOBACCO';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD'
+	WHERE Type = 'RESOURCE_PERFUME';
 
 -- Reveals
 

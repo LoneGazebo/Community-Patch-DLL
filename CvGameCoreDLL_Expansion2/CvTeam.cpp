@@ -8333,6 +8333,19 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			kPlayer.ChangeInfluenceSpreadModifier(pTech->GetInfluenceSpreadModifier() * iChange);
 			kPlayer.ChangeExtraVotesPerDiplomat(pTech->GetExtraVotesPerDiplomat() * iChange);
 
+			if (kPlayer.isMajorCiv())
+			{
+				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+
+					if (eMinor != NO_PLAYER && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == (PlayerTypes)iI)
+					{
+						GET_PLAYER(eMinor).GetMinorCivAI()->DoUpdateAlliesResourceBonus((PlayerTypes)iI, (PlayerTypes)iI);
+					}
+				}
+			}
+
 			// Free promotion from this tech?
 			for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
 			{

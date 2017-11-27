@@ -348,7 +348,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		// Good deal for us
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(kDeal.GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		if (kDeal.GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 #endif
 		if(iDealValueToMe >= 100 ||
@@ -356,14 +356,16 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 5));
+			if (kDeal.GetDemandingPlayer() != eFromPlayer)
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 5));
 		}
 		// Acceptable deal for us
 		else
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
+			if (kDeal.GetDemandingPlayer() != eFromPlayer)
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
@@ -7054,10 +7056,11 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 #if defined(MOD_BALANCE_CORE)
-	int iIdealValue = 150 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
-	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
+	int iIdealValue = 200 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
+	if (Value > 0)
 	{
-		iIdealValue *= 5;
+		iIdealValue *= Value;
 	}
 	bool bDontChangeTheirExistingItems = false;
 	int iDealDuration = GC.getGame().GetDealDuration();
@@ -7107,10 +7110,6 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 	DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 	if (iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
-	{
-		return true;
-	}
-	if(iValueTheyreOffering > 0 && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}
@@ -7218,7 +7217,7 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
-		return bDealAcceptable;
+		return bDealAcceptable && pDeal->GetNumItems() > 0;
 	}
 	return false;
 }
@@ -7305,7 +7304,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
-		return bDealAcceptable;
+		return bDealAcceptable && pDeal->GetNumItems() > 0;;
 	}
 	return false;
 }
@@ -7350,7 +7349,7 @@ bool CvDealAI::MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
-		return bDealAcceptable;
+		return bDealAcceptable && pDeal->GetNumItems() > 0;;
 	}
 
 	return false;
@@ -7404,7 +7403,7 @@ bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
-		return bDealAcceptable;
+		return bDealAcceptable && pDeal->GetNumItems() > 0;;
 	}
 
 	return false;
@@ -7442,7 +7441,7 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 #if defined(MOD_BALANCE_CORE_DEALS)
 /// A good time to make an offer for a Defensive Pact?
@@ -7483,7 +7482,7 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 
 /// A good time to make an offer to buy a city?
@@ -7546,7 +7545,7 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 
 /// A good time to make an offer to buy or sell a city?
@@ -7643,7 +7642,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 /// A good time to make an offer to start a war?
 bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal)
@@ -7755,7 +7754,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 /// A good time to make an offer for a Peace Deal?
 bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal)
@@ -7853,7 +7852,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 /// A good time to make an offer for a Peace Deal?
 bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
@@ -7937,7 +7936,7 @@ bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 
 #endif
@@ -9263,7 +9262,7 @@ bool CvDealAI::IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
-		return bDealAcceptable;
+		return bDealAcceptable && pDeal->GetNumItems() > 0;;
 	}
 	return false;
 }
@@ -9367,7 +9366,7 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
-		return bDealAcceptable;
+		return bDealAcceptable && pDeal->GetNumItems() > 0;;
 	}
 
 	return false;
@@ -9410,7 +9409,7 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		CvAssertMsg(false, "Don't ask humans for vassalage!");
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
@@ -9478,7 +9477,7 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 		}
 	}
 
-	return bDealAcceptable;
+	return bDealAcceptable && pDeal->GetNumItems() > 0;;
 }
 
 

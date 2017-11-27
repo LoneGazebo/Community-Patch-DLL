@@ -52,10 +52,13 @@ private:
 	// Internal methods
 	void WeightPrereqs(int* paiTempWeightst, int iPropagationPercent);
 	void PropagateWeights(int iPolicy, int iWeight, int iPropagationPercent, int iPropagationLevel);
-	int WeighBranch(PolicyBranchTypes eBranch);
+	int WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
+	int WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy);
+	Firaxis::Array<int, NUM_YIELD_TYPES> WeightPolicyAttributes(CvPlayer* pPlayer, PolicyTypes ePolicy);
 	bool IsBranchEffectiveInGame(PolicyBranchTypes eBranch);
 
 	// Logging functions
+	void LogPolicyAttributeYields(CvPlayer* pPlayer, PolicyTypes ePolicy, Firaxis::Array<int, NUM_YIELD_TYPES> yields);
 	void LogPossiblePolicies();
 	void LogPolicyChoice(PolicyTypes ePolicy);
 	void LogBranchChoice(PolicyBranchTypes eBranch);

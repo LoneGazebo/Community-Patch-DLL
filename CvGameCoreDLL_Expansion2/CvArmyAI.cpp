@@ -501,6 +501,9 @@ void CvArmyAI::RemoveStuckAndWeakUnits()
 			{
 				CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
 
+				if (pUnit == NULL)
+					continue;
+
 				//let tactical AI handle those
 				if (pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() / 3)
 					RemoveUnit(m_FormationEntries[iI].GetUnitID());

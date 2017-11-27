@@ -182,6 +182,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
+	m_piResourceQuantityExpended(NULL),
 	m_piProductionTraits(NULL),
 	m_piFlavorValue(NULL),
 	m_piUnitGroupRequired(NULL),
@@ -223,6 +224,7 @@ CvUnitEntry::~CvUnitEntry(void)
 #endif
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
+	SAFE_DELETE_ARRAY(m_piResourceQuantityExpended);
 	SAFE_DELETE_ARRAY(m_piProductionTraits);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
 	SAFE_DELETE_ARRAY(m_piUnitGroupRequired);
@@ -487,6 +489,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "Unit_ProductionTraits", "TraitType", "UnitType", szUnitType, "Trait");
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Unit_ResourceQuantityRequirements", "ResourceType", "UnitType", szUnitType, "Cost");
+	kUtility.PopulateArrayByValue(m_piResourceQuantityExpended, "Resources", "Unit_ResourceQuantityExpended", "ResourceType", "UnitType", szUnitType, "Amount");
 	kUtility.PopulateArrayByValue(m_piProductionModifierBuildings, "Buildings", "Unit_ProductionModifierBuildings", "BuildingType", "UnitType", szUnitType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_piYieldFromKills, "Yields", "Unit_YieldFromKills", "YieldType", "UnitType", szUnitType, "Yield");
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1441,6 +1444,14 @@ int CvUnitEntry::GetResourceQuantityRequirement(int i) const
 	return m_piResourceQuantityRequirements ? m_piResourceQuantityRequirements[i] : -1;
 }
 
+/// Resources consumed to construct
+int CvUnitEntry::GetResourceQuantityExpended(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piResourceQuantityExpended ? m_piResourceQuantityExpended[i] : -1;
+}
+
 /// Production boost for having a specific building in city
 int CvUnitEntry::GetBuildingProductionModifier(BuildingTypes eBuilding) const
 {
@@ -1664,6 +1675,16 @@ GreatWorkType CvUnitEntry::GetGreatWorks(int i) const
 	CvAssertMsg(i < GetNumUnitNames(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return (m_paeGreatWorks) ? m_paeGreatWorks[i] : NO_GREAT_WORK;
+}
+
+bool CvUnitEntry::IsGreatWorkUnit() const
+{
+	for (int i = 0; i < GetNumUnitNames(); i++)
+	{
+		if (GetGreatWorks(i) != NO_GREAT_WORK)
+			return true;
+	}
+	return false;
 }
 #if defined(MOD_BALANCE_CORE)
 /// Unique era for individual units.

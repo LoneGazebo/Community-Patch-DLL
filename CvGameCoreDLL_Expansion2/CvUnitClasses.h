@@ -187,6 +187,7 @@ public:
 
 	const char* GetUnitNames(int i) const;
 	GreatWorkType GetGreatWorks(int i) const;
+	bool IsGreatWorkUnit() const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int GetNumberStackingUnits() const;
@@ -219,6 +220,7 @@ public:
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
 	int GetResourceQuantityRequirement(int i) const;
+	int GetResourceQuantityExpended(int i) const;
 	int GetBuildingProductionModifier(BuildingTypes eBuilding) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -438,6 +440,7 @@ private:
 	// Arrays
 	int* m_piPrereqAndTechs;
 	int* m_piResourceQuantityRequirements;
+	int* m_piResourceQuantityExpended;
 	int* m_piProductionTraits;
 	int* m_piFlavorValue;
 	int* m_piUnitGroupRequired;

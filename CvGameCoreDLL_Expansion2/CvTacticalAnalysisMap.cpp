@@ -1343,7 +1343,7 @@ void CvTacticalAnalysisMap::Dump()
 	if (m_ePlayer==NO_PLAYER)
 		return;
 
-	bool bLogging = GC.getLogging() && GC.getAILogging() && (GET_PLAYER(m_ePlayer).isMajorCiv() || GET_PLAYER(m_ePlayer).isBarbarian()) && GET_PLAYER(m_ePlayer).IsAtWar();
+	bool bLogging = !GC.getGame().isNetworkMultiPlayer() && GC.getLogging() && GC.getAILogging() && (GET_PLAYER(m_ePlayer).isMajorCiv() || GET_PLAYER(m_ePlayer).isBarbarian()) && GET_PLAYER(m_ePlayer).IsAtWar();
 	if (bLogging)
 	{
 		CvString fname = CvString::format( "TacticalCells_%s_%03d.txt", GET_PLAYER(m_ePlayer).getCivilizationAdjective(), GC.getGame().getGameTurn() );

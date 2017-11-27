@@ -236,7 +236,14 @@
 			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR">
+			<Text>Prisoners of War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR_HELP">
+			<Text>-50% Work Rate when building Improvements or Routes.</Text>
+		</Row>
+
+
 
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
 			<Text>Covering Fire I</Text>
@@ -457,7 +464,7 @@
 			<Text>Voyage of Discovery</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP">
-			<Text>If the unit is in owned territory, this order will expend the unit, granting you two free copies of a Luxury Resource not available on this map. These Resources will not appear on the map, but can be traded to other civilizations.</Text>
+			<Text>If the unit is in owned territory, this order will expend the unit, granting you two free copies of a Luxury Resource not available on this map. These Resources will not appear on the map, but can be traded to other civilizations. Also increases your Military Supply by 2.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED">
 			<Text>Unit must be in owned territory to use this ability.</Text>

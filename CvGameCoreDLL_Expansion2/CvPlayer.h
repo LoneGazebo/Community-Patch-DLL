@@ -458,6 +458,9 @@ public:
 	int GetCapitalYieldPerPopChange(YieldTypes eYield) const;
 	void ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange);
 
+	int GetCapitalYieldPerPopChangeEmpire(YieldTypes eYield) const;
+	void ChangeCapitalYieldPerPopChangeEmpire(YieldTypes eYield, int iChange);
+
 	int GetGreatWorkYieldChange(YieldTypes eYield) const;
 	void ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange);
 
@@ -3360,6 +3363,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCoastalCityYieldChange;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldChange;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldPerPopChange;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldPerPopChangeEmpire;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSeaPlotYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)

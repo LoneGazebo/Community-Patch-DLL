@@ -2730,9 +2730,9 @@ void CvCity::doTurn()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+		if (getProductionProcess() != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
 		{
-			int iPile = getYieldRate(YIELD_PRODUCTION, false);
+			int iPile = getYieldRate(YIELD_PRODUCTION, false) * GC.getProcessInfo(getProductionProcess())->getDefenseValue();
 			iPile /= 10;
 
 			iHitsHealed += iPile;
@@ -15583,7 +15583,6 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			if(iTempMod != 0)
 			{
 				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
-				iTotalMod += iTempMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
 		}
@@ -21420,11 +21419,12 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if (iPantheon > 0)
 				{
-					if (iPantheon > 8)
-					{
-						iPantheon = 8;
-					}
-					iYieldValue += (iPantheon * iYield);
+					iPantheon = min(iPantheon, 8);
+
+					iPantheon *= iYield;
+					iPantheon /= 100;
+
+					iYieldValue += iPantheon;
 				}
 			}
 
@@ -21477,7 +21477,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			int iLuxYield = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
 			if (iLuxYield > 0)
 			{
-				int iNumHappinessResources = 0;
+				int iNumBonuses = 0;
 				ResourceTypes eResource;
 				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 				{
@@ -21485,12 +21485,13 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 
 					if (kPlayer.GetHappinessFromLuxury(eResource) > 0)
 					{
-						iNumHappinessResources++;
+						if ((kPlayer.getNumResourceTotal(eResource, kPlayer.GetPlayerTraits()->IsImportsCountTowardsMonopolies(), kPlayer.IsCSResourcesCountMonopolies()) + kPlayer.getResourceExport(eResource)) > 0)
+							iNumBonuses++;
 					}
 				}
-				if (iNumHappinessResources > 0)
+				if (iNumBonuses > 0)
 				{
-					iLuxYield *= iNumHappinessResources;
+					iLuxYield *= iNumBonuses;
 					iYieldValue += iLuxYield;
 				}
 			}
@@ -21646,49 +21647,49 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 	if (eIndex == YIELD_FOOD && GetWeLoveTheKingDayCounter() > 0 && GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
 	{
-		iTempMod += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
+		iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iTempMod);
 	}
 	if (GetYieldModifierFromHappiness(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromHappiness(eIndex);
+		iTempMod = GetYieldModifierFromHappiness(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_HAPPINESS", iTempMod);
 	}
 	if (GetYieldModifierFromHealth(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromHealth(eIndex);
+		iTempMod = GetYieldModifierFromHealth(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_HEALTH", iTempMod);
 	}
 	if (GetYieldModifierFromCrime(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromCrime(eIndex);
+		iTempMod = GetYieldModifierFromCrime(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_CRIME", iTempMod);
 	}
 	if (GetYieldModifierFromDevelopment(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromDevelopment(eIndex);
+		iTempMod = GetYieldModifierFromDevelopment(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_DEVELOPMENT", iTempMod);
 	}
 	if (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) != 0)
 	{
-		iTempMod += min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
+		iTempMod = min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_GREAT_WORK_MODIFIER", iTempMod);
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
-		iTempMod += min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
+		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_SPY_MODIFIER", iTempMod);
@@ -21763,7 +21764,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 	}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (eIndex != YIELD_FOOD))
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		// Do we get increased yields from a resource monopoly?
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
@@ -25014,9 +25015,9 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += (int)(fTechMod + 0.005);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
 
 #if defined(MOD_BALANCE_CORE)
-	if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	if (getProductionProcess() != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
 	{
-		int iPile = getYieldRate(YIELD_PRODUCTION, false);
+		int iPile = (getYieldRate(YIELD_PRODUCTION, false) * GC.getProcessInfo(getProductionProcess())->getDefenseValue());
 
 		iStrengthValue += iPile;
 	}
@@ -26043,6 +26044,16 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	int iRtnValue = 0;
+
+
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+	{
+		if (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(pPlot->getOwner(), true) >= MAJOR_CIV_APPROACH_AFRAID)
+		{
+			return iRtnValue;
+		}
+	}
+
 	YieldTypes eSpecializationYield = NO_YIELD;
 
 	CitySpecializationTypes eSpecialization = GetCityStrategyAI()->GetSpecialization();
@@ -26142,27 +26153,27 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 							case DISPUTE_LEVEL_FIERCE:
 								iRtnValue += (10 - iDistance) * /* 6 */ GC.getAI_PLOT_VALUE_FIERCE_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
-									iRtnValue *= 100;
+									iRtnValue *= 8;
 								}
 #endif
 								break;
 							case DISPUTE_LEVEL_STRONG:
 								iRtnValue += (10 - iDistance) * /* 4 */GC.getAI_PLOT_VALUE_STRONG_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
-									iRtnValue *= 50;
+									iRtnValue *= 4;
 								}
 #endif
 								break;
 							case DISPUTE_LEVEL_WEAK:
 								iRtnValue += (10 - iDistance) * /* 2 */ GC.getAI_PLOT_VALUE_WEAK_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
-									iRtnValue *= 25;
+									iRtnValue *= 2;
 								}
 #endif
 								break;
@@ -26369,7 +26380,7 @@ OrderData order;
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 != NO_PROCESS && GC.getProcessInfo((ProcessTypes)iData1)->getDefenseValue() != 0)
 	{
 		updateStrengthValue();
 	}
@@ -26716,6 +26727,12 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #endif
 
 				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
+				CvBuildingClassInfo* pBuildingClass = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+				if (pBuildingClass && ::isWorldWonderClass(*pBuildingClass))
+				{
+					iProductionNeeded *= 100;
+					iProductionNeeded /= 100 + GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+				}
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
 				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
@@ -26820,12 +26837,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		{
 			eSpecialist = ((SpecialistTypes)(pOrderNode->iData1));
 
-#if defined(MOD_EVENTS_CITY)
-			if (MOD_EVENTS_CITY) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityPrepared, getOwner(), GetID(), eSpecialist, false, false);
-			}
-#endif
-
 			iProductionNeeded = getProductionNeeded(eSpecialist) * 100;
 
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
@@ -26844,7 +26855,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	case ORDER_MAINTAIN:
 #if defined(MOD_BALANCE_CORE)
-		if ((ProcessTypes)pOrderNode->iData1 == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
 		{
 			bUpdateStrength = true;
 		}
@@ -27632,7 +27643,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					}
 					iTotalDiscount *= -1;
 
-					if (AmountComplete >= iTotalDiscount)
+
+					if (AmountComplete >= (100 - iTotalDiscount))
 						return false;
 				}
 			}
@@ -27766,18 +27778,32 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					return false;
 				}
 #if defined(MOD_BALANCE_CORE)
-				bool bSpecificBeliefNeeded = false;
+				bool bSpecificBeliefBlocked = false;
 				const CvReligion *pReligion2 = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner);
 				if (pReligion2)
 				{
-					if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
+					BeliefTypes SpecificBelief = pReligion2->m_Beliefs.GetSpecificFaithBuyingEnabledBelief(eUnitType);
+					if (SpecificBelief != NO_BELIEF && SpecificBelief != NULL)
 					{
-						bSpecificBeliefNeeded = true;
-						if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+						bSpecificBeliefBlocked = true;
+						TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+						TechTypes eObsoleteTech = (TechTypes)pkUnitInfo->GetObsoleteTech();
+						if (ePrereqTech != -1 || eObsoleteTech != -1)
 						{
-							if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+							if (!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 							{
-								return true;
+								return false;
+							}
+						}
+						if (pReligion2->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnitType, getOwner(), this))
+						{
+							bSpecificBeliefBlocked = false;
+							if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+							{
+								if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+								{
+									return true;
+								}
 							}
 						}
 					}
@@ -27846,7 +27872,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 							return false;
 						}
 					}
-					if (bSpecificBeliefNeeded)
+					if (bSpecificBeliefBlocked)
 						return false;
 #endif
 					// Missionaries, Inquisitors and Prophets
