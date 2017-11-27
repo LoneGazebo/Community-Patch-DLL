@@ -817,6 +817,19 @@ bool CvAIOperation::ShouldAbort()
 	if (m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurns()*3)
 		SetToAbort(AI_ABORT_TIMED_OUT);
 
+	CvPlot* pMuster = GetMusterPlot();
+	if (pMuster)
+	{
+		//the muster plot should be in friendly territory initially. if not, we are victims of a counterattack and should abort
+		if (GET_PLAYER(m_eOwner).IsAtWarWith(pMuster->getOwner()))
+			SetToAbort(AI_ABORT_TOO_DANGEROUS);
+
+		//for offensive ops, we even need the muster plot to be in a friendly zone
+		CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pMuster);
+		if (IsOffensive() && pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+			SetToAbort(AI_ABORT_TOO_DANGEROUS);
+	}
+
 	if (m_eCurrentState != AI_OPERATION_STATE_SUCCESSFUL_FINISH)
 	{
 		// now see how our armies are doing
@@ -1791,6 +1804,9 @@ void CvAIOperationCityBasicAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
+
+	if (!pMuster || !pTarget)
+		return;
 
 	SetupWithSingleArmy(pMuster->plot(),pTarget->plot());
 }
@@ -3680,22 +3696,10 @@ FDataStream& operator>>(FDataStream& loadFrom, OperationSlot& writeTo)
 
 int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 {
-	int iRange = 0;
+	if(iTotalUnits < 5)
+		return 3;
 
-	if(iTotalUnits <= 2)
-	{
-		iRange = 2;
-	}
-	else if(iTotalUnits <= 6)
-	{
-		iRange = 3;
-	}
-	else
-	{
-		iRange = 4;
-	}
-
-	return iRange;
+	return 4;
 }
 
 /// Find the barbarian camp we want to eliminate

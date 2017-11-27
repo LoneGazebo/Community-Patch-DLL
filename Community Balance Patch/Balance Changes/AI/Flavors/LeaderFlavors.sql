@@ -255,8 +255,9 @@ UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_CULTURE'				 
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_NAVAL'				     AND LeaderType = 'LEADER_HARALD';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_OFFENSE'				     AND LeaderType = 'LEADER_HARALD';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_NAVAL_RECON'				     AND LeaderType = 'LEADER_HARALD';
-UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_EXPANSION'				     AND LeaderType = 'LEADER_HARUN_AL_RASHID';
-UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_I_LAND_TRADE_ROUTE'				     AND LeaderType = 'LEADER_HARUN_AL_RASHID';
+UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_CULTURE'				     AND LeaderType = 'LEADER_HARUN_AL_RASHID';
+UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_RELIGION'				     AND LeaderType = 'LEADER_HARUN_AL_RASHID';
+UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE'				     AND LeaderType = 'LEADER_HARUN_AL_RASHID';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_RELIGION'				     AND LeaderType = 'LEADER_ISABELLA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_EXPANSION'				     AND LeaderType = 'LEADER_ISABELLA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_EXPANSION'					     AND LeaderType = 'LEADER_KAMEHAMEHA';
@@ -296,7 +297,12 @@ UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_RELIGION'    
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GROWTH'                     AND LeaderType = 'LEADER_THEODORA';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GROWTH'                  AND LeaderType = 'LEADER_WU_ZETIAN';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_EXPANSION'                  AND LeaderType = 'LEADER_WU_ZETIAN';
-UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE'                  AND LeaderType = 'LEADER_WU_ZETIAN';
+UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE'                  AND LeaderType = 'LEADER_WU_ZETIAN';
 UPDATE Leader_Flavors SET Flavor =   8 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY'                  AND LeaderType = 'LEADER_WU_ZETIAN';
 UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_CULTURE'                  AND LeaderType = 'LEADER_WU_ZETIAN';
 UPDATE Leader_Flavors SET Flavor =   5 WHERE FlavorType = 'FLAVOR_SCIENCE'                  AND LeaderType = 'LEADER_WU_ZETIAN';
+UPDATE Leader_Flavors SET Flavor =   10 WHERE FlavorType = 'FLAVOR_GOLD'                  AND LeaderType = 'LEADER_WILLIAM';
+UPDATE Leader_Flavors SET Flavor =   5 WHERE FlavorType = 'FLAVOR_HAPPINESS'                  AND LeaderType = 'LEADER_WILLIAM';
+UPDATE Leader_Flavors SET Flavor =   5 WHERE FlavorType = 'FLAVOR_DIPLOMACY'                  AND LeaderType = 'LEADER_WILLIAM';
+
+

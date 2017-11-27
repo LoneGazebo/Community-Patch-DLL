@@ -173,7 +173,7 @@
 			<ConversionModifier>-10</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ExtraMissionarySpreads>1</ExtraMissionarySpreads>
-			<ReligiousPressureModifier>50</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
@@ -528,8 +528,8 @@
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
 			<AllowsFoodTradeRoutes>true</AllowsFoodTradeRoutes>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>41</PortraitIndex>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
@@ -903,7 +903,6 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_COAL_PLANT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_COAL_PLANT_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_COAL_PLANT_HELP</Help>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>

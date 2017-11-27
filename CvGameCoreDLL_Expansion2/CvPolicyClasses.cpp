@@ -253,6 +253,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piCoastalCityYieldChange(NULL),
 	m_piCapitalYieldChange(NULL),
 	m_piCapitalYieldPerPopChange(NULL),
+	m_piCapitalYieldPerPopChangeEmpire(NULL),
 	m_piCapitalYieldModifier(NULL),
 	m_piGreatWorkYieldChange(NULL),
 	m_piSpecialistExtraYield(NULL),
@@ -375,6 +376,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piCoastalCityYieldChange);
 	SAFE_DELETE_ARRAY(m_piCapitalYieldChange);
 	SAFE_DELETE_ARRAY(m_piCapitalYieldPerPopChange);
+	SAFE_DELETE_ARRAY(m_piCapitalYieldPerPopChangeEmpire);
 	SAFE_DELETE_ARRAY(m_piCapitalYieldModifier);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piSpecialistExtraYield);
@@ -751,6 +753,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piCoastalCityYieldChange, "Policy_CoastalCityYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldChange, "Policy_CapitalYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChange, "Policy_CapitalYieldPerPopChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piCapitalYieldPerPopChangeEmpire, "Policy_CapitalYieldPerPopChangeEmpire", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldModifier, "Policy_CapitalYieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
@@ -2535,6 +2538,20 @@ int* CvPolicyEntry::GetCapitalYieldPerPopChangeArray() const
 	return m_piCapitalYieldPerPopChange;
 }
 
+
+/// Change to yield in Capital by type (per pop)
+int CvPolicyEntry::GetCapitalYieldPerPopChangeEmpire(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCapitalYieldPerPopChangeEmpire ? m_piCapitalYieldPerPopChangeEmpire[i] : -1;
+}
+
+/// Array of yield changes in Capital (per pop)
+int* CvPolicyEntry::GetCapitalYieldPerPopChangeEmpireArray() const
+{
+	return m_piCapitalYieldPerPopChangeEmpire;
+}
 /// Change to yield in capital by type
 int CvPolicyEntry::GetCapitalYieldModifier(int i) const
 {

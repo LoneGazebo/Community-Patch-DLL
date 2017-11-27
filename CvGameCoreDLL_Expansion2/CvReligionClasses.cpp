@@ -9309,7 +9309,7 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion)
 }
 #endif
 /// AI's evaluation of this belief's usefulness to this player
-int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
+int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest, bool bReturnCulture, bool bReturnScience, bool bReturnDiplo)
 {
 	int iRtnValue = 0;
 	CvGameReligions* pGameReligions = GC.getGame().GetGameReligions();
@@ -9348,6 +9348,27 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		{
 			iScienceInterest += m_pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
 		}
+	}
+
+	if (m_pPlayer->GetPlayerTraits()->IsExpansionist() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
+	{
+		iConquestInterest *= 3;
+		iDiploInterest *= 2;
+	}
+	if (m_pPlayer->GetPlayerTraits()->IsNerd())
+	{
+		iConquestInterest *= 2;
+		iScienceInterest *= 3;
+	}
+	if (m_pPlayer->GetPlayerTraits()->IsDiplomat() || m_pPlayer->GetPlayerTraits()->IsSmaller())
+	{
+		iCultureInterest *= 2;
+		iDiploInterest *= 3;
+	}
+	if (m_pPlayer->GetPlayerTraits()->IsTourism() || m_pPlayer->GetPlayerTraits()->IsReligious())
+	{
+		iCultureInterest *= 3;
+		iScienceInterest *= 2;
 	}
 
 	UnitClassTypes eMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
@@ -10272,7 +10293,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		{
 			if (pEntry->GetYieldFromKnownPantheons(iI) > 0)
 			{
-				iDiploTemp += (((GC.getGame().GetGameReligions()->GetNumPantheonsCreated() * 6)) * pEntry->GetYieldFromKnownPantheons(iI) / 10);
+				iDiploTemp += (((GC.getGame().GetGameReligions()->GetNumPantheonsCreated() * 5)) * pEntry->GetYieldFromKnownPantheons(iI) / 10);
 			}
 			if (pEntry->GetYieldFromHost(iI) > 0)
 			{
@@ -10494,6 +10515,26 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		}
 	}
 
+	if (!bReturnConquest && !bReturnCulture && !bReturnDiplo && !bReturnScience)
+	{
+		ReligionTypes eReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
+		if (eReligion != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
+			if (pReligion)
+			{
+				CvReligionBeliefs beliefs = pReligion->m_Beliefs;
+				for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+				{
+					iWarTemp += ScoreBeliefForPlayer(GC.getBeliefInfo(beliefs.GetBelief(iI)), true) / 5;
+					iCultureTemp += ScoreBeliefForPlayer(GC.getBeliefInfo(beliefs.GetBelief(iI)), false, true) / 5;
+					iScienceTemp += ScoreBeliefForPlayer(GC.getBeliefInfo(beliefs.GetBelief(iI)), false, false, true) / 5;
+					iGoldTemp += ScoreBeliefForPlayer(GC.getBeliefInfo(beliefs.GetBelief(iI)), false, false, false, true) / 5;
+				}
+			}
+		}
+	}
+
 	//Take the bonus from above and multiply it by the priority value / 10 (as most are 100+, so we're getting a % interest here).
 
 	iWarTemp *= (100 + (iConquestInterest / 10));
@@ -10501,6 +10542,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 
 	iHappinessTemp *= (100 + (iConquestInterest / 10));
 	iHappinessTemp /= 100;
+
+	if (bReturnConquest)
+		return(iWarTemp + iHappinessTemp) / 2;
 
 	iCultureTemp *= (100 + (iCultureInterest / 10));
 	iCultureTemp /= 100;
@@ -10511,8 +10555,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 	iOtherTemp *= (100 + (iCultureInterest / 10));
 	iOtherTemp /= 100;
 
-	iBuildingTemp *= (100 + (iCultureInterest / 10));
-	iBuildingTemp /= 100;
+	if (bReturnCulture)
+		return(iCultureTemp + iGPTemp + iOtherTemp) / 3;
 
 	iGoldTemp *= (100 + (iDiploInterest / 10));
 	iGoldTemp /= 100;
@@ -10523,8 +10567,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 	iSpreadTemp *= (100 + (iDiploInterest / 10));
 	iSpreadTemp /= 100;
 
+	if (bReturnDiplo)
+		return(iGoldTemp + iDiploTemp + iSpreadTemp) / 3;
+
 	iScienceTemp *= (100 + (iScienceInterest / 10));
 	iScienceTemp /= 100;
+
+	iBuildingTemp *= (100 + (iScienceInterest / 10));
+	iBuildingTemp /= 100;
+
+	if (bReturnScience)
+		return(iGoldTemp + iScienceTemp + iBuildingTemp) / 2;
+
 
 	//And now add them in. Halve if not our main focus.
 	if (m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())

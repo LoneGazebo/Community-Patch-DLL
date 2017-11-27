@@ -2875,7 +2875,10 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 		{
 			CvPlayer& kOwner = GET_PLAYER(getOwner());
 			if (kOwner.isMajorCiv() && kOwner.getTeam() != GET_PLAYER(ePlayer).getTeam())
-				return false;
+			{
+				if (!GET_TEAM(kOwner.getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+					return false;
+			}
 		}
 
 		bValid = true;
@@ -10635,6 +10638,13 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
 			iPerPopYield /= 100;
 			iYield += iPerPopYield;
+
+			if (GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
+			{
+				int iPerPopYieldEmpire = GET_PLAYER(getOwner()).getCurrentTotalPop() / GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield);
+				iPerPopYieldEmpire /= 100;
+				iYield += iPerPopYieldEmpire;
+			}
 		}
 
 		iYield += (iTemp / 100);

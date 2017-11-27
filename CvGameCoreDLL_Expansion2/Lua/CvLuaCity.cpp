@@ -1171,7 +1171,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 		else if(pkCity->GetUnitPurchaseCooldown(true) > 0)
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
-			localizedText << pkCity->GetUnitPurchaseCooldown();
+			localizedText << pkCity->GetUnitPurchaseCooldown(true);
 
 			const char* const localized = localizedText.toUTF8();
 			if (localized)

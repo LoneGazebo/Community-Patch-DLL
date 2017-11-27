@@ -156,11 +156,11 @@
 			<Where Name="IDEOLOGY_SCORE_HAPPINESS" />
 		</Update>
 		<Update>
-			<Set Value="50" />
+			<Set Value="100" />
 			<Where Name="IDEOLOGY_SCORE_PER_FREE_TENET" />
 		</Update>
 		<Update>
-			<Set Value="500" />
+			<Set Value="1000" />
 			<Where Name="IDEOLOGY_SCORE_GRAND_STRATS" />
 		</Update>
 	</Defines>

@@ -8129,6 +8129,7 @@ void CvGame::doTurn()
 			}
 		}
 	}
+	UpdateGreatestPlayerResourceMonopoly();
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -8244,7 +8245,6 @@ void CvGame::doTurn()
 	{
 		doVictoryRandomization();
 	}
-	UpdateGreatestPlayerResourceMonopoly();
 #endif
 	// Victory stuff
 	testVictory();
@@ -10283,7 +10283,8 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	int iFake = getGameTurn() - getNumCivCities() + GetGlobalPopulation() + abs(iExtraSeed);
+	int iFake = getGameTurn() + abs(iExtraSeed);
+	
 	if (iNum == 0)
 		iNum = -1;
 

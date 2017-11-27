@@ -245,6 +245,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		{
 			iModifier += (m_pCity->getUnhappinessFromDefense() * 5);
 		}
+
+		iModifier *= pProcess->getDefenseValue();
+		iModifier /= 100;
+
 		if (kPlayer.isMinorCiv())
 			iModifier /= 5;
 	}

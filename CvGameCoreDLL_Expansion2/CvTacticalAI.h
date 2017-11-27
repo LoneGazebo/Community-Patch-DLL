@@ -895,7 +895,7 @@ private:
 	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
-	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bImmediateStrike=false);
+	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bImmediateStrike=true);
 	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
@@ -1177,6 +1177,7 @@ public:
 	float getUnitNumberRatio() const;
 	void updateUnitNumberRatio();
 	STacticalAssignment findBlockingUnitAtPlot(int iPlotIndex) const;
+	bool unitHasAssignmentOfType(int iUnit, STacticalAssignment::eAssignmentType move) const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
 	CvTacticalPlot& getTactPlot(int plotindex);

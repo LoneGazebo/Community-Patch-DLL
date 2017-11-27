@@ -7,7 +7,7 @@ VALUES
 
 UPDATE Improvement_ResourceTypes
 SET ImprovementType = 'IMPROVEMENT_QUARRY'
-WHERE ResourceType = 'RESOURCE_URANIUM';
+WHERE ResourceType = 'RESOURCE_URANIUM' AND ImprovementType = 'IMPROVEMENT_MINE';
 
 UPDATE ArtDefine_Landmarks
 SET ImprovementType = 'ART_DEF_IMPROVEMENT_QUARRY'

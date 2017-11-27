@@ -3285,7 +3285,8 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 {
 	CvUnit* pLoopUnit = NULL;
 	int iUnitLoop = 0;
-
+	int iBestUnitValue = 0;
+	CvUnit* pBestUnit = NULL;
 	// Look at map for loose workers
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
@@ -3300,11 +3301,39 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 #endif
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
-			return pLoopUnit;
+			int WorkRateMod = 100 - pLoopUnit->GetWorkRateMod();
+			if (WorkRateMod < 100 && WorkRateMod > 0)
+			{
+				if (WorkRateMod > iBestUnitValue)
+				{
+					iBestUnitValue = WorkRateMod;
+					pBestUnit = pLoopUnit;
+				}
+			}
 		}
 	}
 
-	return NULL;
+	if (pBestUnit == NULL)
+	{
+		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		{
+			if (!pLoopUnit)
+			{
+				continue;
+			}
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+			UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
+#else
+			UnitTypes eWorker = (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER");
+#endif
+			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+			{
+				return pLoopUnit;
+			}
+		}
+	}
+
+	return pBestUnit;
 }
 
 CvUnit* CvEconomicAI::FindArchaeologistToScrap()
@@ -5044,6 +5073,21 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 	int iNumCities = 0;
 	int iNumAllies = 0;
 	int iNumFriends = 0;
+
+	CvUnit* pLoopUnit;
+	int iLoopUnit;
+	CvUnit* TestUnit = NULL;
+	for (pLoopUnit = pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoopUnit))
+	{
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_MESSENGER)
+		{
+			TestUnit = pLoopUnit;
+			break;
+		}
+	}
+
+	if (TestUnit != NULL && GET_PLAYER(pPlayer->GetID()).ChooseMessengerTargetPlot(TestUnit) == NULL)
+		return -1;
 
 	// Loop through all minors and get the total number we've met.
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)

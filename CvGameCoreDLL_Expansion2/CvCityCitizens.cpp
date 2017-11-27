@@ -913,7 +913,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iValue *= 2;
+				iValue *= 10;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
 			if (eYield == YIELD_FOOD)
@@ -925,7 +925,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				if (bUseAllowGrowthFlag && iExcessFoodTimes100 >= 0 && bAvoidGrowth)
 				{
 					// If we at least have enough Food to feed everyone, zero out the value of additional food
-					iYield = 0;
+					iYield = 1;
 				}
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
@@ -1987,10 +1987,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	//////////
 	int iHappinessYieldValue = 0;
 
-	iHappinessYieldValue = (m_pCity->GetUnhappinessFromCitySpecialists() * (25 - GetPlayer()->GetHappiness()));
+	iHappinessYieldValue = max(1, (m_pCity->GetUnhappinessFromCitySpecialists() * (max(20, GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM()) - GetPlayer()->GetHappiness())));
 	if (GetPlayer()->IsEmpireUnhappy())
 	{
-		iHappinessYieldValue *= 2;
+		iHappinessYieldValue *= 5;
 	}
 	iValue -= iHappinessYieldValue;
 	iValue -= iPenalty;

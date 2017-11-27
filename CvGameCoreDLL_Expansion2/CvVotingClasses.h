@@ -78,7 +78,7 @@ namespace LeagueHelpers
 	const int CHOICE_NO = 0;
 	const int CHOICE_YES = 1;
 
-	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 3;
+	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 2;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	// Moved to xml, use
@@ -950,8 +950,8 @@ private:
 
 	// Proposing
 	void AllocateProposals(CvLeague* pLeague);
-	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice = LeagueHelpers::CHOICE_NONE);
-	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution);
+	int ScoreProposal(CvLeague* pLeague, ResolutionTypes eResolution, int iChoice = LeagueHelpers::CHOICE_NONE, bool bIsProposing = false);
+	int ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution, bool bIsProposing = false);
 
 	// Logging
 	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre);

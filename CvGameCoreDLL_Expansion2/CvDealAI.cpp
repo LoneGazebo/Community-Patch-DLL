@@ -348,7 +348,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		// Good deal for us
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(kDeal.GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		if (kDeal.GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 #endif
 		if(iDealValueToMe >= 100 ||
@@ -356,14 +356,16 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 5));
+			if (kDeal.GetDemandingPlayer() != eFromPlayer)
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 5));
 		}
 		// Acceptable deal for us
 		else
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
+			if (kDeal.GetDemandingPlayer() != eFromPlayer)
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
 		}
 #if defined(MOD_BALANCE_CORE)
 		}

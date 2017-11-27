@@ -1392,7 +1392,7 @@ void CvHomelandAI::PlotHealMoves()
 			if (MOD_AI_SMART_HEALING) 
 			{
 				CvPlot* unitPlot = pUnit->plot();
-				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && pUnit->GetDanger() > 0)
 				{
 					iHealingLimit /= 2;
 				}
@@ -4687,7 +4687,10 @@ void CvHomelandAI::ExecuteMessengerMoves()
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s", GET_PLAYER(ePlayer).getCivilizationShortDescription());
+						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s", 
+							GET_PLAYER(ePlayer).getCivilizationShortDescription(), 
+							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()), 
+							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally" );
 						LogHomelandMessage(strLogString);
 					}
 				}
@@ -4707,7 +4710,10 @@ void CvHomelandAI::ExecuteMessengerMoves()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at %s", GET_PLAYER(ePlayer).getCivilizationShortDescription());
+							strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at %s. Total Influence : %d, Ally is %s", 
+								GET_PLAYER(ePlayer).getCivilizationShortDescription(),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
 							LogHomelandMessage(strLogString);
 						}
 					}
@@ -4726,7 +4732,10 @@ void CvHomelandAI::ExecuteMessengerMoves()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s", GET_PLAYER(ePlayer).getCivilizationShortDescription());
+							strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence : %d, Ally is %s",
+								GET_PLAYER(ePlayer).getCivilizationShortDescription(),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
+								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
 							LogHomelandMessage(strLogString);
 						}
 					}
@@ -7559,7 +7568,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		if (bIgnore)
 			continue;
 
-		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
+		if (pUnit->GetDanger(pTarget) == 0)
 		{
 			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
 			{

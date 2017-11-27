@@ -731,6 +731,14 @@ public:
 	void Reset();
 	void InitPlayerTraits();
 
+	bool IsWarmonger();
+	bool IsNerd();
+	bool IsTourism();
+	bool IsDiplomat();
+	bool IsExpansionist();
+	bool IsSmaller();
+	bool IsReligious();
+
 	// Accessor functions
 	bool HasTrait(TraitTypes eTrait) const;
 	int GetGreatPeopleRateModifier() const

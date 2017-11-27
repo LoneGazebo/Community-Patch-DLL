@@ -14,7 +14,7 @@ SET TradeRouteLandDistanceModifier = '50'
 WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
-SET Yield = '4'
+SET Yield = '5'
 WHERE BuildingType = 'BUILDING_BAZAAR' AND YieldType = 'YIELD_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Building_ResourceYieldChanges
@@ -871,7 +871,6 @@ INSERT INTO Trait_YieldFromHistoricEvent
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_LAND_TRADE_GOLD', 'YIELD_CULTURE', 1),
-	('TRAIT_LAND_TRADE_GOLD', 'YIELD_GOLD', 2),
 	('TRAIT_LAND_TRADE_GOLD', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_RiverPlotYieldChanges

@@ -162,6 +162,7 @@ public:
 	bool IsBarbarianOnly() const;
 	int GetMoraleBreakChance() const;
 	int GetDamageAoEFortified() const;
+	int GetWorkRateMod() const;
 	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
 	int GetNearbyUnitClassBonusRange() const;
 	int GetNearbyUnitClassBonus() const;
@@ -432,6 +433,7 @@ protected:
 	int m_iPromotionDuration;
 	int m_iMoraleBreakChance;
 	int m_iDamageAoEFortified;
+	int m_iWorkRateMod;
 	bool m_bIsLostOnMove;
 	bool m_bCityStateOnly;
 	bool m_bBarbarianOnly;

@@ -247,6 +247,11 @@ public:
 		}
 
 		// Random roll up to total weight
+		if (GC.getGame().isNetworkMultiPlayer())
+		{
+			elem = m_pItems[0];
+			return elem.m_Element;
+		}
 		iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
 
 		// Find out which element was chosen

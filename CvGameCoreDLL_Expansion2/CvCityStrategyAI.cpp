@@ -5219,7 +5219,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		//And here's what the value represents.
 		//Era = higher era, less valuable in game.
-		iActualIncrease = (iFlatYield * (400 - (iEra * 25)));
+		iActualIncrease = (iFlatYield * (100 - (iEra * 5)));
 		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
@@ -5418,6 +5418,27 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		}
 	}
 
+	if (kPlayer.GetPlayerTraits()->IsExpansionist() || kPlayer.GetPlayerTraits()->IsWarmonger())
+	{
+		iConquestInterest *= 3;
+		iDiploInterest *= 2;
+	}
+	if (kPlayer.GetPlayerTraits()->IsNerd())
+	{
+		iConquestInterest *= 2;
+		iScienceInterest *= 3;
+	}
+	if (kPlayer.GetPlayerTraits()->IsDiplomat() || kPlayer.GetPlayerTraits()->IsSmaller())
+	{
+		iCultureInterest *= 2;
+		iDiploInterest *= 3;
+	}
+	if (kPlayer.GetPlayerTraits()->IsTourism() || kPlayer.GetPlayerTraits()->IsReligious())
+	{
+		iCultureInterest *= 3;
+		iScienceInterest *= 2;
+	}
+
 	//Let's look at building special traits.
 
 	if(pkBuildingInfo->IsDiplomaticVoting())
@@ -5577,7 +5598,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if(pkBuildingInfo->GetFreePolicies() > 0)
 	{
-		iCultureValue += kPlayer.GetNumPolicies() * 25;
+		iCultureValue += kPlayer.GetNumPolicies() * 1000;
 	}	
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
@@ -5733,11 +5754,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
-		iValue += 3 * (((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())) * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
+		iValue += -5 * (((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())) * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
 	}
 	if(pkBuildingInfo->GetPlotBuyCostModifier() < 0)
 	{
-		iValue += 3 * (((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())) * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
+		iValue += -5 * (((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())) * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
 	}
 	if(pkBuildingInfo->GetNumTradeRouteBonus())
 	{
@@ -6037,7 +6058,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetFreeTechs() > 0)
 	{
 		//Earlier techs pretty useful...
-		iValue += (200 + (GC.getNumTechInfos() - GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown()));
+		iValue += (1000 + (GC.getNumTechInfos() - GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown()));
 	}
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 	{

@@ -3953,8 +3953,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	if((m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy()) || m_pPlayer->IsEmpireVeryUnhappy())
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -m_pPlayer->GetCulture()->GetWarWeariness();
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -m_pPlayer->GetCulture()->GetWarWeariness();
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -m_pPlayer->GetCulture()->GetWarWeariness() * 10;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -m_pPlayer->GetCulture()->GetWarWeariness() * 10;
 	}
 
 	////////////////////////////////////
@@ -6901,6 +6901,44 @@ void CvDiplomacyAI::DoTestDemandReady()
 #endif
 		}
 	}
+	if (IsDemandReady() && eDemandTarget != NO_PLAYER)
+	{
+		DiploStatementTypes eStatement;
+
+		// We can use this deal pointer to form a trade offer
+		CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
+
+		// These can be used for info about deal items, e.g. what Minor Civ we're telling the guy to stay away from, etc.
+		int iData1;
+		int iData2;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			//End the gift exchange at the start of each round.
+			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eDemandTarget, false);
+			GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eDemandTarget, false);
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		pDeal->SetRequestingPlayer(NO_PLAYER);
+#endif
+#if defined(MOD_BALANCE_CORE)
+		//Clear this data out before any deals are offered.
+		SetCantMatchDeal(eDemandTarget, false);
+#endif
+
+		eStatement = NO_DIPLO_STATEMENT_TYPE;
+
+		iData1 = -1;
+		iData2 = -1;
+
+		pDeal->ClearItems();
+		pDeal->SetFromPlayer(GetPlayer()->GetID());
+		pDeal->SetToPlayer(eDemandTarget);
+
+		DoMakeDemand(eDemandTarget, eStatement, pDeal);
+	}
 }
 
 /// Are we ready to make a demand to GetDemandTargetPlayer?
@@ -7594,11 +7632,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					{
 						if (iWarScore <= 0)
 						{
-							iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
+							iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness());
 						}
 						else
 						{
-							iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
+							iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness());
 						}
 					}
 #endif
@@ -8043,11 +8081,11 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 
 		int iWarWeariness = m_pPlayer->GetCulture()->GetWarWeariness();
-		iWantPeace += (iWarWeariness / 5);
+		iWantPeace += (iWarWeariness / 4);
 
 		if (iWarWeariness > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
-			iWantPeace += (iWarWeariness / 5);
+			iWantPeace += (iWarWeariness / 3);
 		}
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
@@ -19474,8 +19512,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		// Some things we don't say to teammates
 		if(GetPlayer()->getTeam() != GET_PLAYER(ePlayer).getTeam())
 		{
-			DoMakeDemand(ePlayer, eStatement, pDeal);
-
 			// STATEMENTS - all members but ePlayer passed by address
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -34695,16 +34731,20 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 	if(eVictory != NO_VICTORY)
 	{
 		ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
-		if (GET_TEAM(GetPlayer()->getTeam()).getProjectCount(ApolloProgram) >= 1)
+		if (GET_TEAM(GetPlayer()->getTeam()).getProjectCount((ProjectTypes)ApolloProgram) >= 1)
 		{
 			return true;
 		}
 
 		int iTotalTechs = GC.getNumTechInfos();
-		iTotalTechs *= 75;
+		iTotalTechs *= 90;
+		iTotalTechs /= 100;
+
+		int iOurTechs = GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown();
+		iTotalTechs *= 90;
 		iTotalTechs /= 100;
 		
-		if(GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown() >= iTotalTechs)
+		if (iOurTechs >= iTotalTechs)
 		{
 			PlayerTypes eLoopPlayer;
 			int iNumCivsAheadScience = 0;
@@ -34729,7 +34769,7 @@ bool CvDiplomacyAI::IsCloseToSSVictory()
 					iNumCivsAlive++;
 				}
 			}
-			if (iNumCivsAlive > 0 && iNumCivsAheadScience > iNumCivsBehindScience)
+			if (iNumCivsAlive > 0 && iNumCivsAheadScience > (iNumCivsBehindScience * 2))
 			{
 				return true;
 			}

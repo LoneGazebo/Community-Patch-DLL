@@ -460,6 +460,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 			}
 
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo)
+			{
+				TechTypes eTech = (TechTypes)pkResourceInfo->getTechObsolete();
+				if (eTech != NO_TECH && (GET_PLAYER(ePlayer).HasTech(eTech) || GET_PLAYER(eToPlayer).HasTech(eTech)))
+					return false;
+			}
+
 			//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
 
 			int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
@@ -4888,7 +4896,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 	{
 		if(!toPlayer.isHuman())
 		{
-			toPlayer.GetDiplomacyAI()->ChangeRecentTradeValue(fromPlayer.GetID(), 400);
+			toPlayer.GetDiplomacyAI()->ChangeRecentTradeValue(fromPlayer.GetID(), -400);
 		}
 	}
 #endif

@@ -655,7 +655,7 @@ private:
 	int ScoreBelief(CvBeliefEntry* pEntry);
 	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot);
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
-	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry);
+	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false);
 	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield);
 
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit);

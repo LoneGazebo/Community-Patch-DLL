@@ -382,6 +382,7 @@ CvPlayer::CvPlayer() :
 	, m_aiCoastalCityYieldChange("CvPlayer::m_aiCoastalCityYieldChange", m_syncArchive)
 	, m_aiCapitalYieldChange("CvPlayer::m_aiCapitalYieldChange", m_syncArchive)
 	, m_aiCapitalYieldPerPopChange("CvPlayer::m_aiCapitalYieldPerPopChange", m_syncArchive)
+	, m_aiCapitalYieldPerPopChangeEmpire("CvPlayer::m_aiCapitalYieldPerPopChangeEmpire", m_syncArchive)
 	, m_aiSeaPlotYield("CvPlayer::m_aiSeaPlotYield", m_syncArchive)
 	, m_aiYieldRateModifier("CvPlayer::m_aiYieldRateModifier", m_syncArchive)
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
@@ -1822,6 +1823,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiCapitalYieldPerPopChange.clear();
 	m_aiCapitalYieldPerPopChange.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiCapitalYieldPerPopChangeEmpire.clear();
+	m_aiCapitalYieldPerPopChangeEmpire.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiSeaPlotYield.clear();
 	m_aiSeaPlotYield.resize(NUM_YIELD_TYPES, 0);
@@ -15923,14 +15927,15 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 
 	iProductionNeeded = pkBuildingInfo->GetProductionCost();
 
+	int iProductionModifier = 0;
+
 	if(pkBuildingInfo->GetNumCityCostMod() > 0 && getNumCities() > 0)
 	{
-		iProductionNeeded += (pkBuildingInfo->GetNumCityCostMod() * getNumCities());
+		iProductionModifier += (pkBuildingInfo->GetNumCityCostMod() * getNumCities());
 	}
 #if defined(MOD_BALANCE_CORE_WONDER_COST_INCREASE)
 	if(MOD_BALANCE_CORE_WONDER_COST_INCREASE && isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 	{
-		int iNumWorldWonderPercent = 0;
 		const CvCity* pLoopCity;
 		int iLoop;
 		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -15957,15 +15962,15 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 
 									if(eBuildingUnlockedEra == GetCurrentEra())
 									{
-										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+										iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
 									}
 									else if((GetCurrentEra() - eBuildingUnlockedEra) == 1)
 									{
-										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+										iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
 									}
 									else if((GetCurrentEra() - eBuildingUnlockedEra) > 1)
 									{
-										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+										iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
 									}
 								}
 							}
@@ -15974,28 +15979,19 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 				}
 			}
 		}
-		if(iNumWorldWonderPercent > 0)
-		{
-			iProductionNeeded *= (100 + iNumWorldWonderPercent);
-			iProductionNeeded /= 100;
-		}
 	}
 #endif
 
 	if(isMinorCiv())
 	{
-		iProductionNeeded *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
-		iProductionNeeded /= 100;
+		iProductionModifier += GC.getMINOR_CIV_PRODUCTION_PERCENT() - 100;
 	}
 
-	iProductionNeeded *= GC.getBUILDING_PRODUCTION_PERCENT();
-	iProductionNeeded /= 100;
+	iProductionModifier += GC.getBUILDING_PRODUCTION_PERCENT() - 100;
 
-	iProductionNeeded *= GC.getGame().getGameSpeedInfo().getConstructPercent();
-	iProductionNeeded /= 100;
+	iProductionModifier += GC.getGame().getGameSpeedInfo().getConstructPercent() - 100;
 
-	iProductionNeeded *= GC.getGame().getStartEraInfo().getConstructPercent();
-	iProductionNeeded /= 100;
+	iProductionModifier += GC.getGame().getStartEraInfo().getConstructPercent() - 100;
 
 	if(pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
 	{
@@ -16003,7 +15999,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 		if(pkTechInfo)
 		{
 			// Loop through all eras and apply Building production mod based on how much time has passed
-			int iTotalEraMod = 100;
+			int iTotalEraMod = 0;
 			EraTypes eBuildingUnlockedEra = (EraTypes) pkTechInfo->GetEra();
 
 			if(eBuildingUnlockedEra < GetCurrentEra())
@@ -16023,12 +16019,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 					}
 				}
 
-				// Don't make a change if there's no change to make
-				if(iTotalEraMod != 100)
-				{
-					iProductionNeeded *= iTotalEraMod;
-					iProductionNeeded /= 100;
-				}
+				iProductionModifier += iTotalEraMod;
 			}
 		}
 	}
@@ -16037,18 +16028,18 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 	{
 		if(isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
-			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
-			iProductionNeeded /= 100;
+			iProductionModifier += GC.getGame().getHandicapInfo().getAIWorldConstructPercent() - 100;
 		}
 		else
 		{
-			iProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
-			iProductionNeeded /= 100;
+			iProductionModifier += GC.getGame().getHandicapInfo().getAIConstructPercent() - 100;
 		}
 
-		iProductionNeeded *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100));
-		iProductionNeeded /= 100;
+		iProductionModifier += std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GetCurrentEra()) + 100)) - 100;
 	}
+
+	iProductionNeeded *= (100 + iProductionModifier);
+	iProductionNeeded /= 100;
 
 	return std::max(1, iProductionNeeded);
 }
@@ -17861,6 +17852,32 @@ void CvPlayer::ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange)
 		updateYield();
 	}
 }
+
+
+//	--------------------------------------------------------------------------------
+/// How much additional Yield does the Capital produce per pop?
+int CvPlayer::GetCapitalYieldPerPopChangeEmpire(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiCapitalYieldPerPopChangeEmpire[eYield];
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes how much additional Yield the Capital produces per pop
+void CvPlayer::ChangeCapitalYieldPerPopChangeEmpire(YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiCapitalYieldPerPopChangeEmpire.setAt(eYield, m_aiCapitalYieldPerPopChangeEmpire[eYield] + iChange);
+
+		updateYield();
+	}
+}
+
 
 //	--------------------------------------------------------------------------------
 /// How much additional Yield does a Great Work produce?
@@ -25692,7 +25709,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if (iValue != 0)
 					{
 						if (iPassYield == 0)
-							iValue /= 2;
+							iValue /= 4;
 						else
 							iValue *= iPassYield;
 					}
@@ -25918,7 +25935,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * iNumFollowers;
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
 							}
 							if(eYield == YIELD_SCIENCE && iPassYield > 0)
 							{
@@ -25943,11 +25960,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if(pReligion)
 						{
 							int iTempValue = pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
-							if (iPassYield != 0)
-							{
-								iTempValue *= (100 + iPassYield);
-								iTempValue /= 100;
-							}
+							iTempValue *= max(1, iPassYield+1);
 
 							iValue += iTempValue;
 						}
@@ -35791,7 +35804,9 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	int iCSResource = getResourceFromCSAlliances(eIndex);
 	if (iCSResource != 0)
 	{
-		iTotalNumResource += (iCSResource * GetNumCSAllies());
+		iCSResource *= GetNumCSAllies();
+		iCSResource /= 100;
+		iTotalNumResource += iCSResource;
 	}
 #endif
 
@@ -35891,7 +35906,9 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 	int iCSResource = getResourceFromCSAlliances(eIndex);
 	if (iCSResource != 0)
 	{
-		iTotalNumResource += (iCSResource * GetNumCSAllies());
+		iCSResource *= GetNumCSAllies();
+		iCSResource /= 100;
+		iTotalNumResource += iCSResource;
 	}
 #endif
 
@@ -41384,6 +41401,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetCapitalYieldPerPopChange(iI) * iChange;
 		if(iMod != 0)
 			ChangeCapitalYieldPerPopChange(eYield, iMod);
+
+		iMod = pPolicy->GetCapitalYieldPerPopChangeEmpire(iI) * iChange;
+		if (iMod != 0)
+			ChangeCapitalYieldPerPopChangeEmpire(eYield, iMod);
 
 		iMod = pPolicy->GetCapitalYieldModifier(iI) * iChange;
 		if(iMod != 0)

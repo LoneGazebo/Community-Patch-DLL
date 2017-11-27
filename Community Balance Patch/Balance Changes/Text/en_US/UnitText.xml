@@ -236,7 +236,14 @@
 			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR">
+			<Text>Prisoners of War</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR_HELP">
+			<Text>-50% Work Rate when building Improvements or Routes.</Text>
+		</Row>
+
+
 
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
 			<Text>Covering Fire I</Text>

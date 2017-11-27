@@ -2730,9 +2730,9 @@ void CvCity::doTurn()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+		if (getProductionProcess() != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
 		{
-			int iPile = getYieldRate(YIELD_PRODUCTION, false);
+			int iPile = getYieldRate(YIELD_PRODUCTION, false) * GC.getProcessInfo(getProductionProcess())->getDefenseValue();
 			iPile /= 10;
 
 			iHitsHealed += iPile;
@@ -21647,49 +21647,49 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 	if (eIndex == YIELD_FOOD && GetWeLoveTheKingDayCounter() > 0 && GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
 	{
-		iTempMod += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
+		iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iTempMod);
 	}
 	if (GetYieldModifierFromHappiness(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromHappiness(eIndex);
+		iTempMod = GetYieldModifierFromHappiness(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_HAPPINESS", iTempMod);
 	}
 	if (GetYieldModifierFromHealth(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromHealth(eIndex);
+		iTempMod = GetYieldModifierFromHealth(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_HEALTH", iTempMod);
 	}
 	if (GetYieldModifierFromCrime(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromCrime(eIndex);
+		iTempMod = GetYieldModifierFromCrime(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_CRIME", iTempMod);
 	}
 	if (GetYieldModifierFromDevelopment(eIndex) != 0)
 	{
-		iTempMod += GetYieldModifierFromDevelopment(eIndex);
+		iTempMod = GetYieldModifierFromDevelopment(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_DEVELOPMENT", iTempMod);
 	}
 	if (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) != 0)
 	{
-		iTempMod += min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
+		iTempMod = min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_GREAT_WORK_MODIFIER", iTempMod);
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
-		iTempMod += min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
+		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_SPY_MODIFIER", iTempMod);
@@ -25015,9 +25015,9 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += (int)(fTechMod + 0.005);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
 
 #if defined(MOD_BALANCE_CORE)
-	if (getProductionProcess() == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	if (getProductionProcess() != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
 	{
-		int iPile = getYieldRate(YIELD_PRODUCTION, false);
+		int iPile = (getYieldRate(YIELD_PRODUCTION, false) * GC.getProcessInfo(getProductionProcess())->getDefenseValue());
 
 		iStrengthValue += iPile;
 	}
@@ -26044,6 +26044,16 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	int iRtnValue = 0;
+
+
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+	{
+		if (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(pPlot->getOwner(), true) >= MAJOR_CIV_APPROACH_AFRAID)
+		{
+			return iRtnValue;
+		}
+	}
+
 	YieldTypes eSpecializationYield = NO_YIELD;
 
 	CitySpecializationTypes eSpecialization = GetCityStrategyAI()->GetSpecialization();
@@ -26143,27 +26153,27 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 							case DISPUTE_LEVEL_FIERCE:
 								iRtnValue += (10 - iDistance) * /* 6 */ GC.getAI_PLOT_VALUE_FIERCE_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
-									iRtnValue *= 100;
+									iRtnValue *= 8;
 								}
 #endif
 								break;
 							case DISPUTE_LEVEL_STRONG:
 								iRtnValue += (10 - iDistance) * /* 4 */GC.getAI_PLOT_VALUE_STRONG_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
-									iRtnValue *= 50;
+									iRtnValue *= 4;
 								}
 #endif
 								break;
 							case DISPUTE_LEVEL_WEAK:
 								iRtnValue += (10 - iDistance) * /* 2 */ GC.getAI_PLOT_VALUE_WEAK_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
+								if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID() && iRtnValue > 0)
 								{
-									iRtnValue *= 25;
+									iRtnValue *= 2;
 								}
 #endif
 								break;
@@ -26370,7 +26380,7 @@ OrderData order;
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 != NO_PROCESS && GC.getProcessInfo((ProcessTypes)iData1)->getDefenseValue() != 0)
 	{
 		updateStrengthValue();
 	}
@@ -26717,6 +26727,12 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #endif
 
 				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
+				CvBuildingClassInfo* pBuildingClass = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
+				if (pBuildingClass && ::isWorldWonderClass(*pBuildingClass))
+				{
+					iProductionNeeded *= 100;
+					iProductionNeeded /= 100 + GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+				}
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
 				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
@@ -26839,7 +26855,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	case ORDER_MAINTAIN:
 #if defined(MOD_BALANCE_CORE)
-		if ((ProcessTypes)pOrderNode->iData1 == GC.getInfoTypeForString("PROCESS_DEFENSE"))
+		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
 		{
 			bUpdateStrength = true;
 		}

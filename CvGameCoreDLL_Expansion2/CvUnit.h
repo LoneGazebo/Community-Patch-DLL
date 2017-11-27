@@ -1248,6 +1248,9 @@ public:
 	int GetDamageAoEFortified() const;
 	void ChangeDamageAoEFortified(int iChange);
 
+	int GetWorkRateMod() const;
+	void ChangeWorkRateMod(int iChange);
+
 	int GetDamageReductionCityAssault() const;
 	void ChangeDamageReductionCityAssault(int iChange);
 #endif
@@ -1977,6 +1980,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 	FAutoVariable<int, CvUnit> m_iDamageAoEFortified;
+	FAutoVariable<int, CvUnit> m_iWorkRateMod;
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;

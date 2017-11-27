@@ -376,6 +376,7 @@ CvUnit::CvUnit() :
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
 	, m_iDamageAoEFortified("CvUnit::m_iDamageAoEFortified", m_syncArchive)
+	, m_iWorkRateMod("CvUnit::m_iWorkRateMod", m_syncArchive)
 	, m_iDamageReductionCityAssault("CvUnit::m_iDamageReductionCityAssault", m_syncArchive)
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
@@ -856,6 +857,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
+
 #endif
 
 	// Free Promotions from Policies, Techs, etc.
@@ -1398,6 +1400,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
 	m_iDamageAoEFortified = 0;
+	m_iWorkRateMod = 0;
 	m_iDamageReductionCityAssault = 0;
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
@@ -2278,6 +2281,17 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				}
 			}
 		}
+		if (bSupply)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				int Gained = getUnitInfo().GetResourceQuantityExpended((ResourceTypes)iResourceLoop);
+				if (Gained != 0)
+				{
+					GET_PLAYER(getOwner()).changeNumResourceTotal((ResourceTypes)iResourceLoop, Gained);
+				}
+			}
+		}
 		if (bSupply && getUnitInfo().GetSupplyCapBoost() != 0)
 		{
 			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
@@ -2567,6 +2581,14 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 					pkCapturedUnit->SetOriginalOwner(kCaptureDef.eOriginalOwner);
 
+					if (MOD_BALANCE_CORE_BARBARIAN_THEFT && pkCapturedUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_WORKER && pkCapturedUnit->GetOriginalOwner() != kCapturingPlayer.GetID())
+					{
+						PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PRISONER_WAR");
+						if (ePromotionForced != NO_PROMOTION && !pkCapturedUnit->HasPromotion(ePromotionForced))
+						{
+							pkCapturedUnit->setHasPromotion(ePromotionForced, true);
+						}
+					}
 #if defined(MOD_API_EXTENSIONS)
 					pkCapturedUnit->setScenarioData(kCaptureDef.iScenarioData);
 #endif
@@ -8966,42 +8988,41 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 
 	if (GET_PLAYER(m_eOwner).GetTrade()->ContainsOpposingPlayerTradeUnit(pPlot))
 	{
+#if defined(MOD_BALANCE_CORE)
+		std::vector<int> aiTradeUnitsAtPlot;
+		aiTradeUnitsAtPlot = GET_PLAYER(m_eOwner).GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, true);
+
+		for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+		{
+			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+			if (eTradeUnitOwner == NO_PLAYER)
+			{
+				// invalid TradeUnit
+				continue;
+			}
+
+			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+				continue;
+
+			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION)
+			{
+				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+				{
+					return false;
+				}
+			}
+		}
+#endif
 		if (!bOnlyTestVisibility)
 		{
-			std::vector<int> aiTradeUnitsAtPlot;
-			aiTradeUnitsAtPlot = GET_PLAYER(m_eOwner).GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, true);
 			if (aiTradeUnitsAtPlot.size() <= 0)
 			{
 				return false;
 			}
 
-#if defined(MOD_BALANCE_CORE)
-			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
-			{
-				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-				if (eTradeUnitOwner == NO_PLAYER)
-				{
-					// invalid TradeUnit
-					continue;
-				}
-
-				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-				if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
-					continue;
-
-				CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
-				if (eCorporation != NO_CORPORATION)
-				{
-					CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-					if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-			return false;
-#else
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
 			if (eTradeUnitOwner == NO_PLAYER)
 			{
@@ -9014,18 +9035,6 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			{
 				return false;
 			}
-#if defined(MOD_BALANCE_CORE)
-			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
-			if (eCorporation != NO_CORPORATION)
-			{
-				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
-				{
-					return false;
-				}
-			}
-#endif
-#endif
 		}
 		return true;
 	}
@@ -10953,6 +10962,7 @@ bool CvUnit::DoSpreadReligion()
 	{
 		if(CanSpreadReligion(plot()))
 		{
+			int iPreSpreadFollowers = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 			int iConversionStrength = GetConversionStrength(pCity);
 #else
@@ -10966,14 +10976,7 @@ bool CvUnit::DoSpreadReligion()
 				if(pReligion)
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
-					// Requires majority for this city to be another religion
-					int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
-					CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
-					if(pCity->getOwner() != m_eOwner)
-					{
-						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, (pCity->getPopulation() * 3), false, pCity->getOwner(), plot());
-					}
+					iPreSpreadFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
 #else
 					iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
 					if(iScienceBonus > 0)
@@ -11012,6 +11015,15 @@ bool CvUnit::DoSpreadReligion()
 				pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iConversionStrength, getOwner());
 			}
 			GetReligionData()->SetSpreadsLeft(GetReligionData()->GetSpreadsLeft() - 1);
+
+			int iPostFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
+			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iPostFollowers - iPreSpreadFollowers, false, pCity->getOwner(), plot());
+			if (pCity->getOwner() != m_eOwner)
+			{
+				int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
+			}
 
 			if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
@@ -14866,6 +14878,11 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 	{
 		iRate = 100;
 	}
+	if (MOD_BALANCE_CORE_BARBARIAN_THEFT && GetWorkRateMod() != 0)
+	{
+		iRate *= GetWorkRateMod();
+		iRate /= 100;
+	}
 #endif
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -17381,6 +17398,10 @@ int CvUnit::maxXPValue() const
 	if(isBarbarian())
 	{
 		iMaxValue = std::min(iMaxValue, GC.getBARBARIAN_MAX_XP_VALUE());
+	}
+	if (GET_PLAYER(getOwner()).isMinorCiv() && GC.getMINOR_MAX_XP_VALUE() != -1)
+	{
+		iMaxValue = std::min(iMaxValue, GC.getMINOR_MAX_XP_VALUE());
 	}
 
 	return iMaxValue;
@@ -21092,14 +21113,14 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		if(getExperiencePercent() != 0)
 		{
 #if defined(MOD_UNITS_XP_TIMES_100)
-			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * std::max(0, getExperiencePercent())) / 100;
+			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
 			if (!MOD_UNITS_XP_TIMES_100) {
 				// If NOT using XP times 100, remove any fractional part
 				iUnitBonusXpTimes100 -= (iUnitBonusXpTimes100 % 100);
 			}
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 #else
-			iUnitExperience *= std::max(0, 100 + getExperiencePercent());
+			iUnitExperience *= 100 + getExperiencePercent();
 			iUnitExperience /= 100;
 #endif
 		}
@@ -23965,6 +23986,18 @@ void CvUnit::ChangeDamageAoEFortified(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetWorkRateMod() const
+{
+	return m_iWorkRateMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeWorkRateMod(int iChange)
+{
+	m_iWorkRateMod += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetDamageReductionCityAssault() const
 {
 	return m_iDamageReductionCityAssault;
@@ -26047,6 +26080,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
 		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
 		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
+		ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
 		ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
 		if(thisPromotion.PromotionDuration() != 0)
 		{

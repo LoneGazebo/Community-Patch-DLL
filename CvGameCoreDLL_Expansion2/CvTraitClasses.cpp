@@ -2927,6 +2927,233 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
 }
 
+bool CvPlayerTraits::IsWarmonger()
+{
+	if (GetGreatGeneralRateModifier() != 0 ||
+		GetGreatGeneralExtraBonus() != 0 ||
+		GetLevelExperienceModifier() != 0 ||
+		GetCityStateCombatModifier() != 0 ||
+		GetLandBarbarianConversionPercent() != 0 ||
+		GetLandBarbarianConversionExtraUnits() != 0 ||
+		GetSeaBarbarianConversionPercent() != 0 ||
+		GetCultureFromKills() != 0 ||
+		GetFaithFromKills() != 0 ||
+		GetPlunderModifier() != 0 ||
+		GetGoldenAgeMoveChange() != 0 ||
+		GetGoldenAgeCombatModifier() != 0 ||
+		GetExtraEmbarkMoves() != 0 ||
+		GetBullyMilitaryStrengthModifier() != 0 ||
+		GetInspirationalLeader() != 0 ||
+		GetBullyValueModifier() != 0 ||
+		GetMultipleAttackBonus() != 0 ||
+		GetCityConquestGWAM() != 0 ||
+		GetLandUnitMaintenanceModifier() != 0 ||
+		GetNavalUnitMaintenanceModifier() != 0 ||
+		GetProductionBonusModifierConquest() != 0 ||
+		GetGoldenAgeFromVictory() != 0)
+		return true;
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldFromLevelUp(eYield) != 0 ||
+			GetYieldFromConquest(eYield) != 0)
+			return true;
+	}
+
+	if (IsReconquista() ||
+		IsKeepConqueredBuildings() ||
+		IsCanPurchaseNavalUnitsFaith() ||
+		IsBullyAnnex() ||
+		IsFightWellDamaged() ||
+		IsEmbarkedToLandFlatCost())
+		return true;
+
+	return false;
+}
+bool CvPlayerTraits::IsNerd()
+{
+	if (GetGreatScientistRateModifier() != 0 ||
+		GetInvestmentModifier() != 0 ||
+		GetFreePolicyPerXTechs() != 0)
+		return true;
+
+	if (IsAdoptionFreeTech() ||
+		IsTechBoostFromCapitalScienceBuildings() ||
+		IsMayaCalendarBonuses() ||
+		IsTechFromCityConquer())
+		return true;
+
+	return false;
+}
+bool CvPlayerTraits::IsTourism()
+{
+	if (GetGreatPeopleRateModifier() != 0 ||
+		GetGreatPersonGiftInfluence() != 0 ||
+		GetCityCultureBonus() != 0 ||
+		GetCapitalThemingBonusModifier() != 0 ||
+		GetPolicyCostModifier() != 0 ||
+		GetWonderProductionModifier() != 0 ||
+		GetGoldenAgeTourismModifier() != 0 ||
+		GetGoldenAgeGreatArtistRateModifier() != 0 ||
+		GetGoldenAgeGreatMusicianRateModifier() != 0 ||
+		GetGoldenAgeGreatWriterRateModifier() != 0 ||
+		GetTourismGABonus() != 0 ||
+		GetTourismToGAP() != 0 ||
+		GetGoldToGAP() != 0 ||
+		GetEventTourismBoost() != 0 ||
+		GetEventGP() != 0 ||
+		GetWLTKDCulture() != 0 ||
+		GetExtraConqueredCityTerritoryClaimRange() != 0 ||
+		GetExtraTenetsFirstAdoption() != 0 ||
+		GetFreeSocialPoliciesPerEra() != 0 ||
+		GetCultureBonusModifierConquest() != 0)
+		return true;
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldFromHistoricEvent(eYield) != 0)
+			return true;
+	}
+
+	if(IsGPWLTKD() ||
+		IsGreatWorkWLTKD())
+		return true;
+
+	return false;
+}
+bool CvPlayerTraits::IsDiplomat()
+{
+	if (GetCityStateBonusModifier() != 0 ||
+		GetCityStateFriendshipModifier() != 0 ||
+		GetAllianceCSDefense() != 0 ||
+		GetAllianceCSStrength() != 0 ||
+		GetInfluenceMeetCS() != 0 ||
+		GetStartingSpies() != 0 ||
+		GetLandTradeRouteRangeBonus() != 0 ||
+		GetSeaTradeRouteRangeBonus() != 0 ||
+		GetQuestYieldModifier() != 0 ||
+		GetLuxuryHappinessRetention() != 0 ||
+		GetTradeBuildingModifier() != 0 ||
+		GetVotePerXCSAlliance() != 0)
+		return true;
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldChangePerTradePartner(eYield) != 0 ||
+			GetYieldFromCSAlly(eYield) != 0 ||
+			GetYieldFromCSFriend(eYield) != 0)
+			return true;
+	}
+
+	if (IsImportsCountTowardsMonopolies() ||
+		IsDiplomaticMarriage() ||
+		IsAbleToAnnexCityStates())
+		return true;
+
+	return false;
+}
+bool CvPlayerTraits::IsSmaller()
+{
+	if (GetGreatScientistRateModifier() != 0 ||
+		GetFreePolicyPerXTechs() != 0 ||
+		GetGreatPeopleRateModifier() != 0 ||
+		GetCapitalThemingBonusModifier() != 0 ||
+		GetPolicyCostModifier() != 0 ||
+		GetWonderProductionModifier() != 0 ||
+		GetEventTourismBoost() != 0 ||
+		GetEventGP() != 0)
+		return true;
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldChangePerTradePartner(eYield) != 0 ||
+			GetYieldFromCSAlly(eYield) != 0 ||
+			GetYieldFromCSFriend(eYield) != 0)
+			return true;
+	}
+
+	if (IsImportsCountTowardsMonopolies() ||
+		IsAdoptionFreeTech() ||
+		IsPopulationBoostReligion() ||
+		IsTechBoostFromCapitalScienceBuildings())
+		return true;
+
+	if (GC.getGame().getGameTurn() / 2 > GC.getGame().getEstimateEndTurn())
+	{
+		if (m_pPlayer->getNumCities() < 4)
+			return true;
+	}
+
+	return false;
+}
+bool CvPlayerTraits::IsExpansionist()
+{
+	if (GetPlotBuyCostModifier() != 0 ||
+		GetCityWorkingChange() != 0 ||
+		GetPlotCultureCostModifier() != 0 ||
+		GetNaturalWonderFirstFinderGold() != 0 ||
+		GetNaturalWonderSubsequentFinderGold() != 0 ||
+		GetNaturalWonderYieldModifier() != 0 ||
+		GetNaturalWonderHappinessModifier() != 0 ||
+		GetGrowthBoon() != 0 ||
+		GetGAUnhappinesNeedMod() != 0 ||
+		GetUniqueLuxuryCities() != 0 ||
+		GetExtraFoundedCityTerritoryClaimRange() != 0)
+		return true;
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldFromTilePurchase(eYield) != 0 ||
+			GetYieldFromTileEarn(eYield) != 0 ||
+			GetYieldFromSettle(eYield) != 0)
+			return true;
+	}
+
+	if (IsBuyOwnedTiles() ||
+		IsExpansionWLTKD() ||
+		IsWoodlandMovementBonus() ||
+		IsRiverMovementBonus() ||
+		IsFasterInHills() ||
+		IsEmbarkedAllWater() ||
+		IsRiverTradeRoad() ||
+		IsNoConnectionUnhappiness())
+		return true;
+
+	return false;
+}
+
+bool CvPlayerTraits::IsReligious()
+{
+	if (IsForeignReligionSpreadImmune() ||
+		IsNoNaturalReligionSpread() ||
+		IsFaithFromUnimprovedForest() ||
+		IsAlwaysReligion() ||
+		IsAnyBelief() ||
+		IsBonusReligiousBelief() ||
+		IsPopulationBoostReligion())
+		return true;
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+		if (GetYieldFromOwnPantheon(eYield) != 0)
+			return true;
+	}
+
+	if (GetTradeReligionModifier() != 0)
+		return true;
+
+	if (m_pPlayer->GetReligions()->GetCurrentReligion() != NO_RELIGION)
+		return true;
+
+	return false;
+}
+
 /// Store off data on bonuses from traits
 void CvPlayerTraits::InitPlayerTraits()
 {

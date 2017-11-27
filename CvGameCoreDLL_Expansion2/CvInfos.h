@@ -2271,6 +2271,7 @@ public:
 	virtual ~CvProcessInfo();
 
 	int getTechPrereq() const;
+	int getDefenseValue() const;
 
 	// Arrays
 	int getProductionToYieldModifier(int i) const;
@@ -2280,6 +2281,7 @@ public:
 
 protected:
 	int m_iTechPrereq;
+	int m_iDefenseValue;
 
 	// Arrays
 	int* m_paiProductionToYieldModifier;

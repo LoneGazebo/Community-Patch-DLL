@@ -5904,7 +5904,7 @@
 			<Text>+{1_Num} [ICON_PEACE] from Great Works and Themes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_TRAIT_BONUS">
-			<Text>+{1_Num} {2_IconString} from Trait</Text>
+			<Text>{1_Num} {2_IconString} from Trait</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE">
