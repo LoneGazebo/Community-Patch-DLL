@@ -1037,7 +1037,7 @@ void CvHomelandAI::FindHomelandTargets()
 /// Choose which moves to run and assign units to it
 void CvHomelandAI::AssignHomelandMoves()
 {
-	FStaticVector< CvHomelandMove, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	vector< CvHomelandMove >::iterator it;
 
 	// Proceed in priority order
 	for(it = m_MovePriorityList.begin(); it != m_MovePriorityList.end() && !m_CurrentTurnUnits.empty(); ++it)

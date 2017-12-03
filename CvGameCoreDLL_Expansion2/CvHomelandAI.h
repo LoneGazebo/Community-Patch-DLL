@@ -414,7 +414,7 @@ private:
 	MoveUnitsArray m_CurrentMoveUnits;
 	MoveUnitsArray m_CurrentMoveHighPriorityUnits;
 
-	FStaticVector< CvHomelandMove, 35, true, c_eCiv5GameplayDLL > m_MovePriorityList;
+	vector< CvHomelandMove > m_MovePriorityList;
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;

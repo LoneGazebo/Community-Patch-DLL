@@ -15298,9 +15298,9 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
-	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
+	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange,pBattlePlot) && !IsIgnoreGreatGeneralBenefit())
 #else
-	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
+	if(IsNearGreatGeneral(pBattlePlot) && !IsIgnoreGreatGeneralBenefit())
 #endif
 	{
 		iModifier += kPlayer.GetGreatGeneralCombatBonus();
@@ -15308,11 +15308,6 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 		iModifier += iAuraEffectChange;
 #endif
-
-		if (IsStackedGreatGeneral(pFromPlot))
-		{
-			iModifier += GetGreatGeneralCombatModifier();
-		}
 	}
 #if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
@@ -16209,9 +16204,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
-	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
+	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange,pMyPlot) && !IsIgnoreGreatGeneralBenefit())
 #else
-	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
+	if(IsNearGreatGeneral(pMyPlot) && !IsIgnoreGreatGeneralBenefit())
 #endif
 	{
 #if defined(MOD_BUGFIX_MINOR)
@@ -16223,11 +16218,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 		iModifier += iAuraEffectChange;
 #endif
-
-		if (IsStackedGreatGeneral(pMyPlot))
-		{
-			iModifier += GetGreatGeneralCombatModifier();
-		}
 	}
 
 	// Reverse Great General nearby
