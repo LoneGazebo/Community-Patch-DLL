@@ -179,6 +179,7 @@ public:
 
 	bool ReadyToSelect() const;
 	bool ReadyToMove() const;
+	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
 #if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
@@ -1566,10 +1567,10 @@ public:
 	void ChangeMissionTimer(int iChange);
 	void ClearMissionQueue(bool bKeepPathCache = false, int iUnitCycleTimer = 1);
 	int GetLengthMissionQueue() const;
-	const MissionData* GetHeadMissionData();
-	const MissionData* GetMissionData(int iIndex);
+	const MissionData* GetHeadMissionData() const;
+	const MissionData* GetMissionData(int iIndex) const;
 	CvPlot* GetMissionAIPlot() const;
-	MissionAITypes GetMissionAIType();
+	MissionAITypes GetMissionAIType() const;
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 

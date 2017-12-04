@@ -26432,7 +26432,7 @@ CvUnit * CvUnit::GetPotentialUnitToSwapWith(CvPlot & swapPlot) const
 								if (AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
+									if (here && pLoopUnit->canEnterTerrain(*here, CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToSwap())
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
@@ -27376,7 +27376,7 @@ bool CvUnit::ReadyToMove() const
 		return false;
 	}
 
-	if(GetLengthMissionQueue() != 0)
+	if (GetLengthMissionQueue() > 0)
 	{
 		return false;
 	}
@@ -27399,6 +27399,38 @@ bool CvUnit::ReadyToMove() const
 	return true;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::ReadyToSwap() const
+{
+	VALIDATE_OBJECT
+	if (!canMove())
+	{
+		return false;
+	}
+
+	//allow a single move mission
+	if (GetLengthMissionQueue() > 1)
+	{
+		return false;
+	}
+
+	if (GetLengthMissionQueue() == 1 && GetHeadMissionData()->eMissionType != CvTypes::getMISSION_MOVE_TO())
+	{
+		return false;
+	}
+
+	if (GetAutomateType() != NO_AUTOMATE)
+	{
+		return false;
+	}
+
+	if (IsBusy())
+	{
+		return false;
+	}
+
+	return true;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::ReadyToAuto() const
@@ -28616,7 +28648,7 @@ int CvUnit::GetLengthMissionQueue()	const
 
 //	---------------------------------------------------------------------------
 /// Retrieve the data for the first mission in the queue (const correct version)
-const MissionData* CvUnit::GetHeadMissionData()
+const MissionData* CvUnit::GetHeadMissionData() const
 {
 	VALIDATE_OBJECT
 	if(m_missionQueue.getLength())
@@ -28625,7 +28657,7 @@ const MissionData* CvUnit::GetHeadMissionData()
 }
 
 //	---------------------------------------------------------------------------
-const MissionData* CvUnit::GetMissionData(int iIndex)
+const MissionData* CvUnit::GetMissionData(int iIndex) const
 {
 	VALIDATE_OBJECT
 	if(iIndex >= 0 && iIndex < m_missionQueue.getLength())
@@ -28674,7 +28706,7 @@ CvPlot* CvUnit::GetMissionAIPlot() const
 
 //	--------------------------------------------------------------------------------
 /// What is the AI type of the mission?
-MissionAITypes CvUnit::GetMissionAIType()
+MissionAITypes CvUnit::GetMissionAIType() const
 {
 	VALIDATE_OBJECT
 	return m_eMissionAIType;
