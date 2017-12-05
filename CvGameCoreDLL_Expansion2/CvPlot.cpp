@@ -15544,17 +15544,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 {
 	TeamTypes eTeam = GET_PLAYER(eOwner).getTeam();
 	if(eTeam == NO_TEAM)
-	{
 		return 0;
-	}
 
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 	
 	if((eFort == NO_IMPROVEMENT) || (eCitadel == NO_IMPROVEMENT))
-	{
 		return 0;
-	}
 
 	PlayerTypes pNeighborAdjacent = NO_PLAYER;
 	PlayerTypes pNeighborNearby = NO_PLAYER;
@@ -15575,14 +15571,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		//Don't want them adjacent to cities, but we do want to check for plot ownership.
 		if (pLoopAdjacentPlot != NULL)
 		{	
-			//Let's check for adjacent plots and forts, but only ones we own.
+			//Let's check for adjacent plots, but only ones we own.
 			if(pLoopAdjacentPlot->getOwner() == eOwner)
 			{
 				iAdjacentWeOwn++;
-				if((pLoopAdjacentPlot->getImprovementType() == eFort) || (pLoopAdjacentPlot->getImprovementType() == eCitadel))
-				{
+				//don't build other defenses near citadels (next to forts is ok)
+				if(pLoopAdjacentPlot->getImprovementType() == eCitadel)
 					return 0;
-				}
 			}
 			if(pLoopAdjacentPlot->isCity())
 			{

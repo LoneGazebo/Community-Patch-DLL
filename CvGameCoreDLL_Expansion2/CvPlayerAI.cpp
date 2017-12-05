@@ -2899,7 +2899,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 			}
 
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
-			if (eOtherPlayer != NO_PLAYER)
+			if (eOtherPlayer != NO_PLAYER && eOtherPlayer != pGeneral->getOwner())
 			{
 				if(GET_PLAYER(eOtherPlayer).isMinorCiv())
 				{
@@ -2950,7 +2950,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::
 			}
 
 			// score yield
-			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			for(int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
 			{
 				iScore += (pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor);
 			}

@@ -869,10 +869,13 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway, iGold);
 		AddImprovingResourcesDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
-		AddChopDirectives(pUnit, pPlot, iMoveTurnsAway);
-		AddScrubFalloutDirectives(pUnit, pPlot, iMoveTurnsAway);
-		AddRepairTilesDirectives(pUnit, pPlot, iMoveTurnsAway);
-		AddRemoveRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+		if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
+		{
+			AddChopDirectives(pUnit, pPlot, iMoveTurnsAway);
+			AddScrubFalloutDirectives(pUnit, pPlot, iMoveTurnsAway);
+			AddRepairTilesDirectives(pUnit, pPlot, iMoveTurnsAway);
+			AddRemoveRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
+		}
 	}
 
 	// we need to evaluate the tiles outside of our territory to build roads
@@ -3203,6 +3206,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		{
 			if(m_pTargetPlot->getOwner() == m_pPlayer->GetID())
 			{
+				//looking to build a fort
 				iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 				if(iDefense==0)
 					return -1;
@@ -3217,6 +3221,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		if(m_pTargetPlot->getImprovementType() == eFort)
 		{
+			//looking to replace a fort
 			iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
 		}
 		if((iDefense * 3) > (iScore * 2))
