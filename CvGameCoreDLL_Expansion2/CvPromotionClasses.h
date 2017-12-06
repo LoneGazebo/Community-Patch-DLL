@@ -66,6 +66,9 @@ public:
 	int  GetAirSweepCombatModifier() const;
 	int  GetInterceptChanceChange() const;
 	int  GetNumInterceptionChange() const;
+#if defined(MOD_BALANCE_CORE)
+	int  GetAirInterceptRangeChange() const; // JJ: This is new
+#endif
 	int  GetEvasionChange() const;
 	int  GetCargoChange() const;
 	int  GetEnemyHealChange() const;
@@ -345,6 +348,9 @@ protected:
 	int m_iAirSweepCombatModifier;
 	int m_iInterceptChanceChange;
 	int m_iNumInterceptionChange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iAirInterceptRangeChange; // JJ: This is new
+#endif
 	int m_iEvasionChange;
 	int m_iCargoChange;
 	int m_iEnemyHealChange;

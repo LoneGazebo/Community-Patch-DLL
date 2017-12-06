@@ -383,7 +383,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		if (iStartIndex==giLastStartIndex && iStartIndex>0)
 		{
 			OutputDebugString("Repeated pathfinding start\n");
-			gStackWalker.ShowCallstack();
+			//gStackWalker.ShowCallstack(); //JJ: Commented out because it is messing up the compile and I don't understand why
 		}
 		giLastStartIndex = iStartIndex;
 
@@ -414,8 +414,8 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 				}
 
 #ifdef STACKWALKER
-				//gStackWalker.SetLog(pLog);
-				//gStackWalker.ShowCallstack();
+				//gStackWalker.SetLog(pLog); //JJ: Commented out because it is messing up the compile and I don't understand why
+				//gStackWalker.ShowCallstack(); //JJ: Commented out because it is messing up the compile and I don't understand why
 #endif
 
 				for (size_t i=0; i<svPathLog.size(); i++)

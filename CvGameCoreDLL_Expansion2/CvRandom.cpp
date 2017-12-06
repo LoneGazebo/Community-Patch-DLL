@@ -118,8 +118,8 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 #if defined(MOD_CORE_DEBUGGING)
 					if(MOD_CORE_DEBUGGING)
 					{
-						gStackWalker.SetLog(pLog);
-						gStackWalker.ShowCallstack();
+						//gStackWalker.SetLog(pLog); //JJ: Commented out because it is messing up the compile and I don't understand why
+						//gStackWalker.ShowCallstack(); //JJ: Commented out because it is messing up the compile and I don't understand why
 					}
 #endif
 				}

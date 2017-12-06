@@ -42,6 +42,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAirSweepCombatModifier(0),
 	m_iInterceptChanceChange(0),
 	m_iNumInterceptionChange(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iAirInterceptRangeChange(0), // JJ: This is new
+#endif
 	m_iEvasionChange(0),
 	m_iCargoChange(0),
 	m_iEnemyHealChange(0),
@@ -491,6 +494,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAirSweepCombatModifier = kResults.GetInt("AirSweepCombatModifier");
 	m_iInterceptChanceChange = kResults.GetInt("InterceptChanceChange");
 	m_iNumInterceptionChange = kResults.GetInt("NumInterceptionChange");
+#if defined(MOD_BALANCE_CORE)
+	m_iAirInterceptRangeChange = kResults.GetInt("AirInterceptRangeChange"); // JJ: This is new
+#endif
 	m_iEvasionChange = kResults.GetInt("EvasionChange");
 	m_iCargoChange = kResults.GetInt("CargoChange");
 	m_iEnemyHealChange = kResults.GetInt("EnemyHealChange");
@@ -1237,6 +1243,14 @@ int CvPromotionEntry::GetNumInterceptionChange() const
 {
 	return m_iNumInterceptionChange;
 }
+
+#if defined(MOD_BALANCE_CORE) // JJ: This is new
+/// Accessor: How much additional range this promotion allows an unit to perform interception (can be negative)
+int CvPromotionEntry::GetAirInterceptRangeChange() const
+{
+	return m_iAirInterceptRangeChange;
+}
+#endif
 
 /// Accessor: How well an air unit can evade interception
 int CvPromotionEntry::GetEvasionChange() const

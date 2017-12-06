@@ -5340,7 +5340,7 @@ int CvMilitaryAI::GetMaxPossibleInterceptions(CvPlot* pTargetPlot, bool bCountPe
 						if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
 						{
 							// Test range
-							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= (pLoopUnit->getUnitInfo().GetAirInterceptRange() + pLoopUnit->GetExtraAirInterceptRange())) // JJ: Added consideration for additional intercept range from promotions
 							{
 								if (pLoopUnit->currInterceptionProbability() > 0)
 								{

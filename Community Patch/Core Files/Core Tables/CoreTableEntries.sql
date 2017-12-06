@@ -804,6 +804,9 @@ ALTER TABLE UnitPromotions ADD IsNearbyEnemyCityPromotion BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD IsFriendlyLands BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD RequiredUnit TEXT DEFAULT NULL REFERENCES Units(Type);
 
+-- Changes the intercept range against air units (NEW)
+ALTER TABLE UnitPromotions ADD AirInterceptRangeChange INTEGER DEFAULT 0;
+
 -- Allows you to Convert a unit when it X plot is a different domain, e.g. A great general becomes a great admiral, etc.
 ALTER TABLE UnitPromotions ADD ConvertDomainUnit TEXT DEFAULT NULL REFERENCES Units(Type);
 ALTER TABLE UnitPromotions ADD ConvertDomain TEXT DEFAULT NULL REFERENCES Domains(Type);
