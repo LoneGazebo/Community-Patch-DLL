@@ -705,7 +705,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				iEra = 1;
 			}
 		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iRandom = GC.getGame().getJonRandNum(100, "Random GE or GM value");
 		if(iRandom <= 33)
@@ -736,18 +736,18 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				{
 					if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
-						pLoopCity->changeProduction(iValue*2); // JJ: Production yield is 2x of science
+						pLoopCity->changeProduction((iValue * 2) / 100); // JJ: Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
 					{
-						pPlayer->GetTreasury()->ChangeGold(iValue*4); // JJ: Gold yield is 4x of science, 2x of production
+						pPlayer->GetTreasury()->ChangeGold((iValue * 4) / 100); // JJ: Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
 					{
 						TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
 						{
-							pPlayer->changeOverflowResearch(iValue);
+							pPlayer->changeOverflowResearch(iValue / 100); // JJ: Dividing by 100 here to minimise rounding error.
 							if(pPlayer->getOverflowResearch() <= 0)
 							{
 								pPlayer->setOverflowResearch(0);
@@ -755,7 +755,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 						}
 						else
 						{
-							GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, pPlayer->GetID());
+							GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), pPlayer->GetID()); // JJ: Dividing by 100 here to minimise rounding error.
 							if(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
 							{
 								GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, pPlayer->GetID());
