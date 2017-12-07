@@ -1293,6 +1293,9 @@ public:
 	int GetNumInterceptions() const;
 	void ChangeNumInterceptions(int iChange);
 
+	int GetExtraAirInterceptRange() const; // JJ: New
+	void ChangeExtraAirInterceptRange(int iChange);
+
 	bool isOutOfInterceptions() const;
 	int getMadeInterceptionCount() const;
 	void setMadeInterception(bool bNewValue);
@@ -1972,6 +1975,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iHealIfDefeatExcludeBarbariansCount;
 	FAutoVariable<int, CvUnit> m_iNumInterceptions;
+#if defined(MOD_BALANCE_CORE) // JJ: NEW
+	FAutoVariable<int, CvUnit> m_iExtraAirInterceptRange;
+#endif
 	FAutoVariable<int, CvUnit> m_iMadeInterceptionCount;
 	FAutoVariable<int, CvUnit> m_iEverSelectedCount;
 	FAutoVariable<int, CvUnit> m_iSapperCount;

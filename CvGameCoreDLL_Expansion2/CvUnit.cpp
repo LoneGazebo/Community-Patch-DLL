@@ -183,6 +183,9 @@ CvUnit::CvUnit() :
 	, m_iExtraMoveDiscount("CvUnit::m_iExtraMoveDiscount", m_syncArchive)
 	, m_iExtraRange("CvUnit::m_iExtraRange", m_syncArchive)
 	, m_iExtraIntercept("CvUnit::m_iExtraIntercept", m_syncArchive)
+#if defined(MOD_BALANCE_CORE)
+	, m_iExtraAirInterceptRange("CvUnit::m_iExtraAirInterceptRange", m_syncArchive) // JJ: This is new
+#endif
 	, m_iExtraEvasion("CvUnit::m_iExtraEvasion", m_syncArchive)
 	, m_iExtraFirstStrikes("CvUnit::m_iExtraFirstStrikes", m_syncArchive)
 	, m_iExtraChanceFirstStrikes("CvUnit::m_iExtraChanceFirstStrikes", m_syncArchive)
@@ -1311,6 +1314,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraMoveDiscount = 0;
 	m_iExtraRange = 0;
 	m_iExtraIntercept = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iExtraAirInterceptRange = 0; // JJ: This is new
+#endif
 	m_iExtraEvasion = 0;
 	m_iExtraFirstStrikes = 0;
 	m_iExtraChanceFirstStrikes = 0;
@@ -17007,7 +17013,7 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pk
 								{
 									// Test range
 									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY());
-									if( iDistance <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+									if( iDistance <= ((pLoopUnit->getUnitInfo().GetAirInterceptRange()) + pLoopUnit->GetExtraAirInterceptRange()))
 									{
 										int iValue = pLoopUnit->currInterceptionProbability();
 
@@ -24236,6 +24242,20 @@ void CvUnit::ChangeNumInterceptions(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetExtraAirInterceptRange() const // JJ: NEW
+{
+	VALIDATE_OBJECT
+	return m_iExtraAirInterceptRange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeExtraAirInterceptRange(int iChange) // JJ: NEW
+{
+	VALIDATE_OBJECT
+	m_iExtraAirInterceptRange += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::isOutOfInterceptions() const
 {
 	VALIDATE_OBJECT
@@ -26178,6 +26198,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
 		changeExtraAttacks(thisPromotion.GetExtraAttacks() * iChange);
 		ChangeNumInterceptions(thisPromotion.GetNumInterceptionChange() * iChange);
+
+#if defined(MOD_BALANCE_CORE) // JJ: New
+		ChangeExtraAirInterceptRange(thisPromotion.GetAirInterceptRangeChange() * iChange);
+#endif
 
 		ChangeGreatGeneralCount(thisPromotion.IsGreatGeneral() ? iChange: 0);
 		ChangeGreatAdmiralCount(thisPromotion.IsGreatAdmiral() ? iChange: 0);

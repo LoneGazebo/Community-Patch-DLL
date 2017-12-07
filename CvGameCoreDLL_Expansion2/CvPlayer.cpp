@@ -23799,8 +23799,15 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 	if(iPolicyGEorGM > 0)
 	{
 		CvCity* pLoopCity;
+		CvCity* pCapital = getCapitalCity(); // JJ: Define capital
 		int iLoop;
-		int iValue = iPolicyGEorGM * (GetCurrentEra() + 1);
+			int iEra = GetCurrentEra(); // JJ: Changed era scaling to match rest of VP
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iRandom = GC.getGame().getJonRandNum(100, "Random GE or GM value");
 		if(iRandom <= 33)
@@ -23817,70 +23824,79 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		}
 		if(eBestSpecialist != NULL)
 		{
-			for(pLoopCity = this->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = this->nextCity(&iLoop))
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
+			if(pkSpecialistInfo)
 			{
-				if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
+				int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+				iGPThreshold *= 100;
+				//Get % of threshold for test.
+				iGPThreshold *= iPolicyGEorGM;
+				iGPThreshold /= 100;
+				int iGPThresholdString = iGPThreshold / 100;
+				
+				for(pLoopCity = this->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = this->nextCity(&iLoop))
 				{
-					pLoopCity->changeProduction(iValue);
-				}
-				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
-				{
-					this->GetTreasury()->ChangeGold(iValue);
-				}
-				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
-				{
-					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
+					if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
-						changeOverflowResearch(iValue);
-						if(getOverflowResearch() <= 0)
+						pLoopCity->changeProduction(iValue*2); // JJ: Production yield is 2x of science
+					}
+					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
+					{
+						this->GetTreasury()->ChangeGold(iValue*4); // JJ: Gold yield is 4x of science, 2x of production
+					}
+					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
+					{
+						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
 						{
-							setOverflowResearch(0);
+							changeOverflowResearch(iValue);
+							if(getOverflowResearch() <= 0)
+							{
+								setOverflowResearch(0);
+							}
+						}
+						else
+						{
+							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
+							if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
+							{
+								GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
+							}
 						}
 					}
-					else
-					{
-						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
-						if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
-						{
-							GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
-						}
-					}
-				}
-				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-				if(pkSpecialistInfo)
-				{
-					int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					iGPThreshold *= 100;
-					//Get % of threshold for test.
-					iGPThreshold *= iPolicyGEorGM;
-					iGPThreshold /= 100;
+				//CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
+				// JJ: Moved outside of for loop
+					//int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					//iGPThreshold *= 100;
+					////Get % of threshold for test.
+					//iGPThreshold *= iPolicyGEorGM;
+					//iGPThreshold /= 100;
 				
 					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
 					if(GetID() == GC.getGame().getActivePlayer())
 					{
-						iGPThreshold /= 100;
+						//iGPThreshold /= 100; JJ: Do not touch iGPThreshold in the for loop
 						char text[256] = {0};
 						float fDelay = 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThresholdString);
 						DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
 						CvNotifications* pNotification = GetNotifications();
 						if(pNotification)
 						{
-							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThreshold);
+							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThresholdString);
 							CvString strSummary;
 							// Class specific specialist message
 							if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThreshold);
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThresholdString);
 							}
 							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThreshold);
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThresholdString);
 							}
 							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThreshold);
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThresholdString);
 							}
 							strSummary = GetLocalizedText("TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS");
 							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, -1);
