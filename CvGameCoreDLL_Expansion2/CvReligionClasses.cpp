@@ -5048,7 +5048,7 @@ bool CvCityReligions::HasFriendlyInquisitor(ReligionTypes eReligion, CvUnit* pUn
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
 			pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
-			if (pUnit != NULL && pUnit == pLoopUnit)
+			if (pUnit == NULL || pUnit == pLoopUnit)
 				continue;
 
 			CvUnitEntry* pkEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -5084,6 +5084,9 @@ bool CvCityReligions::HasFriendlyInquisitor(ReligionTypes eReligion, CvUnit* pUn
 			for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 			{
 				pLoopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+				if (pUnit == NULL || pUnit == pLoopUnit)
+					continue;
+
 				CvUnitEntry* pkEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
 				if (pkEntry && pkEntry->IsProhibitsSpread())
 				{
