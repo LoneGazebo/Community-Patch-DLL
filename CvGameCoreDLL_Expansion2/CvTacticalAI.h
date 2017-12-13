@@ -695,7 +695,7 @@ enum TacticalAIInfoTypes
 	eNUM_TACTICAL_INFOTYPES
 };
 
-typedef FStaticVector<CvTacticalTarget, 256, false, c_eCiv5GameplayDLL > TacticalList;
+typedef vector<CvTacticalTarget> TacticalList;
 
 #if defined(MOD_BALANCE_CORE)
 //a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)

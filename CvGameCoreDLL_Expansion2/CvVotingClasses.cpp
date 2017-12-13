@@ -12381,7 +12381,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 			CvTeam* pPlayerTeam = &GET_TEAM(ePlayerTeam);
 
-			if (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() == ePlayer)
+			if (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() == ePlayer && (iChoice == LeagueHelpers::CHOICE_NO || !bEnact))
 			{
 				iScore += 5000;
 			}

@@ -213,6 +213,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bFinisher(false),
 	m_iCityStateCombatModifier(0),
 	m_iGreatEngineerRateModifier(0),
+	m_iDefenseBoost(0),
 	m_eNewCityFreeBuilding(NO_BUILDINGCLASS),
 #endif
 	m_bMilitaryFoodProduction(false),
@@ -604,6 +605,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bFinisher = kResults.GetBool("IsFinisher");
 	m_iCityStateCombatModifier = kResults.GetInt("CityStateCombatModifier");
 	m_iGreatEngineerRateModifier = kResults.GetInt("GreatEngineerRateModifier");
+	m_iDefenseBoost = kResults.GetInt("DefenseBoostAllCities");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
@@ -2257,6 +2259,10 @@ int CvPolicyEntry::GetCityStateCombatModifier() const
 int CvPolicyEntry::GetGreatEngineerRateModifier() const
 {
 	return m_iGreatEngineerRateModifier;
+}
+int CvPolicyEntry::GetDefenseBoost() const
+{
+	return m_iDefenseBoost;
 }
 #endif
 /// Military units now all produced with food
@@ -4193,6 +4199,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_STEAL_GW_FASTER_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetStealGWFasterModifier();
+				break;
+			case POLICYMOD_CITY_DEFENSE_BOOST:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDefenseBoost();
 				break;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)

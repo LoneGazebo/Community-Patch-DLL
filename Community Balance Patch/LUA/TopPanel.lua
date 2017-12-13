@@ -380,7 +380,6 @@ Controls.InternationalTradeRoutes:RegisterCallback( Mouse.eLClick, OnTradeRouteC
 
 -- Tooltip init
 function DoInitTooltips()
-	Controls.InstantYields:SetTooltipCallback(InstantYieldHandler);
 	Controls.SciencePerTurn:SetToolTipCallback( ScienceTipHandler );
 	Controls.GoldPerTurn:SetToolTipCallback( GoldTipHandler );
 	Controls.HappinessString:SetToolTipCallback( HappinessTipHandler );
@@ -391,6 +390,7 @@ function DoInitTooltips()
 	Controls.ResourceString:SetToolTipCallback( ResourcesTipHandler );
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
 	Controls.UnitSupplyString:SetToolTipCallback( UnitSupplyHandler );
+	Controls.InstantYields:SetToolTipCallback( InstantYieldHandler );
 end
 
 -- Science Tooltip
@@ -1059,7 +1059,7 @@ function GoldenAgeTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
 		end
 		-- END
-		end
+		
 	
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		if (pPlayer:IsGoldenAgeCultureBonusDisabled()) then
@@ -1380,7 +1380,7 @@ function FaithTipHandler( control )
 		strText = strText .. "[NEWLINE]";
 
 		if (pPlayer:HasCreatedPantheon()) then
-			if (Game.GetNumReligionsStillToFound(false, iPlayerID) > 0 or pPlayer:HasCreatedReligion()) then
+			if (Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) > 0 or pPlayer:HasCreatedReligion()) then
 				if (pPlayer:GetCurrentEra() < GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
 					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_NEXT_PROPHET", pPlayer:GetMinimumFaithNextGreatProphet());
 					strText = strText .. "[NEWLINE]";
@@ -1398,10 +1398,10 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 		end
 
-		if (Game.GetNumReligionsStillToFound(false, iPlayerID) < 0) then
+		if (Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) < 0) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", 0);
 		else
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", Game.GetNumReligionsStillToFound(false, iPlayerID));
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_RELIGIONS_LEFT", Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()));
 		end
 		
 		if (pPlayer:GetCurrentEra() >= GameInfo.Eras["ERA_INDUSTRIAL"].ID) then
@@ -1489,16 +1489,16 @@ function UnitSupplyHandler(control)
     tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
-function InstantYieldHandler(control)
+function InstantYieldHandler( control )
 
 	local iPlayerID = Game.GetActivePlayer();
 	local pPlayer = Players[iPlayerID];
 
 	local strInstantYieldToolTip = pPlayer:GetInstantYieldHistoryTooltip(10);
 
-	if(strUnitSupplyToolTip ~= "") then
+	if(strInstantYieldToolTip ~= "") then
 		tipControlTable.TopPanelMouseover:SetHide(false);
-		tipControlTable.TooltipLabel:SetText( strUnitSupplyToolTip );
+		tipControlTable.TooltipLabel:SetText( strInstantYieldToolTip );
 	else
 		tipControlTable.TopPanelMouseover:SetHide(true);
 	end

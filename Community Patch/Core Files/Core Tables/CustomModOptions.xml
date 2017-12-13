@@ -1043,6 +1043,8 @@
 	<Row Class="6" Name="BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
 	<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->
 	<Row Class="6" Name="BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY" Value="0"/>
+	<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->
+	<Row Class="6" Name="BALANCE_CORE_SCALING_TRADE_DISTANCE" Value="0"/>
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

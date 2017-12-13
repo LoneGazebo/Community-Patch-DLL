@@ -538,6 +538,10 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 		return false;
 	}
 
+	if (GET_PLAYER(ePlayer1).IsAtWarWith(ePlayer2))
+		return false;
+
+
 	CvPlayerCulture* pCulture1 = GET_PLAYER(ePlayer1).GetCulture();
 	CvPlayerCulture* pCulture2 = GET_PLAYER(ePlayer2).GetCulture();
 
@@ -1759,7 +1763,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 				for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 				{
 					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-					if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer))
+					if (kPlayer.isAlive() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid((PlayerTypes)iLoopPlayer) && !kPlayer.IsAtWarWith(m_pPlayer->GetID()))
 					{
 						int iToBeAcquiredWorkIndex = NO_GREAT_WORK;
 
@@ -3379,7 +3383,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
 		{
 			int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
-			m_pPlayer->ChangeNumHistoricEvents(1);
+			m_pPlayer->ChangeNumHistoricEvents(HISTORIC_EVENT_DIG, 1);
 			m_pPlayer->GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
 			if(iTourism > 0)
 			{

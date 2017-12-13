@@ -107,11 +107,21 @@ ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 
 -- CBP Difficulty Bonus
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonus' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusA' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusC' INTEGER DEFAULT 0;
 
 -- Grants additional starting happiness based on gamespeed.
 
 ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;
+
+-- Trade Route yields no longer scale from distance.
+
+ALTER TABLE Traits ADD COLUMN 'IgnoreTradeDistanceScaling' BOOLEAN DEFAULT 0;
+
+-- Trade Routes can be plundered without being at war
+ALTER TABLE Traits ADD COLUMN 'CanPlunderWithoutWar' BOOLEAN DEFAULT 0;
 
 -- No unhappiness from Isolation.
 
@@ -364,6 +374,9 @@ ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' INTEGER DEFAULT 0;
 -- Puppets and/or Occupied cities receive a % production modifier. Values should be positive to be good.
 ALTER TABLE Policies ADD COLUMN 'PuppetProdMod' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'OccupiedProdMod' INTEGER DEFAULT 0;
+
+-- Increases City Defense - needs to be in 100s value
+ALTER TABLE Policies ADD COLUMN 'DefenseBoostAllCities' INTEGER DEFAULT 0;
 
 -- Global Happiness Based on # of Citizens in Empire
 

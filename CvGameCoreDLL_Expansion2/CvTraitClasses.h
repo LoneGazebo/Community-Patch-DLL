@@ -232,6 +232,8 @@ public:
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	bool IsAnyBelief() const;
 	bool IsAlwaysReligion() const;
+	bool IsIgnoreTradeDistanceScaling() const;
+	bool IsCanPlunderWithoutWar() const;
 #endif
 	bool IsBonusReligiousBelief() const;
 	bool IsAbleToAnnexCityStates() const;
@@ -553,6 +555,8 @@ protected:
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	bool m_bAnyBelief;
 	bool m_bAlwaysReligion;
+	bool m_bIgnoreTradeDistanceScaling;
+	bool m_bCanPlunderWithoutWar;
 #endif
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;
@@ -1331,6 +1335,15 @@ public:
 	{
 		return m_bAlwaysReligion;
 	};
+
+	bool IsIgnoreTradeDistanceScaling() const
+	{
+		return m_bIgnoreTradeDistanceScaling;
+	};
+	bool IsCanPlunderWithoutWar() const
+	{
+		return m_bCanPlunderWithoutWar;
+	};
 #endif
 	bool IsBonusReligiousBelief() const
 	{
@@ -1908,6 +1921,8 @@ private:
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	bool m_bAnyBelief;
 	bool m_bAlwaysReligion;
+	bool m_bIgnoreTradeDistanceScaling;
+	bool m_bCanPlunderWithoutWar;
 #endif
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;

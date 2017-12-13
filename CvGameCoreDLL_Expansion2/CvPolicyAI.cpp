@@ -1933,7 +1933,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayer->GetPlayerTraits()->IsReligious())
 		{
-			yield[YIELD_FAITH] += PolicyInfo->GetFaithCostModifier() * -2;
+			yield[YIELD_FAITH] += PolicyInfo->GetFaithCostModifier() * -3;
 		}
 		else
 		{
@@ -2552,6 +2552,19 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 25;
 		}
 	}
+
+	if (PolicyInfo->GetDefenseBoost() != 0)
+	{
+		if (pPlayer->GetPlayerTraits()->IsWarmonger() || pPlayer->GetPlayerTraits()->IsExpansionist())
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 15 * max(1, pPlayer->getNumCities());
+		}
+		else
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 5 * max(1, pPlayer->getNumCities());
+		}
+	}
+
 	if (PolicyInfo->GetStealGWSlowerModifier() != 0)
 	{
 		if (pPlayer->GetPlayerTraits()->IsTourism())
@@ -2754,7 +2767,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayer->GetPlayerTraits()->IsReligious())
 		{
-			yield[YIELD_GOLD] += 50;
+			yield[YIELD_GOLD] += 100;
 		}
 		else
 		{
@@ -3264,7 +3277,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayer->GetPlayerTraits()->IsReligious())
 		{
-			yield[YIELD_FAITH] += PolicyInfo->GetPressureMod() * 2;
+			yield[YIELD_FAITH] += PolicyInfo->GetPressureMod() * 3;
 		}
 		else
 		{
@@ -3571,6 +3584,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (pUnitEntry)
 					{
 						int Value = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 10, 10, 10, 10, false, true);
+						if (pPlayer->GetPlayerTraits()->IsReligious())
+						{
+							Value *= 2;
+						}
 						yield[YIELD_FAITH] += Value;
 					}
 				}

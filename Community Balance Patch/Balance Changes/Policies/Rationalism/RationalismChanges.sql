@@ -123,6 +123,12 @@ WHERE Type = 'POLICY_RATIONALISM_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- NEW
 
+
+INSERT INTO Policy_YieldModifierFromGreatWorks
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_SCIENCE', 4);
+
 INSERT INTO Policy_GoldenAgeYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
@@ -148,7 +154,6 @@ VALUES
 INSERT INTO Policy_SpecialistExtraYields
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_SCIENCE', 1),
 	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_GOLD', 1);
 
 INSERT INTO Policy_ImprovementYieldChanges

@@ -285,6 +285,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromScouting(int i) const;
 	int GetYieldModifier(int i) const;
+	int GetYieldChange(int i) const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromKills(int i) const;
@@ -562,6 +563,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromScouting;
 	int* m_piYieldModifier;
+	int* m_piYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piYieldFromKills;

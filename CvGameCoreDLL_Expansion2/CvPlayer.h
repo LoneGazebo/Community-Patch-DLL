@@ -591,7 +591,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
-	int DoDifficultyBonus();
+	int DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1575,7 +1575,7 @@ public:
 	int GetEventTourismCS() const;
 	void SetEventTourismCS(int iValue);
 
-	void ChangeNumHistoricEvents(int iValue);
+	void ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iValue);
 	int GetNumHistoricEvents() const;
 	void SetNumHistoricEvents(int iValue);
 
@@ -2368,6 +2368,8 @@ public:
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain = NO_DOMAIN, int iPercentToTarget = 100, int iIgnoreOperationID = -1, AIOperationTypes eAlreadyActiveOperation = INVALID_AI_OPERATION) const;
+
+	int GetNumOffensiveOperations(DomainTypes eDomain);
 
 	bool StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);

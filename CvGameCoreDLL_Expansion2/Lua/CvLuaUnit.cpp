@@ -768,19 +768,44 @@ int CvLuaUnit::lGetPathEndTurnPlot(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool generatePath(CyPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL);
+//bool generatePath(CvPlot* pToPlot, int iMaxTurns);
 int CvLuaUnit::lGeneratePath(lua_State* L)
 {
-	luaL_error(L, "NYI");
-	/*CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
-	const int iFlags = 0;
-	const bool bReuse = luaL_optint(L, 4, 0);	//defeaults to false
-	const bool bResult = pkUnit->generatePath();
+	const int iMaxTurns = lua_tointeger(L, 3);
 
-	lua_pushboolean(L, bResult);
-	return 1;*/
-	return 0;
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	//no caching!
+	SPathFinderUserData data(pkUnit, CvUnit::MOVEFLAG_IGNORE_STACKING, iMaxTurns);
+	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data);
+
+	for (int i = 0; i < newPath.length(); i++)
+	{
+		const SPathNode& kNode = newPath.vPlots[i];
+
+		lua_createtable(L, 0, 0);
+		const int t = lua_gettop(L);
+		lua_pushinteger(L, kNode.x);
+		lua_setfield(L, t, "X");
+		lua_pushinteger(L, kNode.y);
+		lua_setfield(L, t, "Y");
+		lua_pushinteger(L, kNode.moves);
+		lua_setfield(L, t, "RemainingMovement");
+		lua_pushinteger(L, kNode.turns);
+		lua_setfield(L, t, "Turn");
+		lua_pushinteger(L, 0);
+		lua_setfield(L, t, "Flags");
+		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam())==false ); //don't have that info, make it up
+		lua_setfield(L, t, "Invisible");
+		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam()) ); //don't have that info, make it up
+		lua_setfield(L, t, "AdjInvisible");
+		lua_rawseti(L, -2, iCount++);
+	}
+
+	return 1;
 }
 #if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
@@ -792,33 +817,34 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 	int iCount = 1;
 
 	CvPlot* pDestPlot = pkUnit->LastMissionPlot();
-	if (pDestPlot) {
-		pkUnit->GeneratePath(pDestPlot);
+	if (!pDestPlot)
+		return 0;
 
-		const CvPathNodeArray& kPathNodeArray = pkUnit->GetPathNodeArray();
+	//no caching!
+	SPathFinderUserData data(pkUnit, 0, INT_MAX);
+	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pDestPlot->getX(), pDestPlot->getY(), data);
 
-		for (int i = ((int)kPathNodeArray.size())-1; i >=0 ; --i)
-		{
-			const CvPathNode& kNode = kPathNodeArray[i];
+	for (int i = 0; i < newPath.length(); i++)
+	{
+		const SPathNode& kNode = newPath.vPlots[i];
 
-			lua_createtable(L, 0, 0);
-			const int t = lua_gettop(L);
-			lua_pushinteger(L, kNode.m_iX);
-			lua_setfield(L, t, "X");
-			lua_pushinteger(L, kNode.m_iY);
-			lua_setfield(L, t, "Y");
-			lua_pushinteger(L, kNode.m_iMoves);
-			lua_setfield(L, t, "RemainingMovement");
-			lua_pushinteger(L, kNode.m_iTurns);
-			lua_setfield(L, t, "Turn");
-			lua_pushinteger(L, kNode.m_iFlags);
-			lua_setfield(L, t, "Flags");
-			lua_pushboolean(L, kNode.GetFlag(CvPathNode::PLOT_INVISIBLE));
-			lua_setfield(L, t, "Invisible");
-			lua_pushboolean(L, kNode.GetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE));
-			lua_setfield(L, t, "AdjInvisible");
-			lua_rawseti(L, -2, iCount++);
-		}
+		lua_createtable(L, 0, 0);
+		const int t = lua_gettop(L);
+		lua_pushinteger(L, kNode.x);
+		lua_setfield(L, t, "X");
+		lua_pushinteger(L, kNode.y);
+		lua_setfield(L, t, "Y");
+		lua_pushinteger(L, kNode.moves);
+		lua_setfield(L, t, "RemainingMovement");
+		lua_pushinteger(L, kNode.turns);
+		lua_setfield(L, t, "Turn");
+		lua_pushinteger(L, 0);
+		lua_setfield(L, t, "Flags");
+		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+		lua_setfield(L, t, "Invisible");
+		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
+		lua_setfield(L, t, "AdjInvisible");
+		lua_rawseti(L, -2, iCount++);
 	}
 
 	return 1;

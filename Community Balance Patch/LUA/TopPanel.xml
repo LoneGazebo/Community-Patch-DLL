@@ -22,7 +22,7 @@
 
     <TextButton Anchor="C,T" String="FAITH!" ColorLayer0="255,255,200,255"  ID="FaithString" ToolTipType="TooltipTypeTopPanel"/>
 
-	<TextButton Anchor="C,T" Offset="0,0" String="000 Turn"  ColorLayer0="255,255,255,255" ID="InstantYields" ToolTipType="TooltipTypeTopPanel" />
+	<TextButton Anchor="C,T" Offset="0,0" String="INSTANT!"  ColorLayer0="255,255,255,255" ID="InstantYields" ToolTipType="TooltipTypeTopPanel" />
 
 	<TextButton Anchor="C,T" String="RESOURCES!" ColorLayer0="255,0,255,255"  ID="ResourceString" ToolTipType="TooltipTypeTopPanel"/>
 

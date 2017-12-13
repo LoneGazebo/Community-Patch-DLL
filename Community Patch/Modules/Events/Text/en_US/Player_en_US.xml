@@ -37,7 +37,7 @@
 
 		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_CHOICE_3_SUCCESSFUL">
 			<Text>Your priests believe that the divination was successful, and your [ICON_PEACE] Faith has increased greatly as a result.</Text>
-		</Row>		
+		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_CHOICE_3_SUCCESSFUL_S">
 			<Text>Diviniation successful!</Text>
 		</Row>
@@ -50,11 +50,11 @@
 
 		<!-- Meteor -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_DESCRIPTION">
-			<Text>A meteor has landed!</Text>
+			<Text>Shooting Stars</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_HELP">
-			<Text>With a bright flash of light and a huge crash, a meteor has landed near one of our cities. Your officials collected the meteorite and brought it to the capital for study. What should they do with it?</Text>
-		</Row>	
+			<Text>Last night a series of bright flashes of light filled the sky as a meteor shower visited our planet. Large meteorites have landed across the world. Your officials have collected one such specimen and brought it to the Capital for study. What should they do with it?</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1">
 			<Text>Break it up and send it to the Forge.</Text>
 		</Row>
@@ -65,22 +65,22 @@
 			<Text>Your smiths were able to break large lumps of iron out of the meteor, and can forge fine swords and spears from the material.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1_SUCCESSFUL_S">
-			<Text>[ICON_RES_IRON] Iron extracted from meteor!</Text>
+			<Text>[ICON_RES_IRON] Iron extracted from meteorite!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2">
-			<Text>Divide it up and give it to our priests.</Text>
+			<Text>A gift from the heavens should be divided up and given to our priests.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2_HELP">
 			<Text>+1 [ICON_PEACE] Faith in all Shrines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3">
-			<Text>Put it next to my throne.</Text>
+			<Text>Carve into decorative objects to be placed in my throne room.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3_HELP">
 			<Text>+2 [ICON_CULTURE] Culture from Palace.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4">
-			<Text>Donate it to the universities.</Text>
+			<Text>Donate it to the Universities for study.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4_HELP">
 			<Text>+1 [ICON_RESEARCH] Science from all Universities.</Text>
@@ -98,7 +98,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_HELP">
 			<Text>Our people were surprised to witness an eclipse today. What does this mean for our empire?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1">
 			<Text>I'm not sure what this means.</Text>
 		</Row>
@@ -137,7 +137,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_HELP">
 			<Text>Every summer seems hotter than the last, and our lakes and rivers are drying up. Soon, a drought may be upon us. What should we do?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_1">
 			<Text>Subsidize the farms.</Text>
 		</Row>
@@ -169,7 +169,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_HELP">
 			<Text>A sudden drop in average temperatures can only mean one thing: a small ice age! How should we prepare?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_1">
 			<Text>People should stay indoors, even if that means less commerce.</Text>
 		</Row>
@@ -196,7 +196,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_HELP">
 			<Text>To arms! Dissident civilians from across our empire have risen up to contest your rule! What will you do?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_1">
 			<Text>Let them eat cake.</Text>
 		</Row>
@@ -229,7 +229,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_HELP">
 			<Text>Your people clamor for war! Our martial spirit is high, and your military advisor wishes to know how you would like to channel this energy.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1">
 			<Text>Rally the martial spirit of our people.</Text>
 		</Row>
@@ -268,7 +268,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_HELP">
 			<Text>The toll of war is hard on our people. They seek solace in the face of destruction and defeat, and look to you for guidance. How will you respond?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1">
 			<Text>Give a speech at our Palace.</Text>
 		</Row>
@@ -356,7 +356,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3_HELP">
 			<Text>Monuments in all cities: +1 [ICON_GOLD] Gold.</Text>
 		</Row>
-			
+
 		<!-- Castle Keep Policy -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_DESCRIPTION">
 			<Text>Castle Doctrine</Text>
@@ -388,7 +388,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_4_HELP">
 			<Text>All Castles produce +1 [ICON_PEACE] Faith.</Text>
 		</Row>
-		
+
 		<!-- Universities -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_DESCRIPTION">
 			<Text>University Curriculum</Text>
@@ -458,7 +458,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_5_HELP">
 			<Text>Factories in all cities: +2 [ICON_FOOD] Food.</Text>
 		</Row>
-		
+
 		<!-- Banks -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_DESCRIPTION">
 			<Text>A New Banking System</Text>
@@ -504,7 +504,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2_HELP">
 			<Text>Public Schools in all cities: +10% [ICON_GOLD] Gold in the City.</Text>
 		</Row>
-		
+
 		<!-- Windmills -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_DESCRIPTION">
 			<Text>Aging Windmills</Text>
@@ -530,7 +530,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_3_HELP">
 			<Text>{1_YieldCost}. All Windmills gain a +3 [ICON_PRODUCTION] Production.</Text>
 		</Row>
-		
+
 		<!-- Stadium -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1">
 			<Text>World Sporting Event!</Text>
@@ -544,7 +544,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1_SUCCESSFUL_S">
 			<Text>{3_PlayerName} to host World Sports Organization Tournament!</Text>
 		</Row>
-		
+
 		<!-- Corruption -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_CORRUPTION_SCIENCE_FAILURE_CHOICE_1">
 			<Text>Research Setback</Text>
@@ -552,7 +552,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_CORRUPTION_SCIENCE_FAILURE_CHOICE_1_HELP">
 			<Text>Your researchers regret to inform you that recent research was flawed, and had to be discarded. {1_YieldCost}.</Text>
 		</Row>
-		
+
 		<!-- Baby Boom -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BABY_BOOM_CHOICE_1">
 			<Text>Baby Boom!</Text>
@@ -568,7 +568,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_PLAGUE_CHOICE_1_HELP">
 			<Text>Your advsiors tell you of a distant, virulent disease that is crippling other empires. Hopefully the disease stays far away from our cities...</Text>
 		</Row>
-		
+
 		<!-- Advisor Squabble -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE">
 			<Text>Special Session</Text>
@@ -606,7 +606,7 @@
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_SUCCESSFUL_S">
 			<Text>Research Grant</Text>
 		</Row>
-		
+
 		<!-- Mercantile Family Collapses -->
 		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT">
 			<Text>Death of a Merchant</Text>

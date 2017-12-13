@@ -941,7 +941,10 @@ public:
 	int getAIFreeXPPercent() const;
 	int getNumGoodies() const;
 #if defined(MOD_BALANCE_CORE)
-	int getAIDifficultyBonus() const;
+	int getAIDifficultyBonusBase() const;
+	int getAIDifficultyBonusEarly() const;
+	int getAIDifficultyBonusMid() const;
+	int getAIDifficultyBonusLate() const;
 #endif
 
 	// Arrays
@@ -1017,7 +1020,10 @@ protected:
 	int m_iAIFreeXPPercent;
 	int m_iNumGoodies;
 #if defined(MOD_BALANCE_CORE)
-	int m_iDifficultyBonus;
+	int m_iDifficultyBonusBase;
+	int m_iDifficultyBonusEarly;
+	int m_iDifficultyBonusMid;
+	int m_iDifficultyBonusLate;
 #endif
 
 	CvString m_strHandicapName;

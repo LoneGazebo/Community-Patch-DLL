@@ -19519,7 +19519,7 @@ void CvPlayer::DoWarVictoryBonuses()
 	}
 
 	int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-	ChangeNumHistoricEvents(1);
+	ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
 	// Culture boost based on previous turns
 	if(iTourism > 0)
 	{
@@ -19545,66 +19545,74 @@ void CvPlayer::DoWarVictoryBonuses()
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman())
-	{
-		int iYieldHandicap = DoDifficultyBonus();
-		if((GC.getLogging() && GC.getAILogging()))
-		{
-			CvString strLogString;
-			strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
-			GetHomelandAI()->LogHomelandMessage(strLogString);
-		}
-	}
-#endif
 }
-int CvPlayer::DoDifficultyBonus()
+int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
 	int iEra = GetCurrentEra();
 	if(iEra <= 0)
 	{
 		iEra = 1;
 	}
-	int iHandicap = 0;
+	int iHandicapBase = 0;
+	int iHandicapA = 0;
+	int iHandicapB = 0;
+	int iHandicapC = 0;
 	int iYieldHandicap = 0;
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 	if(pHandicapInfo)
 	{
-		iHandicap = pHandicapInfo->getAIDifficultyBonus();
-		iYieldHandicap = (iHandicap * iEra * 5);
+		iHandicapBase = pHandicapInfo->getAIDifficultyBonusBase();
+		iHandicapA = pHandicapInfo->getAIDifficultyBonusEarly();
+		iHandicapB = pHandicapInfo->getAIDifficultyBonusMid();
+		iHandicapC = pHandicapInfo->getAIDifficultyBonusLate();
+		iYieldHandicap = iHandicapBase * (iHandicapA * iEra * iEra + iHandicapB * iEra + iHandicapC) / 100;
 	}
-	if(iHandicap > 0)
-	{				
-		GetTreasury()->ChangeGold(iYieldHandicap);
-		ChangeGoldenAgeProgressMeter(iYieldHandicap);
+	if (iYieldHandicap > 0)
+	{
+		
+		if (eHistoricEvent == HISTORIC_EVENT_ERA)
+			iYieldHandicap *= 2;
+		else if (eHistoricEvent != NO_HISTORIC_EVENT_TYPE)
+			iYieldHandicap /= 2;
 
-		if (getNumCities() > 1)
+		bool IncludeCities = true;
+		if (eHistoricEvent == HISTORIC_EVENT_GP ||
+			eHistoricEvent == HISTORIC_EVENT_WONDER ||
+			eHistoricEvent == HISTORIC_EVENT_DIG ||
+			eHistoricEvent == HISTORIC_EVENT_TRADE_CS ||
+			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
+			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
 		{
-			changeJONSCulture(iYieldHandicap);
+			IncludeCities = false;
 		}
 
-		int iLoop;
-		CvCity* pLoopCity;
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		if (IncludeCities)
 		{
-			if (pLoopCity != NULL)
+			int iLoop;
+			CvCity* pLoopCity;
+			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				pLoopCity->ChangeJONSCultureStored(iYieldHandicap);
-				pLoopCity->changeFood(iYieldHandicap);
-				pLoopCity->changeProduction(iYieldHandicap);
+				if (pLoopCity != NULL)
+				{
+					pLoopCity->ChangeJONSCultureStored(iYieldHandicap);
+					pLoopCity->changeFood(iYieldHandicap);
+					pLoopCity->changeProduction(iYieldHandicap);
+				}
 			}
 		}
-				
-		int iBeakersBonus = GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
 
+		GetTreasury()->ChangeGold(iYieldHandicap);
+		ChangeGoldenAgeProgressMeter(iYieldHandicap);
+		changeJONSCulture(iYieldHandicap);
+		
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
 		{
-			changeOverflowResearch(iBeakersBonus);
+			changeOverflowResearch(iYieldHandicap);
 		}
 		else
 		{
-			GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GetID());
+			GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 		}	
 	}
 	return iYieldHandicap;
@@ -19806,23 +19814,10 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 /// Trait bonus which adds Faith for trade partners? 
 int CvPlayer::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 {
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_YIELD_SCALE_ERA)
-	{
-		int iEra = GetCurrentEra();
-		if(iEra < 1)
-		{
-			iEra = 1;
-		}
-		return (iEra * GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners());
-	}
-	else
-	{
-#endif
-	return GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners();
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
+	if (!MOD_BALANCE_YIELD_SCALE_ERA)
+		return GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GetTrade()->GetNumDifferentTradingPartners();
+
+	return 0;
 }
 #endif
 
@@ -24629,7 +24624,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 			if (GetGoldenAgeTourism() > 0)
 			{
 				int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
-				ChangeNumHistoricEvents(1);
+				ChangeNumHistoricEvents(HISTORIC_EVENT_GA, 1);
 				// Culture boost based on previous turns
 				if (iTourism > 0)
 				{
@@ -24695,18 +24690,6 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 			if (MOD_EVENTS_GOLDEN_AGE) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
-			}
-#endif
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-			if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman())
-			{
-				int iYieldHandicap = DoDifficultyBonus();
-				if ((GC.getLogging() && GC.getAILogging()))
-				{
-					CvString strLogString;
-					strLogString.Format("CBP AI DIFFICULTY BONUS FROM GOLDEN AGE: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -29577,7 +29560,7 @@ int CvPlayer::GetEventTourismCS() const
 	return m_iEventTourismCS;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeNumHistoricEvents(int iChange)
+void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iChange)
 {
 	if(isMinorCiv())
 	{
@@ -29706,6 +29689,41 @@ void CvPlayer::ChangeNumHistoricEvents(int iChange)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+	if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && !isHuman() && getNumCities() > 1)
+	{
+		int iYieldHandicap = DoDifficultyBonus(eHistoricEvent);
+		if ((GC.getLogging() && GC.getAILogging()))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				int EventID = (int)eHistoricEvent;
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT %d: Received Handicap Bonus (%d in Yields).", EventID, iYieldHandicap);
+
+				CvString strTemp;
+
+				CvString strFileName = "DifficultyHandicapLog.csv";
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+				CvString strPlayerName;
+				strPlayerName = getCivilizationShortDescription();
+				strTemp += strPlayerName;
+				strTemp += ", ";
+
+				CvString strTurn;
+
+				strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+				strTemp += strTurn;
+
+				strTemp += strLogString;
+
+				pLog->Msg(strTemp);
+			}
+		}
+	}
+#endif
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::SetNumHistoricEvents(int iChange)
@@ -35820,9 +35838,26 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	int iCSResource = getResourceFromCSAlliances(eIndex);
 	if (iCSResource != 0)
 	{
-		iCSResource *= GetNumCSAllies();
-		iCSResource /= 100;
-		iTotalNumResource += iCSResource;
+		TechTypes eRevealTech = (TechTypes)pkResource->getTechReveal();
+
+		if (eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+		{
+			iCSResource *= GetNumCSAllies();
+			iCSResource /= 100;
+			iTotalNumResource += iCSResource;
+		}
+		else
+		{
+			PolicyTypes eRevealPolicy = (PolicyTypes)pkResource->getPolicyReveal();
+
+			// Is there no Reveal Tech or do we have it?
+			if (eRevealPolicy != NO_POLICY && GetPlayerPolicies()->HasPolicy(eRevealPolicy))
+			{
+				iCSResource *= GetNumCSAllies();
+				iCSResource /= 100;
+				iTotalNumResource += iCSResource;
+			}
+		}
 	}
 #endif
 
@@ -35922,9 +35957,26 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, boo
 	int iCSResource = getResourceFromCSAlliances(eIndex);
 	if (iCSResource != 0)
 	{
-		iCSResource *= GetNumCSAllies();
-		iCSResource /= 100;
-		iTotalNumResource += iCSResource;
+		TechTypes eRevealTech = (TechTypes)pkResource->getTechReveal();
+
+		if (eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+		{
+			iCSResource *= GetNumCSAllies();
+			iCSResource /= 100;
+			iTotalNumResource += iCSResource;
+		}
+		else
+		{
+			PolicyTypes eRevealPolicy = (PolicyTypes)pkResource->getPolicyReveal();
+
+			// Is there no Reveal Tech or do we have it?
+			if (eRevealPolicy != NO_POLICY && GetPlayerPolicies()->HasPolicy(eRevealPolicy))
+			{
+				iCSResource *= GetNumCSAllies();
+				iCSResource /= 100;
+				iTotalNumResource += iCSResource;
+			}
+		}
 	}
 #endif
 
@@ -38849,6 +38901,26 @@ bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	return bFoundOne;
 }
 
+int CvPlayer::GetNumOffensiveOperations(DomainTypes eDomain)
+{
+	int iNum = 0;
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for (iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if (!pThisOperation->IsDefensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if (eDomain == DOMAIN_SEA && pThisOperation->IsNavalOperation())
+				iNum++;
+			else if (eDomain == DOMAIN_LAND && !pThisOperation->IsNavalOperation())
+				iNum++;
+		}
+	}
+
+	return iNum;
+}
+
 bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
 	bool bFoundOne = false;
@@ -41121,6 +41193,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if(MOD_BALANCE_CORE_POLICIES)
 	{
+		if (pPolicy->GetDefenseBoost() != 0)
+		{
+			int iLoop;
+			CvCity* pLoopCity;
+			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				pLoopCity->updateStrengthValue();
+			}
+		}
 		for (iI = 0; iI < GC.getNumResourceInfos(); iI++)
 		{
 			changeResourceFromCSAlliances((ResourceTypes)iI, (pPolicy->GetResourceFromCSAlly(iI) * iChange));

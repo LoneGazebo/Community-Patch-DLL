@@ -751,7 +751,7 @@ public:
 	bool setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue);
 
 	int getBuildProgress(BuildTypes eBuild) const;
-	bool changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePlayer = NO_PLAYER);
+	bool changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePlayer = NO_PLAYER, bool bNewBuild = false);
 	bool getAnyBuildProgress() const;
 	void SilentlyResetAllBuildProgress();
 
@@ -1017,6 +1017,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
+
+	int m_iLastTurnBuildChanged;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

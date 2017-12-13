@@ -1166,5 +1166,16 @@
 		<Row Tag="TXT_KEY_PRODUCTION_AIR_STRENGTH">
 			<Text>[ICON_AIRSTRIKE_DEFENSE] Air Strike Defense</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CSTATE_CANNOT_EMBASSY">
+			<Text>[COLOR_NEGATIVE_TEXT][ICON_CITY_STATE] Embassy already Established.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CSTATE_CAN_EMBASSY">
+			<Text>[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]</Text>
+		</Row>
+
+		
+
+		
 	</Language_en_US>
 </GameData>

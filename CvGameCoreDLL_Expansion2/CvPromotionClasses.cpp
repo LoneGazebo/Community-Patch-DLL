@@ -242,6 +242,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_eAdjacentSameType(NO_PROMOTION),
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
+	m_piYieldChange(NULL),
 	m_bHighSeaRaider(false),
 #endif
 	m_bCanHeavyCharge(false),
@@ -295,6 +296,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
+	SAFE_DELETE_ARRAY(m_piYieldChange);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
@@ -748,6 +750,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	}
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldModifier, "UnitPromotions_YieldModifiers", "PromotionType", szPromotionType);
+	kUtility.SetYields(m_piYieldChange, "UnitPromotions_YieldChanges", "PromotionType", szPromotionType);
+
 	//UnitPromotions_YieldFromScouting
 	{
 		kUtility.InitializeArray(m_piYieldFromScouting, NUM_YIELD_TYPES, 0);
@@ -2300,6 +2304,19 @@ int CvPromotionEntry::GetYieldModifier(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldModifier)
 	{
 		return m_piYieldModifier[i];
+	}
+
+	return 0;
+}
+
+/// Modifier to yield by type
+int CvPromotionEntry::GetYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldChange)
+	{
+		return m_piYieldChange[i];
 	}
 
 	return 0;

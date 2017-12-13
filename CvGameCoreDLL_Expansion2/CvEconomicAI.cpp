@@ -963,6 +963,7 @@ void CvEconomicAI::DoTurn()
 #if defined(MOD_BALANCE_CORE)
 		DisbandUselessSettlers();
 		DisbandExtraWorkboats();
+		DisbandMiscUnits();
 #endif
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 		YieldTypes eFocusYield = NO_YIELD;
@@ -2745,6 +2746,28 @@ void CvEconomicAI::DoAntiquitySites()
 	m_iVisibleAntiquitySites = iNumSites;
 }
 #if defined(MOD_BALANCE_CORE)
+void CvEconomicAI::DisbandMiscUnits()
+{
+	if (m_pPlayer->isMinorCiv())
+	{
+		CvUnit* pLoopUnit = NULL;
+		int iUnitLoop = 0;
+
+		// Look at map for loose workers
+		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		{
+			if (!pLoopUnit)
+			{
+				continue;
+			}
+			if (pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0)
+			{
+				pLoopUnit->scrap();
+				LogScrapUnit(pLoopUnit, 0, 0, -1, 0);
+			}
+		}
+	}
+}
 void CvEconomicAI::DisbandUselessSettlers()
 {
 	//If we want settlers, don't disband.

@@ -3457,7 +3457,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					}
 
 					int iTourism = GET_PLAYER(eAcceptedToPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-					GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(1);
+					GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
 					// Culture boost based on previous turns
 					if(iTourism > 0)
 					{
@@ -3533,7 +3533,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					}
 
 					int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-					GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(1);
+					GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
 					if(iTourism > 0)
 					{
 						GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);

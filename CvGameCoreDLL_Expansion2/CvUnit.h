@@ -179,6 +179,7 @@ public:
 
 	bool ReadyToSelect() const;
 	bool ReadyToMove() const;
+	bool ReadyToSwap() const;
 	bool ReadyToAuto() const;
 	bool IsBusy() const;
 #if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER) || defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
@@ -821,8 +822,11 @@ public:
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
 
-	int getyieldModifier(YieldTypes eYield) const;
-	void setyieldmodifier(YieldTypes eYield, int iValue);
+	int GetYieldModifier(YieldTypes eYield) const;
+	void SetYieldModifier(YieldTypes eYield, int iValue);
+
+	int GetYieldChange(YieldTypes eYield) const;
+	void SetYieldChange(YieldTypes eYield, int iValue);
 
 	bool IsHasNoValidMove() const;
 
@@ -1569,10 +1573,10 @@ public:
 	void ChangeMissionTimer(int iChange);
 	void ClearMissionQueue(bool bKeepPathCache = false, int iUnitCycleTimer = 1);
 	int GetLengthMissionQueue() const;
-	const MissionData* GetHeadMissionData();
-	const MissionData* GetMissionData(int iIndex);
+	const MissionData* GetHeadMissionData() const;
+	const MissionData* GetMissionData(int iIndex) const;
 	CvPlot* GetMissionAIPlot() const;
-	MissionAITypes GetMissionAIType();
+	MissionAITypes GetMissionAIType() const;
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
@@ -2024,7 +2028,8 @@ protected:
 	IDInfo m_transportUnit;
 
 	std::vector<int> m_extraDomainModifiers;
-	std::vector<int> m_yieldModifier;
+	std::vector<int> m_YieldModifier;
+	std::vector<int> m_YieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;

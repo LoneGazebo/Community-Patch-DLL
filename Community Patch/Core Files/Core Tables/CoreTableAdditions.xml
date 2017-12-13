@@ -888,6 +888,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<Table name="UnitPromotions_YieldChanges">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	
 	<!-- Corporations System -->
 	<Table name="Corporations">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>

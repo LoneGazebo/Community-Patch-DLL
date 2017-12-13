@@ -824,14 +824,33 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
+	if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding && !isCapital())
 	{	
 		int iYieldHandicap = owningPlayer.DoDifficultyBonus();
-		if((GC.getLogging() && GC.getAILogging()))
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
 			strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
-			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+
+			CvString strTemp;
+
+			CvString strFileName = "DifficultyHandicapLog.csv";
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+			CvString strPlayerName;
+			strPlayerName = GET_PLAYER(getOwner()).getCivilizationShortDescription();
+			strTemp += strPlayerName;
+			strTemp += ", ";
+
+			CvString strTurn;
+
+			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+			strTemp += strTurn;
+
+			strTemp += strLogString;
+
+			pLog->Msg(strTemp);
 		}
 	}
 #endif
@@ -2730,16 +2749,23 @@ void CvCity::doTurn()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if (getProductionProcess() != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
+		if (getProductionProcess() != NO_PROCESS)
 		{
-			int iPile = getYieldRate(YIELD_PRODUCTION, false) * GC.getProcessInfo(getProductionProcess())->getDefenseValue();
-			iPile /= 10;
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			{
+				int iPile = getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
+				iPile /= 10;
 
-			iHitsHealed += iPile;
+				iHitsHealed += iPile;
+			}
 		}
 #endif
 		changeDamage(-iHitsHealed);
 	}
+
+	if (isUnderSiege())
+		GET_PLAYER(getOwner()).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
 
 	if(getDamage() < 0)
 	{
@@ -12595,7 +12621,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(!bNoBonus && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
-				owningPlayer.ChangeNumHistoricEvents(1);
+				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
 				if(iTourism > 0)
 				{
 					owningPlayer.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
@@ -17188,6 +17214,16 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetJONSCulturePerTurnFromReligion();
 	iCulturePerTurn += GetJONSCulturePerTurnFromLeagues();
 
+	CvPlot* pCityPlot = plot();
+	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	{
+		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(YIELD_CULTURE);
+		if (iTempVal != 0)
+		{
+			iCulturePerTurn += iTempVal;
+		}
+	}
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// Process production into culture
 	iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(YIELD_CULTURE) / 100;
@@ -17214,6 +17250,16 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetEventCityYield(YIELD_CULTURE);
 	iCulturePerTurn += GetBaseYieldRateFromMisc(YIELD_CULTURE);
+#endif
+
+#if defined(MOD_BALANCE_CORE_JFD)
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iCulturePerTurn += GetYieldFromHappiness(YIELD_CULTURE);
+		iCulturePerTurn += GetYieldFromHealth(YIELD_CULTURE);
+		iCulturePerTurn += GetYieldFromCrime(YIELD_CULTURE);
+		iCulturePerTurn += GetYieldFromDevelopment(YIELD_CULTURE);
+	}
 #endif
 
 	return iCulturePerTurn;
@@ -17312,6 +17358,18 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 	}
 	//Currently only used by Arabian CBP UA.
 	int iYield = (GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldFromHistoricEvent(eYield) * GET_PLAYER(m_eOwner).GetNumHistoricEvents());
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_YIELD_SCALE_ERA)
+	{
+		int iEra = GET_PLAYER(m_eOwner).GetCurrentEra();
+		if (iEra < 1)
+		{
+			iEra = 1;
+		}
+		iYield += (iEra * GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GET_PLAYER(m_eOwner).GetTrade()->GetNumDifferentTradingPartners());
+	}
+#endif
+
 	return iYield;
 }
 #endif
@@ -17427,6 +17485,26 @@ int CvCity::GetFaithPerTurn() const
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetEventCityYield(YIELD_FAITH);
 #endif
+
+#if defined(MOD_BALANCE_CORE_JFD)
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iFaith += GetYieldFromHappiness(YIELD_FAITH);
+		iFaith += GetYieldFromHealth(YIELD_FAITH);
+		iFaith += GetYieldFromCrime(YIELD_FAITH);
+		iFaith += GetYieldFromDevelopment(YIELD_FAITH);
+	}
+#endif
+
+	CvPlot* pCityPlot = plot();
+	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	{
+		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(YIELD_FAITH);
+		if (iTempVal != 0)
+		{
+			iFaith += iTempVal;
+		}
+	}
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int iModifier = 100;
@@ -21578,7 +21656,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	CvPlot* pCityPlot = plot();
 	for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getyieldModifier(eIndex);
+		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldModifier(eIndex);
 		if (iTempMod != 0)
 		{
 			iModifier += iTempMod;
@@ -22165,6 +22243,17 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		iValue += GetBaseScienceFromArt();
 	}
 #endif
+
+	CvPlot* pCityPlot = plot();
+	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	{
+		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eIndex);
+		if (iTempVal != 0)
+		{
+			iValue += iTempVal;
+		}
+	}
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
@@ -23574,7 +23663,7 @@ bool CvCity::IsBastion() const
 void CvCity::TestBastion()
 {
 	//Check to see if this is a city we really need to defend.
-	if(isCapital())
+	if(isCapital() && GET_PLAYER(m_eOwner).getNumCities() == 1)
 	{
 		SetBastion(true);
 		return;
@@ -25015,11 +25104,15 @@ void CvCity::updateStrengthValue()
 	iStrengthValue += (int)(fTechMod + 0.005);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
 
 #if defined(MOD_BALANCE_CORE)
-	if (getProductionProcess() != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
+	if (getProductionProcess() != NO_PROCESS)
 	{
-		int iPile = (getYieldRate(YIELD_PRODUCTION, false) * GC.getProcessInfo(getProductionProcess())->getDefenseValue());
+		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+		if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+		{
+			int iPile = (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
 
-		iStrengthValue += iPile;
+			iStrengthValue += iPile;
+		}
 	}
 #endif
 
@@ -25087,6 +25180,8 @@ void CvCity::updateStrengthValue()
 		m_iStrengthValue += (/*3*/ GC.getCITY_STRENGTH_HILL_CHANGE() * 2);
 	}
 #endif
+
+	m_iStrengthValue += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST);
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 }
@@ -26380,9 +26475,13 @@ OrderData order;
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 != NO_PROCESS && GC.getProcessInfo((ProcessTypes)iData1)->getDefenseValue() != 0)
+	if (eOrder == ORDER_MAINTAIN && (ProcessTypes)iData1 != NO_PROCESS)
 	{
-		updateStrengthValue();
+		CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)iData1);
+		if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+		{
+			updateStrengthValue();
+		}
 	}
 #endif
 
@@ -26700,6 +26799,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 			if(bFinish)
 			{
+				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
 				bool bResult = CreateBuilding(eConstructBuilding);
 				DEBUG_VARIABLE(bResult);
 				CvAssertMsg(bResult, "CreateBuilding failed");
@@ -26724,15 +26824,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				}
 #if defined(MOD_EVENTS_CITY)
 				}
-#endif
-
-				iProductionNeeded = getProductionNeeded(eConstructBuilding) * 100;
-				CvBuildingClassInfo* pBuildingClass = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
-				if (pBuildingClass && ::isWorldWonderClass(*pBuildingClass))
-				{
-					iProductionNeeded *= 100;
-					iProductionNeeded /= 100 + GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
-				}
+#endif		
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
 				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
@@ -26855,9 +26947,13 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	case ORDER_MAINTAIN:
 #if defined(MOD_BALANCE_CORE)
-		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS && GC.getProcessInfo(getProductionProcess())->getDefenseValue() != 0)
+		if ((ProcessTypes)pOrderNode->iData1 != NO_PROCESS)
 		{
-			bUpdateStrength = true;
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo((ProcessTypes)pOrderNode->iData1);
+			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			{
+				bUpdateStrength = true;
+			}
 		}
 #endif
 		break;
@@ -27766,7 +27862,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 			if(pkUnitInfo)
 			{
 				//naval units are only for the UA!
-				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPurchaseNavalUnitsFaith())
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && pkUnitInfo->GetSpecialUnitType() == NO_SPECIALUNIT && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPurchaseNavalUnitsFaith())
 					return false;
 
 #if defined(MOD_BUGFIX_MINOR)
@@ -31714,7 +31810,7 @@ int CvCity::CountNumWorkedFeature(FeatureTypes iFeatureType)
 
 	return iNum;
 }
-int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement)
+int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement, bool IgnorePillaged)
 {
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
 	int iNum = 0;
@@ -31734,6 +31830,9 @@ int CvCity::CountNumWorkedImprovement(ImprovementTypes eImprovement)
 		{
 			continue;
 		}
+
+		if (pLoopPlot->IsImprovementPillaged() && IgnorePillaged)
+			continue;
 
 		if (pLoopPlot->getImprovementType() == eImprovement) 
 		{
@@ -31863,12 +31962,11 @@ void CvCity::flipDamageReceivedPerTurn()
 bool CvCity::isInDangerOfFalling() const
 {
 	int iHitpoints = GetMaxHitPoints() - getDamage();
+
 	//be conservative here ...
 	if (m_iDamageTakenLastTurn*1.5 > iHitpoints)
-	{
-		GET_PLAYER(getOwner()).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
 		return true;
-	}
+
 	return false;
 }
 

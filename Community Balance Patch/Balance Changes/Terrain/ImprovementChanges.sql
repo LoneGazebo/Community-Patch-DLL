@@ -232,12 +232,14 @@ VALUES
 INSERT INTO Improvement_AdjacentImprovementYieldChanges
 	(ImprovementType, OtherImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_FEITORIA', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_FEITORIA', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_KASBAH', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_GOLD', 2);
 
 INSERT INTO Improvement_AdjacentTerrainYieldChanges
 	(ImprovementType, TerrainType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_FEITORIA', 'TERRAIN_COAST', 'YIELD_GOLD', 1);
+	('IMPROVEMENT_FEITORIA', 'TERRAIN_COAST', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_KASBAH', 'TERRAIN_COAST', 'YIELD_CULTURE', 1);
 
 INSERT INTO Improvement_TechNoFreshWaterYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
