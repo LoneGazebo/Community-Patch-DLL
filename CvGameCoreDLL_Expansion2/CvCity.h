@@ -1520,7 +1520,7 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 	int CountNumWorkedFeature(FeatureTypes eFeature);
-	int CountNumWorkedImprovement(ImprovementTypes eImprovement);
+	int CountNumWorkedImprovement(ImprovementTypes eImprovement, bool IgnorePillaged = true);
 	int CountNumWorkedResource(ResourceTypes eResource);
 	int CountNumImprovement(ImprovementTypes eImprovement);
 	int CountNumWorkedRiverTiles(TerrainTypes eTerrain = NO_TERRAIN);

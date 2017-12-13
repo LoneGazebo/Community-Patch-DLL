@@ -615,7 +615,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		return 0;
 	if (iGoodPlotsInRing1 < 1)
 		return 0;
-	if (iGoodPlotsInRing2 < 1)
+	if (iGoodPlotsInRing2 < 2)
 		return 0;
 
 	//civ-specific bonuses

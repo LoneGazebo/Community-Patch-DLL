@@ -475,7 +475,7 @@ VALUES
 		
 -- Caravansary
 UPDATE Buildings
-SET TradeRouteLandGoldBonus = '200'
+SET TradeRouteLandGoldBonus = '300'
 WHERE Type = 'BUILDING_CARAVANSARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings

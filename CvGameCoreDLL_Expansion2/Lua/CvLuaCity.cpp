@@ -273,6 +273,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetJONSCulturePerTurnFromTraits);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetYieldPerTurnFromTraits);
+	Method(GetYieldFromUnitsInCity);
 #endif
 #if defined(MOD_BUGFIX_LUA_API)
 	Method(ChangeJONSCulturePerTurnFromReligion);
@@ -2987,6 +2988,27 @@ int CvLuaCity::lGetJONSCulturePerTurnFromTraits(lua_State* L)
 int CvLuaCity::lGetYieldPerTurnFromTraits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetYieldPerTurnFromTraits);
+}
+
+//int GetYieldPerTurnFromTraits() const;
+int CvLuaCity::lGetYieldFromUnitsInCity(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 2);
+
+	int Total = 0;
+	CvPlot* pCityPlot = pkCity->plot();
+	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	{
+		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYieldType);
+		if (iTempVal != 0)
+		{
+			Total += iTempVal;
+		}
+	}
+
+	lua_pushinteger(L, Total);
+	return 1;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -5781,7 +5803,8 @@ int CvLuaCity::lCountNumWorkedImprovement(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const ImprovementTypes eImprovement = (ImprovementTypes) lua_tointeger(L, 2);
-	const int iValue = pkCity->CountNumWorkedImprovement(eImprovement);
+	const bool bIgnorePillaged = luaL_optbool(L, 3, true);
+	const int iValue = pkCity->CountNumWorkedImprovement(eImprovement, bIgnorePillaged);
 
 	lua_pushinteger(L, iValue);
 

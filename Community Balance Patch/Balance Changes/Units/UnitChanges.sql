@@ -89,6 +89,3 @@ VALUES
 --Replace Starting Warrior with a Pathfinder
 UPDATE Eras SET StartingDefenseUnits='0' Where Type='ERA_ANCIENT';
 UPDATE Eras SET StartingExploreUnits='1' Where Type='ERA_ANCIENT';
-
-
-

@@ -55,7 +55,7 @@
 			<Text>Rhiannon, Goddess of Sovereignty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
-			<Text>+3 [ICON_FOOD] Food, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities. +5 [ICON_GREAT_ADMIRAL] Great Admiral Points from Ceilidh Hall</Text>
+			<Text>+3 [ICON_FOOD] Food, +3 [ICON_PRODUCTION] Production, and +4 [ICON_GOLD] Gold in coastal Cities. +2 [ICON_GREAT_ADMIRAL] Great Admiral Points from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
 			<Text>Mannanan, Son of the Sea</Text>

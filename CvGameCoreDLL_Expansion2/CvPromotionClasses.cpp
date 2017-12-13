@@ -42,6 +42,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAirSweepCombatModifier(0),
 	m_iInterceptChanceChange(0),
 	m_iNumInterceptionChange(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iAirInterceptRangeChange(0), // JJ: This is new
+#endif
 	m_iEvasionChange(0),
 	m_iCargoChange(0),
 	m_iEnemyHealChange(0),
@@ -239,6 +242,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_eAdjacentSameType(NO_PROMOTION),
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
+	m_piYieldChange(NULL),
 	m_bHighSeaRaider(false),
 #endif
 	m_bCanHeavyCharge(false),
@@ -292,6 +296,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
+	SAFE_DELETE_ARRAY(m_piYieldChange);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
@@ -491,6 +496,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAirSweepCombatModifier = kResults.GetInt("AirSweepCombatModifier");
 	m_iInterceptChanceChange = kResults.GetInt("InterceptChanceChange");
 	m_iNumInterceptionChange = kResults.GetInt("NumInterceptionChange");
+#if defined(MOD_BALANCE_CORE)
+	m_iAirInterceptRangeChange = kResults.GetInt("AirInterceptRangeChange"); // JJ: This is new
+#endif
 	m_iEvasionChange = kResults.GetInt("EvasionChange");
 	m_iCargoChange = kResults.GetInt("CargoChange");
 	m_iEnemyHealChange = kResults.GetInt("EnemyHealChange");
@@ -742,6 +750,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	}
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldModifier, "UnitPromotions_YieldModifiers", "PromotionType", szPromotionType);
+	kUtility.SetYields(m_piYieldChange, "UnitPromotions_YieldChanges", "PromotionType", szPromotionType);
+
 	//UnitPromotions_YieldFromScouting
 	{
 		kUtility.InitializeArray(m_piYieldFromScouting, NUM_YIELD_TYPES, 0);
@@ -1237,6 +1247,14 @@ int CvPromotionEntry::GetNumInterceptionChange() const
 {
 	return m_iNumInterceptionChange;
 }
+
+#if defined(MOD_BALANCE_CORE) // JJ: This is new
+/// Accessor: How much additional range this promotion allows an unit to perform interception (can be negative)
+int CvPromotionEntry::GetAirInterceptRangeChange() const
+{
+	return m_iAirInterceptRangeChange;
+}
+#endif
 
 /// Accessor: How well an air unit can evade interception
 int CvPromotionEntry::GetEvasionChange() const
@@ -2286,6 +2304,19 @@ int CvPromotionEntry::GetYieldModifier(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldModifier)
 	{
 		return m_piYieldModifier[i];
+	}
+
+	return 0;
+}
+
+/// Modifier to yield by type
+int CvPromotionEntry::GetYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldChange)
+	{
+		return m_piYieldChange[i];
 	}
 
 	return 0;

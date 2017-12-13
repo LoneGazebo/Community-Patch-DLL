@@ -240,7 +240,7 @@
 			<Text>Prisoners of War</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR_HELP">
-			<Text>-50% Work Rate when building Improvements or Routes.</Text>
+			<Text>-50% Work Rate when building Improvements or Routes for 50 turns (from turn captured).</Text>
 		</Row>
 
 

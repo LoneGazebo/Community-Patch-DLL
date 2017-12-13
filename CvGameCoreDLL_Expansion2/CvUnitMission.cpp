@@ -891,7 +891,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 			}
 
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-			else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+			if (MOD_EVENTS_CUSTOM_MISSIONS) {
 				if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CustomMissionCompleted, hUnit->getOwner(), hUnit->GetID(), kMissionData.eMissionType, kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, kMissionData.iPushTurn) == GAMEEVENTRETURN_TRUE) {
 					bDone = true;
 				}
@@ -946,7 +946,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 							GC.GetEngineUserInterface()->changeCycleSelectionCounter(iCameraTime);
 						}
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-						else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+						if (MOD_EVENTS_CUSTOM_MISSIONS) {
 							int iCameraTime = 0;
 							if (GAMEEVENTINVOKE_VALUE(iCameraTime, GAMEEVENT_CustomMissionCameraTime, hUnit->getOwner(), hUnit->GetID(), kMissionData.eMissionType, kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, kMissionData.iPushTurn) == GAMEEVENTRETURN_VALUE) {
 								if (iCameraTime > 0 && iCameraTime <= 10) {
@@ -1006,7 +1006,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 		// Attempt to execute the game events.
 		// Will return false if there are no registered listeners.
 		bool bResult = false;
-		if(LuaSupport::CallTestAll(pkScriptSystem, "CanStartMission", args.get(), bResult))
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanStartMission", args.get(), bResult))
 		{
 			// Check the result.
 			if(bResult == false)
@@ -1379,7 +1379,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 #endif
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-	else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+	if (MOD_EVENTS_CUSTOM_MISSIONS) {
 		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CustomMissionPossible, hUnit->getOwner(), hUnit->GetID(), iMission, iData1, iData2, 0, -1, pPlot->getX(), pPlot->getY(), bTestVisible) == GAMEEVENTRETURN_TRUE) {
 			return true;
 		}
@@ -1488,7 +1488,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		}
 
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-		else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+		if (MOD_EVENTS_CUSTOM_MISSIONS) {
 			int iValue = 0;
 			if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_CustomMissionSetActivity, hUnit->getOwner(), hUnit->GetID(), pkQueueData->eMissionType, pkQueueData->iData1, pkQueueData->iData2, pkQueueData->iFlags, pkQueueData->iPushTurn) == GAMEEVENTRETURN_VALUE) {
 				if (iValue == CUSTOM_MISSION_ACTION ) {
@@ -1871,7 +1871,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 #endif
 
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-			else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+			if (MOD_EVENTS_CUSTOM_MISSIONS) {
 				int iValue = 0;
 				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_CustomMissionStart, hUnit->getOwner(), hUnit->GetID(), pkQueueData->eMissionType, pkQueueData->iData1, pkQueueData->iData2, pkQueueData->iFlags, pkQueueData->iPushTurn) == GAMEEVENTRETURN_VALUE) {
 					if (iValue == CUSTOM_MISSION_ACTION) {
@@ -1944,7 +1944,7 @@ CvPlot* CvUnitMission::LastMissionPlot(CvUnit* hUnit)
 		}
 
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-		else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+		if (MOD_EVENTS_CUSTOM_MISSIONS) {
 			int iPlotIndex = -1;
 			if (GAMEEVENTINVOKE_VALUE(iPlotIndex, GAMEEVENT_CustomMissionTargetPlot, hUnit->getOwner(), hUnit->GetID(), pMissionNode->eMissionType, pMissionNode->iData1, pMissionNode->iData2, pMissionNode->iFlags, pMissionNode->iPushTurn) == GAMEEVENTRETURN_VALUE) {
 				if (iPlotIndex >= 0 ) {
@@ -2021,7 +2021,7 @@ int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 			}
 		}
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-		else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+		if (MOD_EVENTS_CUSTOM_MISSIONS) {
 			int iValue = 0;
 			if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_CustomMissionTimerInc, hUnit->getOwner(), hUnit->GetID(), kMissionData.eMissionType, kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, kMissionData.iPushTurn) == GAMEEVENTRETURN_VALUE) {
 				if (iValue != 0) {
@@ -2320,7 +2320,7 @@ bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 			}
 		}
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
-		else if (MOD_EVENTS_CUSTOM_MISSIONS) {
+		if (MOD_EVENTS_CUSTOM_MISSIONS) {
 			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CustomMissionCompleted, hUnit->getOwner(), hUnit->GetID(), kMissionData.eMissionType, kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, kMissionData.iPushTurn) == GAMEEVENTRETURN_TRUE) {
 				return true;
 			}

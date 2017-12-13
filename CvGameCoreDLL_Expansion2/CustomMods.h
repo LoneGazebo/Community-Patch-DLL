@@ -397,6 +397,7 @@
 #define MOD_BALANCE_DYNAMIC_UNIT_SUPPLY				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_DYNAMIC_UNIT_SUPPLY())
 #define MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV())
 #define MOD_BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY())
+#define MOD_BALANCE_CORE_SCALING_TRADE_DISTANCE	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SCALING_TRADE_DISTANCE())
 #endif
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -1129,11 +1130,14 @@ enum BattleTypeTypes
 #define GAMEEVENT_EspionageCanMoveSpyTo			"EspionageCanMoveSpyTo",		"iii"
 #define GAMEEVENT_EspionageCanStageCoup			"EspionageCanStageCoup",		"iii"
 #define GAMEEVENT_EspionageResult				"EspionageResult",				"iiiii"
+#define GAMEEVENT_ElectionResultSuccess			"ElectionResultSuccess",		"iiiii"
+#define GAMEEVENT_ElectionResultFailure			"ElectionResultFailure",		"iiiii"
 #define GAMEEVENT_EspionageNotificationData		"EspionageNotificationData",	"iiiiiiiibiibi"
 #define GAMEEVENT_EspionageState				"EspionageState",				"iiiii"
 #define GAMEEVENT_GetDiploModifier				"GetDiploModifier",				"iii"
 #define GAMEEVENT_GetBombardRange				"GetBombardRange",				"ii"
 #define GAMEEVENT_GetReligionToFound			"GetReligionToFound",			"iib"
+#define GAMEEVENT_GetBeliefToFound				"GetBeliefToFound",				"ii"
 #define GAMEEVENT_GoodyHutCanNotReceive			"GoodyHutCanNotReceive",		"iiib"
 #define GAMEEVENT_GoodyHutCanResearch			"GoodyHutCanResearch",			"ii"
 #define GAMEEVENT_GoodyHutTechResearched		"GoodyHutTechResearched",		"ii"
@@ -1480,6 +1484,7 @@ public:
 	MOD_OPT_DECL(BALANCE_DYNAMIC_UNIT_SUPPLY);
 	MOD_OPT_DECL(BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV);
 	MOD_OPT_DECL(BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY);
+	MOD_OPT_DECL(BALANCE_CORE_SCALING_TRADE_DISTANCE);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

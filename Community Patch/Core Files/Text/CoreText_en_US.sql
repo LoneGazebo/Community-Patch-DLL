@@ -300,7 +300,7 @@ SET Text = 'Disrupting Plans'
 WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught operating in their lands.[ENDCOLOR]'
+SET Text = '[COLOR_NEGATIVE_TEXT]You were caught stealing from them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 
 -- Changed Diplo Text for Trade

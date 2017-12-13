@@ -220,6 +220,7 @@ public:
 	bool IsFinisher() const;
 	int GetCityStateCombatModifier() const;
 	int GetGreatEngineerRateModifier() const;
+	int GetDefenseBoost() const;
 #endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
@@ -609,6 +610,7 @@ private:
 	bool m_bFinisher;
 	int m_iCityStateCombatModifier;
 	int m_iGreatEngineerRateModifier;
+	int m_iDefenseBoost;
 #endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;
@@ -919,6 +921,7 @@ enum PolicyModifierType
 	POLICYMOD_STEAL_GW_SLOWER_MODIFIER,
 	POLICYMOD_STEAL_GW_FASTER_MODIFIER,
 	POLICYMOD_GREAT_ENGINEER_RATE,
+	POLICYMOD_CITY_DEFENSE_BOOST,
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	POLICYMOD_GREAT_DIPLOMAT_RATE,

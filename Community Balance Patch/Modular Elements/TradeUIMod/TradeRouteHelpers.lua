@@ -109,6 +109,12 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iOpenBordersModifier ~= 0) then
 		strOpenBordersModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD", iOpenBordersModifier);
 	end
+
+	local strDistanceModifier = "";
+	local iDistanceModifier = pPlayer:GetTradeConnectionDistanceValueModifierTimes100(pOriginCity, pTargetCity, eDomain);
+	if (iDistanceModifier ~= 0) then
+		strDistanceModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DISTANCE_MOD", -iDistanceModifier);
+	end
 -- END
 
 -- COMMUNITY PATCH
@@ -191,6 +197,13 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 			strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD", iOpenBordersModifier);
 			strOtherTotal = strOtherTotal .. "[NEWLINE]";
 		end
+
+		local strDistanceModifier = "";
+		local iDistanceModifier = pPlayer:GetTradeConnectionDistanceValueModifierTimes100(pOriginCity, pTargetCity, eDomain);
+		if (iDistanceModifier ~= 0) then
+			strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DISTANCE_MOD", -iDistanceModifier);
+			strOtherTotal = strOtherTotal .. "[NEWLINE]";
+		end
 -- END
 		
 		strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_TRADEE_TOTAL", strOtherLeaderName, iTradeeAmount / 100);
@@ -264,6 +277,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 
 	if (strOpenBordersModifier ~= "") then
 		strResult = strResult .. strOpenBordersModifier;
+		strResult = strResult .. "[NEWLINE]";
+	end
+
+	if (strDistanceModifier ~= "") then
+		strResult = strResult .. strDistanceModifier;
 		strResult = strResult .. "[NEWLINE]";
 	end
 
