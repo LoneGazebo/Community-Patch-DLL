@@ -2876,7 +2876,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
 			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
-				ExecuteMoveToPlot(pUnit,pPlot);
+				ExecuteMoveToPlot(pUnit,pPlot,false,CvUnit::MOVEFLAG_NO_EMBARK);
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -2905,7 +2905,7 @@ void CvTacticalAI::PlotPlunderTradePlotMoves (DomainTypes eDomain)
 			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 			if(pUnit)
 			{
-				ExecuteMoveToPlot(pUnit,pPlot,true);
+				ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_NO_EMBARK);
 				if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
 				{
 					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -7570,7 +7570,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 					(pNextZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pNextZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN))
 				{
 					pTargetPlot = GC.getMap().plot(pNextZone->GetCenterX(), pNextZone->GetCenterY());
-					if (pUnit->CanReachInXTurns(pTargetPlot, 5))
+					if (pUnit->CanReachInXTurns(pTargetPlot,5))
 					{
 						bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12);
 						break;
@@ -8270,7 +8270,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 				continue;
 
 			int iTurnsCalculated = -1;
-			if (pLoopUnit->CanReachInXTurns(pTarget, iNumTurnsAway, false /*bIgnoreUnits*/, &iTurnsCalculated))
+			if (pLoopUnit->CanReachInXTurns(pTarget, iNumTurnsAway, false /*bIgnoreUnits*/, false /*bAllowEmbark*/, &iTurnsCalculated))
 			{
 				CvTacticalUnit unit;
 				unit.SetID(pLoopUnit->GetID());

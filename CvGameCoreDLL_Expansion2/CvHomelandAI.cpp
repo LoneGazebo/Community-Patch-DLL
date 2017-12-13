@@ -3618,7 +3618,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if(iTotalScore > iBestPlotScore)
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
-					if (!pUnit->CanReachInXTurns(pEvalPlot,1))
+					if (!pUnit->CanReachInXTurns(pEvalPlot,1,false,false))
 						continue;
 
 					pBestPlot = pEvalPlot;

@@ -1736,7 +1736,7 @@ public:
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
-	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, int* piTurns = NULL);
+	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, bool bAllowEmbark=true, int* piTurns = NULL);
 	void ClearPathCache();
 	void ClearReachablePlots();
 
