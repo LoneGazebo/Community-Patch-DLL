@@ -3269,7 +3269,7 @@ void CvMilitaryAI::UpdateBaseData()
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
 
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.5 to about 1.5)
-	fMultiplier = (float)0.15 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
+	fMultiplier = (float)0.2 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
 
 	// first get the number of defenders that we think we need
 
@@ -3296,14 +3296,24 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || m_pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						fMultiplier += 0.075f;
+						fMultiplier += 0.2f;
 					}
-					else if(m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
+					else if (m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						fMultiplier += 0.075f;
+						fMultiplier += 0.2f;
 					}
 				}
 			}
+		}
+	}
+
+	int iCityLoop;
+	CvCity *pLoopCity;
+	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	{
+		if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBastion()))
+		{
+			fMultiplier += .25f;
 		}
 	}
 #endif
@@ -3414,6 +3424,20 @@ void CvMilitaryAI::UpdateDefenseState()
 		m_eLandDefenseState = DEFENSE_STATE_ENOUGH;
 	}
 
+	if (m_eLandDefenseState <= DEFENSE_STATE_NEUTRAL)
+	{
+		int iCityLoop;
+		CvCity *pLoopCity;
+		for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		{
+			if (pLoopCity && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
+			{
+				m_eLandDefenseState = DEFENSE_STATE_CRITICAL;
+				break;
+			}
+		}
+	}
+
 #if defined(MOD_BALANCE_CORE)
 	int iNavySize = m_iRecNavySize;
 #else
@@ -3435,6 +3459,20 @@ void CvMilitaryAI::UpdateDefenseState()
 	else
 	{
 		m_eNavalDefenseState = DEFENSE_STATE_ENOUGH;
+	}
+
+	if (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL)
+	{
+		int iCityLoop;
+		CvCity *pLoopCity;
+		for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		{
+			if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
+			{
+				m_eNavalDefenseState = DEFENSE_STATE_CRITICAL;
+				break;
+			}
+		}
 	}
 }
 
@@ -4231,7 +4269,7 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 {
 	//Not perfect, as some operations are mixed, but it will keep us from sending everyone to slaughter all at once.
 	int iReservesTotal = ((m_iNumLandUnits + m_iNumNavalUnits) - (m_iNumNavalUnitsInArmies + m_iNumLandUnitsInArmies));
-	if(iReservesTotal >= m_iMandatoryReserveSize)
+	if (iReservesTotal >= m_iMandatoryReserveSize || m_pPlayer->GetNumOffensiveOperations(DOMAIN_LAND) <= 0)
 	{
 		int iOperationID;
 		int iNumRequiredSlots;
@@ -4284,7 +4322,7 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 				if (targetLand.m_pTargetCity && targetLand.m_pMusterCity && !targetLand.m_bNoLandPath)
 				{
 					bool bHasBasicOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_BASIC_ATTACK, &iOperationID, ePlayer, targetLand.m_pMusterCity->plot());
-					if (bHasBasicOperationUnderway)
+					if (!bHasBasicOperationUnderway)
 					{
 						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAttack(), targetLand.m_bAttackBySea, targetLand.m_bOcean, targetLand.m_pMusterCity->plot(), targetLand.m_pTargetCity->plot(), &iNumRequiredSlots);
 						if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
@@ -4306,7 +4344,7 @@ void CvMilitaryAI::DoSeaAttacks(PlayerTypes ePlayer)
 {
 	//Not perfect, as some operations are mixed, but it will keep us from sending everyone to slaughter all at once.
 	int iReservesTotal = ((m_iNumLandUnits + m_iNumNavalUnits) - (m_iNumNavalUnitsInArmies + m_iNumLandUnitsInArmies));
-	if(iReservesTotal >= m_iMandatoryReserveSize)
+	if (iReservesTotal >= m_iMandatoryReserveSize || m_pPlayer->GetNumOffensiveOperations(DOMAIN_SEA) <= 0)
 	{
 		int iNumRequiredSlots;
 		int iFilledSlots;
@@ -5340,7 +5378,7 @@ int CvMilitaryAI::GetMaxPossibleInterceptions(CvPlot* pTargetPlot, bool bCountPe
 						if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
 						{
 							// Test range
-							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= (pLoopUnit->getUnitInfo().GetAirInterceptRange() + pLoopUnit->GetExtraAirInterceptRange())) // JJ: Added consideration for additional intercept range from promotions
 							{
 								if (pLoopUnit->currInterceptionProbability() > 0)
 								{
@@ -6621,6 +6659,18 @@ bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 	{
 		return true;
 	}
+
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			if (pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer) > 25)
+				return true;
+		}
+	}
+
 	return false;
 }
 
@@ -6630,6 +6680,16 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 	if(pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
 		return true;
+	}
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			if (pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer) < -10)
+				return true;
+		}
 	}
 	return false;
 }
@@ -6944,14 +7004,24 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 				{
 					if(pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						dMultiplier += 0.25f;
+						dMultiplier += 0.20f;
 					}
 					else if(pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						dMultiplier += 0.25f;
+						dMultiplier += 0.20f;
 					}
 				}
 			}
+		}
+	}
+
+	int iCityLoop;
+	CvCity *pLoopCity;
+	for (pLoopCity = pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
+	{
+		if (pLoopCity && pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling() || pLoopCity->IsBastion()))
+		{
+			dMultiplier += .25f;
 		}
 	}
 

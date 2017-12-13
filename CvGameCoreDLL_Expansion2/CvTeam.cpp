@@ -6907,7 +6907,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 						{
 							int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA);
-							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
+							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_ERA, 1);
 							// Culture boost based on previous turns
 							if(iTourism > 0)
 							{
@@ -7162,7 +7162,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 									{
 										int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA);
-										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(1);
+										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_ERA, 1);
 										// Culture boost based on previous turns
 										if(iTourism > 0)
 										{
@@ -9242,27 +9242,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					if (eActivePlayer != NO_PLAYER && kActivePlayer.isAlive() && kActivePlayer.isMajorCiv() && kActivePlayer.getTeam() == GetID())
 					{
 						kPlayer.GetMinorCivAI()->RecalculateRewards(eActivePlayer);
-					}
-				}
-			}
-		}
-#endif
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if (MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
-		{
-			PlayerTypes ePlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				ePlayer = (PlayerTypes) iPlayerLoop;
-				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
-				{					
-					int iYieldHandicap = kPlayer.DoDifficultyBonus();
-					if((GC.getLogging() && GC.getAILogging()))
-					{
-						CvString strLogString;
-						strLogString.Format("CBP AI DIFFICULTY BONUS FROM ERA CHANGE: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
-						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
 			}

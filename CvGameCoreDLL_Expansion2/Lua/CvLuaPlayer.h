@@ -1291,6 +1291,7 @@ protected:
 	static int lGetInternationalTradeRouteOtherTraitBonus(lua_State* L);
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L);
 	static int lGetTradeConnectionOpenBordersModifierTimes100(lua_State* L);
 	static int lGetInternationalTradeRouteCorporationModifier(lua_State* L);
 	static int lGetInternationalTradeRouteCorporationModifierScience(lua_State* L);

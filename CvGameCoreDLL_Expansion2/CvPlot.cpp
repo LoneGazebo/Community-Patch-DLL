@@ -329,6 +329,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_kArchaeologyData.Reset();
 #if defined(MOD_BALANCE_CORE)
 	m_bIsTradeUnitRoute = false;
+	m_iLastTurnBuildChanged = 0;
 #endif
 }
 
@@ -10642,7 +10643,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			if (GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
 			{
 				int iPerPopYieldEmpire = GET_PLAYER(getOwner()).getCurrentTotalPop() / GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield);
-				iPerPopYieldEmpire /= 100;
 				iYield += iPerPopYieldEmpire;
 			}
 		}
@@ -11986,7 +11986,7 @@ bool CvPlot::getAnyBuildProgress() const
 
 //	--------------------------------------------------------------------------------
 // Returns true if build finished...
-bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePlayer)
+bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePlayer, bool bNewBuild)
 {
 	CvCity* pCity;
 	CvString strBuffer;
@@ -11999,6 +11999,9 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 	//This shouldn't happen.
 	if(pkBuildInfo == NULL)
+		return false;
+
+	if (m_iLastTurnBuildChanged == GC.getGame().getGameTurn() && !bNewBuild)
 		return false;
 
 	if(iChange != 0)
@@ -12021,6 +12024,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				m_eImprovementTypeUnderConstruction = eImprovement;
 			}
 		}
+
+		m_iLastTurnBuildChanged = GC.getGame().getGameTurn();
 
 		m_paiBuildProgress[eBuild] += iChange;
 		CvAssert(getBuildProgress(eBuild) >= 0);
@@ -13012,6 +13017,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_kArchaeologyData;
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_bIsTradeUnitRoute;
+	kStream >> m_iLastTurnBuildChanged;
 #endif
 }
 
@@ -13163,6 +13169,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_kArchaeologyData;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bIsTradeUnitRoute;
+	kStream << m_iLastTurnBuildChanged;
 #endif
 }
 

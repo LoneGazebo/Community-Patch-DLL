@@ -5598,7 +5598,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if(pkBuildingInfo->GetFreePolicies() > 0)
 	{
-		iCultureValue += kPlayer.GetNumPolicies() * 1000;
+		iCultureValue += kPlayer.GetNumPolicies() * kPlayer.getNumCities() * 500;
 	}	
 	if(pkBuildingInfo->GetGreatWorkCount() > 0)
 	{

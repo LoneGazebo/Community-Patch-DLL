@@ -17536,9 +17536,15 @@ void CvMinorCivAI::DoElection()
 				}
 
 				int iValue = GC.getESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION();
+
+				int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
+				if (iEra <= 0)
+				{
+					iEra = 1;
+				}
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 				{
-					iValue *= GC.getGame().getCurrentEra();
+					iValue *= iEra;
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
@@ -17547,6 +17553,15 @@ void CvMinorCivAI::DoElection()
 				if(ePlayer == GC.getGame().getActivePlayer())
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_14);
+				}
+#endif
+
+#if defined(MOD_EVENTS_ESPIONAGE)
+				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
+				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+
+				if (MOD_EVENTS_ESPIONAGE) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultSuccess, (int)ePlayer, iSpyID, iValue, pCapital->getX(), pCapital->getY());
 				}
 #endif
 			}
@@ -17591,9 +17606,10 @@ void CvMinorCivAI::DoElection()
 					}
 				}
 
+				int iDiminishAmount = 0;
 				if (GetEffectiveFriendshipWithMajorTimes100(ePlayer) > 0)
 				{
-					int iDiminishAmount = min(GC.getESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION() * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
+					iDiminishAmount = min(GC.getESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION() * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
 					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 					{
 						iDiminishAmount *= GC.getGame().getCurrentEra();
@@ -17603,6 +17619,14 @@ void CvMinorCivAI::DoElection()
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
+#if defined(MOD_EVENTS_ESPIONAGE)
+				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
+				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+
+				if (MOD_EVENTS_ESPIONAGE) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultFailure, (int)ePlayer, iSpyID, iDiminishAmount, pCapital->getX(), pCapital->getY());
+				}
+#endif
 			}
 		}
 	}

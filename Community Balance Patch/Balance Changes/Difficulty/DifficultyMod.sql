@@ -84,6 +84,3 @@ WHERE Type = 'GOODY_HIGH_GOLD';
 UPDATE GoodyHuts
 SET Experience = '20'
 WHERE Type = 'GOODY_EXPERIENCE';
-
-INSERT INTO HandicapInfo_AIFreeTechs (HandicapType, TechType)
-VALUES ('HANDICAP_DEITY', 'TECH_POTTERY');

@@ -201,6 +201,8 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief(false),
 	m_bAlwaysReligion(false),
+	m_bIgnoreTradeDistanceScaling(false),
+	m_bCanPlunderWithoutWar(false),
 #endif
 	m_bBonusReligiousBelief(false),
 	m_bAbleToAnnexCityStates(false),
@@ -1138,6 +1140,14 @@ bool CvTraitEntry::IsAnyBelief() const
 bool CvTraitEntry::IsAlwaysReligion() const
 {
 	return m_bAlwaysReligion;
+}
+bool CvTraitEntry::IsIgnoreTradeDistanceScaling() const
+{
+	return m_bIgnoreTradeDistanceScaling;
+}
+bool CvTraitEntry::IsCanPlunderWithoutWar() const
+{
+	return m_bCanPlunderWithoutWar;
 }
 #endif
 
@@ -2171,6 +2181,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief = kResults.GetBool("AnyBelief");
 	m_bAlwaysReligion = kResults.GetBool("AlwaysReligion");
+
+	m_bIgnoreTradeDistanceScaling = kResults.GetBool("IgnoreTradeDistanceScaling");
+	m_bCanPlunderWithoutWar = kResults.GetBool("CanPlunderWithoutWar");
 #endif
 	m_bBonusReligiousBelief = kResults.GetBool("BonusReligiousBelief");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
@@ -3050,7 +3063,9 @@ bool CvPlayerTraits::IsDiplomat()
 
 	if (IsImportsCountTowardsMonopolies() ||
 		IsDiplomaticMarriage() ||
-		IsAbleToAnnexCityStates())
+		IsAbleToAnnexCityStates() ||
+		IsCanPlunderWithoutWar() ||
+		IsIgnoreTradeDistanceScaling())
 		return true;
 
 	return false;
@@ -3459,6 +3474,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			if(trait->IsAlwaysReligion())
 			{
 				m_bAlwaysReligion = true;
+			}
+			if (trait->IsIgnoreTradeDistanceScaling())
+			{
+				m_bIgnoreTradeDistanceScaling = true;
+			}
+			if (trait->IsCanPlunderWithoutWar())
+			{
+				m_bCanPlunderWithoutWar = true;
 			}
 #endif
 			if(trait->IsBonusReligiousBelief())
@@ -4016,6 +4039,8 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief = false;
 	m_bAlwaysReligion = false;
+	m_bIgnoreTradeDistanceScaling = false;
+	m_bCanPlunderWithoutWar = false;
 #endif
 	m_bBonusReligiousBelief = false;
 	m_bAbleToAnnexCityStates = false;
@@ -6030,6 +6055,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	MOD_SERIALIZE_READ(46, kStream, m_bAnyBelief, false);
 	MOD_SERIALIZE_READ(46, kStream, m_bAlwaysReligion, false);
+
+	kStream >> m_bIgnoreTradeDistanceScaling;
+	kStream >> m_bCanPlunderWithoutWar;
 #endif
 	kStream >> m_bBonusReligiousBelief;
 
@@ -6503,6 +6531,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	MOD_SERIALIZE_WRITE(kStream, m_bAnyBelief);
 	MOD_SERIALIZE_WRITE(kStream, m_bAlwaysReligion);
+
+	kStream << m_bIgnoreTradeDistanceScaling;
+	kStream << m_bCanPlunderWithoutWar;
 #endif
 	kStream << m_bBonusReligiousBelief;
 	kStream << m_bAbleToAnnexCityStates;

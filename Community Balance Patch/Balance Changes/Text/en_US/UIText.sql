@@ -608,3 +608,9 @@ WHERE Tag = 'TXT_KEY_AT_WAR_WITH';
 UPDATE Language_en_US
 SET Text = 'Public Opinion begins when an empire adopts an Ideology. It is calculated by comparing the [ICON_TOURISM] Influence of Civs with an Ideology to your own [ICON_TOURISM] Influence based on the following criteria:[NEWLINE][ICON_BULLET]  The other Civ must be at least [COLOR_MAGENTA]Popular[ENDCOLOR] with you.[NEWLINE][ICON_BULLET]  The other Civ''s [ICON_TOURISM] Influence must be higher than yours.[NEWLINE][NEWLINE]If both are true, a [COLOR_POSITIVE_TEXT]Content[ENDCOLOR] Public Opinion may cause [COLOR_NEGATIVE_TEXT]Ideological Pressure[ENDCOLOR], generating [ICON_HAPPINESS_4] Unhappiness. There are ways to combat this:[NEWLINE][ICON_BULLET]  Ideologies with fewer followers have a natural resistance to Ideological Pressure.[NEWLINE][ICON_BULLET]  Static or [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR] [ICON_TOURISM] Influence trends reduce a foreign Civ''s Ideological Pressure.[NEWLINE][ICON_BULLET]  Adopting or switching Ideologies creates a 30-Turn (standard speed) period of reduced Ideological Pressure.[NEWLINE][NEWLINE]See the summary below to see which foreign civs are causing Ideological Pressure.[NEWLINE][NEWLINE]'
 WHERE Tag = 'TXT_KEY_CO_OPINION_TT_OVERVIEW';
+
+
+
+UPDATE Language_en_US
+SET Text = 'Destroy this trade route to gain [ICON_GOLD] Gold.[NEWLINE][NEWLINE]If you are not at war with the owner of the trade route, you will need to declare war before you plunder (unless an ability allows otherwise). Plundering a trade route going to another civilization will damage your relationship with the destination civilization if you''re not currently at war.'
+WHERE Tag = 'TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_HELP';

@@ -3199,7 +3199,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	int iDefense = 0;
 	//Fort test.
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-	if (eFort != NO_IMPROVEMENT && eImprovement == eFort)
+	if (eFort != NO_IMPROVEMENT && eImprovement == eFort && m_pTargetPlot->canBuild(eBuild, m_pPlayer->GetID()))
 	{
 		//Is this a good spot for a defensive building?
 		if(eResource == NO_RESOURCE)

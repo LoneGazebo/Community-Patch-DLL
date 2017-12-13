@@ -697,8 +697,15 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	if(iPolicyGEorGM > 0)
 	{
 		CvCity* pLoopCity;
+		CvCity* pCapital = pPlayer->getCapitalCity(); // JJ: Define capital
 		int iLoop;
-		int iValue = iPolicyGEorGM * (pPlayer->GetCurrentEra() + 1);
+			int iEra = pPlayer->GetCurrentEra(); // JJ: Changed era scaling to match rest of VP
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iRandom = GC.getGame().getJonRandNum(100, "Random GE or GM value");
 		if(iRandom <= 33)
@@ -715,70 +722,79 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		}
 		if(eBestSpecialist != NULL)
 		{
-			for(pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
+			if(pkSpecialistInfo)
 			{
-				if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
+				int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+				iGPThreshold *= 100;
+				//Get % of threshold for test.
+				iGPThreshold *= iPolicyGEorGM;
+				iGPThreshold /= 100;
+				int iGPThresholdString = iGPThreshold / 100;
+				
+				for(pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
 				{
-					pLoopCity->changeProduction(iValue);
-				}
-				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
-				{
-					pPlayer->GetTreasury()->ChangeGold(iValue);
-				}
-				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
-				{
-					TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
+					if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
-						pPlayer->changeOverflowResearch(iValue);
-						if(pPlayer->getOverflowResearch() <= 0)
+						pLoopCity->changeProduction((iValue * 2) / 100); // JJ: Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
+					}
+					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
+					{
+						pPlayer->GetTreasury()->ChangeGold((iValue * 4) / 100); // JJ: Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
+					}
+					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
+					{
+						TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
 						{
-							pPlayer->setOverflowResearch(0);
+							pPlayer->changeOverflowResearch(iValue / 100); // JJ: Dividing by 100 here to minimise rounding error.
+							if(pPlayer->getOverflowResearch() <= 0)
+							{
+								pPlayer->setOverflowResearch(0);
+							}
+						}
+						else
+						{
+							GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), pPlayer->GetID()); // JJ: Dividing by 100 here to minimise rounding error.
+							if(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
+							{
+								GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, pPlayer->GetID());
+							}
 						}
 					}
-					else
-					{
-						GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, pPlayer->GetID());
-						if(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
-						{
-							GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, pPlayer->GetID());
-						}
-					}
-				}
-				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-				if(pkSpecialistInfo)
-				{
-					int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					iGPThreshold *= 100;
-					//Get % of threshold for test.
-					iGPThreshold *= iPolicyGEorGM;
-					iGPThreshold /= 100;
+				//CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
+				// JJ: Moved outside of for loop
+					//int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					//iGPThreshold *= 100;
+					////Get % of threshold for test.
+					//iGPThreshold *= iPolicyGEorGM;
+					//iGPThreshold /= 100;
 				
 					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
 					if(pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{
-						iGPThreshold /= 100;
+						//iGPThreshold /= 100; JJ: Do not touch iGPThreshold in the for loop
 						char text[256] = {0};
 						float fDelay = 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThresholdString);
 						DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
 						CvNotifications* pNotification = pPlayer->GetNotifications();
 						if(pNotification)
 						{
-							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThreshold);
+							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThresholdString);
 							CvString strSummary;
 							// Class specific specialist message
 							if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThreshold);
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThresholdString);
 							}
 							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThreshold);
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThresholdString);
 							}
 							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThreshold);
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThresholdString);
 							}
 							strSummary = GetLocalizedText("TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS");
 							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, -1);
@@ -1917,7 +1933,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayer->GetPlayerTraits()->IsReligious())
 		{
-			yield[YIELD_FAITH] += PolicyInfo->GetFaithCostModifier() * -2;
+			yield[YIELD_FAITH] += PolicyInfo->GetFaithCostModifier() * -3;
 		}
 		else
 		{
@@ -2536,6 +2552,19 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 25;
 		}
 	}
+
+	if (PolicyInfo->GetDefenseBoost() != 0)
+	{
+		if (pPlayer->GetPlayerTraits()->IsWarmonger() || pPlayer->GetPlayerTraits()->IsExpansionist())
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 15 * max(1, pPlayer->getNumCities());
+		}
+		else
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 5 * max(1, pPlayer->getNumCities());
+		}
+	}
+
 	if (PolicyInfo->GetStealGWSlowerModifier() != 0)
 	{
 		if (pPlayer->GetPlayerTraits()->IsTourism())
@@ -2738,7 +2767,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayer->GetPlayerTraits()->IsReligious())
 		{
-			yield[YIELD_GOLD] += 50;
+			yield[YIELD_GOLD] += 100;
 		}
 		else
 		{
@@ -3248,7 +3277,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayer->GetPlayerTraits()->IsReligious())
 		{
-			yield[YIELD_FAITH] += PolicyInfo->GetPressureMod() * 2;
+			yield[YIELD_FAITH] += PolicyInfo->GetPressureMod() * 3;
 		}
 		else
 		{
@@ -3555,6 +3584,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (pUnitEntry)
 					{
 						int Value = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 10, 10, 10, 10, false, true);
+						if (pPlayer->GetPlayerTraits()->IsReligious())
+						{
+							Value *= 2;
+						}
 						yield[YIELD_FAITH] += Value;
 					}
 				}

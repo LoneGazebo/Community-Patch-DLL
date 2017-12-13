@@ -822,8 +822,11 @@ public:
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
 
-	int getyieldModifier(YieldTypes eYield) const;
-	void setyieldmodifier(YieldTypes eYield, int iValue);
+	int GetYieldModifier(YieldTypes eYield) const;
+	void SetYieldModifier(YieldTypes eYield, int iValue);
+
+	int GetYieldChange(YieldTypes eYield) const;
+	void SetYieldChange(YieldTypes eYield, int iValue);
 
 	bool IsHasNoValidMove() const;
 
@@ -1293,6 +1296,9 @@ public:
 
 	int GetNumInterceptions() const;
 	void ChangeNumInterceptions(int iChange);
+
+	int GetExtraAirInterceptRange() const; // JJ: New
+	void ChangeExtraAirInterceptRange(int iChange);
 
 	bool isOutOfInterceptions() const;
 	int getMadeInterceptionCount() const;
@@ -1973,6 +1979,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iHealIfDefeatExcludeBarbariansCount;
 	FAutoVariable<int, CvUnit> m_iNumInterceptions;
+#if defined(MOD_BALANCE_CORE) // JJ: NEW
+	FAutoVariable<int, CvUnit> m_iExtraAirInterceptRange;
+#endif
 	FAutoVariable<int, CvUnit> m_iMadeInterceptionCount;
 	FAutoVariable<int, CvUnit> m_iEverSelectedCount;
 	FAutoVariable<int, CvUnit> m_iSapperCount;
@@ -2019,7 +2028,8 @@ protected:
 	IDInfo m_transportUnit;
 
 	std::vector<int> m_extraDomainModifiers;
-	std::vector<int> m_yieldModifier;
+	std::vector<int> m_YieldModifier;
+	std::vector<int> m_YieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;

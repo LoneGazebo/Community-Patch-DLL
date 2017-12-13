@@ -3753,7 +3753,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>1</OrderPriority>
-			<WorkRateMod>50</WorkRateMod>
+			<WorkRateMod>-50</WorkRateMod>
+			<PromotionDuration>50</PromotionDuration>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
