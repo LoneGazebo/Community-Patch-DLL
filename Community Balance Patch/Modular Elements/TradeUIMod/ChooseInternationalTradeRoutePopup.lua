@@ -165,7 +165,11 @@ function RefreshData()
 				strTraitText = " (" .. Locale.Lookup("TXT_KEY_CITY_STATE_RELIGIOUS_ADJECTIVE") .. ") ";
 			end
 		end
-		tradeRoute.CityName = (pTargetCity:GetName() .. strTraitText);
+	
+		local iDistance = pPlayer:GetTradeConnectionDistance(pOriginCity, pTargetCity, eDomain);
+		local CityNameString = Locale.ConvertTextKey("TXT_KEY_TRO_DISTANCE_VALUE",  iDistance);
+
+		tradeRoute.CityName = (pTargetCity:GetName() .. CityNameString .. strTraitText);
 --END		
 --EDITED		tradeRoute.CityName = pTargetCity:GetName();
 

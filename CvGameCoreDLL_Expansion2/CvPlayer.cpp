@@ -25481,7 +25481,7 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain)
+void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData)
 {
 
 	//No minors or barbs here, please!
@@ -25580,6 +25580,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			int iValue = 0;
 			switch(iType)
 			{
+				case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue += iPassYield;
+				}
 				case INSTANT_YIELD_TYPE_BIRTH:
 				{
 					iValue += pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield);
@@ -26030,7 +26037,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				//Exclusions
 				if(eYield != YIELD_POPULATION)
 				{
-					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD)
+					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD)
 					{
 						iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iValue /= 100;
@@ -26218,10 +26225,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					break;
 					case YIELD_CULTURE_LOCAL:
 					{
-						pLoopCity->ChangeJONSCultureStored(iValue);
-						if(pLoopCity->GetJONSCultureStored() <= 0)
+						if (iType == INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD)
 						{
-							pLoopCity->SetJONSCultureStored(0);
+							getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iValue);
+						}
+						else
+						{
+							pLoopCity->ChangeJONSCultureStored(iValue);
+							if (pLoopCity->GetJONSCultureStored() <= 0)
+							{
+								pLoopCity->SetJONSCultureStored(0);
+							}
 						}
 					}
 					break;
@@ -26242,7 +26256,37 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						cityyieldString += ", ";
 					}
-					cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS", pYieldInfo->GetDescriptionKey(), pYieldInfo->getIconString(), iValue);
+					if (iType == INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD)
+					{
+						if (eYield == YIELD_CULTURE_LOCAL)
+						{
+							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS_HAPPINESS", iValue);
+						}
+						else if (eYield == YIELD_JFD_LOYALTY)
+						{
+							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS_INFLUENCE", iValue);
+						}
+						else if (eYield == YIELD_JFD_SOVEREIGNTY)
+						{
+							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS_EXPERIENCE", iValue);
+						}
+						else if (eYield == YIELD_JFD_HEALTH && pCity == NULL)
+						{
+							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS_GPP_GLOBAL", iValue);
+						}
+						else if (eYield == YIELD_JFD_HEALTH)
+						{
+							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS_GPP", iValue);
+						}
+						else
+						{
+							cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS", pYieldInfo->GetDescriptionKey(), pYieldInfo->getIconString(), iValue);
+						}
+					}
+					else
+					{
+						cityyieldString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_DETAILS", pYieldInfo->GetDescriptionKey(), pYieldInfo->getIconString(), iValue);
+					}
  				}
 
 				//store off this data
@@ -26271,6 +26315,144 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		Localization::String localizedText;
 		switch(iType)
 		{
+			case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
+			{
+				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					CvString MoreData = NULL;
+					if (pQuestData != NULL)
+					{
+						const char* MinorName = GET_PLAYER(pQuestData->GetMinor()).getNameKey();
+						switch (pQuestData->GetType())
+						{
+						case MINOR_CIV_QUEST_ROUTE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_KILL_CAMP:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_KILL_CAMP_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONNECT_RESOURCE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONNECT_RESOURCE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONSTRUCT_WONDER:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_WONDER_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_GREAT_PERSON:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GREAT_PERSON_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_KILL_CITY_STATE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_KILL_CITY_STATE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_FIND_PLAYER:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_GIVE_GOLD:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GIVE_GOLD_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_PLEDGE_TO_PROTECT:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_PLEDGE_TO_PROTECT_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONTEST_CULTURE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_CULTURE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONTEST_FAITH:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_FAITH_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONTEST_TECHS:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_TECHS_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_INVEST:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_INVEST_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_BULLY_CITY_STATE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BULLY_CITY_STATE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_DENOUNCE_MAJOR:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DENOUNCE_MAJOR_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_SPREAD_RELIGION:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_SPREAD_RELIGION_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_TRADE_ROUTE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_TRADE_ROUTE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_WAR:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_WAR_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_FIND_CITY_STATE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_INFLUENCE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_INFLUENCE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CONTEST_TOURISM:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_ARCHAEOLOGY:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CIRCUMNAVIGATION_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_LIBERATION:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_LIBERATION_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_HORDE:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_HORDE_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_REBELLION:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_DISCOVER_PLOT:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_UNIT_STEAL_FROM:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_UNIT_COUP_CITY:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_UNIT_GET_CITY:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME", MinorName);
+							break;
+						}
+					}
+
+					if (MoreData != NULL)
+					{
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_MINOR_QUEST");
+						localizedText << MoreData;
+						localizedText << totalyieldString;
+						//We do this at the player level once per turn.
+						addInstantYieldText(iType, localizedText.toUTF8());
+					}
+					else
+					{
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_MINOR_QUEST");
+						localizedText << "";
+						localizedText << totalyieldString;
+						//We do this at the player level once per turn.
+						addInstantYieldText(iType, localizedText.toUTF8());
+					}
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
 			case INSTANT_YIELD_TYPE_BIRTH:
 			{
 				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
