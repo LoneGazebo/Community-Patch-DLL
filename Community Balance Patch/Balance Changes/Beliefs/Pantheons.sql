@@ -320,8 +320,7 @@ INSERT INTO Belief_LakePlotYield
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_SACRED_WATERS', 'YIELD_FAITH', 1),
-	('BELIEF_SACRED_WATERS', 'YIELD_FOOD', 1),
-	('BELIEF_SACRED_WATERS', 'YIELD_PRODUCTION', 1);
+	('BELIEF_SACRED_WATERS', 'YIELD_FOOD', 1);
 
 INSERT INTO Belief_YieldPerScience
 	(BeliefType, YieldType, Yield)

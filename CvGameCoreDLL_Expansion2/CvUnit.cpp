@@ -20951,12 +20951,18 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
 #if defined(MOD_UNITS_XP_TIMES_100)
-		if (isBarbarian() && iChangeTimes100 > 0)
+	if (isBarbarian() && iChangeTimes100 > 0)
 #else
-		if (isBarbarian() && iChange > 0)
+	if (isBarbarian() && iChange > 0)
 #endif
 	{
 		return;
+	}
+
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bFromCombat)
+	{
+		iChangeTimes100 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iChangeTimes100 /= 100;
 	}
 
 #if defined(MOD_UNITS_XP_TIMES_100)

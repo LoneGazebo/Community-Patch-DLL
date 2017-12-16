@@ -345,9 +345,12 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		//Only matters if there's more than one option on the table.
 		if (MOD_TRADE_ROUTE_SCALING && eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 		{
-			// check for duplicate routes
+			// check for duplicate routes from the owner
 			for (uint i = 0; i < m_aTradeConnections.size(); i++)
 			{
+				if (m_aTradeConnections[i].m_eOriginOwner != pOriginCity->getOwner())
+					continue;
+
 				if (m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY)
 				{
 					return false;
@@ -3237,15 +3240,7 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 
 		int iReduction = 100 - iLength;
 
-		if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
-		{
-			iReduction *= 3;
-			iReduction /= 2;
-		}
-		else
-			iReduction /= 2;
-
-		return max(0, min(90, iReduction));
+		return max(0, min(75, iReduction));
 	}
 
 	return 0;
