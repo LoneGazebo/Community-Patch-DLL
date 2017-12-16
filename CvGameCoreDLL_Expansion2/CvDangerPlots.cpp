@@ -331,12 +331,12 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
 }
 
-bool CvDangerPlots::isEnemyUnitAdjacent(const CvPlot & Plot) const
+bool CvDangerPlots::isEnemyCombatUnitAdjacent(const CvPlot & Plot, bool bSameDomain) const
 {
 	if(!m_bArrayAllocated)
 		return false;
 
-	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyUnitAdjacent();
+	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyCombatUnitAdjacent(m_ePlayer,bSameDomain);
 }
 
 /// Return the maximum amount of damage a city could take at this plot
@@ -1214,3 +1214,16 @@ std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
 	return vResult;
 }
 
+bool CvDangerPlotContents::isEnemyCombatUnitAdjacent(PlayerTypes ePlayer, bool bSameDomain) const
+{ 
+	if (!m_bEnemyAdjacent || !m_pPlot)
+		return false;
+
+	//need to recheck, enemy could have been killed in the meantime
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		if (aNeighbors[iI] && aNeighbors[iI]->isEnemyUnit(ePlayer, true, true) && (aNeighbors[iI]->getDomain()==m_pPlot->getDomain() || !bSameDomain))
+			return true;
+
+	return false;
+}

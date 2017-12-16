@@ -6724,7 +6724,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			iValue -= iDanger;
 
 			//tiebreaker ...
-			if (GET_PLAYER(pUnit->getOwner()).isEnemyUnitAdjacent(pLoopPlot))
+			if (GET_PLAYER(pUnit->getOwner()).isEnemyCombatUnitAdjacent(pLoopPlot,false))
 				iValue-=5;
 			//when in doubt move as far as possible
 			if (it->iMovesLeft==0)

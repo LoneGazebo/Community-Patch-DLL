@@ -44746,7 +44746,7 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::isEnemyUnitAdjacent(const CvPlot* pPlot) const
+bool CvPlayer::isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) const
 {
 	if (!pPlot)
 		return false;
@@ -44754,7 +44754,7 @@ bool CvPlayer::isEnemyUnitAdjacent(const CvPlot* pPlot) const
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->isEnemyUnitAdjacent(*pPlot);
+	return m_pDangerPlots->isEnemyCombatUnitAdjacent(*pPlot, bSameDomain);
 }
 
 
@@ -45056,13 +45056,17 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 
 }
 
-bool CvPlayer::HasCityAboutToBeConquered() const
+bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 {
 	const CvCity *pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->isInDangerOfFalling())
+		if (bAboutToFall && pLoopCity->isInDangerOfFalling())
+			return true;
+
+		//trick for non const call
+		if (!bAboutToFall && GET_PLAYER(m_eID).GetPlotDanger(*pLoopCity->plot(), GET_PLAYER(m_eID).getCity(pLoopCity->GetID())) >= iMinDanger)
 			return true;
 	}
 

@@ -2810,7 +2810,7 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 }
 
 /// Assigns units to pillage enemy improvements
-void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPass)
+void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate)
 {
 	int iPillageHeal = GC.getPILLAGE_HEAL_AMOUNT();
 
@@ -2831,22 +2831,23 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		}
 	}
 
-	CvTacticalTarget* pTarget;
-	pTarget = GetFirstZoneTarget(eTarget);
-	while(pTarget != NULL)
+	for(CvTacticalTarget* pTarget = GetFirstZoneTarget(eTarget); pTarget != NULL; pTarget = GetNextZoneTarget())
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		//don't pillage on water
-		if (pPlot->isWater())
-		{
-			pTarget = GetNextZoneTarget();
+		// Don't do it if an enemy unit became visible in the meantime
+		if (pPlot->getVisibleEnemyDefender(m_pPlayer->GetID()) != NULL)
 			continue;
-		}
+		if (eTarget != AI_TACTICAL_TARGET_CITADEL && m_pPlayer->isEnemyCombatUnitAdjacent(pPlot,true))
+			continue;
+
+		//no targeted pillage on water (opportunistic pillage is handled elsewhere)
+		if (pPlot->isWater())
+			continue;
 
 		// try paratroopers first, not because they are more effective, just because it looks cooler...
-		if (bFirstPass && FindParatroopersWithinStrikingDistance(pPlot))
+		if (bImmediate && pPlot->isVisible(m_pPlayer->getTeam()) && FindParatroopersWithinStrikingDistance(pPlot))
 		{
 			// Queue best one up to capture it
 			ExecuteParadropPillage(pPlot);
@@ -2859,7 +2860,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 			}
 
 		}
-		else if (bFirstPass && FindUnitsCloseToPlot(pPlot,0,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
+		else if (bImmediate && FindUnitsCloseToPlot(pPlot,0,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
 		{
 			// Queue best one up to capture it
 			ExecutePillage(pPlot);
@@ -2871,7 +2872,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 				LogTacticalMessage(strLogString);
 			}
 		}
-		else if (!bFirstPass && FindUnitsCloseToPlot(pPlot,2,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
+		else if (!bImmediate && FindUnitsCloseToPlot(pPlot,2,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
 		{
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
@@ -2885,8 +2886,6 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 				LogTacticalMessage(strLogString);
 			}
 		}
-
-		pTarget = GetNextZoneTarget();
 	}
 }
 
