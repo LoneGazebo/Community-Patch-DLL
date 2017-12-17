@@ -3204,6 +3204,10 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 	if (m_pPlayer->GetPlayerTraits()->IsIgnoreTradeDistanceScaling())
 		return 0;
 
+	//distance scaling doesn't apply to internal trade
+	if (kTradeConnection.m_eDestOwner == kTradeConnection.m_eOriginOwner)
+		return 0;
+
 	CvCity* pOriginCity = NULL;
 	CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
 	if (pStartPlot)
