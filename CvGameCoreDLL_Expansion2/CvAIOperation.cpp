@@ -811,10 +811,10 @@ bool CvAIOperation::ShouldAbort()
 {
 	int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
 
-	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS && iTurns > GetMaximumRecruitTurns()*2)
+	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS && iTurns > GetMaximumRecruitTurns())
 		SetToAbort(AI_ABORT_TIMED_OUT);
 
-	if (m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurns()*3)
+	if (m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurns()*4)
 		SetToAbort(AI_ABORT_TIMED_OUT);
 
 	CvPlot* pMuster = GetMusterPlot();

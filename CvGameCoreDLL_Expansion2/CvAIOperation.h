@@ -465,6 +465,10 @@ public:
 	{ 
 		return true; 
 	}
+	virtual int GetMaximumRecruitTurns() const
+	{
+		return 4; //we don't have many units at the beginning. if there aren't enough, don't keep the available ones waiting 
+	}
 
 	virtual int GetDeployRange() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);

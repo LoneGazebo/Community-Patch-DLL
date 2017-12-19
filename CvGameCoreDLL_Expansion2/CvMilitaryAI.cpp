@@ -4527,17 +4527,16 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 void CvMilitaryAI::UpdateOperations()
 {
 	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
-	{
 		return;
-	}
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
+	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	//check the two most threatened cities for defense
 	CvCity* pThreatenedCityA = m_pPlayer->GetThreatenedCityByRank(0);
 	CvCity* pThreatenedCityB = m_pPlayer->GetThreatenedCityByRank(1);
+
+	//cached distances might be invalid because of new/conquered cities or changed alliances ...
+	ResetDistanceCaches();
 
 	///////////////////////////////
 	//////////////////////
@@ -4552,14 +4551,13 @@ void CvMilitaryAI::UpdateOperations()
 	//////////////////////
 	//////////////////////////////
 
-	//cached distances might be invalid because of new/conquered cities or changed alliances ...
-	ResetDistanceCaches();
-
 	int iBestValue;
 	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, true);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
+	int iPlayerLoop;
+	PlayerTypes eLoopPlayer;
 	for (iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;

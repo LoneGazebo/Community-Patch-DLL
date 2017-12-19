@@ -1604,11 +1604,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.getNumMilitaryUnits();
-		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (100 - iPercent);
-
-		//Closer we get to cap, fewer units we should be making.
-		iBonus *= iRemainder;
+		int iRange = iSupply / 10 + 1; 
+		int iScale = MapToPercent(iSupply - iDemand, -iRange, +iRange);
+		//three units below limit -> start prio reduction
+		//three units above limit -> reach zero priority
+		iBonus *= iScale;
 		iBonus /= 100;
 	}
 
