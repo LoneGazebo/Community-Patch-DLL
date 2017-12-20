@@ -505,11 +505,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 {
 	VALIDATE_OBJECT
 	//CvPlot* pAdjacentPlot;
-	CvPlot* pPlot;
+	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 	BuildingTypes eLoopBuilding;
 	int iI;
-
-	pPlot = GC.getMap().plot(iX, iY);
 
 	//--------------------------------
 	// Init saved data
@@ -823,37 +821,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			owningPlayer.GetMinorCivAI()->DoAddStartingResources(plot());
 		}
 	}
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding && !isCapital())
-	{	
-		int iYieldHandicap = owningPlayer.DoDifficultyBonus();
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
 
-			CvString strTemp;
-
-			CvString strFileName = "DifficultyHandicapLog.csv";
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-			CvString strPlayerName;
-			strPlayerName = GET_PLAYER(getOwner()).getCivilizationShortDescription();
-			strTemp += strPlayerName;
-			strTemp += ", ";
-
-			CvString strTurn;
-
-			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
-			strTemp += strTurn;
-
-			strTemp += strLogString;
-
-			pLog->Msg(strTemp);
-		}
-	}
-#endif
 	// make sure that all the team members get the city connection update
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
@@ -1012,6 +980,39 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+	// Do this only after the capital has been chosen
+	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding && !isCapital())
+	{
+		int iYieldHandicap = owningPlayer.DoDifficultyBonus();
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
+
+			CvString strTemp;
+
+			CvString strFileName = "DifficultyHandicapLog.csv";
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+			CvString strPlayerName;
+			strPlayerName = GET_PLAYER(getOwner()).getCivilizationShortDescription();
+			strTemp += strPlayerName;
+			strTemp += ", ";
+
+			CvString strTurn;
+
+			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+			strTemp += strTurn;
+
+			strTemp += strLogString;
+
+			pLog->Msg(strTemp);
+		}
+	}
+#endif
 
 	// How long before this City picks a Resource to demand?
 	DoSeedResourceDemandedCountdown();
