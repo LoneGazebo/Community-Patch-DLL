@@ -6124,6 +6124,9 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 						//bonus for a kill
 						if (pDefender->GetCurrHitPoints() <= iDamage)
 							iValue += 20;
+						//bonus for hitting units in cities, can only do that with missiles
+						if (pDefender->plot()->isCity())
+							iValue += 10;
 					}
 				}
 				else
@@ -9086,12 +9089,21 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 				//check for targets in tactical map
 				for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
 				{
+					// If it's a nuke, we only want city targets
+					if (pUnit->canNuke())
+					{
+						if (m_AllTargets[iI].GetTargetType() != AI_TACTICAL_TARGET_CITY)
+							continue;
+						//if the city is already weak, no point in nuking it
+						CvPlot* pTargetPlot = GC.getMap().plot(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
+						if (pTargetPlot->getPlotCity()->isInDangerOfFalling())
+							continue;
+					}
+
 					// Is the target of an appropriate type?
 					if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 							m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-							m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-							m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY
-							)
+							m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
 					{
 						// Is this target near enough?
 						if(plotDistance(pUnit->getX(), pUnit->getY(), m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY()) <= pUnit->GetRange())

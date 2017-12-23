@@ -1329,7 +1329,7 @@ int CvLuaUnit::lIsNukeVictim(lua_State* L)
 int CvLuaUnit::lCanNuke(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->canNuke(pkUnit->plot());
+	const bool bResult = pkUnit->canNuke();
 
 	lua_pushboolean(L, bResult);
 	return 1;

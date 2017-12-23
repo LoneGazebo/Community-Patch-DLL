@@ -8386,7 +8386,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canNuke(const CvPlot* /*pPlot*/) const
+bool CvUnit::canNuke() const
 {
 	VALIDATE_OBJECT
 	if(GetNukeDamageLevel() == -1)
@@ -8403,7 +8403,7 @@ bool CvUnit::canNukeAt(const CvPlot* pPlot, int iX, int iY) const
 {
 	VALIDATE_OBJECT
 
-	if(!canNuke(pPlot))
+	if(!canNuke())
 	{
 		return false;
 	}
@@ -28390,7 +28390,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_NUKE:
-		if(canNuke(plot()))
+		if(canNuke())
 		{
 			return true;
 		}

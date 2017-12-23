@@ -3287,7 +3287,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 	// check all of our units to find the nukes
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit || !pLoopUnit->canNuke(NULL))
+		if (!pLoopUnit || !pLoopUnit->canNuke())
 			continue;
 
 		// for all cities of this enemy
@@ -3447,7 +3447,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	int iUnitLoop;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit && pLoopUnit->canNuke(NULL) && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
+		if(pLoopUnit && pLoopUnit->canNuke() && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
 		{
 			CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 			pThisArmy->AddUnit(pLoopUnit->GetID(), thisOperationSlot.m_iSlotID);
