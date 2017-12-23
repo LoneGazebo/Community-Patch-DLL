@@ -795,7 +795,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
 					iTheirDamageInflicted = pTheirUnit:GetAirStrikeDefenseDamage(pMyUnit, false);				
-					iTheirStrength = iTheirDamageInflicted;
 					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);		
 					bInterceptPossible = true;
 				end
