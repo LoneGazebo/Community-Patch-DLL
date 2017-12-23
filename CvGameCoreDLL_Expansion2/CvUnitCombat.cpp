@@ -1691,7 +1691,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	PlayerTypes eDefenderOwner;
 
 	// Target is a Unit
-	if(!plot.isCity())
+	// Special: Missiles always attack the unit, even when it's in a city
+	if(!plot.isCity() || kAttacker.AI_getUnitAIType() == UNITAI_MISSILE_AIR )
 	{
 		CvAssert(pkDefender != NULL);
 		if(!pkDefender)
@@ -2001,7 +2002,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 	if(pkTargetPlot)
 	{
-		if(!pkTargetPlot->isCity())
+		if(!pkTargetPlot->isCity() || pkAttacker->AI_getUnitAIType()==UNITAI_MISSILE_AIR)
 		{
 			// Target was a Unit
 			CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
@@ -3857,9 +3858,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 	// Range-striking a Unit
 	if(!pPlot->isCity())
 	{
-		CvUnit* pDefender = kAttacker.airStrikeTarget(*pPlot, true);
-		CvAssert(pDefender != NULL);
-		if(!pDefender) return ATTACK_ABORTED;
+		CvUnit* pDefender = kAttacker.rangeStrikeTarget(*pPlot, true);
+		if(!pDefender) 
+			return ATTACK_ABORTED;
 
 		pDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
@@ -3967,9 +3968,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 
 	// Bombing a Unit
-	if(!targetPlot.isCity())
+	if(!targetPlot.isCity() || kAttacker.AI_getUnitAIType()==UNITAI_MISSILE_AIR)
 	{
-		CvUnit* pDefender = kAttacker.airStrikeTarget(targetPlot, true);
+		CvUnit* pDefender = kAttacker.rangeStrikeTarget(targetPlot, true);
 		if(!pDefender) 
 			return CvUnitCombat::ATTACK_ABORTED;
 

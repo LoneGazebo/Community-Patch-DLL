@@ -30368,9 +30368,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
-
-	if (pAttacker && pAttacker->isSuicide())
-		return pAttacker->GetCurrHitPoints();
+	pAttacker; //unused
 
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)

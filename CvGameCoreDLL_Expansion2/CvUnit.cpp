@@ -16755,10 +16755,18 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 	int iDefenderStrength = 0;
 
+	//in case of a missile, look up the target (the generic call in case of a city target doesn't pass the defender)
+	if (AI_getUnitAIType() == UNITAI_MISSILE_AIR && pTargetPlot && pDefender == NULL)
+	{
+		pDefender = rangeStrikeTarget(*pTargetPlot, true);
+		if (!pDefender)
+			return 0;
+	}
+
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	// City is Defender
-	if (pCity != NULL)
+	// City is Defender - unless it's a missile
+	if (pCity != NULL && AI_getUnitAIType() != UNITAI_MISSILE_AIR)
 	{
 		iDefenderStrength = pCity->getStrengthValue();
 	}
@@ -16767,7 +16775,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
 		if (!pDefender->IsCanDefend(pTargetPlot))
-			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
+		{
+			//can assassinate any civilian with one missile hit
+			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
+				return pDefender->GetCurrHitPoints();
+			else
+				return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
+		}
 
 		// Use Ranged combat value for defender (except impi)
 		if (pDefender->isRanged() && !pDefender->isRangedSupportFire())
@@ -16894,10 +16908,7 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
-	
-	pTargetPlot; pFromPlot; //unused
-	if (pAttacker && pAttacker->isSuicide())
-		return pAttacker->GetCurrHitPoints();
+	pAttacker;  pTargetPlot; pFromPlot; //unused
 
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
@@ -20610,7 +20621,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 					}
 				}
 
-				if (!isSuicide())	// Show the HP lost, expect if it is a suicide unit (missisle, etc.)
+				if (!isSuicide())	// Show the HP lost, except if it is a suicide unit (missile, etc.)
 #if defined(SHOW_PLOT_POPUP)
 					SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), text.c_str(), fDelay);
 #else
@@ -26890,7 +26901,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 	{
 		if(bNeedWar)
 		{
-			const CvUnit* pDefender = airStrikeTarget(*pTargetPlot, bNoncombatAllowed);
+			const CvUnit* pDefender = rangeStrikeTarget(*pTargetPlot, bNoncombatAllowed);
 			if(NULL == pDefender)
 			{
 				return false;
@@ -26992,6 +27003,14 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 					return false;
 				}
 			}
+		}
+
+		// Missiles need a unit to attack, cannot hit cities without a unit inside
+		if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
+		{
+			const CvUnit* pDefender = rangeStrikeTarget(*pTargetPlot, bNoncombatAllowed);
+			if (!pDefender)
+				return false;
 		}
 	}
 
@@ -29154,7 +29173,7 @@ bool CvUnit::canAdvance(const CvPlot& plot, int iThreshold) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) const
+CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllowed) const
 {
 	VALIDATE_OBJECT
 	// All defaults, except test for war, and allow noncombat units

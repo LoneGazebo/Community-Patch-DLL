@@ -1607,6 +1607,8 @@ public:
 		return (m_iBaseCombat > 0);
 	}
 
+	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
+
 	bool IsCanAttackWithMove() const;
 	bool IsCanAttackRanged() const;
 	bool IsCanAttack() const;
@@ -2127,8 +2129,6 @@ protected:
 	mutable uint m_uiLastPathLength;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
-
-	CvUnit* airStrikeTarget(CvPlot& pPlot, bool bNoncombatAllowed) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);

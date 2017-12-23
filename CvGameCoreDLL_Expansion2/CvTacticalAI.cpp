@@ -6027,7 +6027,7 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 
-		if (pUnit && pUnit->getDomainType()==DOMAIN_AIR)
+		if (pUnit && pUnit->getDomainType()==DOMAIN_AIR) //this includes planes and missiles. no nukes.
 		{
 			int iCount = 0; //failsafe
 			while (pUnit->canMove() && pUnit->GetCurrHitPoints() > 30 && iCount < pUnit->getNumAttacks())
@@ -6078,10 +6078,12 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 		if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
+			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN ||
 			m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
 		{
 			//make sure it is close to our actual target plot
-			if (plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pTargetPlot->getX(), pTargetPlot->getY()) > 3)
+			int iTargetDistance = plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pTargetPlot->getX(), pTargetPlot->getY());
+			if (iTargetDistance > 3)
 				continue;
 
 			int iDistance = plotDistance(m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY(), pUnit->getX(), pUnit->getY());
@@ -6092,33 +6094,55 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 					continue;
 
 				CvCity *pCity = pTestPlot->getPlotCity();
-				CvUnit* pDefender = pTestPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+				CvUnit* pDefender = pUnit->rangeStrikeTarget(*pTestPlot, true);
 
 				bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
 				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
-
 				if (!bHaveUnitTarget && !bHaveCityTarget)
 					continue;
 
-				int iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) * 2;
+				int iValue = 0;
+				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+					iValue += 20;
+				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
+					iValue += 10;
 
-				//we don't care about our own damage if it's a suicide unit
-				if (!pUnit->isSuicide())
+				if (pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				{
+					//we need a unit to attack, if it's a civilian only generals are of interest
+					if (!pDefender)
+						continue;
+
+					//ignore the city when attacking!
+					int iDamage = pUnit->GetAirCombatDamage(pDefender, NULL, false);
+
+					if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN)
+						iValue = 50; //flat default value - always a kill
+					else
+					{
+						iValue = iDamage;
+						//bonus for a kill
+						if (pDefender->GetCurrHitPoints() <= iDamage)
+							iValue += 20;
+					}
+				}
+				else
+				{
+					//no civilian attacks here, it's inefficient
+					if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN)
+						continue;
+
+					//use distance from actual target as tiebreaker
+					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) * 2 - iTargetDistance * 3;
+
 					if (pCity != NULL)
 						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false) * 3;
 					else if (pDefender != NULL)
 						iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false) * 3;
+
+					if (GetProbableInterceptor(pTargetPlot) != NULL)
+						iValue /= 2;
 				}
-
-				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-					iValue *= 2;
-
-				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-					iValue /= 2;
-
-				if (!pUnit->isSuicide() && GetProbableInterceptor(pTargetPlot) != NULL)
-					iValue /= 3;
 
 				if (iValue > iBestValue)
 				{
@@ -6170,6 +6194,10 @@ void CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	//first handle air units
 	ExecuteAirSweep(pTargetPlot);
 	ExecuteAirAttack(pTargetPlot);
+
+	//did the air attack already kill the enemy?
+	if (pTargetPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true) == NULL && !pTargetPlot->isCity())
+		return;
 
 	//evaluate many possible unit assignments around the target plot and choose the best one
 	//will not necessarily attack only the target plot when other targets are present!
