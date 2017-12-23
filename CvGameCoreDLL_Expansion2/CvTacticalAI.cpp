@@ -492,13 +492,20 @@ void CvTacticalAI::CommandeerUnits()
 		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || pLoopUnit->isHuman() )
 			continue;
 
-		// We want ALL the barbarians and air units (that are combat ready)
-		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit)))
+		if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+		{
+			//we want all combat ready air units, except nukes (those go through operational AI)
+			if (pLoopUnit->getDamage() > 50 || ShouldRebase(pLoopUnit) || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
+				continue;
+
+			if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
+				pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
+		}
+		else if (pLoopUnit->isBarbarian()) // We want ALL the barbarians
 		{
 			if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
-			{
 				pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-			}
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 		// these should be handled by homeland AI
@@ -509,12 +516,12 @@ void CvTacticalAI::CommandeerUnits()
 			continue;
 		}
 		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
-		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() && !pLoopUnit->IsCityAttackSupport())
-		{
-			continue;
-		}
 		else
 		{
+			//reject all civilians we cannot use
+			if (!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() && !pLoopUnit->IsCityAttackSupport())
+				continue;
+
 			 //if it's a general or admiral and not a field commander, we don't want it
 			if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport())
 			{
@@ -524,22 +531,25 @@ void CvTacticalAI::CommandeerUnits()
 					continue;
 				}
 			}
+
 			bool bNearVisibleEnemy = NearVisibleEnemy(pLoopUnit, GetRecruitRange());
 			// Is this one in an operation we can't interrupt?
 			int iArmyID = pLoopUnit->getArmyID();
-			const CvArmyAI* army = m_pPlayer->getArmyAI(iArmyID);
-			if(iArmyID != -1 && NULL != army && (!army->CanTacticalAIInterruptUnit(pLoopUnit->GetID()) && !bNearVisibleEnemy))
+			const CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
+			if(iArmyID != -1 && pArmy && !pArmy->CanTacticalAIInterruptUnit(pLoopUnit->GetID()))
 			{
+				//those units will be moved as part of the army moves. don't touch them afterwards
 				pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS]);
 			}
 			else
 			{
-				// Non-zero danger value or near enemy, or recently deployed out of an operation?
+				// Non-zero danger value or near enemy, paratrooper, or recently deployed out of an operation?
 				int iDanger = pLoopUnit->GetDanger();
-				if (iDanger > 0 || bNearVisibleEnemy || pLoopUnit->IsRecentlyDeployedFromOperation())
+				if (iDanger > 0 || bNearVisibleEnemy || pLoopUnit->IsRecentlyDeployedFromOperation() || pLoopUnit->canParadrop(pLoopUnit->plot(), false))
 				{
 					if (iArmyID != -1)
 					{
+						//part of an army but we can still use it for tactical AI if it has moves left
 						pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS]);
 					}
 					else
@@ -547,12 +557,7 @@ void CvTacticalAI::CommandeerUnits()
 						if (pLoopUnit->getTacticalMove() == NO_TACTICAL_MOVE)
 							pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
 					}
-					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-				}
-				else if (pLoopUnit->canParadrop(pLoopUnit->plot(),false))
-				{
-					if (pLoopUnit->getTacticalMove()==NO_TACTICAL_MOVE)
-						pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+
 					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 				}
 			}
@@ -6092,24 +6097,28 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 				bool bHaveUnitTarget = (pDefender != NULL && !pDefender->isDelayedDeath());
 				bool bHaveCityTarget = (pCity != NULL && pCity->getDamage() < pCity->GetMaxHitPoints());
 
-				if (bHaveUnitTarget == NULL && bHaveCityTarget == NULL)
+				if (!bHaveUnitTarget && !bHaveCityTarget)
 					continue;
 
 				int iValue = pUnit->GetAirCombatDamage(pDefender, pCity, false) * 2;
 
-				if (pCity != NULL)
-					iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false) * 3;
-				else if (pDefender != NULL)
-					iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false) * 3;
+				//we don't care about our own damage if it's a suicide unit
+				if (!pUnit->isSuicide())
+				{
+					if (pCity != NULL)
+						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false) * 3;
+					else if (pDefender != NULL)
+						iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false) * 3;
+				}
 
 				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-					iValue *= 3;
-
-				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT || m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
 					iValue *= 2;
 
-				if (GetProbableInterceptor(pTargetPlot) != NULL)
-					iValue /= 5;
+				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
+					iValue /= 2;
+
+				if (!pUnit->isSuicide() && GetProbableInterceptor(pTargetPlot) != NULL)
+					iValue /= 3;
 
 				if (iValue > iBestValue)
 				{

@@ -3970,8 +3970,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 	if(!targetPlot.isCity())
 	{
 		CvUnit* pDefender = kAttacker.airStrikeTarget(targetPlot, true);
-		CvAssert(pDefender != NULL);
-		if(!pDefender) return CvUnitCombat::ATTACK_ABORTED;
+		if(!pDefender) 
+			return CvUnitCombat::ATTACK_ABORTED;
 
 		pDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)

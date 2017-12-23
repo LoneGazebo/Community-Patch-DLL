@@ -16894,7 +16894,11 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
-	pAttacker; pTargetPlot; pFromPlot;
+	
+	pTargetPlot; pFromPlot; //unused
+	if (pAttacker && pAttacker->isSuicide())
+		return pAttacker->GetCurrHitPoints();
+
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
@@ -29153,17 +29157,11 @@ bool CvUnit::canAdvance(const CvPlot& plot, int iThreshold) const
 CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) const
 {
 	VALIDATE_OBJECT
-	CvUnit* pDefender;
+	// All defaults, except test for war, and allow noncombat units
+	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);
 
-	pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);	// All defaults, except test for war, and allow noncombat units
-
-	if(pDefender)
-	{
-		if(!pDefender->IsDead())
-		{
-			return pDefender;
-		}
-	}
+	if(pDefender && !pDefender->IsDead())
+		return pDefender;
 
 	return NULL;
 }
