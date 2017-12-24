@@ -81,3 +81,7 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"
 Type: filesandordirs; Name: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1"; Components: FullEUI FullNoEUI Basic
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
+
+[INI]
+Filename: "{userdocs}\My Games\Sid Meier's Civilization 5\config.ini"; Section: "Debugging"; Key: "ValidateGameDatabase"; String: "1"
+Filename: "{userdocs}\My Games\Sid Meier's Civilization 5\config.ini"; Section: "Debug"; Key: "LoggingEnabled"; String: "1"
