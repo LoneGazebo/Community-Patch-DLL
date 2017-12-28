@@ -1600,19 +1600,31 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	//Let's check this against supply to keep our military numbers lean.
-	if(bCombat && !bAtWar)
+	if(bCombat && !bFree)
 	{
 		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.getNumMilitaryUnits();
 
-		//hard limit, don't go too far into negative supply
-		if (iSupply < iDemand - 4)
-			return -1;
+		int iScale = 0;
+		if (bAtWar || bForOperation)
+		{
+			//hard limit, don't go too far into negative supply
+			if (iSupply < iDemand - 4)
+				return -1;
 
-		int iRange = min(3,iSupply / 10 + 1); 
-		int iScale = MapToPercent(iSupply - iDemand, -iRange, +iRange);
-		//three units below limit -> start prio reduction
-		//three units above limit -> reach zero priority
+			//reduce bonus once we're over the limit
+			iScale = MapToPercent(iDemand, iSupply + 3, iSupply - 1);
+		}
+		else
+		{
+			//reduce bonus once we're approaching the limit
+			iScale = MapToPercent(iDemand, iSupply, (iSupply*2)/3);
+
+			//don't exceed the limit
+			if (iSupply < iDemand)
+				return -1;
+		}
+
 		iBonus *= iScale;
 		iBonus /= 100;
 	}

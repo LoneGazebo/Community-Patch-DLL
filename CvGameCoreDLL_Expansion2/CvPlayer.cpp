@@ -734,6 +734,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl("CvPlayer::m_iFractionOriginalCapitalsUnderControl", m_syncArchive)
+	, m_iAvgUnitExp100("CvPlayer::m_iAvgUnitExp100", m_syncArchive)
 #endif
 #if defined(MOD_BATTLE_ROYALE)
 	, m_iNumMilitarySeaUnits("CvPlayer::m_iNumMilitarySeaUnits", m_syncArchive)
@@ -11094,7 +11095,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 			UpdateDangerPlots(false);
-			UpdateFractionOriginalCapitalsUnderControl();
+			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
@@ -44890,9 +44891,10 @@ int CvPlayer::GetFractionOriginalCapitalsUnderControl() const
 	return m_iFractionOriginalCapitalsUnderControl;
 }
 
-void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
+void CvPlayer::UpdateMilitaryStats()
 {
 	m_iFractionOriginalCapitalsUnderControl = 0;
+	m_iAvgUnitExp100 = 0;
 
 	int iLoop;
 	int iOCCount = 0;
@@ -44913,6 +44915,18 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 
 		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / max(1, (iCivCount-1));
 	}
+
+	int iExpCount = 0, iExpSum = 0;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+		{
+			iExpCount++;
+			iExpSum += pLoopUnit->getExperienceTimes100();
+		}
+	}
+
+	m_iAvgUnitExp100 = iExpSum / max(1,iExpCount);
 }
 
 void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
@@ -45609,8 +45623,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		//could be close but it takes many turns to get there ...
 		if (!isDangerous)
 		{
-			//if the target plot is more than 4 turns away it's unsafe by definition
-			if (it==reachablePlots.end() || it->iTurns>4)
+			//if it takes more than 3 turns to found it's unsafe by definition
+			if (it==reachablePlots.end() || (it->iTurns>3 || (it->iTurns==3 && it->iMovesLeft==0) ) )
 				isDangerous = true;
 		}
 
@@ -48006,4 +48020,9 @@ void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
 
 	//prevent lazy update from overwriting this
 	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();
+}
+
+int CvPlayer::GetAvgUnitExp100() const
+{
+	return m_iAvgUnitExp100;
 }

@@ -11928,16 +11928,23 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		return result;
 	}
 
-	//extra penalty for high danger plots
+	//extra careful if we're over the magical threshold
+	if (iDanger > pUnit->GetCurrHitPoints())
+		iDanger += 10;
+
+	//try to be more careful with highly promoted units
+	iDanger += (pUnit->getExperienceTimes100()-kPlayer.GetAvgUnitExp100()) / 1000;
+
+	//penalty for high danger plots
 	//todo: take into account self damage from previous attacks
-	float fDanger = float(iDanger)/(pUnit->GetCurrHitPoints()+1);
+	int iDangerScore = (iDanger*30)/(pUnit->GetCurrHitPoints()+1);
 
 	//todo: take into account mobility at the proposed plot
 	//todo: take into account ZOC when ending the turn
 
 	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker 
 	//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
-	result.iScore = result.iScore*10 - int(fDanger*30) + 20;
+	result.iScore = result.iScore*10 - iDangerScore + 20;
 	return result;
 }
 
@@ -12525,7 +12532,8 @@ bool CvTacticalPosition::movesAreCompatible(const STacticalAssignment& A, const 
 	if (A.bIsCombat && B.bIsCombat)
 	{
 		if (AisPlotChange && BisPlotChange)
-			if (A.iToPlotIndex == B.iToPlotIndex)
+			//do moves sequentially in any case. otherwise the adjacency bonus stuff doesn't work
+			//if (A.iToPlotIndex == B.iToPlotIndex)
 				return false;
 
 		if (AisPlotChange && !BisPlotChange)
@@ -12579,7 +12587,7 @@ void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen
 	for (vector<STacticalAssignment>::const_iterator itChoice = choice.begin(); itChoice != choice.end(); ++itChoice)
 	{
 		//don't combine good moves with crap moves
-		if (itChoice->iScore < chosen.front().iScore / 4)
+		if (itChoice->iScore < chosen.front().iScore / 3)
 			break; //choice is sorted!
 
 		if (isMoveBlockedByOtherUnit(*itChoice))

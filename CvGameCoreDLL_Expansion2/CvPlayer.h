@@ -2482,7 +2482,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
-	void UpdateFractionOriginalCapitalsUnderControl();
+	void UpdateMilitaryStats();
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
@@ -2504,6 +2504,8 @@ public:
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
+
+	int GetAvgUnitExp100() const;
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -3632,6 +3634,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	FAutoVariable<int, CvPlayer> m_iFractionOriginalCapitalsUnderControl;
+	FAutoVariable<int, CvPlayer> m_iAvgUnitExp100;
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;

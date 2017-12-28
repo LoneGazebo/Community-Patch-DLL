@@ -29,7 +29,7 @@ void CvPlayerManager::Refresh(bool bWarDeclaration)
 		kPlayer.SetDangerPlotsDirty();
 		kPlayer.UpdateAreaEffectUnits();
 		kPlayer.UpdateAreaEffectPlots();
-		kPlayer.UpdateFractionOriginalCapitalsUnderControl();
+		kPlayer.UpdateMilitaryStats();
 		kPlayer.UpdateCurrentAndFutureWars();
 
 		//only after loading, force danger update (danger plots are not serialized!)
