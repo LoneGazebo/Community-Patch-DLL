@@ -216,11 +216,6 @@ public:
 	int GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained = false, bool bIncludeWater = true);
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
-#if defined(MOD_BALANCE_CORE)
-	void UpdateDangerSingleUnit(CvUnit* pUnit);
-#else
-	void InitDangerPlots();
-#endif
 	void UpdateDangerPlots(bool bKeepKnownUnits);
 	void SetDangerPlotsDirty();
 
@@ -2466,7 +2461,7 @@ public:
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
-	void ResetDangerCache(const CvPlot& Plot);
+	void ResetDangerCache(const CvPlot& Plot, int iRange);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);

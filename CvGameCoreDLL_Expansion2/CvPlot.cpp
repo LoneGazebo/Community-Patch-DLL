@@ -10989,7 +10989,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					}
 					else
 					{
-						GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
+						GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit);
 					}
 				}
 			}

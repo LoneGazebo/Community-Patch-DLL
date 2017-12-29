@@ -150,17 +150,16 @@ public:
 	void Uninit();
 	void Reset();
 
-	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false, bool bKeepKnownUnits = false);
+	void UpdateDanger(bool bKeepKnownUnits=true);
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
 	bool isEnemyCombatUnitAdjacent(const CvPlot& pPlot, bool bSameDomain) const;
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
-	void ResetDangerCache(const CvPlot& Plot);
-	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility, bool bRemember);
-	bool IsKnownAttacker(PlayerTypes eOwner, int iUnitID) const;
-	void AddKnownAttacker(PlayerTypes eOwner, int iUnitID);
+	void ResetDangerCache(const CvPlot* pCenterPlot, int iRange);
+	bool IsKnownAttacker(const CvUnit* pUnit) const;
+	void AddKnownAttacker(const CvUnit* pUnit);
 
 	void SetDirty();
 	bool IsDirty() const
@@ -173,30 +172,20 @@ public:
 
 protected:
 
-	bool IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlot);
+	void UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC);
+	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, bool bRemember, const set<int>& plotsToIgnoreForZOC);
 
 	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
-	bool ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility = false);
-	bool ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility = false);
+	bool ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility = false);
+	bool ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility = false);
 	bool ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility = false);
 
-	void AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot);
-	void AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot);
+	void AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot);
+	void AssignCityDangerValue(const CvCity* pCity, CvPlot* pPlot);
 
 	PlayerTypes m_ePlayer;
 	bool m_bArrayAllocated;
 	bool m_bDirty;
-	double m_fMajorWarMod;
-	double m_fMajorHostileMod;
-	double m_fMajorDeceptiveMod;
-	double m_fMajorGuardedMod;
-	double m_fMajorAfraidMod;
-	double m_fMajorFriendlyMod;
-	double m_fMajorNeutralMod;
-	double m_fMinorNeutralMinorMod;
-	double m_fMinorFriendlyMod;
-	double m_fMinorBullyMod;
-	double m_fMinorConquestMod;
 
 	CvDangerPlotContents* m_DangerPlots;
 	UnitSet m_knownUnits;

@@ -10526,16 +10526,9 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
-{
-	if (!m_pDangerPlots->IsKnownAttacker(pUnit->getOwner(),pUnit->GetID()))
-		m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false,true);
-}
-
-//	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
 {
-	m_pDangerPlots->UpdateDanger(false, false, bKeepKnownUnits);
+	m_pDangerPlots->UpdateDanger(bKeepKnownUnits);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -44785,9 +44778,9 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
-void CvPlayer::ResetDangerCache(const CvPlot & Plot)
+void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 {
-	m_pDangerPlots->ResetDangerCache(Plot);
+	m_pDangerPlots->ResetDangerCache(&Plot, iRange);
 }
 
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
@@ -44803,10 +44796,7 @@ bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	if (pAttacker)
-		return m_pDangerPlots->IsKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
-
-	return false;
+	return m_pDangerPlots->IsKnownAttacker(pAttacker);
 }
 
 void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
@@ -44814,8 +44804,7 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	if (pAttacker)
-		m_pDangerPlots->AddKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
+	m_pDangerPlots->AddKnownAttacker(pAttacker);
 }
 
 //	--------------------------------------------------------------------------------
