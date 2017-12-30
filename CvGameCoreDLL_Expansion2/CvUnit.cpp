@@ -1770,7 +1770,11 @@ void CvUnit::uninitInfos()
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
+#else
+void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
+#endif
 {
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode;
@@ -2000,7 +2004,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
 	pUnit->kill(true, NO_PLAYER, bSupply);
+#else
+	pUnit->kill(true, NO_PLAYER, true);
+#endif
 }
 
 //	----------------------------------------------------------------------------
