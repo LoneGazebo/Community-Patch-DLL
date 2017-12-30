@@ -69,7 +69,7 @@ void CvDangerPlots::Uninit()
 	m_bDirty = false;
 }
 
-bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnoreVisibility, bool bRemember, const set<int>& plotsToIgnoreForZOC)
+bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC)
 {
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
@@ -79,7 +79,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
 	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
 
 	if (pLoopUnit->IsCanAttackRanged())
@@ -116,10 +116,6 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 			m_DangerPlots[aNeighbors[iI]->GetPlotIndex()].m_bEnemyAdjacent = true;
 	}
 
-	//only track invisible attackers for AI players
-	if (bRemember && !GET_PLAYER(m_ePlayer).isHuman())
-		m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
-
 	return true;
 }
 
@@ -130,7 +126,7 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 	set<int> plotsWithOwnedUnitsLikelyToBeKilled;
 
 	//first pass
-	UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
+	UpdateDangerInternal(true, plotsWithOwnedUnitsLikelyToBeKilled);
 
 	//find out which units might die and therefore won't have a ZOC
 	int iLoop;
@@ -141,7 +137,8 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 	}
 
 	//second pass
-	UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
+	if (!plotsWithOwnedUnitsLikelyToBeKilled.empty() || !bKeepKnownUnits)
+		UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
 }
 
 void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC)
@@ -184,8 +181,12 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 		int iLoop;
 		for(CvUnit* pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
-			if (UpdateDangerSingleUnit(pLoopUnit, false, true, plotsToIgnoreForZOC))
+			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
 			{
+				//remember for next turn in case they move out of sight (only for AI players)
+				if (!GET_PLAYER(m_ePlayer).isHuman())
+					m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
+
 				//if there are invisible plots next to this unit, other enemies might be hiding there
 				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
 				for (int i = 0; i < 6; i++)
@@ -245,14 +246,14 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 		if (ShouldIgnorePlayer(it->first))
 			continue;
 
-		if (m_knownUnits.find(*it) == m_knownUnits.end() || bKeepKnownUnits)
+		if (m_knownUnits.find(*it) == m_knownUnits.end())
 		{
+			//it's still there, but moved out of sight - nevertheless count it, a human would do that as well
 			CvUnit* pVanishedUnit = GET_PLAYER(it->first).getUnit(it->second);
 
-			//it's still there, but moved out of sight - nevertheless count is, a human would do that as well
 			//do not add it to the known units though, so next turn we will have forgotten about it
 			if (pVanishedUnit)
-				UpdateDangerSingleUnit(pVanishedUnit, true, false, plotsToIgnoreForZOC);
+				UpdateDangerSingleUnit(pVanishedUnit, true, plotsToIgnoreForZOC);
 		}
 	}
 
@@ -395,7 +396,7 @@ void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 
 	if (!IsKnownAttacker(pUnit))
 	{
-		UpdateDangerSingleUnit(pUnit, false, true, set<int>()); //for simplicity, assume no ZOC by owned units
+		UpdateDangerSingleUnit(pUnit, false, set<int>()); //for simplicity, assume no ZOC by owned units
 		m_knownUnits.insert(std::make_pair(pUnit->getOwner(), pUnit->GetID()));
 
 		ResetDangerCache(pUnit->plot(), 3);

@@ -173,7 +173,7 @@ public:
 protected:
 
 	void UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC);
-	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, bool bRemember, const set<int>& plotsToIgnoreForZOC);
+	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC);
 
 	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
 	bool ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility = false);
