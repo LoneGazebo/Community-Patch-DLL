@@ -662,14 +662,15 @@ int CvLuaUnit::lIsNone(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//void convert(CyUnit* pUnit);
+//void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
 int CvLuaUnit::lConvert(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkUnitToConvert = GetInstance(L, 2);
 	bool bIsUpgrade = lua_toboolean(L, 3);
+	bool bSupply = luaL_optbool(L, 4, true);
 
-	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
+	pkUnit->convert(pkUnitToConvert, bIsUpgrade, bSupply);
 #if defined(MOD_BUGFIX_MINOR)
 	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
 #endif

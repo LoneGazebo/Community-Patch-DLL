@@ -147,7 +147,7 @@ public:
 	void initPromotions();
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
-	void convert(CvUnit* pUnit, bool bIsUpgrade);
+	void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
 
 	void doTurn();

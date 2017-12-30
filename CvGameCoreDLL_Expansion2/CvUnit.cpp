@@ -1770,7 +1770,7 @@ void CvUnit::uninitInfos()
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
+void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
 {
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode;
@@ -2000,7 +2000,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
-	pUnit->kill(true, NO_PLAYER, true);
+	pUnit->kill(true, NO_PLAYER, bSupply);
 }
 
 //	----------------------------------------------------------------------------
@@ -2008,6 +2008,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
+//      bSupply         - true (default) - grants resources and increases Supply Cap is eligible; false - doesn't grant respurces, doesn't increase Supply Cap
 void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply)
 {
 	//nothing to do
