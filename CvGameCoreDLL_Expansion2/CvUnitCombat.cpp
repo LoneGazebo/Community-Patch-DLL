@@ -839,7 +839,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//if there is a garrison, the unit absorbs part of the damage!
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-		if(pGarrison)
+		if(pGarrison && !pGarrison->IsDead())
 		{
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
