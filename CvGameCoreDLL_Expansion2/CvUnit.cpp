@@ -17403,7 +17403,7 @@ int CvUnit::experienceNeeded() const
 		iExperienceNeeded = (int) ceil(fTemp); // Round up
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if (MOD_BALANCE_CORE_SCALING_XP)
 	{
 		iExperienceNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iExperienceNeeded /= 100;
@@ -20960,7 +20960,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		return;
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bFromCombat)
+	if (MOD_BALANCE_CORE_SCALING_XP && !bFromCombat)
 	{
 		iChangeTimes100 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iChangeTimes100 /= 100;
