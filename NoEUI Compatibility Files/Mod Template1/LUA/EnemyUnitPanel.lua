@@ -21,6 +21,16 @@ local g_iPortraitSize = Controls.UnitPortrait:GetSize().x;
 local g_bWorldMouseOver = true;
 local g_bShowPanel = false;
 
+-- fix for DB cache issue, by merill
+local DB_HandicapInfos = {};
+if Game then
+	for realHandicap in DB.Query("SELECT * FROM HandicapInfos") do
+		DB_HandicapInfos[realHandicap["ID"]] = {};
+		for key,val in pairs(realHandicap) do 
+			DB_HandicapInfos[realHandicap["ID"]][key] = val;
+		end
+	end
+end
 
 function SetName(name)
 	
@@ -1455,8 +1465,9 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- BarbarianBonuses
 			if (pTheirUnit:IsBarbarian()) then
-				iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
+				--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 				
+				iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 				iModifier = iModifier + Players[pMyUnit:GetOwner()]:GetBarbarianCombatBonus();
 
 				iModifier = iModifier + pMyUnit:BarbarianCombatBonus();
@@ -2298,8 +2309,9 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- BarbarianBonuses
 		if (theirUnit:IsBarbarian()) then
-			iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
+			--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 			
+			iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 			iModifier = iModifier + myPlayer:GetBarbarianCombatBonus();
 
 			if (iModifier ~= 0) then

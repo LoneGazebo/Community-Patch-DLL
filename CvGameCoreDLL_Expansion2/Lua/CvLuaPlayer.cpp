@@ -1572,7 +1572,7 @@ int CvLuaPlayer::lIsCityNameValid(lua_State* L)
 }
 #endif
 //------------------------------------------------------------------------------
-//CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION);
+//CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bHistoric = true);
 int CvLuaPlayer::lInitUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -1581,14 +1581,18 @@ int CvLuaPlayer::lInitUnit(lua_State* L)
 	const int y = lua_tointeger(L, 4);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 5, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 6, NO_DIRECTION);
-
+#if defined(MOD_BALANCE_CORE)
+	const bool bHistoric = luaL_optbool(L, 7, true);
+	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, eFacingDirection, false, true, 0, 0, NO_CONTRACT, bHistoric);
+#else
 	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, eFacingDirection);
+#endif
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-//CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION);
+//CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bHistoric = true);
 int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -1598,8 +1602,12 @@ int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 	const int y = lua_tointeger(L, 5);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 6, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 7, NO_DIRECTION);
-
+#if defined(MOD_BALANCE_CORE)
+	const bool bHistoric = luaL_optbool(L, 8, true);
+	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, eFacingDirection, false, true, 0, 0, NO_CONTRACT, bHistoric);
+#else
 	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, eFacingDirection);
+#endif
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
