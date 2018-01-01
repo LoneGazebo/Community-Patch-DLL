@@ -3082,7 +3082,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>99</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
-			<InstaHeal>true</InstaHeal>
+			<InstaHeal>false</InstaHeal>
 			<CaptureDefeatedEnemy>true</CaptureDefeatedEnemy>
 			<FlankAttackModifier>100</FlankAttackModifier>
 			<PortraitIndex>59</PortraitIndex>

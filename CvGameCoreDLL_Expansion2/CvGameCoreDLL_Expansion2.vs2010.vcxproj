@@ -57,7 +57,7 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Mod2|Win32'">..\ThirdPartyLibs;C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x86;$(LibraryPath)</LibraryPath>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">CvGameCore_Expansion2</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Mod2|Win32'">CvGameCore_Expansion2</TargetName>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">$(OutDir)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">..\..\..\Users\Grzegorz\Documents\My Games\Sid Meier%27s Civilization 5\MODS\%281%29 Community Patch</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Mod2|Win32'">$(OutDir)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">

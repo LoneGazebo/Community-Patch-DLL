@@ -170,6 +170,9 @@ VALUES
 	('PROMOTION_FORMATION_1', 'UNITCOMBAT_ARMOR', 25),
 	('PROMOTION_FORMATION_2', 'UNITCOMBAT_ARMOR', 25);
 
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_FORMATION_1' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_FORMATION_2' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
+
 INSERT INTO UnitPromotions_UnitClasses
 	(PromotionType, UnitClassType, Modifier)
 VALUES
