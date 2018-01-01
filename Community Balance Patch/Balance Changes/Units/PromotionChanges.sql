@@ -68,11 +68,11 @@
 -- Reduce anti-sub power a little
 
 	UPDATE UnitPromotions_UnitClasses
-	SET Modifier = '33'
+	SET Modifier = '33', Attack = '33'
 	WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_I' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE UnitPromotions_UnitClasses
-	SET Modifier = '75'
+	SET Modifier = '75', Attack = '75'
 	WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Melee Ship promotions a little too high - let's tone down
@@ -147,6 +147,10 @@
 	DELETE FROM UnitPromotions_UnitCombats
 	WHERE UnitCombatType = 'UNITCOMBAT_BOMBER' AND PromotionType = 'PROMOTION_AIR_AMBUSH_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Fix for Anti-Fighter
+	DELETE FROM UnitPromotions_UnitClasses
+	WHERE PromotionType = 'PROMOTION_ANTI_FIGHTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
@@ -156,6 +160,7 @@ VALUES
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
 VALUES
+	('PROMOTION_ANTI_FIGHTER', 'UNITCOMBAT_FIGHTER', 33),
 	('PROMOTION_KNOCKOUT_II', 'UNITCOMBAT_SIEGE', 25),
 	('PROMOTION_KNOCKOUT_I', 'UNITCOMBAT_GUN', 25),
 	('PROMOTION_RESPECT', 'UNITCOMBAT_MELEE', 15),
@@ -165,6 +170,11 @@ VALUES
 	('PROMOTION_FORMATION_1', 'UNITCOMBAT_ARMOR', 25),
 	('PROMOTION_FORMATION_2', 'UNITCOMBAT_ARMOR', 25);
 
+INSERT INTO UnitPromotions_UnitClasses
+	(PromotionType, UnitClassType, Modifier)
+VALUES
+	('PROMOTION_ANTI_AIR', 'UNITCLASS_GUIDED_MISSILE', 150),
+	('PROMOTION_ANTI_AIR_II', 'UNITCLASS_GUIDED_MISSILE', 150);
 
 INSERT INTO UnitPromotions_Features
 	(PromotionType, FeatureType, DoubleMove)
