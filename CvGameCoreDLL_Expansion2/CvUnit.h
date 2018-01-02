@@ -147,7 +147,11 @@ public:
 	void initPromotions();
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
+#if defined(MOD_BALANCE_CORE)
+	void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
+#else
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
+#endif
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
 
 	void doTurn();
@@ -329,7 +333,7 @@ public:
 	bool airlift(int iX, int iY);
 
 	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;
-	bool canNuke(const CvPlot* pPlot) const;
+	bool canNuke() const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
 	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const;
@@ -1607,6 +1611,8 @@ public:
 		return (m_iBaseCombat > 0);
 	}
 
+	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
+
 	bool IsCanAttackWithMove() const;
 	bool IsCanAttackRanged() const;
 	bool IsCanAttack() const;
@@ -1736,12 +1742,12 @@ public:
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
-	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, int* piTurns = NULL);
+	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, bool bAllowEmbark=true, int* piTurns = NULL);
 	void ClearPathCache();
 	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
-	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
+	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
 
 protected:
 	const MissionData* HeadMissionData() const;
@@ -2127,8 +2133,6 @@ protected:
 	mutable uint m_uiLastPathLength;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
-
-	CvUnit* airStrikeTarget(CvPlot& pPlot, bool bNoncombatAllowed) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);

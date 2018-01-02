@@ -1043,8 +1043,13 @@
 	<Row Class="6" Name="BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
 	<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->
 	<Row Class="6" Name="BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY" Value="0"/>
-	<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->
+	<!-- Proximity malus for international trade routes -->
 	<Row Class="6" Name="BALANCE_CORE_SCALING_TRADE_DISTANCE" Value="0"/>
+	<!-- Scales XP with game speed; affects promotions' tresholds and flat XP gains -->
+	<Row Class="6" Name="BALANCE_CORE_SCALING_XP" Value="0"/>
+	<!-- Halved XP for units purchased with gold -->
+	<Row Class="6" Name="BALANCE_CORE_HALF_XP_PURCHASE" Value="0"/>
+
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

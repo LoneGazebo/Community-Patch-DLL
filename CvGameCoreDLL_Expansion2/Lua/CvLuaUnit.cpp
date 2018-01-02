@@ -662,14 +662,18 @@ int CvLuaUnit::lIsNone(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//void convert(CyUnit* pUnit);
+//void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
 int CvLuaUnit::lConvert(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkUnitToConvert = GetInstance(L, 2);
 	bool bIsUpgrade = lua_toboolean(L, 3);
-
+#if defined(MOD_BALANCE_CORE)
+	bool bSupply = luaL_optbool(L, 4, true);
+	pkUnit->convert(pkUnitToConvert, bIsUpgrade, bSupply);
+#else
 	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
+#endif
 #if defined(MOD_BUGFIX_MINOR)
 	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
 #endif
@@ -1329,7 +1333,7 @@ int CvLuaUnit::lIsNukeVictim(lua_State* L)
 int CvLuaUnit::lCanNuke(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->canNuke(pkUnit->plot());
+	const bool bResult = pkUnit->canNuke();
 
 	lua_pushboolean(L, bResult);
 	return 1;

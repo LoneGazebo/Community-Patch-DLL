@@ -3618,7 +3618,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if(iTotalScore > iBestPlotScore)
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
-					if (!pUnit->CanReachInXTurns(pEvalPlot,1))
+					if (!pUnit->CanReachInXTurns(pEvalPlot,1,false,false))
 						continue;
 
 					pBestPlot = pEvalPlot;
@@ -6724,7 +6724,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			iValue -= iDanger;
 
 			//tiebreaker ...
-			if (GET_PLAYER(pUnit->getOwner()).isEnemyUnitAdjacent(pLoopPlot))
+			if (GET_PLAYER(pUnit->getOwner()).isEnemyCombatUnitAdjacent(pLoopPlot,false))
 				iValue-=5;
 			//when in doubt move as far as possible
 			if (it->iMovesLeft==0)
@@ -8327,17 +8327,22 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 		switch (allTargets[iI].GetTargetType())
 		{
 		case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-			iBaseScore += 10;
+			iBaseScore += 12;
 			break;
 		case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-			iBaseScore += 10;
+			iBaseScore += 8;
 			break;
 		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-			iBaseScore += 5;
+			iBaseScore += 4;
 			break;
 		case AI_TACTICAL_TARGET_CITY:
-			iBaseScore += 5;
-			break;
+			{
+				//for nukes we want only cities, but ones we haven't recently nuked. for conventional air force cities are optional
+				CvPlot* pTargetPlot = GC.getMap().plot(allTargets[iI].GetTargetX(), allTargets[iI].GetTargetY());
+				if (!pTargetPlot->getPlotCity()->isInDangerOfFalling())
+					iBaseScore += 20; 
+				break;
+			}
 		}
 	}
 
@@ -8360,6 +8365,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 
 	return iBaseScore;
 }
+
 //check all tactical zones to find the one we need to support most
 std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
 {

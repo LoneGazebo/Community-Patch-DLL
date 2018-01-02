@@ -807,7 +807,7 @@ private:
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
-	void PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPass);
+	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
 	void PlotCitadelMoves();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotPlunderTradePlotMoves(DomainTypes eDomain); // squat on trade plots to try to scoop up trade units

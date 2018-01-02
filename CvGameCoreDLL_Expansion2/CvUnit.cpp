@@ -1770,7 +1770,11 @@ void CvUnit::uninitInfos()
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
+#else
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
+#endif
 {
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode;
@@ -2000,7 +2004,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	pUnit->kill(true, NO_PLAYER, bSupply);
+#else
 	pUnit->kill(true, NO_PLAYER, true);
+#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -2008,6 +2016,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
+//      bSupply         - true (default) - grants resources and increases Supply Cap is eligible; false - doesn't grant respurces, doesn't increase Supply Cap
 void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply)
 {
 	//nothing to do
@@ -2568,7 +2577,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 //	Please note this method is static because it is often called AFTER the original unit
 //	has been deleted.
 
-/* static */ CvUnit* CvUnit::createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef)
+/* static */ CvUnit* CvUnit::createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture)
 {
 	CvUnit* pkCapturedUnit = NULL;
 
@@ -2590,7 +2599,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 					pkCapturedUnit->SetOriginalOwner(kCaptureDef.eOriginalOwner);
 
-					if (MOD_BALANCE_CORE_BARBARIAN_THEFT && pkCapturedUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_WORKER && pkCapturedUnit->GetOriginalOwner() != kCapturingPlayer.GetID())
+					if (MOD_BALANCE_CORE_BARBARIAN_THEFT && pkCapturedUnit->IsCivilianUnit() && pkCapturedUnit->GetOriginalOwner() != kCapturingPlayer.GetID())
 					{
 						PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PRISONER_WAR");
 						if (ePromotionForced != NO_PROMOTION && !pkCapturedUnit->HasPromotion(ePromotionForced))
@@ -2664,7 +2673,10 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							bShowingHumanPopup = false;
 
 						// Players at war
-						else if(GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isAtWar(kCapturingPlayer.getTeam()))
+						else if (GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isAtWar(kCapturingPlayer.getTeam()))
+							bShowingHumanPopup = false;
+
+						else if (GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isAtWar(kCapturingPlayer.getTeam()))
 							bShowingHumanPopup = false;
 
 						// Players haven't met
@@ -2674,6 +2686,9 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 						// Not human?
 						else if(!GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+							bShowingHumanPopup = false;
+
+						if (ForcedCapture)
 							bShowingHumanPopup = false;
 #endif
 
@@ -5701,6 +5716,9 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 	}
 
+	if (plot()->getOwner() != getOwner())
+		return false;
+
 	if(!bTestVisible)
 	{
 		if(GC.getUNIT_DELETE_DISABLED() == 1)
@@ -8386,7 +8404,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canNuke(const CvPlot* /*pPlot*/) const
+bool CvUnit::canNuke() const
 {
 	VALIDATE_OBJECT
 	if(GetNukeDamageLevel() == -1)
@@ -8403,7 +8421,7 @@ bool CvUnit::canNukeAt(const CvPlot* pPlot, int iX, int iY) const
 {
 	VALIDATE_OBJECT
 
-	if(!canNuke(pPlot))
+	if(!canNuke())
 	{
 		return false;
 	}
@@ -11661,7 +11679,7 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 		if (eManufactory != NO_IMPROVEMENT)
 		{
 			int iManufactories = GET_PLAYER(getOwner()).CountAllImprovement(eManufactory);
-			iProduction *= ((iManufactories * 10) + 100);
+			iProduction *= ((iManufactories * 20) + 100);
 			iProduction /= 100;
 		}
 	}
@@ -11995,7 +12013,7 @@ bool CvUnit::trade()
 	{
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
-			int iCap = 20;
+			int iCap = 10;
 			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCap /= 100;
 			CvCity* pLoopCity;
@@ -15905,7 +15923,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pDefender->getDamage() > (pDefender->GetMaxHitPoints() * .5))
+		if (pDefender->getDamage() < (pDefender->GetMaxHitPoints() * .5))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -16423,7 +16441,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pOtherUnit->getDamage() > (pOtherUnit->GetMaxHitPoints() * .5))
+		if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() * .5))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -16755,10 +16773,18 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 	int iDefenderStrength = 0;
 
+	//in case of a missile, look up the target (the generic call in case of a city target doesn't pass the defender)
+	if (AI_getUnitAIType() == UNITAI_MISSILE_AIR && pTargetPlot && pDefender == NULL)
+	{
+		pDefender = rangeStrikeTarget(*pTargetPlot, true);
+		if (!pDefender)
+			return 0;
+	}
+
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	// City is Defender
-	if (pCity != NULL)
+	// City is Defender - unless it's a missile
+	if (pCity != NULL && AI_getUnitAIType() != UNITAI_MISSILE_AIR)
 	{
 		iDefenderStrength = pCity->getStrengthValue();
 	}
@@ -16767,7 +16793,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
 		if (!pDefender->IsCanDefend(pTargetPlot))
-			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
+		{
+			//can assassinate any civilian with one missile hit
+			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
+				return pDefender->GetCurrHitPoints();
+			else
+				return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
+		}
 
 		// Use Ranged combat value for defender (except impi)
 		if (pDefender->isRanged() && !pDefender->isRangedSupportFire())
@@ -16894,7 +16926,8 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
-	pAttacker; pTargetPlot; pFromPlot;
+	pAttacker;  pTargetPlot; pFromPlot; //unused
+
 	//base value
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
@@ -17402,7 +17435,7 @@ int CvUnit::experienceNeeded() const
 		iExperienceNeeded = (int) ceil(fTemp); // Round up
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if (MOD_BALANCE_CORE_SCALING_XP)
 	{
 		iExperienceNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iExperienceNeeded /= 100;
@@ -20606,7 +20639,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 					}
 				}
 
-				if (!isSuicide())	// Show the HP lost, expect if it is a suicide unit (missisle, etc.)
+				if (!isSuicide())	// Show the HP lost, except if it is a suicide unit (missile, etc.)
 #if defined(SHOW_PLOT_POPUP)
 					SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), text.c_str(), fDelay);
 #else
@@ -20959,7 +20992,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		return;
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bFromCombat)
+	if (MOD_BALANCE_CORE_SCALING_XP && !bFromCombat)
 	{
 		iChangeTimes100 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iChangeTimes100 /= 100;
@@ -26886,7 +26919,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 	{
 		if(bNeedWar)
 		{
-			const CvUnit* pDefender = airStrikeTarget(*pTargetPlot, bNoncombatAllowed);
+			const CvUnit* pDefender = rangeStrikeTarget(*pTargetPlot, bNoncombatAllowed);
 			if(NULL == pDefender)
 			{
 				return false;
@@ -26988,6 +27021,14 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 					return false;
 				}
 			}
+		}
+
+		// Missiles need a unit to attack, cannot hit cities without a unit inside
+		if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
+		{
+			const CvUnit* pDefender = rangeStrikeTarget(*pTargetPlot, bNoncombatAllowed);
+			if (!pDefender)
+				return false;
 		}
 	}
 
@@ -28367,7 +28408,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_NUKE:
-		if(canNuke(plot()))
+		if(canNuke())
 		{
 			return true;
 		}
@@ -29150,20 +29191,14 @@ bool CvUnit::canAdvance(const CvPlot& plot, int iThreshold) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) const
+CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllowed) const
 {
 	VALIDATE_OBJECT
-	CvUnit* pDefender;
+	// All defaults, except test for war, and allow noncombat units
+	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);
 
-	pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);	// All defaults, except test for war, and allow noncombat units
-
-	if(pDefender)
-	{
-		if(!pDefender->IsDead())
-		{
-			return pDefender;
-		}
-	}
+	if(pDefender && !pDefender->IsDead())
+		return pDefender;
 
 	return NULL;
 }
@@ -30619,12 +30654,23 @@ bool CvUnit::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 
 //	--------------------------------------------------------------------------------
 /// Can a unit reach this destination in "X" turns of movement? (pass in 0 if need to make it in 1 turn with movement left)
-bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, int* piTurns /* = NULL */)
+bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits, bool bAllowEmbark, int* piTurns /* = NULL */)
 {
 	if (!pTarget)
 		return false;
 
-	int iTurnsCalculated = TurnsToReachTarget(pTarget, bIgnoreUnits, false, iTurns);
+	int iFlags = 0;
+	if (!bAllowEmbark)
+		iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+
+	if (bIgnoreUnits)
+	{
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
+	}
+
+	int iTurnsCalculated = TurnsToReachTarget(pTarget, iFlags, iTurns);
 	if (piTurns)
 		*piTurns = iTurnsCalculated;
 
