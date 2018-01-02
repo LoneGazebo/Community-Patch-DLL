@@ -5688,7 +5688,7 @@
 			<Text>Ocean Embarkation with Defense</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION_HELP">
-			<Text>Permits hovering units to embark at the coastal/ocean boundary. Embarked units receive a defensive bonus.</Text>
+			<Text>Permits hovering units to embark at the coastal/ocean boundary. Embarked units receive +100% [ICON_STRENGTH] defensive bonus.</Text>
 		</Row>
 
 		<!-- MP Denounce -->
