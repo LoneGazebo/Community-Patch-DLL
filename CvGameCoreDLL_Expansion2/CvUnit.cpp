@@ -1770,7 +1770,11 @@ void CvUnit::uninitInfos()
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
+#else
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
+#endif
 {
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode;
@@ -2000,7 +2004,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	pUnit->kill(true, NO_PLAYER, bSupply);
+#else
 	pUnit->kill(true, NO_PLAYER, true);
+#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -2008,6 +2016,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
+//      bSupply         - true (default) - grants resources and increases Supply Cap is eligible; false - doesn't grant respurces, doesn't increase Supply Cap
 void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply)
 {
 	//nothing to do
@@ -2568,7 +2577,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 //	Please note this method is static because it is often called AFTER the original unit
 //	has been deleted.
 
-/* static */ CvUnit* CvUnit::createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef)
+/* static */ CvUnit* CvUnit::createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture)
 {
 	CvUnit* pkCapturedUnit = NULL;
 
@@ -2590,7 +2599,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 					pkCapturedUnit->SetOriginalOwner(kCaptureDef.eOriginalOwner);
 
-					if (MOD_BALANCE_CORE_BARBARIAN_THEFT && pkCapturedUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_WORKER && pkCapturedUnit->GetOriginalOwner() != kCapturingPlayer.GetID())
+					if (MOD_BALANCE_CORE_BARBARIAN_THEFT && pkCapturedUnit->IsCivilianUnit() && pkCapturedUnit->GetOriginalOwner() != kCapturingPlayer.GetID())
 					{
 						PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PRISONER_WAR");
 						if (ePromotionForced != NO_PROMOTION && !pkCapturedUnit->HasPromotion(ePromotionForced))
@@ -2664,7 +2673,10 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							bShowingHumanPopup = false;
 
 						// Players at war
-						else if(GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isAtWar(kCapturingPlayer.getTeam()))
+						else if (GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isAtWar(kCapturingPlayer.getTeam()))
+							bShowingHumanPopup = false;
+
+						else if (GET_TEAM(GET_PLAYER(kCaptureDef.eOriginalOwner).getTeam()).isAtWar(kCapturingPlayer.getTeam()))
 							bShowingHumanPopup = false;
 
 						// Players haven't met
@@ -2674,6 +2686,9 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 						// Not human?
 						else if(!GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+							bShowingHumanPopup = false;
+
+						if (ForcedCapture)
 							bShowingHumanPopup = false;
 #endif
 
@@ -5700,6 +5715,9 @@ bool CvUnit::canScrap(bool bTestVisible) const
 	{
 		return false;
 	}
+
+	if (plot()->getOwner() != getOwner())
+		return false;
 
 	if(!bTestVisible)
 	{
@@ -11661,7 +11679,7 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 		if (eManufactory != NO_IMPROVEMENT)
 		{
 			int iManufactories = GET_PLAYER(getOwner()).CountAllImprovement(eManufactory);
-			iProduction *= ((iManufactories * 10) + 100);
+			iProduction *= ((iManufactories * 20) + 100);
 			iProduction /= 100;
 		}
 	}
@@ -11995,7 +12013,7 @@ bool CvUnit::trade()
 	{
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
-			int iCap = 20;
+			int iCap = 10;
 			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCap /= 100;
 			CvCity* pLoopCity;
@@ -15905,7 +15923,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pDefender->getDamage() > (pDefender->GetMaxHitPoints() * .5))
+		if (pDefender->getDamage() < (pDefender->GetMaxHitPoints() * .5))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -16423,7 +16441,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pOtherUnit->getDamage() > (pOtherUnit->GetMaxHitPoints() * .5))
+		if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() * .5))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -17417,7 +17435,7 @@ int CvUnit::experienceNeeded() const
 		iExperienceNeeded = (int) ceil(fTemp); // Round up
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if (MOD_BALANCE_CORE_SCALING_XP)
 	{
 		iExperienceNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iExperienceNeeded /= 100;
@@ -20974,7 +20992,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		return;
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !bFromCombat)
+	if (MOD_BALANCE_CORE_SCALING_XP && !bFromCombat)
 	{
 		iChangeTimes100 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iChangeTimes100 /= 100;

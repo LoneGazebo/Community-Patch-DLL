@@ -9708,16 +9708,18 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript)
+void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldPurchase)
 {
 	VALIDATE_OBJECT
+
+	bool HalveXP = (bConscript || (bGoldPurchase && MOD_BALANCE_CORE_HALF_XP_PURCHASE && !pUnit->getUnitInfo().CanMoveAfterPurchase()));
 
 	if(pUnit->canAcquirePromotionAny())
 	{
 #if defined(MOD_UNITS_XP_TIMES_100)
-		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((bConscript) ? 2 : 1));
+		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((HalveXP) ? 2 : 1));
 #else
-		pUnit->changeExperience(getProductionExperience(pUnit->getUnitType()) / ((bConscript) ? 2 : 1));
+		pUnit->changeExperience(getProductionExperience(pUnit->getUnitType()) / ((HalveXP) ? 2 : 1));
 #endif
 		
 #if !defined(NO_ACHIEVEMENTS)
@@ -11181,7 +11183,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	{
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iTechProgress /= 2;
+		iTechProgress /= 3;
 		if(iTechProgress > 0)
 		{
 			iCost *= (100 + iTechProgress);
@@ -11191,8 +11193,8 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
 		//Decrease base cost, then increase based on # of cities in empire.
-		iCost /= 2;
-		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 10);
+		iCost /= 3;
+		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 2);
 		iCost /= 100;
 	}
 #endif
@@ -15414,14 +15416,14 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 
 		int iNormalFood = iPopulation * iFoodPerPop;
 
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if(iEra <= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra() + 1;
+		if(iEra <= GC.getFOOD_CONSUMPTION_PER_POPULATION() + 1)
 		{
-			iEra = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+			iEra = GC.getFOOD_CONSUMPTION_PER_POPULATION() + 1;
 		}
-		if(iEra > 7)
+		if(iEra > 10)
 		{
-			iEra = 7;
+			iEra = 10;
 		}
 
 		int iSpecialistFood = (iEra * iSpecialists);
@@ -17605,6 +17607,10 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 			{
 				iValidTilesTerrain = GetNearbyMountains();
 			}
+			else if (eTerrain == TERRAIN_SNOW)
+			{
+				iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
+			}
 			else
 			{
 				iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
@@ -17645,6 +17651,10 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 				if(eTerrain == TERRAIN_MOUNTAIN)
 				{
 					iValidTilesTerrain = GetNearbyMountains();
+				}
+				else if (eTerrain == TERRAIN_SNOW)
+				{
+					iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
 				}
 				else
 				{
@@ -17695,6 +17705,10 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 					{
 						iValidTilesTerrain = GetNearbyMountains();
 					}
+					else if (eTerrain == TERRAIN_SNOW)
+					{
+						iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
+					}
 					else if(pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
 					{
 						iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
@@ -17707,6 +17721,10 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 					iYield += ((iValidTilesTerrain * iBaseYieldReligion) / 100);
 
 					if (eTerrain == TERRAIN_MOUNTAIN && iYield > getPopulation())
+					{
+						iYield = getPopulation();
+					}
+					if (eTerrain == TERRAIN_SNOW && iYield > getPopulation())
 					{
 						iYield = getPopulation();
 					}
@@ -17735,6 +17753,10 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 						{
 							iValidTilesTerrain = GetNearbyMountains();
 						}
+						else if (eTerrain == TERRAIN_SNOW)
+						{
+							iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
+						}
 						else if(pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
 						{
 							iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
@@ -17747,6 +17769,10 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 						iYield += ((iValidTilesTerrain * iBaseYieldReligion) / 100);
 
 						if (eTerrain == TERRAIN_MOUNTAIN && iYield > getPopulation())
+						{
+							iYield = getPopulation();
+						}
+						if (eTerrain == TERRAIN_SNOW && iYield > getPopulation())
 						{
 							iYield = getPopulation();
 						}
@@ -21762,15 +21788,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) != 0)
 	{
 		iTempMod = min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
-		iModifier += iTempMod;
-		if (toolTipSink)
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_GREAT_WORK_MODIFIER", iTempMod);
+		if (iTempMod != 0)
+		{
+			iModifier += iTempMod;
+			if (toolTipSink && eIndex != YIELD_CULTURE)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_GREAT_WORK_MODIFIER", iTempMod);
+		}
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
 		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
 		iModifier += iTempMod;
-		if (toolTipSink)
+		if (toolTipSink && eIndex != YIELD_CULTURE)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_SPY_MODIFIER", iTempMod);
 	}
 #endif
@@ -21791,7 +21820,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
-			if(toolTipSink)
+			if (toolTipSink && eIndex != YIELD_CULTURE)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
 		}
 
@@ -21876,9 +21905,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				{
 					iTempMod = iGoldenAge;
 					iModifier += iTempMod;
-					if(toolTipSink){
-						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_GOLDEN_AGE", iTempMod);
-					}
 				}
 			}
 			int iWLTKD = pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -21888,9 +21914,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				{
 					iTempMod = iWLTKD;
 					iModifier += iTempMod;
-					if(toolTipSink){
-						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_WLTKD_BELIEF", iTempMod);
-					}
 				}
 			}
 		}
@@ -23675,15 +23698,18 @@ void CvCity::TestBastion()
 		return;
 	}
 	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
-	if(isCoastal() && GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+	if(isCoastal())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
 		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
 		{
 			if(!GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 			{
-				SetBastion(true);
-				return;
+				if (GetThreatRank() <= GET_PLAYER(getOwner()).getNumCities() / 3)
+				{
+					SetBastion(true);
+					return;
+				}
 			}
 		}
 	}
@@ -23692,12 +23718,12 @@ void CvCity::TestBastion()
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
 		{
-			if(plot()->IsHomeFrontForPlayer(eLoopPlayer))
+			if (plot()->IsHomeFrontForPlayer(eLoopPlayer) && (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE))
 			{
 				SetBastion(true);
 				return;
 			}
-			else if (getPreviousOwner() == eLoopPlayer && GET_PLAYER(eLoopPlayer).IsAtWarWith(getOwner()))
+			else if (getPreviousOwner() == eLoopPlayer && isUnderSiege() && GET_PLAYER(eLoopPlayer).IsAtWarWith(getOwner()))
 			{
 				SetBastion(true);
 				return;
@@ -27228,7 +27254,7 @@ bool CvCity::CleanUpQueue(void)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation)
+int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSatisfyOperation, bool bIsPurchase)
 {
 	VALIDATE_OBJECT
 	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
@@ -27250,7 +27276,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		return -1;
 	}
 
-	addProductionExperience(pUnit);
+	addProductionExperience(pUnit, false, bIsPurchase);
 
 #if defined(MOD_BALANCE_CORE)
 	pUnit->setMoves(pUnit->maxMoves());
@@ -28246,7 +28272,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else
 			{
 #endif
-			int iResult = CreateUnit(eUnitType);
+			int iResult = CreateUnit(eUnitType, NO_UNITAI, true, true);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult != -1)
 			{

@@ -147,7 +147,11 @@ public:
 	void initPromotions();
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
+#if defined(MOD_BALANCE_CORE)
+	void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
+#else
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
+#endif
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
 
 	void doTurn();
@@ -1743,7 +1747,7 @@ public:
 	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
-	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
+	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
 
 protected:
 	const MissionData* HeadMissionData() const;

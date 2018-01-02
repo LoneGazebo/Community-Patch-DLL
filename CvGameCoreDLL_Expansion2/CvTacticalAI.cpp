@@ -827,13 +827,20 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	case TACTICAL_TERRITORY_TEMP_ZONE:
 	{
 		// Default for this zone
-		eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+		eChosenPosture = (pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE) ? AI_TACTICAL_POSTURE_STEAMROLL : AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		CvCity *pClosestCity = pZone->GetZoneCity();
 
 		// Temporary zone: Attack if possible, if defenses are strong try to wear them down first
 		if (pClosestCity && IsTemporaryZoneCity(pClosestCity))
 		{
-			eChosenPosture = (eOverallDominance == TACTICAL_DOMINANCE_ENEMY) ? AI_TACTICAL_POSTURE_SIT_AND_BOMBARD : AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+			if (pZone->GetEnemyMeleeStrength() > pZone->GetFriendlyMeleeStrength())
+			{
+				eChosenPosture = (eOverallDominance != TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_SIT_AND_BOMBARD : AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+			}
+			else
+			{
+				eChosenPosture = (eOverallDominance != TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_STEAMROLL : AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+			}
 		}
 		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
 		else if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY || (pZone->GetEnemyMeleeStrength()>pZone->GetFriendlyMeleeStrength() && pZone->GetFriendlyRangedStrength()>pZone->GetFriendlyMeleeStrength()))
@@ -846,8 +853,16 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
 		{
-			//if we have ranged dominance, keep our risk lower
-			eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			if (pZone->GetEnemyMeleeStrength() > pZone->GetFriendlyMeleeStrength())
+			{
+				//if we have ranged dominance, keep our risk lower
+				eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
+			}
+			else
+			{
+				//if we have ranged dominance, keep our risk lower
+				eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_STEAMROLL : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			}
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
 		{
@@ -860,10 +875,21 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	case TACTICAL_TERRITORY_NO_OWNER:
 	{
 		// Default for this zone
-		eChosenPosture = AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+		eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 
 		if (eOverallDominance == TACTICAL_DOMINANCE_ENEMY)
-			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+		{
+			if (pZone->GetEnemyMeleeStrength() > pZone->GetFriendlyMeleeStrength())
+			{
+				//if we have ranged dominance, keep our risk lower
+				eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_WITHDRAW;
+			}
+			else
+			{
+				//if we have ranged dominance, keep our risk lower
+				eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_EXPLOIT_FLANKS : AI_TACTICAL_POSTURE_WITHDRAW;
+			}
+		}
 
 		break;
 	}
@@ -871,15 +897,18 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	{
 		// Default for this zone
 		eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-
-		if(eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
+		if (pZone->GetOverallEnemyStrength() <= 0 && pZone->GetZoneCity() != NULL && !pZone->GetZoneCity()->IsBastion())
+		{
+			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+		}	
+		else if (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
 		}
 		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
 		{
 			//if we have ranged dominance, keep our risk lower
-			eChosenPosture = (eRangedDominance==TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
+			eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 		}
 
 		break;
@@ -2149,7 +2178,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
 				// Don't want to hammer away to try and take down a city for more than X turns
-				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / 23))
+				if (!IsTemporaryZoneCity(pCity) && (iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / 23))
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -2606,7 +2635,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 #if defined(MOD_BALANCE_CORE)
 					//GGs and GAs need to stay in the DANGER ZONE, but only if there are units near it to support it.
 					int iUnits = 0;
-					if(pUnit->IsGreatAdmiral() || pUnit->IsGreatGeneral())
+					if (pUnit->IsGreatAdmiral() || pUnit->IsGreatGeneral())
 					{
 						//can't use garrison check here. while non-combat units may be in a city, they are not the garrison
 						if(pUnit->plot()->isCity())
@@ -2634,8 +2663,8 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 							}
 						}
 					}
-					//Two or more units nearby? We're staying in the DANGER ZONE.
-					if(iUnits > 1)
+					//Two or more units nearby or we just got here? We're staying in the DANGER ZONE.
+					if(iUnits > 1 || pUnit->IsRecentlyDeployedFromOperation())
 					{
 						bAddUnit = false;
 					}
@@ -3037,9 +3066,23 @@ void CvTacticalAI::PlotHealMoves()
 
 		//allow some more damage outside of our borders
 		if (pUnitPlot->getOwner() != pUnit->getOwner())
+		{
 			iAcceptableDamage = 40;
+			if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1)
+			{
+				if (pUnit->pillage())
+				{
+					if (!pUnit->canMove())
+					{
+						UnitProcessed(pUnit->GetID());
+						continue;
+					}
+				}
+			}
+		}
 
-		if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
+
+		if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
 			m_HealingUnits.insert(pUnit->GetID());
 
 		//units with area damage if fortified should fortify as much as possible if near enemies

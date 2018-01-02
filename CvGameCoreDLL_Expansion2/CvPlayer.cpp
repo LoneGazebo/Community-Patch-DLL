@@ -11275,7 +11275,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		}
 	}
 
-	if(!isBarbarian() && !isHuman())
+	if (!isBarbarian() && !isHuman() && !isMinorCiv())
 	{
 		AI_PERF_FORMAT("AI-perf.csv", ("DoPolicyAI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		GetPlayerPolicies()->DoPolicyAI();
@@ -19542,6 +19542,9 @@ void CvPlayer::DoWarVictoryBonuses()
 }
 int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
+	if (eHistoricEvent == HISTORIC_EVENT_DIG || eHistoricEvent == HISTORIC_EVENT_TRADE_CS)
+		return 0;
+
 	int iEra = GetCurrentEra();
 	if(iEra <= 0)
 	{
@@ -19562,18 +19565,17 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iYieldHandicap = iHandicapBase * (iHandicapA * iEra * iEra + iHandicapB * iEra + iHandicapC) / 100;
 	}
 	if (iYieldHandicap > 0)
-	{
-		
+	{	
 		if (eHistoricEvent == HISTORIC_EVENT_ERA)
 			iYieldHandicap *= 2;
+		else if (eHistoricEvent == HISTORIC_EVENT_GP)
+			iYieldHandicap /= 3;
 		else if (eHistoricEvent != NO_HISTORIC_EVENT_TYPE)
 			iYieldHandicap /= 2;
 
 		bool IncludeCities = true;
 		if (eHistoricEvent == HISTORIC_EVENT_GP ||
 			eHistoricEvent == HISTORIC_EVENT_WONDER ||
-			eHistoricEvent == HISTORIC_EVENT_DIG ||
-			eHistoricEvent == HISTORIC_EVENT_TRADE_CS ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
 		{
@@ -19588,7 +19590,6 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				if (pLoopCity != NULL)
 				{
-					pLoopCity->ChangeJONSCultureStored(iYieldHandicap);
 					pLoopCity->changeFood(iYieldHandicap);
 					pLoopCity->changeProduction(iYieldHandicap);
 				}
@@ -34647,16 +34648,18 @@ void CvPlayer::DoDeficit()
 
 	// If the player has more units than cities, start disbanding things
 #if defined(MOD_BALANCE_CORE)
-	if(isMinorCiv() || isBarbarian())
+	if(isBarbarian())
 	{
 		return;
 	}
-	if(iNumMilitaryUnits > max(5, getNumCities()))
+	int iMax = isMinorCiv() ? ((GetCurrentEra() + 4) * getNumCities()) : max(10, getNumCities());
+	if(iNumMilitaryUnits >= iMax)
 #else
 	if(iNumMilitaryUnits > getNumCities())
 #endif
 	{
-		if(GC.getGame().getJonRandNum(100, "Disband rand") < 50)
+		int iRand = GC.getGame().getJonRandNum(100, "Disband rand");
+		if (iRand < 50)
 		{
 			CvUnit* pLandUnit = NULL;
 			CvUnit* pNavalUnit = NULL;
@@ -34664,13 +34667,15 @@ void CvPlayer::DoDeficit()
 			int iNavalScore = MAX_INT;
 
 			// Look for obsolete land units if in deficit or have sufficient units
-			if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			//if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			if (iRand <= 25)
 			{
 				pLandUnit = GetMilitaryAI()->FindBestUnitToScrap(true /*bLand*/, true /*bDeficitForcedDisband*/, iLandScore);
 			}
 
 			// Look for obsolete naval units if in deficit or have sufficient units
-			if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			//if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			else
 			{
 				pNavalUnit = GetMilitaryAI()->FindBestUnitToScrap(false/*bNaval*/, true /*bDeficitForcedDisband*/, iNavalScore);
 			}
@@ -35483,6 +35488,9 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 		{
 			return false;
 		}
+		if (GET_PLAYER(eToPlayer).getNumUnitsNoCivilian() >= ((GetCurrentEra() + 3) * getNumCities()))
+			return false;
+
 		return true;
 	}
 	return false;
@@ -39062,6 +39070,10 @@ bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
@@ -39107,6 +39119,10 @@ bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsDefensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
@@ -39129,6 +39145,10 @@ bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, b
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
@@ -39154,6 +39174,10 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsDefensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())

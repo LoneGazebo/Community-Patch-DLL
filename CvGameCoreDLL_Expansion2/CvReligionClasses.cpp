@@ -8486,6 +8486,17 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 
 	iRtnValue += iScorePlayer;
 
+
+	//Final calculations
+	if ((pEntry->GetRequiredCivilization() != NO_CIVILIZATION) && (pEntry->GetRequiredCivilization() == m_pPlayer->getCivilizationType()))
+	{
+		iRtnValue *= 10;
+	}
+	if (pEntry->IsFounderBelief() && m_pPlayer->GetPlayerTraits()->IsBonusReligiousBelief())
+	{
+		iRtnValue *= 10;
+	}
+
 	int iRand = 0;
 	if (iRtnValue > 50)
 	{
@@ -8871,23 +8882,25 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldPerLux(iI) > 0)
 		{
-			iTotalRtnValue += (pEntry->GetYieldPerLux(iI) * max(2, iNumLuxuries)) * 5;
-
+			int ModifierValue = 4;
+			
 			if (m_pPlayer->GetPlayerTraits()->GetLuxuryHappinessRetention() || m_pPlayer->GetPlayerTraits()->GetUniqueLuxuryQuantity() != 0 || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 			{
-				iTotalRtnValue *= 2;
+				ModifierValue += 1;
 			}
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
 				if (m_pPlayer->GetPlayerTraits()->GetYieldFromImport((YieldTypes)iJ))
 				{
-					iTotalRtnValue *= 2;
+					ModifierValue += 1;
 				}
 				if (m_pPlayer->GetPlayerTraits()->GetYieldFromExport((YieldTypes)iJ))
 				{
-					iTotalRtnValue *= 2;
+					ModifierValue += 1;
 				}
 			}
+
+			iTotalRtnValue += (pEntry->GetYieldPerLux(iI) * max(2, iNumLuxuries)) * ModifierValue;
 		}
 		if (pEntry->GetYieldPerBorderGrowth(iI) > 0)
 		{
@@ -8926,7 +8939,16 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 #if defined(MOD_BALANCE_CORE_BELIEFS)		
 		if (pEntry->GetYieldPerBirth(iI) > 0)
 		{
-			iTotalRtnValue += (pEntry->GetYieldPerBirth(iI) * (pCity->foodDifferenceTimes100() / 400));
+			int iEvaluator = 400;
+			if (pEntry->IsPantheonBelief())
+			{
+				iEvaluator -= 100;
+			}
+			if (m_pPlayer->GetPlayerTraits()->IsSmaller())
+			{
+				iEvaluator -= 100;
+			}
+			iTotalRtnValue += (pEntry->GetYieldPerBirth(iI) * (pCity->foodDifferenceTimes100() / max(1, iEvaluator)));
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
 				iTotalRtnValue *= 5;
@@ -9616,7 +9638,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	{
 		if (pEntry->GetYieldPerScience(iI) > 0)
 		{
-			iScienceTemp += ((m_pPlayer->GetScience() * 150) / pEntry->GetYieldPerScience(iI));
+			iScienceTemp += ((m_pPlayer->GetScience() * 125) / pEntry->GetYieldPerScience(iI));
 		}
 		if (pEntry->GetYieldFromEraUnlock(iI) > 0)
 		{
@@ -9639,7 +9661,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	{
 		if (pEntry->GetYieldPerGPT(iI) > 0)
 		{
-			iGoldTemp += ((GrossGold * 150) / pEntry->GetYieldPerGPT(iI));
+			iGoldTemp += ((GrossGold * 125) / pEntry->GetYieldPerGPT(iI));
 		}
 	}
 
@@ -10616,12 +10638,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	else
 	{
 		iRtnValue += ((iWarTemp + iHappinessTemp) / 2);
-	}
-
-	//Final calculations
-	if ((pEntry->GetRequiredCivilization() != NO_CIVILIZATION) && (pEntry->GetRequiredCivilization() == m_pPlayer->getCivilizationType()))
-	{
-		iRtnValue *= 100;
 	}
 
 	iRtnValue /= 3;

@@ -11145,14 +11145,17 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && eUN == pProposal->GetEffects()->eLeagueProjectEnabled)
 		{
-			if (bSeekingDiploVictory)
-			{
-				iScore += 5000;
-			}
-
 			if (bSeekingDiploVictory && bStrongProduction)
 			{
-				iScore += 10000;
+				iScore += 2500;
+			}
+			else if (bSeekingDiploVictory)
+			{
+				iScore += 1000;
+			}
+			else
+			{
+				iScore += -500;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
@@ -11160,21 +11163,25 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iVoteRatio = 0;
 			int iFlavorDiplo =  GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 
-			//If FLAVOR_DIPLOMACY is 6+...
-			if((iFlavorDiplo - 6) > 0)
+			//If FLAVOR_DIPLOMACY is 7+...
+			if(iFlavorDiplo >= 7)
 			{
-				iScore += 40 * (iVotes);
+				iScore += 50 * (iVotes);
+			}
+			else
+			{
+				iScore += 10 * (iVotes);
 			}
 			if(iNeededVotes > 0)
 			{
 				iVoteRatio = (iVotes * 100) / iNeededVotes;
 				if(iVoteRatio < 25)
 				{
-					iScore += -500;
+					iScore += -1000;
 				}
 				if(iVoteRatio < 50)
 				{
-					iScore += -250;
+					iScore += -500;
 				}
 				if(iVoteRatio >= 50)
 				{
@@ -11240,10 +11247,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
-		//If Germany, would be dumb for us to embargo city-states.
-		if (GetPlayer()->GetPlayerTraits()->GetVotePerXCSAlliance() > 0)
+		if (GetPlayer()->GetPlayerTraits()->IsDiplomat())
 		{
-			iScore += -1000;
+			iScore += -5000;
 		}
 		//Mongolia, you want this. Also autocracy players.
 		if((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) && (GetPlayer()->GetPlayerTraits()->GetAfraidMinorPerTurnInfluence() > 0) || (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0) || (GetPlayer()->GetCityStateCombatModifier() > 0))
@@ -12572,7 +12578,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if(eTargetPlayer == GetPlayer()->GetID())
 				{
-					iScore -= 400 * max(iAllies, 1);
+					iScore -= 1000 * max(iAllies, 1);
+					if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
+						iScore -= 5000;
 				}
 				else
 				{
@@ -12790,21 +12798,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iIdeologyAlly = 0;
 		PolicyBranchTypes ePlayerIdeology = GET_PLAYER(GetPlayer()->GetID()).GetPlayerPolicies()->GetLateGamePolicyTree();
 		
-		// Player Trait making routes to them valuable (Morocco)
-		for (int i = 0; i < NUM_YIELD_TYPES; i++)
+		if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
 		{
-			YieldTypes e = (YieldTypes) i;
-			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0)
-			{
-				iScore += -50;
-				break;
-			}
-		}
-
-		// Player Trait gives us extra routes, embargoes are bad for business (Venice)
-		if (GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0)
-		{
-			iScore += -50;
+			iScore += -1500;
 		}
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -12819,8 +12815,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					// Trade connections
 					if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), eLoopPlayer))
 					{
-						int iFactor = -25;
-						iScore += MAX(-20, GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eLoopPlayer) * iFactor);
+						int iFactor = -50;
+						iScore += min(-25, GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eLoopPlayer) * iFactor);
 					}
 
 					ThreatTypes eWarmongerThreat = GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
@@ -12829,15 +12825,15 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
-						iScore += 50;
+						iScore += 100;
 					}
 					else if (eWarmongerThreat >= THREAT_SEVERE)
 					{
-						iScore += 100;
+						iScore += 150;
 					}
 					else if (eOpinion < MAJOR_CIV_OPINION_NEUTRAL || eApproach < MAJOR_CIV_APPROACH_GUARDED)
 					{
-						iScore += 100;
+						iScore += 150;
 					}
 
 					iIdeologyOpponent++;
@@ -12861,15 +12857,15 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		if(iAllies > 0)
 		{
-			iScore += (iAllies * 10);
+			iScore += (iAllies * 50);
 		}
 		if(iIdeologyAlly > iIdeologyOpponent)
 		{
-			iScore += (iIdeologyAlly * 15);
+			iScore += (iIdeologyAlly * 25);
 		}
 		else
 		{
-			iScore += iIdeologyOpponent * -15;
+			iScore += iIdeologyOpponent * -25;
 		}
 	}
 #endif

@@ -823,6 +823,10 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 #endif
 		break;
 	case YIELD_FAITH:
+#if defined(MOD_BALANCE_CORE)
+		//No it isn't!
+		fDesiredYield = (GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE() / 3);
+#endif
 		break;
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 	case YIELD_TOURISM:

@@ -5688,7 +5688,7 @@
 			<Text>Ocean Embarkation with Defense</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION_HELP">
-			<Text>Permits hovering units to embark at the coastal/ocean boundary. Embarked units receive a defensive bonus.</Text>
+			<Text>Permits hovering units to embark at the coastal/ocean boundary. Embarked units receive +100% [ICON_STRENGTH] defensive bonus.</Text>
 		</Row>
 
 		<!-- MP Denounce -->
@@ -6718,7 +6718,7 @@
 			<Text>Randomized Victories</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP">
-			<Text>One random Victory Type (Domination, Culture, Diplomatic, or Spaceship) is enabled when any player enters the Information Era. All other victories are disabled (note: Score and Domination Victories are always possible).</Text>
+			<Text>One random Victory Type (Culture, Diplomatic, or Spaceship) is enabled when any player enters the Atomic Era. All other victories are disabled (note: Score and Domination Victories are always possible).</Text>
 		</Row>
 
 		<!-- Egypt CBO-->

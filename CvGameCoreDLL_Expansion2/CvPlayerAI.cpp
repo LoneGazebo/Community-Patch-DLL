@@ -1646,23 +1646,37 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	//if he has a directive, don't change it
-	if (pGreatGeneral->GetGreatPeopleDirective()!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	if (pGreatGeneral->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		return pGreatGeneral->GetGreatPeopleDirective();
 
-	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
+	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
 
 	//in army or recently out of an army?
-	if(pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+	if (pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation() || pGreatGeneral->GetDanger(pGreatGeneral->plot()) > 0)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
-	if(bWar)
+	int iFriendlies = 0;
+	if (bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
 	{
-		CvUnit* pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
-		int iFriendlies = pGreatGeneral->GetNumOwningPlayerUnitsAdjacent(pDefender);
-		if(iFriendlies > 0)
-			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+		iFriendlies++;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot *pLoopPlot = plotDirection(pGreatGeneral->plot()->getX(), pGreatGeneral->plot()->getY(), ((DirectionTypes)iI));
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
+			{
+				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+				if (pUnit != NULL && pUnit->getOwner() == pGreatGeneral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_LAND)
+				{
+					iFriendlies++;
+				}
+			}
+		}
+	}
+	if (iFriendlies > 2)
+	{
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
 	int iGreatGeneralCount = 0;
@@ -1776,7 +1790,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
-	if(pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
+	if(pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation() || pGreatAdmiral->GetDanger(pGreatAdmiral->plot()) > 0)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	int iFriendlies = 0;

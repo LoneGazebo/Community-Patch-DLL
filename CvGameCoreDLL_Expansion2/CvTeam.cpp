@@ -4810,7 +4810,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 			// Create any units we captured, now that we own the destination
 			for(uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
 			{
-				pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex]);
+				pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
 			}
 		}
 	}
