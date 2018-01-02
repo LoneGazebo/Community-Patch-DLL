@@ -3370,6 +3370,7 @@ void CvGame::handleAction(int iAction)
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
 				{
+					GC.getGame().GetGameTrade()->InvalidateTradePathCache(pkHeadSelectedUnit->getOwner());
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_INTERNATIONAL_TRADE_ROUTE, pkHeadSelectedUnit->getOwner());
 					kPopup.iData2 = pkHeadSelectedUnit->getIndex();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);

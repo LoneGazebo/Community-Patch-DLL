@@ -1211,6 +1211,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteRiverModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(GetTradeConnectionDistanceValueModifierTimes100);
+	Method(GetTradeConnectionDistance);
 	Method(GetTradeConnectionOpenBordersModifierTimes100);
 	Method(GetInternationalTradeRouteCorporationModifier);
 	Method(GetInternationalTradeRouteCorporationModifierScience);
@@ -1571,7 +1572,7 @@ int CvLuaPlayer::lIsCityNameValid(lua_State* L)
 }
 #endif
 //------------------------------------------------------------------------------
-//CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION);
+//CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bHistoric = true);
 int CvLuaPlayer::lInitUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -1580,14 +1581,18 @@ int CvLuaPlayer::lInitUnit(lua_State* L)
 	const int y = lua_tointeger(L, 4);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 5, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 6, NO_DIRECTION);
-
+#if defined(MOD_BALANCE_CORE)
+	const bool bHistoric = luaL_optbool(L, 7, true);
+	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, eFacingDirection, false, true, 0, 0, NO_CONTRACT, bHistoric);
+#else
 	CvUnit* pkUnit = pkPlayer->initUnit(eUnit, x, y, eUnitAI, eFacingDirection);
+#endif
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-//CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION);
+//CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bHistoric = true);
 int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -1597,8 +1602,12 @@ int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 	const int y = lua_tointeger(L, 5);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 6, NO_UNITAI);
 	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 7, NO_DIRECTION);
-
+#if defined(MOD_BALANCE_CORE)
+	const bool bHistoric = luaL_optbool(L, 8, true);
+	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, eFacingDirection, false, true, 0, 0, NO_CONTRACT, bHistoric);
+#else
 	CvUnit* pkUnit = pkPlayer->initUnitWithNameOffset(eUnit, iNameOffset, x, y, eUnitAI, eFacingDirection);
+#endif
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
@@ -4535,6 +4544,27 @@ int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 
 	int iResult = pPlayerTrade->GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTradeConnectionDistance(lua_State* L)
+{
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+
+	TradeConnection kTradeConnection;
+	kTradeConnection.SetCities(pOriginCity, pDestCity);
+	kTradeConnection.m_eDomain = eDomain;
+
+	SPath path;
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, kTradeConnection.m_eDomain, &path);
+	if (!bTradeAvailable)
+		return 0;
+
+	int iLength = path.iNormalizedDistance;
+
+	lua_pushinteger(L, iLength);
 	return 1;
 }
 //------------------------------------------------------------------------------

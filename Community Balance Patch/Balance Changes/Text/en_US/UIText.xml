@@ -337,7 +337,11 @@
 			<Text>Gold bonus from [ICON_INFLUENCE] Influence with {1_CityName}: {2_Num}</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_TRO_DISTANCE_VALUE">
+			<Text>- Distance: {1_Num} </Text>
+		</Row>
+
+
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_SORT_MAX_CULTURE">
 			<Text>Highest Culture</Text>
 		</Row>
@@ -1173,9 +1177,5 @@
 		<Row Tag="TXT_KEY_CSTATE_CAN_EMBASSY">
 			<Text>[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]</Text>
 		</Row>
-
-		
-
-		
 	</Language_en_US>
 </GameData>

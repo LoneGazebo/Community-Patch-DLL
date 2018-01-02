@@ -303,33 +303,33 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (pkUnitEntry->GetDomainType() == DOMAIN_SEA && kPlayer.getCapitalCity() != NULL && kPlayer.getCapitalCity()->isCoastal())
 			{
-				int iNumNavalUnits = kPlayer.GetMilitaryAI()->GetNumNavalUnits();
+				int iNumUnits = kPlayer.getNumUnitsNoCivilian();
 
-				if (iNumNavalUnits <= 2)
-					iBonus += max(0, 400 - (iNumNavalUnits * 100));
+				if (iNumUnits <= 2)
+					iBonus += max(0, 400 - (iNumUnits * 100));
 
 				int iNumCities = kPlayer.getNumCities();
 				int iEra = (kPlayer.GetCurrentEra() + 1) * iNumCities;
-				if (iNumNavalUnits <= iEra)
+				if (iNumUnits <= iEra)
 				{
-					iBonus += (iEra - iNumNavalUnits) * 100;
+					iBonus += (iEra - iNumUnits) * 100;
 				}
 				else
 					return 0;
 			}
 			else
 			{
-				int iNumLandUnits = kPlayer.GetMilitaryAI()->GetNumLandUnits();
+				int iNumUnits = kPlayer.getNumUnitsNoCivilian();
 
-				if (iNumLandUnits <= 3)
-					iBonus += 400 - (iNumLandUnits * 100);
+				if (iNumUnits <= 3)
+					iBonus += 400 - (iNumUnits * 100);
 
 				int iNumCities = kPlayer.getNumCities();
 				int iEra = (kPlayer.GetCurrentEra() + 3) * iNumCities;
 
-				if (iNumLandUnits <= iEra)
+				if (iNumUnits <= iEra)
 				{
-					iBonus += (iEra - iNumLandUnits) * 100;
+					iBonus += (iEra - iNumUnits) * 100;
 				}
 				else
 					return 0;

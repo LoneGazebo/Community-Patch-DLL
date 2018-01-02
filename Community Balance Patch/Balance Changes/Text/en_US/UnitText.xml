@@ -3,52 +3,52 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT">
-			<Text>Hovering Unit</Text>
+			<Text>Hovering Unit Embarked</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT_HELP">
-			<Text>Can move over all Terrain and Coastal tiles. Embarks on Ocean tiles.</Text>
+			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] tiles. Embarked units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] tiles and receive +100% [ICON_STRENGTH] defensive bonus.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
 			<Text>Marsh Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
-			<Text>Double movement on Marsh and Flood Plain tiles. Barbarian only.</Text>
+			<Text>Double movement on Marsh and Flood Plain tiles. [COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
 			<Text>White Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
-			<Text>Double movement on Snow tiles. Barbarian only.</Text>
+			<Text>Double movement on Snow tiles. [COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER">
 			<Text>Woods Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER_HELP">
-			<Text>Double movement on Forest and Jungle tiles. Barbarian only.</Text>
+			<Text>Double movement on Forest and Jungle tiles. [COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER">
 			<Text>Desert Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER_HELP">
-			<Text>Double movement on Desert tiles. Barbarian only.</Text>
+			<Text>Double movement on Desert tiles. [COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER">
 			<Text>Coast Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER_HELP">
-			<Text>Allows embarkation. Barbarian only.</Text>
+			<Text>Allows embarkation. [COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER">
 			<Text>Hill Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER_HELP">
-			<Text>Double movement on Hill tiles. Barbarian only.</Text>
+			<Text>Double movement on Hill tiles. [COLOR_NEGATIVE_TEXT]Barbarian only[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST">
@@ -82,19 +82,19 @@
 			<Text>Air Defense I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP">
-			<Text>+5 Damage to Air Units when defending against Air Strikes. Available once you have researched Flight.</Text>
+			<Text>+5 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes. Available once you have researched Flight.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II">
 			<Text>Air Defense II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP">
-			<Text>+5 Damage to Air Units when defending against Air Strikes.</Text>
+			<Text>+5 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III">
 			<Text>Air Defense III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP">
-			<Text>+5 Damage to Air Units when defending against Air Strikes.</Text>
+			<Text>+5 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
 		</Row>
 			
 		<Row Tag="TXT_KEY_UNIT_GUERILLA">
@@ -146,7 +146,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL">
-			<Text>Logistics</Text>
+			<Text>Heal On Kill</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL_HELP">
 			<Text>Heal 15 points when you destoy an enemy unit.</Text>
@@ -171,16 +171,16 @@
 			<Text>Ignores Zone of Control, and attempts to withdraw when faced with a melee attack.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
-			<Text>Bonus v. Gun (25)</Text>
+			<Text>Bonus vs Gunpowder (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I_HELP">
-			<Text>+20% [ICON_STRENGTH] Strength VS Gun (Melee) Units.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II">
-			<Text>Bonus v. Siege (25)</Text>
+			<Text>Bonus vs Siege (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength VS Siege Units.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Siege[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
@@ -213,27 +213,27 @@
 			<Text>Atlatl Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
-			<Text>+50% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units.[COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>+50% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units. [COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Naval Target Penalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
-			<Text>-20% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
+			<Text>-20% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Naval[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY">
 			<Text>Siege Inaccuracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP">
-			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
+			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Land[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY">
 			<Text>Naval Inaccuracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY_HELP">
-			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Land units.</Text>
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Land[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR">
@@ -249,13 +249,13 @@
 			<Text>Covering Fire I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP">
-			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength vs. Armor Units, Fortified Units, and Cities. +20% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -15% [ICON_STRENGTH] Strength.</Text>
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Fortified[ENDCOLOR] Units and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR]. -25% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Armored[ENDCOLOR] Units. +20% [ICON_STRENGTH] Strength when defending. Enemy units within 2 tiles suffer -15% [ICON_STRENGTH] Strength. [COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II">
 			<Text>Covering Fire II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP">
-			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Fortified Units and Cities. +15% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Strength.</Text>
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Fortified[ENDCOLOR] Units and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR]. +10% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Strength. [COLOR_NEGATIVE_TEXT]Lost on upgrade[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT">
 			<Text>Gift of the Pharaoh</Text>
@@ -267,13 +267,13 @@
 			<Text>Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
-			<Text>Flank attack bonus increased by 100%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
+			<Text>Flank attack bonus increased by 200%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
 			<Text>Withering Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]20%[ENDCOLOR] Chance to force an enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]25%[ENDCOLOR] Chance to force an enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION">
@@ -308,7 +308,7 @@
 			<Text>Major Penalty Attacking Cities (75)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY_HELP">
-			<Text>75% Penalty Attacking Cities</Text>
+			<Text>75% Penalty Attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL">
@@ -322,63 +322,63 @@
 			<Text>Brute Force</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_BONUS_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Bonus VS Barbarians</Text>
+			<Text>+33% [ICON_STRENGTH] Combat Bonus VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
 			<Text>Eight Virtues of Bushido</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HELP">
-			<Text>Promotion is replaced with a randomly chosen new promotion after the unit completes its first combat</Text>
+			<Text>Promotion is replaced with a randomly chosen new promotion after the unit completes its first combat.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS">
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. Attack Wounded Mod (20%). +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
 			<Text>Courage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. Attack Mod (15%). +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [COLOR_POSITIVE_TEXT]Attack[ENDCOLOR] bonus. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
 			<Text>Benevolence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. Units in adjacent tiles receive +5 HP when healing. +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. Units in adjacent tiles receive +5 HP when healing. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT">
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength versus Melee and Gun units. +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] Units. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +50% Experience gained from combat. +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +50% Experience gained from combat. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR">
 			<Text>Honor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength outside of friendly lands. +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength outside of friendly lands. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY">
 			<Text>Loyalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength inside friendly lands. +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength inside friendly lands. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 
@@ -386,21 +386,21 @@
 			<Text>Self Control</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength when defending. +10 HP if you destroy an enemy unit</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength when defending. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
-			<Text>+150% [ICON_STRENGTH] Strength versus Air and Helicopter Units</Text>
+			<Text>+150% [ICON_STRENGTH] Strength versus [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_II_HELP">
-			<Text>+150% [ICON_STRENGTH] Strength versus Air and Helicopter Units</Text>
+			<Text>+150% [ICON_STRENGTH] Strength versus [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter[ENDCOLOR] Units.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ARSENALE">
 			<Text>Venetian Craftsmanship</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ARSENALE_HELP">
-			<Text>+10% [ICON_STRENGTH] Strength, +1 [ICON_MOVES] Movement</Text>
+			<Text>+10% [ICON_STRENGTH] Strength, +1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EXPLORER_CBP">
@@ -540,13 +540,13 @@
 			<Text>Firing Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4_HELP">
-			<Text>+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].</Text>
+			<Text>+25% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]above 50 HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4">
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+15% [ICON_RANGE_STRENGTH] Ranged Combat Strength [COLOR_POSITIVE_TEXT]outside[ENDCOLOR] Friendly Territory.</Text>
+			<Text>+15% Ranged [ICON_RANGE_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]outside[ENDCOLOR] Friendly Territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Slipstream</Text>
@@ -558,7 +558,7 @@
 			<Text>Broadside</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4_HELP">
-			<Text>+40% [ICON_RANGE_STRENGTH] Ranged Combat Strength versus [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+			<Text>+40% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4">
 			<Text>Glory Hounds</Text>
@@ -584,7 +584,7 @@
 			<Text>Longboat</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>Costs no [ICON_MOVES] Movement points to Pillage. Gain 200% of damage dealt to Cities as [ICON_GOLD] Gold. Ignores Zone of Control, and takes -20% [ICON_STRENGTH] Damage from Cities.</Text>
+			<Text>Costs no [ICON_MOVES] Movement points to Pillage and gains +25% [ICON_STRENGTH] Combat Strength on pillaged Tiles. Gain 200% of damage dealt to Cities as [ICON_GOLD] Gold. Ignores Zone of Control, and takes -20% [ICON_STRENGTH] Damage from Cities.</Text>
 		</Row>
 
 
@@ -703,24 +703,24 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I">
-			<Text>Penalty vs. Barbarians</Text>
+			<Text>Penalty vs Barbarians (-30)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I_HELP">
-			<Text>-30% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>-30% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II">
-			<Text>Penalty vs. Barbarians</Text>
+			<Text>Penalty vs Barbarians (-20)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II_HELP">
-			<Text>-20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>-20% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III">
-			<Text>Penalty vs. Barbarians</Text>
+			<Text>Penalty vs Barbarians (-10)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III_HELP">
-			<Text>-10% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>-10% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_OCEAN_CROSSING">

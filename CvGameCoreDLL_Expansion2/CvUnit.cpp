@@ -1770,7 +1770,11 @@ void CvUnit::uninitInfos()
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
+#else
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
+#endif
 {
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode;
@@ -2000,7 +2004,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	pUnit->kill(true, NO_PLAYER, bSupply);
+#else
 	pUnit->kill(true, NO_PLAYER, true);
+#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -2008,6 +2016,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
+//      bSupply         - true (default) - grants resources and increases Supply Cap is eligible; false - doesn't grant respurces, doesn't increase Supply Cap
 void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply)
 {
 	//nothing to do
@@ -15905,7 +15914,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pDefender->getDamage() > (pDefender->GetMaxHitPoints() * .5))
+		if (pDefender->getDamage() < (pDefender->GetMaxHitPoints() * .5))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -16423,7 +16432,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pOtherUnit->getDamage() > (pOtherUnit->GetMaxHitPoints() * .5))
+		if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() * .5))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -17402,7 +17411,7 @@ int CvUnit::experienceNeeded() const
 		iExperienceNeeded = (int) ceil(fTemp); // Round up
 	}
 
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if (MOD_BALANCE_CORE_SCALING_XP)
 	{
 		iExperienceNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iExperienceNeeded /= 100;
@@ -20951,12 +20960,18 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
 #if defined(MOD_UNITS_XP_TIMES_100)
-		if (isBarbarian() && iChangeTimes100 > 0)
+	if (isBarbarian() && iChangeTimes100 > 0)
 #else
-		if (isBarbarian() && iChange > 0)
+	if (isBarbarian() && iChange > 0)
 #endif
 	{
 		return;
+	}
+
+	if (MOD_BALANCE_CORE_SCALING_XP && !bFromCombat)
+	{
+		iChangeTimes100 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iChangeTimes100 /= 100;
 	}
 
 #if defined(MOD_UNITS_XP_TIMES_100)
