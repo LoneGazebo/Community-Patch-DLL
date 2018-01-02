@@ -506,16 +506,7 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
 			{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-				int iLandSea = GetMilitaryAI()->GetWarType();
-				if(iLandSea == 2)
-				{
-					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
-				}
-				else
-				{
-					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
-				}
-
+				eDesiredGreatPerson = GetMilitaryAI()->GetWarType() == WARTYPE_SEA ? GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL") : GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
 #else
 				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
 #endif

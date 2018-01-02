@@ -1123,8 +1123,8 @@ void CvTacticalAnalysisMap::LogZones()
 			if ( pZone->GetOverallFriendlyStrength()==0 &&  pZone->GetOverallEnemyStrength()==0)
 				continue;
 
-			szLogMsg.Format("Zone ID: %d, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
-			                pZone->GetDominanceZoneID(), pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
+			szLogMsg.Format("Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
+			                pZone->GetDominanceZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
 			                pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
 			                pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetRangeClosestEnemyUnit());
 			if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)

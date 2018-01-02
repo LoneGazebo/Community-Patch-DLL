@@ -766,7 +766,7 @@ void CvTacticalAI::UpdatePostures()
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
 			{
 				CvString szPostureMsg;
-				szPostureMsg.Format("Zone ID: %d, %s, ", pZone->GetDominanceZoneID(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
+				szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone->GetDominanceZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
 
 				switch(eNewPosture)
 				{
@@ -1642,8 +1642,9 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
-								strLogString.Format("Using move %s for zone %d (city %s - %s)", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
-									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture]);
+								strLogString.Format("Zone %d, %s, using move %s, city of %s, %s)",  
+									pZone->GetDominanceZoneID(), pZone->IsWater() ? "water" : "land",
+									pkMoveInfo ? pkMoveInfo->GetType() : "unknown", pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture]);
 								LogTacticalMessage(strLogString);
 								
 							}
@@ -2011,13 +2012,9 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvString strPlayerName, strCityName, strLogString, strTemp;
-					strPlayerName = m_pPlayer->getCivilizationShortDescription();
-					strCityName = pCity->getName();
-					strLogString.Format("City of ");
-					strLogString += strCityName;
-					strTemp.Format(", is in enemy dominated zone - won't attack, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-					strLogString += strTemp + strPlayerName;
+					CvString strLogString;
+					strLogString.Format("Zone %d, City of %s, is in enemy dominated zone - won't attack, X: %d, Y: %d, ", 
+						pZone->GetDominanceZoneID(), pCity->getName().c_str(), pCity->getX(), pCity->getY());
 					LogTacticalMessage(strLogString);
 				}
 
@@ -2030,13 +2027,9 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvString strPlayerName, strCityName, strLogString, strTemp;
-					strPlayerName = GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
-					strCityName = pCity->getName();
-					strLogString.Format("No units to capture city of ");
-					strLogString += strCityName;
-					strTemp.Format(", skipping, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-					strLogString += strTemp + strPlayerName;
+					CvString strLogString;
+					strLogString.Format("Zone %d, City of %s, no units to capture, X: %d, Y: %d, ", 
+						pZone->GetDominanceZoneID(), pCity->getName().c_str(), pCity->getX(), pCity->getY());
 					LogTacticalMessage(strLogString);
 				}
 				pTarget = GetNextZoneTarget();
@@ -2056,7 +2049,8 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Attempting capture of %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected damage %d", 
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2078,7 +2072,8 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Too early for capture of %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						strLogString.Format("Zone %d, too early for capture of %s, required damage %d, expected damage %d", 
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 				}
@@ -2118,13 +2113,9 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvString strPlayerName, strCityName, strLogString, strTemp;
-					strPlayerName = m_pPlayer->getCivilizationShortDescription();
-					strCityName = pCity->getName();
-					strLogString.Format("City of ");
-					strLogString += strCityName;
-					strTemp.Format(", is in enemy dominated zone - won't attack, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-					strLogString += strTemp + strPlayerName;
+					CvString strLogString;
+					strLogString.Format("Zone %d, City of %s, is in enemy dominated zone - won't attack, X: %d, Y: %d, ", 
+						pZone->GetDominanceZoneID(), pCity->getName().c_str(), pCity->getX(), pCity->getY());
 					LogTacticalMessage(strLogString);
 				}
 
@@ -2138,13 +2129,9 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvString strPlayerName, strCityName, strLogString, strTemp;
-					strPlayerName = m_pPlayer->getCivilizationShortDescription();
-					strCityName = pCity->getName();
-					strLogString.Format("Pulling back from City of ");
-					strLogString += strCityName;
-					strTemp.Format(", no melee support, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-					strLogString += strTemp + strPlayerName;
+					CvString strLogString;
+					strLogString.Format("Zone %d, City of %s, not enough melee support, X: %d, Y: %d, ", 
+						pZone->GetDominanceZoneID(), pCity->getName().c_str(), pCity->getX(), pCity->getY());
 					LogTacticalMessage(strLogString);
 				}
 
@@ -2167,7 +2154,8 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Laying siege to %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						strLogString.Format("Zone %d, Laying siege to %s, required damage %d, expected damage %d", 
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2199,7 +2187,8 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Siege of %s is pointless, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						strLogString.Format("Zone %d, Siege of %s is pointless, required damage %d, expected damage %d", 
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 				}
@@ -2237,13 +2226,9 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
-					CvString strPlayerName, strCityName, strLogString, strTemp;
-					strPlayerName = m_pPlayer->getCivilizationShortDescription();
-					strCityName = pCity->getName();
-					strLogString.Format("City of ");
-					strLogString += strCityName;
-					strTemp.Format(", is in enemy dominated COASTAL zone - won't attack, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
-					strLogString += strTemp + strPlayerName;
+					CvString strLogString;
+					strLogString.Format("Zone %d, City of %s, is in enemy dominated COASTAL zone - won't attack, X: %d, Y: %d, ", 
+						pZone->GetDominanceZoneID(), pCity->getName().c_str(), pCity->getX(), pCity->getY());
 					LogTacticalMessage(strLogString);
 				}
 
@@ -2269,7 +2254,8 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Laying NAVAL siege to %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						strLogString.Format("Zone %d, Laying NAVAL siege to %s, required damage %d, expected damage %d", 
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2301,7 +2287,8 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("NAVAL Siege of %s is pointless, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						strLogString.Format("Zone %d, NAVAL Siege of %s is pointless, required damage %d, expected damage %d", 
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 				}

@@ -351,9 +351,7 @@ void CvMilitaryAI::Reset()
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
 #if defined(MOD_BALANCE_CORE)
 	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		m_aiWarFocus[iI] = 0;
-	}
+		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
 	m_iRecNavySize = 0;
 	m_iFreeCarrier = 0;
 	m_iFreeCargo = 0;
@@ -6008,7 +6006,7 @@ void CvMilitaryAI::MinorAttackTest()
 	}
 }
 //Gets the type of war the player is, overall, facing (used to decide production). 1 is land, 2 is sea (thanks, Paul Revere).
-int CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
+WarTypes CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 {
 	int iLand = 0;
 	int iSea = 0;
@@ -6021,28 +6019,23 @@ int CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				int iWar = GetWarType(eLoopPlayer);
-				if (iWar == 1)
+				if (iWar == WARTYPE_LAND)
 				{
 					iLand++;
 				}
-				else if (iWar == 2)
+				else if (iWar == WARTYPE_SEA)
 				{
 					iSea++;
 				}
 			}
-
 		}
-		if (iLand >= iSea)
-		{
-			return 1;
-		}
-		else
-		{
-			return 2;
-		}
+		
+		return (iLand >= iSea) ? WARTYPE_LAND : WARTYPE_SEA;
 	}
-	return m_aiWarFocus[ePlayer];
+
+	return (WarTypes)m_aiWarFocus[ePlayer];
 }
+
 void CvMilitaryAI::UpdateWarType()
 {
 	int iEnemyWater = 0;
@@ -6247,7 +6240,7 @@ void CvMilitaryAI::UpdateWarType()
 				iFriendlyLand += (iFriendlyLandCities / 10);
 			}
 
-			if (iEnemyWater > iFriendlySea && m_aiWarFocus[eLoopPlayer] != 2)
+			if (iEnemyWater > iFriendlySea && m_aiWarFocus[eLoopPlayer] != WARTYPE_SEA)
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -6256,9 +6249,9 @@ void CvMilitaryAI::UpdateWarType()
 					strLogString.Format("War Type versus %s now WATER. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
 					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
-				m_aiWarFocus[eLoopPlayer] = 2;
+				m_aiWarFocus[eLoopPlayer] = WARTYPE_SEA;
 			}
-			else if (iEnemyLand > iFriendlyLand && (iEnemyLand != 0) && m_aiWarFocus[eLoopPlayer] != 1)
+			else if (iEnemyLand > iFriendlyLand && (iEnemyLand != 0) && m_aiWarFocus[eLoopPlayer] != WARTYPE_LAND)
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -6267,11 +6260,11 @@ void CvMilitaryAI::UpdateWarType()
 					strLogString.Format("War Type versus %s now LAND. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
 					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
-				m_aiWarFocus[eLoopPlayer] = 1;
+				m_aiWarFocus[eLoopPlayer] = WARTYPE_LAND;
 			}
 			else
 			{
-				m_aiWarFocus[eLoopPlayer] = 0;
+				m_aiWarFocus[eLoopPlayer] = WARTYPE_UNDEFINED;
 			}		
 		}
 	}

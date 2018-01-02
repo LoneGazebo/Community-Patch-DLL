@@ -625,7 +625,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 						if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 						{
-							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == 2)
+							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_SEA)
 							{
 								iValue *= 5;
 							}
@@ -635,7 +635,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							}
 						}
 					}
-					if (kPlayer.GetMilitaryAI()->GetWarType() == 2)
+					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_SEA)
 					{
 						iValue *= 10;
 					}
@@ -667,7 +667,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 						if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 						{
-							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == 1)
+							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
 							{
 								iValue *= 5;
 							}
@@ -677,7 +677,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							}
 						}
 					}
-					if (kPlayer.GetMilitaryAI()->GetWarType() == 1)
+					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND)
 					{
 						iValue *= 10;
 					}
@@ -1378,11 +1378,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE || kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
 					{
-						if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && eDomain == DOMAIN_LAND)
+						if(kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND && eDomain == DOMAIN_LAND)
 						{
 							iBonus += 500;
 						}
-						else if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && eDomain == DOMAIN_SEA)
+						else if(kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_SEA && eDomain == DOMAIN_SEA)
 						{
 							iBonus += 500;
 						}
