@@ -871,9 +871,6 @@ public:
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
 
-	int GetCycleOrder() const;
-	void SetCycleOrder(int iNewValue);
-
 	bool IsRecentlyDeployedFromOperation() const;
 	void SetDeployFromOperationTurn(int iTurn)
 	{
@@ -1782,7 +1779,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHotKeyNumber;
 	FAutoVariable<int, CvUnit> m_iDeployFromOperationTurn;
 	FAutoVariable<int, CvUnit> m_iLastMoveTurn;
-	short m_iCycleOrder;
 	FAutoVariable<int, CvUnit> m_iReconX;
 	FAutoVariable<int, CvUnit> m_iReconY;
 	FAutoVariable<int, CvUnit> m_iReconCount;
