@@ -531,8 +531,8 @@ INSERT INTO CityEventChoices (Type,Description,Help,DisabledTooltip,EventChoiceA
  ('CITY_EVENT_NOMADS_CHOICE_3','TXT_KEY_CITY_EVENT_NOMADS_CHOICE_3','TXT_KEY_CITY_EVENT_NOMADS_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,1,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_NOMADS_CHOICE_4','TXT_KEY_CITY_EVENT_NOMADS_CHOICE_4','TXT_KEY_CITY_EVENT_NOMADS_CHOICE_4_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','true','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
- ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_2','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,3,0,4,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
- ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_3','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,15,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false');
+ ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_2','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,1,0,3,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
+ ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_3','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,10,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false');
 
 INSERT INTO CityEvent_EventLinks (CityEventType,Event,EventChoice,CityEventLinker,CityEventChoice,CheckKnownPlayers,CheckOnlyEventCity,CheckForActive) VALUES ('CITY_EVENT_DROUGHT',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_2',NULL,NULL,'false','false','true'),
  ('CITY_EVENT_DROUGHT_SEVERE',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_3',NULL,NULL,'false','false','true'),
@@ -579,7 +579,7 @@ INSERT INTO CityEventChoice_MinimumStartYield (CityEventChoiceType,YieldType,Yie
  ('CITY_EVENT_HURRICANE_CHOICE_3','YIELD_GOLD',500),
  ('CITY_EVENT_HURRICANE_CHOICE_4','YIELD_GOLD',500),
  ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_GOLD',500),
- ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','YIELD_POPULATION',6);
+ ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','YIELD_POPULATION',4);
 
 INSERT INTO CityEventChoice_ResourceQuantity (CityEventChoiceType,ResourceType,Quantity) VALUES ('CITY_EVENT_MINE_COLLAPSE_CHOICE_3','RESOURCE_OIL',1);
 
@@ -610,7 +610,7 @@ INSERT INTO CityEventChoice_InstantYield (CityEventChoiceType,YieldType,Yield) V
  ('CITY_EVENT_HURRICANE_CHOICE_3','YIELD_POPULATION',-4),
  ('CITY_EVENT_HURRICANE_CHOICE_4','YIELD_POPULATION',-3),
  ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_POPULATION',-2),
- ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','YIELD_POPULATION',-5);
+ ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','YIELD_POPULATION',-3);
 
 INSERT INTO CityEventChoice_ImprovementYieldChange (CityEventChoiceType,ImprovementType,YieldType,YieldChange) VALUES ('CITY_EVENT_DROUGHT_CHOICE_1','IMPROVEMENT_FARM','YIELD_FOOD',-1),
  ('CITY_EVENT_SEVERE_DROUGHT_CHOICE_1','IMPROVEMENT_FARM','YIELD_FOOD',-1),
