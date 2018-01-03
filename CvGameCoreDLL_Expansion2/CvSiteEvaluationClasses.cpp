@@ -801,19 +801,18 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// AI only (and not for initial city)
 	if (pPlayer && !pPlayer->isHuman() && pPlayer->getNumCities()>0)
 	{
-		int iOwnCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
-
 		//check if this location can be defended (from majors)
+		int iOwnCityDistanceTurns = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
 			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
-				int iEnemyDistance = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+				int iEnemyDistanceTurns = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
 				int iEnemyMight = kNeighbor.GetMilitaryMight();
 				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
-				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRangeTurns))
+				if (iEnemyDistanceTurns < max(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
 				{
 					//stay away if we are weak
 					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
@@ -834,6 +833,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 		// where is our personal sweet spot?
 		// this is handled in plots, not in turns
+		int iOwnCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
 		int iMinDistance = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer->isMinorCiv())
 		{
