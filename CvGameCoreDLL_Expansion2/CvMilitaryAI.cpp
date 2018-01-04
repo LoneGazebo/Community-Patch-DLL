@@ -4795,8 +4795,10 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 
 	if (m_pPlayer->isMinorCiv())
 	{
-		if (m_pPlayer->getNumMilitaryUnits() < m_pPlayer->getTotalPopulation() / 2)
+		if (m_pPlayer->getNumUnitsNoCivilian() < min(3, ((m_pPlayer->GetCurrentEra() + 2) * m_pPlayer->getNumCities())))
 			return;
+		else
+			bInDeficit = true;
 
 		if (m_pPlayer->IsAtWar())
 			return;
@@ -4809,8 +4811,11 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	}
 
 	// Are we running at a deficit?
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+	if (!bInDeficit)
+	{
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+	}
 
 	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));

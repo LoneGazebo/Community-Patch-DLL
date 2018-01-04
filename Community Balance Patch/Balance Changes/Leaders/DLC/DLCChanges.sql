@@ -246,7 +246,7 @@ INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
 VALUES
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
-	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 50);
+	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 25);
 
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)

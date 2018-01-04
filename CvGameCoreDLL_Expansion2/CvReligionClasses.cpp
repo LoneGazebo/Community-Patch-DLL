@@ -8867,7 +8867,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	{
 		if (pEntry->GetYieldPerPop(iI) > 0)
 		{
-			iTotalRtnValue += (pEntry->GetYieldPerPop(iI) * pCity->getPopulation() * pCity->getPopulation()) / 4;
+			iTotalRtnValue += (pEntry->GetYieldPerPop(iI) * pCity->getPopulation() * pCity->getPopulation()) / 5;
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
 				iTotalRtnValue *= 2;
@@ -8882,7 +8882,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldPerLux(iI) > 0)
 		{
-			int ModifierValue = 4;
+			int ModifierValue = 2;
 			
 			if (m_pPlayer->GetPlayerTraits()->GetLuxuryHappinessRetention() || m_pPlayer->GetPlayerTraits()->GetUniqueLuxuryQuantity() != 0 || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 			{
@@ -8925,7 +8925,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 
 			if (pEntry->GetGreatPersonPoints(eGP) > 0)
 			{
-				iTotalRtnValue += pEntry->GetGreatPersonPoints(eGP) * 3;
+				iTotalRtnValue += pEntry->GetGreatPersonPoints(eGP) * 2;
 			}
 		}
 	}

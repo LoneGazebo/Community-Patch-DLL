@@ -35482,7 +35482,7 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 		{
 			return false;
 		}
-		if (GET_PLAYER(eToPlayer).getNumUnitsNoCivilian() >= ((GetCurrentEra() + 3) * getNumCities()))
+		if (GET_PLAYER(eToPlayer).getNumUnitsNoCivilian() > max(3, ((GetCurrentEra() + 2) * getNumCities())))
 			return false;
 
 		return true;
@@ -35556,17 +35556,16 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 		PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
 		if (eLoopMinor != NO_PLAYER)
 		{
-			if (!CanGiftUnit(eLoopMinor))
-				continue;
-
 			CvPlayer* eMinor = &GET_PLAYER(eLoopMinor);
-			if (eMinor)
+			if (eMinor && eMinor->isAlive())
 			{
 				CvCity* pCity = eMinor->getCapitalCity();
 				if (pCity == NULL)
 					continue;
 
 				//First, the exclusions!
+				if (!CanGiftUnit(eLoopMinor))
+					continue;
 
 				//Initializations...
 				int iScore = 0;

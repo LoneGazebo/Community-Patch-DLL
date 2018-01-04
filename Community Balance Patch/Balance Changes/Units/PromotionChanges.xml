@@ -760,7 +760,7 @@
 		<Replace>
 			<Type>PROMOTION_AIR_AMBUSH_2</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_AMBUSH_2</Description>
-			<Help>TXT_KEY_PROMOTION_AIR_AMBUSH_1_HELP</Help>
+			<Help>TXT_KEY_PROMOTION_AIR_AMBUSH_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<NumInterceptionChange>1</NumInterceptionChange>
 			<PromotionPrereqOr1>PROMOTION_AIR_AMBUSH_1</PromotionPrereqOr1>
@@ -804,7 +804,7 @@
 		<Replace>
 			<Type>PROMOTION_REPAIR</Type>
 			<Description>TXT_KEY_PROMOTION_REPAIR</Description>
-			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<Help>TXT_KEY_PROMOTION_REPAIR_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>7</OrderPriority>
@@ -817,7 +817,7 @@
 		<Replace>
 			<Type>PROMOTION_AIR_REPAIR</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_REPAIR</Description>
-			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<Help>TXT_KEY_PROMOTION_AIR_REPAIR_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_2</PromotionPrereqOr2>
@@ -832,8 +832,8 @@
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_AIR_LOGISTICS</Type>
-			<Description>TXT_KEY_PROMOTION_LOGISTICS</Description>
-			<Help>TXT_KEY_PROMOTION_LOGISTICS_HELP</Help>
+			<Description>TXT_KEY_PROMOTION_AIR_LOGISTICS</Description>
+			<Help>TXT_KEY_PROMOTION_AIR_LOGISTICS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_AIR_SIEGE_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr2>
@@ -844,7 +844,7 @@
 			<PortraitIndex>30</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_LOGISTICS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AIR_LOGISTICS</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_EVASION</Type>
@@ -1456,15 +1456,15 @@
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_CITY_ASSAULT</Type>
-			<Description>TXT_KEY_PROMOTION_CITY_ASSUALT</Description>
-			<Help>TXT_KEY_PROMOTION_CITY_ASSUALT_HELP</Help>
+			<Description>TXT_KEY_PROMOTION_CITY_ASSUALT</Description> <!-- Typo here! -->
+			<Help>TXT_KEY_PROMOTION_CITY_ASSUALT_HELP</Help> <!-- Typo here! -->
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CityAttack>300</CityAttack>
 			<PortraitIndex>59</PortraitIndex>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CITY_ASSUALT</PediaEntry>
+			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CITY_ASSUALT</PediaEntry> <!-- Typo here! -->
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_DEFENSE_PENALTY</Type>
@@ -2599,7 +2599,7 @@
 		<Replace>
 			<Type>PROMOTION_NAVAL_BONUS</Type>
 			<Description>TXT_KEY_PROMOTION_NAVAL_BONUS</Description>
-			<Help>TXT_KEY_PROMOTION_NAVAL_BONUS</Help>
+			<Help>TXT_KEY_PROMOTION_NAVAL_BONUS_HELP</Help>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>59</PortraitIndex>
@@ -3082,7 +3082,6 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>99</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
-			<InstaHeal>true</InstaHeal>
 			<CaptureDefeatedEnemy>true</CaptureDefeatedEnemy>
 			<FlankAttackModifier>100</FlankAttackModifier>
 			<PortraitIndex>59</PortraitIndex>
@@ -3197,7 +3196,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaType>PEDIA_AIR</PediaType>
 			<EmbarkedDeepWater>true</EmbarkedDeepWater>
 			<AllowsEmbarkation>true</AllowsEmbarkation>
 			<EmbarkedAllWater>true</EmbarkedAllWater>

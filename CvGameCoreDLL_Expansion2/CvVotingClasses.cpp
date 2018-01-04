@@ -12375,6 +12375,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				else
 					iScore *= 2;
 			}
+			iScore *= 2;
+			iScore /= 3;
 		}
 	}
 	// Sphere of Influence - City-States
@@ -12399,7 +12401,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			eProximity = GET_PLAYER(eTargetCityState).GetProximityToPlayer(ePlayer);
 			
 			int iInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
-			iInfluence /= 4;
+			iInfluence /= 3;
 
 			if (eProposer == ePlayer)
 			{

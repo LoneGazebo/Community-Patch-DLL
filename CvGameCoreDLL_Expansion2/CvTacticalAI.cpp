@@ -2054,7 +2054,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			//If don't have units to actually conquer, ignore.
 			if(!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),2,1))
 			{
-				if(GC.getLogging() && GC.getAILogging())
+				if (pZone && GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					strLogString.Format("Zone %d, City of %s, no units to capture, X: %d, Y: %d, ", 

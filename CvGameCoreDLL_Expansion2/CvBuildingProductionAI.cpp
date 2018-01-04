@@ -620,7 +620,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iPoverty *= -1;
 				bTested = true;
-				iBonus += (iUnhappyGold * iPoverty * 100);
+				iBonus += (iUnhappyGold * iPoverty * 50);
 				bGoodforHappiness = true;
 				bGoodforGPT = true;
 			}
@@ -632,7 +632,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iCrime *= -1;
 				bTested = true;
-				iBonus += (iUnhappyDefense * iCrime * 100);
+				iBonus += (iUnhappyDefense * iCrime * 50);
 				bGoodforHappiness = true;
 			}
 		}
@@ -643,7 +643,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iReligion *= -1;
 				bTested = true;
-				iBonus += (iUnhappyReligion * iReligion * 100);
+				iBonus += (iUnhappyReligion * iReligion * 50);
 				bGoodforHappiness = true;
 			}
 		}
@@ -654,7 +654,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBoredom *= -1;
 				bTested = true;
-				iBonus += (iUnhappyCulture * iBoredom * 100);
+				iBonus += (iUnhappyCulture * iBoredom * 50);
 				bGoodforHappiness = true;
 			}
 		}
@@ -665,7 +665,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iIlliteracy *= -1;
 				bTested = true;
-				iBonus += (iUnhappyScience * iIlliteracy * 100);
+				iBonus += (iUnhappyScience * iIlliteracy * 50);
 				bGoodforHappiness = true;
 			}
 		}
@@ -724,10 +724,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iDefense += 100;
 		}
 	}
-	if (m_pCity->IsBastion() || iCrime > 0)
-	{
-		iDefense *= 15;
-	}
+	//if (m_pCity->IsBastion() || iCrime > 0)
+	//{
+	//	iDefense *= 15;
+	//}
+	int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
+	int iDefenseMod = 0;
+	if (m_pCity->IsBastion()) iDefenseMod += 10;
+	if (iCrime > 0) iDefenseMod += iCrime/2;
+	if (iUnhappyDefense > 0) { iDefenseMod += iUnhappyDefense*2; if (!m_pCity->IsBastion()) iDefenseMod += iUnhappyDefense; }
+	if (iDefenseMod > 0) iDefense *= iDefenseMod;
+
 	iBonus += iDefense;
 
 	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
@@ -811,15 +818,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Espionage!
 	if (pkBuildingInfo->GetBlockBuildingDestruction() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 30);
+		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 50);
 	}
 	if (pkBuildingInfo->GetBlockWWDestruction() > 0)
 	{
-		iBonus += (m_pCity->getNumWorldWonders() * 10);
+		iBonus += (m_pCity->getNumWorldWonders() * 25);
 	}
 	if (pkBuildingInfo->GetBlockUDestruction() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 30);
+		iBonus += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 50);
 	}
 	if (pkBuildingInfo->GetBlockGPDestruction() > 0)
 	{
@@ -828,16 +835,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetBlockRebellion() > 0)
 	{
 		//Less happy = better!
-		iBonus += (50 - kPlayer.GetHappiness());
+		iBonus += (100 - kPlayer.GetHappiness());
 	}
 	if (pkBuildingInfo->GetBlockUnrest() > 0)
 	{
 		//Less happy = better!
-		iBonus += (40 - kPlayer.GetHappiness());
+		iBonus += (50 - kPlayer.GetHappiness());
 	}
 	if (pkBuildingInfo->GetBlockScience() > 0)
 	{
-		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 40);
+		iBonus += (m_pCity->getYieldRate(YIELD_SCIENCE, false) / 50);
 	}
 	if (pkBuildingInfo->GetBlockGold() > 0)
 	{
@@ -949,6 +956,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Let's look at yield bonuses.
 	int iYieldValue = 0;
 
+	bool bSmall = m_pCity->getPopulation() < 10 && !m_pCity->isCapital();
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
@@ -970,10 +978,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		if ((iYieldValue > 0) || (iYieldTrait > 0))
 		{
-			//Help with poverty
 			switch (eYield)
 			{
 			case YIELD_GOLD:
+				if (bSmall)
+					iYieldValue /= 3;
 				if (iGPT <= 10)
 				{
 					iYieldValue += (iGPT * -25);
@@ -988,26 +997,48 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				break;
 			case YIELD_SCIENCE:
+				if (bSmall)
+					iYieldValue /= 4;
 				if (iIlliteracy > 0)
 				{
 					iYieldValue += (iIlliteracy * 100);
 					bGoodforHappiness = true;
-					break;
 				}
+				break;
 			case YIELD_FAITH:
+				if (bSmall)
+					iYieldValue /= 4;
 				if (iReligion > 0)
 				{
 					iYieldValue += (iReligion * 100);
 					bGoodforHappiness = true;
-					break;
 				}
+				break;
 			case YIELD_CULTURE:
+				if (bSmall)
+					iYieldValue *= 3;
 				if (iBoredom > 0)
 				{
 					iYieldValue += (iBoredom * 100);
 					bGoodforHappiness = true;
-					break;
 				}
+				break;
+			case YIELD_PRODUCTION:
+				if (bSmall)
+					iYieldValue *= 5;
+				break;
+			case YIELD_FOOD:
+				if (bSmall)
+					iYieldValue *= 5;
+				break;
+			case YIELD_TOURISM:
+				if (bSmall)
+					iYieldValue = 0;
+				break;
+			case YIELD_GOLDEN_AGE_POINTS:
+				if (bSmall)
+					iYieldValue = 0;
+				break;
 			}
 			
 			//Puppets should focus on yield buildings.
@@ -1114,7 +1145,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA)
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 8) - eEra);
+				//int iEraValue = ((kPlayer.GetCurrentEra() * 8) - eEra);
+				int iEraValue = ((kPlayer.GetCurrentEra() - eEra) * 12);
 				if (iEraValue > 0)
 				{
 					iBonus += (100 * iEraValue);
@@ -1123,7 +1155,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			//No Era? Zero!
 			else
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 8));
+				int iEraValue = ((kPlayer.GetCurrentEra() * 12)); //was 8
 				if (iEraValue > 0)
 				{
 					iBonus += (75 * iEraValue);
@@ -1133,7 +1165,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	else
 	{
-		int iEraValue = ((kPlayer.GetCurrentEra() * 8));
+		int iEraValue = ((kPlayer.GetCurrentEra() * 12)); //was 8
 		if (iEraValue > 0)
 		{
 			iBonus += (75 * iEraValue);

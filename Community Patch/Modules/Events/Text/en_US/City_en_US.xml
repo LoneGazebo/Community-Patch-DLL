@@ -635,36 +635,36 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_SUCCESSFUL_S">
 			<Text>Nomadic retaliation against {2_City}!</Text>
 		</Row>
-		
+
 		<!-- Rebels -->
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS">
-			<Text>Trouble Brewing</Text>
+			<Text>La Resistance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_HELP">
 			<Text>Threats against your rule continue to grow in the City, and your advisors are worried that it may spill over into violence. You need to root out this resistance before it grows too strong. Your options are limited, however:</Text>
 		</Row>
-			
+
 
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1">
 			<Text>They'll never expect the inqusition!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1_HELP">
-			<Text>The City loses 5 [ICON_CITIZEN] Population.</Text>
+			<Text>The City loses 3 [ICON_CITIZEN] Population.</Text>
 		</Row>
-			
-			
+
+
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2">
 			<Text>Bait the rebels out - we'll crush them with our military power.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2_HELP">
-			<Text>Four Rebel units spawn near the City, and the City enters [ICON_RESISTANCE] Resistance for 3 Turns.</Text>
+			<Text>Three Rebel units spawn near the City, and the City enters [ICON_RESISTANCE] Resistance for 1 Turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3">
 			<Text>Quarantine the rebels. They may take part of the city, but that's unavoidable.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3_HELP">
-			<Text>15% chance that each building in the City will be destroyed.</Text>
+			<Text>10% chance that each building in the City will be destroyed.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

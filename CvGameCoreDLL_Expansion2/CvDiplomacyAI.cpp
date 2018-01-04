@@ -41114,7 +41114,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// Reduce score based on number of his vassals
 	iWantVassalageScore -= 20 * kTheirTeam.GetNumVassals();
 
-	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
+	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD() + 25;
 
 	return (iWantVassalageScore > iThreshold);
 }

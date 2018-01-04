@@ -198,6 +198,13 @@ INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements,
 			('ART_DEF_UNIT_FIELD_GUN'), UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, ('0'), ('7'), ('COMMUNITY_2_ATLAS'), ('FIELD_GUN_FLAG_ATLAS')
 	FROM Units WHERE (Type = 'UNIT_ARTILLERY');
 
+INSERT INTO Unit_Flavors
+	(UnitType, FlavorType, Flavor)
+VALUES
+	('UNIT_FIELD_GUN', 'FLAVOR_RANGED', 12),
+	('UNIT_FIELD_GUN', 'FLAVOR_OFFENSE', 5),
+	('UNIT_FIELD_GUN', 'FLAVOR_DEFENSE', 5);
+
 INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
 	SELECT 'UNIT_FIELD_GUN', SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_ARTILLERY');

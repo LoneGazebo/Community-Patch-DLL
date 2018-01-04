@@ -453,7 +453,7 @@ SET Text = 'Fast and powerful Industrial Era Unit. Receives a penalty when attac
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PANZER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
-SET Text = 'This unit is much cheaper than the Pikeman, and can pillage without using any movement points. Steals gold when attacking a city. Unlocked through completing the Authority Policy Branch, these units may not be built; they must be purchased through gold. May move immediately after purchase.'
+SET Text = 'This unit is much cheaper than the Pikeman, can pillage without using any movement points, and receives full XP from the city when purchased. Steals gold when attacking a city. Unlocked through completing the Authority Policy Branch, these units may not be built; they must be purchased through gold. May move immediately after purchase.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LANDSKNECHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 
@@ -482,7 +482,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Mounted melee and Armor units deal more flanking damage and capture units, and defeated Barbarians in Encampments join you. When you gain Grassland or Plains tiles naturally, adjacent unowned tiles of the same type are also claimed.'
+SET Text = 'Mounted Melee/Armor units deal more flanking damage and capture units. 75% chance that defeated Barbarians in Encampments join you. When gaining Grassland/Plains tiles naturally, adjacent unowned Grassland/Plains tiles are claimed.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US 
