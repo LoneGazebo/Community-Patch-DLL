@@ -126,10 +126,10 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 #endif
 
 			// Multiply the weight by any special player-specific weighting (i.e. to prioritize civ unique bonuses)
-			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech);
+			paiTempWeights[iTech] *= max(1, m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetCivTechPriority(eTech));
 
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking resources)
-			paiTempWeights[iTech] *= m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech);
+			paiTempWeights[iTech] *= max(1, m_pCurrentTechs->GetPlayer()->GetPlayerTechs()->GetLocaleTechPriority(eTech));
 
 #if defined(MOD_BALANCE_CORE)
 			// Multiply the weight by any locale-specific weighting (i.e. to prioritize unlocking grand strategy stuff)

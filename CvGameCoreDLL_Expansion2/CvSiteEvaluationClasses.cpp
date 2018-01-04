@@ -385,7 +385,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iDefaultPlotValue = -100;
 
 	//this is in plots
-	int iBorderlandRange = 6;
+	int iBorderlandRangeTurns = 4;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -801,29 +801,28 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// AI only (and not for initial city)
 	if (pPlayer && !pPlayer->isHuman() && pPlayer->getNumCities()>0)
 	{
-		int iOwnCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
-
 		//check if this location can be defended (from majors)
+		int iOwnCityDistanceTurns = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
 			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
-				int iEnemyDistance = kNeighbor.GetCityDistanceInPlots(pPlot);
+				int iEnemyDistanceTurns = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
 				int iEnemyMight = kNeighbor.GetMilitaryMight();
 				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
-				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRange))
+				if (iEnemyDistanceTurns < max(iOwnCityDistanceTurns - 1, iBorderlandRangeTurns))
 				{
 					//stay away if we are weak
-					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.3f - iBoldnessDelta*0.05f))
+					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
 					{
 						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
 					}
 
 					//landgrab if the neighbor is weak
-					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.3f - iBoldnessDelta*0.05f))
+					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
 					{
 						iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 						if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
@@ -834,6 +833,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 		// where is our personal sweet spot?
 		// this is handled in plots, not in turns
+		int iOwnCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
 		int iMinDistance = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer->isMinorCiv())
 		{

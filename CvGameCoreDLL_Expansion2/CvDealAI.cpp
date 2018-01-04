@@ -6401,6 +6401,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		iWarScore *= -1;
 	}
 #endif
+
+	//strategic warscore adjustment
+	if (!pLosingPlayer->HasCityInDanger(false,0))
+		iWarScore = max(0, iWarScore - 10);
+
 	int iPercentGoldToGive = iWarScore;
 	int iPercentGPTToGive = (iWarScore / 2);
 	bool bGiveUpCities = (iWarScore > 60);
@@ -6409,7 +6414,6 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	bool bGiveUpLuxuryResources = (iWarScore > 15);
 	int iGiveUpLuxResources = iWarScore;
 	int iGiveUpStratResources = (iWarScore / 4);
-
 
 	pDeal->AddPeaceTreaty(eWinningPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
 	pDeal->AddPeaceTreaty(eLosingPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
@@ -6432,15 +6436,13 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		// Loop through all of the loser's Cities, looking only at valid ones.
 		for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
 		{
-			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ false, NULL);
-			
-			if (iCurrentCityValue == INT_MAX)
+			//skip the capital, it cannot be traded away
+			if (pLoopCity->isCapital())
 				continue;
 
-			if(pLoopCity->isCapital())
-			{
+			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ false, NULL);
+			if (iCurrentCityValue == INT_MAX)
 				continue;
-			}
 
 			// If winner has no capital, Distance defaults to 0
 			if(pWinnerCapital != NULL)
@@ -6456,15 +6458,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 			iCurrentCityValue += (iCityDistanceFromWinnersCapital * 10);
 
-			//Give value boost to damaged cities (as they're probably the target city).
-			iCurrentCityValue += (pLoopCity->getDamage() * 10);
-
-			// Get total city value of the loser
+			//add up total city value of the loser (before danger and damage adjustment)
 			iTotalCityValue += iCurrentCityValue;
 
-			// Don't include the capital in the list of Cities the winner can receive
-			if(!pLoopCity->isCapital())
-				viCityProximities.push_back(pLoopCity->GetID(), iTotalCityValue);
+			//Remember for later
+			viCityProximities.push_back(pLoopCity->GetID(), iCurrentCityValue);
 		}
 
 		// Sort the vector based on distance from winner's capital
@@ -6473,8 +6471,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 		// Determine the value of Cities to be given up
 		int iCityValueToSurrender = iTotalCityValue * iPercentCitiesGiveUp / 100;
-		bool bSecondPass = false;
-		// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
+		// Loop through sorted Cities and add them to the deal if they're under the amount to give up
+		// Start from the back of the list, because that's where the cheapest cities are
 		for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
 		{
 			iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
@@ -6485,11 +6483,15 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				continue;
 
 			// City is worth less than what is left to be added to the deal, so add it
-			if((!bSecondPass || (iCurrentCityValue < iCityValueToSurrender)) && iCurrentCityValue > 0)
+			if (iCurrentCityValue < iCityValueToSurrender && iCurrentCityValue > 0)
 			{
-				bSecondPass = true;
 				pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 				iCityValueToSurrender -= iCurrentCityValue;
+
+				//Frontline cities count more than they're worth. Ideally they should satisfy the winner?
+				iCityValueToSurrender -= (pLoopCity->getDamage() * 10);
+				if (pLosingPlayer->GetPlotDanger(*pLoopCity->plot(),pLoopCity) > 0)
+					iCityValueToSurrender -= iCurrentCityValue / 10;
 			}
 		}
 	}

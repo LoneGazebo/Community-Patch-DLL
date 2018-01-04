@@ -2095,7 +2095,7 @@ local function GetProductionTooltip( city )
 			strModifiersString = strModifiersString .. L( "TXT_KEY_PRODMOD_FOOD_CONVERSION", productionFromFood / 100 )
 		end
 	end
-	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ), productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
+	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ) + city:GetYieldPerPopTimes100( yieldID ) * city:GetPopulation() / 100, productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
 
 	-- Basic explanation of production
 	if isNoob then
@@ -2236,7 +2236,7 @@ local function GetCultureTooltip( city )
 
 	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
 	if(trculture ~= "") then
-		tips:append( L("[NEWLINE][ICON_BULLET]" .. trculture))
+		tips:append( L(trculture))
 	end
 
 	if civ5_mode then
@@ -2616,6 +2616,11 @@ local function GetFaithTooltip( city )
 		-- Puppet modifier
 		if (not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+		end
+		
+		local trfaith = city:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
+		if(trfaith ~= "") then
+			tips:append( L(trfaith))
 		end
 
 		-- Citizens breakdown

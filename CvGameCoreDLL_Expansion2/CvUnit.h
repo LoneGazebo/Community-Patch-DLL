@@ -333,7 +333,7 @@ public:
 	bool airlift(int iX, int iY);
 
 	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;
-	bool canNuke(const CvPlot* pPlot) const;
+	bool canNuke() const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
 	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const;
@@ -870,9 +870,6 @@ public:
 
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
-
-	int GetCycleOrder() const;
-	void SetCycleOrder(int iNewValue);
 
 	bool IsRecentlyDeployedFromOperation() const;
 	void SetDeployFromOperationTurn(int iTurn)
@@ -1611,6 +1608,8 @@ public:
 		return (m_iBaseCombat > 0);
 	}
 
+	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
+
 	bool IsCanAttackWithMove() const;
 	bool IsCanAttackRanged() const;
 	bool IsCanAttack() const;
@@ -1740,12 +1739,12 @@ public:
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
-	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, int* piTurns = NULL);
+	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=true, bool bAllowEmbark=true, int* piTurns = NULL);
 	void ClearPathCache();
 	void ClearReachablePlots();
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
-	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
+	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef, bool ForcedCapture = false);
 
 protected:
 	const MissionData* HeadMissionData() const;
@@ -1780,7 +1779,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iHotKeyNumber;
 	FAutoVariable<int, CvUnit> m_iDeployFromOperationTurn;
 	FAutoVariable<int, CvUnit> m_iLastMoveTurn;
-	short m_iCycleOrder;
 	FAutoVariable<int, CvUnit> m_iReconX;
 	FAutoVariable<int, CvUnit> m_iReconY;
 	FAutoVariable<int, CvUnit> m_iReconCount;
@@ -2131,8 +2129,6 @@ protected:
 	mutable uint m_uiLastPathLength;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
-
-	CvUnit* airStrikeTarget(CvPlot& pPlot, bool bNoncombatAllowed) const;
 
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);

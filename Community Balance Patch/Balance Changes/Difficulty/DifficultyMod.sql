@@ -24,7 +24,7 @@ SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'ERA_RENAISSANCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-SET StartingMinorDefenseUnits = '2'
+SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'ERA_INDUSTRIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
@@ -32,11 +32,11 @@ SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'ERA_MODERN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-SET StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'ERA_POSTMODERN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-SET StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'ERA_FUTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
@@ -64,7 +64,7 @@ SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'HANDICAP_IMMORTAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'HANDICAP_DEITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- Goody Hut Payout

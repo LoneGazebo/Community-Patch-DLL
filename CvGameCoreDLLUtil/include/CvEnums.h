@@ -1731,6 +1731,13 @@ enum DomainTypes
 	NUM_DOMAIN_TYPES
 };
 
+enum WarTypes
+{
+	WARTYPE_UNDEFINED = 0,
+	WARTYPE_LAND,
+	WARTYPE_SEA,
+};
+
 enum UnitClassTypes		
 {
 	NO_UNITCLASS = -1,

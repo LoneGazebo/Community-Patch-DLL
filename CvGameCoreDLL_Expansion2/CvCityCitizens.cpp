@@ -605,11 +605,18 @@ void CvCityCitizens::DoTurn()
 									SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
 								}
 							}
-							else if (eYield == YIELD_FAITH && bBuildingReligion)
+							else if (eYield == YIELD_FAITH)
 							{
-								if (GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+								if (bBuildingReligion)
 								{
-									SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+									if (GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+									{
+										SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+									}
+								}
+								else if(GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+								{	
+									SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
 								}
 							}
 							else if (eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))

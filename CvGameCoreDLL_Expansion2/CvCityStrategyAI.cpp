@@ -823,6 +823,10 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 #endif
 		break;
 	case YIELD_FAITH:
+#if defined(MOD_BALANCE_CORE)
+		//No it isn't!
+		fDesiredYield = (GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE() / 3);
+#endif
 		break;
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 	case YIELD_TOURISM:
@@ -4694,7 +4698,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop.
-		int iValue = ((pkBuildingInfo->GetYieldChangePerPop(eYield) * pCity->getPopulation()) / 50);
+		int iValue = (pCity->getPopulation() * 100 / pkBuildingInfo->GetYieldChangePerPop(eYield));
 		if (iValue > 0)
 		{
 			iFlatYield += iValue;
@@ -4751,9 +4755,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				{
 					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 5);
 				}
-				else
+				else if (pCity->canConstruct(eBuildingLoop))
 				{
 					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield) * 2);
+				}
+				else
+				{
+					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield));
 				}
 			}
 		}
@@ -5087,7 +5095,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
+		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
 		{
 			iInstant += kPlayer.GetCapitalGrowthMod();
@@ -5201,8 +5209,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//If we are deficient in this yield, increase the flat yield's value to compensate.
 	if (pCity->GetCityStrategyAI()->GetFocusYield() == eYield || pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 	{
-		iFlatYield *= 2;
-		iModifier *= 2;
+		iFlatYield *= 5;
+		iModifier *= 5;
 	}
 
 	//Math time! Let's see how this affects our city.
@@ -5214,7 +5222,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (iDelta <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iFlatYield *= 4;
+			iFlatYield *= 5;
 		}
 
 		//And here's what the value represents.
@@ -5754,11 +5762,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
-		iValue += -5 * (((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())) * ((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier())));
+		iValue += 5 * abs((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()) * abs(kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()));
 	}
 	if(pkBuildingInfo->GetPlotBuyCostModifier() < 0)
 	{
-		iValue += -5 * (((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())) * ((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())));
+		iValue += 5 * abs((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier())) * abs((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier()));
 	}
 	if(pkBuildingInfo->GetNumTradeRouteBonus())
 	{
@@ -6141,6 +6149,21 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
 
 		iValue += (iNumNearbyCities / 10);
+	}
+
+	//Is this a prereq for another building we can build right now? 
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding2 = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo(eBuilding2);
+
+		if (pkBuildingInfo2 && pkBuildingInfo2->GetPrereqAndTech() != NO_TECH && kPlayer.HasTech((TechTypes)pkBuildingInfo2->GetPrereqAndTech()))
+		{
+			if (pkBuildingInfo2->GetNeedBuildingThisCity() == eBuilding)
+			{
+				iValue += 1000;
+			}
+		}
 	}
 
 	return iValue;

@@ -547,7 +547,7 @@
 			<Strategy>TXT_KEY_BUILDING_SEOWON_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_UNIVERSITY</ArtDefineTag>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-			<SpecialistCount>2</SpecialistCount>
+			<SpecialistCount>1</SpecialistCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<HurryCostModifier>15</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -945,7 +945,7 @@
 			<MutuallyExclusiveGroup>10</MutuallyExclusiveGroup>
 			<RequiresRail>true</RequiresRail>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
-			<SpecialistCount>2</SpecialistCount>
+			<SpecialistCount>1</SpecialistCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
