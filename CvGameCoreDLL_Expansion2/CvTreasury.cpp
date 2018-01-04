@@ -86,7 +86,7 @@ void CvTreasury::DoGold()
 	iGoldChange = m_pPlayer->calculateGoldRateTimes100();
 
 	int iGoldAfterThisTurn = iGoldChange + GetGoldTimes100();
-	if(iGoldAfterThisTurn < 0)
+	if (iGoldAfterThisTurn < 0 || m_pPlayer->isMinorCiv())
 	{
 		SetGold(0);
 

@@ -150,7 +150,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	//////
 	//WAR
 	///////
-	if (eProcess != GC.getInfoTypeForString("PROCESS_DEFENSE"))
+	if (pProcess->getDefenseValue() == 0)
 	{
 		//Fewer processes while at war.
 		if (!m_pCity->IsPuppet())
@@ -202,7 +202,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		{
 			int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 			if (iNumWar > 0)
-			{		
+			{
 				if (m_pCity->isUnderSiege())
 				{
 					iModifier += 500;
@@ -227,6 +227,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				else
 					return 0;
 			}
+			else
+				return 0;
 		}
 		//Tiny army? Eek!
 		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
@@ -246,7 +248,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			iModifier += (m_pCity->getUnhappinessFromDefense() * 5);
 		}
 
-		iModifier *= pProcess->getDefenseValue();
+		iModifier *= (pProcess->getDefenseValue() + 100);
 		iModifier /= 100;
 
 		if (kPlayer.isMinorCiv())

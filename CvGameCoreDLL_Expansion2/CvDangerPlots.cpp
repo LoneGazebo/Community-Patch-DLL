@@ -30,20 +30,8 @@ CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
 	, m_bArrayAllocated(false)
 	, m_bDirty(false)
+	, m_DangerPlots(NULL)
 {
-	m_fMajorWarMod = GC.getAI_DANGER_MAJOR_APPROACH_WAR();
-	m_fMajorHostileMod = GC.getAI_DANGER_MAJOR_APPROACH_HOSTILE();
-	m_fMajorDeceptiveMod = GC.getAI_DANGER_MAJOR_APPROACH_DECEPTIVE();
-	m_fMajorGuardedMod = GC.getAI_DANGER_MAJOR_APPROACH_GUARDED();
-	m_fMajorAfraidMod = GC.getAI_DANGER_MAJOR_APPROACH_AFRAID();
-	m_fMajorFriendlyMod = GC.getAI_DANGER_MAJOR_APPROACH_FRIENDLY();
-	m_fMajorNeutralMod = GC.getAI_DANGER_MAJOR_APPROACH_NEUTRAL();
-	m_fMinorNeutralMinorMod = GC.getAI_DANGER_MINOR_APPROACH_NEUTRAL();
-	m_fMinorFriendlyMod = GC.getAI_DANGER_MINOR_APPROACH_FRIENDLY();
-	m_fMinorBullyMod = GC.getAI_DANGER_MINOR_APPROACH_BULLY();
-	m_fMinorConquestMod = GC.getAI_DANGER_MINOR_APPROACH_CONQUEST();
-
-	m_DangerPlots = NULL;
 }
 
 /// Destructor
@@ -81,7 +69,7 @@ void CvDangerPlots::Uninit()
 	m_bDirty = false;
 }
 
-bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibility, bool bRemember)
+bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC)
 {
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
@@ -89,12 +77,10 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	//for ranged every plot we can enter with movement left is a base for attack
 	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
 
-	//use the worst case assumption here, no ZOC (all intervening units have been killed)
-	//ideally we would use a NO_ZOC_FROM_WEAK_UNITS flag, but that would mean a crude hack or a recursion
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
-	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),set<int>());
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_SELECTIVE_ZOC;
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),iFlags,iMinMovesLeft,pLoopUnit->maxMoves(),plotsToIgnoreForZOC);
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
@@ -130,15 +116,32 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 			m_DangerPlots[aNeighbors[iI]->GetPlotIndex()].m_bEnemyAdjacent = true;
 	}
 
-	//only track invisible attackers for AI players
-	if (bRemember && !GET_PLAYER(m_ePlayer).isHuman())
-		AddKnownAttacker(pLoopUnit->getOwner(),pLoopUnit->GetID());
-
 	return true;
 }
 
 /// Updates the danger plots values to reflect threats across the map
-void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibility, bool bKeepKnownUnits)
+void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
+{
+	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
+	set<int> plotsWithOwnedUnitsLikelyToBeKilled;
+
+	//first pass
+	UpdateDangerInternal(true, plotsWithOwnedUnitsLikelyToBeKilled);
+
+	//find out which units might die and therefore won't have a ZOC
+	int iLoop;
+	for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
+			plotsWithOwnedUnitsLikelyToBeKilled.insert( pLoopUnit->plot()->GetPlotIndex() );
+	}
+
+	//second pass
+	if (!plotsWithOwnedUnitsLikelyToBeKilled.empty() || !bKeepKnownUnits)
+		UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
+}
+
+void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC)
 {
 	// danger plots have not been initialized yet, so no need to update
 	if(!m_bArrayAllocated)
@@ -171,33 +174,33 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		if(eTeam == thisTeam)
 			continue;
 
-		if(ShouldIgnorePlayer(ePlayer) && !bPretendWarWithAllCivs)
+		if(ShouldIgnorePlayer(ePlayer))
 			continue;
 
 		//for each unit
 		int iLoop;
-		CvUnit* pLoopUnit = NULL;
-		for(pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
+		for(CvUnit* pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
-			if (UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility, true))
+			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
 			{
+				//remember for next turn in case they move out of sight (only for AI players)
+				if (!GET_PLAYER(m_ePlayer).isHuman())
+					m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
+
 				//if there are invisible plots next to this unit, other enemies might be hiding there
-				if (!bIgnoreVisibility)
+				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
+				for (int i = 0; i < 6; i++)
 				{
-					CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
-					for (int i = 0; i < 6; i++)
+					CvPlot* pNeighbor = aNeighbors[i];
+					if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
 					{
-						CvPlot* pNeighbor = aNeighbors[i];
-						if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
+						//only ring 1 for now
+						for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
 						{
-							//only ring 1 for now
-							for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
-							{
-								CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
-								if (pPlot)
-									//note: we accept duplicate indices in m_fogDanger by design
-									m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
-							}
+							CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
+							if (pPlot)
+								//note: we accept duplicate indices in m_fogDanger by design
+								m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
 						}
 					}
 				}
@@ -205,10 +208,9 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		}
 
 		// for each city
-		CvCity* pLoopCity;
-		for(pLoopCity = loopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = loopPlayer.nextCity(&iLoop))
+		for(CvCity* pLoopCity = loopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = loopPlayer.nextCity(&iLoop))
 		{
-			if(ShouldIgnoreCity(pLoopCity, bIgnoreVisibility))
+			if(ShouldIgnoreCity(pLoopCity, false))
 				continue;
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
@@ -244,22 +246,20 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		if (ShouldIgnorePlayer(it->first))
 			continue;
 
-		if (m_knownUnits.find(*it) == m_knownUnits.end() || bKeepKnownUnits)
+		if (m_knownUnits.find(*it) == m_knownUnits.end())
 		{
+			//it's still there, but moved out of sight - nevertheless count it, a human would do that as well
 			CvUnit* pVanishedUnit = GET_PLAYER(it->first).getUnit(it->second);
 
-			//it's still there, but moved out of sight - nevertheless count is, a human would do that as well
 			//do not add it to the known units though, so next turn we will have forgotten about it
 			if (pVanishedUnit)
-				UpdateDangerSingleUnit(pVanishedUnit, true, false);
+				UpdateDangerSingleUnit(pVanishedUnit, true, plotsToIgnoreForZOC);
 		}
 	}
 
-	int iPlotLoop;
-	CvPlot* pPlot, *pAdjacentPlot;
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		if(pPlot->isRevealed(thisTeam))
 		{
@@ -275,16 +275,14 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
 			if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() > 0)
 			{
-				if(!ShouldIgnoreCitadel(pPlot, bIgnoreVisibility))
+				if(!ShouldIgnoreCitadel(pPlot, false))
 				{
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
-						pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+						CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
 						if(pAdjacentPlot != NULL)
-						{
 							m_DangerPlots[iPlotLoop].m_pCitadel = pPlot;
-						}
 					}
 				}
 			}
@@ -292,9 +290,8 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	}
 
 	// testing city danger values
-	CvCity* pLoopCity;
 	int iLoopCity = 0;
-	for(pLoopCity = thisPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoopCity))
+	for(CvCity* pLoopCity = thisPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoopCity))
 	{
 		//adding danger would count each unit multiple times, is biased towards fast units
 		//so we pretend they would all attack the city and tally up the damage
@@ -331,12 +328,12 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, PlayerTypes ePlayer)
 	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(ePlayer);
 }
 
-bool CvDangerPlots::isEnemyUnitAdjacent(const CvPlot & Plot) const
+bool CvDangerPlots::isEnemyCombatUnitAdjacent(const CvPlot & Plot, bool bSameDomain) const
 {
 	if(!m_bArrayAllocated)
 		return false;
 
-	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyUnitAdjacent();
+	return m_DangerPlots[Plot.GetPlotIndex()].isEnemyCombatUnitAdjacent(m_ePlayer,bSameDomain);
 }
 
 /// Return the maximum amount of damage a city could take at this plot
@@ -371,114 +368,40 @@ std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) con
 	return m_DangerPlots[Plot.GetPlotIndex()].GetPossibleAttackers();
 }
 
-void CvDangerPlots::ResetDangerCache(const CvPlot & Plot)
+void CvDangerPlots::ResetDangerCache(const CvPlot* pCenterPlot, int iRange)
 {
-	m_DangerPlots[Plot.GetPlotIndex()].resetCache();
-}
+	iRange = range(iRange, 0, 5);
 
-bool CvDangerPlots::IsKnownAttacker(PlayerTypes eOwner, int iUnitID) const
-{
-	return m_knownUnits.find(std::make_pair(eOwner, iUnitID)) != m_knownUnits.end();
-}
-
-void CvDangerPlots::AddKnownAttacker(PlayerTypes eOwner, int iUnitID)
-{
-	m_knownUnits.insert(std::make_pair(eOwner, iUnitID));
-}
-
-//	------------------------------------------------------------------------------------------------
-//	Returns true if the relationship of the danger plots owner and the input player and plot owner
-//	would result in a 0 danger.  This helps avoid costly path finder calls if the end result will be 0.
-bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlot)
-{
-	CvAssertMsg(pPlot, "No plot passed in?");
-	bool bIgnoreInFriendlyTerritory = false;
-
-	// Full value if a player we're at war with
-	if(GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	// clear cached danger in the vicinity
+	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
+		CvPlot* pPlot = iterateRingPlots(pCenterPlot, i);
+		if (pPlot)
+			m_DangerPlots[pPlot->GetPlotIndex()].resetCache();
+	}
+}
+
+bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
+{
+	if (!pUnit)
 		return false;
-	}
 
-	// if it's a human player, ignore neutral units
-	if(GET_PLAYER(m_ePlayer).isHuman())
-	{
-		return true;
-	}
-
-	bool bResultMultiplierIsZero = false;
-	if(GET_PLAYER(m_ePlayer).isMinorCiv())  // if the evaluator is a minor civ
-	{
-		if(!GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))  // and they're not at war with the other player
-		{
-			bIgnoreInFriendlyTerritory = true; // ignore friendly territory
-		}
-	}
-	else if(!GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		// should we be using bHideTrueFeelings?
-		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false))
-		{
-		case MAJOR_CIV_APPROACH_WAR:
-			bResultMultiplierIsZero = m_fMajorWarMod == 0.f;
-			break;
-		case MAJOR_CIV_APPROACH_HOSTILE:
-			bResultMultiplierIsZero = m_fMajorHostileMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			bResultMultiplierIsZero = m_fMajorDeceptiveMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MAJOR_CIV_APPROACH_GUARDED:
-			bResultMultiplierIsZero = m_fMajorGuardedMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MAJOR_CIV_APPROACH_AFRAID:
-			bResultMultiplierIsZero = m_fMajorAfraidMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MAJOR_CIV_APPROACH_FRIENDLY:
-			bResultMultiplierIsZero = m_fMajorFriendlyMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MAJOR_CIV_APPROACH_NEUTRAL:
-			bResultMultiplierIsZero = m_fMajorNeutralMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		}
-	}
-	else
-	{
-		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMinorCivApproach(ePlayer))
-		{
-		case MINOR_CIV_APPROACH_IGNORE:
-			bResultMultiplierIsZero = m_fMinorNeutralMinorMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MINOR_CIV_APPROACH_FRIENDLY:
-			bResultMultiplierIsZero = m_fMinorFriendlyMod == 0.f;
-			bIgnoreInFriendlyTerritory = true;
-			break;
-		case MINOR_CIV_APPROACH_BULLY:
-			bResultMultiplierIsZero = (m_fMinorBullyMod == 0.f);
-			break;
-		case MINOR_CIV_APPROACH_CONQUEST:
-			bResultMultiplierIsZero = m_fMinorConquestMod == 0.f;
-			break;
-		}
-	}
-
-	// if the plot is in our own territory and, with the current approach, we should ignore danger values in our own territory
-	// zero out the value
-	if(pPlot && pPlot->getOwner() == m_ePlayer && bIgnoreInFriendlyTerritory)
-	{
-		return true;
-	}
-
-	return bResultMultiplierIsZero;
+	return m_knownUnits.find(std::make_pair(pUnit->getOwner(), pUnit->GetID())) != m_knownUnits.end();
 }
 
+void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
+{
+	if (!pUnit)
+		return;
+
+	if (!IsKnownAttacker(pUnit))
+	{
+		UpdateDangerSingleUnit(pUnit, false, set<int>()); //for simplicity, assume no ZOC by owned units
+		m_knownUnits.insert(std::make_pair(pUnit->getOwner(), pUnit->GetID()));
+
+		ResetDangerCache(pUnit->plot(), 3);
+	}
+}
 
 /// Should this player be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
@@ -534,7 +457,7 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 }
 
 /// Should this unit be ignored when creating the danger plots?
-bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
+bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility)
 {
 	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit)
 		return true;
@@ -566,7 +489,7 @@ bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 }
 
 /// Should this city be ignored when creating the danger plots?
-bool CvDangerPlots::ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility)
+bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility)
 {
 	// ignore unseen cities
 	if(!pCity->isRevealed(GET_PLAYER(m_ePlayer).getTeam(), false)  && !bIgnoreVisibility)
@@ -606,36 +529,22 @@ bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibi
 
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the unit
-void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
+void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 {
-	if (!m_bArrayAllocated)
+	if (!m_bArrayAllocated || !pUnit || !pPlot)
 		return;
 
-	if (IsDangerByRelationshipZero(pUnit->getOwner(), pPlot))
-		return;
-
-	if(GC.getGame().getGameTurn() <= 1)
-		return;
-
-	const int iPlotX = pPlot->getX();
-	const int iPlotY = pPlot->getY();
-	const int idx = GC.getMap().plotNum(iPlotX, iPlotY);
-	
-	m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+	m_DangerPlots[ pPlot->GetPlotIndex() ].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
 }
 
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the city
-void CvDangerPlots::AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot)
+void CvDangerPlots::AssignCityDangerValue(const CvCity* pCity, CvPlot* pPlot)
 {
-	if (!m_bArrayAllocated)
+	if (!m_bArrayAllocated || !pCity || !pPlot)
 		return;
 
-	if (IsDangerByRelationshipZero(pCity->getOwner(), pPlot))
-		return;
-
-	const int idx = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-	m_DangerPlots[idx].m_apCities.push_back( std::make_pair(pCity->getOwner(),pCity->GetID()) );
+	m_DangerPlots[pPlot->GetPlotIndex()].m_apCities.push_back( std::make_pair(pCity->getOwner(),pCity->GetID()) );
 }
 
 /// reads in danger plots info
@@ -1214,3 +1123,16 @@ std::vector<CvUnit*> CvDangerPlotContents::GetPossibleAttackers() const
 	return vResult;
 }
 
+bool CvDangerPlotContents::isEnemyCombatUnitAdjacent(PlayerTypes ePlayer, bool bSameDomain) const
+{ 
+	if (!m_bEnemyAdjacent || !m_pPlot)
+		return false;
+
+	//need to recheck, enemy could have been killed in the meantime
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		if (aNeighbors[iI] && aNeighbors[iI]->isEnemyUnit(ePlayer, true, true) && (aNeighbors[iI]->getDomain()==m_pPlot->getDomain() || !bSameDomain))
+			return true;
+
+	return false;
+}

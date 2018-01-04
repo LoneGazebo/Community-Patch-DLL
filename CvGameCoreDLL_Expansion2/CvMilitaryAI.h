@@ -349,7 +349,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void MinorAttackTest();
-	int GetWarType(PlayerTypes ePlayer = NO_PLAYER);
+	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)

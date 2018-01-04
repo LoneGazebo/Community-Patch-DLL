@@ -323,7 +323,7 @@ public:
 
 	bool canContinueProduction(OrderData order);
 	int getProductionExperience(UnitTypes eUnit = NO_UNIT);
-	void addProductionExperience(CvUnit* pUnit, bool bConscript = false);
+	void addProductionExperience(CvUnit* pUnit, bool bConscript = false, bool bGoldPurchase = false);
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;
@@ -1401,7 +1401,7 @@ public:
 	const OrderData* tailOrderQueueNode() const;
 	bool CleanUpQueue(void);  // remove items in the queue that are no longer valid
 
-	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true);
+	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true, bool bIsPurchase = false);
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);
 

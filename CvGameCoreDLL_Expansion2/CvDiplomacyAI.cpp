@@ -7893,7 +7893,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			return true;
 	}
 
-	if (GET_PLAYER(ePlayer).HasCityAboutToBeConquered() && !m_pPlayer->HasCityAboutToBeConquered())
+	if (GET_PLAYER(ePlayer).HasCityInDanger(true,0) && !m_pPlayer->HasCityInDanger(true,0))
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
@@ -41114,7 +41114,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// Reduce score based on number of his vassals
 	iWantVassalageScore -= 20 * kTheirTeam.GetNumVassals();
 
-	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
+	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD() + 25;
 
 	return (iWantVassalageScore > iThreshold);
 }

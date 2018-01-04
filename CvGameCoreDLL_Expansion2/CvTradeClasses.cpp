@@ -3204,6 +3204,10 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 	if (m_pPlayer->GetPlayerTraits()->IsIgnoreTradeDistanceScaling())
 		return 0;
 
+	//distance scaling doesn't apply to internal trade
+	if (kTradeConnection.m_eDestOwner == kTradeConnection.m_eOriginOwner)
+		return 0;
+
 	CvCity* pOriginCity = NULL;
 	CvPlot* pStartPlot = GC.getMap().plot(kTradeConnection.m_iOriginX, kTradeConnection.m_iOriginY);
 	if (pStartPlot)
@@ -4976,11 +4980,6 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {
 	int iRange = 0;
-
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	int iRouteModifier = GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
-#endif
-
 	int iBaseRange = 0;
 	switch (eDomain)
 	{
@@ -5014,15 +5013,9 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 		// not implemented
 		iTraitRange = 0;
 #endif
-#if defined(MOD_BALANCE_CORE)
-		m_pPlayer->getTradeRouteSeaDistanceModifier();
-#endif
 		break;
 	case DOMAIN_LAND:
 		iTraitRange = m_pPlayer->GetPlayerTraits()->GetLandTradeRouteRangeBonus();
-#if defined(MOD_BALANCE_CORE)
-		m_pPlayer->getTradeRouteLandDistanceModifier();
-#endif
 		break;
 	}
 
@@ -5035,9 +5028,15 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 		{
 		case DOMAIN_SEA:
 			iRangeModifier = pOriginCity->GetTradeRouteSeaDistanceModifier();
+#if defined(MOD_BALANCE_CORE)
+			iRangeModifier += m_pPlayer->getTradeRouteSeaDistanceModifier();
+#endif
 			break;
 		case DOMAIN_LAND:
 			iRangeModifier = pOriginCity->GetTradeRouteLandDistanceModifier();
+#if defined(MOD_BALANCE_CORE)
+			iRangeModifier += m_pPlayer->getTradeRouteLandDistanceModifier();
+#endif
 			break;
 		}
 	}
@@ -5064,10 +5063,14 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 	iRange = iBaseRange;
 	iRange += iTraitRange;
 	iRange += iExtendedRange;
+
 #if defined(MOD_TRADE_ROUTE_SCALING)
-	iRange = (iRange * iRouteModifier) / 100;
+	int iRouteModifier = GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
+#else
+	int iRouteModifier = 0;
 #endif
-	iRange = (iRange * (100 + iRangeModifier)) / 100;
+
+	iRange = (iRange * (100 + iRouteModifier + iRangeModifier)) / 100;
 	return iRange;
 }
 

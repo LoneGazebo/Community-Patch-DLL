@@ -589,12 +589,12 @@
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Corporation_TradeRouteMod>
 	<Corporation_TradeRouteCityYield>
@@ -1333,12 +1333,12 @@
 		<Row>
 			<BuildingType>BUILDING_GIORGIO_ARMEIER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FIRAXITE_MATERIALS</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>

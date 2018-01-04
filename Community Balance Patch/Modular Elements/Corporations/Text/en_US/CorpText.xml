@@ -554,7 +554,7 @@
 			<Text>+4 [ICON_GOLD] Gold for every Global Franchise, +1 [ICON_GOLD] Gold on all Trader Sid's Monopoly Resources near the City, and [ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TRADER_SIDS">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from owned Cities with a Trader Sid's Office to foreign Cities with a Trader Sid's Franchise produce +50% additional [ICON_GOLD] Gold.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from owned Cities with a Trader Sid's Office to foreign Cities with a Trader Sid's Franchise produce +25% additional [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: +{1_Num} [ICON_GOLD] Gold.</Text>
@@ -725,7 +725,7 @@
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Office.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER">
-			<Text>+3 [ICON_CULTURE] Culture for every Global Franchise, +1 [ICON_HAPPINESS_1] Happiness, and +1 [ICON_CULTURE] Culture on Giorgio Armeier Monopoly Resources.</Text>
+			<Text>+2 [ICON_CULTURE] Culture for every Global Franchise, +1 [ICON_HAPPINESS_1] Happiness, and +1 [ICON_CULTURE] Culture on Giorgio Armeier Monopoly Resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Giorgio Armeier Franchise grant +10% [ICON_CULTURE] Culture to the origin City.</Text>
@@ -767,10 +767,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP">
-			<Text>+1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +3 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
+			<Text>+1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS">
@@ -783,10 +783,10 @@
 			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Office.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_FIRAXITE_MATERIALS">
-			<Text>+3 [ICON_RESEARCH] Science for every Global Franchise, +1 [ICON_RESEARCH] Science on Firaxite Materials Monopoly Resources, and +20% [ICON_PRODUCTION] Production when constructing Buildings.</Text>
+			<Text>+2 [ICON_RESEARCH] Science for every Global Franchise, +1 [ICON_RESEARCH] Science on Firaxite Materials Monopoly Resources, and +20% [ICON_PRODUCTION] Production when constructing Buildings.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_FIRAXITE_MATERIALS">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Firaxite Materials Franchise produce double their normal amount of [ICON_RESEARCH] Science.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +50% additional [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: +{1_Num} [ICON_RESEARCH] Science.</Text>
@@ -825,10 +825,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
-			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City, and +1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. +3 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce double their normal amount of [ICON_RESEARCH] Science.</Text>
+			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City, and +1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce double their normal amount of [ICON_RESEARCH] Science.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS">
