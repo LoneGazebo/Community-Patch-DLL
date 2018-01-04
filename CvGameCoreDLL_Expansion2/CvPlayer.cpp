@@ -422,7 +422,6 @@ CvPlayer::CvPlayer() :
 	, m_ppaaiSpecialistExtraYield("CvPlayer::m_ppaaiSpecialistExtraYield", m_syncArchive)
 	, m_ppaaiImprovementYieldChange("CvPlayer::m_ppaaiImprovementYieldChange", m_syncArchive)
 	, m_ppaaiBuildingClassYieldMod("CvPlayer::m_ppaaiBuildingClassYieldMod", m_syncArchive)
-	, m_UnitCycle(this)
 	, m_bEverPoppedGoody("CvPlayer::m_bEverPoppedGoody", m_syncArchive)
 	, m_bEverTrainedBuilder("CvPlayer::m_bEverTrainedBuilder", m_syncArchive)
 	, m_iCityConnectionHappiness("CvPlayer::m_iCityConnectionHappiness", m_syncArchive)
@@ -1280,10 +1279,7 @@ void CvPlayer::uninit()
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiBuildingClassYieldMod.clear();
 
-	m_UnitCycle.Clear();
-
 	m_researchQueue.clear();
-
 	m_cityNames.clear();
 
 	// loop through all entries freeing them up
@@ -32388,8 +32384,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 			if(GetID() == kGame.getActivePlayer())
 			{
-				GetUnitCycler().Rebuild();
-
 				if(DLLUI->GetLengthSelectionList() == 0)
 				{
 					DLLUI->setCycleSelectionCounter(1);
@@ -35488,7 +35482,7 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 		{
 			return false;
 		}
-		if (GET_PLAYER(eToPlayer).getNumUnitsNoCivilian() >= ((GetCurrentEra() + 3) * getNumCities()))
+		if (GET_PLAYER(eToPlayer).getNumUnitsNoCivilian() > max(3, ((GetCurrentEra() + 2) * getNumCities())))
 			return false;
 
 		return true;
@@ -35562,17 +35556,16 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 		PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
 		if (eLoopMinor != NO_PLAYER)
 		{
-			if (!CanGiftUnit(eLoopMinor))
-				continue;
-
 			CvPlayer* eMinor = &GET_PLAYER(eLoopMinor);
-			if (eMinor)
+			if (eMinor && eMinor->isAlive())
 			{
 				CvCity* pCity = eMinor->getCapitalCity();
 				if (pCity == NULL)
 					continue;
 
 				//First, the exclusions!
+				if (!CanGiftUnit(eLoopMinor))
+					continue;
 
 				//Initializations...
 				int iScore = 0;
@@ -43499,9 +43492,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		}
 	}
 
-	kStream >> m_UnitCycle;
 	kStream >> m_researchQueue;
-
 	kStream >> m_eEndTurnBlockingType;
 	kStream >> m_iEndTurnBlockingNotificationIndex;
 
@@ -43715,9 +43706,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	}
 	m_pTreasury->Write(kStream);
 
-	kStream << m_UnitCycle;
 	kStream << m_researchQueue;
-
 	kStream << m_eEndTurnBlockingType;
 	kStream << m_iEndTurnBlockingNotificationIndex;
 

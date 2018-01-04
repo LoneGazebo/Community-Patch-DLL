@@ -21,6 +21,16 @@ local g_iPortraitSize = Controls.UnitPortrait:GetSize().x;
 local g_bWorldMouseOver = true;
 local g_bShowPanel = false;
 
+-- fix for DB cache issue, by merill
+local DB_HandicapInfos = {};
+if Game then
+	for realHandicap in DB.Query("SELECT * FROM HandicapInfos") do
+		DB_HandicapInfos[realHandicap["ID"]] = {};
+		for key,val in pairs(realHandicap) do 
+			DB_HandicapInfos[realHandicap["ID"]][key] = val;
+		end
+	end
+end
 
 function SetName(name)
 	
@@ -303,8 +313,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		local pToPlot = pCity:Plot();
 		
 		--JFD begins
-		--Find actual attacking plot 
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 2)) do
+		--Find actual attacking plot (pathfinding will fail for ranged units)
+		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
 			local pPlot = Map.GetPlot(v.X,v.Y)
 			if pPlot ~= pToPlot then 
 				pFromPlot = pPlot
@@ -747,8 +757,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		local pToPlot = pTheirUnit:GetPlot();
 		
 		--JFD begins
-		--Find actual attacking plot 
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 2)) do
+		--Find actual attacking plot (pathfinding will fail for ranged units) 
+		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
 			local pPlot = Map.GetPlot(v.X,v.Y)
 			if pPlot ~= pToPlot then 
 				pFromPlot = pPlot
@@ -794,8 +804,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-					iTheirDamageInflicted = pTheirUnit:GetAirStrikeDefenseDamage(pMyUnit, false);				
-					iTheirStrength = iTheirDamageInflicted;
+					if (pMyUnit:GetUnitAIType() ~= 30) then
+						-- regular air attack
+						iTheirDamageInflicted = pTheirUnit:GetAirStrikeDefenseDamage(pMyUnit, false);
+					else
+						-- suicide missile attack
+						iTheirDamageInflicted = pMyUnit:GetCurrHitPoints();
+					end
 					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);		
 					bInterceptPossible = true;
 				end
@@ -1455,8 +1470,9 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- BarbarianBonuses
 			if (pTheirUnit:IsBarbarian()) then
-				iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
+				--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 				
+				iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 				iModifier = iModifier + Players[pMyUnit:GetOwner()]:GetBarbarianCombatBonus();
 
 				iModifier = iModifier + pMyUnit:BarbarianCombatBonus();
@@ -2298,8 +2314,9 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- BarbarianBonuses
 		if (theirUnit:IsBarbarian()) then
-			iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
+			--iModifier = GameInfo.HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 			
+			iModifier = DB_HandicapInfos[Game:GetHandicapType()].BarbarianBonus;
 			iModifier = iModifier + myPlayer:GetBarbarianCombatBonus();
 
 			if (iModifier ~= 0) then
@@ -2517,6 +2534,7 @@ function OnMouseOverHex( hexX, hexY )
 				
 		if (pHeadUnit ~= nil) then
 			
+			-- melee attack
 			if (pHeadUnit:IsCombatUnit() and (pHeadUnit:IsRanged() and pHeadUnit:IsEmbarked()) == false) and ((pHeadUnit:IsRanged() and pHeadUnit:IsRangeAttackOnlyInDomain() and not pPlot:IsWater()) == false) then
 				
 				local iTeam = Game.GetActiveTeam()
@@ -2590,8 +2608,8 @@ function OnMouseOverHex( hexX, hexY )
 				-- Don't show info for stuff we can't see
 				if (pPlot:IsRevealed(iTeam, false)) then
 					
-					-- City
-					if (pPlot:IsCity()) then
+					-- City and not a missile attack (30 is unitai_missile_air)
+					if (pPlot:IsCity() and pHeadUnit:GetUnitAIType() ~= 30) then
 						
 						local pCity = pPlot:GetPlotCity();
 						

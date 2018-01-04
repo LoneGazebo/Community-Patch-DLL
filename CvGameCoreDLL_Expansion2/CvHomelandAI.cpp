@@ -6453,6 +6453,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	std::reverse(vPotentialBases.begin(),vPotentialBases.end());
 	for (size_t i=0; i<vCombatReadyUnits.size(); ++i)
 	{
+		bool bBest = false;
 		CvUnit* pUnit = vCombatReadyUnits[i];
 		CvPlot* pNewBase = NULL;
 		for (std::vector<SPlotWithScore>::iterator it=vPotentialBases.begin(); it!=vPotentialBases.end(); ++it)
@@ -6466,8 +6467,11 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 
 			//apparently we're already in the best possible base?
-			if (scoreLookup[pUnit->plot()->GetPlotIndex()]>=it->score )
+			if (scoreLookup[pUnit->plot()->GetPlotIndex()] >= it->score)
+			{
+				bBest = true;
 				break;
+			}
 
 			//sometimes you just don't fit in
 			if (!HomelandAIHelpers::IsGoodUnitMix(it->pPlot,pUnit))
@@ -6511,7 +6515,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("Failed to rebase %s (%d) at %d,%d for combat", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+				if (bBest)
+					strLogString.Format("Rebase not needed for %s (%d) at %d,%d for combat", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+				else
+					strLogString.Format("Failed to rebase %s (%d) at %d,%d for combat", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
 		}

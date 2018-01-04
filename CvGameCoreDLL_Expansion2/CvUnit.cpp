@@ -134,7 +134,6 @@ CvUnit::CvUnit() :
 	, m_iX("CvUnit::m_iX", m_syncArchive, true)
 	, m_iY("CvUnit::m_iY", m_syncArchive, true)
 	, m_iLastMoveTurn("CvUnit::m_iLastMoveTurn", m_syncArchive)
-	, m_iCycleOrder(-1)
 	, m_iDeployFromOperationTurn("CvUnit::DeployFromOperationTurn", m_syncArchive)
 	, m_iReconX("CvUnit::m_iReconX", m_syncArchive)
 	, m_iReconY("CvUnit::m_iReconY", m_syncArchive)
@@ -1097,8 +1096,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(getOwner() == GC.getGame().getActivePlayer())
 	{
 		DLLUI->setDirty(GameData_DIRTY_BIT, true);
-
-		kPlayer.GetUnitCycler().AddUnit( GetID() );
 	}
 
 	// Message for World Unit being born
@@ -1258,7 +1255,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iX = INVALID_PLOT_COORD;
 	m_iY = INVALID_PLOT_COORD;
 	m_iLastMoveTurn = 0;
-	m_iCycleOrder = -1;
 	m_iDeployFromOperationTurn = -100;
 	m_iReconX = INVALID_PLOT_COORD;
 	m_iReconY = INVALID_PLOT_COORD;
@@ -2375,7 +2371,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 	}
 
 	DLLUI->RemoveFromSelectionList(pDllThisUnit.get());
-	GET_PLAYER(getOwner()).GetUnitCycler().RemoveUnit(GetID());
 
 	// Killing a unit while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a unit.
@@ -20389,20 +20384,6 @@ void CvUnit::setLastMoveTurn(int iNewValue)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetCycleOrder() const
-{
-	VALIDATE_OBJECT
-	return m_iCycleOrder;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::SetCycleOrder(int iNewValue)
-{
-	VALIDATE_OBJECT
-	m_iCycleOrder = iNewValue;
-}
-
 bool CvUnit::IsRecentlyDeployedFromOperation() const
 {
 	return m_iDeployFromOperationTurn+GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()>=GC.getGame().getGameTurn();

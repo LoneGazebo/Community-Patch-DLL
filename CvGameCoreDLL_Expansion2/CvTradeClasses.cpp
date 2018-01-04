@@ -4980,7 +4980,6 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {
 	int iRange = 0;
-
 	int iBaseRange = 0;
 	switch (eDomain)
 	{
