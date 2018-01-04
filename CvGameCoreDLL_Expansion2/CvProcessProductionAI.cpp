@@ -143,7 +143,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	if (kPlayer.isMinorCiv())
-		return iTempWeight;
+		return iTempWeight/2; // buildings POST process is not applied for Minors, so they often fall below 400 treshold! also, process is not weighted bu turns as it is considered 1 turn always
 
 	int iModifier = 0;
 

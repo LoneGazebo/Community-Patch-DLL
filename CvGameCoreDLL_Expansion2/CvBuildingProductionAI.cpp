@@ -618,7 +618,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iPoverty *= -1;
 				bTested = true;
-				iBonus += (iUnhappyGold * iPoverty * 100);
+				iBonus += (iUnhappyGold * iPoverty * 50); //was 100
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -629,7 +629,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iCrime *= -1;
 				bTested = true;
-				iBonus += (iUnhappyDefense * iCrime * 100);
+				iBonus += (iUnhappyDefense * iCrime * 50); //was 100
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -640,7 +640,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iReligion *= -1;
 				bTested = true;
-				iBonus += (iUnhappyReligion * iReligion * 100);
+				iBonus += (iUnhappyReligion * iReligion * 50); //was 100
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -651,7 +651,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBoredom *= -1;
 				bTested = true;
-				iBonus += (iUnhappyCulture * iBoredom * 100);
+				iBonus += (iUnhappyCulture * iBoredom * 50); //was 100
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -662,7 +662,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iIlliteracy *= -1;
 				bTested = true;
-				iBonus += (iUnhappyScience * iIlliteracy * 100);
+				iBonus += (iUnhappyScience * iIlliteracy * 50); //was 100
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -721,10 +721,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iDefense += 100;
 		}
 	}
-	if (m_pCity->IsBastion() || iCrime > 0)
-	{
-		iDefense *= 15;
-	}
+	//if (m_pCity->IsBastion() || iCrime > 0)
+	//{
+	//	iDefense *= 15;
+	//}
+	int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
+	int iDefenseMod = 0;
+	if (m_pCity->IsBastion()) iDefenseMod += 10;
+	if (iCrime > 0) iDefenseMod += iCrime/2;
+	if (iUnhappyDefense > 0) { iDefenseMod += iUnhappyDefense*2; if (!m_pCity->IsBastion()) iDefenseMod += iUnhappyDefense; }
+	if (iDefenseMod > 0) iDefense *= iDefenseMod;
+
 	iBonus += iDefense;
 
 	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
@@ -978,28 +985,28 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				if (iPoverty > 0)
 				{
-					iYieldValue += (iPoverty * 100);
+					iYieldValue += (iPoverty * 50); //was 100
 					bGoodforGPTHappiness = true;
 				}
 				break;
 			case YIELD_SCIENCE:
 				if (iIlliteracy > 0)
 				{
-					iYieldValue += (iIlliteracy * 100);
+					iYieldValue += (iIlliteracy * 50); //was 100
 					bGoodforGPTHappiness = true;
 					break;
 				}
 			case YIELD_FAITH:
 				if (iReligion > 0)
 				{
-					iYieldValue += (iReligion * 100);
+					iYieldValue += (iReligion * 50); //was 100
 					bGoodforGPTHappiness = true;
 					break;
 				}
 			case YIELD_CULTURE:
 				if (iBoredom > 0)
 				{
-					iYieldValue += (iBoredom * 100);
+					iYieldValue += (iBoredom * 50); //was 100
 					bGoodforGPTHappiness = true;
 					break;
 				}
@@ -1109,7 +1116,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA)
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 8) - eEra);
+				//int iEraValue = ((kPlayer.GetCurrentEra() * 8) - eEra);
+				int iEraValue = ((kPlayer.GetCurrentEra() - eEra) * 12);
 				if (iEraValue > 0)
 				{
 					iBonus += (100 * iEraValue);
@@ -1118,7 +1126,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			//No Era? Zero!
 			else
 			{
-				int iEraValue = ((kPlayer.GetCurrentEra() * 8));
+				int iEraValue = ((kPlayer.GetCurrentEra() * 12)); //was 8
 				if (iEraValue > 0)
 				{
 					iBonus += (75 * iEraValue);
@@ -1128,7 +1136,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	else
 	{
-		int iEraValue = ((kPlayer.GetCurrentEra() * 8));
+		int iEraValue = ((kPlayer.GetCurrentEra() * 12)); //was 8
 		if (iEraValue > 0)
 		{
 			iBonus += (75 * iEraValue);
