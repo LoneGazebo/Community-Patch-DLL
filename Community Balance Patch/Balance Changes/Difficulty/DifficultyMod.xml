@@ -32,8 +32,8 @@
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
-			<BarbarianBonus>60</BarbarianBonus>
-			<AIBarbarianBonus>30</AIBarbarianBonus>
+			<BarbarianBonus>50</BarbarianBonus>
+			<AIBarbarianBonus>0</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>14</BarbarianSeaTargetRange>
@@ -93,7 +93,7 @@
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>40</BarbarianBonus>
 			<StartingMinorDefenseUnits>0</StartingMinorDefenseUnits>
-			<AIBarbarianBonus>40</AIBarbarianBonus>
+			<AIBarbarianBonus>5</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>16</BarbarianSeaTargetRange>
@@ -153,7 +153,7 @@
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>30</BarbarianBonus>
-			<AIBarbarianBonus>40</AIBarbarianBonus>
+			<AIBarbarianBonus>10</AIBarbarianBonus>
 			<StartingMinorDefenseUnits>1</StartingMinorDefenseUnits>
 			<EarliestBarbarianReleaseTurn>25</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
@@ -215,7 +215,7 @@
 			<BarbCampGold>30</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>30</BarbarianBonus>
-			<AIBarbarianBonus>40</AIBarbarianBonus>
+			<AIBarbarianBonus>10</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>8</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>20</BarbarianSeaTargetRange>
@@ -276,7 +276,7 @@
 			<BarbCampGold>20</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>20</BarbarianBonus>
-			<AIBarbarianBonus>50</AIBarbarianBonus>
+			<AIBarbarianBonus>15</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>9</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>22</BarbarianSeaTargetRange>
@@ -338,7 +338,7 @@
 			<BarbCampGold>20</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>20</BarbarianBonus>
-			<AIBarbarianBonus>50</AIBarbarianBonus>
+			<AIBarbarianBonus>15</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>15</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>10</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>24</BarbarianSeaTargetRange>
@@ -401,7 +401,7 @@
 			<BarbCampGold>20</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>10</BarbarianBonus>
-			<AIBarbarianBonus>60</AIBarbarianBonus>
+			<AIBarbarianBonus>20</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>10</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>11</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>26</BarbarianSeaTargetRange>
@@ -464,13 +464,13 @@
 			<BarbCampGold>15</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>0</BarbarianBonus>
-			<AIBarbarianBonus>70</AIBarbarianBonus>
+			<AIBarbarianBonus>25</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>5</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>12</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>28</BarbarianSeaTargetRange>
-			<AIStartingDefenseUnits>3</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
-			<AIStartingExploreUnits>2</AIStartingExploreUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIDeclareWarProb>125</AIDeclareWarProb>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIUnhappinessPercent>65</AIUnhappinessPercent>
@@ -525,7 +525,7 @@
 			<BarbCampGold>50</BarbCampGold>
 			<BarbSpawnMod>0</BarbSpawnMod>
 			<BarbarianBonus>0</BarbarianBonus>
-			<AIBarbarianBonus>50</AIBarbarianBonus>
+			<AIBarbarianBonus>25</AIBarbarianBonus>
 			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>18</BarbarianSeaTargetRange>

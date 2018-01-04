@@ -216,11 +216,6 @@ public:
 	int GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained = false, bool bIncludeWater = true);
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
-#if defined(MOD_BALANCE_CORE)
-	void UpdateDangerSingleUnit(CvUnit* pUnit);
-#else
-	void InitDangerPlots();
-#endif
 	void UpdateDangerPlots(bool bKeepKnownUnits);
 	void SetDangerPlotsDirty();
 
@@ -2462,11 +2457,11 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	bool isEnemyUnitAdjacent(const CvPlot* pPlot) const;
+	bool isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) const;
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
-	void ResetDangerCache(const CvPlot& Plot);
+	void ResetDangerCache(const CvPlot& Plot, int iRange);
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot);
 
 	bool IsKnownAttacker(const CvUnit* pAttacker);
@@ -2482,7 +2477,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
-	void UpdateFractionOriginalCapitalsUnderControl();
+	void UpdateMilitaryStats();
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
@@ -2494,7 +2489,7 @@ public:
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
 	void UpdateCurrentAndFutureWars();
 	//to check whether peace is a good idea
-	bool HasCityAboutToBeConquered() const;
+	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
@@ -2504,6 +2499,8 @@ public:
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
+
+	int GetAvgUnitExp100() const;
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -3632,6 +3629,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	FAutoVariable<int, CvPlayer> m_iFractionOriginalCapitalsUnderControl;
+	FAutoVariable<int, CvPlayer> m_iAvgUnitExp100;
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;

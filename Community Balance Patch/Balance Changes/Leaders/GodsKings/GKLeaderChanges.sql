@@ -1,7 +1,7 @@
 -- Attila
 
 UPDATE Traits
-SET LandBarbarianConversionPercent = '100'
+SET LandBarbarianConversionPercent = '75'
 WHERE Type = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits

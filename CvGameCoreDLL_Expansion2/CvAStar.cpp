@@ -879,16 +879,16 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 	}
 
+	bool bPlotOccupancyOverride = false;
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		bool bIgnore = false;
 		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
 		{
 			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
-			bIgnore = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+			bPlotOccupancyOverride = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
 		}
 
-		if (!bIgnore)
+		if (!bPlotOccupancyOverride)
 		{
 			kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
 			kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
@@ -930,7 +930,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 			else
 			{
 				//melee units attack enemy cities and units 
-				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
+				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity || bPlotOccupancyOverride)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 		}

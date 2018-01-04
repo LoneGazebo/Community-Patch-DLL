@@ -160,7 +160,7 @@ WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION' AND EXISTS (SELECT * FROM CO
 
 -- Building Purchased
 UPDATE Language_en_US
-SET Text = 'When you have enough [ICON_GOLD] Gold or [ICON_PEACE] Faith, you can spend it on units and buildings.'
+SET Text = '[ICON_GOLD] Gold spent on Buildings Invests in them, reducing their [ICON_PRODUCTION] Production cost by 50% (25% for Wonders).[NEWLINE][ICON_GOLD] Gold-purchased Units start with half of the XP of a [ICON_PRODUCTION] Produced Unit.[NEWLINE]Some Units and Buildings can be purchased with [ICON_PEACE] Faith (based on Belief and Policy selections).'
 WHERE Tag = 'TXT_KEY_CITYVIEW_PURCHASE_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US

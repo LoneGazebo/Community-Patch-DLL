@@ -313,8 +313,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		local pToPlot = pCity:Plot();
 		
 		--JFD begins
-		--Find actual attacking plot 
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 2)) do
+		--Find actual attacking plot (pathfinding will fail for ranged units)
+		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
 			local pPlot = Map.GetPlot(v.X,v.Y)
 			if pPlot ~= pToPlot then 
 				pFromPlot = pPlot
@@ -757,8 +757,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		local pToPlot = pTheirUnit:GetPlot();
 		
 		--JFD begins
-		--Find actual attacking plot 
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 2)) do
+		--Find actual attacking plot (pathfinding will fail for ranged units) 
+		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
 			local pPlot = Map.GetPlot(v.X,v.Y)
 			if pPlot ~= pToPlot then 
 				pFromPlot = pPlot
@@ -804,8 +804,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-					iTheirDamageInflicted = pTheirUnit:GetAirStrikeDefenseDamage(pMyUnit, false);				
-					iTheirStrength = iTheirDamageInflicted;
+					if (pMyUnit:GetUnitAIType() ~= 30) then
+						-- regular air attack
+						iTheirDamageInflicted = pTheirUnit:GetAirStrikeDefenseDamage(pMyUnit, false);
+					else
+						-- suicide missile attack
+						iTheirDamageInflicted = pMyUnit:GetCurrHitPoints();
+					end
 					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);		
 					bInterceptPossible = true;
 				end
@@ -2529,6 +2534,7 @@ function OnMouseOverHex( hexX, hexY )
 				
 		if (pHeadUnit ~= nil) then
 			
+			-- melee attack
 			if (pHeadUnit:IsCombatUnit() and (pHeadUnit:IsRanged() and pHeadUnit:IsEmbarked()) == false) and ((pHeadUnit:IsRanged() and pHeadUnit:IsRangeAttackOnlyInDomain() and not pPlot:IsWater()) == false) then
 				
 				local iTeam = Game.GetActiveTeam()
@@ -2602,8 +2608,8 @@ function OnMouseOverHex( hexX, hexY )
 				-- Don't show info for stuff we can't see
 				if (pPlot:IsRevealed(iTeam, false)) then
 					
-					-- City
-					if (pPlot:IsCity()) then
+					-- City and not a missile attack (30 is unitai_missile_air)
+					if (pPlot:IsCity() and pHeadUnit:GetUnitAIType() ~= 30) then
 						
 						local pCity = pPlot:GetPlotCity();
 						

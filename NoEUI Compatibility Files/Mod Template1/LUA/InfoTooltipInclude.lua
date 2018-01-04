@@ -743,6 +743,13 @@ end
 function GetProductionTooltip(pCity)
 
 	local iBaseProductionPT = pCity:GetBaseYieldRate(YieldTypes.YIELD_PRODUCTION);
+	local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_PRODUCTION);
+	if (iYieldPerPop ~= 0) then
+		iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
+		iYieldPerPop = iYieldPerPop / 100;
+		
+		iBaseProductionPT = iBaseProductionPT + iYieldPerPop;
+	end
 	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
 	local strCodeToolTip = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_PRODUCTION);
 	
@@ -1247,6 +1254,11 @@ function GetFaithTooltip(pCity)
 			if (iAmount ~= 0) then
 				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount));
 			end
+		end
+
+		local trfaith = city:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
+		if(trfaith ~= "") then
+			table.insert(faithTips, trfaith);
 		end
 	
 		-- Citizens breakdown

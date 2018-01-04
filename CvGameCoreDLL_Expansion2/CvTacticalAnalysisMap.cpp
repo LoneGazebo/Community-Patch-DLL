@@ -993,7 +993,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		// Temporary zone?
 		if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
 		{
-			iMultiplier = 1000;
+			iMultiplier = 10;
 		}
 		else
 		{
@@ -1123,8 +1123,8 @@ void CvTacticalAnalysisMap::LogZones()
 			if ( pZone->GetOverallFriendlyStrength()==0 &&  pZone->GetOverallEnemyStrength()==0)
 				continue;
 
-			szLogMsg.Format("Zone ID: %d, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
-			                pZone->GetDominanceZoneID(), pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
+			szLogMsg.Format("Zone ID: %d, %s, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (naval %d), ENEMY Str: %d (%d), Ranged: %d (naval %d), Closest Enemy: %d",
+			                pZone->GetDominanceZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
 			                pZone->GetOverallFriendlyStrength(), pZone->GetTotalFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyNavalRangedStrength(),
 			                pZone->GetOverallEnemyStrength(), pZone->GetTotalEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyNavalRangedStrength(), pZone->GetRangeClosestEnemyUnit());
 			if(pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
@@ -1296,7 +1296,7 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 	else
 	{
 		// Otherwise compute it by strength
-		if(pZone->GetOverallEnemyStrength()<=0) //make sure the denominator is valid later on
+		if (pZone->GetOverallEnemyStrength() <= 0 && pZone->GetTotalFriendlyUnitCount() > 0) //make sure the denominator is valid later on
 		{
 			pZone->SetOverallDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
 		}
@@ -1318,7 +1318,7 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 				}
 			}
 
-			int iRatio = (pZone->GetOverallFriendlyStrength() * 100) / pZone->GetOverallEnemyStrength();
+			int iRatio = (pZone->GetOverallFriendlyStrength() * 100) / max(1, pZone->GetOverallEnemyStrength());
 			if (iRatio > 100 + m_iDominancePercentage)
 			{
 				pZone->SetOverallDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);

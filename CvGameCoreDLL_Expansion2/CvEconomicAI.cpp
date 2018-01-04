@@ -2534,6 +2534,7 @@ void CvEconomicAI::DoReconState()
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || 
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
+				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
