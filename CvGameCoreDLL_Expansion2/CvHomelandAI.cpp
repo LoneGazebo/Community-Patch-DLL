@@ -2484,12 +2484,14 @@ void CvHomelandAI::PlotAncientRuinMoves()
 				if(pIndy)
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
+
 #if defined(MOD_BALANCE_CORE)
 					TacticalAIHelpers::PerformRangedOpportunityAttack(pIndy,true);
 					if (pIndy->canMove())
 						pIndy->PushMission(CvTypes::getMISSION_SKIP());
 					UnitProcessed(pIndy->GetID());
 #endif
+
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
@@ -7009,7 +7011,7 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 		CvPlot* pTarget = FindArchaeologistTarget(pUnit);
 		if (pTarget)
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -7589,7 +7591,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		if (bIgnore)
 			continue;
 
-		if (pUnit->GetDanger(pTarget) == 0)
+		if (pUnit->GetDanger(pTarget) == 0 && !m_pPlayer->IsAtWarWith(pTarget->getOwner()))
 		{
 			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
 			{
@@ -7603,7 +7605,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				}
 			}
 
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, false, false, iBestTurns);
+			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, iBestTurns);
 			if (iTurns < iBestTurns)
 			{
 				pBestTarget = pTarget;
