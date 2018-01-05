@@ -3568,6 +3568,16 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				break;
 			}
 
+			//is there a lone civilian we can capture back?
+			if (pEvalPlot->isEnemyUnit(pUnit->getOwner(), false, true, false) &&
+				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false) &&
+				pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pEvalPlot->getX(), pEvalPlot->getY());
+				//we just moved, eligiblePlots are no longer valid
+				break;
+			}
+
 			//do this after the enemy unit check
 			if (!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
 				continue;

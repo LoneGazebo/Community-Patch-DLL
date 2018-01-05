@@ -1083,9 +1083,6 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 						return NULL;
 				}
 
-				//update the current position
-				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
-
 				//get where we want to be next
 				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
 				if (!pRtnValue)
