@@ -529,7 +529,7 @@ UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes form
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForNavalAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
-CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
+CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
 }
 
 #endif //CIV5_MILITARY_AI_H

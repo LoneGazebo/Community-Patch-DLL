@@ -3228,7 +3228,11 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							strLogString.Format("Unassigned %s %d SCRAPPED, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
-						pUnit->scrap();
+						pUnit->SetTurnProcessed(true);
+						if (pUnit->canScrap())
+							pUnit->scrap();
+						else
+							pUnit->kill(true);
 						continue;
 					}
 				}

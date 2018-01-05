@@ -7076,7 +7076,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 }
 
 //todo: use the step pathfinder here to get a plot which is on the correct side of the target? need a starting point then ...
-CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
+CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget, bool bCheckTeam)
 {
 	if (!pTarget)
 		return NULL;
@@ -7094,7 +7094,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
 	{
 		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
 		if(pAdjacentPlot != NULL && 
-			pAdjacentPlot->getTeam()==eTeam && //same team
+			(!bCheckTeam || pAdjacentPlot->getTeam()==eTeam || pAdjacentPlot->getTeam()==NO_TEAM) && //ownership check
 			pAdjacentPlot->isShallowWater() && //coastal
 			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
 			pAdjacentPlot->isLake()==false && //no lake
