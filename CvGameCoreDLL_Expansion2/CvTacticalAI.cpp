@@ -12491,8 +12491,9 @@ bool CvTacticalPosition::movesAreCompatible(const STacticalAssignment& A, const 
 	if (A.bIsCombat && B.bIsCombat)
 	{
 		if (AisPlotChange && BisPlotChange)
-			//do moves sequentially in any case. otherwise the adjacency bonus stuff doesn't work
-			//if (A.iToPlotIndex == B.iToPlotIndex)
+			//do moves sequentially if we have only a few units. otherwise the adjacency bonus stuff doesn't work.
+			//if we have many units, the runtime gets too long, and we can probably afford a suboptimal solution.
+			if (availableUnits.size()<8 || A.iToPlotIndex == B.iToPlotIndex)
 				return false;
 
 		if (AisPlotChange && !BisPlotChange)
