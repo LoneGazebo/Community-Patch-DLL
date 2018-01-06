@@ -512,6 +512,9 @@
     <ClCompile Include="CvGreatPersonInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stackwalker\StackWalker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CvAStarNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -525,9 +528,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvContractClasses.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stackwalker\StackWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
