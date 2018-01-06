@@ -2475,6 +2475,10 @@ void CvEconomicAI::DoPlotPurchases()
 /// Determine how our recon efforts are going
 void CvEconomicAI::DoReconState()
 {
+
+	if (m_pPlayer->isMinorCiv())
+		return;
+
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
 

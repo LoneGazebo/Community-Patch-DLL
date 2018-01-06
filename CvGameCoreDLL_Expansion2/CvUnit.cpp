@@ -14002,12 +14002,12 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
 		// Player must have enough Gold
-		if(kPlayer.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType))
+		if((kPlayer.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType) && !kPlayer.isMinorCiv()))
 			return false;
 
 		// Resource Requirements
 #if defined(MOD_BALANCE_CORE)
-		if (!isBarbarian())
+		if (!isBarbarian() && !kPlayer.isMinorCiv())
 		{
 #endif
 
@@ -14210,6 +14210,9 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	{
 		return 0;
 	}
+
+	if (GET_PLAYER(getOwner()).isMinorCiv())
+		return 0;
 
 	iPrice = /*10*/ GC.getBASE_UNIT_UPGRADE_COST();
 
@@ -29729,7 +29732,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else
 	{
-		iValue += iTemp * (10 + iFlavorRecon * 2);
+		iValue += iTemp * (50 + iFlavorRecon * 5);
 	}
 
 	iTemp = pkPromotionInfo->GetCityAttackPercent();

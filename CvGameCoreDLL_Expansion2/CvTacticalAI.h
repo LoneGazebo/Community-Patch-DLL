@@ -798,9 +798,8 @@ private:
 	void AssignBarbarianMoves();
 
 	// Routines to manage identifying and implementing tactical moves
-	bool PlotCaptureCityMoves();
-	bool PlotDamageCityMoves();
-	bool PlotNavalDamageCityMoves();
+	bool PlotCaptureCityMoves(bool bNaval);
+	bool PlotDamageCityMoves(bool bNaval);
 	void PlotBarbarianCampMoves();
 	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
 	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
@@ -868,7 +867,7 @@ private:
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-	void ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
+	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
@@ -895,7 +894,7 @@ private:
 	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
-	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bImmediateStrike=true);
+	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bImmediateStrike=true);
 	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
@@ -1010,7 +1009,7 @@ private:
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 struct STacticalAssignment
 {
-	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_ENDTURN, A_BLOCKED, A_PILLAGE, A_CAPTURE };
+	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE };
 
 	eAssignmentType eType;
 	int iUnitID;
@@ -1023,7 +1022,7 @@ struct STacticalAssignment
 	int iDamage; //just in case of attack, not set in constructor
 
 	//convenience constructor
-	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnit = 0, int iRemainingMoves_= 0, bool bIsCombat_ = true, int iScore_ = 0, eAssignmentType eType_ = A_ENDTURN) :
+	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnit = 0, int iRemainingMoves_= 0, bool bIsCombat_ = true, int iScore_ = 0, eAssignmentType eType_ = A_FINISH) :
 		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnit), iRemainingMoves(iRemainingMoves_), bIsCombat(bIsCombat_), iScore(iScore_), eType(eType_), iDamage(0) {}
 
 	//sort descending
