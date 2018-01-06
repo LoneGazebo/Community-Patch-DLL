@@ -336,52 +336,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Bonus % additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
 
-	//////
-	//WAR
-	///////
-	//Fewer buildings while at war.
-	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-	if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding)
-	{
-		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
-		{
-			//More cities = more threat.
-			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank());
-			if(iThreat > 0)
-			{
-				iBonus -= iThreat * 100;
-			}
-		}
-		if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling())
-		{
-			iBonus -= (iNumWar * 300);
-		}
-		if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
-		{
-			iBonus -= (iNumWar * 300);
-		}
-	}
-	if (!bFreeBuilding)
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-				if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
-				{
-					iBonus -= 300;
-				}
-			}
-		}
-		//Tiny army? Eek!
-		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
-		{
-			iBonus -= 300;
-		}
-	}
-
 	////////////////
 	////QUESTS
 	////////////////
@@ -1131,6 +1085,67 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 	}
+
+	//////
+	//WAR
+	///////
+	//Fewer buildings while at war.
+	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+
+	int WarPenalty = 0;
+	if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding)
+	{
+		if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
+		{
+			//More cities = more threat.
+			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatRank());
+			if (iThreat > 0)
+			{
+				WarPenalty += iThreat * 5;
+			}
+		}
+		if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling())
+		{
+			WarPenalty += iNumWar * 20;
+		}
+		if ((m_pCity->isCoastal() && m_pCity->IsBlockaded(true)) || ((!m_pCity->isCoastal() && m_pCity->IsBlockaded(false))))
+		{
+			WarPenalty += iNumWar * 20;
+		}
+
+		int iCityLoop;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+		{
+			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
+			{
+				WarPenalty += iNumWar * 10;
+			}
+			if ((pLoopCity->isCoastal() && pLoopCity->IsBlockaded(true)) || ((!pLoopCity->isCoastal() && pLoopCity->IsBlockaded(false))))
+			{
+				WarPenalty += iNumWar * 10;
+			}
+		}
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			{
+				if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
+				{
+					WarPenalty += iNumWar * 15;
+				}
+			}
+		}
+		//Tiny army? Eek!
+		if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2))
+		{
+			WarPenalty += iNumWar * 20;
+		}
+	}
+	iBonus *= (100 - min(99, WarPenalty));
+	iBonus /= 100;
 
 	///////
 	///Era Difference

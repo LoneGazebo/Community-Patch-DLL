@@ -896,20 +896,12 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 	case TACTICAL_TERRITORY_FRIENDLY:
 	{
 		// Default for this zone
-		eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
-		if (pZone->GetOverallEnemyStrength() <= 0 && pZone->GetZoneCity() != NULL && !pZone->GetZoneCity()->IsBastion())
+		eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
+
+		if (eOverallDominance >= TACTICAL_DOMINANCE_ENEMY || (pZone->GetOverallEnemyStrength() > 0 && pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->IsBastion()))
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
+			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}	
-		else if (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY)
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_COUNTERATTACK;
-		}
-		else if (eOverallDominance == TACTICAL_DOMINANCE_EVEN)
-		{
-			//if we have ranged dominance, keep our risk lower
-			eChosenPosture = (eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
-		}
 
 		break;
 	}
@@ -1121,7 +1113,6 @@ void CvTacticalAI::FindTacticalTargets()
 	m_AllTargets.clear();
 
 	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn();
-	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
 	// Look at every tile on map
 	for (iI = 0; iI < GC.getMap().numPlots(); iI++)
@@ -1163,7 +1154,7 @@ void CvTacticalAI::FindTacticalTargets()
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if (pCity != NULL)
 			{
-				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->IsBastion() || pCity->isUnderSiege() || pCity->GetGarrisonedUnit() == NULL))
+				if (m_pPlayer->GetID() == pCity->getOwner() && (pCity->IsBastion() || pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 					newTarget.SetAuxData((void*)pCity);
@@ -1362,11 +1353,10 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... defensive bastion?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 || pLoopPlot->IsChokePoint()) &&
-					(pLoopPlot->getImprovementType()==eCitadel || pLoopPlot->getBestDefender(m_pPlayer->GetID())==NULL)
-					)
+					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 || pLoopPlot->IsChokePoint()) && 
+					pLoopPlot->getBestDefender(m_pPlayer->GetID())==NULL)
 				{
-					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);
+					CvCity* pDefenseCity = pLoopPlot->getWorkingCity();
 					if ((pDefenseCity && (pDefenseCity->IsBastion() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
@@ -1407,12 +1397,15 @@ void CvTacticalAI::FindTacticalTargets()
 					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody() &&
 					pLoopPlot->getBestDefender(m_pPlayer->GetID()))
 				{
-					newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
-					newTarget.SetAuxData((void*)pLoopPlot);
+					if (pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->IsBastion())
+					{
+						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
+						newTarget.SetAuxData((void*)pLoopPlot);
 #if defined(MOD_BALANCE_CORE)
-					newTarget.SetAuxIntData(1);
+						newTarget.SetAuxIntData(1);
 #endif
-					m_AllTargets.push_back(newTarget);
+						m_AllTargets.push_back(newTarget);
+					}
 				}
 
 				// ... trade plot (for getting units to park on trade routes to try to get them to plunder enemy trade routes)
@@ -1442,7 +1435,7 @@ void CvTacticalAI::FindTacticalTargets()
 					if (pWorkingCity != NULL && pWorkingCity->isCoastal())
 					{
 						int iDistance = GET_PLAYER(pWorkingCity->getOwner()).GetCityDistanceInPlots(pLoopPlot);
-						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>0)
+						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>2)
 							continue;
 
 						int iWeight = (iDistance>1) ? 10 : 0;
@@ -1666,7 +1659,7 @@ void CvTacticalAI::ProcessDominanceZones()
 							}
 
 
-							if (GC.getLogging() && GC.getAILogging())
+							if (GC.getLogging() && GC.getAILogging() && pZone)
 							{
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
@@ -2083,7 +2076,7 @@ bool CvTacticalAI::PlotCaptureCityMoves(bool bNaval)
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 				if(iExpectedDamage >= iRequiredDamage)
 				{
-					if (GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging() && pZone)
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected damage %d", 
@@ -2102,7 +2095,7 @@ bool CvTacticalAI::PlotCaptureCityMoves(bool bNaval)
 				}
 				else
 				{
-					if (GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging() && pZone)
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, too early for capture of %s, required damage %d, expected damage %d", 
@@ -2183,10 +2176,13 @@ bool CvTacticalAI::PlotDamageCityMoves(bool bNaval)
 			{
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
+				//Let's encourage sneak attack potency
+				int iRequiredDamageDivisor = IsTemporaryZoneCity(pCity) ? 40 : 23;
+
 				// Don't want to hammer away to try and take down a city for more than X turns
-				if (!IsTemporaryZoneCity(pCity) && (iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / 23))
+				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / iRequiredDamageDivisor))
 				{
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging() && pZone)
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, Laying siege to %s, required damage %d, expected damage %d", 
@@ -2218,7 +2214,7 @@ bool CvTacticalAI::PlotDamageCityMoves(bool bNaval)
 				}
 				else
 				{
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging() && pZone)
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, Siege of %s is pointless, required damage %d, expected damage %d", 
@@ -6353,11 +6349,11 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				//defensive only - don't send lonesome units into danger
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
+				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange*2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+				if (!pBestPlot)
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 				if (!pBestPlot)
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
-				if (!pBestPlot)
-					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 
 				if(pBestPlot)
 				{
@@ -6382,11 +6378,11 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				bool bMoveMade = false;
 
 				//defensive only - don't send lonesome units into danger
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
+				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange*2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 				if (!pBestPlot)
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 				if (!pBestPlot)
-					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 
 				if(pBestPlot)
 				{
@@ -10246,8 +10242,11 @@ int CvTacticalAI::ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pLoopPlot)
 
 	const CvUnit* pDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
 	CvCity* pPlotCity = pLoopPlot->getPlotCity();
-	if ( (!pDefender || pDefender->isProjectedToDieNextTurn()) && !pPlotCity ) 
-		return 0;
+	if (m_pPlayer->IsAtWar())
+	{
+		if ((!pDefender || pDefender->isProjectedToDieNextTurn()) && !pPlotCity)
+			return 0;
+	}
 
 	//if we're in a besieged city, chances are we cannot escape
 	if ( pPlotCity && pPlotCity->isInDangerOfFalling() )
