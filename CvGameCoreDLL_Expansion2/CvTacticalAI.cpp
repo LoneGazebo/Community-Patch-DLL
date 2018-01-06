@@ -2072,8 +2072,6 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			bool bNoRangedUnits = (iRequiredDamage <= 1);
 			if(FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, false /*bNavalOnly*/, false))
 			{
-				int iZoneID = -1;
-				if (pZone != NULL) iZoneID = pZone->GetDominanceZoneID();
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 				if(iExpectedDamage >= iRequiredDamage)
 				{
@@ -2081,8 +2079,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected damage %d", 
-							//pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
-							iZoneID, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2105,8 +2102,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, too early for capture of %s, required damage %d, expected damage %d", 
-							//pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
-							iZoneID, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 				}
