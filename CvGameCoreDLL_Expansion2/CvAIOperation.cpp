@@ -1070,25 +1070,26 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				return NULL;
 			}
 
-			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass();
-			if (pCenterOfMass && pGoalPlot)
+			CvPlot* pCurrent = pArmy->Plot();
+			if (pCurrent && pGoalPlot)
 			{
 				//problem: center of mass may be on a mountain etc ...
-				if (!pCenterOfMass->isValidMovePlot(kPlayer.GetID()))
+				if (!pCurrent->isValidMovePlot(kPlayer.GetID()))
 				{
 					CvUnit* pFirstUnit = pArmy->GetFirstUnit();
 					if (pFirstUnit)
-						pCenterOfMass = pFirstUnit->plot();
+						pCurrent = pFirstUnit->plot();
 					else
 						return NULL;
 				}
 
 				//get where we want to be next
-				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
+				pRtnValue = GetPlotXInStepPath(pCurrent,pGoalPlot,pArmy->GetMovementRate(),true);
 				if (!pRtnValue)
 				{
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
-					OutputDebugString( CvString::format( "CvAIOperation: cannot find a step path from %d,%d to %d,%d\n", pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
+					OutputDebugString( CvString::format( "CvAIOperation: cannot find a step path from %d,%d to %d,%d\n", 
+						pCurrent->getX(), pCurrent->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
 					return NULL;
 				}
 			}
