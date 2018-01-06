@@ -5317,20 +5317,33 @@ void CvPlayer::UpdateCityThreatCriteria()
 
 	//Reset the critera.
 	int iLoop;
-	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
 		pLoopCity->SetThreatRank(-1);
+		pLoopCity->SetCoastalThreatRank(-1);
+	}
 
+	//
 	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(false);
 	for(int i = 0; i < (int)threatenedCities.size(); i++)
 		threatenedCities[i]->SetThreatRank(i);
+
+	vector<CvCity*> threatenedCoastalCities = GetMilitaryAI()->GetThreatenedCities(false, true);
+	for (int i = 0; i < (int)threatenedCoastalCities.size(); i++)
+		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool CoastalOnly)
 {
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->GetThreatRank() == iRank)
+		if (CoastalOnly)
+		{
+			if (pLoopCity->GetCoastalThreatRank() == iRank)
+				return pLoopCity;
+		}
+		else if (pLoopCity->GetThreatRank() == iRank)
 		{
 			return pLoopCity;
 		}
@@ -35482,7 +35495,11 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 		{
 			return false;
 		}
-		if (GET_PLAYER(eToPlayer).getNumUnitsNoCivilian() > max(3, ((GetCurrentEra() + 2) * getNumCities())))
+
+		int iNum = GET_PLAYER(eToPlayer).getNumUnitsNoCivilian();
+		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
+
+		if (iNum >= iMax)
 			return false;
 
 		return true;

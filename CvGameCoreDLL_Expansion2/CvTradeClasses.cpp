@@ -2663,7 +2663,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 #endif
 
 					// Policy bump
-					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
 					iAdjustedTechDifference += iPolicyBump;
 
@@ -2694,7 +2694,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 					}
 #endif				
 					// Policy bump
-					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+					int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
 					iAdjustedCultureDifference += iPolicyBump;
 				}				
@@ -6021,7 +6021,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 #endif
 
 		// Policy bump
-		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
 		iAdjustedTechDifferenceP1fromP2 += iPolicyBump;
 	}
@@ -6053,7 +6053,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 #endif
 
 		// Policy bump
-		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).GetExtraCultureandScienceTradeRoutes();
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eDestOwner).GetExtraCultureandScienceTradeRoutes();
 
 		iAdjustedTechDifferenceP2fromP1 += iPolicyBump;
 	}
@@ -6090,7 +6090,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		}
 #endif				
 		// Policy bump
-		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
 		iAdjustedCultureDifferenceP1fromP2 += iPolicyBump;
 	}
@@ -6122,7 +6122,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 		}
 #endif				
 		// Policy bump
-		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
+		int iPolicyBump = GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() ? 0 : GET_PLAYER(kTradeConnection.m_eOriginOwner).GetExtraCultureandScienceTradeRoutes();
 
 		iAdjustedCultureDifferenceP2fromP1 += iPolicyBump;
 	}

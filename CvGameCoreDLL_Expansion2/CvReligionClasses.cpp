@@ -8498,7 +8498,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 	}
 
 	int iRand = 0;
-	if (iRtnValue > 50)
+	if (iRtnValue > 0)
 	{
 		iRand = GC.getGame().getJonRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), "Faith rand weight.");
 		iRtnValue += iRand;
