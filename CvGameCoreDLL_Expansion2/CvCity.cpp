@@ -19623,8 +19623,6 @@ void CvCity::DoAnnex()
 #endif
 	SetPuppet(false);
 
-	DoUpdateCheapestPlotInfluenceDistance();  // fix for extremly high cost of the first tile
-
 	setProductionAutomated(false, true);
 #if defined(MOD_BALANCE_CORE)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
