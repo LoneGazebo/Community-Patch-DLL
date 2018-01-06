@@ -5666,7 +5666,9 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strOutBuf += strTemp;
 
 		// Unit supply
-		strTemp.Format("Units %d, Supply %d, War %d, ", m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->GetPlayersAtWarWith().size());
+		strTemp.Format("Units %d, MilUnits %d, Supply %d, FreeUnits %d, OoS %d, War %d, ", 
+			m_pPlayer->getNumUnits(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->getNumUnitsFree(), 
+			m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetPlayersAtWarWith().size());
 		strOutBuf += strTemp;
 
 		// Most threatened city

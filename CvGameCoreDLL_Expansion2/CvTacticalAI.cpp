@@ -2068,7 +2068,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, too early for capture of %s, required damage %d, expected damage %d", 
-							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+							pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 					pTarget = GetNextZoneTarget();
@@ -2106,7 +2106,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				{
 					CvString strLogString;
 					strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected damage %d",
-						pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 					LogTacticalMessage(strLogString);
 				}
 
@@ -2187,7 +2187,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, Siege of %s is pointless, required damage %d, expected damage %d", 
-							pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+							pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2214,7 +2214,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				{
 					CvString strLogString;
 					strLogString.Format("Zone %d, Laying siege to %s, required damage %d, expected damage %d",
-						pZone->GetDominanceZoneID(), pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 					LogTacticalMessage(strLogString);
 				}
 
