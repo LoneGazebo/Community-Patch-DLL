@@ -329,6 +329,7 @@ CvCity::CvCity() :
 	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
 	, m_iDummy("CvCity::m_iDummy", m_syncArchive)
 	, m_iThreatRank("CvCity::m_iThreatRank", m_syncArchive)
+	, m_iCoastalThreatRank("CvCity::m_iCoastalThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iUnitPurchaseCooldownCivilian("CvCity::m_iUnitPurchaseCooldownCivilian", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
@@ -1530,6 +1531,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTradePrioritySea = 0;
 	m_iDummy = 0;
 	m_iThreatRank = 0;
+	m_iCoastalThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iUnitPurchaseCooldownCivilian = 0;
 	m_iBuildingPurchaseCooldown = 0;
@@ -3292,6 +3294,19 @@ int CvCity::GetThreatRank() const
 {
 	VALIDATE_OBJECT
 	return m_iThreatRank;
+}
+
+void CvCity::SetCoastalThreatRank(int iValue)
+{
+	if (iValue != m_iCoastalThreatRank)
+	{
+		m_iCoastalThreatRank = iValue;
+	}
+}
+int CvCity::GetCoastalThreatRank() const
+{
+	VALIDATE_OBJECT
+		return m_iCoastalThreatRank;
 }
 
 void CvCity::SetTradePriorityLand(int iValue)
@@ -10847,6 +10862,13 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		}
 	}
 #endif
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	{
+		//Decrease base cost, then increase based on # of cities in empire.
+		iCost /= 2;
+		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 2);
+		iCost /= 100;
+	}
 
 	// Make the number not be funky
 	int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
@@ -11190,10 +11212,10 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 			iCost /= 100;
 		}
 	}
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
+		iCost /= 2;
 		//Decrease base cost, then increase based on # of cities in empire.
-		iCost /= 3;
 		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 2);
 		iCost /= 100;
 	}
@@ -19623,6 +19645,8 @@ void CvCity::DoAnnex()
 #endif
 	SetPuppet(false);
 
+	DoUpdateCheapestPlotInfluenceDistance();  // fix for extremly high cost of the first tile
+
 	setProductionAutomated(false, true);
 #if defined(MOD_BALANCE_CORE)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -23697,36 +23721,44 @@ void CvCity::TestBastion()
 		SetBastion(true);
 		return;
 	}
-	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
-	if(isCoastal())
+
+	if (isCoastal() && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(true, true) == this)
 	{
-		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
-		if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+		SetBastion(true);
+		return;
+	}
+	else if (GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(true, false) == this)
+	{
+		SetBastion(true);
+		return;
+	}
+	else
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			if(!GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
 			{
-				if (GetThreatRank() <= GET_PLAYER(getOwner()).getNumCities() / 3)
+				if (plot()->IsHomeFrontForPlayer(eLoopPlayer) && (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE))
 				{
 					SetBastion(true);
 					return;
 				}
-			}
-		}
-	}
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
-		{
-			if (plot()->IsHomeFrontForPlayer(eLoopPlayer) && (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE))
-			{
-				SetBastion(true);
-				return;
-			}
-			else if (getPreviousOwner() == eLoopPlayer && isUnderSiege() && GET_PLAYER(eLoopPlayer).IsAtWarWith(getOwner()))
-			{
-				SetBastion(true);
-				return;
+				else if (getPreviousOwner() == eLoopPlayer && isUnderSiege() && GET_PLAYER(eLoopPlayer).IsAtWarWith(getOwner()))
+				{
+					SetBastion(true);
+					return;
+				}
+				else if (GetThreatRank() != -1 && GetThreatRank() <= (GET_PLAYER(getOwner()).getNumCities() / 4))
+				{
+					SetBastion(true);
+					return;
+				}
+				else if (GetCoastalThreatRank() != -1 && GetCoastalThreatRank() <= (GET_PLAYER(getOwner()).getNumCities() / 4))
+				{
+					SetBastion(true);
+					return;
+				}
 			}
 		}
 	}

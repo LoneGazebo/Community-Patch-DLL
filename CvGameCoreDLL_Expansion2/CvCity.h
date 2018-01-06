@@ -88,6 +88,9 @@ public:
 	void SetThreatRank(int iValue);
 	int GetThreatRank() const;
 
+	void SetCoastalThreatRank(int iValue);
+	int GetCoastalThreatRank() const;
+
 	void SetTradePriorityLand(int iValue);
 	int GetTradePriorityLand(void) const;
 
@@ -1783,6 +1786,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
 	FAutoVariable<int, CvCity> m_iThreatRank;
+	FAutoVariable<int, CvCity> m_iCoastalThreatRank;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
 	FAutoVariable<int, CvCity> m_iDummy;
