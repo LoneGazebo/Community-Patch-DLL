@@ -1078,9 +1078,6 @@
     <ClInclude Include="CvContractClasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stackwalker\stackwalker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CvGameCoreDLL.rc" />
