@@ -27357,7 +27357,7 @@ bool CvUnit::IsDoingPartialMove() const
 		return false;
 	}
 
-	CvPlot* pEndTurnPlot = m_kLastPath.GetTurnDestinationPlot(1);
+	CvPlot* pEndTurnPlot = m_kLastPath.GetTurnDestinationPlot(0);
 	CvPlot* pEndPathPlot = m_kLastPath.GetFinalPlot();
 
 	if(plot() == pEndTurnPlot && plot() != pEndPathPlot && (pkMissionNode->iData1 == pEndPathPlot->getX() && pkMissionNode->iData2 == pEndPathPlot->getY()))
@@ -29145,7 +29145,7 @@ void CvUnit::ClearReachablePlots()
 /// Where do we end this next move?
 CvPlot* CvUnit::GetPathEndFirstTurnPlot() const
 {
-	return m_kLastPath.GetTurnDestinationPlot(1);
+	return m_kLastPath.GetTurnDestinationPlot(0);
 }
 
 // PRIVATE METHODS

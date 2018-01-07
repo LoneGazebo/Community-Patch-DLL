@@ -2661,7 +2661,7 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 	return iRtnValue;
 }
 
-vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bool CoastalOnly)
+vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bool bCoastalOnly)
 {
 	std::vector<std::pair<CvCity*,int>> vCities;
 	struct PrSortByScore {
@@ -2679,7 +2679,7 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 	int iLoopCity = 0;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
-		if (CoastalOnly && !pLoopCity->isCoastal())
+		if (bCoastalOnly && !pLoopCity->isCoastal())
 			continue;
 
 		//with the new danger plots, the stored threat value should be accurate
@@ -2771,9 +2771,9 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 }
 
 /// Which city is in the most danger now?
-CvCity* CvMilitaryAI::GetMostThreatenedCity(bool bIncludeFutureThreats, bool CoastalOnly)
+CvCity* CvMilitaryAI::GetMostThreatenedCity(bool bIncludeFutureThreats, bool bCoastalOnly)
 {
-	vector<CvCity*> allCities = GetThreatenedCities(bIncludeFutureThreats, CoastalOnly);
+	vector<CvCity*> allCities = GetThreatenedCities(bIncludeFutureThreats, bCoastalOnly);
 	if (allCities.empty())
 		return 0;
 	else
@@ -4133,31 +4133,31 @@ void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
 	int iFilledSlots;
 
 	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
-	CvCity* pMostThreatenedCoastalCity = m_pPlayer->GetThreatenedCityByRank(0, true);
-	if(pMostThreatenedCity != NULL)
+	if (pMostThreatenedCity != NULL)
 	{
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, ePlayer);
 		if (!bHasOperationUnderway)
 		{
 			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-			if(iFilledSlots > 0)
+			if (iFilledSlots > 0)
 			{
 				m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, ePlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
 			}
 		}
-		if (pMostThreatenedCoastalCity != NULL && pMostThreatenedCoastalCity->isCoastal())
+	}
+	CvCity* pMostThreatenedCoastalCity = m_pPlayer->GetThreatenedCityByRank(0, true);
+	if (pMostThreatenedCoastalCity != NULL)
+	{
+		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMostThreatenedCoastalCity->plot());
+		if (pCoastalPlot != NULL)
 		{
-			CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMostThreatenedCity->plot());
-			if (pCoastalPlot != NULL)
+			bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pMostThreatenedCoastalCity->plot());
+			if (!bHasOperationUnderway)
 			{
-				bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pMostThreatenedCoastalCity->plot());
-				if (!bHasOperationUnderway)
+				iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, m_pPlayer->CanCrossOcean(), pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
+				if (iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= 0))
 				{
-					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, m_pPlayer->CanCrossOcean(), pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
-					if (iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= 0))
-					{
-						m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pMostThreatenedCoastalCity->getArea(), pMostThreatenedCoastalCity, pMostThreatenedCoastalCity, m_pPlayer->CanCrossOcean());
-					}
+					m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pMostThreatenedCoastalCity->getArea(), pMostThreatenedCoastalCity, pMostThreatenedCoastalCity, m_pPlayer->CanCrossOcean());
 				}
 			}
 		}
@@ -5640,7 +5640,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 
 		// Open the right file
 		playerName = GetPlayer()->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName,true), FILogFile::kDontTimeStamp);
 
 		// Very first update (to write header row?)
 		if(GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() == 0)

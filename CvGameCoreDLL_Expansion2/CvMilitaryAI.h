@@ -302,8 +302,8 @@ public:
 	};
 #endif
 
-	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats = true, bool CoastalOnly = false);
-	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool CoastalOnly = false);
+	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats = true, bool bCoastalOnly = false);
+	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool bCoastalOnly = false);
 
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);

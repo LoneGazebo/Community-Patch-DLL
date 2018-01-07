@@ -5333,12 +5333,12 @@ void CvPlayer::UpdateCityThreatCriteria()
 		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool CoastalOnly)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool bCoastalOnly)
 {
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (CoastalOnly)
+		if (bCoastalOnly)
 		{
 			if (pLoopCity->GetCoastalThreatRank() == iRank)
 				return pLoopCity;
@@ -17426,13 +17426,10 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply() const
 {
-	int iFreeUnits = GetNumUnitsSupplied();
-	int iNumUnits = getNumUnits();
-	int iNumFreeExtra = getNumUnitsFree();
-
-	int iNumUnitsToSupply = iNumUnits - iNumFreeExtra;
-	return std::max(0, iNumUnitsToSupply - iFreeUnits);
+	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsFree();
+	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitsNoCivilian() const
@@ -17441,10 +17438,12 @@ int CvPlayer::getNumUnitsNoCivilian() const
 	int iNumUnitsToSupply = iNumUnits - getNumUnitsFree();
 	return iNumUnitsToSupply;
 }
+
 int CvPlayer::getNumUnitsFree() const
 {
 	return m_iFreeUnits;
 }
+
 void CvPlayer::changeNumFreeUnits(int iValue)
 {
 	if (iValue != 0)

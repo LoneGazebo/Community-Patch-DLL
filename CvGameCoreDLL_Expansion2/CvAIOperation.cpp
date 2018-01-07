@@ -1313,7 +1313,7 @@ void CvAIOperation::LogOperationStart()
 				strPlayerName = GET_PLAYER(m_eEnemy).getCivilizationShortDescription();
 				strOutBuf += ", vs. " + strPlayerName;
 			}
-			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
+			LogOperationSpecialMessage(strOutBuf);
 		}
 	}
 }
@@ -1549,7 +1549,7 @@ void CvAIOperation::LogOperationEnd()
 
 			strOutBuf = CvString( GetOperationName() ) + ", ";
 			strOutBuf += strTemp;
-			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
+			LogOperationSpecialMessage(strOutBuf);
 		}
 	}
 }
