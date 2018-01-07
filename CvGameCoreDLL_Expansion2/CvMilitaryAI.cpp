@@ -4779,27 +4779,27 @@ void CvMilitaryAI::RequestImprovements()
 }
 
 /// Delete older units no longer needed by military AI
-void CvMilitaryAI::DisbandObsoleteUnits()
+void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 {
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("DisbandObsoleteUnits, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;
-	CvUnit* pNavalUnit = NULL;
-	CvUnit* pLandUnit = NULL;
-	int iNavalScore = MAX_INT;
-	int iLandScore = MAX_INT;
 
 	// Don't do this if at war
 #if defined(MOD_BALANCE_CORE)
 	if(GetNumberCivsAtWarWith(false) > 0)
+	{
+		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_WINNING)
+			return;
+	}
 #else
 	if(GetNumberCivsAtWarWith() > 0)
-#endif
 	{
 		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 			return;
 	}
+#endif
 
 	if (m_pPlayer->isMinorCiv())
 	{
@@ -4817,26 +4817,12 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		if (m_pPlayer->GetMinorCivAI()->GetNumThreateningBarbarians() > 0)
 			return;
 	}
-
-	// Are we running at a deficit?
-	if (!bInDeficit)
+	else
 	{
+		// Are we running at a deficit?
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-	}
 
-	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
-	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
-
-	// if our units maintenance cost is high we may want to scrap some obsolete stuff
-#if defined(MOD_BALANCE_CORE)
-	bInDeficit = bInDeficit || iAverageGoldPerUnit > 4;
-#else
-	bInDeficit = bInDeficit || iAverageGoldPerUnit > 5;
-#endif
-
-	if (!m_pPlayer->isMinorCiv())
-	{
 		// Are we running anything other than the Conquest Grand Strategy?
 		AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 		if (eConquestGrandStrategy != NO_AIGRANDSTRATEGY)
@@ -4848,21 +4834,33 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		}
 	}
 
-	int iPass = 0;
-	while (iAverageGoldPerUnit > 4 && iPass <= 10)
+	// do we have way too many units?
+	int iMaxExcessUnits = bConquestGrandStrategy ? 9 : 6;
+	bool bOverSupplyCap = (m_pPlayer->GetNumUnitsOutOfSupply() > iMaxExcessUnits);
+
+	//nothing to do
+	if (!bInDeficit && !bOverSupplyCap)
+		return;
+
+	for (int i=0; i<iMaxUnits; i++)
 	{
-		iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, m_pPlayer->getNumUnits()));
+		CvUnit* pNavalUnit = NULL;
+		CvUnit* pLandUnit = NULL;
+		int iNavalScore = MAX_INT;
+		int iLandScore = MAX_INT;
 
 		// Look for obsolete land units if in deficit or have sufficient units
-		if (bInDeficit || (m_eLandDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
+		if (bInDeficit || bOverSupplyCap)
 		{
-			pLandUnit = FindBestUnitToScrap(true /*bLand*/, bInDeficit /*bDeficitForcedDisband*/, iLandScore);
+			//we may be in deficit, but we're not forced to disband yet
+			pLandUnit = FindBestUnitToScrap(true /*bLand*/, false /*bDeficitForcedDisband*/, iLandScore);
 		}
 
 		// Look for obsolete naval units if in deficit or have sufficient units
 		if (bInDeficit || (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
 		{
-			pNavalUnit = FindBestUnitToScrap(false/*bNaval*/, bInDeficit /*bDeficitForcedDisband*/, iNavalScore);
+			//we may be in deficit, but we're not forced to disband yet
+			pNavalUnit = FindBestUnitToScrap(false/*bNaval*/, false /*bDeficitForcedDisband*/, iNavalScore);
 		}
 
 		if (iLandScore < MAX_INT && (m_eLandDefenseState <= m_eNavalDefenseState || iLandScore <= iNavalScore))
@@ -4880,14 +4878,18 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 						bGifted = true;
 					}
 				}
-				if (!bGifted)
+				if (bGifted)
 				{
-					pLandUnit->scrap();
-					LogScrapUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
+					LogGiftUnit(pLandUnit, bInDeficit, bOverSupplyCap);
 				}
 				else
 				{
-					LogGiftUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
+					if (pLandUnit->canScrap())
+						pLandUnit->scrap();
+					else
+						pLandUnit->kill(true);
+
+					LogScrapUnit(pLandUnit, bInDeficit, bOverSupplyCap);
 				}
 			}
 		}
@@ -4906,18 +4908,20 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 						bGifted = true;
 					}
 				}
-				if (!bGifted)
+				if (bGifted)
 				{
-					pNavalUnit->scrap();
-					LogScrapUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
+					LogGiftUnit(pNavalUnit, bInDeficit, bOverSupplyCap);
 				}
 				else
 				{
-					LogGiftUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
+					if (pNavalUnit->canScrap())
+						pNavalUnit->scrap();
+					else
+						pNavalUnit->kill(true);
+					LogScrapUnit(pNavalUnit, bInDeficit, bOverSupplyCap);
 				}
 			}
 		}
-		iPass++;
 	}
 }
 /// Do we have the forces at hand for an attack?
@@ -5081,7 +5085,7 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		// Can I scrap this unit?
 		if( (!bStillNeeded || bIsUseless))
 		{
-			iScore = pLoopUnit->GetPower();
+			iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
 
 			if(iScore < iBestScore)
 			{
@@ -5834,7 +5838,7 @@ void CvMilitaryAI::LogWarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarS
 }
 
 /// Log that a unit is being scrapped
-void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
+void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -5860,13 +5864,13 @@ void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
 		{
 			strOutBuf += "Finances ok, ";
 		}
-		if(bConquest)
+		if(bSupply)
 		{
-			strOutBuf += "CONQUEST, ";
+			strOutBuf += "OVER SUPPLY, ";
 		}
 		else
 		{
-			strOutBuf += "Other GS, ";
+			strOutBuf += "Supply ok, ";
 		}
 		if(pUnit->getDomainType() == DOMAIN_LAND)
 		{
@@ -5881,7 +5885,7 @@ void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
 	}
 }
 /// Log that a unit is being gifted
-void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
+void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -5907,13 +5911,13 @@ void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
 		{
 			strOutBuf += "Finances ok, ";
 		}
-		if (bConquest)
+		if (bSupply)
 		{
-			strOutBuf += "CONQUEST, ";
+			strOutBuf += "OVER SUPPLY, ";
 		}
 		else
 		{
-			strOutBuf += "Other GS, ";
+			strOutBuf += "Supply ok, ";
 		}
 		if (pUnit->getDomainType() == DOMAIN_LAND)
 		{

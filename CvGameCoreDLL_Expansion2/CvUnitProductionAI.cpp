@@ -297,7 +297,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//% Value that will modify the base value.
 	int iBonus = 0;
 
-	bool bAtWar = false;
+	//only war with majors count
+	bool bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
 	if (!bFree && kPlayer.isMinorCiv())
 	{
 		if (bCombat)
@@ -344,21 +345,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 	}
-	else
-	{
-		bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
-		if (!bFree && bCombat && kPlayer.GetNumUnitsOutOfSupply() > 5)
-		{
-			return 0;
-		}
-	}
 
 	//Let's check this against supply to keep our military numbers lean.
 	int iScale = 0;
 	if (bCombat && !bFree)
 	{
 		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
-		int iDemand = kPlayer.getNumMilitaryUnits();
+		int iDemand = kPlayer.getNumMilitaryUnits() - kPlayer.getNumUnitsFree();
 		if (bAtWar || bForOperation)
 		{
 			//hard limit, don't go too far into negative supply
