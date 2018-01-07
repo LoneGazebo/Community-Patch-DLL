@@ -2758,7 +2758,7 @@ void CvCity::doTurn()
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
 				int iPile = getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
-				iPile /= 10;
+				iPile /= 100;
 
 				iHitsHealed += iPile;
 			}
