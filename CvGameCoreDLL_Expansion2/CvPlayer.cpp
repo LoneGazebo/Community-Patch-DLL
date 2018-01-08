@@ -38284,9 +38284,9 @@ bool CvPlayer::removeFromArmy(int iID)
 
 //	---------------------------------------------------------------------------
 //	Finds the path length from this tech type to one you already know (FIXED)
-//  This one doesn't count technologies multiple times during recursive calls!
-//  A temporary buffer is used to mark techs already visited, so they can be 
-//  counted only once when the recursive calls end.
+//	This one doesn't count technologies multiple times during recursive calls!
+//	A temporary buffer is used to mark techs already visited, so they can be 
+//	counted only once when the recursive calls end.
 int CvPlayer::findPathLengthNew(TechTypes eTech, int pTechs[]) const
 {
 	CvAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
@@ -38327,6 +38327,8 @@ int CvPlayer::findPathLengthNew(TechTypes eTech, int pTechs[]) const
 
 //	---------------------------------------------------------------------------
 //	Finds the path length from this tech type to one you already know
+//	If bCost is false, then it returns number of techs that need to be researched to acquire eTech
+//	If bCost is true, then it returns the cost of a currently researched tech
 int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 {
 	int i;
