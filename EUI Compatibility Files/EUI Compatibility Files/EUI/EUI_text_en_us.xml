@@ -431,10 +431,10 @@
 		</Row>
 		<!-- Vox Populi -->
 		<Row Tag="TXT_KEY_EUI_BUILDING_SUPPLY_CAP_LOCAL">
-			<Text>"Supply Cap Local:"</Text>
+			<Text>Supply Cap Local:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUI_BUILDING_SUPPLY_CAP_GLOBAL">
-			<Text>"Supply Cap Global:"</Text>
+			<Text>Supply Cap Global:</Text>
 		</Row>
 		<!-- VP end -->
 <!-- MISC EUI tooltips -->
