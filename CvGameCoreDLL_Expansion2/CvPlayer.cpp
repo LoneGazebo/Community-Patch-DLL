@@ -38282,6 +38282,48 @@ bool CvPlayer::removeFromArmy(int iID)
 	return bRemoved;
 }
 
+//	---------------------------------------------------------------------------
+//	Finds the path length from this tech type to one you already know (FIXED)
+//  This one doesn't count technologies multiple times during recursive calls!
+//  A temporary buffer is used to mark techs already visited, so they can be 
+//  counted only once when the recursive calls end.
+int CvPlayer::findPathLengthNew(TechTypes eTech, int pTechs[]) const
+{
+	CvAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
+	int i;
+
+	// if buffer is empty then initialize, start recursive calls and count techs at the end
+	if (pTechs == NULL)
+	{
+		int pTechBuffer[200]; // ideally need to count all techs and allocate a dynamic array
+		std::fill(pTechBuffer, pTechBuffer+200, 0);
+		(void) findPathLengthNew(eTech, pTechBuffer);
+		int iNumTechs = 0;
+		for (i=0; i<200; i++) iNumTechs += pTechBuffer[i]; // count all techs that we visited during recursive calls
+		return iNumTechs;
+	}
+
+	// if buffer is not empty then mark the tech as required and analyze prerequisite techs
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if(pkTechInfo == NULL)
+		return 0;
+	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech)) // We have this tech
+		return 0;
+	
+	// this tech is not yet FULLY researched, so mark it; always 1, so they won't be counted multiple times!
+	pTechs[(int) eTech] = 1;
+	//	Cycle through the AND paths and mark their techs
+	for(i = 0; i < GC.getNUM_AND_TECH_PREREQS(); i++)
+	{
+		TechTypes ePreReq = (TechTypes)pkTechInfo->GetPrereqAndTechs(i);
+		if(ePreReq != NO_TECH)
+			(void) findPathLengthNew(ePreReq, pTechs);
+	}
+
+	// OR paths omitted as of now, not used
+
+	return 0;
+}
 
 //	---------------------------------------------------------------------------
 //	Finds the path length from this tech type to one you already know
@@ -38298,13 +38340,10 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 	if(pkTechInfo == NULL)
 		return 0;
 
-	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech) || m_pPlayerTechs->IsResearchingTech(eTech))
-	{
-		//	We have this tech, no reason to add this to the pre-reqs
-		//	Base case return 0, we know it...
+	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech)) // We have this tech
 		return 0;
-	}
 
+	/* WRONG - MULTIPLE COUNTS
 	//	Cycle through the and paths and add up their tech lengths
 	for(i = 0; i < GC.getNUM_AND_TECH_PREREQS(); i++)
 	{
@@ -38315,6 +38354,8 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 			iPathLength += findPathLength(ePreReq, bCost);
 		}
 	}
+	*/
+	iPathLength = findPathLengthNew(eTech, NULL);
 
 	eShortestOr = NO_TECH;
 	iShortestPath = INT_MAX;
@@ -38328,7 +38369,8 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 		if(ePreReq != NO_TECH)
 		{
 			//	Recursively find the path length (takes into account all ANDs)
-			iNumSteps = findPathLength(ePreReq, bCost);
+			//iNumSteps = findPathLength(ePreReq, bCost);
+			iNumSteps = findPathLengthNew(ePreReq, NULL);
 
 			//	If the prereq is a valid tech and its the current shortest, mark it as such
 			if(iNumSteps < iShortestPath)
@@ -38345,7 +38387,8 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 		iPathLength += iShortestPath;
 	}
 
-	return (iPathLength + ((bCost) ? GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech) : 1));
+	//return (iPathLength + ((bCost) ? GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech) : 1));
+	return bCost ? (GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech)) : iPathLength;
 }
 
 
