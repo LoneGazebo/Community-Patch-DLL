@@ -14,6 +14,7 @@ local eMovement = 2;
 local eMoves    = 3;
 local eStrength = 4;
 local eRanged   = 5;
+local eLevel    = 6;
 
 local m_SortMode = eName;
 local m_bSortReverse = false;
@@ -103,6 +104,7 @@ function UpdateScreen()
     Controls.CitiesSupplyValue:SetText(     pPlayer:GetNumUnitsSuppliedByCities() );
     Controls.PopulationSupplyValue:SetText( pPlayer:GetNumUnitsSuppliedByPopulation() );
 	Controls.WarWearinessReductionValue:SetText( -pPlayer:GetWarWearinessSupplyReduction() );
+	Controls.TechReductionValue:SetText( -pPlayer:GetTechSupplyReduction() );
     Controls.SupplyCapValue:SetText(        pPlayer:GetNumUnitsSupplied() );
 	-- CBP
 	Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnitsNoCivilian() );
@@ -261,6 +263,9 @@ function BuildUnitList()
         sortEntry.moves = max_moves;
         instance.Movement:SetText( moves_left .. "/" .. max_moves );
         
+		sortEntry.level = unit:GetLevel();
+		instance.Level:SetText( sortEntry.level );
+
         sortEntry.strength = unit:GetBaseCombatStrength();
         if( sortEntry.strength == 0 ) then
             instance.Strength:SetText( "-" );
@@ -332,6 +337,9 @@ function SortFunction( a, b )
 		elseif( m_SortMode == eMovement ) then
 			valueA = entryA.movement;
 			valueB = entryB.movement;
+		elseif( m_SortMode == eLevel ) then
+			valueA = entryA.level;
+			valueB = entryB.level;
 		elseif( m_SortMode == eMoves ) then
 			valueA = entryA.moves;
 			valueB = entryB.moves;
@@ -373,12 +381,14 @@ end
 Controls.SortName:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortStatus:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortMovement:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortLevel:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortMoves:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortStrength:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortRanged:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortName:SetVoid1( eName );
 Controls.SortStatus:SetVoid1( eStatus );
 Controls.SortMovement:SetVoid1( eMovement );
+Controls.SortLevel:SetVoid1( eLevel );
 Controls.SortMoves:SetVoid1( eMoves );
 Controls.SortStrength:SetVoid1( eStrength );
 Controls.SortRanged:SetVoid1( eRanged );

@@ -88,6 +88,9 @@ public:
 	void SetThreatRank(int iValue);
 	int GetThreatRank() const;
 
+	void SetCoastalThreatRank(int iValue);
+	int GetCoastalThreatRank() const;
+
 	void SetTradePriorityLand(int iValue);
 	int GetTradePriorityLand(void) const;
 
@@ -323,7 +326,7 @@ public:
 
 	bool canContinueProduction(OrderData order);
 	int getProductionExperience(UnitTypes eUnit = NO_UNIT);
-	void addProductionExperience(CvUnit* pUnit, bool bConscript = false);
+	void addProductionExperience(CvUnit* pUnit, bool bConscript = false, bool bGoldPurchase = false);
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;
@@ -1401,7 +1404,7 @@ public:
 	const OrderData* tailOrderQueueNode() const;
 	bool CleanUpQueue(void);  // remove items in the queue that are no longer valid
 
-	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true);
+	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true, bool bIsPurchase = false);
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);
 
@@ -1783,6 +1786,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
 	FAutoVariable<int, CvCity> m_iThreatRank;
+	FAutoVariable<int, CvCity> m_iCoastalThreatRank;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
 	FAutoVariable<int, CvCity> m_iDummy;

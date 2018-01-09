@@ -422,7 +422,6 @@ CvPlayer::CvPlayer() :
 	, m_ppaaiSpecialistExtraYield("CvPlayer::m_ppaaiSpecialistExtraYield", m_syncArchive)
 	, m_ppaaiImprovementYieldChange("CvPlayer::m_ppaaiImprovementYieldChange", m_syncArchive)
 	, m_ppaaiBuildingClassYieldMod("CvPlayer::m_ppaaiBuildingClassYieldMod", m_syncArchive)
-	, m_UnitCycle(this)
 	, m_bEverPoppedGoody("CvPlayer::m_bEverPoppedGoody", m_syncArchive)
 	, m_bEverTrainedBuilder("CvPlayer::m_bEverTrainedBuilder", m_syncArchive)
 	, m_iCityConnectionHappiness("CvPlayer::m_iCityConnectionHappiness", m_syncArchive)
@@ -734,6 +733,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl("CvPlayer::m_iFractionOriginalCapitalsUnderControl", m_syncArchive)
+	, m_iAvgUnitExp100("CvPlayer::m_iAvgUnitExp100", m_syncArchive)
 #endif
 #if defined(MOD_BATTLE_ROYALE)
 	, m_iNumMilitarySeaUnits("CvPlayer::m_iNumMilitarySeaUnits", m_syncArchive)
@@ -1279,10 +1279,7 @@ void CvPlayer::uninit()
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiBuildingClassYieldMod.clear();
 
-	m_UnitCycle.Clear();
-
 	m_researchQueue.clear();
-
 	m_cityNames.clear();
 
 	// loop through all entries freeing them up
@@ -5320,20 +5317,33 @@ void CvPlayer::UpdateCityThreatCriteria()
 
 	//Reset the critera.
 	int iLoop;
-	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
 		pLoopCity->SetThreatRank(-1);
+		pLoopCity->SetCoastalThreatRank(-1);
+	}
 
+	//
 	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(false);
 	for(int i = 0; i < (int)threatenedCities.size(); i++)
 		threatenedCities[i]->SetThreatRank(i);
+
+	vector<CvCity*> threatenedCoastalCities = GetMilitaryAI()->GetThreatenedCities(false, true);
+	for (int i = 0; i < (int)threatenedCoastalCities.size(); i++)
+		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool CoastalOnly)
 {
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->GetThreatRank() == iRank)
+		if (CoastalOnly)
+		{
+			if (pLoopCity->GetCoastalThreatRank() == iRank)
+				return pLoopCity;
+		}
+		else if (pLoopCity->GetThreatRank() == iRank)
 		{
 			return pLoopCity;
 		}
@@ -10525,16 +10535,9 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
-{
-	if (!m_pDangerPlots->IsKnownAttacker(pUnit->getOwner(),pUnit->GetID()))
-		m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false,true);
-}
-
-//	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots(bool bKeepKnownUnits)
 {
-	m_pDangerPlots->UpdateDanger(false, false, bKeepKnownUnits);
+	m_pDangerPlots->UpdateDanger(bKeepKnownUnits);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -10905,12 +10908,12 @@ void CvPlayer::doTurn()
 				FILogFile* pLog;
 				CvString strBaseString;
 				CvString strOutBuf;
-				CvString strFileName = "PlayerStats.csv";
+				CvString strFileName = "PlayerHappinessStats.csv";
 				playerName = getCivilizationShortDescription();
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
-				strOutBuf.Format("Happiness: %d, Gold: %d, Defense: %d, Science: %d, Culture: %d, War Weariness: %d, Supply: %d, Use: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), getNumUnitsNoCivilian());
+				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), getNumUnitsNoCivilian());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
@@ -11094,7 +11097,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 			UpdateDangerPlots(false);
-			UpdateFractionOriginalCapitalsUnderControl();
+			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
@@ -11281,7 +11284,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		}
 	}
 
-	if(!isBarbarian() && !isHuman())
+	if (!isBarbarian() && !isHuman() && !isMinorCiv())
 	{
 		AI_PERF_FORMAT("AI-perf.csv", ("DoPolicyAI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 		GetPlayerPolicies()->DoPolicyAI();
@@ -19548,6 +19551,9 @@ void CvPlayer::DoWarVictoryBonuses()
 }
 int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
+	if (eHistoricEvent == HISTORIC_EVENT_DIG || eHistoricEvent == HISTORIC_EVENT_TRADE_CS)
+		return 0;
+
 	int iEra = GetCurrentEra();
 	if(iEra <= 0)
 	{
@@ -19568,18 +19574,17 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iYieldHandicap = iHandicapBase * (iHandicapA * iEra * iEra + iHandicapB * iEra + iHandicapC) / 100;
 	}
 	if (iYieldHandicap > 0)
-	{
-		
+	{	
 		if (eHistoricEvent == HISTORIC_EVENT_ERA)
 			iYieldHandicap *= 2;
+		else if (eHistoricEvent == HISTORIC_EVENT_GP)
+			iYieldHandicap /= 3;
 		else if (eHistoricEvent != NO_HISTORIC_EVENT_TYPE)
 			iYieldHandicap /= 2;
 
 		bool IncludeCities = true;
 		if (eHistoricEvent == HISTORIC_EVENT_GP ||
 			eHistoricEvent == HISTORIC_EVENT_WONDER ||
-			eHistoricEvent == HISTORIC_EVENT_DIG ||
-			eHistoricEvent == HISTORIC_EVENT_TRADE_CS ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_LAND ||
 			eHistoricEvent == HISTORIC_EVENT_TRADE_SEA)
 		{
@@ -19594,7 +19599,6 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			{
 				if (pLoopCity != NULL)
 				{
-					pLoopCity->ChangeJONSCultureStored(iYieldHandicap);
 					pLoopCity->changeFood(iYieldHandicap);
 					pLoopCity->changeProduction(iYieldHandicap);
 				}
@@ -25483,7 +25487,6 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData)
 {
-
 	//No minors or barbs here, please!
 	if(isMinorCiv() || isBarbarian())
 		return;
@@ -31447,10 +31450,12 @@ int CvPlayer::calculateEconomicMight() const
 {
 	int iEconomicMight = 5;
 	iEconomicMight += getTotalPopulation();
+
 	iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
+
 	if(IsEmpireUnhappy())
 	{
 		iEconomicMight += GetExcessHappiness() * 10;
@@ -32392,8 +32397,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 			if(GetID() == kGame.getActivePlayer())
 			{
-				GetUnitCycler().Rebuild();
-
 				if(DLLUI->GetLengthSelectionList() == 0)
 				{
 					DLLUI->setCycleSelectionCounter(1);
@@ -34652,16 +34655,18 @@ void CvPlayer::DoDeficit()
 
 	// If the player has more units than cities, start disbanding things
 #if defined(MOD_BALANCE_CORE)
-	if(isMinorCiv() || isBarbarian())
+	if(isBarbarian())
 	{
 		return;
 	}
-	if(iNumMilitaryUnits > max(5, getNumCities()))
+	int iMax = isMinorCiv() ? ((GetCurrentEra() + 4) * getNumCities()) : max(10, getNumCities());
+	if(iNumMilitaryUnits >= iMax)
 #else
 	if(iNumMilitaryUnits > getNumCities())
 #endif
 	{
-		if(GC.getGame().getJonRandNum(100, "Disband rand") < 50)
+		int iRand = GC.getGame().getJonRandNum(100, "Disband rand");
+		if (iRand < 50)
 		{
 			CvUnit* pLandUnit = NULL;
 			CvUnit* pNavalUnit = NULL;
@@ -34669,13 +34674,15 @@ void CvPlayer::DoDeficit()
 			int iNavalScore = MAX_INT;
 
 			// Look for obsolete land units if in deficit or have sufficient units
-			if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			//if(GetMilitaryAI()->GetLandDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			if (iRand <= 25)
 			{
 				pLandUnit = GetMilitaryAI()->FindBestUnitToScrap(true /*bLand*/, true /*bDeficitForcedDisband*/, iLandScore);
 			}
 
 			// Look for obsolete naval units if in deficit or have sufficient units
-			if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			//if(GetMilitaryAI()->GetNavalDefenseState() <= DEFENSE_STATE_NEUTRAL)
+			else
 			{
 				pNavalUnit = GetMilitaryAI()->FindBestUnitToScrap(false/*bNaval*/, true /*bDeficitForcedDisband*/, iNavalScore);
 			}
@@ -35488,6 +35495,13 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 		{
 			return false;
 		}
+
+		int iNum = GET_PLAYER(eToPlayer).getNumUnitsNoCivilian();
+		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
+
+		if (iNum >= iMax)
+			return false;
+
 		return true;
 	}
 	return false;
@@ -35559,17 +35573,16 @@ PlayerTypes CvPlayer::GetBestGiftTarget()
 		PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
 		if (eLoopMinor != NO_PLAYER)
 		{
-			if (!CanGiftUnit(eLoopMinor))
-				continue;
-
 			CvPlayer* eMinor = &GET_PLAYER(eLoopMinor);
-			if (eMinor)
+			if (eMinor && eMinor->isAlive())
 			{
 				CvCity* pCity = eMinor->getCapitalCity();
 				if (pCity == NULL)
 					continue;
 
 				//First, the exclusions!
+				if (!CanGiftUnit(eLoopMinor))
+					continue;
 
 				//Initializations...
 				int iScore = 0;
@@ -39067,6 +39080,10 @@ bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
@@ -39112,6 +39129,10 @@ bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, 
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsDefensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
@@ -39134,6 +39155,10 @@ bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, b
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
@@ -39159,6 +39184,10 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
+
+		if (pThisOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			continue;
+
 		if(pThisOperation->IsDefensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
@@ -43480,9 +43509,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		}
 	}
 
-	kStream >> m_UnitCycle;
 	kStream >> m_researchQueue;
-
 	kStream >> m_eEndTurnBlockingType;
 	kStream >> m_iEndTurnBlockingNotificationIndex;
 
@@ -43696,9 +43723,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	}
 	m_pTreasury->Write(kStream);
 
-	kStream << m_UnitCycle;
 	kStream << m_researchQueue;
-
 	kStream << m_eEndTurnBlockingType;
 	kStream << m_iEndTurnBlockingNotificationIndex;
 
@@ -44745,7 +44770,7 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::isEnemyUnitAdjacent(const CvPlot* pPlot) const
+bool CvPlayer::isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) const
 {
 	if (!pPlot)
 		return false;
@@ -44753,7 +44778,7 @@ bool CvPlayer::isEnemyUnitAdjacent(const CvPlot* pPlot) const
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->isEnemyUnitAdjacent(*pPlot);
+	return m_pDangerPlots->isEnemyCombatUnitAdjacent(*pPlot, bSameDomain);
 }
 
 
@@ -44783,9 +44808,9 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer)
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
 }
 
-void CvPlayer::ResetDangerCache(const CvPlot & Plot)
+void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
 {
-	m_pDangerPlots->ResetDangerCache(Plot);
+	m_pDangerPlots->ResetDangerCache(&Plot, iRange);
 }
 
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot)
@@ -44801,10 +44826,7 @@ bool CvPlayer::IsKnownAttacker(const CvUnit* pAttacker)
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	if (pAttacker)
-		return m_pDangerPlots->IsKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
-
-	return false;
+	return m_pDangerPlots->IsKnownAttacker(pAttacker);
 }
 
 void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
@@ -44812,8 +44834,7 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	if (pAttacker)
-		m_pDangerPlots->AddKnownAttacker(pAttacker->getOwner(), pAttacker->GetID());
+	m_pDangerPlots->AddKnownAttacker(pAttacker);
 }
 
 //	--------------------------------------------------------------------------------
@@ -44889,9 +44910,10 @@ int CvPlayer::GetFractionOriginalCapitalsUnderControl() const
 	return m_iFractionOriginalCapitalsUnderControl;
 }
 
-void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
+void CvPlayer::UpdateMilitaryStats()
 {
 	m_iFractionOriginalCapitalsUnderControl = 0;
+	m_iAvgUnitExp100 = 0;
 
 	int iLoop;
 	int iOCCount = 0;
@@ -44912,6 +44934,18 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 
 		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / max(1, (iCivCount-1));
 	}
+
+	int iExpCount = 0, iExpSum = 0;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsCombatUnit() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+		{
+			iExpCount++;
+			iExpSum += pLoopUnit->getExperienceTimes100();
+		}
+	}
+
+	m_iAvgUnitExp100 = iExpSum / max(1,iExpCount);
 }
 
 void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
@@ -45055,13 +45089,17 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 
 }
 
-bool CvPlayer::HasCityAboutToBeConquered() const
+bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 {
 	const CvCity *pLoopCity;
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->isInDangerOfFalling())
+		if (bAboutToFall && pLoopCity->isInDangerOfFalling())
+			return true;
+
+		//trick for non const call
+		if (!bAboutToFall && GET_PLAYER(m_eID).GetPlotDanger(*pLoopCity->plot(), GET_PLAYER(m_eID).getCity(pLoopCity->GetID())) >= iMinDanger)
 			return true;
 	}
 
@@ -45604,8 +45642,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		//could be close but it takes many turns to get there ...
 		if (!isDangerous)
 		{
-			//if the target plot is more than 4 turns away it's unsafe by definition
-			if (it==reachablePlots.end() || it->iTurns>4)
+			//if it takes more than 3 turns to found it's unsafe by definition
+			if (it==reachablePlots.end() || (it->iTurns>3 || (it->iTurns==3 && it->iMovesLeft==0) ) )
 				isDangerous = true;
 		}
 
@@ -48001,4 +48039,9 @@ void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
 
 	//prevent lazy update from overwriting this
 	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();
+}
+
+int CvPlayer::GetAvgUnitExp100() const
+{
+	return m_iAvgUnitExp100;
 }

@@ -452,7 +452,7 @@ SET Text = 'Prime Minister {1_PlayerName:textkey} of {2_CivName:textkey}'
 WHERE Tag = 'TXT_KEY_COMMERCE_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] provides bonuses to empires focused on [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] 15 [ICON_GOLD] Gold every time you construct a building. Scales with Era. [NEWLINE][ICON_BULLET] -5% [ICON_GOLD] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] -5% [ICON_GOLD] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_CYAN]Broadway[ENDCOLOR]. [NEWLINE][ICON_BULLET] +1 [ICON_HAPPINESS_1] Happiness for every owned Luxury. [NEWLINE][ICON_BULLET] Specialists gain +2 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] provides bonuses to empires focused on [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] 10 [ICON_GOLD] Gold every time you construct a building. Scales with Era. [NEWLINE][ICON_BULLET] -5% [ICON_GOLD] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] -5% [ICON_GOLD] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_CYAN]Broadway[ENDCOLOR]. [NEWLINE][ICON_BULLET] +1 [ICON_HAPPINESS_1] Happiness for every owned Luxury. [NEWLINE][ICON_BULLET] Specialists gain +2 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_COMMERCE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -461,7 +461,7 @@ WHERE Tag = 'TXT_KEY_POLICY_COMMERCE_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Mercenary Army
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE]Windmills, Workshops, and Factories generate +5% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold each. [ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE]Forges, Windmills, Workshops, Factories, and Airports generate +2% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold each. [ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.'
 WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -687,7 +687,7 @@ WHERE Tag = 'TXT_KEY_POLICY_PROFESSIONALARMY_TEXT' AND EXISTS (SELECT * FROM COM
 
 -- Foreign Legion Text
 UPDATE Language_en_US
-SET Text = 'Special Infantry Unit of the Modern Era. May only be received as free units through the Volunteer Army tenet of the Freedom Ideology, or for [ICON_GOLD] Gold purchase through completing the Authority Policy Branch. This Unit has a combat bonus outside of friendly territory but is otherwise very similar to Riflemen.'
+SET Text = 'Special Infantry Unit of the Modern Era. May only be received as free units through the Volunteer Army tenet of the Freedom Ideology, or for [ICON_GOLD] Gold purchase through completing the Authority Policy Branch. This Unit has a combat bonus outside of friendly territory but is otherwise very similar to Riflemen. Receives full XP from the city when purchased.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_FOREIGN_LEGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -708,7 +708,7 @@ SET Text = 'Progress'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Progress[ENDCOLOR] is best for civilizations which desire robust infrastructure and scientific advancement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Progress grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Receive 30 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your [ICON_CAPITAL] Capital, and 20 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in your [ICON_CAPITAL] Capital, scaling with Era. [NEWLINE][ICON_BULLET] Receive 15 [ICON_CULTURE] Culture when a Technology is researched.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Progress policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Gain an additional 10 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR]. [NEWLINE][ICON_BULLET] Receive 20 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, scaling with Era.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Progress[ENDCOLOR] is best for civilizations which desire robust infrastructure and scientific advancement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Progress grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Receive 20 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your [ICON_CAPITAL] Capital, and 15 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in your [ICON_CAPITAL] Capital, scaling with Era. [NEWLINE][ICON_BULLET] Receive 15 [ICON_CULTURE] Culture when a Technology is researched.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Progress policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Gain an additional 10 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Forbidden Palace[ENDCOLOR]. [NEWLINE][ICON_BULLET] Receive 15 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, scaling with Era.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -721,7 +721,7 @@ SET Text = 'Organization'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE]Cities earn +10 [ICON_FOOD] Food and [ICON_CULTURE] Culture when they construct Buildings, scaling with Era. [ICON_INTERNATIONAL_TRADE] Trade Routes to Civilizations with more Techs and/or Policies than you generate +3 [ICON_RESEARCH] Science and/or [ICON_CULTURE] Culture.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE]Cities earn +10 [ICON_FOOD] Food and [ICON_CULTURE] Culture when they construct Buildings, scaling with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -747,7 +747,7 @@ SET Text = 'Expertise'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Expertise[ENDCOLOR][NEWLINE]+20% [ICON_PRODUCTION] Production towards buildings. [ICON_CULTURE] Culture cost of future Policies reduced by 5%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Expertise[ENDCOLOR][NEWLINE]+10% [ICON_PRODUCTION] Production towards buildings. [ICON_CULTURE] Culture cost of future Policies reduced by 5%.'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -760,7 +760,7 @@ SET Text = 'Equality'
 WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Equality[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold and +2 [ICON_PRODUCTION] Production in every City. +1 [ICON_HAPPINESS_1] Happiness for every 16 [ICON_CITIZEN] Citizens in your Empire.'
+SET Text = '[COLOR_POSITIVE_TEXT]Equality[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold and +2 [ICON_PRODUCTION] Production in every City. +1 [ICON_HAPPINESS_1] Happiness for every 15 [ICON_CITIZEN] Citizens in your Empire.'
 WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -925,7 +925,7 @@ SET Text = 'Burghers'
 WHERE Tag = 'TXT_KEY_POLICY_REFORMATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Burghers[ENDCOLOR][NEWLINE]+15% [ICON_PRODUCTION] Production and city Border Growth doubled during ''We Love the King Day.'''
+SET Text = '[COLOR_POSITIVE_TEXT]Burghers[ENDCOLOR][NEWLINE]+15% [ICON_PRODUCTION] Production and city Border Growth doubled during ''We Love the King Day.'' [ICON_INTERNATIONAL_TRADE] Trade Routes to Civilizations with more Techs and/or Policies than you generate +3 [ICON_RESEARCH] Science and/or [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_REFORMATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -970,7 +970,7 @@ SET Text = 'Enlightenment'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE]A [ICON_GOLDEN_AGE] Golden Age begins. +10% [ICON_RESEARCH] Science and +10% [ICON_FOOD] Growth in all Cities during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE]A [ICON_GOLDEN_AGE] Golden Age begins. +5% [ICON_RESEARCH] Science and +10% [ICON_FOOD] Growth in all Cities during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -979,7 +979,7 @@ WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Scientific Revolution
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Academics[ENDCOLOR][NEWLINE]+1 [ICON_GOLD] Gold from every Specialist. +4% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).'
+SET Text = '[COLOR_POSITIVE_TEXT]Academics[ENDCOLOR][NEWLINE]+1 [ICON_GOLD] Gold from every Specialist. +2% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1038,7 +1038,7 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_TRADITION_HELP' AND EXISTS (SELECT * FROM COM
 
 -- Aristocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Justice[ENDCOLOR][NEWLINE]Cities with a garrison gain +50% [ICON_RANGE_STRENGTH] Ranged Combat Strength. [COLOR_CYAN]Royal Guardhouse[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Engineer Specialist, +3 [ICON_STRENGTH] Defense, +25 Hit Points, +3 [ICON_PRODUCTION] Production).'
+SET Text = '[COLOR_POSITIVE_TEXT]Justice[ENDCOLOR][NEWLINE]Cities with a garrison gain +50% [ICON_RANGE_STRENGTH] Ranged Combat Strength. [COLOR_CYAN]Royal Guardhouse[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Engineer Specialist, +3 [ICON_STRENGTH] Defense, +25 Hit Points, +4 [ICON_PRODUCTION] Production).'
 WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1051,7 +1051,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Oligarchy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE][ICON_CULTURE] Culture cost of tiles reduced by 25% (exponentially) in all Cities. [COLOR_CYAN]Court Chapel[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Artist Specialist, 1 [ICON_GREAT_WORK] Great Work of Art slot, +2 [ICON_PEACE] Faith).'
+SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE][ICON_CULTURE] Culture cost of tiles reduced by 25% (exponentially) in all Cities. [COLOR_CYAN]Court Chapel[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Artist Specialist, 1 [ICON_GREAT_WORK] Great Work of Art slot, +3 [ICON_PEACE] Faith).'
 WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1064,7 +1064,7 @@ WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Monarchy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE]Specialists in [ICON_CAPITAL] Capital consume half the normal amount of [ICON_FOOD] Food. [COLOR_CYAN]State Treasury[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Merchant Specialist, +3 [ICON_GOLD] Gold, +25% [ICON_GREAT_PEOPLE] Great Person Rate in City).'
+SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE]Specialists in [ICON_CAPITAL] Capital consume half the normal amount of [ICON_FOOD] Food. [COLOR_CYAN]State Treasury[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Merchant Specialist, +5 [ICON_GOLD] Gold, +25% [ICON_GREAT_PEOPLE] Great Person Rate in City).'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1077,7 +1077,7 @@ WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Landed Elite
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Splendor[ENDCOLOR][NEWLINE]Expending a Great Person grants 50 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_CULTURE] Culture, scaling with Era. [COLOR_CYAN]Palace Garden[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Writer Specialist, 1 [ICON_GREAT_WORK] Great Work of Writing slot, +3 [ICON_FOOD] Food; Monuments, Gardens, and Baths provide +2 [ICON_CULTURE] Culture in every City).'
+SET Text = '[COLOR_POSITIVE_TEXT]Splendor[ENDCOLOR][NEWLINE]Expending a Great Person grants 50 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_CULTURE] Culture, scaling with Era. [COLOR_CYAN]Palace Garden[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Writer Specialist, 1 [ICON_GREAT_WORK] Great Work of Writing slot, +5 [ICON_FOOD] Food; Monuments, Gardens, and Baths provide +2 [ICON_CULTURE] Culture in every City).'
 WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1090,7 +1090,7 @@ WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE_TEXT' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Legalism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE]Palace and National Wonders with Building requirements gain +2 [ICON_HAPPINESS_1] Happiness. [COLOR_CYAN]Court Astrologer[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Scientist Specialist, +2 [ICON_RESEARCH] Science; Councils and Herbalists provide +1 [ICON_RESEARCH] Science in every City).'
+SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE]Palace and National Wonders with Building requirements gain +2 [ICON_HAPPINESS_1] Happiness. [COLOR_CYAN]Court Astrologer[ENDCOLOR] built in [ICON_CAPITAL] Capital (1 Scientist Specialist, +4 [ICON_RESEARCH] Science; Councils and Herbalists provide +1 [ICON_RESEARCH] Science in every City).'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

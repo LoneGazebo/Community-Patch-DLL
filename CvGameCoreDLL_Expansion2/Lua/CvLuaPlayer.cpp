@@ -5553,7 +5553,9 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 					{
 						eConnection = (TradeConnectionType)uiConnectionTypes;
 				
-						bool bTradeAvailable = pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, true, bCheckPath);
+						const TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
+
+						bool bTradeAvailable = !pConnection && pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, true, bCheckPath);
 						if (!bTradeAvailable)
 						{
 							continue;
@@ -5570,7 +5572,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						kConnection.m_eDomain = eDomain;
 
 						int iTurnsLeft = -1;
-						const TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
+						
 						if (pConnection && pConnection->m_eDomain == eDomain)
 						{
 							iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();

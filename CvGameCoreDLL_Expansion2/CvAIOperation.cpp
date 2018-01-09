@@ -811,10 +811,10 @@ bool CvAIOperation::ShouldAbort()
 {
 	int iTurns = GC.getGame().getGameTurn() - GetTurnStarted();
 
-	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS && iTurns > GetMaximumRecruitTurns()*2)
+	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS && iTurns > GetMaximumRecruitTurns())
 		SetToAbort(AI_ABORT_TIMED_OUT);
 
-	if (m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurns()*3)
+	if (m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && iTurns > GetMaximumRecruitTurns()*4)
 		SetToAbort(AI_ABORT_TIMED_OUT);
 
 	CvPlot* pMuster = GetMusterPlot();
@@ -1082,9 +1082,6 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 					else
 						return NULL;
 				}
-
-				//update the current position
-				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
 
 				//get where we want to be next
 				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
@@ -3287,7 +3284,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 	// check all of our units to find the nukes
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit || !pLoopUnit->canNuke(NULL))
+		if (!pLoopUnit || !pLoopUnit->canNuke())
 			continue;
 
 		// for all cities of this enemy
@@ -3447,7 +3444,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	int iUnitLoop;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit && pLoopUnit->canNuke(NULL) && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
+		if(pLoopUnit && pLoopUnit->canNuke() && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
 		{
 			CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 			pThisArmy->AddUnit(pLoopUnit->GetID(), thisOperationSlot.m_iSlotID);
@@ -3813,7 +3810,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
 														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iTurnDistance, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
 {
-	if (pLoopUnit->isTrade())
+	if (pLoopUnit->IsCivilianUnit() && pLoopUnit->AI_getUnitAIType() != UNITAI_GENERAL && pLoopUnit->AI_getUnitAIType() != UNITAI_ADMIRAL && pLoopUnit->AI_getUnitAIType() != UNITAI_CITY_SPECIAL)
 		return false;
 
 	if (!pLoopUnit->canRecruitFromTacticalAI())

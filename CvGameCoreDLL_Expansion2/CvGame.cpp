@@ -992,8 +992,6 @@ void CvGame::DoGameStarted()
 		}
 	}
 
-	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
-
 #if defined(MOD_BALANCE_CORE)
 	CvPlayerManager::Refresh(false);
 #endif
@@ -10014,14 +10012,14 @@ void CvGame::doVictoryRandomization()
 	if (isVictoryRandomizationDone())
 		return;
 
-	//no one in final era?
+	//no one in atomic era?
 	bool bFinalEra = false;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 		{
-			if (GET_PLAYER(eLoopPlayer).GetCurrentEra() == (EraTypes) GC.getInfoTypeForString("ERA_FUTURE"))
+			if (GET_PLAYER(eLoopPlayer).GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_POSTMODERN"))
 			{
 				bFinalEra = true;
 			}
@@ -10047,6 +10045,10 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isEndScore())
 			continue;
 
+		//Skip conquest, always valid.
+		if (pkVictoryInfo->isConquest())
+			continue;
+
 		int iScore = getJonRandNum(100, "Victory Score");
 		
 		if (pkVictoryInfo->isDiploVote())
@@ -10056,10 +10058,6 @@ void CvGame::doVictoryRandomization()
 		else if (pkVictoryInfo->isInfluential())
 		{
 			iScore += GC.getGame().GetGameCulture()->GetNumGreatWorks() / 5;
-		}
-		else if (pkVictoryInfo->isConquest())
-		{
-			iScore += countTotalNukeUnits() * 15;
 		}
 		else if (eVictory == (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true))
 		{
@@ -10165,11 +10163,6 @@ void CvGame::doVictoryRandomization()
 				else if (eBestVictory == (VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true))
 				{
 					CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_4, 3);
-					DLLUI->AddPopup(kPopupInfo);
-				}
-				else if (pkBestVictoryInfo->isConquest())
-				{
-					CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_4, 4);
 					DLLUI->AddPopup(kPopupInfo);
 				}
 			}

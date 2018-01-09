@@ -302,8 +302,8 @@ public:
 	};
 #endif
 
-	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats=true);
-	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true);
+	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats = true, bool CoastalOnly = false);
+	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool CoastalOnly = false);
 
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
@@ -349,7 +349,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void MinorAttackTest();
-	int GetWarType(PlayerTypes ePlayer = NO_PLAYER);
+	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -529,7 +529,7 @@ UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes form
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForNavalAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
-CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
+CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
 }
 
 #endif //CIV5_MILITARY_AI_H

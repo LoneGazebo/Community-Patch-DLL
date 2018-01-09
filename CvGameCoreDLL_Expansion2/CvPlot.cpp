@@ -4499,7 +4499,7 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if(pLoopUnit->IsCanDefend() && isEnemy(pLoopUnit, eTeam, bAlwaysHostile))
 				{
@@ -4551,7 +4551,7 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if(isEnemy(pLoopUnit, eTeam, false))
 				{
@@ -4584,7 +4584,7 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if(isEnemy(pLoopUnit, eTeam, bAlwaysHostile))
 				{
@@ -4615,7 +4615,7 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if(isOtherTeam(pLoopUnit, eTeam))
 				{
@@ -4645,7 +4645,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if (bCombat != pLoopUnit->IsCanDefend())
 					continue;
@@ -4682,7 +4682,7 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				if (bCombat != pLoopUnit->IsCanDefend())
 					continue;
@@ -10989,7 +10989,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					}
 					else
 					{
-						GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
+						GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit);
 					}
 				}
 			}

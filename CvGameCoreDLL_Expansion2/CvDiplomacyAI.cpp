@@ -7893,7 +7893,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 			return true;
 	}
 
-	if (GET_PLAYER(ePlayer).HasCityAboutToBeConquered() && !m_pPlayer->HasCityAboutToBeConquered())
+	if (GET_PLAYER(ePlayer).HasCityInDanger(true,0) && !m_pPlayer->HasCityInDanger(true,0))
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
@@ -8829,17 +8829,15 @@ void CvDiplomacyAI::DoUpdateWarStates()
 //				WAR STATE MODIFICATIONS - We crunched the numbers above, but are there any special cases to consider?
 //////////////////////////////////////////////////////////
 
+				int WarScore = GetWarScore(eLoopPlayer);
 				// If the war is calm but they're an easy target consider us on Offense
-				if(eWarState == WAR_STATE_CALM)
+				if (eWarState == WAR_STATE_CALM || WarScore > 20)
 				{
-					if(GetPlayerTargetValue(eLoopPlayer) >= TARGET_VALUE_FAVORABLE)
-					{
-						eWarState = WAR_STATE_OFFENSIVE;
-					}
+					eWarState = WAR_STATE_OFFENSIVE;
 				}
 
 				// If the other guy happens to have a guy or two near us but we vastly outnumber him overall, we're not really on the defensive
-				if(eWarState <= WAR_STATE_DEFENSIVE)
+				if (eWarState <= WAR_STATE_DEFENSIVE && WarScore < 0)
 				{
 					if(iMyLocalMilitaryStrength >= iEnemyInMyLandsMilitaryStrength + iEnemyInMyLandsMilitaryStrength)
 					{
@@ -8850,7 +8848,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				//If it has been a while since either side captured a city, let's bring it down to calm.
 				if (eWarState != WAR_STATE_NEARLY_WON && (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 5) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) >= 5))
 				{
-					eWarState = WAR_STATE_CALM;
+					if (WarScore <= 5 && WarScore >= -5)
+						eWarState = WAR_STATE_CALM;
 				}
 
 				int iMyDanger = 0;
@@ -8869,18 +8868,17 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 						if(pLoopCity->isInDangerOfFalling())
 						{
-							iMyDanger += 5;
+							iMyDanger += 10;
 						}
 						if(pLoopCity->isUnderSiege())
 						{
-							iMyDanger += 3;
+							iMyDanger += 10;
 						}
 						if(pLoopCity->IsInDanger(eLoopPlayer))
 						{
-							iMyDanger += 2;
+							iMyDanger += 5;
 						}
 					}
-
 				}
 				iMyDanger /= max(1, iNumMyCities);
 
@@ -8892,15 +8890,15 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 						if (pLoopCity->isInDangerOfFalling())
 						{
-							iTheirDanger += 5;
+							iTheirDanger += 10;
 						}
 						if (pLoopCity->isUnderSiege())
 						{
-							iTheirDanger += 3;
+							iTheirDanger += 10;
 						}
 						if (pLoopCity->IsInDanger(GetPlayer()->GetID()))
 						{
-							iTheirDanger += 2;
+							iTheirDanger += 5;
 						}
 					}
 				}
@@ -8909,6 +8907,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 				//More of my cities in danger than theirs?
 				if (iMyDanger > iTheirDanger)
+				{
+					eWarState = WAR_STATE_DEFENSIVE;
+				}
+				else if (iMyDanger >= iTheirDanger)
+				{
+					eWarState = WAR_STATE_STALEMATE;
+				}
+				else if (iMyDanger > 0 && (eWarState == WAR_STATE_STALEMATE || eWarState == WAR_STATE_CALM))
 				{
 					eWarState = WAR_STATE_DEFENSIVE;
 				}
@@ -41114,7 +41120,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// Reduce score based on number of his vassals
 	iWantVassalageScore -= 20 * kTheirTeam.GetNumVassals();
 
-	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD();
+	int iThreshold = /*100*/ GC.getVASSALAGE_CAPITULATE_BASE_THRESHOLD() + 25;
 
 	return (iWantVassalageScore > iThreshold);
 }

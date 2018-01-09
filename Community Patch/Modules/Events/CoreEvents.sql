@@ -469,7 +469,7 @@ INSERT INTO CityEventChoices (Type,Description,Help,DisabledTooltip,EventChoiceA
  ('CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3','TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3','TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'true',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4','TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4','TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',40,'true',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_1','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
- ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',150,'true',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
+ ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',75,'true',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_3','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE',50,'false','false',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,'BUILDINGCLASS_HARBOR','false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,'BUILDINGCLASS_HARBOR',0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1','TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1','TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'true','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_2','TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_2','TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','true',30,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
@@ -578,7 +578,8 @@ INSERT INTO CityEventChoice_MinimumStartYield (CityEventChoiceType,YieldType,Yie
  ('CITY_EVENT_HURRICANE_CHOICE_1','YIELD_GOLD',1000),
  ('CITY_EVENT_HURRICANE_CHOICE_3','YIELD_GOLD',500),
  ('CITY_EVENT_HURRICANE_CHOICE_4','YIELD_GOLD',500),
- ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_GOLD',500);
+ ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_GOLD',500),
+ ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','YIELD_POPULATION',6);
 
 INSERT INTO CityEventChoice_ResourceQuantity (CityEventChoiceType,ResourceType,Quantity) VALUES ('CITY_EVENT_MINE_COLLAPSE_CHOICE_3','RESOURCE_OIL',1);
 
@@ -608,7 +609,8 @@ INSERT INTO CityEventChoice_InstantYield (CityEventChoiceType,YieldType,Yield) V
  ('CITY_EVENT_HURRICANE_CHOICE_2','YIELD_POPULATION',-5),
  ('CITY_EVENT_HURRICANE_CHOICE_3','YIELD_POPULATION',-4),
  ('CITY_EVENT_HURRICANE_CHOICE_4','YIELD_POPULATION',-3),
- ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_POPULATION',-2);
+ ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_POPULATION',-2),
+ ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','YIELD_POPULATION',-5);
 
 INSERT INTO CityEventChoice_ImprovementYieldChange (CityEventChoiceType,ImprovementType,YieldType,YieldChange) VALUES ('CITY_EVENT_DROUGHT_CHOICE_1','IMPROVEMENT_FARM','YIELD_FOOD',-1),
  ('CITY_EVENT_SEVERE_DROUGHT_CHOICE_1','IMPROVEMENT_FARM','YIELD_FOOD',-1),
@@ -618,7 +620,7 @@ INSERT INTO CityEventChoice_ImprovementYieldChange (CityEventChoiceType,Improvem
  ('CITY_EVENT_ICE_AGE_BITTER_WINDS_CHOICE_1','IMPROVEMENT_QUARRY','YIELD_PRODUCTION',-1),
  ('CITY_EVENT_ICE_AGE_BITTER_WINDS_CHOICE_1','IMPROVEMENT_FARM','YIELD_PRODUCTION',-1),
  ('CITY_EVENT_PESTILENCE_CHOICE_3','IMPROVEMENT_FARM','YIELD_FOOD',1),
- ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','IMPROVEMENT_FISHING_BOATS','YIELD_FOOD',5);
+ ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','IMPROVEMENT_FISHING_BOATS','YIELD_FOOD',4);
 
 INSERT INTO CityEventChoice_ImprovementDestructionRandom (CityEventChoiceType,ImprovementType,Number) VALUES ('CITY_EVENT_SEVERE_DROUGHT_CHOICE_1','IMPROVEMENT_FARM',1),
  ('CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1','IMPROVEMENT_FARM',2),

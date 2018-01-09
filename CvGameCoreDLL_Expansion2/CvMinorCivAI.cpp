@@ -15726,16 +15726,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #endif
 
 	CvAssertMsg(GetPlayer()->GetID() != eBullyPlayer, "Minor civ and bully civ not expected to have the same ID!");
-	if(GetPlayer()->GetID() == eBullyPlayer)
+	if (GetPlayer()->GetID() == eBullyPlayer)
 		return iFailScore;
 
 	CvAssertMsg(eBullyPlayer >= 0, "eBullyPlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eBullyPlayer < MAX_MAJOR_CIVS, "eBullyPlayer is expected to be within maximum bounds (invalid Index)");
-	if(eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
+	if (eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
 		return iFailScore;
 
 	// Can't bully the dead
-	if(!GetPlayer()->isAlive())
+	if (!GetPlayer()->isAlive())
 		return iFailScore;
 
 	// **************************
@@ -15746,38 +15746,34 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
 	PlayerTypes eMajorLoop;
 	int iGlobalMilitaryScore = 0;
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajorLoop = (PlayerTypes) iMajorLoop;
-		if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		eMajorLoop = (PlayerTypes)iMajorLoop;
+		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
 		{
 			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
 		}
 	}
 	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
 	veMilitaryRankings.SortItems();
-	for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
 	{
-		if(veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
+		if (veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 #if defined(MOD_BALANCE_CORE_MINORS)
-			if(MOD_BALANCE_CORE_MINORS)
+			int iValue = 75;
+			if (MOD_BALANCE_CORE_MINORS)
 			{
-				iGlobalMilitaryScore = (int)(fRankRatio * 110); // A score between 50*(1 / num majors alive) and 110, with the highest rank major getting 110
-			}
-			else
-			{
-#endif
-			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
-#if defined(MOD_BALANCE_CORE_MINORS)
+				iValue -= GET_PLAYER(eBullyPlayer).GetCurrentEra() * 5;
 			}
 #endif
+			iGlobalMilitaryScore = (int)(fRankRatio * iValue); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 			iScore += iGlobalMilitaryScore;
 			break;
 		}
 	}
-	
+
 	if (sTooltipSink)
 	{
 		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
@@ -15791,7 +15787,19 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// +0 ~ +125
 	// **************************
-	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 10, 5);
+	int iComparisonRadius = 0;
+	if (MOD_BALANCE_CORE_MINORS)
+	{
+		iComparisonRadius = 6;
+		if (!GET_PLAYER(eBullyPlayer).isHuman())
+		{
+			iComparisonRadius += (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2);
+		}
+	}
+	else
+	{
+		iComparisonRadius = std::max(GC.getMap().getGridWidth() / 15, 4);
+	}
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if(pMinorCapital == NULL)
 		return iFailScore;
@@ -15845,48 +15853,21 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			}
 		}
 	}
-
-	float fLocalPowerRatio = (float)iBullyLocalPower / (float)iMinorLocalPower;
-	int iLocalPowerScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS)
+	float fLocalPowerRatio = 0;
+	int iLocalPowerScore = 0;
+	if (MOD_BALANCE_CORE_MINORS)
 	{
-		if(fLocalPowerRatio >= 4.0)
-		{
-			iLocalPowerScore += 150;
-		}
-		if(fLocalPowerRatio >= 3.5)
-		{
-			iLocalPowerScore += 130;
-		}
-		if(fLocalPowerRatio >= 3.0)
-		{
-			iLocalPowerScore += 110;
-		}
-		if(fLocalPowerRatio >= 2.5)
-		{
-			iLocalPowerScore += 90;
-		}
-		if(fLocalPowerRatio >= 2.0)
-		{
-			iLocalPowerScore += 70;
-		}
-		if(fLocalPowerRatio >= 1.5)
-		{
-			iLocalPowerScore += 50;
-		}
-		if(fLocalPowerRatio >= 1.0)
-		{
-			iLocalPowerScore += 30;
-		}
-		if(fLocalPowerRatio >= 0.5)
-		{
-			iLocalPowerScore += 10;
-		}
+		fLocalPowerRatio = (float)iBullyLocalPower * 100 / (float)iMinorLocalPower;
+
+		iLocalPowerScore += (int)fLocalPowerRatio;
 	}
 	else
 	{
 #endif
+
+	fLocalPowerRatio = (float)iBullyLocalPower / (float)iMinorLocalPower;
+
 	if(fLocalPowerRatio >= 3.0)
 	{
 		iLocalPowerScore += 125;
@@ -16152,7 +16133,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		int iAllyScore = 0;
 		if(MOD_BALANCE_CORE_MINORS)
 		{
-			iAllyScore = -100;
+			iAllyScore = -125;
 		}
 		else
 		{
@@ -16185,7 +16166,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 			if(MOD_BALANCE_CORE_MINORS)
 			{
-				iProtectionScore = -25;
+				iProtectionScore = -50;
 			}
 			else
 			{

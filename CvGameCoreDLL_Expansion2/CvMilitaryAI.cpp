@@ -351,9 +351,7 @@ void CvMilitaryAI::Reset()
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
 #if defined(MOD_BALANCE_CORE)
 	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		m_aiWarFocus[iI] = 0;
-	}
+		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
 	m_iRecNavySize = 0;
 	m_iFreeCarrier = 0;
 	m_iFreeCargo = 0;
@@ -2663,7 +2661,7 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 	return iRtnValue;
 }
 
-vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
+vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bool CoastalOnly)
 {
 	std::vector<std::pair<CvCity*,int>> vCities;
 	struct PrSortByScore {
@@ -2681,6 +2679,9 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 	int iLoopCity = 0;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
+		if (CoastalOnly && !pLoopCity->isCoastal())
+			continue;
+
 		//with the new danger plots, the stored threat value should be accurate
 		int iThreatValue = pLoopCity->getThreatValue();
 
@@ -2770,9 +2771,9 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 }
 
 /// Which city is in the most danger now?
-CvCity* CvMilitaryAI::GetMostThreatenedCity(bool bIncludeFutureThreats)
+CvCity* CvMilitaryAI::GetMostThreatenedCity(bool bIncludeFutureThreats, bool CoastalOnly)
 {
-	vector<CvCity*> allCities = GetThreatenedCities(bIncludeFutureThreats);
+	vector<CvCity*> allCities = GetThreatenedCities(bIncludeFutureThreats, CoastalOnly);
 	if (allCities.empty())
 		return 0;
 	else
@@ -3937,8 +3938,8 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				if (bRollForNuke)
 				{
 					int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-					int iRoll = GC.getGame().getSmallFakeRandNum(10, ePlayer);
-					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, ePlayer);
+					int iRoll = GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(ePlayer).getNumUnits());
+					int iRoll2 = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->getNumUnits());
 					if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
 					{
 						bLaunchNuke = true;
@@ -4132,6 +4133,7 @@ void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
 	int iFilledSlots;
 
 	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityByRank();
+	CvCity* pMostThreatenedCoastalCity = m_pPlayer->GetThreatenedCityByRank(0, true);
 	if(pMostThreatenedCity != NULL)
 	{
 		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, ePlayer);
@@ -4143,18 +4145,18 @@ void CvMilitaryAI::SetupDefenses(PlayerTypes ePlayer)
 				m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, ePlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
 			}
 		}
-		if(pMostThreatenedCity->isCoastal())
+		if (pMostThreatenedCoastalCity != NULL && pMostThreatenedCoastalCity->isCoastal())
 		{
 			CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMostThreatenedCity->plot());
 			if (pCoastalPlot != NULL)
 			{
-				bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pMostThreatenedCity->plot());
+				bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer, pMostThreatenedCoastalCity->plot());
 				if (!bHasOperationUnderway)
 				{
 					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_SQUADRON, true, m_pPlayer->CanCrossOcean(), pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
 					if (iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= 0))
 					{
-						m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity, m_pPlayer->CanCrossOcean());
+						m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pMostThreatenedCoastalCity->getArea(), pMostThreatenedCoastalCity, pMostThreatenedCoastalCity, m_pPlayer->CanCrossOcean());
 					}
 				}
 			}
@@ -4168,7 +4170,7 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 		return;
 	
 	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eEnemy);
-	if (eWarState >= WAR_STATE_STALEMATE)
+	if (eWarState >= WAR_STATE_CALM)
 		return;
 
 	int iOperationID;
@@ -4176,22 +4178,10 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 	int iFilledSlots;
 	int iNumUnitsWillingBuild = 2;
 
-	//Let's make sure our base defenses are up.
-	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eEnemy);
-	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearPlot(m_pPlayer->GetID(),eEnemy,DOMAIN_LAND,true,pThreatenedCity->getArea(),pThreatenedCity->plot());
-	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getWorkingCity() != NULL)
-	{
-		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pStartPlot, pStartPlot, &iNumRequiredSlots);
-		if(iFilledSlots > 0)
-		{
-			m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eEnemy, pStartPlot->getArea(), pStartPlot->getWorkingCity(), pStartPlot->getWorkingCity());
-		}
-	}
-
-	m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eEnemy, true, AI_ABORT_WAR_STATE_CHANGE);
-
+	if (eWarState == WAR_STATE_DEFENSIVE)
+		m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eEnemy, true, AI_ABORT_WAR_STATE_CHANGE);
 	// If we are really losing, let's pull back everywhere.	
-	if (eWarState == WAR_STATE_NEARLY_DEFEATED)
+	else if (eWarState == WAR_STATE_NEARLY_DEFEATED)
 	{
 		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 		{
@@ -4202,6 +4192,18 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 			{
 				m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer2, true, AI_ABORT_WAR_STATE_CHANGE);
 			}
+		}
+	}
+
+	//Let's make sure our base defenses are up.
+	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eEnemy);
+	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, true, pThreatenedCity->getArea(), pThreatenedCity->plot());
+	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getWorkingCity() != NULL)
+	{
+		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eEnemy, MUFORMATION_RAPID_RESPONSE_FORCE, false, false, pStartPlot, pStartPlot, &iNumRequiredSlots);
+		if (iFilledSlots > 0)
+		{
+			m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eEnemy, pStartPlot->getArea(), pStartPlot->getWorkingCity(), pStartPlot->getWorkingCity());
 		}
 	}
 
@@ -4222,13 +4224,13 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 		return;
 
 	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
-	if (eWarState >= WAR_STATE_STALEMATE)
+	if (eWarState >= WAR_STATE_CALM)
 		return;
 
-	m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer, true, AI_ABORT_WAR_STATE_CHANGE);
-
+	if (eWarState ==  WAR_STATE_DEFENSIVE)
+		m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer, true, AI_ABORT_WAR_STATE_CHANGE);
 	//if we are losing badly, pull back everywhere
-	if(m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) == WAR_STATE_NEARLY_DEFEATED)
+	else if (eWarState == WAR_STATE_NEARLY_DEFEATED)
 	{
 		for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 		{
@@ -4527,17 +4529,16 @@ int CvMilitaryAI::GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& global
 void CvMilitaryAI::UpdateOperations()
 {
 	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
-	{
 		return;
-	}
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
+	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	//check the two most threatened cities for defense
 	CvCity* pThreatenedCityA = m_pPlayer->GetThreatenedCityByRank(0);
 	CvCity* pThreatenedCityB = m_pPlayer->GetThreatenedCityByRank(1);
+
+	//cached distances might be invalid because of new/conquered cities or changed alliances ...
+	ResetDistanceCaches();
 
 	///////////////////////////////
 	//////////////////////
@@ -4552,14 +4553,13 @@ void CvMilitaryAI::UpdateOperations()
 	//////////////////////
 	//////////////////////////////
 
-	//cached distances might be invalid because of new/conquered cities or changed alliances ...
-	ResetDistanceCaches();
-
 	int iBestValue;
 	CvMilitaryTarget bestTargetLand = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_CITY_BASIC_ATTACK, &iBestValue, true);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veLandThreatWeights;
 	// Are any of our strategies inappropriate given the type of war we are fighting
+	int iPlayerLoop;
+	PlayerTypes eLoopPlayer;
 	for (iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -4612,6 +4612,10 @@ void CvMilitaryAI::UpdateOperations()
 			}
 		}
 	}
+
+	CvCity* pThreatenedCoastalCityA = m_pPlayer->GetThreatenedCityByRank(0, true);
+	CvCity* pThreatenedCoastalCityB = m_pPlayer->GetThreatenedCityByRank(1, true);
+
 	CvMilitaryTarget bestTargetSea = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetGlobal(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iBestValue, true);
 
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veSeaThreatWeights;
@@ -4645,11 +4649,11 @@ void CvMilitaryAI::UpdateOperations()
 				//Defense check.
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					if(pThreatenedCityA == NULL)
+					if (pThreatenedCoastalCityA == NULL)
 						m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
 
-					CheckSeaDefenses(eLoopPlayer,pThreatenedCityA);
-					CheckSeaDefenses(eLoopPlayer,pThreatenedCityB);
+					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityA);
+					CheckSeaDefenses(eLoopPlayer, pThreatenedCoastalCityB);
 				}
 				if(veSeaThreatWeights.GetWeight(iThreatCivs) > 0)
 				{
@@ -4793,13 +4797,16 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	if(GetNumberCivsAtWarWith() > 0)
 #endif
 	{
-		return;
+		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+			return;
 	}
 
 	if (m_pPlayer->isMinorCiv())
 	{
-		if (m_pPlayer->getNumMilitaryUnits() < m_pPlayer->getTotalPopulation() / 2)
+		if (m_pPlayer->getNumUnitsNoCivilian() < min(3, ((m_pPlayer->GetCurrentEra() + 2) * m_pPlayer->getNumCities())))
 			return;
+		else
+			bInDeficit = true;
 
 		if (m_pPlayer->IsAtWar())
 			return;
@@ -4812,8 +4819,11 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	}
 
 	// Are we running at a deficit?
-	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
-	bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+	if (!bInDeficit)
+	{
+		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+	}
 
 	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
@@ -4838,70 +4848,76 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		}
 	}
 
-	// Look for obsolete land units if in deficit or have sufficient units
-	if(bInDeficit || (m_eLandDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
+	int iPass = 0;
+	while (iAverageGoldPerUnit > 4 && iPass <= 10)
 	{
-		pLandUnit = FindBestUnitToScrap(true /*bLand*/, false /*bDeficitForcedDisband*/, iLandScore);
-	}
+		iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, m_pPlayer->getNumUnits()));
 
-	// Look for obsolete naval units if in deficit or have sufficient units
-	if(bInDeficit || (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
-	{
-		pNavalUnit = FindBestUnitToScrap(false/*bNaval*/, false /*bDeficitForcedDisband*/, iNavalScore);
-	}
-
-	if(iLandScore < MAX_INT && (m_eLandDefenseState <= m_eNavalDefenseState || iLandScore <= iNavalScore))
-	{
-		if(pLandUnit)
+		// Look for obsolete land units if in deficit or have sufficient units
+		if (bInDeficit || (m_eLandDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
 		{
-	
-			bool bGifted = false;
-			// Don't do this if we're a minor civ
-			if (!m_pPlayer->isMinorCiv())
+			pLandUnit = FindBestUnitToScrap(true /*bLand*/, bInDeficit /*bDeficitForcedDisband*/, iLandScore);
+		}
+
+		// Look for obsolete naval units if in deficit or have sufficient units
+		if (bInDeficit || (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL && !bConquestGrandStrategy))
+		{
+			pNavalUnit = FindBestUnitToScrap(false/*bNaval*/, bInDeficit /*bDeficitForcedDisband*/, iNavalScore);
+		}
+
+		if (iLandScore < MAX_INT && (m_eLandDefenseState <= m_eNavalDefenseState || iLandScore <= iNavalScore))
+		{
+			if (pLandUnit && !pLandUnit->isDelayedDeath())
 			{
-				PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
-				if (eMinor != NO_PLAYER)
+				bool bGifted = false;
+				// Don't do this if we're a minor civ
+				if (!m_pPlayer->isMinorCiv())
 				{
-					GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
-					bGifted = true;
+					PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+					if (eMinor != NO_PLAYER)
+					{
+						GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
+						bGifted = true;
+					}
+				}
+				if (!bGifted)
+				{
+					pLandUnit->scrap();
+					LogScrapUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
+				}
+				else
+				{
+					LogGiftUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
 				}
 			}
-			if (!bGifted)
-			{
-				pLandUnit->scrap();
-				LogScrapUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
-			}
-			else
-			{
-				LogGiftUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
-			}
 		}
-	}
-	else if(iNavalScore < MAX_INT)
-	{
-		if(pNavalUnit)
+		else if (iNavalScore < MAX_INT)
 		{
-			bool bGifted = false;
-			// Don't do this if we're a minor civ
-			if (!m_pPlayer->isMinorCiv())
+			if (pNavalUnit && !pNavalUnit->isDelayedDeath())
 			{
-				PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
-				if (eMinor != NO_PLAYER)
+				bool bGifted = false;
+				// Don't do this if we're a minor civ
+				if (!m_pPlayer->isMinorCiv())
 				{
-					GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
-					bGifted = true;
+					PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+					if (eMinor != NO_PLAYER)
+					{
+						GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
+						bGifted = true;
+					}
+				}
+				if (!bGifted)
+				{
+					pNavalUnit->scrap();
+					LogScrapUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
+				}
+				else
+				{
+					LogGiftUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
 				}
 			}
-			if (!bGifted)
-			{
-				pNavalUnit->scrap();
-				LogScrapUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
-			}
-			else
-			{
-				LogGiftUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
-			}
 		}
+		iPass++;
 	}
 }
 /// Do we have the forces at hand for an attack?
@@ -4963,6 +4979,9 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
+		if (!pLoopUnit->canScrap())
+			continue;
+
 		if(bLand && pLoopUnit->getDomainType() != DOMAIN_LAND)
 			continue;
 
@@ -4975,25 +4994,25 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 			//needed later
 			CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
 
-			if(bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
-				bStillNeeded = true;
+			if (bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
+				continue;
 			else if(!bLand && m_eNavalDefenseState == DEFENSE_STATE_CRITICAL)
-				bStillNeeded = true;
+				continue;
 
 			// Is it in an army?
 			if(pLoopUnit->getArmyID() != -1)
-				bStillNeeded = true;
+				continue;
 
 			// Can I still build this unit? If so too new to scrap
 			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, true /*bTestVisible*/, true /*bIgnoreCost*/))
 				//But not for scouts - let's pick those off first.
 				if(bLand && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 				{
-					bStillNeeded = true;
+					continue;
 				}
 				else if(!bLand && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 				{
-					bStillNeeded = true;
+					continue;
 				}
 
 			// Is this a ship on a water body without enemies?
@@ -5014,15 +5033,15 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 			//Probably useless because of the combat unit check above
 			if(m_pPlayer->GetNumCitiesFounded() < 3)
 				if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-					bStillNeeded = true;
+					continue;
 
 			// Is this a unit who has an obsolete tech that I have researched?
 			if((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-				bStillNeeded = true;
+				continue;
 
 			// Is this unit's INTRINSIC power less than half that of the best unit I can build for this domain?
 			if((pLoopUnit->getUnitInfo().GetPower() * 2) >= GetPowerOfStrongestBuildableUnit(pLoopUnit->getDomainType()))
-				bStillNeeded = true;
+				continue;
 
 			// Does this unit's upgrade require a resource?
 			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
@@ -5042,10 +5061,16 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 							if(m_pPlayer->getNumResourceTotal(eResource) > 0)
 							{
 								// We'll wait and try to upgrade this one, our unit count isn't that bad
-								if(bLand && m_eLandDefenseState > DEFENSE_STATE_NEUTRAL)
+								if (bLand && m_eLandDefenseState > DEFENSE_STATE_NEUTRAL)
+								{
 									bStillNeeded = true;
-								else if(!bLand && m_eNavalDefenseState > DEFENSE_STATE_NEUTRAL)
+									break;
+								}
+								else if (!bLand && m_eNavalDefenseState > DEFENSE_STATE_NEUTRAL)
+								{
 									bStillNeeded = true;
+									break;
+								}
 							}
 						}
 					}
@@ -5054,7 +5079,7 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		}
 
 		// Can I scrap this unit?
-		if( (!bStillNeeded || bIsUseless) && pLoopUnit->canScrap())
+		if( (!bStillNeeded || bIsUseless))
 		{
 			iScore = pLoopUnit->GetPower();
 
@@ -6010,7 +6035,7 @@ void CvMilitaryAI::MinorAttackTest()
 	}
 }
 //Gets the type of war the player is, overall, facing (used to decide production). 1 is land, 2 is sea (thanks, Paul Revere).
-int CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
+WarTypes CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 {
 	int iLand = 0;
 	int iSea = 0;
@@ -6023,28 +6048,23 @@ int CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				int iWar = GetWarType(eLoopPlayer);
-				if (iWar == 1)
+				if (iWar == WARTYPE_LAND)
 				{
 					iLand++;
 				}
-				else if (iWar == 2)
+				else if (iWar == WARTYPE_SEA)
 				{
 					iSea++;
 				}
 			}
-
 		}
-		if (iLand >= iSea)
-		{
-			return 1;
-		}
-		else
-		{
-			return 2;
-		}
+		
+		return (iLand >= iSea) ? WARTYPE_LAND : WARTYPE_SEA;
 	}
-	return m_aiWarFocus[ePlayer];
+
+	return (WarTypes)m_aiWarFocus[ePlayer];
 }
+
 void CvMilitaryAI::UpdateWarType()
 {
 	int iEnemyWater = 0;
@@ -6249,7 +6269,7 @@ void CvMilitaryAI::UpdateWarType()
 				iFriendlyLand += (iFriendlyLandCities / 10);
 			}
 
-			if (iEnemyWater > iFriendlySea && m_aiWarFocus[eLoopPlayer] != 2)
+			if (iEnemyWater > iEnemyLand && iEnemyWater > iFriendlySea && m_aiWarFocus[eLoopPlayer] != WARTYPE_SEA)
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -6258,9 +6278,9 @@ void CvMilitaryAI::UpdateWarType()
 					strLogString.Format("War Type versus %s now WATER. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
 					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
-				m_aiWarFocus[eLoopPlayer] = 2;
+				m_aiWarFocus[eLoopPlayer] = WARTYPE_SEA;
 			}
-			else if (iEnemyLand > iFriendlyLand && (iEnemyLand != 0) && m_aiWarFocus[eLoopPlayer] != 1)
+			else if (iEnemyLand >= iEnemyWater && iEnemyLand > iFriendlyLand && (iEnemyLand != 0) && m_aiWarFocus[eLoopPlayer] != WARTYPE_LAND)
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -6269,11 +6289,11 @@ void CvMilitaryAI::UpdateWarType()
 					strLogString.Format("War Type versus %s now LAND. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
 					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
-				m_aiWarFocus[eLoopPlayer] = 1;
+				m_aiWarFocus[eLoopPlayer] = WARTYPE_LAND;
 			}
 			else
 			{
-				m_aiWarFocus[eLoopPlayer] = 0;
+				m_aiWarFocus[eLoopPlayer] = WARTYPE_UNDEFINED;
 			}		
 		}
 	}
@@ -7064,7 +7084,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 }
 
 //todo: use the step pathfinder here to get a plot which is on the correct side of the target? need a starting point then ...
-CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
+CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget, bool bCheckTeam)
 {
 	if (!pTarget)
 		return NULL;
@@ -7082,7 +7102,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
 	{
 		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
 		if(pAdjacentPlot != NULL && 
-			pAdjacentPlot->getTeam()==eTeam && //same team
+			(!bCheckTeam || pAdjacentPlot->getTeam()==eTeam || pAdjacentPlot->getTeam()==NO_TEAM) && //ownership check
 			pAdjacentPlot->isShallowWater() && //coastal
 			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
 			pAdjacentPlot->isLake()==false && //no lake
