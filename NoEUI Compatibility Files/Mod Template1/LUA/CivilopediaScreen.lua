@@ -4380,6 +4380,66 @@ function SelectBuildingOrWonderArticle( buildingID )
 		--AnalyzeBuilding("MaxStartEra");
 		if thisBuilding.MaxStartEra ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Only until [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Eras[thisBuilding.MaxStartEra].Description).."[ENDCOLOR]"; end
 		-------------------
+		local function AnalyzeBuildingYields(sTable, sFieldName, sRefTable, sFlags, sInfo)
+			local sLocText = "";
+			--"SELECT [sTable].Yield, [sRefTable].Description
+			--FROM [sTable]
+			--INNER JOIN [sRefTable] ON [sTable].[sFieldName] = [sRefTable].Type
+			--WHERE [sTable].BuildingType = ?
+			--ORDER BY YieldType" -]]
+			if sRefTable == "" then 
+				local sql = string.format(
+					"SELECT %s.Yield%s as Yield, Yields.IconString FROM %s INNER JOIN Yields ON %s.YieldType = Yields.Type WHERE %s.BuildingType = ? ORDER BY YieldType",
+					sTable, sFlags, sTable, sTable, sTable);
+				--print("Executing SQL ", sql);
+				for row in DB.Query(sql, thisBuilding.Type) do
+					sLocText = sLocText..string.format("%+d%s", row.Yield, row.IconString);
+				end
+			else
+				local sql = string.format(
+					"SELECT %s.Yield%s as Yield, Yields.IconString, %s.Description FROM %s INNER JOIN Yields ON %s.YieldType = Yields.Type INNER JOIN %s ON %s.%s = %s.Type WHERE %s.BuildingType = ? ORDER BY %s.Type, YieldType",
+					sTable, sFlags, sRefTable, sTable, sTable, sRefTable, sTable, sFieldName, sRefTable, sTable, sRefTable);
+				--print("Executing SQL ", sql);
+				local sGroup = "";
+				for row in DB.Query(sql, thisBuilding.Type) do
+					if sGroup == "" then
+						sLocText = sLocText..string.format("[NEWLINE][ICON_BULLET]%+d%s ", row.Yield, row.IconString);
+						sGroup = row.Description;
+					elseif row.Description == sGroup then 
+						sLocText = sLocText..string.format("%+d%s ", row.Yield, row.IconString);
+					else
+						sLocText = sLocText.."from "..Locale.Lookup(sGroup);
+						sLocText = sLocText..string.format("[NEWLINE][ICON_BULLET]%+d%s ", row.Yield, row.IconString);
+						sGroup = row.Description;
+					end
+				end
+				if sGroup ~= "" then sLocText = sLocText.."from "..Locale.Lookup(sGroup); end
+			end
+			if sLocText ~= "" then
+				sText = sText.."[NEWLINE]"..sInfo..sLocText;
+			end
+		end
+		-- main yields from building
+		--AnalyzeBuildingYields("Building_YieldChanges", 				 "", 					"", "", "");
+		--AnalyzeBuildingYields("Building_YieldChangesPerPop", 			 "", 					"", "%", "");
+		--AnalyzeBuildingYields("Building_YieldModifiers", 			     "", 					"", "%", "");
+		--                     secondary table                            field name           ref table         flags info text
+		AnalyzeBuildingYields("Building_TerrainYieldChanges",   	     "TerrainType", 		"Terrains",			"", 		"Yields from [COLOR_CYAN]Terrain[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_FeatureYieldChanges",            "FeatureType",       	"Features",			"", 		"Yields from [COLOR_CYAN]Features[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_ResourceYieldChanges",           "ResourceType",      	"Resources", 		"", 		"Yields from [COLOR_CYAN]Resources[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_SeaResourceYieldChanges", 		 "", 					"", 				"", 		"Yields from [COLOR_CYAN]Sea Resources[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_ImprovementYieldChanges",        "ImprovementType",   	"Improvements",  	"", 		"Yields from [COLOR_CYAN]Improvements[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_PlotYieldChanges",               "PlotType",          	"Plots",         	"", 		"Yields from [COLOR_CYAN]Tiles[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_LakePlotYieldChanges",           "",                  	"",             	"", 		"Yields from [COLOR_CYAN]Lake[ENDCOLOR] tiles:");
+		AnalyzeBuildingYields("Building_RiverPlotYieldChanges", 		 "", 					"", 				"", 		"Yields from [COLOR_CYAN]River[ENDCOLOR] tiles:");
+		AnalyzeBuildingYields("Building_SeaPlotYieldChanges", 			 "", 					"", 				"", 		"Yields from [COLOR_CYAN]Sea[ENDCOLOR] tiles:");
+		AnalyzeBuildingYields("Building_BuildingClassLocalYieldChanges", "BuildingClassType", 	"BuildingClasses", 	"Change", 	"Yields from [COLOR_CYAN]Buildings[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_SpecialistYieldChangesLocal",    "SpecialistType", 		"Specialists", 		"", 		"Yields from [COLOR_CYAN]Specialists[ENDCOLOR]:");
+		-- global changes
+		AnalyzeBuildingYields("Building_ImprovementYieldChangesGlobal",  "ImprovementType",   	"Improvements",    	"", 		"Yields from [COLOR_CYAN]Improvements[ENDCOLOR] in [COLOR_POSITIVE_TEXT]all Cities[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_BuildingClassYieldChanges",      "BuildingClassType", 	"BuildingClasses", 	"Change", 	"Yields from [COLOR_CYAN]Buildings[ENDCOLOR] in [COLOR_POSITIVE_TEXT]all Cities[ENDCOLOR]:");
+		AnalyzeBuildingYields("Building_SpecialistYieldChanges", 		 "SpecialistType", 		"Specialists", 		"", 		"Yields from [COLOR_CYAN]Specialists[ENDCOLOR] in [COLOR_POSITIVE_TEXT]all Cities[ENDCOLOR]:");
+		-------------------
 		UpdateTextBlock( sText, Controls.ExtendedLabel,  Controls.ExtendedInnerFrame,  Controls.ExtendedFrame );
 		-- end Infixo
 
