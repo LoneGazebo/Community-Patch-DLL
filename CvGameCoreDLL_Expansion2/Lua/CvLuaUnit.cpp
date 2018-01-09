@@ -5856,14 +5856,6 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 		}
 	}
 
-	if (pUnit->IsCombatUnit())
-	{
-		CvString msg = pUnit->getTacticalZoneInfo();
-		lua_pushstring(L, msg.c_str());
-	}
-	else
-		lua_pushstring(L, "");
-
 	return 1;
 }
 

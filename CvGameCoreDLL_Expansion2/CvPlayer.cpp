@@ -45589,7 +45589,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->isEnemy(getTeam()))
+				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==DOMAIN_LAND && pLoopUnit->isEnemy(getTeam()))
 				{
 					vBadPlots.push_back(pPlot);
 					break;
@@ -45600,19 +45600,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 	//see where our settler can go
 	ReachablePlots reachablePlots;
+	int iMaxSafeTurns = 4;
 	if (pUnit)
 	{
-		SPathFinderUserData data(pUnit,0,10); //10 turns is enough, everything else is considered dangerous
+		SPathFinderUserData data(pUnit,0,iMaxSafeTurns);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		data.iMinMovesLeft = 1; //we want to be able to found on the final turn
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
 		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
-		bool isDangerous = false;
-
 		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+
+		bool isDangerous = (it==reachablePlots.end());
 		bool bCanReachThisTurn = (it != reachablePlots.end() && it->iTurns==0);
 
 		//check if it's too close to an enemy
@@ -45635,14 +45637,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider distance to settler here in case of re-targeting an operation
 			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
-				isDangerous = true;
-		}
-
-		//could be close but it takes many turns to get there ...
-		if (!isDangerous)
-		{
-			//if it takes more than 3 turns to found it's unsafe by definition
-			if (it==reachablePlots.end() || (it->iTurns>3 || (it->iTurns==3 && it->iMovesLeft==0) ) )
 				isDangerous = true;
 		}
 

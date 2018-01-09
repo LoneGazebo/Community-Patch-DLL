@@ -1037,7 +1037,7 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 		case AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN:
 			iPriority = GC.getAI_TACTICAL_BARBARIAN_PRIORITY_PILLAGE_NEXT_TURN();
 			break;
-		case AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE:
+		case AI_TACTICAL_BARBARIAN_BLOCKADE_RESOURCE:
 			iPriority = GC.getAI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE();
 			break;
 		case AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK:
@@ -1980,7 +1980,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 		case AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN:
 			PlotPillageMoves(AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE, false/*bFirstPass*/);
 			break;
-		case AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE:
+		case AI_TACTICAL_BARBARIAN_BLOCKADE_RESOURCE:
 			PlotBlockadeMoves();
 			break;
 		case AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK:
@@ -6157,6 +6157,8 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	// - defensive variant (simulate possible enemy moves?)
 	// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
 	// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker)
+	// - consider enemy units which would be revealed during combat for following danger calculations 
+	// - track tile visibility changes to avoid parking ranged units next to invisible tiles
 
 	vector<STacticalAssignment> vAssignments;
 	vector<CvUnit*> vUnits;
@@ -11693,7 +11695,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 			//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
 			//we only consider plots which can be reached in one turn anyway. parthian moves still work.
-			if (unit.eLastAssignment == STacticalAssignment::A_MOVE)
+			if (!bForRangedAttack && unit.eLastAssignment == STacticalAssignment::A_MOVE)
 				return result;
 		}
 
@@ -11832,7 +11834,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			result.iScore++;
 
 		//does it make sense to pillage here?
-		if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft > 0 && pUnit->canPillage(pCurrentPlot))
+		if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft > 0 && pUnit->canPillage(pCurrentPlot) && pUnit->getDamage()>10)
 		{
 			//can only pillage once per turn
 			if (!assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
@@ -12675,28 +12677,29 @@ CvTacticalPosition::CvTacticalPosition(PlayerTypes player, eAggressionLevel eAgg
 {
 }
 
-CvTacticalPosition::CvTacticalPosition(const CvTacticalPosition& other) : dummyPlot(NULL,NO_PLAYER)
+CvTacticalPosition::CvTacticalPosition(const CvTacticalPosition& parent) : dummyPlot(NULL,NO_PLAYER)
 {
-	ePlayer = other.ePlayer;
-	eAggression = other.eAggression;
-	fUnitNumberRatio = other.fUnitNumberRatio;
-	pTargetPlot = other.pTargetPlot;
-	iTotalScore = other.iTotalScore;
-	nTotalEnemies = other.nTotalEnemies;
-	parentPosition = &other;
+	ePlayer = parent.ePlayer;
+	eAggression = parent.eAggression;
+	fUnitNumberRatio = parent.fUnitNumberRatio;
+	pTargetPlot = parent.pTargetPlot;
+	iTotalScore = parent.iTotalScore;
+	iScoreOverParent = 0;
+	nTotalEnemies = parent.nTotalEnemies;
+	parentPosition = &parent;
 	iID = g_siTacticalPositionCount++;
 
 	//childPositions stays empty!
 	//reachablePlotLookup stays empty for now
 	//rangeAttackPlotLookup stays empty for now
 
-	//copied from other, modified when addAssignment is called
-	tacticalPlotLookup = other.tacticalPlotLookup;
-	tactPlots = other.tactPlots;
-	availableUnits = other.availableUnits;
-	assignedMoves = other.assignedMoves;
-	freedPlots = other.freedPlots;
-	killedEnemies = other.killedEnemies;
+	//copied from parent, modified when addAssignment is called
+	tacticalPlotLookup = parent.tacticalPlotLookup;
+	tactPlots = parent.tactPlots;
+	availableUnits = parent.availableUnits;
+	assignedMoves = parent.assignedMoves;
+	freedPlots = parent.freedPlots;
+	killedEnemies = parent.killedEnemies;
 }
 
 bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
@@ -12720,9 +12723,8 @@ CvTacticalPosition* CvTacticalPosition::addChild()
 	return newPosition;
 }
 
-void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible, vector<int>& madeInvisible) const
+void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const
 {
-	madeInvisible.clear();
 	madeVisible.clear();
 
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(assignment.iUnitID);
@@ -12738,14 +12740,6 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 		{
 			if (pNewPlot->canSeePlot(pTestPlot, pUnit->getTeam(), pUnit->visibilityRange(), pUnit->getFacingDirection(true)))
 				madeVisible.push_back(pTestPlot->GetPlotIndex());
-		}
-
-		if (pTestPlot->getVisibilityCount(pUnit->getTeam())==1)
-		{
-			CvPlot* pPrevPlot = GC.getMap().plotByIndexUnchecked(assignment.iFromPlotIndex);
-			if ( pPrevPlot->canSeePlot(pTestPlot, pUnit->getTeam(), pUnit->visibilityRange(), pUnit->getFacingDirection(true)) &&
-				!pNewPlot->canSeePlot(pTestPlot, pUnit->getTeam(), pUnit->visibilityRange(), pUnit->getFacingDirection(true)))
-				madeInvisible.push_back(pTestPlot->GetPlotIndex());
 		}
 	}
 }
@@ -12877,29 +12871,22 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		break;
 	}
 
+	vector<int> newlyVisiblePlots;
 	if (bVisibilityChange)
 	{
 		//may need to add some new tactical plots - ideally we should reconsider all queued assignments afterwards
 		//the next round of assignments will take into account the new plots in any case
-		vector<int> newlyVisible, newlyInvisible;
-		getPlotsWithChangedVisibility(newAssignment,newlyVisible,newlyInvisible);
-		for (size_t i=0; i<newlyVisible.size(); i++)
+		getPlotsWithChangedVisibility(newAssignment, newlyVisiblePlots);
+		for (size_t i=0; i<newlyVisiblePlots.size(); i++)
 		{
 			//since it was invisible before, we know there are no friendly units around
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisible[i]);
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisiblePlots[i]);
 			if (pPlot && !pPlot->isNeutralUnit(ePlayer,true,false)) //can't use the official visiblity here 
 			{
 				addTacticalPlot(pPlot);
 				updateTacticalPlotTypes(pPlot->GetPlotIndex());
 			}
 		}
-		for (size_t i=0; i<newlyInvisible.size(); i++)
-		{
-			//can't easily delete an existing plot, so set it invalid instead
-			CvTacticalPlot& tactPlot = getTactPlot(newlyInvisible[i]);
-			tactPlot.setValid(false);
-		}
-
 	}
 
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
@@ -12937,9 +12924,15 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 
 	//finally store it
 	assignedMoves.push_back(newAssignment);
-	//intermediate moves don't affect the score
+
+	//intermediate moves don't affect the final score, but only this generation's score
+	iScoreOverParent += newAssignment.iScore;
 	if (newAssignment.eType != STacticalAssignment::A_MOVE)
 		iTotalScore += newAssignment.iScore;
+
+	//increasing our visibility is good
+	iScoreOverParent += newlyVisiblePlots.size();
+	iTotalScore += newlyVisiblePlots.size();
 
 	if (newAssignment.eType == STacticalAssignment::A_BLOCKED)
 		availableUnits.erase(itUnit);
@@ -13258,16 +13251,17 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		//sort by score of the last round of assignments - avoid bias for "deeper" positions
 		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const 
 		{ 
-			int a = lhs->getAssignments().empty() ? 0 : lhs->getScore() - (lhs->getParent() ? lhs->getParent()->getScore() : 0);
-			int b = rhs->getAssignments().empty() ? 0 : rhs->getScore() - (rhs->getParent() ? rhs->getParent()->getScore() : 0);
-			return a < b; //intended!
+			return lhs->getHeapScore() < rhs->getHeapScore(); //intended!
 		}
 	};
 
 	struct PrPositionIsBetter
 	{
 		//sort by cumulative score. only makes sense for "completed" positions
-		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const { return lhs->getScore()*(lhs->isComplete()?2:1) > rhs->getScore()*(rhs->isComplete()?2:1); }
+		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
+		{ 
+			return lhs->getScore() > rhs->getScore();
+		}
 	};
 
 	int iMaxAssignmentsPerBranch = max(ourUnits.size() / 3, 1u);
@@ -13475,26 +13469,26 @@ int g_siTacticalPositionCount = 0;
 
 const char* barbarianMoveNames[] =
 {
-	"BARBARIAN_CAPTURE_CITY",
-	"BARBARIAN_DAMAGE_CITY",
-	"BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT",
-	"BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT",
-	"BARBARIAN_DESTROY_LOW_PRIORITY_UNIT",
-	"BARBARIAN_MOVE_TO_SAFETY",
-	"BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT", //6
-	"BARBARIAN_ATTRIT_MEDIUM_PRIORITY_UNIT",
-	"BARBARIAN_ATTRIT_LOW_PRIORITY_UNIT",
-	"BARBARIAN_PILLAGE",
-	"BARBARIAN_PRIORITY_BLOCKADE_RESOURCE",
-	"BARBARIAN_CIVILIAN_ATTACK",
-	"BARBARIAN_AGGRESSIVE_MOVE", //12
-	"BARBARIAN_PASSIVE_MOVE",
-	"BARBARIAN_CAMP_DEFENSE",
-	"BARBARIAN_DESPERATE_ATTACK",
-	"BARBARIAN_ESCORT_CIVILIAN",
-	"BARBARIAN_PLUNDER_TRADE_UNIT",
-	"BARBARIAN_PILLAGE_CITADEL",
-	"BARBARIAN_PILLAGE_NEXT_TURN",
+	"B_CAPTURE_CITY",
+	"B_DAMAGE_CITY",
+	"B_DESTROY_HIGH_PRIO_UNIT",
+	"B_DESTROY_MEDIUM_PRIO_UNIT",
+	"B_DESTROY_LOW_PRIO_UNIT",
+	"B_MOVE_TO_SAFETY",
+	"B_ATTRIT_HIGH_PRIO_UNIT", //6
+	"B_ATTRIT_MEDIUM_PRIO_UNIT",
+	"B_ATTRIT_LOW_PRIO_UNIT",
+	"B_PILLAGE",
+	"B_BLOCKADE_RESOURCE",
+	"B_CIVILIAN_ATTACK",
+	"B_AGGRESSIVE_MOVE", //12
+	"B_PASSIVE_MOVE",
+	"B_CAMP_DEFENSE",
+	"B_DESPERATE_ATTACK",
+	"B_ESCORT_CIVILIAN",
+	"B_PLUNDER_TRADE_UNIT",
+	"B_PILLAGE_CITADEL",
+	"B_PILLAGE_NEXT_TURN",
 };
 
 const char* postureNames[] =

@@ -1114,8 +1114,10 @@ protected:
 	//which units do still need an assignment
 	vector<SUnitStats> availableUnits;
 
-	//for final sorting
+	//for final sorting (does not include intermediate moves)
 	int iTotalScore;
+	//for heap sorting (included all moves made in the last generation)
+	int iScoreOverParent;
 	
 	//so we can look up stuff we haven't cached locally
 	const CvTacticalPosition* parentPosition;
@@ -1150,7 +1152,7 @@ protected:
 	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const;
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
-	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible, vector<int>& madeInvisible) const;
+	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 
 	//finding a particular unit
 	struct PrMatchingUnit
@@ -1185,6 +1187,7 @@ public:
 	eAggressionLevel getAggressionLevel() const { return eAggression; }
 	PlayerTypes getPlayer() const { return ePlayer; }
 	int getScore() const { return iTotalScore; }
+	int getHeapScore() const { return iScoreOverParent; }
 	void setParent(CvTacticalPosition* pParent) { parentPosition = pParent; }
 	const CvTacticalPosition* getParent() const { return parentPosition; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }

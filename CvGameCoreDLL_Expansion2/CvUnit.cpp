@@ -27232,7 +27232,7 @@ CvString CvUnit::getTacticalZoneInfo() const
 	{
 		const char* dominance[] = { "no units", "friendly", "enemy", "even" };
 		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("tactical zone %d, dominance %s, %s", pZone->GetDominanceZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
+		return CvString::format("zone %d, %s, %s", pZone->GetDominanceZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
 			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "no posture");
 	}
 
@@ -28511,20 +28511,15 @@ const char* CvUnit::GetMissionInfo()
 			{
 				CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
 				if (pkMoveInfo)
-				{
 					m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
-					CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
-					m_strMissionInfoString += strTemp0;
-				}
 			}
 
 			if (m_eTacticalMove==NO_TACTICAL_MOVE)
-			{
 				m_strMissionInfoString = homelandMoveNames[m_eHomelandMove];
-				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
-				m_strMissionInfoString += strTemp0;
-			}
 		}
+
+		m_strMissionInfoString += " : ";
+		m_strMissionInfoString += getTacticalZoneInfo();
 	}
 	else
 	{
