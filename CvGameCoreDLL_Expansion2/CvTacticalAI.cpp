@@ -2181,7 +2181,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				int iRequiredDamageDivisor = IsTemporaryZoneCity(pCity) ? 40 : 23;
 
 				// Don't want to hammer away to try and take down a city for more than X turns
-				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / iRequiredDamageDivisor))
+				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) < (iRequiredDamage / iRequiredDamageDivisor))
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
