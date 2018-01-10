@@ -628,6 +628,13 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local cultureChange = not gk_mode and tonumber(building.Culture) or 0
 	local cultureModifier = tonumber(building.CultureRateModifier) or 0
 
+-- Vox Populi Supply Cap
+	local citySupplyModifier = tonumber(building.CitySupplyModifier) or 0
+	local citySupplyModifierGlobal = tonumber(building.CitySupplyModifierGlobal) or 0
+	local citySupplyFlat = tonumber(building.CitySupplyFlat) or 0
+	local citySupplyFlatGlobal = tonumber(building.CitySupplyFlatGlobal) or 0
+-- Vox Populi END
+	
 	local enhancedYieldTech = building.EnhancedYieldTech and GameInfo.Technologies[ building.EnhancedYieldTech ]
 	local enhancedYieldTechName = enhancedYieldTech and TechColor( L(enhancedYieldTech.Description) ) or ""
 
@@ -840,6 +847,28 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		tip = ""
 	end
 
+	-- Vox Populi Supply Cap
+	if citySupplyFlat ~=0 then
+		tip = S("%s %+d[ICON_SILVER_FIST]", tip, citySupplyFlat )
+	end
+	if citySupplyModifier ~=0 then
+		tip = S("%s %+d%%[ICON_SILVER_FIST]", tip, citySupplyModifier )
+	end
+	if tips and tip~="" then
+		tips:insert( L"TXT_KEY_EUI_BUILDING_SUPPLY_CAP_LOCAL" .. tip )
+		tip = ""
+	end
+	if citySupplyFlatGlobal ~=0 then
+		tip = S("%s %+d[ICON_SILVER_FIST][ICON_SILVER_FIST]", tip, citySupplyFlatGlobal )
+	end
+	if citySupplyModifierGlobal ~=0 then
+		tip = S("%s %+d%%[ICON_SILVER_FIST][ICON_SILVER_FIST]", tip, citySupplyModifierGlobal )
+	end
+	if tips and tip~="" then
+		tips:insert( L"TXT_KEY_EUI_BUILDING_SUPPLY_CAP_GLOBAL" .. tip )
+		tip = ""
+	end
+	-- Vox Populi Supply Cap
 	-- Maintenance:
 	tips:insertIf( maintenanceCost ~= 0 and	S( "%s %+i%s", L"TXT_KEY_PEDIA_MAINT_LABEL", -maintenanceCost, g_currencyIcon) )
 
@@ -2095,7 +2124,7 @@ local function GetProductionTooltip( city )
 			strModifiersString = strModifiersString .. L( "TXT_KEY_PRODMOD_FOOD_CONVERSION", productionFromFood / 100 )
 		end
 	end
-	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ), productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
+	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ) + city:GetYieldPerPopTimes100( yieldID ) * city:GetPopulation() / 100, productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
 
 	-- Basic explanation of production
 	if isNoob then
@@ -2236,7 +2265,7 @@ local function GetCultureTooltip( city )
 
 	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
 	if(trculture ~= "") then
-		tips:append( L("[NEWLINE][ICON_BULLET]" .. trculture))
+		tips:append( L(trculture))
 	end
 
 	if civ5_mode then
@@ -2616,6 +2645,11 @@ local function GetFaithTooltip( city )
 		-- Puppet modifier
 		if (not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+		end
+		
+		local trfaith = city:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
+		if(trfaith ~= "") then
+			tips:append( L(trfaith))
 		end
 
 		-- Citizens breakdown

@@ -160,7 +160,6 @@ function UpdateDisplay()
 						cityName = Locale.ConvertTextKey( pCity:GetNameKey() );
 						sortEntry.name = cityName;
 						TruncateString( instance.CityName, 76, sortEntry.name );
-
 						local iUnitClass = GameInfo.UnitClasses[pSpecialistInfo.GreatPeopleUnitClass].ID
 						-- Vox Populi
 						--iThreshold = pCity:GetSpecialistUpgradeThreshold(iUnitClass);

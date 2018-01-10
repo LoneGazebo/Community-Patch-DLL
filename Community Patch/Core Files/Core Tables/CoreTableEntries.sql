@@ -648,6 +648,10 @@ ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlat' INTEGER DEFAULT 0;
 -- Allows you to define an amount that a city will increase your unit supply cap by a flat value globally.
 ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlatGlobal' INTEGER DEFAULT 0;
 
+-- Missionaries built by a city gain % more strength
+ALTER TABLE Buildings ADD COLUMN 'ExtraMissionaryStrengthGlobal' INTEGER DEFAULT 0;
+
+
 -- Tourism Mod, global, from WC
 ALTER TABLE Resolutions ADD COLUMN 'TourismMod' integer default 0;
 

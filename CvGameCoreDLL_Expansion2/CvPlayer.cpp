@@ -615,6 +615,7 @@ CvPlayer::CvPlayer() :
 	, m_paiUnitClassProductionModifiers("CvPlayer::m_paiUnitClassProductionModifiers", m_syncArchive)
 	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 	, m_iCitySupplyFlatGlobal("CvPlayer::m_iCitySupplyFlatGlobal", m_syncArchive)
+	, m_iMissionaryExtraStrength("CvPlayer::m_iMissionaryExtraStrength", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1623,6 +1624,7 @@ void CvPlayer::uninit()
 	m_iPlayerEventCooldown = 0;
 	m_iExtraSupplyPerPopulation = 0;
 	m_iCitySupplyFlatGlobal = 0;
+	m_iMissionaryExtraStrength = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = 0;
@@ -5333,12 +5335,12 @@ void CvPlayer::UpdateCityThreatCriteria()
 		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool CoastalOnly)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool bCoastalOnly)
 {
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (CoastalOnly)
+		if (bCoastalOnly)
 		{
 			if (pLoopCity->GetCoastalThreatRank() == iRank)
 				return pLoopCity;
@@ -9871,12 +9873,6 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
 #else
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (pUnit->isTrade() || pUnit->IsCivilianUnit() || pUnit->isNoSupply() || pUnit->isContractUnit())
-		{
-			changeNumFreeUnits(1);
-		}
 #endif
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -16596,6 +16592,12 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeSingleVotes(pBuildingInfo->GetSingleVotes() * iChange);
 	}
+
+	if (pBuildingInfo->GetExtraMissionaryStrength() != 0)
+	{
+		ChangeMissionaryExtraStrength(pBuildingInfo->GetExtraMissionaryStrength() * iChange);
+	}
+
 	if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)
 	{
 		ChangePovertyUnhappinessGlobal(pBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() * iChange);
@@ -17426,25 +17428,24 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply() const
 {
-	int iFreeUnits = GetNumUnitsSupplied();
-	int iNumUnits = getNumUnits();
-	int iNumFreeExtra = getNumUnitsFree();
-
-	int iNumUnitsToSupply = iNumUnits - iNumFreeExtra;
-	return std::max(0, iNumUnitsToSupply - iFreeUnits);
+	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsFree();
+	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitsNoCivilian() const
 {
-	int iNumUnits = getNumUnits();
+	int iNumUnits = getNumMilitaryUnits();
 	int iNumUnitsToSupply = iNumUnits - getNumUnitsFree();
 	return iNumUnitsToSupply;
 }
+
 int CvPlayer::getNumUnitsFree() const
 {
 	return m_iFreeUnits;
 }
+
 void CvPlayer::changeNumFreeUnits(int iValue)
 {
 	if (iValue != 0)
@@ -17688,10 +17689,7 @@ int CvPlayer::greatGeneralThreshold() const
 		iThreshold /= 100;
 	}
 
-	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-	iThreshold /= std::max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
-
-	iThreshold *= GC.getGame().getStartEraInfo().getGreatPeoplePercent();
+	iThreshold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iThreshold /= 100;
 
 	return std::max(1, iThreshold);
@@ -17712,10 +17710,7 @@ int CvPlayer::greatAdmiralThreshold() const
 		iThreshold /= 100;
 	}
 
-	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-	iThreshold /= std::max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
-
-	iThreshold *= GC.getGame().getStartEraInfo().getGreatPeoplePercent();
+	iThreshold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iThreshold /= 100;
 
 	return std::max(1, iThreshold);
@@ -39659,6 +39654,9 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 		if (eYield == NO_YIELD)
 			continue;
 
+		if (eYield > YIELD_CULTURE_LOCAL)
+			continue;
+
 		if (GC.getYieldInfo(eYield) == NULL)
 			continue;
 
@@ -46437,6 +46435,26 @@ void CvPlayer::ChangeNumMayaBoosts(int iChange)
 				GetPlayerTraits()->ChooseMayaBoost();
 			}
 		}
+	}
+}
+
+
+/// Accessor: Get extra times to spread religion for missionaries from this city
+int CvPlayer::GetMissionaryExtraStrength() const
+{
+	if (m_iMissionaryExtraStrength >= 50)
+		return 50;
+
+	return m_iMissionaryExtraStrength;
+}
+
+/// Accessor: Change extra times to spread religion for missionaries from this city
+void CvPlayer::ChangeMissionaryExtraStrength(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iMissionaryExtraStrength = (m_iMissionaryExtraStrength + iChange);
+		CvAssert(m_iMissionaryExtraStrength >= 0);
 	}
 }
 

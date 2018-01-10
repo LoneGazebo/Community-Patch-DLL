@@ -1238,6 +1238,11 @@ function GetFaithTooltip(pCity)
 				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount));
 			end
 		end
+			
+		local trfaith = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
+		if(trfaith ~= "") then
+			table.insert(faithTips, trfaith);
+		end
 	
 		-- Citizens breakdown
 		table.insert(faithTips, "----------------");

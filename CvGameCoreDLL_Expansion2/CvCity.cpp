@@ -28579,6 +28579,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			int iReligionSpreads = pUnit->getUnitInfo().GetReligionSpreads();
 			int iReligiousStrength = pUnit->getUnitInfo().GetReligiousStrength();
+			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
+			iReligiousStrength /= 100;
 
 			// Missionary strength
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)

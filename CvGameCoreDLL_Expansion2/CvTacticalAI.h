@@ -798,8 +798,8 @@ private:
 	void AssignBarbarianMoves();
 
 	// Routines to manage identifying and implementing tactical moves
-	bool PlotCaptureCityMoves(bool bNaval);
-	bool PlotDamageCityMoves(bool bNaval);
+	bool PlotCaptureCityMoves();
+	bool PlotDamageCityMoves();
 	void PlotBarbarianCampMoves();
 	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
 	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
@@ -832,7 +832,7 @@ private:
 	void PlotCounterattackMoves();
 	void PlotWithdrawMoves();
 	void PlotShoreBombardmentMoves();
-	void PlotCloseOnTarget(bool bCheckDominance);
+	void PlotCloseOnTarget();
 	void PlotEmergencyPurchases();
 	void PlotDefensiveAirlifts();
 	void PlotEscortEmbarkedMoves();
@@ -1220,7 +1220,6 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
-	bool HaveAtLastXMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvPlot* pTarget, int iRange, int nMinUnits);
 	bool IsCaptureTargetAdjacent(CvUnit* pUnit);
 	CvPlot* GetFirstEnemyUnitInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false);
 

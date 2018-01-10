@@ -6155,6 +6155,13 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		iValue += (iNumNearbyCities / 10);
 	}
 
+	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
+	{
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+
+		iValue += (iNumNearbyCities / 10);
+	}
+
 	//Is this a prereq for another building we can build right now? 
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
