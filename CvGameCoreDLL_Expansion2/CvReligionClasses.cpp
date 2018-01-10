@@ -8407,7 +8407,7 @@ bool CvReligionAI::BuyAnyAvailableFaithBuilding()
 }
 
 /// AI's perceived worth of a belief
-int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
+int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 {
 	int iRtnValue = 5;  // Base value since everything has SOME value
 
@@ -8490,11 +8490,35 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 	//Final calculations
 	if ((pEntry->GetRequiredCivilization() != NO_CIVILIZATION) && (pEntry->GetRequiredCivilization() == m_pPlayer->getCivilizationType()))
 	{
-		iRtnValue *= 10;
+		iRtnValue *= 5;
 	}
-	if (pEntry->IsFounderBelief() && m_pPlayer->GetPlayerTraits()->IsBonusReligiousBelief())
+	if (m_pPlayer->GetPlayerTraits()->IsBonusReligiousBelief() && bForBonus)
 	{
-		iRtnValue *= 10;
+		int iModifer = 0;
+		if (pEntry->IsFounderBelief())
+			iModifer += -3;
+		else if(pEntry->IsPantheonBelief())
+			iModifer += 3;
+		else if (pEntry->IsEnhancerBelief())
+			iModifer += -3;
+		else if (pEntry->IsFollowerBelief())
+		{
+			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				if (pEntry->IsBuildingClassEnabled(iI))
+				{
+					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(iI);
+					CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
+
+					if (pBuildingEntry)
+					{
+						iModifer += 3;
+						break;
+					}
+				}
+			}
+		}
+		iRtnValue *= (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= GC.getMap().getWorldInfo().getMaxActiveReligions() / 2) ? iModifer : iModifer*-1;
 	}
 
 	int iRand = 0;
@@ -8867,17 +8891,17 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	{
 		if (pEntry->GetYieldPerPop(iI) > 0)
 		{
-			iTotalRtnValue += (pEntry->GetYieldPerPop(iI) * pCity->getPopulation() * pCity->getPopulation()) / 5;
+			iTempValue += (pCity->getYieldRate(YIELD_FOOD, false) * pCity->getPopulation()) / pEntry->GetYieldPerPop(iI);
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 		}
 		if (bIsHolyCity)
 		{
 			if (pEntry->GetHolyCityYieldChange(iI) > 0)
 			{
-				iTotalRtnValue += pEntry->GetHolyCityYieldChange(iI) * 2;
+				iTempValue += pEntry->GetHolyCityYieldChange(iI) * 2;
 			}
 		}
 		if (pEntry->GetYieldPerLux(iI) > 0)
@@ -8900,17 +8924,19 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 				}
 			}
 
-			iTotalRtnValue += (pEntry->GetYieldPerLux(iI) * max(2, iNumLuxuries)) * ModifierValue;
+			iTempValue += (pEntry->GetYieldPerLux(iI) * max(2, iNumLuxuries)) * ModifierValue;
 		}
 		if (pEntry->GetYieldPerBorderGrowth(iI) > 0)
 		{
 			iTotalRtnValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iCulture) / max(3, pCity->GetJONSCultureLevel() * 3));
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 		}
 	}
+
+	iTotalRtnValue += iTempValue;
 
 	////////////////////
 	// Great People
@@ -8925,10 +8951,12 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 
 			if (pEntry->GetGreatPersonPoints(eGP) > 0)
 			{
-				iTotalRtnValue += pEntry->GetGreatPersonPoints(eGP) * 2;
+				iTempValue = pEntry->GetGreatPersonPoints(eGP) * 2;
 			}
 		}
 	}
+
+	iTotalRtnValue += iTempValue;
 
 	////////////////////
 	// Growth
@@ -8948,61 +8976,63 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			{
 				iEvaluator -= 100;
 			}
-			iTotalRtnValue += (pEntry->GetYieldPerBirth(iI) * (pCity->foodDifferenceTimes100() / max(1, iEvaluator)));
+			iTempValue = (pEntry->GetYieldPerBirth(iI) * (pCity->foodDifferenceTimes100() / max(1, iEvaluator)));
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTotalRtnValue *= 5;
+				iTempValue *= 5;
 			}
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
-			iTotalRtnValue += pEntry->GetYieldFromWLTKD(iI) / 4;
+			iTempValue = pEntry->GetYieldFromWLTKD(iI) / 4;
 			if (m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
-				iTotalRtnValue += m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() * 5;
+				iTempValue += m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() * 5;
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsGPWLTKD())
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 			if (m_pPlayer->GetPlayerTraits()->GetWLTKDGPImprovementModifier() != 0)
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 			if (m_pPlayer->GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iI) != 0)
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 			if (m_pPlayer->GetPlayerTraits()->GetWLTKDCulture() != 0)
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsExpansionWLTKD())
 			{
-				iTotalRtnValue *= 2;
+				iTempValue *= 2;
 			}
 			if (pCity->GetWeLoveTheKingDayCounter() > 0)
 			{
-				iTotalRtnValue += (pCity->GetWeLoveTheKingDayCounter() / 2);
+				iTempValue += (pCity->GetWeLoveTheKingDayCounter() / 2);
 			}
 			if (pCity->GetYieldFromWLTKD((YieldTypes)iI) > 0)
 			{
-				iTotalRtnValue += pCity->GetYieldFromWLTKD((YieldTypes)iI) / 2;
+				iTempValue += pCity->GetYieldFromWLTKD((YieldTypes)iI) / 2;
 			}
 		}
 		for (int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
 		{
 			if (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) > 0)
 			{
-				iTotalRtnValue += (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) * 2);
+				iTempValue += (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) * 2);
 			}
 		}
 #endif
 	}
+
+	iTotalRtnValue += iTempValue;
 
 
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)

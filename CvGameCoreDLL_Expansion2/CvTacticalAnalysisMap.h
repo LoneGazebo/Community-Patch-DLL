@@ -368,11 +368,13 @@ public:
 	};
 	inline int GetOverallFriendlyStrength() const
 	{
-		return m_iFriendlyMeleeStrength + m_iFriendlyNavalStrength + m_iFriendlyRangedStrength + m_iFriendlyNavalRangedStrength;
+		//siege units are very vulnerable to melee units, so give a bonus to melee
+		return (m_iFriendlyMeleeStrength*4)/3 + m_iFriendlyNavalStrength + m_iFriendlyRangedStrength + m_iFriendlyNavalRangedStrength;
 	};
 	inline int GetOverallEnemyStrength() const
 	{
-		return m_iEnemyMeleeStrength + m_iEnemyNavalStrength + m_iEnemyRangedStrength + m_iEnemyNavalRangedStrength;
+		//siege units are very vulnerable to melee units, so give a bonus to melee
+		return (m_iEnemyMeleeStrength*4)/3 + m_iEnemyNavalStrength + m_iEnemyRangedStrength + m_iEnemyNavalRangedStrength;
 	};
 	inline int GetFriendlyMeleeStrength() const
 	{

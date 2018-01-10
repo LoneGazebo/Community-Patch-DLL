@@ -9352,6 +9352,8 @@ int CvLuaPlayer::lGetSpecialistExtraYield(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int findPathLength(TechTypes  eTech, bool bCost);
+// If bCost is false, then it returns number of techs that need to be researched to acquire eTech
+// If bCost is true, then it returns the cost of a currently researched tech
 int CvLuaPlayer::lFindPathLength(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::findPathLength);

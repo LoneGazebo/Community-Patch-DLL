@@ -139,6 +139,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iMinorFriendshipChange(0),
 	m_iVictoryPoints(0),
 	m_iExtraMissionarySpreads(0),
+	m_iExtraMissionaryStrength(0),
 	m_iReligiousPressureModifier(0),
 	m_iEspionageModifier(0),
 	m_iGlobalEspionageModifier(0),
@@ -672,6 +673,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iMinorFriendshipChange = kResults.GetInt("MinorFriendshipChange");
 	m_iVictoryPoints = kResults.GetInt("VictoryPoints");
 	m_iExtraMissionarySpreads = kResults.GetInt("ExtraMissionarySpreads");
+	m_iExtraMissionaryStrength = kResults.GetInt("ExtraMissionaryStrengthGlobal");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iGlobalEspionageModifier = kResults.GetInt("GlobalEspionageModifier");
@@ -1960,6 +1962,12 @@ int CvBuildingEntry::GetVictoryPoints() const
 int CvBuildingEntry::GetExtraMissionarySpreads() const
 {
 	return m_iExtraMissionarySpreads;
+}
+
+/// Extra religion spreads from missionaries built in this city
+int CvBuildingEntry::GetExtraMissionaryStrength() const
+{
+	return m_iExtraMissionaryStrength;
 }
 
 /// Extra religion pressure emanating from this city

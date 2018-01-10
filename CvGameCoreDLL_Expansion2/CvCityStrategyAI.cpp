@@ -4697,8 +4697,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
-		//Since this is going to grow, let's boost the pop.
-		int iValue = (pCity->getPopulation() * 100 / pkBuildingInfo->GetYieldChangePerPop(eYield));
+		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
+		int iValue = (pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) * (60/(iEra+1)) / (1 * 100 * 10));
 		if (iValue > 0)
 		{
 			iFlatYield += iValue;
@@ -4731,7 +4731,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		if (iYieldRate > pkBuildingInfo->GetScienceFromYield(eYield))
 		{
-			iFlatYield += (iYieldRate / pkBuildingInfo->GetScienceFromYield(eYield));
+			iFlatYield += (iYieldRate * pkBuildingInfo->GetScienceFromYield(eYield) / 100);
 		}
 	}
 
@@ -4784,14 +4784,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			{
 				if (pCity->GetNearbyMountains() > 0)
 				{
-					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) / pCity->GetNearbyMountains());
+					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * pCity->GetNearbyMountains() / 100);
 				}
 			}
 			else
 			{
 				if (iNumTerrain > 0)
 				{
-					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) / iNumTerrain);
+					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * iNumTerrain / 100);
 				}
 			}
 		}
@@ -4831,7 +4831,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			continue;
 
 		bool bWater = false;
-		if (pkResourceInfo->isTerrain(TERRAIN_COAST) || pkResourceInfo->isTerrain(TERRAIN_OCEAN))
+		if ( (pkResourceInfo->isTerrain(TERRAIN_COAST) || pkResourceInfo->isTerrain(TERRAIN_OCEAN)) &&
+			// Oil can be on sea tiles and land tiles, without the below part Oil is never valued in non-coastal cities
+			 !(pkResourceInfo->isTerrain(TERRAIN_DESERT) || pkResourceInfo->isTerrain(TERRAIN_GRASS) ||
+			  pkResourceInfo->isTerrain(TERRAIN_HILL) || pkResourceInfo->isTerrain(TERRAIN_PLAINS) ||
+			  pkResourceInfo->isTerrain(TERRAIN_SNOW) || pkResourceInfo->isTerrain(TERRAIN_TUNDRA)) )
 		{
 			bWater = true;
 			if (!pCity->isCoastal())
@@ -6145,6 +6149,13 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		iValue += pCity->getProductionModifier(eBuilding) + kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
     }
 	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
+	{
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+
+		iValue += (iNumNearbyCities / 10);
+	}
+
+	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
 

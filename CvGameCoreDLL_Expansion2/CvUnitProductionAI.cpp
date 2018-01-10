@@ -297,12 +297,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//% Value that will modify the base value.
 	int iBonus = 0;
 
-	bool bAtWar = false;
+	//only war with majors count
+	bool bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
 	if (!bFree && kPlayer.isMinorCiv())
 	{
 		if (bCombat)
 		{
-			if (kPlayer.getNumUnitsNoCivilian() > max(3, ((kPlayer.GetCurrentEra() + 3) * kPlayer.getNumCities())))
+			if (kPlayer.getNumMilitaryUnits() > max(3, ((kPlayer.GetCurrentEra() + 3) * kPlayer.getNumCities())))
 				return 0;
 
 			if (pkUnitEntry->GetDomainType() == DOMAIN_SEA && kPlayer.getCapitalCity() != NULL && kPlayer.getCapitalCity()->isCoastal())
@@ -327,6 +328,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			else
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_LAND, true);
+				if (iNumUnits <= 2)
+					iBonus += max(0, 600 - (iNumUnits * 100));
 
 				int iNumCities = kPlayer.getNumCities();
 				int iEra = (kPlayer.GetCurrentEra() + 2) * iNumCities;
@@ -344,25 +347,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 	}
-	else
-	{
-		bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
-		if (!bFree && bCombat && kPlayer.GetNumUnitsOutOfSupply() > 5)
-		{
-			return 0;
-		}
-	}
 
 	//Let's check this against supply to keep our military numbers lean.
 	int iScale = 0;
 	if (bCombat && !bFree)
 	{
 		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
-		int iDemand = kPlayer.getNumMilitaryUnits();
+		int iDemand = kPlayer.getNumMilitaryUnits() - kPlayer.getNumUnitsFree();
 		if (bAtWar || bForOperation)
 		{
 			//hard limit, don't go too far into negative supply
-			if (iSupply < iDemand - 4)
+			if (iSupply <= iDemand - 3)
 				return -1;
 
 			//reduce bonus once we're over the limit
@@ -1415,6 +1410,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 			{
 				iBonus += (600 * iCurrentNumCities);
+			}
+
+			if (m_pCity->getUnhappinessFromPillaged() > 0)
+			{
+				iBonus += (500 * m_pCity->getUnhappinessFromPillaged());
 			}
 		}
 	}

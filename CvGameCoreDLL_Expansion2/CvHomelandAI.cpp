@@ -2511,12 +2511,14 @@ void CvHomelandAI::PlotAncientRuinMoves()
 				if(pIndy)
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
+
 #if defined(MOD_BALANCE_CORE)
 					TacticalAIHelpers::PerformRangedOpportunityAttack(pIndy,true);
 					if (pIndy->canMove())
 						pIndy->PushMission(CvTypes::getMISSION_SKIP());
 					UnitProcessed(pIndy->GetID());
 #endif
+
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;

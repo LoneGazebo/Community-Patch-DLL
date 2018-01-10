@@ -34,7 +34,7 @@
 -- 25 = 0.25 unhappiness per specialist.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '25'
+	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base reduction of unhappiness threshold for Puppet cities. -25% is default.

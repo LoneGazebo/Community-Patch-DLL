@@ -628,6 +628,13 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local cultureChange = not gk_mode and tonumber(building.Culture) or 0
 	local cultureModifier = tonumber(building.CultureRateModifier) or 0
 
+-- Vox Populi Supply Cap
+	local citySupplyModifier = tonumber(building.CitySupplyModifier) or 0
+	local citySupplyModifierGlobal = tonumber(building.CitySupplyModifierGlobal) or 0
+	local citySupplyFlat = tonumber(building.CitySupplyFlat) or 0
+	local citySupplyFlatGlobal = tonumber(building.CitySupplyFlatGlobal) or 0
+-- Vox Populi END
+	
 	local enhancedYieldTech = building.EnhancedYieldTech and GameInfo.Technologies[ building.EnhancedYieldTech ]
 	local enhancedYieldTechName = enhancedYieldTech and TechColor( L(enhancedYieldTech.Description) ) or ""
 
@@ -840,6 +847,28 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		tip = ""
 	end
 
+	-- Vox Populi Supply Cap
+	if citySupplyFlat ~=0 then
+		tip = S("%s %+d[ICON_SILVER_FIST]", tip, citySupplyFlat )
+	end
+	if citySupplyModifier ~=0 then
+		tip = S("%s %+d%%[ICON_SILVER_FIST]", tip, citySupplyModifier )
+	end
+	if tips and tip~="" then
+		tips:insert( L"TXT_KEY_EUI_BUILDING_SUPPLY_CAP_LOCAL" .. tip )
+		tip = ""
+	end
+	if citySupplyFlatGlobal ~=0 then
+		tip = S("%s %+d[ICON_SILVER_FIST][ICON_SILVER_FIST]", tip, citySupplyFlatGlobal )
+	end
+	if citySupplyModifierGlobal ~=0 then
+		tip = S("%s %+d%%[ICON_SILVER_FIST][ICON_SILVER_FIST]", tip, citySupplyModifierGlobal )
+	end
+	if tips and tip~="" then
+		tips:insert( L"TXT_KEY_EUI_BUILDING_SUPPLY_CAP_GLOBAL" .. tip )
+		tip = ""
+	end
+	-- Vox Populi Supply Cap
 	-- Maintenance:
 	tips:insertIf( maintenanceCost ~= 0 and	S( "%s %+i%s", L"TXT_KEY_PEDIA_MAINT_LABEL", -maintenanceCost, g_currencyIcon) )
 
