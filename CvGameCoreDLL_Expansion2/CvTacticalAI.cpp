@@ -766,7 +766,7 @@ void CvTacticalAI::UpdatePostures()
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
 			{
 				CvString szPostureMsg;
-				szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone->GetDominanceZoneID(), pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
+				szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone ? pZone->GetDominanceZoneID() : -1, pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
 
 				switch(eNewPosture)
 				{
@@ -1665,7 +1665,7 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
 								strLogString.Format("Zone %d, %s, using move %s, city of %s, %s)",  
-									pZone->GetDominanceZoneID(), pZone->IsWater() ? "water" : "land",
+									pZone ? pZone->GetDominanceZoneID() : -1, pZone->IsWater() ? "water" : "land",
 									pkMoveInfo ? pkMoveInfo->GetType() : "unknown", pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture]);
 								LogTacticalMessage(strLogString);
 								
@@ -2095,7 +2095,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Zone %d, no melee units to capture %s", pZone->GetDominanceZoneID(), pCity->getName().c_str());
+						strLogString.Format("Zone %d, no melee units to capture %s", pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str());
 						LogTacticalMessage(strLogString);
 					}
 					pTarget = GetNextZoneTarget();
@@ -2178,7 +2178,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
 				//Let's encourage sneak attack potency
-				int iRequiredDamageDivisor = IsTemporaryZoneCity(pCity) ? 40 : 23;
+				int iRequiredDamageDivisor = IsTemporaryZoneCity(pCity) ? 15 : 10;
 
 				// Don't want to hammer away to try and take down a city for more than X turns
 				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) < (iRequiredDamage / iRequiredDamageDivisor))
@@ -9672,10 +9672,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				if (!pLoopUnit->IsCombatUnit())
 					continue;
 
-				//only consider units from our own army
-				if (pArmyAI && pLoopUnit->getArmyID()!=pArmyAI->GetID())
-					continue;
-
 				CvPlot* pLoopPlot = pLoopUnit->plot();
 				int iScore = ScoreGreatGeneralPlot(pGeneral,pLoopPlot);
 
@@ -9721,7 +9717,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			if(pMovePlot != NULL)
 			{
 				CvUnit* pDefender = pMovePlot->getBestDefender(m_pPlayer->GetID());
-				if(pDefender || pGeneral->GetDanger(pMovePlot)==0)
+				if(pDefender && !pDefender->isProjectedToDieNextTurn())
 				{
 					ExecuteMoveToPlot(pGeneral, pMovePlot);
 					UnitProcessed(pGeneral->GetID());
@@ -9732,6 +9728,16 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 						TacticalAIHelpers::PerformRangedOpportunityAttack(pDefender);
 						pDefender->PushMission(CvTypes::getMISSION_SKIP());
 						UnitProcessed(pDefender->GetID());
+					}
+
+					//if we get here, pathfinding failed or the target plot was not acceptable
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Deploying %s %d to tactically assist troops. To X: %d, To Y: %d, At X: %d, At Y: %d",
+							pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
+							pGeneral->getX(), pGeneral->getY());
+						LogTacticalMessage(strMsg);
 					}
 
 					continue;
@@ -10253,9 +10259,14 @@ int CvTacticalAI::ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pLoopPlot)
 
 	const CvUnit* pDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
 	CvCity* pPlotCity = pLoopPlot->getPlotCity();
-	if (m_pPlayer->IsAtWar())
+	if (pLoopPlot->getOwner() != NO_PLAYER && m_pPlayer->IsAtWarWith(pLoopPlot->getOwner()))
 	{
-		if ((!pDefender || pDefender->isProjectedToDieNextTurn()) && !pPlotCity)
+		if (!pDefender)
+			return 0;
+	}
+	else
+	{
+		if (pDefender && pDefender->isProjectedToDieNextTurn() && pPlotCity == NULL)
 			return 0;
 	}
 
@@ -10269,9 +10280,9 @@ int CvTacticalAI::ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pLoopPlot)
 
 	//avoid the front line
 	int iBaseMultiplier = 3;
-	if(!pGeneral->IsCityAttackSupport())
+	if (!pGeneral->IsCityAttackSupport() && pLoopPlot->GetAdjacentCity() == NULL)
 	{
-		if(pLoopPlot->GetNumEnemyUnitsAdjacent(pGeneral->getTeam(),pGeneral->getDomainType()) > 0 && !pLoopPlot->isCity() )
+		if(pLoopPlot->GetNumEnemyUnitsAdjacent(pGeneral->getTeam(),pGeneral->getDomainType()) > 0)
 			iBaseMultiplier = 1;
 	}
 
@@ -10357,7 +10368,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pLoopPlot)
 
 	CvCity* pClosestEnemyCity = m_pPlayer->GetTacticalAI()->GetNearestTargetCity(pGeneral->plot());
 	if(pClosestEnemyCity && pDefender)
-		iTotalScore += (250 - (plotDistance(pDefender->getX(), pDefender->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 3));
+		iTotalScore += (10000 - (plotDistance(pDefender->getX(), pDefender->getY(), pClosestEnemyCity->getX(), pClosestEnemyCity->getY()) * 3));
 
 	return iTotalScore;
 }

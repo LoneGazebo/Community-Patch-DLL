@@ -2758,7 +2758,7 @@ void CvCity::doTurn()
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
 				int iPile = getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
-				iPile /= 10;
+				iPile /= 100;
 
 				iHitsHealed += iPile;
 			}
@@ -28579,6 +28579,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			int iReligionSpreads = pUnit->getUnitInfo().GetReligionSpreads();
 			int iReligiousStrength = pUnit->getUnitInfo().GetReligiousStrength();
+			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
+			iReligiousStrength /= 100;
 
 			// Missionary strength
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)

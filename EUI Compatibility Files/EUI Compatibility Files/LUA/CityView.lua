@@ -433,7 +433,10 @@ local function GetSpecialistYields( city, specialist )
 				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
 				cultureFromSpecialist = 0
 			end
+			-- Vox Populi Comparable Yields Tweak
+			specialistYieldModifier = 100
 			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
+			--yieldTips:insertIf( specialistYield ~= 0 and specialistYield .. tostring(YieldIcons[yieldID]) )
 		end
 		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
 		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
@@ -881,6 +884,8 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			-- Events
 			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
 			-- End 
+			-- Vox Populi Comparable Yields Tweak
+			cityYieldRateModifier = 100
 			buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
 			tips:insertIf( isProducing and buildingYieldRate ~= 0 and buildingYieldRate / 100 .. tostring(YieldIcons[ yieldID ]) )
 		end

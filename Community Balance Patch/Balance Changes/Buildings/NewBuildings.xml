@@ -172,14 +172,15 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-10</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<ExtraMissionarySpreads>1</ExtraMissionarySpreads>
+			<ExtraMissionaryStrengthGlobal>5</ExtraMissionaryStrengthGlobal>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
-		</Row>
+		
+	</Row>
 		<!--Mandir-->
 		<Row>
 			<Type>BUILDING_MANDIR</Type>

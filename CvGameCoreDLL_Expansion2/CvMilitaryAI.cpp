@@ -1506,7 +1506,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetCached(AIOperationTypes eAIOp
 {
 	int ciAgeLimit = 8; //don't switch targets too often but update our cached targets from time and time
 
-	if (eEnemy >= MAX_CIV_PLAYERS)
+	if (eEnemy > MAX_CIV_PLAYERS)
 	{
 		if (piWinningScore)
 			*piWinningScore = 0;
@@ -4172,8 +4172,8 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 	if(eEnemy == NO_PLAYER || !pThreatenedCity)
 		return;
 	
-	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eEnemy);
-	if (eWarState >= WAR_STATE_CALM)
+	WarStateTypes eWarState = GET_PLAYER(eEnemy).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(eEnemy) : WAR_STATE_OFFENSIVE;
+	if (eWarState >= WAR_STATE_STALEMATE)
 		return;
 
 	int iOperationID;
@@ -4226,8 +4226,8 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity
 	if(ePlayer == NO_PLAYER || !pThreatenedCity)
 		return;
 
-	WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
-	if (eWarState >= WAR_STATE_CALM)
+	WarStateTypes eWarState = GET_PLAYER(ePlayer).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) : WAR_STATE_OFFENSIVE;
+	if (eWarState >= WAR_STATE_STALEMATE)
 		return;
 
 	if (eWarState ==  WAR_STATE_DEFENSIVE)
@@ -4280,7 +4280,7 @@ void CvMilitaryAI::DoLandAttacks(PlayerTypes ePlayer)
 		int iNumRequiredSlots;
 		int iFilledSlots;
 		int iNumUnitsWillingBuild = 2;
-		WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
+		WarStateTypes eWarState = GET_PLAYER(ePlayer).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) : WAR_STATE_OFFENSIVE;
 		switch(eWarState)
 		{
 			// If we are dominant, shouldn't be running a defensive strategy
@@ -4356,7 +4356,7 @@ void CvMilitaryAI::DoSeaAttacks(PlayerTypes ePlayer)
 		int iReservesUsed;
 		int iNumUnitsWillingBuild = 2;
 		
-		WarStateTypes eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
+		WarStateTypes eWarState = GET_PLAYER(ePlayer).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) : WAR_STATE_OFFENSIVE;
 		switch(eWarState)
 		{
 			// If we are dominant, shouldn't be running a defensive strategy
@@ -4825,7 +4825,6 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 		// Are we running at a deficit?
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 		bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-
 		// Are we running anything other than the Conquest Grand Strategy?
 		AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 		if (eConquestGrandStrategy != NO_AIGRANDSTRATEGY)

@@ -1055,25 +1055,25 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 							iBonus += (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()) * 5);
 						}
 					}
-					if(pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
+					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 					{
-						for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						const YieldTypes eYield = static_cast<YieldTypes>(iI);
+						if(eYield != NO_YIELD)
 						{
-							const YieldTypes eYield = static_cast<YieldTypes>(iI);
-							if(eYield != NO_YIELD)
+							if (pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
 							{
-								if(pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield))
+								if (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield))
 								{
 									iBonus += (pEntry->GetSpecialistYieldChange(pkBuildingInfo->GetSpecialistType(), eYield) * 5);
 								}
-								if(pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield))
-								{
-									iBonus += (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
-								}
-								if(m_pCity->GetCityCitizens()->GetTotalSpecialistCount() <= 0 && pEntry->GetYieldChangeAnySpecialist(eYield) > 0)
+								if (m_pCity->GetCityCitizens()->GetTotalSpecialistCount() <= 0 && pEntry->GetYieldChangeAnySpecialist(eYield) > 0)
 								{
 									iBonus += (pEntry->GetYieldChangeAnySpecialist(eYield) * 2);
 								}
+							}
+							if(pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield))
+							{
+								iBonus += (pEntry->GetBuildingClassYieldChange((int)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
 							}
 						}
 					}

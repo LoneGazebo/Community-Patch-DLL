@@ -1256,7 +1256,7 @@ function GetFaithTooltip(pCity)
 			end
 		end
 
-		local trfaith = city:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
+		local trfaith = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
 		if(trfaith ~= "") then
 			table.insert(faithTips, trfaith);
 		end

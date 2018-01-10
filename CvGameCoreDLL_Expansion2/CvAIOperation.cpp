@@ -3754,34 +3754,34 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (pPlot->getImprovementType() != eBarbCamp)
-			continue;
-
-		// slight AI cheating - enough if adjacent plot is revealed
-		if (!pPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()) && !pPlot->isAdjacentRevealed(GET_PLAYER(ePlayer).getTeam()))
-			continue;
-
-		// bonus for captured civilians (settlers and workers, not missionaries)
-		int iDummy;
-		int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 2;
-
-		int iCityLoop;
-		// Loop through each of our cities
-		for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		if (pPlot->getImprovementType() == eBarbCamp || (pPlot->isCity() && pPlot->isBarbarian()))
 		{
-			if(pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+			// slight AI cheating - enough if adjacent plot is revealed
+			if (!pPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()) && !pPlot->isAdjacentRevealed(GET_PLAYER(ePlayer).getTeam()))
 				continue;
 
-			int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
-			if(pPlot->getArea() != pLoopCity->getArea())
-				iCurPlotDistance *= 2;
+			// bonus for captured civilians (settlers and workers, not missionaries)
+			int iDummy;
+			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 2;
 
-			int iScore = 1000 - iCurPlotDistance + iBonus;
-			if (iScore > iBestScore)
+			int iCityLoop;
+			// Loop through each of our cities
+			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
-				pBestPlot = pPlot;
-				iBestScore = iScore;
-				pClosestCity = pLoopCity;
+				if (pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+					continue;
+
+				int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+				if (pPlot->getArea() != pLoopCity->getArea())
+					iCurPlotDistance *= 2;
+
+				int iScore = 1000 - iCurPlotDistance + iBonus;
+				if (iScore > iBestScore)
+				{
+					pBestPlot = pPlot;
+					iBestScore = iScore;
+					pClosestCity = pLoopCity;
+				}
 			}
 		}
 	}

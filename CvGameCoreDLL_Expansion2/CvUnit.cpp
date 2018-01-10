@@ -774,6 +774,13 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		kPlayer.changeNumNukeUnits(1);
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
+	{
+		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+	}
+#endif
+
 	if(getUnitInfo().IsMilitarySupport())
 	{
 #if defined(MOD_BATTLE_ROYALE)
@@ -974,7 +981,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			{
 				GetReligionData()->SetReligion(eReligion);
 				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
-				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
+				int iStrength = getUnitInfo().GetReligiousStrength();
+				iStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
+				iStrength /= 100;
+				GetReligionData()->SetReligiousStrength(iStrength);
 			}
 		}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
@@ -2421,6 +2431,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 #endif
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
+	{
+		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+	}
+#endif
+
 	// A unit dying reduces the Great General meter
 #if defined(MOD_UNITS_XP_TIMES_100)
 	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
@@ -2475,12 +2492,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if (isTrade() || IsCivilianUnit() || isNoSupply() || isContractUnit())
-	{
-		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
-	}
-#endif
+
 	//////////////////////////////////////////////////////////////////////////
 	// WARNING: This next statement will delete 'this'
 	// ANYTHING BELOW HERE MUST NOT REFERENCE THE UNIT!
