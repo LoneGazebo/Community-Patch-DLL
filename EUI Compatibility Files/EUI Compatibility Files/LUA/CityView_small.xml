@@ -389,7 +389,7 @@
 					<Container Size="64.1"/>
 					<TextButton ID="TextButton" Anchor="R,C"/>
 				</Stack>
-				<Label ID="Label" Anchor="R,B" WrapWidth="254"/>
+				<Label ID="Label" Anchor="R,B" WrapWidth="254" Font="TwCenMT18"/>
 			</Stack>
 			<GridButton ID="SellButton" Anchor="L,T" Size="70,22" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_CLICK_TO_SELL" />
 			<Box Anchor="C,B" Color="27.53.64.255" Size="254,2"/>
