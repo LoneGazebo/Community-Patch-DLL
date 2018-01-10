@@ -651,6 +651,11 @@ local function sortBuildings(a,b)
 	end
 end
 
+local function StringFormatNeatFloat(x)
+	if math.floor(math.abs(x)) == math.abs(x) then return string.format("%d", x); end
+	return string.format("%.1f", x);
+end
+
 local function SetupBuildingList( city, buildings, buildingIM )
 	buildingIM.ResetInstances()
 	buildings:sort( sortBuildings )
@@ -887,12 +892,12 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			-- Vox Populi Comparable Yields Tweak
 			cityYieldRateModifier = 100
 			buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
-			tips:insertIf( isProducing and buildingYieldRate ~= 0 and buildingYieldRate / 100 .. tostring(YieldIcons[ yieldID ]) )
+			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate / 100) .. tostring(YieldIcons[ yieldID ]) )
 		end
 
 		-- Culture leftovers
 		buildingCultureRate = buildingCultureRate * (100+cityCultureRateModifier) + ( cityCultureRate - buildingCultureRate ) * buildingCultureModifier
-		tips:insertIf( isNotResistance and buildingCultureRate ~=0 and buildingCultureRate / 100 .. "[ICON_CULTURE]" )
+		tips:insertIf( isNotResistance and buildingCultureRate ~=0 and StringFormatNeatFloat(buildingCultureRate / 100) .. "[ICON_CULTURE]" )
 
 -- TODO TOURISM
 		if civ5bnw_mode then
@@ -916,7 +921,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		end
 		controls.Name:SetText( buildingName )
 
-		tips:insertIf( defenseChange ~=0 and defenseChange / 100 .. "[ICON_STRENGTH]" )
+		tips:insertIf( defenseChange ~=0 and StringFormatNeatFloat(defenseChange / 100) .. "[ICON_STRENGTH]" )
 		tips:insertLocalizedIfNonZero( "TXT_KEY_PEDIA_DEFENSE_HITPOINTS", hitPointChange )
 
 		controls.Label:ChangeParent( controls.Stack )
