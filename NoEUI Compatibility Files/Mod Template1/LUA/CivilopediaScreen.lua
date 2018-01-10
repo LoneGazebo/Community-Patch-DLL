@@ -8,19 +8,6 @@ include( "IconSupport" );
 include( "TechHelpInclude" );
 --END
 
--- Infixo debug output routine
-function dprint(sStr,p1,p2,p3,p4,p5,p6)
-	local s = sStr;
-	if p1 ~= nil then s = s.." [1] "..tostring(p1); end
-	if p2 ~= nil then s = s.." [2] "..tostring(p2); end
-	if p3 ~= nil then s = s.." [3] "..tostring(p3); end
-	if p4 ~= nil then s = s.." [4] "..tostring(p4); end
-	if p5 ~= nil then s = s.." [5] "..tostring(p5); end
-	if p6 ~= nil then s = s.." [6] "..tostring(p6); end
-	print(os.clock(), Game.GetGameTurn(), s);
-end
--- Infixo
-
 -- table.sort method for sorting alphabetically.
 function Alphabetically(a, b)
 	return Locale.Compare(a.entryName, b.entryName) == -1;
@@ -191,30 +178,6 @@ function SetSelectedCategory( thisCategory )
 	end	
 	Controls.ScrollPanel:CalculateInternalSize();
 	Controls.LeftScrollPanel:CalculateInternalSize();
-end
-
--------------------------------------------------------------------------------
--- Generic info from individual table fields (for Extended Information)
--------------------------------------------------------------------------------
-function AnalyzeObjectField(tObject, sField, sSuffix)
-	--dprint("   ...field", sField, type(tObject[sField]), tObject[sField]);
-	if tObject[sField] == nil then return ""; end
-	if type(tObject[sField]) == "boolean" then 
-		if tObject[sField] then return "[NEWLINE][ICON_BULLET]"..sField;
-		else                    return ""; 	end
-	end
-	if type(tObject[sField]) == "string" then 
-		if tObject[sField] ~= nil then return "[NEWLINE][ICON_BULLET]"..sField..string.format(" %s", tObject[sField]);
-		else                           return ""; end
-	end
-	if type(tObject[sField]) == "number" then 
-		if tObject[sField] == 0 or tObject[sField] == -1 then return ""; end
-		local suffix = "%";
-		if sSuffix ~= nil then suffix = " "..sSuffix; end
-		if suffix == " " then suffix = ""; end
-		return "[NEWLINE][ICON_BULLET]"..string.format("%+d", tObject[sField])..suffix.." "..sField;
-	end
-	return "[NEWLINE]Error: unknown field type for "..sField;
 end
 
 -------------------------------------------------------------------------------
@@ -2210,6 +2173,32 @@ function TagExists( tag )
 	return Locale.HasTextKey(tag);
 end
 
+-------------------------------------------------------------------------------
+-- Generic info from individual table fields (for Extended Information)
+-------------------------------------------------------------------------------
+function AnalyzeObjectField(tObject, sField, sSuffix, sAddText)
+	--dprint("   ...field", sField, type(tObject[sField]), tObject[sField]);
+	if tObject[sField] == nil then return ""; end
+	if type(tObject[sField]) == "boolean" then 
+		if tObject[sField] then return "[NEWLINE][ICON_BULLET]"..sField;
+		else                    return ""; 	end
+	end
+	if type(tObject[sField]) == "string" then 
+		if tObject[sField] == nil then return ""; end
+		if sSuffix == nil then return "[NEWLINE][ICON_BULLET]"..sField..string.format(" %s", tObject[sField]); end
+		-- sSuffix is reference table
+		return "[NEWLINE][ICON_BULLET]"..sAddText.." [COLOR_CYAN]"..Locale.Lookup(GameInfo[sSuffix][tObject[sField]].Description).."[ENDCOLOR]";
+	end
+	if type(tObject[sField]) == "number" then 
+		if tObject[sField] == 0 or tObject[sField] == -1 then return ""; end
+		local suffix = "%";
+		if sSuffix ~= nil then suffix = " "..sSuffix; end
+		if suffix == " " then suffix = ""; end
+		return "[NEWLINE][ICON_BULLET]"..string.format("%+d", tObject[sField])..suffix.." "..sField;
+	end
+	return "[NEWLINE]Error: unknown field type for "..sField;
+end
+
 --------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------
 
@@ -3132,17 +3121,150 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		Controls.RelatedImagesFrame:SetHide( true );
 		
 		-- Infixo Extended info
-		local sText = "[COLOR_CYAN]Buildings[ENDCOLOR] required to purchase this unit:"; -- change to TXT_KEY_ later
+		local sText = "[COLOR_CYAN]Abilities[ENDCOLOR] of this unit:"; -- change to TXT_KEY_ later
+		local function AnalyzeUnit(...)
+			sText = sText .. AnalyzeObjectField(thisUnit, ...);
+		end
+		AnalyzeUnit("Domain", "Domains", "Domain");
+		--AnalyzeUnit("MinAreaSize");
+		if thisUnit.MinAreaSize > 0 and thisUnit.MinAreaSize < 10 then sText = sText.."[NEWLINE][ICON_BULLET]Moves on [COLOR_CYAN]Sea[ENDCOLOR] and [COLOR_CYAN]Lake[ENDCOLOR]"; end
+		if thisUnit.MinAreaSize >= 10 then sText = sText.."[NEWLINE][ICON_BULLET]Moves on [COLOR_CYAN]Sea[ENDCOLOR] only"; end
+		AnalyzeUnit("CombatClass", "UnitCombatInfos", "Class");
+		--AnalyzeUnit("IsMounted");
+		if thisUnit.IsMounted == 1 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Mounted[ENDCOLOR] unit"; end
+		AnalyzeUnit("Special", "SpecialUnits", "Special unit");
+		AnalyzeUnit("GoodyHutUpgradeUnitClass", "UnitClasses", "Upgraded by Ruins to");
+		AnalyzeUnit("PolicyType", "Policies", "Requires policy");
+		AnalyzeUnit("ProjectPrereq", "Projects", "Requires project");
+		AnalyzeUnit("SpaceshipProject", "Projects", "Produced by spaceship project");
+		AnalyzeUnit("ResourceType", "Resources", "Requires");
+		AnalyzeUnit("BeliefRequired", "Beliefs", "Requires belief");
+		AnalyzeUnit("Trade");
+		--AnalyzeUnit("DefaultUnitAI", "UnitAIInfos", "AI"); -- AI stuff
+		AnalyzeUnit("BaseSightRange", "[ICON_VIEW_CITY]");
+		AnalyzeUnit("PurchaseOnly");
+		AnalyzeUnit("MoveAfterPurchase");
+		--AnalyzeUnit("RequiresFaithPurchaseEnabled"); -- internal
+		AnalyzeUnit("Immobile");
+		AnalyzeUnit("Capture", "UnitClasses", "Captured as");
+		--AnalyzeUnit("CivilianAttackPriority"); -- AI stuff
+		AnalyzeUnit("Food");
+		AnalyzeUnit("NoBadGoodies");
+		AnalyzeUnit("RivalTerritory");
+		AnalyzeUnit("MilitarySupport");
+		AnalyzeUnit("MilitaryProduction");
+		AnalyzeUnit("Pillage");
+		AnalyzeUnit("PillagePrereqTech");
+		AnalyzeUnit("Found");
+		AnalyzeUnit("FoundAbroad");
+		AnalyzeUnit("CultureBombRadius");
+		AnalyzeUnit("GoldenAgeTurns");
+		AnalyzeUnit("FreePolicies");
+		AnalyzeUnit("OneShotTourism");
+		AnalyzeUnit("OneShotTourismPercentOthers");
+		AnalyzeUnit("IgnoreBuildingDefense");
+		AnalyzeUnit("PrereqResources");
+		AnalyzeUnit("Mechanized");
+		AnalyzeUnit("Suicide");
+		AnalyzeUnit("CaptureWhileEmbarked");
+		AnalyzeUnit("HurryCostModifier");
+		AnalyzeUnit("AdvancedStartCost");
+		AnalyzeUnit("AirInterceptRange", "[ICON_RANGE_STRENGTH]");
+		AnalyzeUnit("AirUnitCap", "[ICON_AIRSTRIKE_DEFENSE]");
+		AnalyzeUnit("NukeDamageLevel");
+		AnalyzeUnit("WorkRate");
+		AnalyzeUnit("NumFreeTechs", "");
+		AnalyzeUnit("BaseBeakersTurnsToCount", "");
+		AnalyzeUnit("BaseCultureTurnsToCount", "");
+		AnalyzeUnit("RushBuilding");
+		AnalyzeUnit("BaseHurry");
+		AnalyzeUnit("HurryMultiplier");
+		AnalyzeUnit("BaseGold", "");
+		AnalyzeUnit("NumGoldPerEra");
+		AnalyzeUnit("SpreadReligion");
+		AnalyzeUnit("RemoveHeresy");
+		AnalyzeUnit("ReligionSpreads", "[ICON_MISSIONARY]");
+		AnalyzeUnit("ReligiousStrength", "[ICON_PEACE]");
+		AnalyzeUnit("FoundReligion");
+		AnalyzeUnit("RequiresEnhancedReligion");
+		AnalyzeUnit("ProhibitsSpread");
+		AnalyzeUnit("CanBuyCityState");
+		--AnalyzeUnit("CombatLimit", ""); -- intrernal
+		-- AnalyzeUnit("RangedCombatLimit"); -- internal
+		AnalyzeUnit("RangeAttackOnlyInDomain");
+		AnalyzeUnit("RangeAttackIgnoreLOS");
+		AnalyzeUnit("NumExoticGoods", "");
+		--AnalyzeUnit("XPValueAttack", ""); -- internal
+		--AnalyzeUnit("XPValueDefense", ""); -- internal
+		AnalyzeUnit("DomainCargo", "Domains", "Cargo domain");
+		AnalyzeUnit("SpecialCargo", "SpecialUnits", "Special cargo");
+		AnalyzeUnit("SpecialUnitCargoLoad", "SpecialUnits", "Special cargo load");
+		AnalyzeUnit("Conscription", "");
+		AnalyzeUnit("ExtraMaintenanceCost", "[ICON_GOLD]");
+		--AnalyzeUnit("NoMaintenance");
+		if thisUnit.NoMaintenance then sText = sText.."[NEWLINE][ICON_BULLET]Maintenance [COLOR_POSITIVE_TEXT]Free[ENDCOLOR]"; end
+		AnalyzeUnit("Unhappiness");
+		--AnalyzeUnit("UnitArtInfo");
+		--AnalyzeUnit("UnitArtInfoCulturalVariation");
+		--AnalyzeUnit("UnitArtInfoEraVariation");
+		AnalyzeUnit("LeaderPromotion", "UnitPromotions", "Leader promotion");
+		AnalyzeUnit("LeaderExperience");
+		AnalyzeUnit("DontShowYields");
+		--AnalyzeUnit("ShowInPedia");
+		AnalyzeUnit("MoveRate"); -- MovementRates doesn't have Description
+		AnalyzeUnit("FoundMid", "");
+		AnalyzeUnit("FoundLate", "");
+		AnalyzeUnit("CityAttackOnly", "");
+		AnalyzeUnit("CulExpOnDisbandUpgrade");
+		AnalyzeUnit("PuppetPurchaseOverride");
+		AnalyzeUnit("GoodyModifier");
+		AnalyzeUnit("SupplyCapBoost");
+		AnalyzeUnit("NumFreeLux", "");
+		AnalyzeUnit("GPExtra");
+		AnalyzeUnit("IsConvertUnit");
+		AnalyzeUnit("MinorCivGift", "");
+		AnalyzeUnit("NoMinorCivGift", "");
+		AnalyzeUnit("PurchaseCooldown", "");
+		AnalyzeUnit("GlobalFaithPurchaseCooldown");
+		--AnalyzeUnit("BaseLandAirDefense");
+		AnalyzeUnit("FreeUpgrade");
+		AnalyzeUnit("UnitEraUpgrade");
+		AnalyzeUnit("ConvertOnDamage");
+		AnalyzeUnit("ConvertUnit", "Units", "Convert unit");
+		AnalyzeUnit("DamageThreshold");
+		AnalyzeUnit("ConvertOnFullHP");
+		AnalyzeUnit("WarOnly");
+		AnalyzeUnit("ConvertEnemyUnitToBarbarian");
+		AnalyzeUnit("WLTKDFromBirth");
+		AnalyzeUnit("GoldenAgeFromBirth");
+		AnalyzeUnit("CultureBoost");
+		AnalyzeUnit("ExtraAttackHealthOnKill");
+		AnalyzeUnit("HighSeaRaider");
+		AnalyzeUnit("NumInfPerEra");
+		AnalyzeUnit("SendCanMoveIntoEvent");
+		AnalyzeUnit("CannotEmbark");
+		AnalyzeUnit("NoMinorGifts");
+		AnalyzeUnit("MoveAfterUpgrade");
+		AnalyzeUnit("PromotionClass", "UnitCombatInfos", "Promotion class");
+		AnalyzeUnit("CanRepairFleet");
+		AnalyzeUnit("CanChangePort");
+		AnalyzeUnit("NumberStackingUnits");
+		AnalyzeUnit("StackCombat");
+		--AnalyzeUnit("MaxHitPoints"); -- internal
+		AnalyzeUnit("CargoCombat");
+		--AnalyzeUnit("ObsoleteTech");
+		if thisUnit.ObsoleteTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Obsoletes with [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Technologies[thisUnit.ObsoleteTech].Description).."[ENDCOLOR]"; end
+		--------------------
 		local bShow = false;
 		local sql = [[
 			SELECT BuildingClasses.Description
 			FROM Unit_BuildingClassPurchaseRequireds INNER JOIN BuildingClasses ON Unit_BuildingClassPurchaseRequireds.BuildingClassType = BuildingClasses.Type
 			WHERE Unit_BuildingClassPurchaseRequireds.UnitType = ?]];
 		for row in DB.Query(sql, thisUnit.Type) do
+			if not bShow then sText = sText.."[NEWLINE][COLOR_CYAN]Buildings[ENDCOLOR] required to purchase this unit:"; bShow = true; end -- change to TXT_KEY_ later
 			sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description);
-			bShow = true;
 		end
-		if bShow then UpdateTextBlock( sText, Controls.ExtendedLabel,  Controls.ExtendedInnerFrame,  Controls.ExtendedFrame ); end
+		UpdateTextBlock( sText, Controls.ExtendedLabel,  Controls.ExtendedInnerFrame,  Controls.ExtendedFrame );
 		-- end Infixo
 	end
 	
