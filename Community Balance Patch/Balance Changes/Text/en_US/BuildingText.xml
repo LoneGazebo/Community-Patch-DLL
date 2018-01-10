@@ -287,10 +287,10 @@
 			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to a river.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
-			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle and Forest tiles as well as Plantations. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
+			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle tiles as well as Plantations. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
-			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Food and Production based on the city's population, but has a lower efficiency (per citizen) than a Water Mill.</Text>
+			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Production based on the city's population, but less efficiently than the Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
 			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city not on a river. The Wind Plant increases the Production, Science, and Gold output of every Grassland and Plains tile the city works.</Text>
@@ -311,10 +311,10 @@
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
+			<Text>+1 [ICON_PRODUCTION] Food for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
-			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. +1 [ICON_PRODUCTION] Production from Plantations.</Text>
+			<Text>+1 [ICON_FOOD] Food on Jungle tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to a River.</Text>
@@ -326,7 +326,7 @@
 			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
-			<Text>+10% [ICON_FOOD] Food in City.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
+			<Text>+1 [ICON_FOOD] Food from Farms and Pastures worked by the City.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>+15% [ICON_PRODUCTION] Production. Produces 3 [ICON_RES_COAL] Coal. Greatly increases [ICON_HAPPINESS_3] Poverty. Can be built in up to 5 Cities maximum.</Text>
@@ -447,7 +447,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. All Missionaries born in this City can spread Religion three times.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Boosts starting Religious Strength of all Missionaries by 5% (up to 50% in total).</Text>
 		</Row>
 
 
@@ -615,7 +615,7 @@
 			<Text>Stationary steam engines are fixed steam engines used for pumping or driving mills and factories, and for power generation. They are distinct from locomotive engines used on railways, traction engines for heavy steam haulage on roads, steam cars (and other motor vehicles), agricultural engines used for ploughing or threshing, marine engines, and the steam turbines used as the mechanism of power generation for most nuclear power plants. They were introduced during the 18th century and widely made for the whole of the 19th century and most of the first half of the 20th century, only declining as electricity supply and the internal combustion engine became more widespread.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. All Engineers Specialists in the City gain +2 [ICON_GOLD] Gold, and all Merchant Specialists in the City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE][NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. Manufactories worked by the City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE][NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
 			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. The Steam Mill also boosts the city's Gold income from Trade Routes, thus encouraging other Civlizations to trade with you. Since Steam Mills do not require Coal, you can use your Coal surplus to build Seaports and Coal Plants, or you can trade it away for a large amount of gold.</Text>
@@ -682,7 +682,7 @@
 			<Text>Seowon were the most common educational institution of Korea during the mid- to late Joseon Dynasty. They were private institutions, and combined the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science from Jungle and Forest tiles worked by this City. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.</Text>
+			<Text>+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. +15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages.Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
 			<Text>Unique Korean replacement for the University. Generates more Science than the University, and also generates Faith. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>

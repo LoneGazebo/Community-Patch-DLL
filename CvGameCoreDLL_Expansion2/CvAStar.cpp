@@ -3016,24 +3016,19 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, con
 //	---------------------------------------------------------------------------
 CvPlot* CvPathNodeArray::GetTurnDestinationPlot(int iTurn) const
 {
-	if (size()>1)
-	{
-		//iterate until the penultimate node
-		for (size_t i=0; i+1<size(); i++)
-		{
-			const CvPathNode& thisNode = at(i);
-			const CvPathNode& nextNode = at(i+1);
-			// Is this node the correct turn and the next node is a turn after it?
-			if (thisNode.m_iTurns == iTurn && nextNode.m_iTurns > iTurn)
-				return GC.getMap().plotUnchecked( thisNode.m_iX, thisNode.m_iY );
-		}
-	}
+	if (empty() || iTurn<0)
+		return NULL;
 
-	if (!empty())
+	//walk backwards and return the first match
+	for (size_t i = size(); i != 0; i--)
 	{
-		// Last node, only return it if it is the desired turn
-		if (back().m_iTurns == iTurn)
-			return GC.getMap().plotUnchecked( back().m_iX, back().m_iY );
+		const CvPathNode& thisNode = at(i-1);
+		//actual end turn plot
+		if (thisNode.m_iTurns == iTurn+1 && thisNode.m_iMoves == 0)
+			return GC.getMap().plotUnchecked(thisNode.m_iX, thisNode.m_iY);
+		//unit still has moves left at the end of the path
+		if (thisNode.m_iTurns == iTurn && thisNode.m_iMoves > 0)
+			return GC.getMap().plotUnchecked(thisNode.m_iX, thisNode.m_iY);
 	}
 
 	return NULL;

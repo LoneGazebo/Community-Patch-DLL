@@ -8653,29 +8653,8 @@ void CvDiplomacyAI::SetWarState(PlayerTypes ePlayer, WarStateTypes eWarState)
 /// Updates what the state of war is with all Players
 void CvDiplomacyAI::DoUpdateWarStates()
 {
-	WarStateTypes eWarState;
+	WarStateTypes eWarState = WAR_STATE_STALEMATE;
 
-	int iMyLocalMilitaryStrength;
-	int iEnemyInHisLandsMilitaryStrength;
-
-	int iMyForeignMilitaryStrength;
-	int iEnemyInMyLandsMilitaryStrength;
-
-	int iMyPercentForeign;
-	int iEnemyPercentInHisLands;
-
-	int iMyPercentLocal;
-	int iEnemyPercentInMyLands;
-
-	int iLocalRatio;
-	int iForeignRatio;
-
-	int iWarStateValue;
-
-	CvUnit* pLoopUnit;
-	CvCity* pLoopCity;
-	int iUnitOrCityLoop;
-	int iPercentHealthLeft;
 
 	// Reset overall war state
 	int iStateAllWars = 0;   // Used to assess overall war state in this function
@@ -8692,168 +8671,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			// War?
 			if(IsAtWar(eLoopPlayer))
 			{
-				iMyLocalMilitaryStrength = 0;
-				iEnemyInHisLandsMilitaryStrength = 0;
-
-				iMyForeignMilitaryStrength = 0;
-				iEnemyInMyLandsMilitaryStrength = 0;
-
-				// Loop through our units
-				for(pLoopUnit = GetPlayer()->firstUnit(&iUnitOrCityLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitOrCityLoop))
-				{
-					// On our home front
-					if(pLoopUnit->plot()->IsHomeFrontForPlayer(GetPlayer()->GetID()))
-						iMyLocalMilitaryStrength += pLoopUnit->GetPower();
-
-					// Enemy's home front
-					if(pLoopUnit->plot()->IsHomeFrontForPlayer(eLoopPlayer))
-						iMyForeignMilitaryStrength += pLoopUnit->GetPower();
-				}
-
-				// Loop through our Enemy's units
-				for(pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iUnitOrCityLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iUnitOrCityLoop))
-				{
-					// On our home front
-					if(pLoopUnit->plot()->IsHomeFrontForPlayer(GetPlayer()->GetID()))
-					{
-						iEnemyInMyLandsMilitaryStrength += pLoopUnit->GetPower();
-					}
-					// Enemy's home front
-					if(pLoopUnit->plot()->IsHomeFrontForPlayer(eLoopPlayer))
-					{
-						iEnemyInHisLandsMilitaryStrength += pLoopUnit->GetPower();
-					}
-				}
-
-				// Loop through our Cities
-				for(pLoopCity = GetPlayer()->firstCity(&iUnitOrCityLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iUnitOrCityLoop))
-				{
-					iPercentHealthLeft = (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()) * 100 / pLoopCity->GetMaxHitPoints();
-					iMyLocalMilitaryStrength += (pLoopCity->GetPower() * iPercentHealthLeft / 100 / 100);
-				}
-
-				// Loop through our Enemy's Cities
-				for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iUnitOrCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iUnitOrCityLoop))
-				{
-					iPercentHealthLeft = (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()) * 100 / pLoopCity->GetMaxHitPoints();
-					iEnemyInHisLandsMilitaryStrength += (pLoopCity->GetPower() * iPercentHealthLeft / 100 / 100);
-				}
-
-				// Percentage of our forces in our locales & each other's locales
-
-				// No Units!
-				if(iMyLocalMilitaryStrength + iMyForeignMilitaryStrength == 0)
-				{
-					iMyPercentLocal = 100;
-					iMyPercentForeign = 0;
-				}
-				else
-				{
-					iMyPercentLocal = iMyLocalMilitaryStrength * 100 / (iMyLocalMilitaryStrength + iMyForeignMilitaryStrength);
-					iMyPercentForeign = 100 - iMyPercentLocal;
-				}
-
-				// No Units!
-				if(iEnemyInHisLandsMilitaryStrength + iEnemyInMyLandsMilitaryStrength == 0)
-				{
-					iEnemyPercentInHisLands = 100;
-					iEnemyPercentInMyLands = 0;
-				}
-				else
-				{
-					iEnemyPercentInHisLands = iEnemyInHisLandsMilitaryStrength * 100 / (iEnemyInHisLandsMilitaryStrength + iEnemyInMyLandsMilitaryStrength);
-					iEnemyPercentInMyLands = 100 - iEnemyPercentInHisLands;
-				}
-
-				// Ratio of Me VS Him in our two locales
-				if(iMyLocalMilitaryStrength == 0)
-				{
-					iMyLocalMilitaryStrength = 1;
-				}
-				iLocalRatio = iMyLocalMilitaryStrength * 100 / (iMyLocalMilitaryStrength + iEnemyInMyLandsMilitaryStrength);
-
-				if(iEnemyInHisLandsMilitaryStrength == 0)
-				{
-					iEnemyInHisLandsMilitaryStrength = 1;
-				}
-				iForeignRatio = iMyForeignMilitaryStrength * 100 / (iMyForeignMilitaryStrength + iEnemyInHisLandsMilitaryStrength);
-
-				// Calm: Not much happening on either front
-				if(iForeignRatio < /*25*/ GC.getWAR_STATE_CALM_THRESHOLD_FOREIGN_FORCES() && iLocalRatio > 100 - /*25*/ GC.getWAR_STATE_CALM_THRESHOLD_FOREIGN_FORCES())
-				{
-					eWarState = WAR_STATE_CALM;
-				}
-				// SOMETHING is happening
-				else
-				{
-					iWarStateValue = 0;
-
-					iWarStateValue += iLocalRatio;		// Will be between 0 and 100.  Anything less than 75 is bad news though!  We want a very high percentage in our own lands.
-					iWarStateValue += iForeignRatio;	// Will be between 0 and 100.  Will vary wildly though, depending on the status of an offensive.  A number of 50 is very good.
-
-					iWarStateValue /= 2;
-
-					// Some Example WarStateValues:
-					// Local	Foreign	WarStateValue
-					// 100%		70%			85
-					// 100%		40%			70
-					// 80% 		30% :		55
-					// 100% 		0% :			50
-					// 60% 		40% :		50
-					// 60% 		10% :		35
-					// 40% 		0% :			20
-
-					if(iWarStateValue >= /*75*/ GC.getWAR_STATE_THRESHOLD_NEARLY_WON())
-					{
-						eWarState = WAR_STATE_NEARLY_WON;
-					}
-					else if(iWarStateValue >= /*57*/ GC.getWAR_STATE_THRESHOLD_OFFENSIVE())
-					{
-						eWarState = WAR_STATE_OFFENSIVE;
-					}
-					else if(iWarStateValue >= /*42*/ GC.getWAR_STATE_THRESHOLD_STALEMATE())
-					{
-						eWarState = WAR_STATE_STALEMATE;
-					}
-					else if(iWarStateValue >= /*25*/ GC.getWAR_STATE_THRESHOLD_DEFENSIVE())
-					{
-						eWarState = WAR_STATE_DEFENSIVE;
-					}
-					else
-					{
-						eWarState = WAR_STATE_NEARLY_DEFEATED;
-					}
-				}
-
-//////////////////////////////////////////////////////////
-//				WAR STATE MODIFICATIONS - We crunched the numbers above, but are there any special cases to consider?
-//////////////////////////////////////////////////////////
-
-				int WarScore = GetWarScore(eLoopPlayer);
-				// If the war is calm but they're an easy target consider us on Offense
-				if (eWarState == WAR_STATE_CALM || WarScore > 20)
-				{
-					eWarState = WAR_STATE_OFFENSIVE;
-				}
-
-				// If the other guy happens to have a guy or two near us but we vastly outnumber him overall, we're not really on the defensive
-				if (eWarState <= WAR_STATE_DEFENSIVE && WarScore < 0)
-				{
-					if(iMyLocalMilitaryStrength >= iEnemyInMyLandsMilitaryStrength + iEnemyInMyLandsMilitaryStrength)
-					{
-						eWarState = WAR_STATE_STALEMATE;
-					}
-				}
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				//If it has been a while since either side captured a city, let's bring it down to calm.
-				if (eWarState != WAR_STATE_NEARLY_WON && (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 5) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) >= 5))
-				{
-					if (WarScore <= 5 && WarScore >= -5)
-						eWarState = WAR_STATE_CALM;
-				}
-
-				int iMyDanger = 0;
-				int iTheirDanger = 0;
+				int iMyDanger = 1;
+				int iTheirDanger = 1;
 
 				CvCity* pLoopCity;
 					
@@ -8868,18 +8687,20 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 						if(pLoopCity->isInDangerOfFalling())
 						{
-							iMyDanger += 10;
+							iMyDanger += 3;
 						}
 						if(pLoopCity->isUnderSiege())
 						{
-							iMyDanger += 10;
+							iMyDanger += 2;
 						}
 						if(pLoopCity->IsInDanger(eLoopPlayer))
 						{
-							iMyDanger += 5;
+							iMyDanger += 1;
 						}
 					}
 				}
+
+				iMyDanger *= 100;
 				iMyDanger /= max(1, iNumMyCities);
 
 				for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
@@ -8890,46 +8711,79 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 						if (pLoopCity->isInDangerOfFalling())
 						{
-							iTheirDanger += 10;
+							iTheirDanger += 3;
 						}
 						if (pLoopCity->isUnderSiege())
 						{
-							iTheirDanger += 10;
+							iTheirDanger += 2;
 						}
 						if (pLoopCity->IsInDanger(GetPlayer()->GetID()))
 						{
-							iTheirDanger += 5;
+							iTheirDanger += 1;
 						}
 					}
 				}
 
+				iTheirDanger *= 100;
 				iTheirDanger /= max(1, iNumTheirCities);
 
+				int iDangerPercent = iTheirDanger * 100;
+				iDangerPercent /= max(1, iMyDanger);
+
 				//More of my cities in danger than theirs?
-				if (iMyDanger > iTheirDanger)
+				if (iDangerPercent < 100)
 				{
 					eWarState = WAR_STATE_DEFENSIVE;
 				}
-				else if (iMyDanger >= iTheirDanger)
+				if (iDangerPercent == 100)
 				{
 					eWarState = WAR_STATE_STALEMATE;
 				}
-				else if (iMyDanger > 0 && (eWarState == WAR_STATE_STALEMATE || eWarState == WAR_STATE_CALM))
+				else if (iDangerPercent > 100)
 				{
-					eWarState = WAR_STATE_DEFENSIVE;
+					eWarState = WAR_STATE_OFFENSIVE;
 				}
-#endif
+
+				int WarScore = GetWarScore(eLoopPlayer);
+				if (m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
+				{
+					if (WarScore < 0)
+					{
+						WarScore *= 2;
+					}
+					else
+					{
+						WarScore /= 2;
+					}
+				}
+				if (WarScore >= 50 && eWarState == WAR_STATE_OFFENSIVE)
+				{
+					eWarState = WAR_STATE_NEARLY_WON;
+				}
+				else if (WarScore <= -50 && eWarState == WAR_STATE_DEFENSIVE)
+				{
+					eWarState = WAR_STATE_NEARLY_DEFEATED;
+				}
+
+				//Exceptions?
+
+				//If it has been a while since either side captured a city, let's bring it down to calm.
+				if ((GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) >= 10))
+				{
+					if (WarScore <= 15 && WarScore >= -15)
+						eWarState = WAR_STATE_CALM;
+				}
 
 				// If this is a major power, determine what the impact of this war is on our global situation
 				if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
 					if(eWarState == WAR_STATE_NEARLY_WON)
 					{
-						iStateAllWars += 2;
+						iStateAllWars += 4;
 					}
 					else if(eWarState == WAR_STATE_OFFENSIVE)
 					{
-						iStateAllWars += 1;
+						iStateAllWars += 3;
 					}
 					else if(eWarState == WAR_STATE_DEFENSIVE)
 					{
@@ -8950,12 +8804,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						// If nearly defeated in any war, overall state should be defensive
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
-#if defined(MOD_BALANCE_CORE)
-					if((m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy()) || m_pPlayer->IsEmpireVeryUnhappy())
-					{
-						iStateAllWars -= 1;
-					}
-#endif
 				}
 			}
 			// Not at war
@@ -30984,7 +30832,7 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 
-	if(iWeight >= 20)
+	if(iWeight >= 24)
 		return true;
 
 	return false;
@@ -31087,6 +30935,14 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	if(GetVictoryBlockLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 	{
 		iWeight += 4;
+	}
+	if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_STRONG)
+	{
+		iWeight += 2;
+	}
+	if (GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+	{
+		iWeight += 5;
 	}
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
 	{

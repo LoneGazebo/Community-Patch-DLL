@@ -132,7 +132,7 @@ public:
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
-	CvCity* GetThreatenedCityByRank(int iRank = 0, bool CoastalOnly = false);
+	CvCity* GetThreatenedCityByRank(int iRank = 0, bool bCoastalOnly = false);
 
 	void UpdateBestMilitaryCities();
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
@@ -2293,6 +2293,7 @@ public:
 	bool removeFromArmy(int iArmyID, int iID);
 	bool removeFromArmy(int iID);
 
+	int findPathLengthNew(TechTypes eTech, int pTechs[] = NULL) const;
 	int findPathLength(TechTypes eTech, bool bCost = true) const;
 	int getQueuePosition(TechTypes eTech) const;
 	void clearResearchQueue();
@@ -2560,6 +2561,9 @@ public:
 	int GetNumFreeGreatPeople() const;
 	void SetNumFreeGreatPeople(int iValue);
 	void ChangeNumFreeGreatPeople(int iChange);
+
+	int GetMissionaryExtraStrength() const;
+	void ChangeMissionaryExtraStrength(int iChange);
 
 	int GetNumMayaBoosts() const;
 	void SetNumMayaBoosts(int iValue);
@@ -3256,6 +3260,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitClassProductionModifiers;
 	FAutoVariable<int, CvPlayer> m_iExtraSupplyPerPopulation;
 	FAutoVariable<int, CvPlayer> m_iCitySupplyFlatGlobal;
+	FAutoVariable<int, CvPlayer> m_iMissionaryExtraStrength;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

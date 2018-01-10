@@ -275,16 +275,15 @@ INSERT INTO Building_GrowthExtraYield
 VALUES
 	('BUILDING_SEOWON', 'YIELD_SCIENCE', 50);
 
-INSERT INTO Building_FeatureYieldChanges
-	(BuildingType, FeatureType, YieldType, Yield)
-VALUES
-	('BUILDING_SEOWON', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 1),
-	('BUILDING_SEOWON', 'FEATURE_FOREST', 'YIELD_SCIENCE', 1);
-
 INSERT INTO Building_ClassesNeededInCity
 	(BuildingType, BuildingClassType)
 VALUES
 	('BUILDING_SEOWON', 'BUILDINGCLASS_LIBRARY');
+
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_SEOWON', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)

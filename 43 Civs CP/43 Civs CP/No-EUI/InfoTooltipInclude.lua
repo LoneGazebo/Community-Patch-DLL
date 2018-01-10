@@ -1249,6 +1249,11 @@ function GetFaithTooltip(pCity)
 			end
 		end
 	
+		local trfaith = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
+		if(trfaith ~= "") then
+			table.insert(faithTips, trfaith);
+		end
+	
 		-- Citizens breakdown
 		table.insert(faithTips, "----------------");
 
