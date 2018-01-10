@@ -8,11 +8,11 @@ SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] C
 WHERE Tag = 'TXT_KEY_BUILDING_GRANARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must be built next to a River. Cannot be built if the City already has a Well.'
+SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must be built next to a River. Cannot be built if the City already has a Well.'
 WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Water Mill can only be constructed in a city located next to a river. The Water Mill increases the city''s [ICON_FOOD] Food and [ICON_PRODUCTION] Production more efficiently (per citizen in the city) than the Well, and has higher base yields.'
+SET Text = 'The Water Mill can only be constructed in a city located next to a river. The Water Mill increases the city''s [ICON_PRODUCTION] Production more efficiently (per Citizen in the City) than the Well.'
 WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -20,11 +20,11 @@ SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] C
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '30% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Scientist, Merchant, and Engineer Specialists produce +1 [ICON_RESEARCH] Science in the City. Reduces [ICON_HAPPINESS_3] Poverty greatly.'
+SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Scientist, Merchant, and Engineer Specialists in the City produce +1 of their base Yield. Reduces [ICON_HAPPINESS_3] Poverty greatly.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a city needs to increase in size by 30% and boosts the City''s Science production from specialists. The city needs to have a Hospital in order to construct the Medical Lab.'
+SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a city needs to increase in size by 15% and boosts the City''s Science production from specialists. The city needs to have a Hospital in order to construct the Medical Lab.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -104,7 +104,7 @@ SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COP
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from all Forests and Jungles worked by this City. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from all Forests worked by this City. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_WORKSHOP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -176,7 +176,7 @@ SET Text = 'The Bank is a Renaissance-era building which increases the city''s o
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have a Bank. +1 [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens in the City. Cost of [ICON_GOLD] Gold purchasing in this City reduced by 10%.'
+SET Text = 'City must have a Bank. +1 [ICON_GOLD] Gold for every 5 [ICON_CITIZEN] Citizens in the City. Cost of [ICON_GOLD] Gold purchasing in this City reduced by 10%. +2 [ICON_GOLD] Gold on Towns worked by this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_STOCK_EXCHANGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -188,7 +188,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy slightly. Requires a Council i
 WHERE Tag = 'TXT_KEY_BUILDING_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science from Jungle and Forest tiles worked by this City. Gain 25% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.'
+SET Text = '+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. Gain 25% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.'
 WHERE Tag = 'TXT_KEY_BUILDING_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
     
 UPDATE Language_en_US
@@ -208,7 +208,7 @@ SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+15% [ICON_PRODUCTION] Production when constructing Buildings. Grocers and Granaries in the City produce +2 [ICON_FOOD] Food.'
+SET Text = '+15% [ICON_PRODUCTION] Production when constructing Buildings. Grocers and Granaries in the City produce +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_BUILDING_WINDMILL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -265,7 +265,7 @@ SET Text = 'Reduces population loss from nuclear attack by 75%, increases Defens
 WHERE Tag = 'TXT_KEY_BUILDING_BOMB_SHELTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]All Engineers Specialists in the City gain +2 [ICON_GOLD] Gold, and all Merchant Specialists in the City gain +2 [ICON_PRODUCTION] Production.'
+SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Manufactories worked by the City gain +2 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_FACTORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -314,7 +314,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. Nearby Jungle and Forest tiles g
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Zoo reduces Boredom in a city, produces additional Culture, and boosts the Tourism value of nearby Jungle and Forest tiles. Generates a large sum of Tourism with all known Civilizations when completed.'
+SET Text = 'The Zoo reduces Boredom in a city, produces additional Culture, and boosts the Gold value of nearby Jungle and Forest tiles. Generates a large sum of Tourism with all known Civilizations when completed.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -496,8 +496,14 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom in all cities. Increases Military
 WHERE Tag = 'TXT_KEY_WONDER_PARTHENON_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Instantly receive 300 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities.'
+SET Text = 'Instantly receive 500 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. Receive a free Temple in the City where it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_ORACLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[ICON_CULTURE] Culture and [ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every city. Receive a free Mandir in the City where it is built.'
+WHERE Tag = 'TXT_KEY_WONDER_ANGKOR_WAT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+
 
 UPDATE Language_en_US
 SET Text = 'Receive a free Great General. [NEWLINE][NEWLINE]Enemy land Units expend all [ICON_MOVES] movement when entering your territory. Increases the Military Unit Supply Cap by 3. Provides Walls for free in the city in which it is built.[NEWLINE][NEWLINE]Upon discovering Dynamite, The Great Wall becomes obsolete.'
@@ -520,7 +526,7 @@ SET Text = 'As the center of an Islamic scholarly community, the University of S
 WHERE Tag = 'TXT_KEY_WONDER_MOSQUE_OF_DJENNE_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A free Great Prophet appears. Provides a free Temple in the city in which it is built.'
+SET Text = 'A free Great Prophet appears. Provides a free Church in the city in which it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_HAGIA_SOPHIA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -536,7 +542,7 @@ SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be built in a Holy City. 3 free Missionaries appear. A free Monastery is constructed in the City.'
+SET Text = 'Must be built in a Holy City. 3 free Missionaries appear. A free Stupa is constructed in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

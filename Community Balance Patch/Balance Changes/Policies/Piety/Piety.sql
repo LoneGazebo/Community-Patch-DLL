@@ -31,10 +31,14 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIE
 DELETE FROM Policy_BuildingClassProductionModifiers
 WHERE PolicyType = 'POLICY_PIETY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+UPDATE Policies
+SET FaithCostModifier = '-25'
+WHERE Type = 'POLICY_PIETY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
 -- Organized Religion
 
 UPDATE Policies
-SET FaithCostModifier = '-25'
+SET FaithCostModifier = '0'
 WHERE Type = 'POLICY_ORGANIZED_RELIGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 DELETE FROM Policy_BuildingClassYieldChanges
@@ -62,10 +66,10 @@ INSERT INTO Policy_BuildingClassHappiness
 VALUES
 	('POLICY_MANDATE_OF_HEAVEN', 'BUILDINGCLASS_CASTLE', 1);
 
-INSERT INTO Policy_BuildingClassYieldModifiers
-	(PolicyType, BuildingClassType, YieldType, YieldMod)
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('POLICY_MANDATE_OF_HEAVEN', 'BUILDINGCLASS_CASTLE', 'YIELD_FOOD', 10);
+	('POLICY_MANDATE_OF_HEAVEN', 'BUILDINGCLASS_CASTLE', 'YIELD_FOOD', 3);
 
 INSERT INTO Policy_BuildingClassProductionModifiers
 	(PolicyType, BuildingClassType, ProductionModifier)

@@ -776,19 +776,19 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_JUNGLE">
-			<Text>Lumbermill (Jungle)</Text>
+			<Text>Logging Camp</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE">
-			<Text>A lumbermill (Jungle) allows you to improve the production output of jungle hexes. Unlike the regular Lumbermill, the Lumbermill (Jungle) is available later.</Text>
+			<Text>A Logging Camp allows you to improve the production output of Jungle hexes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_JUNGLE">
-			<Text>Construct a [LINK=IMPROVEMENT_LUMBERMILL]Lumber Mill (Jungle)[\LINK]</Text>
+			<Text>Construct a [LINK=IMPROVEMENT_LUMBERMILL]Logging Camp[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_REC_JUNGLE">
 			<Text>It will increase the amount of [ICON_PRODUCTION] Production provided by this tile, while keeping the Jungle intact.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE">
-			<Text>Lumber Mill (Jungle)</Text>
+			<Text>Logging Camp</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SCIENCE_FROM_RELIGION">

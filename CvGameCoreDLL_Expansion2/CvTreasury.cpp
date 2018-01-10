@@ -89,7 +89,7 @@ void CvTreasury::DoGold()
 	if (iGoldAfterThisTurn < 0 || m_pPlayer->isMinorCiv())
 	{
 		SetGold(0);
-
+		//forced disbanding
 		if(iGoldAfterThisTurn <= /*-5*/ GC.getDEFICIT_UNIT_DISBANDING_THRESHOLD() * 100)
 			m_pPlayer->DoDeficit();
 	}

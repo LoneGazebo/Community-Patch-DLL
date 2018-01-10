@@ -615,6 +615,7 @@ CvPlayer::CvPlayer() :
 	, m_paiUnitClassProductionModifiers("CvPlayer::m_paiUnitClassProductionModifiers", m_syncArchive)
 	, m_iExtraSupplyPerPopulation("CvPlayer::m_iExtraSupplyPerPopulation", m_syncArchive)
 	, m_iCitySupplyFlatGlobal("CvPlayer::m_iCitySupplyFlatGlobal", m_syncArchive)
+	, m_iMissionaryExtraStrength("CvPlayer::m_iMissionaryExtraStrength", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1623,6 +1624,7 @@ void CvPlayer::uninit()
 	m_iPlayerEventCooldown = 0;
 	m_iExtraSupplyPerPopulation = 0;
 	m_iCitySupplyFlatGlobal = 0;
+	m_iMissionaryExtraStrength = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = 0;
@@ -5333,12 +5335,12 @@ void CvPlayer::UpdateCityThreatCriteria()
 		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
 
-CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool CoastalOnly)
+CvCity* CvPlayer::GetThreatenedCityByRank(int iRank, bool bCoastalOnly)
 {
 	int iLoop;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (CoastalOnly)
+		if (bCoastalOnly)
 		{
 			if (pLoopCity->GetCoastalThreatRank() == iRank)
 				return pLoopCity;
@@ -9871,12 +9873,6 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
 #else
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (pUnit->isTrade() || pUnit->IsCivilianUnit() || pUnit->isNoSupply() || pUnit->isContractUnit())
-		{
-			changeNumFreeUnits(1);
-		}
 #endif
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -16596,6 +16592,12 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeSingleVotes(pBuildingInfo->GetSingleVotes() * iChange);
 	}
+
+	if (pBuildingInfo->GetExtraMissionaryStrength() != 0)
+	{
+		ChangeMissionaryExtraStrength(pBuildingInfo->GetExtraMissionaryStrength() * iChange);
+	}
+
 	if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)
 	{
 		ChangePovertyUnhappinessGlobal(pBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() * iChange);
@@ -17426,25 +17428,24 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply() const
 {
-	int iFreeUnits = GetNumUnitsSupplied();
-	int iNumUnits = getNumUnits();
-	int iNumFreeExtra = getNumUnitsFree();
-
-	int iNumUnitsToSupply = iNumUnits - iNumFreeExtra;
-	return std::max(0, iNumUnitsToSupply - iFreeUnits);
+	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsFree();
+	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
 }
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitsNoCivilian() const
 {
-	int iNumUnits = getNumUnits();
+	int iNumUnits = getNumMilitaryUnits();
 	int iNumUnitsToSupply = iNumUnits - getNumUnitsFree();
 	return iNumUnitsToSupply;
 }
+
 int CvPlayer::getNumUnitsFree() const
 {
 	return m_iFreeUnits;
 }
+
 void CvPlayer::changeNumFreeUnits(int iValue)
 {
 	if (iValue != 0)
@@ -17688,10 +17689,7 @@ int CvPlayer::greatGeneralThreshold() const
 		iThreshold /= 100;
 	}
 
-	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-	iThreshold /= std::max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
-
-	iThreshold *= GC.getGame().getStartEraInfo().getGreatPeoplePercent();
+	iThreshold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iThreshold /= 100;
 
 	return std::max(1, iThreshold);
@@ -17712,10 +17710,7 @@ int CvPlayer::greatAdmiralThreshold() const
 		iThreshold /= 100;
 	}
 
-	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-	iThreshold /= std::max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
-
-	iThreshold *= GC.getGame().getStartEraInfo().getGreatPeoplePercent();
+	iThreshold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iThreshold /= 100;
 
 	return std::max(1, iThreshold);
@@ -38282,9 +38277,53 @@ bool CvPlayer::removeFromArmy(int iID)
 	return bRemoved;
 }
 
+//	---------------------------------------------------------------------------
+//	Finds the path length from this tech type to one you already know (FIXED)
+//	This one doesn't count technologies multiple times during recursive calls!
+//	A temporary buffer is used to mark techs already visited, so they can be 
+//	counted only once when the recursive calls end.
+int CvPlayer::findPathLengthNew(TechTypes eTech, int pTechs[]) const
+{
+	CvAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
+	int i;
+
+	// if buffer is empty then initialize, start recursive calls and count techs at the end
+	if (pTechs == NULL)
+	{
+		int pTechBuffer[200]; // ideally need to count all techs and allocate a dynamic array
+		std::fill(pTechBuffer, pTechBuffer+200, 0);
+		(void) findPathLengthNew(eTech, pTechBuffer);
+		int iNumTechs = 0;
+		for (i=0; i<200; i++) iNumTechs += pTechBuffer[i]; // count all techs that we visited during recursive calls
+		return iNumTechs;
+	}
+
+	// if buffer is not empty then mark the tech as required and analyze prerequisite techs
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if(pkTechInfo == NULL)
+		return 0;
+	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech)) // We have this tech
+		return 0;
+	
+	// this tech is not yet FULLY researched, so mark it; always 1, so they won't be counted multiple times!
+	pTechs[(int) eTech] = 1;
+	//	Cycle through the AND paths and mark their techs
+	for(i = 0; i < GC.getNUM_AND_TECH_PREREQS(); i++)
+	{
+		TechTypes ePreReq = (TechTypes)pkTechInfo->GetPrereqAndTechs(i);
+		if(ePreReq != NO_TECH)
+			(void) findPathLengthNew(ePreReq, pTechs);
+	}
+
+	// OR paths omitted as of now, not used
+
+	return 0;
+}
 
 //	---------------------------------------------------------------------------
 //	Finds the path length from this tech type to one you already know
+//	If bCost is false, then it returns number of techs that need to be researched to acquire eTech
+//	If bCost is true, then it returns the cost of a currently researched tech
 int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 {
 	int i;
@@ -38298,13 +38337,10 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 	if(pkTechInfo == NULL)
 		return 0;
 
-	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech) || m_pPlayerTechs->IsResearchingTech(eTech))
-	{
-		//	We have this tech, no reason to add this to the pre-reqs
-		//	Base case return 0, we know it...
+	if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTech)) // We have this tech
 		return 0;
-	}
 
+	/* WRONG - MULTIPLE COUNTS
 	//	Cycle through the and paths and add up their tech lengths
 	for(i = 0; i < GC.getNUM_AND_TECH_PREREQS(); i++)
 	{
@@ -38315,6 +38351,8 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 			iPathLength += findPathLength(ePreReq, bCost);
 		}
 	}
+	*/
+	iPathLength = findPathLengthNew(eTech, NULL);
 
 	eShortestOr = NO_TECH;
 	iShortestPath = INT_MAX;
@@ -38328,7 +38366,8 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 		if(ePreReq != NO_TECH)
 		{
 			//	Recursively find the path length (takes into account all ANDs)
-			iNumSteps = findPathLength(ePreReq, bCost);
+			//iNumSteps = findPathLength(ePreReq, bCost);
+			iNumSteps = findPathLengthNew(ePreReq, NULL);
 
 			//	If the prereq is a valid tech and its the current shortest, mark it as such
 			if(iNumSteps < iShortestPath)
@@ -38345,7 +38384,8 @@ int CvPlayer::findPathLength(TechTypes eTech, bool bCost) const
 		iPathLength += iShortestPath;
 	}
 
-	return (iPathLength + ((bCost) ? GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech) : 1));
+	//return (iPathLength + ((bCost) ? GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech) : 1));
+	return bCost ? (GET_TEAM(getTeam()).GetTeamTechs()->GetResearchCost(eTech)) : iPathLength;
 }
 
 
@@ -39612,6 +39652,9 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 		int TurnsBack = 0;
 		YieldTypes eYield = (YieldTypes)i;
 		if (eYield == NO_YIELD)
+			continue;
+
+		if (eYield > YIELD_CULTURE_LOCAL)
 			continue;
 
 		if (GC.getYieldInfo(eYield) == NULL)
@@ -46392,6 +46435,26 @@ void CvPlayer::ChangeNumMayaBoosts(int iChange)
 				GetPlayerTraits()->ChooseMayaBoost();
 			}
 		}
+	}
+}
+
+
+/// Accessor: Get extra times to spread religion for missionaries from this city
+int CvPlayer::GetMissionaryExtraStrength() const
+{
+	if (m_iMissionaryExtraStrength >= 50)
+		return 50;
+
+	return m_iMissionaryExtraStrength;
+}
+
+/// Accessor: Change extra times to spread religion for missionaries from this city
+void CvPlayer::ChangeMissionaryExtraStrength(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iMissionaryExtraStrength = (m_iMissionaryExtraStrength + iChange);
+		CvAssert(m_iMissionaryExtraStrength >= 0);
 	}
 }
 

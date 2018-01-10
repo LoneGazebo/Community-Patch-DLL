@@ -7083,33 +7083,36 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										}
 									}
 								}
-								int iTotal = GetNumVassals() * 2;											
-								for (int iK = 0; iK < iTotal; iK++)
-								{											
-									int iUnit = GC.getGame().getJonRandNum(aExtraUnits.size(), "Random vassal levy");
-									CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
-									bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
-									if(bJumpSuccess)
-									{
-										pMasterCity->addProductionExperience(pNewUnit);
-										iSum++;
-									}
-									if (!bJumpSuccess)
-									{
-										pNewUnit->kill(false);
-										break;
-									}
-								}
-								if(iSum > 0)
+								if (aExtraUnits.size() > 0)
 								{
-									CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-									if(pNotifications && eLoopPlayer == GC.getGame().getActivePlayer())
+									int iTotal = GetNumVassals() * 2;
+									for (int iK = 0; iK < iTotal; iK++)
 									{
-										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY");
-										strText << iSum;
-										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY");
-										strSummary << iSum;
-										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pMasterCity->getX(), pMasterCity->getY(), -1);
+										int iUnit = GC.getGame().getJonRandNum(aExtraUnits.size(), "Random vassal levy");
+										CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
+										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+										if (bJumpSuccess)
+										{
+											pMasterCity->addProductionExperience(pNewUnit);
+											iSum++;
+										}
+										if (!bJumpSuccess)
+										{
+											pNewUnit->kill(false);
+											break;
+										}
+									}
+									if (iSum > 0)
+									{
+										CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+										if (pNotifications && eLoopPlayer == GC.getGame().getActivePlayer())
+										{
+											Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY");
+											strText << iSum;
+											Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY");
+											strSummary << iSum;
+											pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pMasterCity->getX(), pMasterCity->getY(), -1);
+										}
 									}
 								}
 							}

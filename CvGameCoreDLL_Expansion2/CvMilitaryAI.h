@@ -302,8 +302,8 @@ public:
 	};
 #endif
 
-	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats = true, bool CoastalOnly = false);
-	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool CoastalOnly = false);
+	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats = true, bool bCoastalOnly = false);
+	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true, bool bCoastalOnly = false);
 
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
@@ -418,7 +418,7 @@ private:
 	void MakeEmergencyPurchases();
 	void MakeOffensivePurchases();
 	void RequestImprovements();
-	void DisbandObsoleteUnits();
+	void DisbandObsoleteUnits(int iMaxUnits=2);
 	bool IsAttackReady(MultiunitFormationTypes eFormation, AIOperationTypes eOperationType) const;
 
 	// Logging functions
@@ -426,8 +426,8 @@ private:
 	void LogWarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState);
 	void LogMilitaryStatus();
 	void LogAvailableForces();
-	void LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
-	void LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
+	void LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bSupply);
+	void LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bSupply);
 	void LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true>& weightedTargetList);
 	void LogChosenTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvMilitaryTarget& target);
 	CvString GetLogFileName(CvString& playerName, bool bSummary=false) const;

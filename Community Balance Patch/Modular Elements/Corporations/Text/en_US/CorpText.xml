@@ -596,7 +596,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Trader Sid's Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Trader Sid's cannot be sold or destroyed by the player, and increases the [ICON_GOLD] Gold output of all Trader Sid's Offices by +4.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HELP">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise in foreign Cities (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes from this City to foreign Cities with a Trader Sid's Franchise produce +50% more [ICON_GOLD] Gold.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise in foreign Cities (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes from this City to foreign Cities with a Trader Sid's Franchise produce +25% more [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS">
@@ -828,7 +828,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
-			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City, and +1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce double their normal amount of [ICON_RESEARCH] Science.</Text>
+			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City, and +1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce 50% more [ICON_RESEARCH] Science.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_TWOKAY_FOODS">

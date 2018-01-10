@@ -106,7 +106,7 @@ WHERE PolicyType = 'POLICY_MERCANTILISM' AND EXISTS (SELECT * FROM COMMUNITY WHE
 INSERT INTO Policy_YieldFromConstruction
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_COMMERCE', 'YIELD_GOLD', 10);
+	('POLICY_COMMERCE', 'YIELD_GOLD', 5);
 
 INSERT INTO Policy_HurryModifiers
 	(PolicyType, HurryType, HurryCostModifier)

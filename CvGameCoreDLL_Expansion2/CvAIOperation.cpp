@@ -1070,25 +1070,26 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				return NULL;
 			}
 
-			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass();
-			if (pCenterOfMass && pGoalPlot)
+			CvPlot* pCurrent = pArmy->Plot();
+			if (pCurrent && pGoalPlot)
 			{
 				//problem: center of mass may be on a mountain etc ...
-				if (!pCenterOfMass->isValidMovePlot(kPlayer.GetID()))
+				if (!pCurrent->isValidMovePlot(kPlayer.GetID()))
 				{
 					CvUnit* pFirstUnit = pArmy->GetFirstUnit();
 					if (pFirstUnit)
-						pCenterOfMass = pFirstUnit->plot();
+						pCurrent = pFirstUnit->plot();
 					else
 						return NULL;
 				}
 
 				//get where we want to be next
-				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
+				pRtnValue = GetPlotXInStepPath(pCurrent,pGoalPlot,pArmy->GetMovementRate(),true);
 				if (!pRtnValue)
 				{
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
-					OutputDebugString( CvString::format( "CvAIOperation: cannot find a step path from %d,%d to %d,%d\n", pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
+					OutputDebugString( CvString::format( "CvAIOperation: cannot find a step path from %d,%d to %d,%d\n", 
+						pCurrent->getX(), pCurrent->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
 					return NULL;
 				}
 			}
@@ -1312,7 +1313,7 @@ void CvAIOperation::LogOperationStart()
 				strPlayerName = GET_PLAYER(m_eEnemy).getCivilizationShortDescription();
 				strOutBuf += ", vs. " + strPlayerName;
 			}
-			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
+			LogOperationSpecialMessage(strOutBuf);
 		}
 	}
 }
@@ -1548,7 +1549,7 @@ void CvAIOperation::LogOperationEnd()
 
 			strOutBuf = CvString( GetOperationName() ) + ", ";
 			strOutBuf += strTemp;
-			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
+			LogOperationSpecialMessage(strOutBuf);
 		}
 	}
 }
@@ -3753,34 +3754,34 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (pPlot->getImprovementType() != eBarbCamp)
-			continue;
-
-		// slight AI cheating - enough if adjacent plot is revealed
-		if (!pPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()) && !pPlot->isAdjacentRevealed(GET_PLAYER(ePlayer).getTeam()))
-			continue;
-
-		// bonus for captured civilians (settlers and workers, not missionaries)
-		int iDummy;
-		int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 2;
-
-		int iCityLoop;
-		// Loop through each of our cities
-		for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		if (pPlot->getImprovementType() == eBarbCamp || (pPlot->isCity() && pPlot->isBarbarian()))
 		{
-			if(pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+			// slight AI cheating - enough if adjacent plot is revealed
+			if (!pPlot->isRevealed(GET_PLAYER(ePlayer).getTeam()) && !pPlot->isAdjacentRevealed(GET_PLAYER(ePlayer).getTeam()))
 				continue;
 
-			int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
-			if(pPlot->getArea() != pLoopCity->getArea())
-				iCurPlotDistance *= 2;
+			// bonus for captured civilians (settlers and workers, not missionaries)
+			int iDummy;
+			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 2;
 
-			int iScore = 1000 - iCurPlotDistance + iBonus;
-			if (iScore > iBestScore)
+			int iCityLoop;
+			// Loop through each of our cities
+			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
-				pBestPlot = pPlot;
-				iBestScore = iScore;
-				pClosestCity = pLoopCity;
+				if (pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbark())
+					continue;
+
+				int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+				if (pPlot->getArea() != pLoopCity->getArea())
+					iCurPlotDistance *= 2;
+
+				int iScore = 1000 - iCurPlotDistance + iBonus;
+				if (iScore > iBestScore)
+				{
+					pBestPlot = pPlot;
+					iBestScore = iScore;
+					pClosestCity = pLoopCity;
+				}
 			}
 		}
 	}

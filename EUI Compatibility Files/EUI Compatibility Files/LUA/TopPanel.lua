@@ -184,9 +184,14 @@ local function ScanGP( player )
 						gpChange = gpChange + building.GreatPeopleRateChange
 					end
 				end
+				-- Vox Populi
+				gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID);
 
 				local gpChangePlayerMod = player:GetGreatPeopleRateModifier()
 				local gpChangeCityMod = city:GetGreatPeopleRateModifier()
+				-- CBP
+				gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
+				--END
 				local gpChangePolicyMod = 0
 				local gpChangeWorldCongressMod = 0
 				local gpChangeGoldenAgeMod = 0
@@ -233,18 +238,41 @@ local function ScanGP( player )
 						if worldCongress then
 							gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
 						end
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatScientistRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatScientistRateModifier()
+						end
+-- END
 					elseif specialist.GreatPeopleUnitClass == "UNITCLASS_MERCHANT" then
 						gpChangePlayerMod = gpChangePlayerMod + player:GetGreatMerchantRateModifier()
 						gpChangePolicyMod = gpChangePolicyMod + player:GetPolicyGreatMerchantRateModifier()
 						if worldCongress then
 							gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
 						end
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatMerchantRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatMerchantRateModifier()
+						end
+-- END
 					elseif specialist.GreatPeopleUnitClass == "UNITCLASS_ENGINEER" then
 						gpChangePlayerMod = gpChangePlayerMod + player:GetGreatEngineerRateModifier()
 						gpChangePolicyMod = gpChangePolicyMod + player:GetPolicyGreatEngineerRateModifier()
 						if worldCongress then
 							gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
 						end
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatEngineerRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatEngineerRateModifier()
+						end
+-- END
+					-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
+					elseif player.GetGreatDiplomatRateModifier and specialist.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT" then
+						gpChangePlayerMod = gpChangePlayerMod + player:GetGreatDiplomatRateModifier()
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatDiplomatRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatDiplomatRateModifier()
+						end
+-- END
 					end
 
 					-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
@@ -257,7 +285,8 @@ local function ScanGP( player )
 
 				end
 
-				gpChange = gpChange * (1 + (gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod) / 100)
+				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod
+				gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 				if gpChange > 0 then
 					local gpTurns = math_ceil( (gpThreshold - gpProgress) / gpChange )
