@@ -15678,8 +15678,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			if(iTempMod != 0)
 			{
 				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
-				//iTotalMod += iTempMod; // this one is applied to base yield
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
+				// this one is applied to the base yield, so showing a tooltip here is very confusing!
+				//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
 		}
 #endif
