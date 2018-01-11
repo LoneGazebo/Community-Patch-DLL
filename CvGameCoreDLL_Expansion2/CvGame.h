@@ -458,6 +458,7 @@ public:
 	void UpdateGreatestPlayerResourceMonopoly(ResourceTypes eResource = NO_RESOURCE);
 	int GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
 	int GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) const;
+	int GetNumResourcesActivated(ResourceTypes eResource) const;
 #endif
 #endif
 

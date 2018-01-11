@@ -327,6 +327,7 @@ protected:
 	static int lGetNumAvailableCorporations(lua_State* L);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetGreatestPlayerResourceMonopoly(lua_State* L);
+	static int lGetNumResourcesActivated(lua_State* L);
 #endif
 #endif
 

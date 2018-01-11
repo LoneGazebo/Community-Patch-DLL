@@ -339,6 +339,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumAvailableCorporations);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetGreatestPlayerResourceMonopoly);
+	Method(GetNumResourcesActivated);
 #endif
 #endif
 
@@ -2462,6 +2463,17 @@ int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
 {
 	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 1);
 	int iReturn = GC.getGame().GetGreatestPlayerResourceMonopoly(eResource);
+	lua_pushinteger(L, iReturn);
+	return 1;
+}
+
+//	Returns the number of all copies of the resource available from all sources
+//	Resources not connected are not counted
+//	This can number can change during the game when new copies are connected or acquired via other means available in game
+int CvLuaGame::lGetNumResourcesActivated(lua_State* L)
+{
+	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 1);
+	int iReturn = GC.getGame().GetNumResourcesActivated(eResource);
 	lua_pushinteger(L, iReturn);
 	return 1;
 }
