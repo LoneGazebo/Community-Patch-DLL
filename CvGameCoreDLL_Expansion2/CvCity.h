@@ -480,6 +480,9 @@ public:
 	void SetTraded(PlayerTypes ePlayer, bool bValue);
 	bool IsTraded(PlayerTypes ePlayer);
 #endif
+#if defined(MOD_API_EXTENSIONS)
+	int foodConsumptionSpecialistTimes100() const;
+#endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
 	int foodDifferenceTimes100(bool bBottom = true, CvString* toolTipSink = NULL) const;

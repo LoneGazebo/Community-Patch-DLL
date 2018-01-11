@@ -281,6 +281,11 @@ else
 	end
 end
 
+local function StringFormatNeatFloat(x)
+	if math.floor(math.abs(x)) == math.abs(x) then return string.format("%d", x); end
+	return string.format("%.1f", x);
+end
+
 -------------------------------------------------
 -- Clear out the UI so that when a player changes
 -- the next update doesn't show the previous player's
@@ -433,13 +438,17 @@ local function GetSpecialistYields( city, specialist )
 				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
 				cultureFromSpecialist = 0
 			end
-			-- Vox Populi Comparable Yields Tweak
+			-- Vox Populi Comparable Yields
 			specialistYieldModifier = 100
 			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
 			--yieldTips:insertIf( specialistYield ~= 0 and specialistYield .. tostring(YieldIcons[yieldID]) )
 		end
 		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
 		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
+		-- Vox Populi food info
+		local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
+		yieldTips:insertIf( foodPerSpec ~= 0 and StringFormatNeatFloat(-foodPerSpec) .. "[ICON_FOOD]" );
+		-- Vox Populi end
 	end
 	return yieldTips:concat(" ")
 end
@@ -649,11 +658,6 @@ local function sortBuildings(a,b)
 		end
 		return a[2] < b[2]
 	end
-end
-
-local function StringFormatNeatFloat(x)
-	if math.floor(math.abs(x)) == math.abs(x) then return string.format("%d", x); end
-	return string.format("%.1f", x);
 end
 
 local function SetupBuildingList( city, buildings, buildingIM )
@@ -874,8 +878,15 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			elseif yieldID == YieldTypes.YIELD_FOOD then
 				local foodPerPop = GameDefines.FOOD_CONSUMPTION_PER_POPULATION
 				local foodConsumed = city:FoodConsumption()
-				buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
-				buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0)
+				-- Vox Populi Comparable Yields
+				--buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
+				--buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0) -- FoodKept has a different meaning
+				if foodConsumed < foodPerPop * population then 
+					-- this only happens when specialists in the city consume less food that normal population
+					local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
+					buildingYieldRate = buildingYieldRate + (foodPerPop - foodPerSpec) * numSpecialistsInBuilding;
+				end
+				-- Vox Populi end
 				cityYieldRate = city:FoodDifferenceTimes100() / 100 -- cityYieldRate - foodConsumed 
 				cityYieldRateModifier = cityYieldRateModifier + city:GetMaxFoodKeptPercent()
 				isProducing = true
@@ -889,10 +900,14 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			-- Events
 			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
 			-- End 
-			-- Vox Populi Comparable Yields Tweak
+			-- Vox Populi Comparable Yields
 			cityYieldRateModifier = 100
-			buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
-			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate / 100) .. tostring(YieldIcons[ yieldID ]) )
+			-- Vox Populi calculate impact of that single building on base yields
+			--buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
+			local iYieldFromBuildingModifier = city:GetBaseYieldRate(yieldID) * buildingYieldModifier / 100;
+			buildingYieldRate = buildingYieldRate + iYieldFromBuildingModifier
+			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate) .. tostring(YieldIcons[ yieldID ]) )
+			-- Vox Populi end
 		end
 
 		-- Culture leftovers

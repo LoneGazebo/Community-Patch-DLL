@@ -274,7 +274,7 @@
 
 		<!-- Tooltip for Monopolies -->
 		<Row Tag="TXT_KEY_FOODMOD_MONOPOLY_RESOURCE">
-			<Text>[NEWLINE][ICON_BULLET]Resource Monopolies Modifier: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_TRADE_WHITE] Resource Monopolies Modifier: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY">
 			<Text>+{1_Num}% [ICON_CULTURE] for Resource Monopolies</Text>
