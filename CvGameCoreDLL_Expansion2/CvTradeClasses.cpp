@@ -486,13 +486,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
-	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
-	if(iEra <= 0)
-	{
-		iEra = 1;
-	}
+	int iEra = std::max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
 	iTargetTurns -= iEra;
+	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
+	iTargetTurns = std::max(iTargetTurns, 1);
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
