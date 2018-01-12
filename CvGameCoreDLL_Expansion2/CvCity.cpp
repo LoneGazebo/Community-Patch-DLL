@@ -15420,6 +15420,50 @@ void CvCity::CheckForOperationUnits()
 }
 #endif
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+//	Returns food consumed by a specialist depending on Era and applicable modifiers
+int CvCity::foodConsumptionSpecialistTimes100() const
+{
+	VALIDATE_OBJECT
+	int iFoodPerSpec = 0;
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
+	{
+		iFoodPerSpec = std::max((int)GET_PLAYER(getOwner()).GetCurrentEra(), GC.getFOOD_CONSUMPTION_PER_POPULATION()) + 1;
+		iFoodPerSpec = std::min(iFoodPerSpec, 10) * 100;
+		// Specialists eat less food? (Policies, etc.)
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
+		{
+			iFoodPerSpec /= 2;
+		}
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		{
+			iFoodPerSpec /= 2;
+		}
+	}
+	else
+	{
+#endif
+		iFoodPerSpec = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+		// Specialists eat less food? (Policies, etc.)
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
+		{
+			iFoodPerSpec *= 50; // half, then *100
+		}
+#if defined(MOD_BALANCE_CORE)
+		else if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		{
+			iFoodPerSpec *= 50; // half, then *100
+		}
+#endif
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	}
+#endif
+	return iFoodPerSpec;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
@@ -15597,7 +15641,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER();
 			iTotalMod += iTempMod;
 			if (iTempMod != 0)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PUPPET", iTempMod);
 		}
 		// Religion growth mod
 		int iReligionGrowthMod = 0;
@@ -15634,7 +15678,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			if(iTempMod != 0)
 			{
 				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
+				// this one is applied to the base yield, so showing a tooltip here is very confusing!
+				//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
 		}
 #endif

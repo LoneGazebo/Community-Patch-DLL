@@ -1355,7 +1355,12 @@ function OnCityViewUpdate()
 						
 						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod;
 						iGPPChange = (iGPPChange * (100 + iMod)) / 100;
-						strToolTipText = strToolTipText .. " (+" .. math.floor(iGPPChange/100) .. "[ICON_GREAT_PEOPLE])";	
+-- Vox Populi
+						local iProgress100 = pCity:GetSpecialistGreatPersonProgressTimes100(iSpecialistIndex);
+						local iTurns = math.ceil( (threshold * 100 - iProgress100) / iGPPChange );
+						--strToolTipText = strToolTipText .. " (+" .. math.floor(iGPPChange/100) .. "[ICON_GREAT_PEOPLE])";	
+						strToolTipText = strToolTipText .. string.format(" (%+4.1f[ICON_GREAT_PEOPLE], ",iGPPChange/100) .. iTurns .. "[ICON_TURNS_REMAINING])";
+-- Vox Populi end
 						if (iPlayerMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PLAYER_GP_MOD", iPlayerMod);
 						end

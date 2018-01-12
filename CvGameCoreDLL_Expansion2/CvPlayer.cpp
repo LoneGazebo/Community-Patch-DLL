@@ -36560,7 +36560,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 			bool bGainingStrategicBonus = false;
 			bool bLosingBonus = false;
 			bool bLosingStrategicBonus = false;
-			int iTotalNumResource = GC.getMap().getNumResources(eResource);
+			//int iTotalNumResource = GC.getMap().getNumResources(eResource);
+			int iTotalNumResource = GC.getGame().GetNumResourcesActivated(eResource);
 			if (iTotalNumResource > 0)
 			{
 				int iOwnedNumResource = getNumResourceTotal(eResource, false, IsCSResourcesCountMonopolies()) + getResourceExport(eResource);
@@ -36779,12 +36780,14 @@ int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
 	{
 		iOwnedNumResource += getResourceImport(eResource);
 	}
-	int iTotalNumResource = GC.getMap().getNumResources(eResource);
+	//int iTotalNumResource = GC.getMap().getNumResources(eResource);
+	int iTotalNumResource = GC.getGame().GetNumResourcesActivated(eResource);
 
 	if (iTotalNumResource <= 0)
 	{
 		// if we own a resource, but it's not on the map at all, it is 100%
-		return iOwnedNumResource > 0 ? 100 : 0;
+		//return iOwnedNumResource > 0 ? 100 : 0;
+		return 0;
 	}
 
 	return (iOwnedNumResource * 100) / iTotalNumResource;

@@ -531,3 +531,16 @@ INSERT INTO Language_en_US
 			(Tag,										Text)
 SELECT		'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
 WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT' AND Value= 1 );
+
+-- All Growth Modifier Tooltips with Icons
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET][ICON_CONNECTED] Empire Modifier: {1_Num}%'
+WHERE Tag = 'TXT_KEY_FOODMOD_PLAYER';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET][ICON_RELIGION_PANTHEON] Religious Beliefs Modifier: {1_Num}%'
+WHERE Tag = 'TXT_KEY_FOODMOD_RELIGION';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] We Love the King Day Modifier: {1_Num}%'
+WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';

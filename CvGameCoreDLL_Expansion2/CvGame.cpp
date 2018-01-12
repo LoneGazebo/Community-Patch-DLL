@@ -13888,5 +13888,25 @@ int CvGame::GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) cons
 
 	return GET_PLAYER(eGreatestPlayer).GetMonopolyPercent(eResource);
 }
+
+//	Returns the number of all copies of the resource available from all sources
+//	Resources not connected are not counted
+//	This can number can change during the game when new copies are connected or acquired via other means available in game
+int CvGame::GetNumResourcesActivated(ResourceTypes eResource) const
+{
+	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid ID)");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid ID)");
+	if (GC.getResourceInfo(eResource) == NULL) return 0; // Make sure that it really exists
+	int iNumResources = 0;
+	PlayerTypes eLoopPlayer;
+	for (int iLoopPlayer = 0; iLoopPlayer <= MAX_CIV_PLAYERS; iLoopPlayer++)
+	{
+		eLoopPlayer = (PlayerTypes)iLoopPlayer;
+		if (!GET_PLAYER(eLoopPlayer).isAlive()) continue;
+		iNumResources += GET_PLAYER(eLoopPlayer).getNumResourceTotal(eResource, false, false);
+		iNumResources += GET_PLAYER(eLoopPlayer).getResourceExport(eResource);
+	}
+	return iNumResources;
+}
 #endif
 #endif

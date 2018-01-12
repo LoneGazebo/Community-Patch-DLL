@@ -180,6 +180,7 @@ protected:
 	static int lIsCoastal(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(IsAddsFreshWater, bool);
+	LUAAPIEXTN(FoodConsumptionSpecialistTimes100, int);
 #endif
 
 	static int lFoodConsumption(lua_State* L);

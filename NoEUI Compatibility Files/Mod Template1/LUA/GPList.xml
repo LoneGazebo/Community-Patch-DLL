@@ -6,12 +6,12 @@
 				<Stack Size="355,35" Anchor="L,C" StackGrowth="Right" ID="GPStack" >
 					<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="320,35">
 						<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="166,35">
-							<Label Anchor="L,C" ID="CityName" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" />
+							<Label Anchor="L,C" ID="CityName" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow" />
 						</Box>
-						<Box Anchor="L,C" Color="255.255.255.0" Offset="76,0" Size="143,35" ID="GPInfoBox">
-							<Label Anchor="L,C" ID="GPTurns" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" />
+						<Box Anchor="L,C" Color="255.255.255.0" Offset="76,0" Size="36,35" ID="GPInfoBox">
+							<Label Anchor="R,C" ID="GPTurns" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow" />
 						</Box>
-						<Box Anchor="L,C" Color="255.255.255.0" Offset="145,0" Size="143,35" ID="GPInfoMeter">
+						<Box Anchor="L,C" Color="255.255.255.0" Offset="150,0" Size="143,35" ID="GPInfoMeter">
 						<Image Anchor="C,C" Size="214,29" Offset="0,0" Texture="MeterBarGreatPersonBack.dds">
 							<TextureBar Anchor="L,T"  Offset="0,0"  Texture="MeterBarGreatPersonGold.dds" Size="214,29" ID="GPMeter"/>
 							<Image Anchor="L,C" Size="214,29" Offset="0,0" Texture="MeterBarFrame.dds"/>
