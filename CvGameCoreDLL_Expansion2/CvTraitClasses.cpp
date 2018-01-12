@@ -288,6 +288,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_piPerPuppetGreatPersonRateModifier(NULL),
 	m_piGreatPersonGWAM(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piGoldenAgeFromGreatPersonBirth(NULL),
+#endif
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
 {
@@ -1623,6 +1626,15 @@ int CvTraitEntry::GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
 	return m_piGreatPersonGWAM ? m_piGreatPersonGWAM[(int)eGreatPerson] : 0;
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piGoldenAgeFromGreatPersonBirth ? m_piGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
+}
+#endif
+
 int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2772,6 +2784,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	kUtility.PopulateArrayByValue(m_piGoldenAgeFromGreatPersonBirth, "GreatPersons", "Trait_GoldenAgeFromGreatPersonBirth", "GreatPersonType", "TraitType", szTraitType, "GoldenAgeTurns");
+#endif
+
 	//UnimprovedFeatureYieldChanges
 	{
 		kUtility.Initialize2DArray(m_ppiUnimprovedFeatureYieldChanges, "Features", "Yields");
@@ -3782,6 +3798,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aiPerPuppetGreatPersonRateModifier[iGreatPersonTypes] = trait->GetPerPuppetGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGreatPersonGWAM[iGreatPersonTypes] = trait->GetGreatPersonGWAM((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
+				m_aiGoldenAgeFromGreatPersonBirth[iGreatPersonTypes] = trait->GetGoldenAgeFromGreatPersonBirth((GreatPersonTypes)iGreatPersonTypes);
 			}
 
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -3860,6 +3877,9 @@ void CvPlayerTraits::Uninit()
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_aiGoldenAgeFromGreatPersonBirth.clear();
+#endif
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
 #endif
@@ -4262,17 +4282,20 @@ void CvPlayerTraits::Reset()
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
+	m_aiGoldenAgeFromGreatPersonBirth.clear();
 
 	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 	m_aiGreatPersonGWAM.resize(GC.getNumGreatPersonInfos());
 	m_aiGoldenAgeGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
+	m_aiGoldenAgeFromGreatPersonBirth.resize(GC.getNumGreatPersonInfos());
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); iI++)
 	{
 		m_aiGreatPersonCostReduction[iI] = 0;
 		m_aiPerPuppetGreatPersonRateModifier[iI] = 0;
 		m_aiGreatPersonGWAM[iI] = 0;
 		m_aiGoldenAgeGreatPersonRateModifier[iI] = 0;
+		m_aiGoldenAgeFromGreatPersonBirth[iI] = 0;
 	}
 
 	m_aiNumPledgesDomainProdMod.clear();
@@ -6199,6 +6222,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiPerPuppetGreatPersonRateModifier;
 	kStream >> m_aiGreatPersonGWAM;
 	kStream >> m_aiGoldenAgeGreatPersonRateModifier;
+	kStream >> m_aiGoldenAgeFromGreatPersonBirth;
 	kStream >> m_aiNumPledgesDomainProdMod;
 	kStream >> m_aiFreeUnitClassesDOW;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
@@ -6606,6 +6630,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiPerPuppetGreatPersonRateModifier;
 	kStream << m_aiGreatPersonGWAM;
 	kStream << m_aiGoldenAgeGreatPersonRateModifier;
+	kStream << m_aiGoldenAgeFromGreatPersonBirth;
 	kStream << m_aiNumPledgesDomainProdMod;
 	kStream << m_aiFreeUnitClassesDOW;
 	kStream << m_ppiYieldFromTileEarnTerrainType;

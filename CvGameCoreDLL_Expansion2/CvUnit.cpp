@@ -1171,6 +1171,22 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				}
 			}
 		}
+#if defined(MOD_API_UNIFIED_YIELDS)
+		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+		if (pPlayer)
+		{
+			int iGATurnsfromGPBirth = pPlayer->GetPlayerTraits()->GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass(getUnitClassType())); // JJ: Get number of GA turns as defined in table Trait_GoldenAgeFromGreatPersonBirth for this GP type
+			if (iGATurnsfromGPBirth > 0) // JJ: If someone defined a positive value (no such thing as negative GA turns!)
+			{
+				iGATurnsfromGPBirth = iGATurnsfromGPBirth * (100 + pPlayer->getGoldenAgeLengthModifier()) / 100; // Adjust for in-game modifiers (eg Persia, GA monopoly, etc)
+				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // JJ: Adjust for game speed
+				iGATurnsfromGPBirth /= 100;
+				int iValue = pPlayer->GetGoldenAgeProgressMeter();
+				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue);
+			}
+		}
+#endif
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
