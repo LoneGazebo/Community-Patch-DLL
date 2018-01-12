@@ -9865,6 +9865,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	if (pkUnitDef == NULL)
 		return NULL;
 
+	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4)
+	{
+		OutputDebugString("Creating unit over supply limit\n");
+	}
+
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
@@ -9885,7 +9890,6 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	}
 
 	m_kPlayerAchievements.AddUnit(pUnit);
-
 	return pUnit;
 }
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)

@@ -588,7 +588,6 @@ void CvMilitaryAI::DoTurn()
 	{
 		UpdateOperations();
 		MakeEmergencyPurchases();
-		MakeOffensivePurchases();
 		RequestImprovements();
 		DisbandObsoleteUnits();
 	}
@@ -4686,92 +4685,6 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 				break;
 
 			nextOp = m_pPlayer->getNextAIOperation();
-		}
-	}
-}
-
-/// Spend money on units/buildings to supply units that can fuel future military operations
-void CvMilitaryAI::MakeOffensivePurchases()
-{
-	AI_PERF_FORMAT("Military-AI-perf.csv", ("MakeOffensivePurchases, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
-
-	CvUnit *pUnit;
-
-	if (m_pPlayer->isMinorCiv())
-	{
-		return;
-	}
-
-	// Are we winning all the wars we are in?
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	if(!IsUsingStrategy(eStrategyAtWar) || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
-	{
-		// Do we have a high offensive personality flavor and our military could be larger?
-		if (m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) >= 7 &&
-			(GetPercentOfRecommendedMilitarySize() < 100 || m_eNavalDefenseState > DEFENSE_STATE_ENOUGH))
-		{
-			// Do we have operations running (if so let them recruit the units)?
-			if (GetArmyBeingBuilt() == NO_ARMY_TYPE)
-			{
-				CvCity *pCity = m_pPlayer->getCapitalCity();
-				if (pCity == NULL)
-				{
-					return;
-				}
-
-				// Do we need naval units most?
-				bool bNeedNaval = m_eNavalDefenseState > m_eLandDefenseState;
-				if (bNeedNaval)
-				{
-					// Get a different city if capital is not coastal
-					if (!pCity->isCoastal())
-					{
-						CvCity* pLoopCity;
-						int iCityLoop;
-						bNeedNaval = false;
-						for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bNeedNaval; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-						{
-							if(pLoopCity->isCoastal())
-							{
-								bNeedNaval = true;
-								pCity = pLoopCity;
-							}
-						}
-					}
-				}
-
-				if (bNeedNaval)
-				{
-					pUnit = BuyEmergencyUnit(UNITAI_ASSAULT_SEA, pCity);
-					if (!pUnit)
-					{
-						pUnit = BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
-					}
-				}
-				else
-				{
-					if (m_iNumMeleeLandUnits <= m_iNumRangedLandUnits)
-					{
-						pUnit = BuyEmergencyUnit(UNITAI_FAST_ATTACK, pCity);
-						if (!pUnit)
-						{
-							pUnit = BuyEmergencyUnit(UNITAI_ATTACK, pCity);
-							if (!pUnit)
-							{
-								pUnit = BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
-							}
-						}
-					}
-					else
-					{
-						pUnit = BuyEmergencyUnit(UNITAI_CITY_BOMBARD, pCity);
-						if (!pUnit)
-						{
-							pUnit = BuyEmergencyUnit(UNITAI_RANGED, pCity);
-						}
-					}
-				}
-			}
 		}
 	}
 }

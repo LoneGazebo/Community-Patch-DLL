@@ -3378,105 +3378,41 @@ void CvTacticalAI::PlotAirSweepMoves()
 /// Spend money to buy defenses
 void CvTacticalAI::PlotEmergencyPurchases()
 {
-	CvCity* pCity;
-	CvUnit* pCityDefender;
-	CvUnit* pUnit;
-
 	if(m_pPlayer->isMinorCiv())
-	{
 		return;
-	}
 
 	// Is this a dominance zone where we're defending a city?
 	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
-	pCity = pZone->GetZoneCity();
-	if(pCity && pCity->getOwner() == m_pPlayer->GetID() && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pZone->GetTotalEnemyUnitCount() > 0)
+	CvCity* pCity = pZone->GetZoneCity();
+
+	// Only in our own cities
+	if (!pCity || pCity->getOwner() != m_pPlayer->GetID())
+		return;
+
+	// Done waste money if there's no hope
+	if (pCity->isInDangerOfFalling())
+		return;
+
+	// If we need additional units
+	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY)
 	{
-		// Make sure the city isn't about to fall.  Test by seeing if there are high priority unit targets
-		for(unsigned int iI = 0; iI < m_ZoneTargets.size() && !pCity->isCapital(); iI++)
-		{
-			if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-			{
-				return;   // Abandon hope for this city; save our money to use elsewhere
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
 		if(!MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-		{
-#endif
-		m_pPlayer->GetMilitaryAI()->BuyEmergencyBuilding(pCity);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
+			m_pPlayer->GetMilitaryAI()->BuyEmergencyBuilding(pCity);
+
 		if(!MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 		{
-#endif
-		// If two defenders, assume already have land and sea and skip this city
-		if (pCity->plot()->getNumDefenders(m_pPlayer->GetID()) < 2)
-		{
-			bool bBuyNavalUnit = false;
-			bool bBuyLandUnit = false;
+			//only buy ranged if there's no garrison
+			//otherwise it will be placed outside of the city and most probably die instantly
+			if (!pCity->HasGarrison())
+				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_RANGED, pCity);
 
-			pCityDefender = pCity->plot()->getBestDefender(m_pPlayer->GetID());
-			if (!pCityDefender)
-			{
-				bBuyLandUnit = true;
-				if (pCity->isCoastal())
-				{
-					bBuyNavalUnit = true;
-				}
-			}
+			//in water zones buy naval melee
+			if (pZone->IsWater() && pCity->isCoastal())
+				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
 			else
-			{
-				if (pCityDefender->getDomainType() == DOMAIN_LAND)
-				{
-					if (pCity->isCoastal())
-					{
-						bBuyNavalUnit = true;
-					}
-				}
-				else
-				{
-					bBuyLandUnit = true;
-				}
-			}
-
-			if (bBuyLandUnit)
-			{
-				pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_CITY_BOMBARD, pCity);
-				if(!pUnit)
-				{
-					pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_RANGED, pCity);
-				}
-			}
-
-			if (bBuyNavalUnit)
-			{
-				pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ASSAULT_SEA, pCity);
-				if (pUnit)
-				{
-					// Bought one, don't need to buy melee naval later
-					bBuyNavalUnit = false;
-				}
-			}
-
-			// Always can try to buy air units
-			pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_AIR, pCity);
-			if (!pUnit)
-			{
-				pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE_AIR, pCity);
-			}
-
-			// Melee naval if didn't buy Ranged naval, (or not)
-			//if (bBuyNavalUnit)
-			//{
-			//	pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
-			//}
+				//otherwise buy defensive land units
+				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 }
 

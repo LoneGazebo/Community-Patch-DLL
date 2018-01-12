@@ -417,7 +417,6 @@ private:
 	int GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
 #endif
 	void MakeEmergencyPurchases();
-	void MakeOffensivePurchases();
 	void RequestImprovements();
 	void DisbandObsoleteUnits(int iMaxUnits=2);
 	bool IsAttackReady(MultiunitFormationTypes eFormation, AIOperationTypes eOperationType) const;
