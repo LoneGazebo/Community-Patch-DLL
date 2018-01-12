@@ -1183,7 +1183,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // JJ: Adjust for game speed
 				iGATurnsfromGPBirth /= 100;
 				int iValue = pPlayer->GetGoldenAgeProgressMeter();
-				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue);
+				int bFree = 1; // JJ: Does not increase the cost of the next GA
+				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, bFree);
 			}
 		}
 #endif
