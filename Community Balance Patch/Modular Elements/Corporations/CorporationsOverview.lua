@@ -507,8 +507,7 @@ function HookupResourceInstance(info)
 	
 	local iNumResources = 0;
 	
-	--local iNumTotal = Map.GetNumResources(info.ResourceID);
-	local iNumTotal = Game.GetNumResourcesActivated(info.ResourceID);
+	local iNumTotal = Map.GetNumResources(info.ResourceID);
 
 	if(info.PlayerID ~= -1) then
 		if(Players[info.PlayerID]:IsShowImports()) then
