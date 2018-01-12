@@ -269,7 +269,7 @@
 			<CityAttack>50</CityAttack>
 			<PortraitIndex>55</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VOLLEY</PediaEntry>
 		</Replace>
 		<Replace>
@@ -1084,7 +1084,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>18</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_1</PediaEntry>
 			<AttackMod>20</AttackMod>
 		</Replace>
@@ -1096,7 +1096,7 @@
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_1</PromotionPrereqOr1>
 			<PortraitIndex>19</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_2</PediaEntry>
 			<AttackMod>20</AttackMod>
 		</Replace>
@@ -1108,7 +1108,7 @@
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_3</PediaEntry>
 			<AttackMod>20</AttackMod>
 		</Replace>
@@ -1119,7 +1119,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>15</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FLIGHT_DECK_1</PediaEntry>
 			<CargoChange>1</CargoChange>
 		</Replace>
@@ -1131,7 +1131,7 @@
 			<PromotionPrereqOr1>PROMOTION_FLIGHT_DECK_1</PromotionPrereqOr1>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FLIGHT_DECK_2</PediaEntry>
 			<CargoChange>1</CargoChange>
 		</Replace>
@@ -1143,7 +1143,7 @@
 			<PromotionPrereqOr1>PROMOTION_FLIGHT_DECK_2</PromotionPrereqOr1>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FLIGHT_DECK_3</PediaEntry>
 			<CargoChange>1</CargoChange>
 		</Replace>
@@ -1154,7 +1154,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>12</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ARMOR_PLATING_1</PediaEntry>
 			<DefenseMod>25</DefenseMod>
 		</Replace>
@@ -1166,7 +1166,7 @@
 			<PromotionPrereq>PROMOTION_ARMOR_PLATING_1</PromotionPrereq>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ARMOR_PLATING_2</PediaEntry>
 			<DefenseMod>25</DefenseMod>
 		</Replace>
@@ -1178,7 +1178,7 @@
 			<PromotionPrereq>PROMOTION_ARMOR_PLATING_2</PromotionPrereq>
 			<PortraitIndex>14</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ARMOR_PLATING_3</PediaEntry>
 			<DefenseMod>25</DefenseMod>
 		</Replace>
@@ -3459,7 +3459,7 @@
 			<CityAttack>10</CityAttack>
 			<PortraitIndex>0</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SIEGE_I</PediaEntry>
 		</Row>
 		<Row>
@@ -3473,7 +3473,7 @@
 			<CityAttack>10</CityAttack>
 			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SIEGE_II</PediaEntry>
 		</Row>
 		<Row>
@@ -3487,7 +3487,7 @@
 			<CityAttack>10</CityAttack>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SIEGE_III</PediaEntry>
 		</Row>
 		<Row>
@@ -3500,7 +3500,7 @@
 			<AttackWoundedMod>10</AttackWoundedMod>
 			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_I</PediaEntry>
 		</Row>
 		<Row>
@@ -3514,7 +3514,7 @@
 			<AttackWoundedMod>10</AttackWoundedMod>
 			<PortraitIndex>7</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_II</PediaEntry>
 		</Row>
 		<Row>
@@ -3528,7 +3528,7 @@
 			<AttackWoundedMod>10</AttackWoundedMod>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_III</PediaEntry>
 		</Row>
 		<Row>

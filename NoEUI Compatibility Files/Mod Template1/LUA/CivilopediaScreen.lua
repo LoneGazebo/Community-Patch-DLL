@@ -90,6 +90,23 @@ local projectsToIgnore = {
 	PROJECT_SS_BOOSTER = true
 };
 
+-- Infixo more categories for promotions
+local UnitPromotionsPediaTypes = {
+	"PEDIA_MELEE",
+	"PEDIA_RANGED",
+	"PEDIA_SIEGE",
+	"PEDIA_NAVAL",
+	"PEDIA_CARSUB",
+	"PEDIA_AIR",
+	"PEDIA_SCOUTING",
+	"PEDIA_DIPLO",
+	"PEDIA_CIVILIAN",
+	"PEDIA_HEAL",
+	"PEDIA_SHARED",
+	"PEDIA_ATTRIBUTES"
+}
+-- Infixo end
+
 -- the instance managers
 local g_ListItemManager = InstanceManager:new( "ListItemInstance", "ListItemButton", Controls.ListOfArticles );
 local g_ListHeadingManager = InstanceManager:new( "ListHeadingInstance", "ListHeadingButton", Controls.ListOfArticles );
@@ -544,7 +561,8 @@ CivilopediaCategory[CategoryPromotions].PopulateList = function()
 	-- add the instances of the promotion entries
 	sortedList[CategoryPromotions] = {};
 	
-	local function PopulateSectionList(iSection, sPediaType)
+	-- Infixo more categories
+	for iSection, sPediaType in ipairs(UnitPromotionsPediaTypes) do
 		sortedList[CategoryPromotions][iSection] = {};
 		local tableid = 1;
 		for thisPromotion in GameInfo.UnitPromotions() do
@@ -562,17 +580,10 @@ CivilopediaCategory[CategoryPromotions].PopulateList = function()
 				searchableTextKeyList[thisPromotion.Description] = article;
 				categorizedList[(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + thisPromotion.ID] = article;
 			end
-		end
-	end
-	PopulateSectionList(1, "PEDIA_MELEE");
-	PopulateSectionList(2, "PEDIA_RANGED");
-	PopulateSectionList(3, "PEDIA_NAVAL");
-	PopulateSectionList(4, "PEDIA_HEAL");
-	PopulateSectionList(5, "PEDIA_SCOUTING");
-	PopulateSectionList(6, "PEDIA_AIR");
-	PopulateSectionList(7, "PEDIA_SHARED");
-	PopulateSectionList(8, "PEDIA_ATTRIBUTES");
-	--[[
+		end -- unit promos
+	end -- pedia types
+	
+	--[[ Infixo more categories
 	sortedList[CategoryPromotions][1] = {}; 
 	local tableid = 1;
 	
@@ -744,7 +755,9 @@ CivilopediaCategory[CategoryPromotions].PopulateList = function()
 	end
 	--]]
 	-- sort this list alphabetically by localized name
-	for section = 1,8,1 do
+	-- Infixo more categories
+	--for section = 1,8,1 do
+	for section,_ in ipairs(UnitPromotionsPediaTypes) do
 		table.sort(sortedList[CategoryPromotions][section], Alphabetically);
 	end		
 end
@@ -3435,32 +3448,9 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		-- Infixo more info
 		local sText = "[COLOR_CYAN]Abilities[ENDCOLOR] of this promotion:"; -- change to TXT_KEY_ later
 		-- Generic info from main table
-		--[[
-		local function AnalyzePromotion(sField, sSuffix)
-			--dprint("   ...field", sField, type(thisPromotion[sField]), thisPromotion[sField]);
-			if thisPromotion[sField] == nil then return; end
-			if type(thisPromotion[sField]) == "boolean" and thisPromotion[sField] then
-				sText = sText.."[NEWLINE][ICON_BULLET]"..sField;
-				return;
-			end
-			if type(thisPromotion[sField]) == "number" and thisPromotion[sField] ~= 0 and thisPromotion[sField] ~= -1 then
-				local suffix = "%";
-				if sSuffix ~= nil then suffix = " "..sSuffix; end
-				if suffix == " " then suffix = ""; end
-				sText = sText.."[NEWLINE][ICON_BULLET]"..string.format("%+d", thisPromotion[sField])..suffix.." "..sField;
-				return;
-			end
-			if type(thisPromotion[sField]) == "string" and thisPromotion[sField] ~= nil then
-				sText = sText.."[NEWLINE][ICON_BULLET]"..sField..string.format(" %s", thisPromotion[sField]);
-				return;
-			end
-			--dprint("   ...UNKNOWN TYPE");
-		end
-		--]]
 		local function AnalyzePromotion(sField, sSuffix)
 			sText = sText .. AnalyzeObjectField(thisPromotion, sField, sSuffix);
 		end
-		--dprint("...analyzing promotion", thisPromotion.Type);
 		--AnalyzePromotion("CannotBeChosen");
 		--AnalyzePromotion("LostWithUpgrade");
 		AnalyzePromotion("NotWithUpgrade");
@@ -6945,11 +6935,14 @@ CivilopediaCategory[CategoryPromotions].SelectHeading = function( selectedSectio
 		otherSortedList[tostring( thisListInstance.ListItemButton )] = sortOrder;
 	end
 	
-	for section = 1, 8, 1 do	
+	-- Infixo more categories
+	--for section = 1, 8, 1 do	
+	for section,sPediaType in ipairs(UnitPromotionsPediaTypes) do
 		-- add a section header
 		local thisHeaderInstance = g_ListHeadingManager:GetInstance();
 		if thisHeaderInstance then
 			sortOrder = sortOrder + 1;
+			--[[ Infixo more categories
 			if sortedList[CategoryPromotions][section].headingOpen then
 				local textString = "TXT_KEY_PROMOTIONS_SECTION_"..tostring( section );
 				local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( textString );
@@ -6959,6 +6952,15 @@ CivilopediaCategory[CategoryPromotions].SelectHeading = function( selectedSectio
 				local localizedLabel = "[ICON_PLUS] "..Locale.ConvertTextKey( textString );
 				thisHeaderInstance.ListHeadingLabel:SetText( localizedLabel );
 			end
+			--]]
+			local localizedLabel = Locale.ConvertTextKey("TXT_KEY_PROMOTIONS_"..sPediaType);
+			if sortedList[CategoryPromotions][section].headingOpen then
+				localizedLabel = "[ICON_MINUS] "..localizedLabel;
+			else
+				localizedLabel = "[ICON_PLUS] "..localizedLabel;
+			end
+			thisHeaderInstance.ListHeadingLabel:SetText( localizedLabel );
+			-- Infixo end
 			thisHeaderInstance.ListHeadingButton:SetVoids( section, 0 );
 			thisHeaderInstance.ListHeadingButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryPromotions].SelectHeading );
 			otherSortedList[tostring( thisHeaderInstance.ListHeadingButton )] = sortOrder;
@@ -7946,12 +7948,16 @@ CivilopediaCategory[CategoryPromotions].DisplayList = function()
 
 	-- for each element of the sorted list		
 
-	for section = 1,8,1 do
+	-- Infixo more categories
+	--for section = 1,8,1 do
+	for section,sPediaType in ipairs(UnitPromotionsPediaTypes) do
 		local thisHeaderInstance = g_ListHeadingManager:GetInstance();
 		if thisHeaderInstance then
 			sortedList[CategoryPromotions][section].headingOpen = true; -- ain't lua great
 			sortOrder = sortOrder + 1;
-			local textString = "TXT_KEY_PROMOTIONS_SECTION_"..tostring( section );
+			-- Infixo more categories
+			--local textString = "TXT_KEY_PROMOTIONS_SECTION_"..tostring( section );
+			local textString = "TXT_KEY_PROMOTIONS_"..sPediaType;
 			local localizedLabel = "[ICON_MINUS] "..Locale.ConvertTextKey( textString );
 			thisHeaderInstance.ListHeadingLabel:SetText( localizedLabel );
 			thisHeaderInstance.ListHeadingButton:SetVoids( section, 0 );
