@@ -296,6 +296,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<Table name="Trait_GoldenAgeFromGreatPersonBirth">
+		<!-- Triggers a golden age of the specified number of turns (before modifiers) when the specified great person type is born, does not increase cost of the next GA -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="GoldenAgeTurns" type="integer"/>
+	</Table>
 	<Table name="Trait_GreatWorkYieldChanges">
 		<!-- Refer to Policy_GreatWorkYieldChanges -->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>

@@ -512,9 +512,6 @@
     <ClCompile Include="CvGreatPersonInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stackwalker\StackWalker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CvAStarNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -528,6 +525,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvContractClasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stackwalker\StackWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1076,6 +1076,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvContractClasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stackwalker\stackwalker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

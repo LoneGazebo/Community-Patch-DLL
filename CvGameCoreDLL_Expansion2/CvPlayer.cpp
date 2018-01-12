@@ -24759,6 +24759,46 @@ int CvPlayer::getGoldenAgeLength() const
 }
 
 //	--------------------------------------------------------------------------------
+
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::getGoldenAgeLengthModifier() const // JJ: A way to get the golden age modifier only, in case your iTurn is not GC.getGame().goldenAgeLength()
+{
+
+	// Player modifier
+	int iLengthModifier = getGoldenAgeModifier();
+
+	// Trait modifier
+	iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Do we get increased Golden Ages from a resource monopoly?
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					{
+						int iTemp = pInfo->getMonopolyGALength();
+						iTemp *= max(1, GetMonopolyModPercent());
+						iLengthModifier += iTemp;
+					}
+				}
+			}
+		}
+	}
+#endif
+
+	return iLengthModifier;
+}
+#endif
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitGoldenAges() const
 {
 	return m_iNumUnitGoldenAges;
