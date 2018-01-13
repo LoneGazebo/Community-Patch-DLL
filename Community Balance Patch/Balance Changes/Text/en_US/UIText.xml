@@ -736,6 +736,9 @@
         <Row Tag="TXT_KEY_PROMOTIONS_PEDIA_CARSUB">
             <Text>Carriers and Submarines</Text>
         </Row>
+        <Row Tag="TXT_KEY_PROMOTIONS_PEDIA_BARBARIAN">
+            <Text>Barbarian Promotions</Text>
+        </Row>
 
 		<!-- New Musician Text -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
