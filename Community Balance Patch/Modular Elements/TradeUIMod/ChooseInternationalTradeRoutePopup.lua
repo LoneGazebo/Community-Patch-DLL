@@ -168,7 +168,8 @@ function RefreshData()
 	
 		local iDistance = pPlayer:GetTradeConnectionDistance(pOriginCity, pTargetCity, eDomain);
 		local CityNameString = Locale.ConvertTextKey("TXT_KEY_TRO_DISTANCE_VALUE",  iDistance);
-
+		local iTurns = pPlayer:GetTradeRouteTurns(pOriginCity, pTargetCity, eDomain);
+		if iTurns > 0 then CityNameString = CityNameString.." [ICON_SWAP]"..iTurns; end
 		tradeRoute.CityName = (pTargetCity:GetName() .. CityNameString .. strTraitText);
 --END		
 --EDITED		tradeRoute.CityName = pTargetCity:GetName();
