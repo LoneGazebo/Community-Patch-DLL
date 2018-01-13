@@ -5856,6 +5856,7 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 		}
 	}
 
+	lua_pushstring(L, "");
 	return 1;
 }
 

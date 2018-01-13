@@ -777,7 +777,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
-		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+		GET_PLAYER(getOwner()).changeNumUnitsSupplyFree(+1);
 	}
 #endif
 
@@ -2434,7 +2434,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 #if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
-		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+		GET_PLAYER(getOwner()).changeNumUnitsSupplyFree(-1);
 	}
 #endif
 
@@ -28516,7 +28516,7 @@ const char* CvUnit::GetMissionInfo()
 	if (IsCombatUnit())
 	{
 		if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-			m_strMissionInfoString = "no tactical move / no homeland move";
+			m_strMissionInfoString = "no move assigned";
 		else
 		{
 			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)

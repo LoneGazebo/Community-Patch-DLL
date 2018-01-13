@@ -411,9 +411,9 @@ public:
 
 	int GetNumUnitsOutOfSupply() const;
 #if defined(MOD_BALANCE_CORE)
-	int getNumUnitsNoCivilian() const;
-	int getNumUnitsFree() const;
-	void changeNumFreeUnits(int iValue);
+	int GetNumUnitsToSupply() const;
+	int getNumUnitsSupplyFree() const;
+	void changeNumUnitsSupplyFree(int iValue);
 #endif
 
 	int calculateUnitCost() const;
@@ -3198,7 +3198,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iOnlyTradeSameIdeology;
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvPlayer> m_iFreeUnits;
+	FAutoVariable<int, CvPlayer> m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abActiveContract;
 	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;

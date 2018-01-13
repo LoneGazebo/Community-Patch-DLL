@@ -181,7 +181,7 @@ function UpdateData()
 			Controls.FaithString:SetText(strFaithStr);
 
 			local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-			local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+			local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 
 			local strSupplyStr = "";
 			if(iUnitsTotal > iUnitsSupplied) then
@@ -1569,7 +1569,7 @@ function UnitSupplyHandler(control)
 	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
 	if (iUnitSupplyMod ~= 0) then
 		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
 		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
@@ -1587,7 +1587,7 @@ function UnitSupplyHandler(control)
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 	else
 		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
 		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();

@@ -3393,7 +3393,7 @@ void CvTacticalAI::PlotEmergencyPurchases()
 	if (pCity->isInDangerOfFalling())
 		return;
 
-	// If we need additional units
+	// If we need additional units - ignore the supply limit here, we're probably losing units anyway
 	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY)
 	{
 		if(!MOD_BALANCE_CORE_BUILDING_INVESTMENTS)

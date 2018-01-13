@@ -979,7 +979,7 @@ protected:
 	static int lGetUnits(lua_State* L);
 	static int lGetNumUnits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
-	static int lGetNumUnitsNoCivilian(lua_State* L);
+	static int lGetNumUnitsToSupply(lua_State* L);
 #endif
 	static int lGetUnitByID(lua_State* L);
 

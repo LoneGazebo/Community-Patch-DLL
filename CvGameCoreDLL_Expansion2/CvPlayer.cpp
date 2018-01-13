@@ -471,7 +471,7 @@ CvPlayer::CvPlayer() :
 	, m_iCenterOfMassY("CvPlayer::m_iCenterOfMassY", m_syncArchive)
 	, m_iReferenceFoundValue("CvPlayer::m_iReferenceFoundValue", m_syncArchive)
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
-	, m_iFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
+	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -1559,7 +1559,7 @@ void CvPlayer::uninit()
 	m_iAbleToAnnexCityStatesCount = 0;
 	m_iOnlyTradeSameIdeology = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iFreeUnits = 0;
+	m_iSupplyFreeUnits = 0;
 	m_strJFDCurrencyName = "";
 	m_iJFDCurrency = -1;
 	m_iJFDProsperity = 0;
@@ -10913,7 +10913,9 @@ void CvPlayer::doTurn()
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
-				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), getNumUnitsNoCivilian());
+				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", 
+					GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), 
+					getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), GetNumUnitsToSupply());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
@@ -17432,29 +17434,27 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply() const
 {
-	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsFree();
+	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsSupplyFree();
 	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
 }
 
 #if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-int CvPlayer::getNumUnitsNoCivilian() const
+int CvPlayer::GetNumUnitsToSupply() const
 {
-	int iNumUnits = getNumMilitaryUnits();
-	int iNumUnitsToSupply = iNumUnits - getNumUnitsFree();
-	return iNumUnitsToSupply;
+	return getNumMilitaryUnits() - getNumUnitsSupplyFree();
 }
 
-int CvPlayer::getNumUnitsFree() const
+//these are mercenaries etc
+int CvPlayer::getNumUnitsSupplyFree() const
 {
-	return m_iFreeUnits;
+	return m_iSupplyFreeUnits;
 }
 
-void CvPlayer::changeNumFreeUnits(int iValue)
+void CvPlayer::changeNumUnitsSupplyFree(int iValue)
 {
 	if (iValue != 0)
 	{
-		m_iFreeUnits += iValue;
+		m_iSupplyFreeUnits += iValue;
 	}
 }
 #endif
@@ -35495,7 +35495,7 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 			return false;
 		}
 
-		int iNum = GET_PLAYER(eToPlayer).getNumUnitsNoCivilian();
+		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
 		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
 
 		if (iNum >= iMax)

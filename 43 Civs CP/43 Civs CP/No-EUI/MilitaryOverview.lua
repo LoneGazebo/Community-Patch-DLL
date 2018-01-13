@@ -107,7 +107,7 @@ function UpdateScreen()
 	Controls.TechReductionValue:SetText( -pPlayer:GetTechSupplyReduction() );
     Controls.SupplyCapValue:SetText(        pPlayer:GetNumUnitsSupplied() );
 	-- CBP
-	Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnitsNoCivilian() );
+	Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnitsToSupply() );
 	--Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnits() );
 	-- END
     local iSupplyDeficit = pPlayer:GetNumUnitsOutOfSupply();
@@ -115,7 +115,7 @@ function UpdateScreen()
     
     if( not bInDeficit ) then
 	--CBP
-		Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnitsNoCivilian() );
+		Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnitsToSupply() );
 		--Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnits() );
 	-- END
     else
