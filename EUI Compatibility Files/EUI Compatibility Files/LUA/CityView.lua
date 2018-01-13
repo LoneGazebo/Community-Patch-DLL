@@ -1256,6 +1256,17 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 			isMaintain = true
 			isReallyRepeat = true
 		end
+		
+		-- Vox Populi Invested
+		local cashInvested;
+		if orderID == OrderTypes.ORDER_TRAIN then
+			cashInvested = city:GetUnitInvestment(itemID);
+		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
+			cashInvested = city:GetBuildingInvestment(itemID);
+		end
+		instance.PQinvested:SetHide( not (cashInvested and cashInvested > 0) );
+		-- Vox Populi end
+		
 		if itemInfo then
 			local item = itemInfo[itemID]
 			itemInfo = IconHookup( portraitOffset or item.PortraitIndex, portraitSize, portraitAtlas or item.IconAtlas, instance.PQportrait )

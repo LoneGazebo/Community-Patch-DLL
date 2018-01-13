@@ -110,6 +110,7 @@
 					<Label ID="PQturns" Anchor="L,C" Offset="0,2" Font="TwCenMT16"/>
 				</Stack>
 				<Button ID="PQremove" Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" />
+				<Label ID="PQinvested" Anchor="R,C" String="[ICON_INVEST]" Font="TwCenMT16"/>
 				<Image Anchor="L,B" Texture="bar340x2.dds" Size="270,1" Color="White.128" />
 			</GridButton>
 			<!-- Production Info -->
@@ -374,6 +375,7 @@
 			</Stack>
 			<Box ID="PQdisabled" Anchor="L,T" Size="270,38" Color="27.0.64.128" />
 			<Button ID="PQremove" Anchor="L,C" Offset="4,-1" Size="32,32" Texture="IconFrame32Delete.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" />
+			<Label ID="PQinvested" Anchor="R,C" String="[ICON_INVEST]" Font="TwCenMT16"/>
 			<Image Anchor="L,B" Texture="bar340x2.dds" Size="270,1" Color="White.128" />
 		</GridButton>
 	</Instance>
@@ -389,7 +391,7 @@
 					<Container Size="64.1"/>
 					<TextButton ID="TextButton" Anchor="R,C"/>
 				</Stack>
-				<Label ID="Label" Anchor="R,B" WrapWidth="254" Font="TwCenMT18/>
+				<Label ID="Label" Anchor="R,B" WrapWidth="254" Font="TwCenMT18"/>
 			</Stack>
 			<GridButton ID="SellButton" Anchor="L,T" Size="70,22" Style="SmallButton" Color="255,128,128,255" Font="TwCenMT16" ToolTip="TXT_KEY_CLICK_TO_SELL" />
 			<Box Anchor="C,B" Color="27.53.64.255" Size="254,2"/>
