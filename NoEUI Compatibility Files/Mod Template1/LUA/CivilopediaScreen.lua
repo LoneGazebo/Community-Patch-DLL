@@ -103,7 +103,8 @@ local UnitPromotionsPediaTypes = {
 	"PEDIA_CIVILIAN",
 	"PEDIA_HEAL",
 	"PEDIA_SHARED",
-	"PEDIA_ATTRIBUTES"
+	"PEDIA_ATTRIBUTES",
+	"PEDIA_BARBARIAN"
 }
 -- Infixo end
 

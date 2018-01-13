@@ -132,6 +132,7 @@ public:
 	bool EmptyTradeRoute (int iIndex);
 #if defined(MOD_BALANCE_CORE)
 	void UpdateTradePlots();
+	int GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete = NULL);
 #endif
 #if defined(MOD_BUGFIX_MINOR)
 	void ClearAllCityTradeRoutes (CvPlot* pPlot, bool bIncludeTransits = false); // called when a city is captured or traded
