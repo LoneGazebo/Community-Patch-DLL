@@ -766,7 +766,7 @@ void CvTacticalAI::UpdatePostures()
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
 			{
 				CvString szPostureMsg;
-				szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone ? pZone->GetDominanceZoneID() : -1, pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
+				szPostureMsg.Format("Zone ID: %d, %s, %s, ", pZone ? pZone->GetZoneID() : -1, pZone->IsWater() ? "Water" : "Land", pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
 
 				switch(eNewPosture)
 				{
@@ -1664,8 +1664,8 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
-								strLogString.Format("Zone %d, %s, using move %s, city of %s, %s)",  
-									pZone ? pZone->GetDominanceZoneID() : -1, pZone->IsWater() ? "water" : "land",
+								strLogString.Format("Zone %d, %s, using move %s, city of %s, %s",  
+									pZone ? pZone->GetZoneID() : -1, pZone->IsWater() ? "water" : "land",
 									pkMoveInfo ? pkMoveInfo->GetType() : "unknown", pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture]);
 								LogTacticalMessage(strLogString);
 								
@@ -2043,7 +2043,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, City of %s, is in enemy dominated zone - won't try to capture, X: %d, Y: %d, ",
-							pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), pCity->getX(), pCity->getY());
+							pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str(), pCity->getX(), pCity->getY());
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2068,7 +2068,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, too early for capture of %s, required damage %d, expected damage %d", 
-							pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+							pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 					pTarget = GetNextZoneTarget();
@@ -2095,7 +2095,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Zone %d, no melee units to capture %s", pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str());
+						strLogString.Format("Zone %d, no melee units to capture %s", pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str());
 						LogTacticalMessage(strLogString);
 					}
 					pTarget = GetNextZoneTarget();
@@ -2106,7 +2106,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				{
 					CvString strLogString;
 					strLogString.Format("Zone %d, attempting capture of %s, required damage %d, expected damage %d",
-						pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 					LogTacticalMessage(strLogString);
 				}
 
@@ -2158,7 +2158,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, City of %s, is in enemy dominated zone - won't try to damage, X: %d, Y: %d, ",
-							pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), pCity->getX(), pCity->getY());
+							pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str(), pCity->getX(), pCity->getY());
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2187,7 +2187,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Zone %d, Siege of %s is pointless, required damage %d, expected damage %d", 
-							pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+							pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 
@@ -2214,7 +2214,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				{
 					CvString strLogString;
 					strLogString.Format("Zone %d, Laying siege to %s, required damage %d, expected damage %d",
-						pZone ? pZone->GetDominanceZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						pZone ? pZone->GetZoneID() : -1, pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 					LogTacticalMessage(strLogString);
 				}
 
@@ -3557,7 +3557,7 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 		target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
 		target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 		target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
-		target.SetDominanceZone(pZone->GetDominanceZoneID());
+		target.SetDominanceZone(pZone->GetZoneID());
 		pTarget = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
 
 		// Attack primary target (city)
@@ -3671,7 +3671,7 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 		target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
 		target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 		target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
-		target.SetDominanceZone(pZone->GetDominanceZoneID());
+		target.SetDominanceZone(pZone->GetZoneID());
 
 		//try capture first! will only do something if we have enough firepower.
 		PlotCaptureCityMoves();
@@ -3715,7 +3715,7 @@ void CvTacticalAI::PlotHedgehogMoves()
 		target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
 		target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 		target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
-		target.SetDominanceZone(pZone->GetDominanceZoneID());
+		target.SetDominanceZone(pZone->GetZoneID());
 		ExecuteCloseOnTarget(target, pZone, false);
 	}
 }
@@ -3832,7 +3832,7 @@ void CvTacticalAI::PlotCloseOnTarget()
 		target.SetTargetPlayer(BARBARIAN_PLAYER);
 		target.SetTargetX(pZone->GetCenterX());
 		target.SetTargetY(pZone->GetCenterY());
-		target.SetDominanceZone(pZone->GetDominanceZoneID());
+		target.SetDominanceZone(pZone->GetZoneID());
 
 		ExecuteCloseOnTarget(target, pZone, true);
 	}
@@ -3848,7 +3848,7 @@ void CvTacticalAI::PlotCloseOnTarget()
 			target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
 			target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 			target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
-			target.SetDominanceZone(pZone->GetDominanceZoneID());
+			target.SetDominanceZone(pZone->GetZoneID());
 
 			ExecuteCloseOnTarget(target, pZone, true);
 		}
@@ -5715,7 +5715,7 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 
 		if(bValid)
 		{
-			if(pZone == NULL || it->GetDominanceZone() == pZone->GetDominanceZoneID())
+			if(pZone == NULL || it->GetDominanceZone() == pZone->GetZoneID())
 			{
 				m_ZoneTargets.push_back(*it);
 			}
@@ -10533,7 +10533,7 @@ void CvTacticalAI::LogTacticalMessage(const CvString& strMsg, bool bSkipLogDomin
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 			if(pZone != NULL)
 			{
-				strTemp.Format("Zone ID: %d, ", pZone->GetDominanceZoneID());
+				strTemp.Format("Zone ID: %d, ", pZone->GetZoneID());
 			}
 			strBaseString += strTemp;
 		}
@@ -10742,7 +10742,11 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowDisen
 		int iDamageDealt = 0, iDamageReceived = 0;
 		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(vEnemies[i], pUnit, vEnemies[i]->plot(), pUnit->plot(), iDamageReceived);
 		if (iDamageDealt == vEnemies[i]->GetCurrHitPoints())
-			iDamageDealt += 50; //bonus for a kill!
+		{
+			iDamageDealt += 20; //bonus for a kill!
+			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
+				iDamageReceived = max(0, iDamageReceived - pUnit->getHPHealedIfDefeatEnemy());
+		}
 
 		int iScore = (1000 * iDamageDealt) / (iDamageReceived + 10);
 		if (iScore > 1000 * (int)vEnemies.size() ) //threshold depends on number of enemies around us!
@@ -11493,9 +11497,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		{
 			//don't hand out points for over-killing (but make an allowance for randomness)
 			iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
-			iExtraDamage += 50;
+
+			iExtraDamage += 30;
 			if (pTestPlot->isEnemyUnit(pUnit->getOwner(),false,false))
 				iExtraDamage += 20; //even more points for a double kill
+			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
+				iDamageReceived = max(0, iDamageReceived - pUnit->getHPHealedIfDefeatEnemy());
+
 			result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEATTACK : STacticalAssignment::A_MELEEATTACK;
 		}
 	}

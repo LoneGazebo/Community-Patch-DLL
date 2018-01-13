@@ -230,11 +230,11 @@ public:
 	};
 	int GetDominanceZone() const
 	{
-		return m_iDominanceZoneID;
+		return m_iZoneID;
 	};
 	void SetDominanceZone(int iZone)
 	{
-		m_iDominanceZoneID = iZone;
+		m_iZoneID = iZone;
 	};
 	AITacticalTargetType GetTargetType() const
 	{
@@ -272,7 +272,7 @@ public:
 private:
 	int m_iDeploymentScore;
 	AITacticalTargetType m_eTargetType;
-	int m_iDominanceZoneID;
+	int m_iZoneID;
 	int m_iTargetDistance;
 	bool m_bHasLOSToTarget;
 };
@@ -316,13 +316,13 @@ public:
 	}
 
 	// Accessor functions
-	inline int GetDominanceZoneID() const
+	inline int GetZoneID() const
 	{
-		return m_iDominanceZoneID;
+		return m_iZoneID;
 	};
-	inline void SetDominanceZoneID(int iID)
+	inline void SetZoneID(int iID)
 	{
-		m_iDominanceZoneID = iID;
+		m_iZoneID = iID;
 	};
 	inline eDominanceTerritoryTypes GetTerritoryType() const
 	{
@@ -527,7 +527,7 @@ public:
 #endif
 
 private:
-	int m_iDominanceZoneID;
+	int m_iZoneID;
 	eDominanceTerritoryTypes m_eTerritoryType;
 	eTacticalDominanceFlags m_eOverallDominanceFlag;
 	PlayerTypes m_eOwner;
@@ -586,7 +586,7 @@ public:
 
 	CvTacticalAnalysisCell* GetCell(int iPlotIndex)
 	{
-		return (iPlotIndex>=0 && iPlotIndex<(int)m_pCells.size()) ? &m_pCells[iPlotIndex] : NULL;
+		return (iPlotIndex>=0 && iPlotIndex<(int)m_vCells.size()) ? &m_vCells[iPlotIndex] : NULL;
 	}
 	int GetDominancePercentage() const
 	{
@@ -611,6 +611,7 @@ protected:
 	void CalculateMilitaryStrengths();
 	void PrioritizeZones();
 	void LogZones();
+	void UpdateZoneIds();
 	void BuildEnemyUnitList();
 	void MarkCellsNearEnemy();
 	CvTacticalDominanceZone* MergeWithExistingZone(CvTacticalDominanceZone* pNewZone);
@@ -622,7 +623,7 @@ protected:
 	int m_iTacticalRange;
 
 	PlayerTypes m_ePlayer;
-	std::vector<CvTacticalAnalysisCell> m_pCells;
+	std::vector<CvTacticalAnalysisCell> m_vCells;
 	int m_iTurnBuilt;
 
 	std::vector<CvTacticalDominanceZone> m_DominanceZones;

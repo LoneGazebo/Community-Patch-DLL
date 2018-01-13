@@ -318,7 +318,7 @@ public:
 		m_iTargetY = -1;
 #endif
 		m_eTargetPlayer = NO_PLAYER;
-		m_iDominanceZoneID = -1;
+		m_iZoneID = -1;
 		m_pAuxData = NULL;
 		m_iAuxData = 0;
 	};
@@ -360,11 +360,11 @@ public:
 	}
 	inline int GetDominanceZone() const
 	{
-		return m_iDominanceZoneID;
+		return m_iZoneID;
 	};
 	inline void SetDominanceZone(int iZone)
 	{
-		m_iDominanceZoneID = iZone;
+		m_iZoneID = iZone;
 	};
 
 	bool IsReadyForCapture();
@@ -402,7 +402,7 @@ private:
 	PlayerTypes m_eTargetPlayer;
 	void* m_pAuxData;
 	int m_iAuxData;
-	int m_iDominanceZoneID;
+	int m_iZoneID;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -27244,7 +27244,7 @@ CvString CvUnit::getTacticalZoneInfo() const
 	{
 		const char* dominance[] = { "no units", "friendly", "enemy", "even" };
 		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("zone %d, %s, %s", pZone->GetDominanceZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
+		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
 			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "no posture");
 	}
 
