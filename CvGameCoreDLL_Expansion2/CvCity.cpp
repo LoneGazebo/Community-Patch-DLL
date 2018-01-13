@@ -9698,6 +9698,10 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 	iExperience = getFreeExperience();
 	iExperience += kOwner.getFreeExperience();
 
+#if defined(MOD_BALANCE_CORE)
+	int iExperienceModifier = 0;
+#endif
+
 	if(eUnit != NO_UNIT)
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
@@ -9715,8 +9719,21 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 #endif
 
 			iExperience += getSpecialistFreeExperience();
+
+#if defined(MOD_BALANCE_CORE)
+			// JJ: Get modifier from trait
+			iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier((DomainTypes)(pkUnitInfo->GetDomainType()));				
+#endif
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if(iExperienceModifier != 0) // JJ: Apply modifier if it is non-zero
+	{
+		iExperience *= (100 + iExperienceModifier);
+		iExperience /= 100;
+	}
+#endif
 
 	return std::max(0, iExperience);
 }

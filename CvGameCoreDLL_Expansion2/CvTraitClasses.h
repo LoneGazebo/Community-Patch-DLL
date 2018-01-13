@@ -291,6 +291,7 @@ public:
 	int GetGAPToYield(int i) const;
 	int GetMountainRangeYield(int i) const;
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
+	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 #endif
@@ -637,6 +638,7 @@ protected:
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
 	int* m_piNumPledgesDomainProdMod;
+	int* m_piDomainFreeExperienceModifier;
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1510,6 +1512,10 @@ public:
 	{
 		return ((uint)eDomain < m_aiNumPledgesDomainProdMod.size()) ? m_aiNumPledgesDomainProdMod[(int)eDomain] : 0;
 	};
+	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const
+	{
+		return ((uint)eDomain < m_aiDomainFreeExperienceModifier.size()) ? m_aiDomainFreeExperienceModifier[(int)eDomain] : 0;
+	};
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
@@ -2059,6 +2065,9 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	std::vector<int> m_aiDomainFreeExperienceModifier;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
