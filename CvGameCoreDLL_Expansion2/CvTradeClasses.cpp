@@ -476,6 +476,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTradeUnitLocationIndex = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitMovingForward = true;
+#if defined(MOD_BALANCE_CORE)
+	int iCircuitsToComplete = 0;
+	int iTurns = GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, &iCircuitsToComplete);
+#else
 
 	int iRouteSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
 	int iTurnsPerCircuit = 1;
@@ -486,10 +490,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
-	int iEra = std::max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
+	int iEra = max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
 	iTargetTurns -= iEra;
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	iTargetTurns = std::max(iTargetTurns, 1);
+	iTargetTurns = max(iTargetTurns, 1);
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
@@ -498,10 +502,14 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	{
 		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
 	}
-
+#endif
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsCompleted = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsToComplete = iCircuitsToComplete;
+#if defined(MOD_BALANCE_CORE)
+	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = iTurns + GC.getGame().getGameTurn();
+#else
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = (iTurnsPerCircuit * iCircuitsToComplete) + GC.getGame().getGameTurn();
+#endif
 #if defined(MOD_API_TRADEROUTES)
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitRecalled = false;
 #endif
@@ -1062,6 +1070,43 @@ void CvGameTrade::UpdateTradePlots()
 				pPlot->SetTradeUnitRoute(true);
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+//	Returns number of turns to complete the TR between two cities
+//	iCircuitsToComplete calculated so it can be used in CreateTradeRoute()
+int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete)
+{
+	// calculate distance
+	SPath path;
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, &path);
+	if (!bTradeAvailable)
+		return -1;
+	int iDistance = path.length();
+
+	// calculate turns per circuit
+	int iRouteSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
+	int iTurnsPerCircuit = 1; // real number of turns to complete a circuit
+	if (iRouteSpeed != 0)
+		iTurnsPerCircuit = ((iDistance - 1) * 2) / iRouteSpeed; // need to check why there is -1 and not simply distance * 2
+	
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
+	int iEra = max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
+	iTargetTurns -= iEra;
+	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
+	iTargetTurns = max(iTargetTurns, 1);
+#else
+	int iTargetTurns = 30; // how many turns do we want the cycle to consume
+#endif
+
+	// calculate how many circuits do we want this trade route to run to reach the target turns
+	int iCircuitsToComplete = 1; 
+	if (iTurnsPerCircuit != 0)
+		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
+
+	// return values
+	if (piCircuitsToComplete != NULL) *piCircuitsToComplete = iCircuitsToComplete;
+	return iTurnsPerCircuit * iCircuitsToComplete;
 }
 #endif
 //	--------------------------------------------------------------------------------
