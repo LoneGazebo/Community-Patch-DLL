@@ -257,6 +257,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCombatBoostNearNaturalWonder(false),
 	m_piNumPledgesDomainProdMod(NULL),
 	m_piFreeUnitClassesDOW(NULL),
+	m_piDomainFreeExperienceModifier(NULL),
 	m_ppiYieldFromTileEarnTerrainType(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1454,6 +1455,12 @@ int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) cons
 	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
 	return m_piNumPledgesDomainProdMod ? m_piNumPledgesDomainProdMod[(int)eDomain] : 0;
 }
+int CvTraitEntry::GetDomainFreeExperienceModifier(DomainTypes eDomain) const
+{
+	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
+	return m_piDomainFreeExperienceModifier ? m_piDomainFreeExperienceModifier[(int)eDomain] : 0;
+}
 int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 {
 	CvAssertMsg((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
@@ -2244,6 +2251,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiGAPToYield, "Trait_GAPToYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiMountainRangeYield, "Trait_MountainRangeYield", "TraitType", szTraitType);
 	kUtility.PopulateArrayByValue(m_piNumPledgesDomainProdMod, "Domains", "Trait_NumPledgeDomainProdMod", "DomainType", "TraitType", szTraitType, "Modifier");
+	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
 	const int iNumTerrains = GC.getNumTerrainInfos();
@@ -3804,6 +3812,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 			{
 				m_aiNumPledgesDomainProdMod[iDomain] = trait->GetNumPledgeDomainProductionModifier((DomainTypes)iDomain);
+				m_aiDomainFreeExperienceModifier[iDomain] = trait->GetDomainFreeExperienceModifier((DomainTypes)iDomain);
 			}
 #endif
 
@@ -3884,6 +3893,9 @@ void CvPlayerTraits::Uninit()
 	m_aiFreeUnitClassesDOW.clear();
 #endif
 	m_ppaaiSpecialistYieldChange.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_aiDomainFreeExperienceModifier.clear();
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield.clear();
 	m_ppiGreatPersonBornYield.clear();
@@ -4300,13 +4312,16 @@ void CvPlayerTraits::Reset()
 
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
+	m_aiDomainFreeExperienceModifier.clear();
 
 	m_aiNumPledgesDomainProdMod.resize(NUM_DOMAIN_TYPES);
+	m_aiDomainFreeExperienceModifier.resize(NUM_DOMAIN_TYPES);
 	m_aiFreeUnitClassesDOW.resize(GC.getNumUnitClassInfos());
 
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		m_aiNumPledgesDomainProdMod[iI] = 0;
+		m_aiDomainFreeExperienceModifier[iI] = 0;
 	}
 
 	m_paiMovesChangeUnitClass.clear();
@@ -6225,6 +6240,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiGoldenAgeFromGreatPersonBirth;
 	kStream >> m_aiNumPledgesDomainProdMod;
 	kStream >> m_aiFreeUnitClassesDOW;
+	kStream >> m_aiDomainFreeExperienceModifier;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
 
 	kStream >> iNumEntries;
@@ -6633,6 +6649,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiGoldenAgeFromGreatPersonBirth;
 	kStream << m_aiNumPledgesDomainProdMod;
 	kStream << m_aiFreeUnitClassesDOW;
+	kStream << m_aiDomainFreeExperienceModifier;
 	kStream << m_ppiYieldFromTileEarnTerrainType;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
