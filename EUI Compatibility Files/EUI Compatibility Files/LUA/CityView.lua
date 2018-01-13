@@ -298,6 +298,7 @@ local function ClearCityUIInfo()
 	Controls.PQrank:SetText()
 	Controls.PQname:SetText()
 	Controls.PQturns:SetText()
+	Controls.PQGoldButton:SetHide( true )
 	return Controls.ProductionPortraitButton:SetHide(true)
 end
 
@@ -567,6 +568,11 @@ end
 
 local function SelectionToolTip( control )
 	return OrderItemTooltip( UI_GetHeadSelectedCity(), true, false, control:GetVoid1(), control:GetVoid2() )
+end
+
+-- Vox Populi gold button
+local function PQGoldButtonToolTip( control )
+	return OrderItemTooltip( UI_GetHeadSelectedCity(),control:IsDisabled(), g_yieldCurrency, control:GetVoid1(), control:GetVoid2() )
 end
 
 -------------------------------
@@ -1175,6 +1181,11 @@ local function SwapQueueItem( queuedItemNumber )
 	g_queuedItemNumber = queuedItemNumber or g_queuedItemNumber
 end
 
+-- Vox Populi gold button
+local function PQGoldButtonCallback( orderID, itemID )
+	return SelectionPurchase( orderID, itemID, g_yieldCurrency, "AS2D_INTERFACE_CITY_SCREEN_PURCHASE" )
+end
+
 local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVeniceException )
 	-------------------------------------------
 	-- Update Production Queue
@@ -1237,17 +1248,35 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 		instance.PQremove:SetHide( isQueueEmpty or g_isViewingMode )
 		instance.PQremove:SetVoid1( queuedItemNumber )
 		instance.PQremove:RegisterCallback( Mouse.eLClick, RemoveQueueItem )
-
+		
 		local itemInfo, turnsRemaining, portraitOffset, portraitAtlas
+		
+		-- Vox Populi invested
+		local cashInvested;
+		-- Vox Populi gold button
+		local cashPQ = g_activePlayer:GetGold();
+		local canBuyWithGoldPQ, goldCostPQ;
 
 		if orderID == OrderTypes.ORDER_TRAIN then
 			itemInfo = GameInfo.Units
 			turnsRemaining = city:GetUnitProductionTurnsLeft( itemID, queuedItemNumber )
 			portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, cityOwnerID )
 			isReallyRepeat = isRepeat
+			-- Vox Populi invested
+			cashInvested = city:GetUnitInvestment(itemID)
+			-- Vox Populi gold button
+			canBuyWithGoldPQ = cityIsCanPurchase( city, true, true, itemID, -1, -1, g_yieldCurrency )
+			goldCostPQ = cityIsCanPurchase( city, false, false, itemID, -1, -1, g_yieldCurrency )
+						and city:GetUnitPurchaseCost( itemID )
 		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 			itemInfo = GameInfo.Buildings
 			turnsRemaining = city:GetBuildingProductionTurnsLeft( itemID, queuedItemNumber )
+			-- Vox Populi invested
+			cashInvested = city:GetBuildingInvestment(itemID)
+			-- Vox Populi gold button
+			canBuyWithGoldPQ = cityIsCanPurchase( city, true, true, -1, itemID, -1, g_yieldCurrency )
+			goldCostPQ = cityIsCanPurchase( city, false, false, -1, itemID, -1, g_yieldCurrency )
+						and city:GetBuildingPurchaseCost( itemID )
 		elseif orderID == OrderTypes.ORDER_CREATE then
 			itemInfo = GameInfo.Projects
 			turnsRemaining = city:GetProjectProductionTurnsLeft( itemID, queuedItemNumber )
@@ -1256,15 +1285,22 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 			isMaintain = true
 			isReallyRepeat = true
 		end
-		
-		-- Vox Populi Invested
-		local cashInvested;
-		if orderID == OrderTypes.ORDER_TRAIN then
-			cashInvested = city:GetUnitInvestment(itemID);
-		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
-			cashInvested = city:GetBuildingInvestment(itemID);
-		end
+
+		-- Vox Populi invested
 		instance.PQinvested:SetHide( not (cashInvested and cashInvested > 0) );
+		
+		-- Vox Populi gold button
+		if itemInfo then
+			instance.PQGoldButton:SetHide( not goldCostPQ or g_isViewingMode )
+			if goldCostPQ then
+				instance.PQGoldButton:SetDisabled( not canBuyWithGoldPQ )
+				instance.PQGoldButton:SetAlpha( canBuyWithGoldPQ and 1 or 0.5 )
+				instance.PQGoldButton:SetVoids( orderID, itemID )
+				instance.PQGoldButton:SetText( (cashPQ >= goldCostPQ and goldCostPQ or "[COLOR_WARNING_TEXT]"..(goldCostPQ-cashPQ).."[ENDCOLOR]") .. g_currencyIcon )
+				instance.PQGoldButton:RegisterCallback( Mouse.eLClick, PQGoldButtonCallback )
+				instance.PQGoldButton:SetToolTipCallback ( PQGoldButtonToolTip )
+			end
+		end
 		-- Vox Populi end
 		
 		if itemInfo then
