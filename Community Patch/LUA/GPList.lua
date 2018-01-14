@@ -116,7 +116,9 @@ function UpdateDisplay()
 						bWriterFound = true;
 					end		
 							
-					iProgress = pCity:GetSpecialistGreatPersonProgress(iSpecialistIndex);	
+					-- Vox Populi
+					--iProgress = pCity:GetSpecialistGreatPersonProgress(iSpecialistIndex);	
+					iProgress = pCity:GetSpecialistGreatPersonProgressTimes100(iSpecialistIndex);	
 					if(iProgress>0) then 
 						instance.Button:RegisterCallback( Mouse.eLClick, OnCityClick );
 						instance.Button:RegisterCallback( Mouse.eRClick, OnCityRClick );
@@ -127,12 +129,16 @@ function UpdateDisplay()
 
 						cityName = Locale.ConvertTextKey( pCity:GetNameKey() );
 						sortEntry.name = cityName;
-						TruncateString( instance.CityName, 74, sortEntry.name );
+						TruncateString( instance.CityName, 76, sortEntry.name );
 
 						local iUnitClass = GameInfo.UnitClasses[pSpecialistInfo.GreatPeopleUnitClass].ID
-						iThreshold = pCity:GetSpecialistUpgradeThreshold(iUnitClass);
-						iRate = getRateOfChange(pCity, pSpecialistInfo, pPlayer)
+						-- Vox Populi
+						--iThreshold = pCity:GetSpecialistUpgradeThreshold(iUnitClass);
+						--iRate = getRateOfChange(pCity, pSpecialistInfo, pPlayer)
 
+						iThreshold = pCity:GetSpecialistUpgradeThreshold(iUnitClass)*100;
+						iRate = pCity:GetSpecialistRate(pSpecialistInfo.ID);
+						-- Vox Populi END
 						local iNumTurns;
 						local strNumTurns;
 						
@@ -144,15 +150,19 @@ function UpdateDisplay()
 								iNumTurns = 9999;
 								strNumTurns = "--";
 							else
-								iNumTurns = math.floor((((iThreshold - iProgress)/iRate)+1));
+								iNumTurns = math.ceil((iThreshold - iProgress)/iRate);
 								strNumTurns = iNumTurns;
 							end
 						end
 
 						--strTurns = Locale.ConvertTextKey( "TXT_KEY_GPLIST_TURNS", iRate, iNumTurns );
-						strTurns = Locale.ConvertTextKey( "TXT_KEY_GPLIST_TURNS", iRate );
-						strProgress = Locale.ConvertTextKey( "TXT_KEY_GPLIST_PROGRESS", iProgress, iThreshold, strNumTurns );
+						-- Vox Populi
+						--strTurns = Locale.ConvertTextKey( "TXT_KEY_GPLIST_TURNS", iRate );
+						--strProgress = Locale.ConvertTextKey( "TXT_KEY_GPLIST_PROGRESS", iProgress, iThreshold, strNumTurns );
 
+						if iRate == 0 then strTurns = "0"; else strTurns = string.format("%+4.1f", iRate/100); end
+						strProgress = Locale.ConvertTextKey( "TXT_KEY_GPLIST_PROGRESS", string.format("%.1f", iProgress/100), iThreshold/100, strNumTurns );
+						-- Vox Populi END
 						sortEntry.turns = iNumTurns;
 
 						instance.GPTurns:SetText( strTurns );

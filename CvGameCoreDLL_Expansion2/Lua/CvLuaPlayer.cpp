@@ -1202,6 +1202,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteBaseBonus);
 	Method(GetInternationalTradeRouteGPTBonus);
 	Method(GetInternationalTradeRouteResourceBonus);
+	Method(GetCityResourceBonus);
 	Method(GetInternationalTradeRouteResourceTraitModifier);
 	Method(GetInternationalTradeRouteExclusiveBonus);
 	Method(GetInternationalTradeRouteYourBuildingBonus);
@@ -1210,7 +1211,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteOtherTraitBonus);
 	Method(GetInternationalTradeRouteRiverModifier);
 #if defined(MOD_BALANCE_CORE)
+	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistanceValueModifierTimes100);
+	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistance);
 	Method(GetTradeConnectionOpenBordersModifierTimes100);
 	Method(GetInternationalTradeRouteCorporationModifier);
@@ -4407,6 +4410,47 @@ int CvLuaPlayer::lGetInternationalTradeRouteResourceBonus(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCityResourceBonus(lua_State* L)
+{
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	bool bOrigin = lua_toboolean(L, 4);
+	
+	int iOurResources = 0;
+	int iTheirResources = 0;
+	for (int i = 0; i < GC.getNumResourceInfos(); i++)
+	{
+		ResourceTypes eResource = (ResourceTypes)i;
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo)
+		{
+			bool bOurMonopoly = false;
+			bool bTheirMonopoly = false;
+			if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
+				bOurMonopoly = true;;
+			if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
+				bTheirMonopoly= true;
+
+			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				iOurResources += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
+				iTheirResources += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
+			}
+			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				if (pOriginCity->GetNumResourceLocal(eResource, true) > 0)
+					iOurResources += bOurMonopoly ? 2 : 1;
+				if (pDestCity->GetNumResourceLocal(eResource, true) > 0)
+					iTheirResources += bTheirMonopoly ? 2 : 1;
+			}
+		}
+	}
+
+	lua_pushinteger(L, bOrigin ? iOurResources : iTheirResources);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteResourceTraitModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -4544,6 +4588,17 @@ int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 
 	int iResult = pPlayerTrade->GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTradeRouteTurns(lua_State* L)
+{
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+
+	int iTurns = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, NULL);
+	lua_pushinteger(L, iTurns);
 	return 1;
 }
 //------------------------------------------------------------------------------

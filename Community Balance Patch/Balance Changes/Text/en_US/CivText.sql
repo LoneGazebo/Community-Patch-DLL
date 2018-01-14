@@ -112,7 +112,7 @@ WHERE Tag = 'TXT_KEY_UNIT_AUSTRIAN_HUSSAR_STRATEGY' AND EXISTS (SELECT * FROM CO
 -- Aztecs
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.'
+SET Text = '+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -210,7 +210,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHE
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = 'Cities produce 175 [ICON_GOLD] Gold when founded, scaling with Era. Owned coastal Cities receive a free Lighthouse, and Resource diversity triples the [ICON_GOLD] Gold value of Trade Routes.'
+SET Text = 'Cities produce 175 [ICON_GOLD] Gold when founded, scaling with Era. Owned coastal Cities receive a free Lighthouse. Trade Route Resource Diversity modifier doubled if positive, halved if negative.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 
@@ -1082,7 +1082,7 @@ SET Text = 'This Venetian unique Great Person replaces the Great Merchant. Aside
 WHERE Tag = 'TXT_KEY_UNIT_HELP_VENETIAN_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
-SET Text = 'Maximum [ICON_INTERNATIONAL_TRADE] Trade Routes doubled, but cannot found/annex cities. Can spend [ICON_GOLD] Gold in [ICON_PUPPET] Puppet cities, and these Cities do not suffer Yield penalties. Gain a free Merchant of Venice at Trade, and +20% [ICON_GREAT_MERCHANT] Great Merchant Rate per owned [ICON_PUPPET] Puppet City.'
+SET Text = 'Cannot found/annex cities. [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled. Free Merchant of Venice at Trade. No Yield penalties for [ICON_PUPPET] Puppets and can spend [ICON_GOLD] Gold in them. +20% [ICON_GREAT_MERCHANT] Great Merchant Rate per [ICON_PUPPET] Puppet.'
  WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
  

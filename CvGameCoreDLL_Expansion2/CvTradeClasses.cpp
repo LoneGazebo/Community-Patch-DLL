@@ -210,9 +210,19 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			CvCity* pDestCity = it->first->getPlotCity();
 			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),it->second);
 		}
+
 	}
 
 	m_lastTradePathUpdate[iPlayer1]=GC.getGame().getGameTurn();
+
+	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
+	{
+		int iDistanceLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
+		int iDistanceSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
+
+		kPlayer1.GetTrade()->UpdateFurthestPossibleTradeRoute(DOMAIN_LAND, pOriginCity, iDistanceLand);
+		kPlayer1.GetTrade()->UpdateFurthestPossibleTradeRoute(DOMAIN_SEA, pOriginCity, iDistanceSea);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -476,6 +486,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTradeUnitLocationIndex = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitMovingForward = true;
+#if defined(MOD_BALANCE_CORE)
+	int iCircuitsToComplete = 0;
+	int iTurns = GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, &iCircuitsToComplete);
+#else
 
 	int iRouteSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
 	int iTurnsPerCircuit = 1;
@@ -486,13 +500,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
-	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
-	if(iEra <= 0)
-	{
-		iEra = 1;
-	}
+	int iEra = max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
 	iTargetTurns -= iEra;
+	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
+	iTargetTurns = max(iTargetTurns, 1);
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
@@ -501,10 +512,14 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	{
 		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
 	}
-
+#endif
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsCompleted = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsToComplete = iCircuitsToComplete;
+#if defined(MOD_BALANCE_CORE)
+	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = iTurns + GC.getGame().getGameTurn();
+#else
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = (iTurnsPerCircuit * iCircuitsToComplete) + GC.getGame().getGameTurn();
+#endif
 #if defined(MOD_API_TRADEROUTES)
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitRecalled = false;
 #endif
@@ -657,7 +672,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
+bool CvGameTrade::IsValidTradeRoutePath(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
 {
 	SPath path;
 	//if we did not get an external pointer, make up our own
@@ -678,6 +693,30 @@ bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity,
 	}
 
 	return false;
+}
+
+//	--------------------------------------------------------------------------------
+int CvGameTrade::GetValidTradeRoutePathLength(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
+{
+	SPath path;
+	//if we did not get an external pointer, make up our own
+	if (!pPath)
+		pPath = &path;
+
+	if (bWarCheck && GET_PLAYER(pOriginCity->getOwner()).IsAtWarWith(pDestCity->getOwner()))
+		return false;
+
+	if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginCity, pDestCity, pPath))
+	{
+		// check if beyond the origin player's trade range
+		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
+
+		int iNormDist = pPath->iNormalizedDistance;
+		if (iNormDist>0 && iNormDist <= iMaxNormDist)
+			return iNormDist;
+	}
+
+	return -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1065,6 +1104,43 @@ void CvGameTrade::UpdateTradePlots()
 				pPlot->SetTradeUnitRoute(true);
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+//	Returns number of turns to complete the TR between two cities
+//	iCircuitsToComplete calculated so it can be used in CreateTradeRoute()
+int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete)
+{
+	// calculate distance
+	SPath path;
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, &path);
+	if (!bTradeAvailable)
+		return -1;
+	int iDistance = path.length();
+
+	// calculate turns per circuit
+	int iRouteSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
+	int iTurnsPerCircuit = 1; // real number of turns to complete a circuit
+	if (iRouteSpeed != 0)
+		iTurnsPerCircuit = ((iDistance - 1) * 2) / iRouteSpeed; // need to check why there is -1 and not simply distance * 2
+	
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
+	int iEra = max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
+	iTargetTurns -= iEra;
+	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
+	iTargetTurns = max(iTargetTurns, 1);
+#else
+	int iTargetTurns = 30; // how many turns do we want the cycle to consume
+#endif
+
+	// calculate how many circuits do we want this trade route to run to reach the target turns
+	int iCircuitsToComplete = 1; 
+	if (iTurnsPerCircuit != 0)
+		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
+
+	// return values
+	if (piCircuitsToComplete != NULL) *piCircuitsToComplete = iCircuitsToComplete;
+	return iTurnsPerCircuit * iCircuitsToComplete;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -2836,38 +2912,83 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 				}
 
 				int iValue = 0;
-				for(int i = 0; i < GC.getNumResourceInfos(); i++)
-				{
-					ResourceTypes eResource = (ResourceTypes)i;
-					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-					if (pkResourceInfo)
-					{
-						if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-						{
-							if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
-							{
-#if defined(MOD_TRADE_ROUTE_SCALING)
-								iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
-#else
-								iValue += 50;
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-								{
-									if(GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
-									{
-										iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
-									}
-								}
+				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+				{
+					int iOurResources = 0;
+					int iTheirResources = 0;
+					for (int i = 0; i < GC.getNumResourceInfos(); i++)
+					{
+						ResourceTypes eResource = (ResourceTypes)i;
+						const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+						if (pkResourceInfo)
+						{
+							bool bOurMonopoly = false;
+							bool bTheirMonopoly = false;
+							if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
+								bOurMonopoly = true;;
+							if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
+								bTheirMonopoly = true;
+
+							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+							{
+								iOurResources += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
+								iTheirResources += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
+							}
+							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							{
+								if (pOriginCity->GetNumResourceLocal(eResource, true) > 0)
+									iOurResources += bOurMonopoly ? 2 : 1;
+								if (pDestCity->GetNumResourceLocal(eResource, true) > 0)
+									iTheirResources += bTheirMonopoly ? 2 : 1;
+							}
+						}
+					}
+					int iDelta = iOurResources - iTheirResources;
+					iValue = GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE) * iDelta;
+
+					//Can't go above +100 or below -50
+					if (iValue > 100)
+						iValue = 100;
+					else if (iValue <= -50)
+						iValue = -50;
+				}
+				else
+				{
 #endif
+					for (int i = 0; i < GC.getNumResourceInfos(); i++)
+					{
+						ResourceTypes eResource = (ResourceTypes)i;
+						const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+						if (pkResourceInfo)
+						{
+							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							{
+								if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
+								{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+									iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+#else
+									iValue += 50;
+#endif
+								}
 							}
 						}
 					}
 				}
 
-				int iModifer = 100 + GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerTraits()->GetTradeRouteResourceModifier();
-				iValue *= iModifer;
-				iValue /= 100;
+				int iModifer = 100 + GET_PLAYER(kTradeConnection.m_eOriginOwner).GetPlayerTraits()->GetTradeRouteResourceModifier() + pOriginCity->GetResourceDiversityModifier();
+				if (iValue > 0)
+				{
+					iValue *= iModifer;
+					iValue /= 100;
+				}
+				else
+				{
+					iValue *= 100;
+					iValue /= max(1, iModifer);
+				}
+
 
 				return iValue;
 			}
@@ -3228,26 +3349,18 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 	if (GET_PLAYER(pEndCity->getOwner()).isMajorCiv() && GET_PLAYER(pEndCity->getOwner()).GetPlayerTraits()->IsIgnoreTradeDistanceScaling())
 		return 0;
 
-	SPath path;
-	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pEndCity, kTradeConnection.m_eDomain, &path);
-	if (!bTradeAvailable)
+	int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pEndCity, kTradeConnection.m_eDomain);
+	if (iLength <= 0)
 		return 0;
 		
-	int iLength = path.iNormalizedDistance;
+	int iDistance = pOriginCity->GetLongestPotentialTradeRoute(kTradeConnection.m_eDomain);
 
-	if (iLength > 0)
-	{
-		int iDistance = GetTradeRouteRange(kTradeConnection.m_eDomain, pOriginCity);
+	iLength *= 100;
+	iLength /= max(1, iDistance);
 
-		iLength *= 100;
-		iLength /= iDistance;
+	int iReduction = 100 - iLength;
 
-		int iReduction = 100 - iLength;
-
-		return max(0, min(75, iReduction));
-	}
-
-	return 0;
+	return max(0, min(50, iReduction));
 }
 
 
@@ -4976,6 +5089,34 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 
 	return true;
 }
+void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange)
+{
+	int iLongestRoute = 0;
+
+	// Check the route, but not the path
+	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+	{
+		int iCity;
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
+		{
+			if (CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, TRADE_CONNECTION_INTERNATIONAL, false, false))
+			{
+				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain);
+				if (iLength <= 0)
+					continue;
+
+				if (iLength > iLongestRoute)
+				{
+					iLongestRoute = iLength;
+					if (iLongestRoute == iMaxRange)
+						break;
+				}
+			}
+		}
+	}
+	pOriginCity->SetLongestPotentialTradeRoute(iLongestRoute == 0 ? iMaxRange : iLongestRoute, eDomain);
+}
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {
@@ -5070,7 +5211,7 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 	int iRouteModifier = 0;
 #endif
 
-	iRange = (iRange * (100 + iRouteModifier + iRangeModifier)) / 100;
+	iRange = (iRange * (iRouteModifier + iRangeModifier)) / 100;
 	return iRange;
 }
 

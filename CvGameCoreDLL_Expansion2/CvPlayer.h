@@ -985,6 +985,10 @@ public:
 #endif
 	int getGoldenAgeLength() const;
 
+#if defined(MOD_BALANCE_CORE)
+	int getGoldenAgeLengthModifier() const;
+#endif
+
 	int getNumUnitGoldenAges() const;
 	void changeNumUnitGoldenAges(int iChange);
 
@@ -1994,6 +1998,7 @@ public:
 
 	int GetCityStateCombatModifier() const;
 	void changeCityStateCombatModifier(int iChange);
+
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetAdvancedActionGold() const;

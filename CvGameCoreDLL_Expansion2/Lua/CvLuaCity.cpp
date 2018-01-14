@@ -188,6 +188,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsCoastal);
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(IsAddsFreshWater);
+	Method(FoodConsumptionSpecialistTimes100);
 #endif
 
 	Method(FoodConsumption);
@@ -2073,11 +2074,14 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 
-	// City Food Modifier
+	// Header for Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
-		pkCity->foodDifferenceTimes100(true, &toolTip);
+		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_FOOD", 1);
 	}
+
+	// City Yield Rate Modifier
+	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
 
 	// City Production Modifier
 	if(eYield == YIELD_PRODUCTION)
@@ -2085,13 +2089,17 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 		pkCity->getProductionModifier(&toolTip);
 	}
 
-	// City Yield Rate Modifier
-	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
-
 	if (eYield != YIELD_FOOD)
 	{
 		// Trade Yield Modifier
 		pkCity->GetTradeYieldModifier(eYield, &toolTip);
+	}
+
+	// City Food Modifier
+	if(eYield == YIELD_FOOD)
+	{	
+		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_GROWTH", 1);
+		pkCity->foodDifferenceTimes100(true, &toolTip);
 	}
 
 	lua_pushstring(L, toolTip.c_str());
@@ -2328,6 +2336,11 @@ int CvLuaCity::lIsCoastal(lua_State* L)
 int CvLuaCity::lIsAddsFreshWater(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::isAddsFreshWater);
+}
+//int foodConsumptionSpecialistTimes100();
+int CvLuaCity::lFoodConsumptionSpecialistTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::foodConsumptionSpecialistTimes100);
 }
 #endif
 //------------------------------------------------------------------------------

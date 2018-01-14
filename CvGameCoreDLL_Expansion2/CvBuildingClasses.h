@@ -196,6 +196,7 @@ public:
 	bool IsBuildAnywhere() const;
 	int GetTradeReligionModifier() const;
 	int GetNumFreeArtifacts() const;
+	int GetResourceDiversityModifier() const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetCannotFailSpies() const;
@@ -744,6 +745,7 @@ private:
 	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
 	int m_iFreeArtifacts;
+	int m_iResourceDiversityModifier;
 	bool m_bAnyWater;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
