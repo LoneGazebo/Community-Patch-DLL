@@ -203,6 +203,8 @@ UPDATE Buildings
 SET BuildingClass = 'BUILDINGCLASS_COURTHOUSE'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Buildings SET ConquestProb = '0' WHERE Type = 'BUILDING_SATRAPS_COURT';
+
 UPDATE Buildings
 SET BuildAnywhere = '1'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -655,6 +657,11 @@ VALUES
 
 -- New Vanilla Leader Data and Yields
 
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+VALUES
+	('BUILDING_STEAM_MILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 4);
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -694,12 +701,6 @@ INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_INDUS_CANAL', 'YIELD_PRODUCTION', 25);
-
-INSERT INTO Building_SpecialistYieldChangesLocal
-	(BuildingType, SpecialistType, YieldType, Yield)
-VALUES
-	('BUILDING_STEAM_MILL', 'SPECIALIST_ENGINEER', 'YIELD_GOLD', 2),
-	('BUILDING_STEAM_MILL', 'SPECIALIST_MERCHANT', 'YIELD_PRODUCTION', 2);
 
 INSERT INTO Building_YieldFromUnitProduction
 	(BuildingType, YieldType, Yield)

@@ -471,7 +471,7 @@ CvPlayer::CvPlayer() :
 	, m_iCenterOfMassY("CvPlayer::m_iCenterOfMassY", m_syncArchive)
 	, m_iReferenceFoundValue("CvPlayer::m_iReferenceFoundValue", m_syncArchive)
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
-	, m_iFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
+	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -1559,7 +1559,7 @@ void CvPlayer::uninit()
 	m_iAbleToAnnexCityStatesCount = 0;
 	m_iOnlyTradeSameIdeology = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iFreeUnits = 0;
+	m_iSupplyFreeUnits = 0;
 	m_strJFDCurrencyName = "";
 	m_iJFDCurrency = -1;
 	m_iJFDProsperity = 0;
@@ -5474,14 +5474,14 @@ void CvPlayer::SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain)
 	VALIDATE_OBJECT
 	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	return m_aiBestMilitaryDomainCity.setAt(eDomain, iValue);
+	m_aiBestMilitaryDomainCity.setAt(eDomain, iValue);
 }
 void CvPlayer::SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eUnitCombat >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	return m_aiBestMilitaryCombatClassCity.setAt(eUnitCombat, iValue);
+	m_aiBestMilitaryCombatClassCity.setAt(eUnitCombat, iValue);
 }
 CvCity* CvPlayer::GetBestMilitaryCity(UnitCombatTypes eUnitCombat, DomainTypes eDomain)
 {
@@ -9865,6 +9865,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	if (pkUnitDef == NULL)
 		return NULL;
 
+	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4)
+	{
+		OutputDebugString("Creating unit over supply limit\n");
+	}
+
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
@@ -10909,7 +10914,9 @@ void CvPlayer::doTurn()
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
-				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), getNumUnitsNoCivilian());
+				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", 
+					GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), 
+					getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), GetNumUnitsToSupply());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
@@ -17428,29 +17435,27 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply() const
 {
-	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsFree();
+	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsSupplyFree();
 	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
 }
 
 #if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-int CvPlayer::getNumUnitsNoCivilian() const
+int CvPlayer::GetNumUnitsToSupply() const
 {
-	int iNumUnits = getNumMilitaryUnits();
-	int iNumUnitsToSupply = iNumUnits - getNumUnitsFree();
-	return iNumUnitsToSupply;
+	return getNumMilitaryUnits() - getNumUnitsSupplyFree();
 }
 
-int CvPlayer::getNumUnitsFree() const
+//these are mercenaries etc
+int CvPlayer::getNumUnitsSupplyFree() const
 {
-	return m_iFreeUnits;
+	return m_iSupplyFreeUnits;
 }
 
-void CvPlayer::changeNumFreeUnits(int iValue)
+void CvPlayer::changeNumUnitsSupplyFree(int iValue)
 {
 	if (iValue != 0)
 	{
-		m_iFreeUnits += iValue;
+		m_iSupplyFreeUnits += iValue;
 	}
 }
 #endif
@@ -34136,6 +34141,7 @@ void CvPlayer::changeCityStateCombatModifier(int iChange)
 {
 	m_iCityStateCombatModifier += iChange;
 }
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassCultureChange(BuildingClassTypes eIndex) const
 {
@@ -35559,7 +35565,7 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 			return false;
 		}
 
-		int iNum = GET_PLAYER(eToPlayer).getNumUnitsNoCivilian();
+		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
 		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
 
 		if (iNum >= iMax)
@@ -45701,7 +45707,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->isEnemy(getTeam()))
+				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==DOMAIN_LAND && pLoopUnit->isEnemy(getTeam()))
 				{
 					vBadPlots.push_back(pPlot);
 					break;
@@ -45712,19 +45718,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 	//see where our settler can go
 	ReachablePlots reachablePlots;
+	int iMaxSafeTurns = 4;
 	if (pUnit)
 	{
-		SPathFinderUserData data(pUnit,0,10); //10 turns is enough, everything else is considered dangerous
+		SPathFinderUserData data(pUnit,0,iMaxSafeTurns);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		data.iMinMovesLeft = 1; //we want to be able to found on the final turn
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
 		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
-		bool isDangerous = false;
-
 		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+
+		bool isDangerous = (it==reachablePlots.end());
 		bool bCanReachThisTurn = (it != reachablePlots.end() && it->iTurns==0);
 
 		//check if it's too close to an enemy
@@ -45747,14 +45755,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider distance to settler here in case of re-targeting an operation
 			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
-				isDangerous = true;
-		}
-
-		//could be close but it takes many turns to get there ...
-		if (!isDangerous)
-		{
-			//if it takes more than 3 turns to found it's unsafe by definition
-			if (it==reachablePlots.end() || (it->iTurns>3 || (it->iTurns==3 && it->iMovesLeft==0) ) )
 				isDangerous = true;
 		}
 

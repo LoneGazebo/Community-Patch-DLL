@@ -353,7 +353,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (bCombat && !bFree)
 	{
 		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
-		int iDemand = kPlayer.getNumMilitaryUnits() - kPlayer.getNumUnitsFree();
+		int iDemand = kPlayer.GetNumUnitsToSupply();
 		if (bAtWar || bForOperation)
 		{
 			//hard limit, don't go too far into negative supply

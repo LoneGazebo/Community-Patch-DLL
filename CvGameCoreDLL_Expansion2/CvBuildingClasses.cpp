@@ -211,6 +211,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bBuildAnywhere(false),
 	m_iTradeReligionModifier(-1),
 	m_iFreeArtifacts(0),
+	m_iResourceDiversityModifier(0),
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	 m_iCannotFailSpies(-1),
@@ -528,6 +529,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
 	m_iFreeArtifacts = kResults.GetInt("FreeArtifacts");
+	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
@@ -3467,6 +3469,11 @@ int CvBuildingEntry::GetTradeReligionModifier() const
 int CvBuildingEntry::GetNumFreeArtifacts() const
 {
 	return m_iFreeArtifacts;
+}
+
+int CvBuildingEntry::GetResourceDiversityModifier() const
+{
+	return m_iResourceDiversityModifier;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)

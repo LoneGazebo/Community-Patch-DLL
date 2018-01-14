@@ -398,7 +398,7 @@
 			<Strategy>TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
+			<ConquestProb>0</ConquestProb>
 			<TrainedFreePromotion>PROMOTION_VOLLEY</TrainedFreePromotion>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
@@ -443,7 +443,7 @@
 			<CityConnectionTradeRouteModifier>2</CityConnectionTradeRouteModifier>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
+			<ConquestProb>0</ConquestProb>
 			<DisplayPosition>2</DisplayPosition>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<HurryCostModifier>25</HurryCostModifier>
@@ -506,7 +506,7 @@
 			<FoodKept>20</FoodKept>
 			<NeverCapture>true</NeverCapture>
 			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
+			<ConquestProb>0</ConquestProb>
 			<HurryCostModifier>15</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>56</PortraitIndex>
@@ -651,6 +651,7 @@
 			<NumTradeRouteBonus>2</NumTradeRouteBonus>
 			<NukeImmune>true</NukeImmune>
 			<ExtraLuxuries>true</ExtraLuxuries>
+			<ResourceDiversityModifier>25</ResourceDiversityModifier>
 			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
 			<NationalPopRequired>20</NationalPopRequired>

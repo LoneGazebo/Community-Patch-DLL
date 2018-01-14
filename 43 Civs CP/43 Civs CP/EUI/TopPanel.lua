@@ -566,7 +566,7 @@ local function UpdateTopPanelNow()
 		-- Update Military
 		-----------------------------
 		local iUnitsSupplied = g_activePlayer:GetNumUnitsSupplied();
-		local iUnitsTotal = g_activePlayer:GetNumUnitsNoCivilian();
+		local iUnitsTotal = g_activePlayer:GetNumUnitsToSupply();
 
 		if(iUnitsTotal > iUnitsSupplied)then
 			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
@@ -2168,7 +2168,7 @@ if civ5_mode and gk_mode then
 
 		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
 		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-		local iUnitsTotal = pPlayer:GetNumUnitsNoCivilian();
+		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
 		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();

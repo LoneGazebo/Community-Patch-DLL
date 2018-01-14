@@ -651,6 +651,8 @@ ALTER TABLE Buildings ADD COLUMN 'CitySupplyFlatGlobal' INTEGER DEFAULT 0;
 -- Missionaries built by a city gain % more strength
 ALTER TABLE Buildings ADD COLUMN 'ExtraMissionaryStrengthGlobal' INTEGER DEFAULT 0;
 
+-- Resource Diversity Provided by a City increased by x% (or reduced by x% if negative
+ALTER TABLE Buildings ADD COLUMN 'ResourceDiversityModifier' INTEGER DEFAULT 0;
 
 -- Tourism Mod, global, from WC
 ALTER TABLE Resolutions ADD COLUMN 'TourismMod' integer default 0;

@@ -18,7 +18,7 @@ CvUnitCycler::CvUnitCycler()
 
 //	-----------------------------------------------------------------------------------------------
 // Returns the next unit in the cycle...
-CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool /*bForward*/, bool bWorkers, bool* pbWrap)
+CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap)
 {
 	if (!pUnit)
 		return NULL;
@@ -27,7 +27,7 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool /*bForward*/, bool bWorkers, boo
 		*pbWrap = false;
 
 	//---------------------------------------------------------------------------------------------
-	// ok let's just ignore this forward/backward stuff and return the closest suitable unit
+	// just return the closest suitable unit, no bookkeeping required
 	//---------------------------------------------------------------------------------------------
 	int iUnitLoop;
 	int iMinDist = INT_MAX;
@@ -41,6 +41,13 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool /*bForward*/, bool bWorkers, boo
 			continue;
 
 		int iDist = plotDistance(*pUnit->plot(),*pLoopUnit->plot());
+
+		//use forward/backward flag to introduce a slight bias
+		if (bForward && pUnit->GetID() > pLoopUnit->GetID())
+			iDist++;
+		if (!bForward && pUnit->GetID() < pLoopUnit->GetID())
+			iDist++;
+
 		if ( iDist<iMinDist )
 		{
 			iMinDist = iDist;

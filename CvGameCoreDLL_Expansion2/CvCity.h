@@ -103,6 +103,9 @@ public:
 	void ChangeTradeRouteLandDistanceModifier(int iValue);
 	int GetTradeRouteLandDistanceModifier() const;
 
+	int GetLongestPotentialTradeRoute(DomainTypes eDomain) const;
+	void SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain);
+
 	bool AreOurBordersTouching(PlayerTypes ePlayer);
 #endif
 
@@ -1170,6 +1173,9 @@ public:
 	void ChangeAlwaysHeal(int iChange);
 	void SetAlwaysHeal(int iValue);
 
+	void ChangeResourceDiversityModifier(int iChange);
+	int GetResourceDiversityModifier() const;
+
 	bool IsBastion() const;
 	void SetBastion(bool bValue);
 	void TestBastion();
@@ -1764,6 +1770,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromVictory;
@@ -1834,6 +1841,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
+	FAutoVariable<int, CvCity> m_iResourceDiversityModifier;
 	FAutoVariable<bool, CvCity> m_bIsBastion;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
