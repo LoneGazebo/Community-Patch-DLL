@@ -799,8 +799,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 75;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent() * 2;
-			iBonus /= max(100, GC.getGame().getGameSpeedInfo().getTrainPercent() * 3);
+			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent() * 7;
+			iBonus /= max(1, GC.getGame().getGameSpeedInfo().getTrainPercent() * 10);
 			SetInfluence(iBonus);
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)

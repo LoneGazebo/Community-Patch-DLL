@@ -291,6 +291,7 @@ public:
 	int GetGAPToYield(int i) const;
 	int GetMountainRangeYield(int i) const;
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
+	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 #endif
@@ -350,6 +351,9 @@ public:
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetGreatPersonCostReduction(GreatPersonTypes eIndex1) const;
 	int GetGreatPersonGWAM(GreatPersonTypes eIndex1) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eIndex1) const;
+#endif
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
@@ -634,6 +638,7 @@ protected:
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
 	int* m_piNumPledgesDomainProdMod;
+	int* m_piDomainFreeExperienceModifier;
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -665,6 +670,9 @@ protected:
 	int* m_piPerPuppetGreatPersonRateModifier;
 	int* m_piGreatPersonGWAM;
 	int** m_ppiCityYieldFromUnimprovedFeature;
+#if defined(MOD_BALANCE_CORE)
+	int* m_piGoldenAgeFromGreatPersonBirth;
+#endif
 #endif
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
@@ -1495,9 +1503,18 @@ public:
 		return ((uint)eGreatPerson < m_aiGoldenAgeGreatPersonRateModifier.size()) ? m_aiGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
 	};
 
+	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const
+	{
+		return ((uint)eGreatPerson < m_aiGoldenAgeFromGreatPersonBirth.size()) ? m_aiGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
+	};
+
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 	{
 		return ((uint)eDomain < m_aiNumPledgesDomainProdMod.size()) ? m_aiNumPledgesDomainProdMod[(int)eDomain] : 0;
+	};
+	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const
+	{
+		return ((uint)eDomain < m_aiDomainFreeExperienceModifier.size()) ? m_aiDomainFreeExperienceModifier[(int)eDomain] : 0;
 	};
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
@@ -2048,6 +2065,9 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	std::vector<int> m_aiDomainFreeExperienceModifier;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
@@ -2057,6 +2077,9 @@ private:
 	std::vector<int> m_aiGoldenAgeGreatPersonRateModifier;
 	std::vector<int> m_aiPerPuppetGreatPersonRateModifier;
 	std::vector<int> m_aiGreatPersonGWAM;
+#if defined(MOD_BALANCE_CORE)
+	std::vector<int> m_aiGoldenAgeFromGreatPersonBirth;
+#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;

@@ -257,6 +257,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCombatBoostNearNaturalWonder(false),
 	m_piNumPledgesDomainProdMod(NULL),
 	m_piFreeUnitClassesDOW(NULL),
+	m_piDomainFreeExperienceModifier(NULL),
 	m_ppiYieldFromTileEarnTerrainType(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -288,6 +289,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_piPerPuppetGreatPersonRateModifier(NULL),
 	m_piGreatPersonGWAM(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piGoldenAgeFromGreatPersonBirth(NULL),
+#endif
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
 {
@@ -1451,6 +1455,12 @@ int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) cons
 	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
 	return m_piNumPledgesDomainProdMod ? m_piNumPledgesDomainProdMod[(int)eDomain] : 0;
 }
+int CvTraitEntry::GetDomainFreeExperienceModifier(DomainTypes eDomain) const
+{
+	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
+	return m_piDomainFreeExperienceModifier ? m_piDomainFreeExperienceModifier[(int)eDomain] : 0;
+}
 int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 {
 	CvAssertMsg((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
@@ -1622,6 +1632,15 @@ int CvTraitEntry::GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGreatPersonGWAM ? m_piGreatPersonGWAM[(int)eGreatPerson] : 0;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piGoldenAgeFromGreatPersonBirth ? m_piGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
+}
+#endif
 
 int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -2232,6 +2251,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiGAPToYield, "Trait_GAPToYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiMountainRangeYield, "Trait_MountainRangeYield", "TraitType", szTraitType);
 	kUtility.PopulateArrayByValue(m_piNumPledgesDomainProdMod, "Domains", "Trait_NumPledgeDomainProdMod", "DomainType", "TraitType", szTraitType, "Modifier");
+	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
 	const int iNumTerrains = GC.getNumTerrainInfos();
@@ -2770,6 +2790,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_abTerrainClaimBoost[iTerrainType] = true;
 		}
 	}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	kUtility.PopulateArrayByValue(m_piGoldenAgeFromGreatPersonBirth, "GreatPersons", "Trait_GoldenAgeFromGreatPersonBirth", "GreatPersonType", "TraitType", szTraitType, "GoldenAgeTurns");
 #endif
 
 	//UnimprovedFeatureYieldChanges
@@ -3782,11 +3806,13 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aiPerPuppetGreatPersonRateModifier[iGreatPersonTypes] = trait->GetPerPuppetGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGreatPersonGWAM[iGreatPersonTypes] = trait->GetGreatPersonGWAM((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
+				m_aiGoldenAgeFromGreatPersonBirth[iGreatPersonTypes] = trait->GetGoldenAgeFromGreatPersonBirth((GreatPersonTypes)iGreatPersonTypes);
 			}
 
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 			{
 				m_aiNumPledgesDomainProdMod[iDomain] = trait->GetNumPledgeDomainProductionModifier((DomainTypes)iDomain);
+				m_aiDomainFreeExperienceModifier[iDomain] = trait->GetDomainFreeExperienceModifier((DomainTypes)iDomain);
 			}
 #endif
 
@@ -3860,10 +3886,16 @@ void CvPlayerTraits::Uninit()
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_aiGoldenAgeFromGreatPersonBirth.clear();
+#endif
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
 #endif
 	m_ppaaiSpecialistYieldChange.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_aiDomainFreeExperienceModifier.clear();
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield.clear();
 	m_ppiGreatPersonBornYield.clear();
@@ -4262,28 +4294,34 @@ void CvPlayerTraits::Reset()
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
+	m_aiGoldenAgeFromGreatPersonBirth.clear();
 
 	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 	m_aiGreatPersonGWAM.resize(GC.getNumGreatPersonInfos());
 	m_aiGoldenAgeGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
+	m_aiGoldenAgeFromGreatPersonBirth.resize(GC.getNumGreatPersonInfos());
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); iI++)
 	{
 		m_aiGreatPersonCostReduction[iI] = 0;
 		m_aiPerPuppetGreatPersonRateModifier[iI] = 0;
 		m_aiGreatPersonGWAM[iI] = 0;
 		m_aiGoldenAgeGreatPersonRateModifier[iI] = 0;
+		m_aiGoldenAgeFromGreatPersonBirth[iI] = 0;
 	}
 
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
+	m_aiDomainFreeExperienceModifier.clear();
 
 	m_aiNumPledgesDomainProdMod.resize(NUM_DOMAIN_TYPES);
+	m_aiDomainFreeExperienceModifier.resize(NUM_DOMAIN_TYPES);
 	m_aiFreeUnitClassesDOW.resize(GC.getNumUnitClassInfos());
 
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		m_aiNumPledgesDomainProdMod[iI] = 0;
+		m_aiDomainFreeExperienceModifier[iI] = 0;
 	}
 
 	m_paiMovesChangeUnitClass.clear();
@@ -6199,8 +6237,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiPerPuppetGreatPersonRateModifier;
 	kStream >> m_aiGreatPersonGWAM;
 	kStream >> m_aiGoldenAgeGreatPersonRateModifier;
+	kStream >> m_aiGoldenAgeFromGreatPersonBirth;
 	kStream >> m_aiNumPledgesDomainProdMod;
 	kStream >> m_aiFreeUnitClassesDOW;
+	kStream >> m_aiDomainFreeExperienceModifier;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
 
 	kStream >> iNumEntries;
@@ -6606,8 +6646,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiPerPuppetGreatPersonRateModifier;
 	kStream << m_aiGreatPersonGWAM;
 	kStream << m_aiGoldenAgeGreatPersonRateModifier;
+	kStream << m_aiGoldenAgeFromGreatPersonBirth;
 	kStream << m_aiNumPledgesDomainProdMod;
 	kStream << m_aiFreeUnitClassesDOW;
+	kStream << m_aiDomainFreeExperienceModifier;
 	kStream << m_ppiYieldFromTileEarnTerrainType;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();

@@ -10234,10 +10234,10 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 							iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
 						}
 
-						int iSanity = 30;
+						int iSanity = 2;
 						if (pEntry->IsFounderBelief())
 						{
-							iSanity = 100;
+							iSanity = 10;
 						}
 
 						if (pHolyCity != NULL)
@@ -10246,7 +10246,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 						}
 						else
 						{
-							iBuildingTemp += m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 30, iLandRoutes, iWaterRoutes, iGPT);
+							iBuildingTemp += m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, iGPT);
 						}
 
 						//Do we already have a faith building? Let's not double down.									

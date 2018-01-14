@@ -917,7 +917,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(Units);
 	Method(GetNumUnits);
 #if defined(MOD_BALANCE_CORE)
-	Method(GetNumUnitsNoCivilian);
+	Method(GetNumUnitsToSupply);
 #endif
 	Method(GetUnitByID);
 
@@ -1202,6 +1202,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteBaseBonus);
 	Method(GetInternationalTradeRouteGPTBonus);
 	Method(GetInternationalTradeRouteResourceBonus);
+	Method(GetCityResourceBonus);
 	Method(GetInternationalTradeRouteResourceTraitModifier);
 	Method(GetInternationalTradeRouteExclusiveBonus);
 	Method(GetInternationalTradeRouteYourBuildingBonus);
@@ -1212,6 +1213,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistanceValueModifierTimes100);
+	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistance);
 	Method(GetTradeConnectionOpenBordersModifierTimes100);
 	Method(GetInternationalTradeRouteCorporationModifier);
@@ -4407,6 +4409,47 @@ int CvLuaPlayer::lGetInternationalTradeRouteResourceBonus(lua_State* L)
 	return 1;
 }
 
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCityResourceBonus(lua_State* L)
+{
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	bool bOrigin = lua_toboolean(L, 4);
+	
+	int iOurResources = 0;
+	int iTheirResources = 0;
+	for (int i = 0; i < GC.getNumResourceInfos(); i++)
+	{
+		ResourceTypes eResource = (ResourceTypes)i;
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo)
+		{
+			bool bOurMonopoly = false;
+			bool bTheirMonopoly = false;
+			if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
+				bOurMonopoly = true;;
+			if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
+				bTheirMonopoly= true;
+
+			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				iOurResources += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
+				iTheirResources += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
+			}
+			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				if (pOriginCity->GetNumResourceLocal(eResource, true) > 0)
+					iOurResources += bOurMonopoly ? 2 : 1;
+				if (pDestCity->GetNumResourceLocal(eResource, true) > 0)
+					iTheirResources += bTheirMonopoly ? 2 : 1;
+			}
+		}
+	}
+
+	lua_pushinteger(L, bOrigin ? iOurResources : iTheirResources);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteResourceTraitModifier(lua_State* L)
 {
@@ -9587,9 +9630,9 @@ int CvLuaPlayer::lGetNumUnits(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int getNumUnits();
-int CvLuaPlayer::lGetNumUnitsNoCivilian(lua_State* L)
+int CvLuaPlayer::lGetNumUnitsToSupply(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getNumUnitsNoCivilian);
+	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsToSupply);
 }
 
 #endif

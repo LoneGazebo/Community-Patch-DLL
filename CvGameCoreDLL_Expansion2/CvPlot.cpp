@@ -10966,14 +10966,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		{
 			// If the AI spots a human Unit, don't meet - wait for the human to find the AI
 			CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
-
 			if (!loopUnit)
 				continue;
-
-			if (!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
-				continue;
-
-			GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			//if it is an enemy unit, update the danger plots! 
@@ -10994,6 +10988,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				}
 			}
 #endif
+			//why shouldn't an AI meet a human?
+			if (!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
+				continue;
+
+			GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
 		}
 
 		// If there's a City here, meet its owner

@@ -261,7 +261,8 @@ public:
 	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity);
 	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity);
 	void ResetDistanceCaches();
-	bool PathIsSafe(const SPath& path);
+	bool PathIsGood(const SPath& path, PlayerTypes eIntendedEnemy);
+	bool IsPlayerValid(PlayerTypes eOtherPlayer);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
@@ -416,7 +417,6 @@ private:
 	int GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
 #endif
 	void MakeEmergencyPurchases();
-	void MakeOffensivePurchases();
 	void RequestImprovements();
 	void DisbandObsoleteUnits(int iMaxUnits=2);
 	bool IsAttackReady(MultiunitFormationTypes eFormation, AIOperationTypes eOperationType) const;
