@@ -5564,7 +5564,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		// Very first update (to write header row?)
 		if(GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() == 0)
 		{
-			strTemp.Format("Turn, Player, Cities, Settlers, Civ Threat, Barb Threat, Land Units, Land In Armies, Rec Land Size, Land Reserve, Naval Units, Naval In Armies, Rec Naval Size, Most Threatened, Danger");
+			strTemp.Format("Turn, Player, Cities, Settlers, CivThreat, BarbThreat, LandUnits, LandArmySize, RecLandSize, LandReserve, NavalUnits, NavalArmySize, RecNavySize, TotalUnits, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
 			pLog->Msg(strTemp);
 		}
 
@@ -5573,19 +5573,19 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strBaseString += playerName + ", ";
 
 		// City info
-		strTemp.Format("Cities %d, Settlers %d, ", m_pPlayer->getNumCities(), m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true));
+		strTemp.Format("%d, %d, ", m_pPlayer->getNumCities(), m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true));
 		strOutBuf = strBaseString + strTemp;
 
 		//Threat Info
-		strTemp.Format("Threat %d, Barb %d, ", m_iTotalThreatWeight, GetBarbarianThreatTotal());
+		strTemp.Format("%d, %d, ", m_iTotalThreatWeight, GetBarbarianThreatTotal());
 		strOutBuf += strTemp;
 
 		// Military size Info
-		strTemp.Format("Land %d, Army %d, Rec %d, Req %d, Nav %d, NavA %d, Rec %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecommendedMilitarySize, m_iMandatoryReserveSize, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavySize);
+		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecommendedMilitarySize, m_iMandatoryReserveSize, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavySize);
 		strOutBuf += strTemp;
 
 		// Unit supply
-		strTemp.Format("Units %d, MilUnits %d, Supply %d, NoSupplyUnits %d, OoS %d, War %d, ", 
+		strTemp.Format("%d, %d, %d, %d, %d, %d, ", 
 			m_pPlayer->getNumUnits(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->getNumUnitsSupplyFree(), 
 			m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetPlayersAtWarWith().size());
 		strOutBuf += strTemp;
@@ -5595,6 +5595,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		if(pCity != NULL)
 		{
 			cityName = pCity->getName();
+			cityName.Replace(' ', '_'); //easier spreadsheet import
 			strOutBuf += cityName;
 			strTemp.Format(", %d", pCity->getThreatValue());
 			strOutBuf += strTemp;
