@@ -6061,10 +6061,22 @@
 
 		<!-- Tooltips for Standard Base Modifiers -->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
-			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Buildings): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
-			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION">
+			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Beliefs): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WLTKD">
+			<Text>[NEWLINE][ICON_BULLET]We Love the King Day Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WLTKD_RELIGION">
+			<Text>[NEWLINE][ICON_BULLET]We Love the King Day Modifier (Beliefs): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WLTKD_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]We Love the King Day Modifier (Player): {1_Num}%</Text>
 		</Row>
 
 		<!-- Lua for Buildings -->
