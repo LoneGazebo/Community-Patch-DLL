@@ -471,7 +471,7 @@ CvPlayer::CvPlayer() :
 	, m_iCenterOfMassY("CvPlayer::m_iCenterOfMassY", m_syncArchive)
 	, m_iReferenceFoundValue("CvPlayer::m_iReferenceFoundValue", m_syncArchive)
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
-	, m_iFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
+	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -1559,7 +1559,7 @@ void CvPlayer::uninit()
 	m_iAbleToAnnexCityStatesCount = 0;
 	m_iOnlyTradeSameIdeology = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iFreeUnits = 0;
+	m_iSupplyFreeUnits = 0;
 	m_strJFDCurrencyName = "";
 	m_iJFDCurrency = -1;
 	m_iJFDProsperity = 0;
@@ -5474,14 +5474,14 @@ void CvPlayer::SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain)
 	VALIDATE_OBJECT
 	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	return m_aiBestMilitaryDomainCity.setAt(eDomain, iValue);
+	m_aiBestMilitaryDomainCity.setAt(eDomain, iValue);
 }
 void CvPlayer::SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eUnitCombat >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	return m_aiBestMilitaryCombatClassCity.setAt(eUnitCombat, iValue);
+	m_aiBestMilitaryCombatClassCity.setAt(eUnitCombat, iValue);
 }
 CvCity* CvPlayer::GetBestMilitaryCity(UnitCombatTypes eUnitCombat, DomainTypes eDomain)
 {
@@ -9865,6 +9865,11 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	if (pkUnitDef == NULL)
 		return NULL;
 
+	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4)
+	{
+		OutputDebugString("Creating unit over supply limit\n");
+	}
+
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
@@ -10909,7 +10914,9 @@ void CvPlayer::doTurn()
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
-				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), getNumUnitsNoCivilian());
+				strOutBuf.Format("TotalHappiness: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d", 
+					GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), 
+					getUnhappinessFromCityCulture(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), GetNumUnitsToSupply());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
@@ -17428,29 +17435,27 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply() const
 {
-	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsFree();
+	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsSupplyFree();
 	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied());
 }
 
 #if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-int CvPlayer::getNumUnitsNoCivilian() const
+int CvPlayer::GetNumUnitsToSupply() const
 {
-	int iNumUnits = getNumMilitaryUnits();
-	int iNumUnitsToSupply = iNumUnits - getNumUnitsFree();
-	return iNumUnitsToSupply;
+	return getNumMilitaryUnits() - getNumUnitsSupplyFree();
 }
 
-int CvPlayer::getNumUnitsFree() const
+//these are mercenaries etc
+int CvPlayer::getNumUnitsSupplyFree() const
 {
-	return m_iFreeUnits;
+	return m_iSupplyFreeUnits;
 }
 
-void CvPlayer::changeNumFreeUnits(int iValue)
+void CvPlayer::changeNumUnitsSupplyFree(int iValue)
 {
 	if (iValue != 0)
 	{
-		m_iFreeUnits += iValue;
+		m_iSupplyFreeUnits += iValue;
 	}
 }
 #endif
@@ -23867,34 +23872,62 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 					//iGPThreshold /= 100;
 				
 					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
-					if(GetID() == GC.getGame().getActivePlayer())
+					if(GetID() == GC.getGame().getActivePlayer()) // JJ: Change the popup to show the specific great person type's icon
 					{
-						//iGPThreshold /= 100; JJ: Do not touch iGPThreshold in the for loop
-						char text[256] = {0};
-						float fDelay = 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThresholdString);
-						DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
-						CvNotifications* pNotification = GetNotifications();
-						if(pNotification)
+						if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 						{
-							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThresholdString);
-							CvString strSummary;
-							// Class specific specialist message
-							if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThresholdString);
-							}
-							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThresholdString);
-							}
-							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThresholdString);
-							}
-							strSummary = GetLocalizedText("TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS");
-							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, -1);
+							char text[256] = {0};
+							float fDelay = 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ENGINEER]", iGPThresholdString);
+							DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							char text2[256] = {0};
+							sprintf_s(text2, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PRODUCTION]", (iValue*2/100));
+							DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text2, fDelay+fDelay);
 						}
+						else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
+						{
+							char text[256] = {0};
+							float fDelay = 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_MERCHANT]", iGPThresholdString);
+							DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+								char text2[256] = {0};
+							sprintf_s(text2, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLD]", (iValue*4/100));
+							DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text2, fDelay+fDelay);
+						}
+						else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
+						{
+							char text[256] = {0};
+							float fDelay = 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_SCIENTIST]", iGPThresholdString);
+							DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							char text2[256] = {0};
+							sprintf_s(text2, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_RESEARCH]", (iValue/100));
+							DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text2, fDelay+fDelay);
+						}
+					}
+				} //end of for loop
+				if(GetID() == GC.getGame().getActivePlayer()) // JJ: Moved notification outside of for loop as it was flooding the screen
+				{
+					CvNotifications* pNotification = GetNotifications();
+					if(pNotification)
+					{
+						CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThresholdString);
+						CvString strSummary;
+						// Class specific specialist message
+						if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThresholdString, (iValue*4/100));
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThresholdString, (iValue*2/100));
+						}
+						else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+						{
+							strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThresholdString, (iValue/100));
+						}
+						strSummary = GetLocalizedText("TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS");
+						pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, -1);
 					}
 				}
 			}
@@ -24757,6 +24790,46 @@ int CvPlayer::getGoldenAgeLength() const
 
 	return iTurns;
 }
+
+//	--------------------------------------------------------------------------------
+
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::getGoldenAgeLengthModifier() const // JJ: A way to get the golden age modifier only, in case your iTurn is not GC.getGame().goldenAgeLength()
+{
+
+	// Player modifier
+	int iLengthModifier = getGoldenAgeModifier();
+
+	// Trait modifier
+	iLengthModifier += GetPlayerTraits()->GetGoldenAgeDurationModifier();
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Do we get increased Golden Ages from a resource monopoly?
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					{
+						int iTemp = pInfo->getMonopolyGALength();
+						iTemp *= max(1, GetMonopolyModPercent());
+						iLengthModifier += iTemp;
+					}
+				}
+			}
+		}
+	}
+#endif
+
+	return iLengthModifier;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumUnitGoldenAges() const
@@ -34068,6 +34141,7 @@ void CvPlayer::changeCityStateCombatModifier(int iChange)
 {
 	m_iCityStateCombatModifier += iChange;
 }
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassCultureChange(BuildingClassTypes eIndex) const
 {
@@ -35491,7 +35565,7 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 			return false;
 		}
 
-		int iNum = GET_PLAYER(eToPlayer).getNumUnitsNoCivilian();
+		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
 		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
 
 		if (iNum >= iMax)
@@ -45633,7 +45707,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 				pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->isEnemy(getTeam()))
+				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==DOMAIN_LAND && pLoopUnit->isEnemy(getTeam()))
 				{
 					vBadPlots.push_back(pPlot);
 					break;
@@ -45644,19 +45718,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 	//see where our settler can go
 	ReachablePlots reachablePlots;
+	int iMaxSafeTurns = 4;
 	if (pUnit)
 	{
-		SPathFinderUserData data(pUnit,0,10); //10 turns is enough, everything else is considered dangerous
+		SPathFinderUserData data(pUnit,0,iMaxSafeTurns);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		data.iMinMovesLeft = 1; //we want to be able to found on the final turn
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
 		CvPlot* pTestPlot = vSettlePlots[i].pPlot;
-		bool isDangerous = false;
-
 		ReachablePlots::iterator it = reachablePlots.find(pTestPlot->GetPlotIndex());
+
+		bool isDangerous = (it==reachablePlots.end());
 		bool bCanReachThisTurn = (it != reachablePlots.end() && it->iTurns==0);
 
 		//check if it's too close to an enemy
@@ -45679,14 +45755,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			int iDistanceToCity = GetCityDistanceInEstimatedTurns(pTestPlot);
 			//also consider distance to settler here in case of re-targeting an operation
 			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
-				isDangerous = true;
-		}
-
-		//could be close but it takes many turns to get there ...
-		if (!isDangerous)
-		{
-			//if it takes more than 3 turns to found it's unsafe by definition
-			if (it==reachablePlots.end() || (it->iTurns>3 || (it->iTurns==3 && it->iMovesLeft==0) ) )
 				isDangerous = true;
 		}
 

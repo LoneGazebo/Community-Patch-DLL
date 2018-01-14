@@ -5776,6 +5776,10 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	{
 		iValue += ((pkBuildingInfo->GetNumTradeRouteBonus() + kPlayer.GetTrade()->GetNumTradeRoutesPossible()) * 25);
 	}
+	if (pkBuildingInfo->GetResourceDiversityModifier())
+	{
+		iValue += ((pkBuildingInfo->GetResourceDiversityModifier() + kPlayer.GetTrade()->GetNumTradeRoutesPossible()) * 25);
+	}
 	if(pkBuildingInfo->GetPolicyCostModifier() <= 0)
 	{
 		iValue += (-10 * ((kPlayer.GetPolicyCostBuildingModifier() + pkBuildingInfo->GetPolicyCostModifier())));

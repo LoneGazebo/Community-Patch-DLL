@@ -979,7 +979,7 @@ protected:
 	static int lGetUnits(lua_State* L);
 	static int lGetNumUnits(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
-	static int lGetNumUnitsNoCivilian(lua_State* L);
+	static int lGetNumUnitsToSupply(lua_State* L);
 #endif
 	static int lGetUnitByID(lua_State* L);
 
@@ -1283,6 +1283,7 @@ protected:
 	static int lGetInternationalTradeRouteBaseBonus(lua_State* L);
 	static int lGetInternationalTradeRouteGPTBonus(lua_State* L);
 	static int lGetInternationalTradeRouteResourceBonus(lua_State* L);
+	static int lGetCityResourceBonus(lua_State* L);
 	static int lGetInternationalTradeRouteResourceTraitModifier(lua_State* L);
 	static int lGetInternationalTradeRouteExclusiveBonus(lua_State* L);
 	static int lGetInternationalTradeRouteYourBuildingBonus(lua_State* L);
@@ -1291,6 +1292,7 @@ protected:
 	static int lGetInternationalTradeRouteOtherTraitBonus(lua_State* L);
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetTradeRouteTurns(lua_State* L);
 	static int lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L);
 	static int lGetTradeConnectionDistance(lua_State* L);
 	static int lGetTradeConnectionOpenBordersModifierTimes100(lua_State* L);

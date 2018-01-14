@@ -341,6 +341,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromVictory("CvCity::m_aiYieldFromVictory", m_syncArchive)
 	, m_aiYieldFromPillage("CvCity::m_aiYieldFromPillage", m_syncArchive)
 	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
+	, m_aiLongestPotentialTradeRoute("CvCity::m_aiLongestPotentialTradeRoute", m_syncArchive)
 	, m_aiYieldFromKnownPantheons("CvCity::m_aiYieldFromKnownPantheons", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
@@ -369,6 +370,7 @@ CvCity::CvCity() :
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
+	, m_iResourceDiversityModifier("CvCity::m_iResourceDiversityModifier", m_syncArchive)
 	, m_bIsBastion("CvCity::m_bIsBastion", m_syncArchive)
 	, m_bNoWarmonger("CvCity::m_bNoWarmonger", m_syncArchive)
 #endif
@@ -1541,6 +1543,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourism = 0;
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
+	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
@@ -1578,6 +1581,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iLandTourismBonus = 0;
 	m_iSeaTourismBonus = 0;
 	m_iAlwaysHeal = 0;
+	m_iResourceDiversityModifier = 0;
 	m_bIsBastion = false;
 	m_bNoWarmonger = false;
 #endif
@@ -1593,6 +1597,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
 		m_aiNumTimesAttackedThisTurn.setAt(iI, 0);
+	}
+	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	{
+		m_aiLongestPotentialTradeRoute.setAt(iI, 0);
 	}
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
@@ -3359,6 +3367,21 @@ int CvCity::GetTradeRouteLandDistanceModifier() const
 {
 	VALIDATE_OBJECT
 	return m_iTradeRouteLandDistanceModifier;
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetLongestPotentialTradeRoute(DomainTypes eDomain) const
+{
+	return m_aiLongestPotentialTradeRoute[eDomain];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	return m_aiLongestPotentialTradeRoute.setAt(eDomain, iValue);
 }
 
 bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
@@ -8776,7 +8799,7 @@ int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved, bool bN
 						++iCount;
 					}
 				}
-				else if (pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes) pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged()) 
+				else if (pImprovement && pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes)pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged())
 				{
 					++iCount;
 				}
@@ -9698,6 +9721,10 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 	iExperience = getFreeExperience();
 	iExperience += kOwner.getFreeExperience();
 
+#if defined(MOD_BALANCE_CORE)
+	int iExperienceModifier = 0;
+#endif
+
 	if(eUnit != NO_UNIT)
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
@@ -9715,8 +9742,21 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 #endif
 
 			iExperience += getSpecialistFreeExperience();
+
+#if defined(MOD_BALANCE_CORE)
+			// JJ: Get modifier from trait
+			iExperienceModifier += kOwner.GetPlayerTraits()->GetDomainFreeExperienceModifier((DomainTypes)(pkUnitInfo->GetDomainType()));				
+#endif
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if(iExperienceModifier != 0) // JJ: Apply modifier if it is non-zero
+	{
+		iExperience *= (100 + iExperienceModifier);
+		iExperience /= 100;
+	}
+#endif
 
 	return std::max(0, iExperience);
 }
@@ -10865,8 +10905,10 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
 		//Decrease base cost, then increase based on # of cities in empire.
-		iCost /= 2;
-		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 2);
+		iCost *= 2;
+		iCost /= 3;
+
+		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 5);
 		iCost /= 100;
 	}
 
@@ -11138,7 +11180,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	{
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iTechProgress /= 3;
+		iTechProgress /= 2;
 		if(iTechProgress > 0)
 		{
 			iCost *= (100 + iTechProgress);
@@ -11214,9 +11256,11 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	}
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
-		iCost /= 2;
 		//Decrease base cost, then increase based on # of cities in empire.
-		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 2);
+		iCost *= 2;
+		iCost /= 3;
+		
+		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 5);
 		iCost /= 100;
 	}
 #endif
@@ -13839,6 +13883,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeAlwaysHeal(pBuildingInfo->GetAlwaysHeal() * iChange);
 		}
+		if (pBuildingInfo->GetResourceDiversityModifier() != 0)
+		{
+			ChangeResourceDiversityModifier(pBuildingInfo->GetResourceDiversityModifier() * iChange);
+		}
 		if(bFirst && iChange > 0 && pBuildingInfo->GetNumFreeArtifacts() > 0)
 		{
 			for(int iI = 0; iI < pBuildingInfo->GetNumFreeArtifacts(); iI++)
@@ -15420,6 +15468,50 @@ void CvCity::CheckForOperationUnits()
 }
 #endif
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+//	Returns food consumed by a specialist depending on Era and applicable modifiers
+int CvCity::foodConsumptionSpecialistTimes100() const
+{
+	VALIDATE_OBJECT
+	int iFoodPerSpec = 0;
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	if(MOD_BALANCE_YIELD_SCALE_ERA)
+	{
+		iFoodPerSpec = std::max((int)GET_PLAYER(getOwner()).GetCurrentEra(), GC.getFOOD_CONSUMPTION_PER_POPULATION()) + 1;
+		iFoodPerSpec = std::min(iFoodPerSpec, 10) * 100;
+		// Specialists eat less food? (Policies, etc.)
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
+		{
+			iFoodPerSpec /= 2;
+		}
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		{
+			iFoodPerSpec /= 2;
+		}
+	}
+	else
+	{
+#endif
+		iFoodPerSpec = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+		// Specialists eat less food? (Policies, etc.)
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
+		{
+			iFoodPerSpec *= 50; // half, then *100
+		}
+#if defined(MOD_BALANCE_CORE)
+		else if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+		{
+			iFoodPerSpec *= 50; // half, then *100
+		}
+#endif
+#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	}
+#endif
+	return iFoodPerSpec;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
@@ -15597,7 +15689,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER();
 			iTotalMod += iTempMod;
 			if (iTempMod != 0)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PUPPET", iTempMod);
 		}
 		// Religion growth mod
 		int iReligionGrowthMod = 0;
@@ -15634,7 +15726,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			if(iTempMod != 0)
 			{
 				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
+				// this one is applied to the base yield, so showing a tooltip here is very confusing!
+				//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
 		}
 #endif
@@ -23698,6 +23791,17 @@ void CvCity::SetAlwaysHeal(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iAlwaysHeal = iChange;
+}
+
+void CvCity::ChangeResourceDiversityModifier(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iResourceDiversityModifier += iChange;
+}
+int CvCity::GetResourceDiversityModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iResourceDiversityModifier;
 }
 
 //	--------------------------------------------------------------------------------

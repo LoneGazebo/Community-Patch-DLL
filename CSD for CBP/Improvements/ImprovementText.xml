@@ -33,7 +33,7 @@
 		<!-- Tooltips for Resolutions -->
 		
 		<Row Tag="TXT_KEY_FOODMOD_LEAGUE">
-			<Text>[NEWLINE][ICON_BULLET] Resolution Growth Modifier: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_CITY_STATE] Resolution Growth Modifier: {1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES">

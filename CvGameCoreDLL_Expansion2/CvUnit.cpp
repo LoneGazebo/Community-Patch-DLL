@@ -777,7 +777,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
-		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+		GET_PLAYER(getOwner()).changeNumUnitsSupplyFree(1);
 	}
 #endif
 
@@ -1171,6 +1171,23 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				}
 			}
 		}
+#if defined(MOD_API_UNIFIED_YIELDS)
+		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+		if (pPlayer)
+		{
+			int iGATurnsfromGPBirth = pPlayer->GetPlayerTraits()->GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass(getUnitClassType())); // JJ: Get number of GA turns as defined in table Trait_GoldenAgeFromGreatPersonBirth for this GP type
+			if (iGATurnsfromGPBirth > 0) // JJ: If someone defined a positive value (no such thing as negative GA turns!)
+			{
+				iGATurnsfromGPBirth = iGATurnsfromGPBirth * (100 + pPlayer->getGoldenAgeLengthModifier()) / 100; // Adjust for in-game modifiers (eg Persia, GA monopoly, etc)
+				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // JJ: Adjust for game speed
+				iGATurnsfromGPBirth /= 100;
+				int iValue = pPlayer->GetGoldenAgeProgressMeter();
+				int bFree = 1; // JJ: Does not increase the cost of the next GA
+				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, bFree);
+			}
+		}
+#endif
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2434,7 +2451,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 #if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
-		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+		GET_PLAYER(getOwner()).changeNumUnitsSupplyFree(-1);
 	}
 #endif
 
@@ -27244,7 +27261,7 @@ CvString CvUnit::getTacticalZoneInfo() const
 	{
 		const char* dominance[] = { "no units", "friendly", "enemy", "even" };
 		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("tactical zone %d, dominance %s, %s", pZone->GetDominanceZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
+		return CvString::format("zone %d, %s, %s", pZone->GetZoneID(), dominance[pZone->GetOverallDominanceFlag()], 
 			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "no posture");
 	}
 
@@ -28516,27 +28533,22 @@ const char* CvUnit::GetMissionInfo()
 	if (IsCombatUnit())
 	{
 		if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-			m_strMissionInfoString = "no tactical move / no homeland move";
+			m_strMissionInfoString = "no move assigned";
 		else
 		{
 			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
 			{
 				CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
 				if (pkMoveInfo)
-				{
 					m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
-					CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
-					m_strMissionInfoString += strTemp0;
-				}
 			}
 
 			if (m_eTacticalMove==NO_TACTICAL_MOVE)
-			{
 				m_strMissionInfoString = homelandMoveNames[m_eHomelandMove];
-				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
-				m_strMissionInfoString += strTemp0;
-			}
 		}
+
+		m_strMissionInfoString += " : ";
+		m_strMissionInfoString += getTacticalZoneInfo();
 	}
 	else
 	{

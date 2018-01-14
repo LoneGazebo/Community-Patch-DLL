@@ -111,6 +111,7 @@ public:
 	bool CreateTradeRoute (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
 
 	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL, bool bWarCheck = true);
+	int GetValidTradeRoutePathLength(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut = NULL, bool bWarCheck = true);
 	bool IsDestinationExclusive(const TradeConnection& kTradeConnection);
 	bool IsConnectionInternational (const TradeConnection& kTradeConnection);
 
@@ -132,6 +133,7 @@ public:
 	bool EmptyTradeRoute (int iIndex);
 #if defined(MOD_BALANCE_CORE)
 	void UpdateTradePlots();
+	int GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete = NULL);
 #endif
 #if defined(MOD_BUGFIX_MINOR)
 	void ClearAllCityTradeRoutes (CvPlot* pPlot, bool bIncludeTransits = false); // called when a city is captured or traded
@@ -304,7 +306,7 @@ public:
 #else
 	bool PlunderTradeRoute(int iTradeConnectionID);
 #endif
-
+	void UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange);
 	int GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity);
 	int GetTradeRouteSpeed (DomainTypes eDomain);
 

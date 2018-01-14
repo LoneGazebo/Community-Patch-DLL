@@ -281,6 +281,11 @@ else
 	end
 end
 
+local function StringFormatNeatFloat(x)
+	if math.floor(math.abs(x)) == math.abs(x) then return string.format("%d", x); end
+	return string.format("%.1f", x);
+end
+
 -------------------------------------------------
 -- Clear out the UI so that when a player changes
 -- the next update doesn't show the previous player's
@@ -293,6 +298,7 @@ local function ClearCityUIInfo()
 	Controls.PQrank:SetText()
 	Controls.PQname:SetText()
 	Controls.PQturns:SetText()
+	Controls.PQGoldButton:SetHide( true )
 	return Controls.ProductionPortraitButton:SetHide(true)
 end
 
@@ -433,13 +439,17 @@ local function GetSpecialistYields( city, specialist )
 				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
 				cultureFromSpecialist = 0
 			end
-			-- Vox Populi Comparable Yields Tweak
+			-- Vox Populi Comparable Yields
 			specialistYieldModifier = 100
 			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
 			--yieldTips:insertIf( specialistYield ~= 0 and specialistYield .. tostring(YieldIcons[yieldID]) )
 		end
 		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
 		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
+		-- Vox Populi food info
+		local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
+		yieldTips:insertIf( foodPerSpec ~= 0 and StringFormatNeatFloat(-foodPerSpec) .. "[ICON_FOOD]" );
+		-- Vox Populi end
 	end
 	return yieldTips:concat(" ")
 end
@@ -560,6 +570,11 @@ local function SelectionToolTip( control )
 	return OrderItemTooltip( UI_GetHeadSelectedCity(), true, false, control:GetVoid1(), control:GetVoid2() )
 end
 
+-- Vox Populi gold button
+local function PQGoldButtonToolTip( control )
+	return OrderItemTooltip( UI_GetHeadSelectedCity(),control:IsDisabled(), g_yieldCurrency, control:GetVoid1(), control:GetVoid2() )
+end
+
 -------------------------------
 -- Specialist Managemeent
 -------------------------------
@@ -649,11 +664,6 @@ local function sortBuildings(a,b)
 		end
 		return a[2] < b[2]
 	end
-end
-
-local function StringFormatNeatFloat(x)
-	if math.floor(math.abs(x)) == math.abs(x) then return string.format("%d", x); end
-	return string.format("%.1f", x);
 end
 
 local function SetupBuildingList( city, buildings, buildingIM )
@@ -874,8 +884,15 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			elseif yieldID == YieldTypes.YIELD_FOOD then
 				local foodPerPop = GameDefines.FOOD_CONSUMPTION_PER_POPULATION
 				local foodConsumed = city:FoodConsumption()
-				buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
-				buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0)
+				-- Vox Populi Comparable Yields
+				--buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
+				--buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0) -- FoodKept has a different meaning
+				if foodConsumed < foodPerPop * population then 
+					-- this only happens when specialists in the city consume less food that normal population
+					local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
+					buildingYieldRate = buildingYieldRate + (foodPerPop - foodPerSpec) * numSpecialistsInBuilding;
+				end
+				-- Vox Populi end
 				cityYieldRate = city:FoodDifferenceTimes100() / 100 -- cityYieldRate - foodConsumed 
 				cityYieldRateModifier = cityYieldRateModifier + city:GetMaxFoodKeptPercent()
 				isProducing = true
@@ -889,10 +906,14 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			-- Events
 			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
 			-- End 
-			-- Vox Populi Comparable Yields Tweak
+			-- Vox Populi Comparable Yields
 			cityYieldRateModifier = 100
-			buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
-			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate / 100) .. tostring(YieldIcons[ yieldID ]) )
+			-- Vox Populi calculate impact of that single building on base yields
+			--buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
+			local iYieldFromBuildingModifier = city:GetBaseYieldRate(yieldID) * buildingYieldModifier / 100;
+			buildingYieldRate = buildingYieldRate + iYieldFromBuildingModifier
+			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate) .. tostring(YieldIcons[ yieldID ]) )
+			-- Vox Populi end
 		end
 
 		-- Culture leftovers
@@ -1160,6 +1181,11 @@ local function SwapQueueItem( queuedItemNumber )
 	g_queuedItemNumber = queuedItemNumber or g_queuedItemNumber
 end
 
+-- Vox Populi gold button
+local function PQGoldButtonCallback( orderID, itemID )
+	return SelectionPurchase( orderID, itemID, g_yieldCurrency, "AS2D_INTERFACE_CITY_SCREEN_PURCHASE" )
+end
+
 local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVeniceException )
 	-------------------------------------------
 	-- Update Production Queue
@@ -1222,17 +1248,35 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 		instance.PQremove:SetHide( isQueueEmpty or g_isViewingMode )
 		instance.PQremove:SetVoid1( queuedItemNumber )
 		instance.PQremove:RegisterCallback( Mouse.eLClick, RemoveQueueItem )
-
+		
 		local itemInfo, turnsRemaining, portraitOffset, portraitAtlas
+		
+		-- Vox Populi invested
+		local cashInvested;
+		-- Vox Populi gold button
+		local cashPQ = g_activePlayer:GetGold();
+		local canBuyWithGoldPQ, goldCostPQ;
 
 		if orderID == OrderTypes.ORDER_TRAIN then
 			itemInfo = GameInfo.Units
 			turnsRemaining = city:GetUnitProductionTurnsLeft( itemID, queuedItemNumber )
 			portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, cityOwnerID )
 			isReallyRepeat = isRepeat
+			-- Vox Populi invested
+			cashInvested = city:GetUnitInvestment(itemID)
+			-- Vox Populi gold button
+			canBuyWithGoldPQ = cityIsCanPurchase( city, true, true, itemID, -1, -1, g_yieldCurrency )
+			goldCostPQ = cityIsCanPurchase( city, false, false, itemID, -1, -1, g_yieldCurrency )
+						and city:GetUnitPurchaseCost( itemID )
 		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 			itemInfo = GameInfo.Buildings
 			turnsRemaining = city:GetBuildingProductionTurnsLeft( itemID, queuedItemNumber )
+			-- Vox Populi invested
+			cashInvested = city:GetBuildingInvestment(itemID)
+			-- Vox Populi gold button
+			canBuyWithGoldPQ = cityIsCanPurchase( city, true, true, -1, itemID, -1, g_yieldCurrency )
+			goldCostPQ = cityIsCanPurchase( city, false, false, -1, itemID, -1, g_yieldCurrency )
+						and city:GetBuildingPurchaseCost( itemID )
 		elseif orderID == OrderTypes.ORDER_CREATE then
 			itemInfo = GameInfo.Projects
 			turnsRemaining = city:GetProjectProductionTurnsLeft( itemID, queuedItemNumber )
@@ -1241,6 +1285,24 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 			isMaintain = true
 			isReallyRepeat = true
 		end
+
+		-- Vox Populi invested
+		instance.PQinvested:SetHide( not (cashInvested and cashInvested > 0) );
+		
+		-- Vox Populi gold button
+		if itemInfo then
+			instance.PQGoldButton:SetHide( not goldCostPQ or g_isViewingMode )
+			if goldCostPQ then
+				instance.PQGoldButton:SetDisabled( not canBuyWithGoldPQ )
+				instance.PQGoldButton:SetAlpha( canBuyWithGoldPQ and 1 or 0.5 )
+				instance.PQGoldButton:SetVoids( orderID, itemID )
+				instance.PQGoldButton:SetText( (cashPQ >= goldCostPQ and goldCostPQ or "[COLOR_WARNING_TEXT]"..(goldCostPQ-cashPQ).."[ENDCOLOR]") .. g_currencyIcon )
+				instance.PQGoldButton:RegisterCallback( Mouse.eLClick, PQGoldButtonCallback )
+				instance.PQGoldButton:SetToolTipCallback ( PQGoldButtonToolTip )
+			end
+		end
+		-- Vox Populi end
+		
 		if itemInfo then
 			local item = itemInfo[itemID]
 			itemInfo = IconHookup( portraitOffset or item.PortraitIndex, portraitSize, portraitAtlas or item.IconAtlas, instance.PQportrait )

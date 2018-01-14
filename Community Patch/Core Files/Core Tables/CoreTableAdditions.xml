@@ -738,6 +738,13 @@
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
 		<Column name="Number" type="integer"/>
 	</Table>
+
+	<!-- TRAIT: Increases the free experience you get (eg from buildings or policies) for a certain domain, modifier is an integer, eg 50 for +50% -->
+	<Table name="Trait_DomainFreeExperienceModifier">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">

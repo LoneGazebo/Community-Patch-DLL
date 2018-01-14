@@ -159,7 +159,7 @@ function UpdateDisplay()
 
 						cityName = Locale.ConvertTextKey( pCity:GetNameKey() );
 						sortEntry.name = cityName;
-						TruncateString( instance.CityName, 78, sortEntry.name );
+						TruncateString( instance.CityName, 76, sortEntry.name );
 
 						local iUnitClass = GameInfo.UnitClasses[pSpecialistInfo.GreatPeopleUnitClass].ID
 						-- Vox Populi
@@ -179,7 +179,7 @@ function UpdateDisplay()
 								iNumTurns = 9999;
 								strNumTurns = "--";
 							else
-								iNumTurns = math.floor((((iThreshold - iProgress)/iRate)+1));
+								iNumTurns = math.ceil((iThreshold - iProgress)/iRate);
 								strNumTurns = iNumTurns;
 							end
 						end

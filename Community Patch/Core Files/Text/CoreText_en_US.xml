@@ -6036,6 +6036,16 @@
 			<Text>Your empire has entered a state of anarchy! This will last for {1_num} turns.</Text>
 		</Row>
 
+		<!-- Tooltips for Growth Modifiers -->
+		<Row Tag="TXT_KEY_FOODMOD_HEAD_FOOD">
+			<Text>[NEWLINE][ICON_FOOD] Food Modifiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_HEAD_GROWTH">
+			<Text>[NEWLINE][ICON_CITIZEN] Growth Modifiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_PUPPET">
+			<Text>[NEWLINE][ICON_BULLET][ICON_PUPPET] Modifier for Puppet: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES">
 			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
 		</Row>
@@ -6046,10 +6056,10 @@
 			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
-			<Text>[NEWLINE][ICON_BULLET][ICON_FOOD] Growth Penalty (Over Military Unit Supply Cap): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Military Unit Supply Cap): {1_Num}%</Text>
 		</Row>
 
-
+		<!-- Tooltips for Standard Base Modifiers -->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
 			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
 		</Row>

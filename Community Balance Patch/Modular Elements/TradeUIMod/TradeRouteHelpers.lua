@@ -50,34 +50,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	end
 	
 	local strResourceList = "";
-	local strResourceHeader = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_HEADER");
-	strResourceHeader = strResourceHeader .. "[NEWLINE]";
-	
-	for pResource in GameInfo.Resources() do
-		local iResourceLoop = pResource.ID;
-		local iUsage = Game.GetResourceUsageType(iResourceLoop);
-		if (iUsage == ResourceUsageTypes.RESOURCEUSAGE_LUXURY or iUsage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-			if (pOriginCity:IsHasResourceLocal(iResourceLoop) ~= pTargetCity:IsHasResourceLocal(iResourceLoop)) then
-				local iGoldFromResource = 50.0;
--- CBP
-				local iNum = pPlayer:GetNumResourceTotal(iResourceLoop, false) + pPlayer:GetResourceExport(iResourceLoop);
-				local iMonopoly = 0;
-				if(iNum > 0) then
-					local iTotal = Map.GetNumResources(iResourceLoop);
-					if(iTotal > 0) then
-						iMonopoly = (iNum * 100) / iTotal;
-					end
-				end
-				if (iMonopoly > 50) then
-					iGoldFromResource = iGoldFromResource + 50.0;
-				end
--- END
-				iGoldFromResource = (iGoldFromResource) * (100 + pPlayer:GetInternationalTradeRouteResourceTraitModifier());
-				iGoldFromResource = (iGoldFromResource) / 100;
-				strResourceList = strResourceList .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT", pResource.IconString, pResource.Description, iGoldFromResource / 100);
-				strResourceList = strResourceList .. "[NEWLINE]";
-			end
-		end
+	local iDiversityBonus = pPlayer:GetInternationalTradeRouteResourceBonus(pOriginCity, pTargetCity, true);
+	if(iDiversityBonus ~= 0) then
+		local iOurDiversity = pPlayer:GetCityResourceBonus(pOriginCity, pTargetCity, true);
+		local iTheirDiversity = pPlayer:GetCityResourceBonus(pOriginCity, pTargetCity, false);
+		strResourceList = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT", iDiversityBonus, iOurDiversity, iTheirDiversity);
 	end
 
 	local strExclusiveValue = "";
@@ -238,12 +215,13 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	end
 	
 	if (strResourceList ~= "") then
-		strResult = strResult .. strResourceHeader;
 		strResult = strResult .. strResourceList;
+		strResult = strResult .. "[NEWLINE]";
 	end
 	
 	if (strExclusiveBonus ~= "") then
 		strResult = strResult .. strExclusiveValue;	
+		strResult = strResult .. "[NEWLINE]";
 	end
 	
 	if (strOtherTraitValue ~= "") then
