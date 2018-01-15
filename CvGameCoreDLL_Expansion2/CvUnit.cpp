@@ -172,6 +172,7 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE)
 	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
 	, m_iAOEDamageOnKill("CvUnit::m_iAOEDamageOnKill", m_syncArchive)
+	, m_iAoEDamageOnMove("CvUnit::m_iAoEDamageOnMove", m_syncArchive)
 	, m_iSplashDamage("CvUnit::m_iSplashDamage", m_syncArchive)
 	, m_iMultiAttackBonus("CvUnit::m_iMultiAttackBonus", m_syncArchive)
 	, m_iLandAirDefenseValue("CvUnit::m_iLandAirDefenseValue", m_syncArchive)
@@ -1325,6 +1326,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_BALANCE_CORE)
 	m_iMountainsDoubleMoveCount = 0;
 	m_iAOEDamageOnKill = 0;
+	m_iAoEDamageOnMove = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
 	m_iLandAirDefenseValue = 0;
@@ -2931,7 +2933,8 @@ void CvUnit::doTurn()
 		changeFortifyTurns(1);
 		if (GetDamageAoEFortified() > 0)
 		{
-			DoAoEDamage(GetDamageAoEFortified());
+			char chText[256] = "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY";
+			DoAoEDamage(GetDamageAoEFortified(), chText);
 		}
 	}
 
@@ -19538,6 +19541,11 @@ if (!bDoEvade)
 			}
 		}
 		DoNearbyUnitPromotion(this, pNewPlot);
+		if(getAoEDamageOnMove() != 0)
+		{
+			char chText[256] = "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE";
+			DoAoEDamage(getAoEDamageOnMove(), chText);
+		}
 #endif
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
@@ -21502,6 +21510,37 @@ void CvUnit::SetFortifiedThisTurn(bool bValue)
 	}
 }
 
+#if defined(MOD_BALANCE_CORE)
+void CvUnit::DoAoEDamage(int iValue, char chText[256])
+{
+	CvPlot* pAdjacentPlot;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+
+		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+		{
+			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
+			{
+				CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iJ);
+				if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
+				{
+					if (chText)
+					{
+						CvString strAppendText = GetLocalizedText(chText);
+						pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+					}
+					else
+					{
+						CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+						pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+					}
+				}
+			}
+		}
+	}
+}
+#else
 void CvUnit::DoAoEDamage(int iValue)
 {
 	CvPlot* pAdjacentPlot;
@@ -21523,6 +21562,7 @@ void CvUnit::DoAoEDamage(int iValue)
 		}
 	}
 }
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlitzCount() const
 {
@@ -21734,6 +21774,20 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 	VALIDATE_OBJECT
 	m_iAOEDamageOnKill = (m_iAOEDamageOnKill + iChange);
 	CvAssert(getAOEDamageOnKill() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getAoEDamageOnMove() const
+{
+	VALIDATE_OBJECT
+	return m_iAoEDamageOnMove;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAoEDamageOnMove(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iAoEDamageOnMove = (m_iAoEDamageOnMove + iChange);
+	CvAssert(getAoEDamageOnMove() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26190,6 +26244,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
+		changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() *  iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
