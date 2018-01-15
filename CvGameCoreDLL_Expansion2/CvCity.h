@@ -1021,6 +1021,8 @@ public:
 	int GetBaseYieldRateFromMisc(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange);
 
+	int GetBaseYieldRateFromProcess(YieldTypes eIndex) const;
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange);

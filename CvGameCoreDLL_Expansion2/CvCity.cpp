@@ -22599,6 +22599,17 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 		}
 	}
 }
+//	--------------------------------------------------------------------------------
+//	Base yield rate from active conversion Process
+int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	// Process production into specific yield
+	return (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(eIndex) / 100;
+}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvCity::GetBaseYieldRateFromLeague(YieldTypes eIndex) const

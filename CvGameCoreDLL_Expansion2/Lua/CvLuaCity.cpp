@@ -466,6 +466,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRateFromMisc);
 	Method(ChangeBaseYieldRateFromMisc);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetBaseYieldRateFromProcess);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
@@ -4307,6 +4310,13 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::ChangeBaseYieldRateFromMisc);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+// Base yield rate from active conversion process
+int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromProcess);
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
