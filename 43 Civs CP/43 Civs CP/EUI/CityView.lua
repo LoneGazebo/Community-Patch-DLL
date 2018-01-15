@@ -1300,6 +1300,8 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 				instance.PQGoldButton:RegisterCallback( Mouse.eLClick, PQGoldButtonCallback )
 				instance.PQGoldButton:SetToolTipCallback ( PQGoldButtonToolTip )
 			end
+		else
+			instance.PQGoldButton:SetHide( true )
 		end
 		-- Vox Populi end
 		

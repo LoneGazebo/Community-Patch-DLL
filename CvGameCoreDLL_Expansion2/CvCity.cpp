@@ -21937,7 +21937,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
-			if (toolTipSink && eIndex != YIELD_CULTURE)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
 		}
 
@@ -22022,6 +22022,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				{
 					iTempMod = iGoldenAge;
 					iModifier += iTempMod;
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION", iTempMod);
 				}
 			}
 			int iWLTKD = pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -22031,6 +22032,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				{
 					iTempMod = iWLTKD;
 					iModifier += iTempMod;
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_RELIGION", iTempMod);
 				}
 			}
 		}
@@ -22041,11 +22043,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 			iTempMod = (GetYieldFromWLTKD(eIndex) + GET_PLAYER(getOwner()).GetYieldFromWLTKD(eIndex));
 			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD", iTempMod);
 		}
 		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture() != 0 && eIndex == YIELD_CULTURE)
 		{
 			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture();
 			iModifier += iTempMod; 
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_TRAIT", iTempMod);
 		}
 	}
 #endif
@@ -22594,6 +22598,17 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 			}
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+//	Base yield rate from active conversion Process
+int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	// Process production into specific yield
+	return (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(eIndex) / 100;
 }
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
