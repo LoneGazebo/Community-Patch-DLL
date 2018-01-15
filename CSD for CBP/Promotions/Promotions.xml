@@ -87,7 +87,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaType>PEDIA_CIVILIAN</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GREAT_MERCHANT</PediaEntry>
 		</Row>
 		<!-- Special Promotions -->
