@@ -2270,7 +2270,7 @@ local function GetCultureTooltip( city )
 	end
 
 	-- Empire Culture modifier
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_PLAYER_MOD", cityOwner and cityOwner:GetCultureCityModifier() or 0 )
+	-- tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_PLAYER_MOD", cityOwner and cityOwner:GetCultureCityModifier() or 0 ) -- Vox Populi
 
 	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
 	if(trculture ~= "") then
@@ -2279,16 +2279,16 @@ local function GetCultureTooltip( city )
 
 	if civ5_mode then
 		-- City Culture modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_CITY_MOD", city:GetCultureRateModifier())
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_CITY_MOD", city:GetCultureRateModifier()) -- Vox Populi
 
 		-- Culture Wonders modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 ) -- Vox Populi
 		
 -- CBP
 		-- WLTKD MOD
 		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
 
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval())
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval()) -- Vox Populi already handled by modifier tooltip
 
 		-- Golden Age MOD
 		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
@@ -2296,22 +2296,24 @@ local function GetCultureTooltip( city )
 -- END
 
 -- CBP -- Resource Monopoly
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE)) -- Vox Populi already handled by modifier tooltip 
 		
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE)) -- Vox Populi already handled by modifier tooltip
 
 		
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_GWS", city:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_GWS", city:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE)) -- Vox Populi
 
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_SPIES", city:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_SPIES", city:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE)) -- Vox Populi
 -- END
 	end
 
 	-- Puppet modifier
-	local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
-	if (puppetMod ~= 0 and not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
-		tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
-	end
+	-- Vox Populi
+	--local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
+	--if (puppetMod ~= 0 and not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
+	--	tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
+	--end
+	-- Vox Populi end
 
 	-- Total
 	tips:insert( "----------------" )
