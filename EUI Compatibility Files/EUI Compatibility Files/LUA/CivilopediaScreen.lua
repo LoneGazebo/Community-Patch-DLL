@@ -93,6 +93,7 @@ local projectsToIgnore = {
 -- Infixo more categories for promotions
 local UnitPromotionsPediaTypes = {
 	"PEDIA_MELEE",
+	"PEDIA_MOUNTED",
 	"PEDIA_RANGED",
 	"PEDIA_SIEGE",
 	"PEDIA_NAVAL",
