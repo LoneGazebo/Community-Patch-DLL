@@ -1934,11 +1934,9 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	end
 
 	-- Food eaten by pop
-	local strAfterBase;
 	if yieldID == YieldTypes.YIELD_FOOD then
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetYieldRate( yieldID, false ) - city:GetYieldRate( yieldID, true ) )
 		--strModifiersString = "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString ) .. strModifiersString
-		strAfterBase = L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString )
 	elseif civBE_mode then
 		local yieldFromTrade = city:GetYieldPerTurnFromTrade( yieldID )
 		if yieldFromTrade ~= 0 then
@@ -1950,7 +1948,6 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	if strModifiersString ~= "" then
 		tips:insert( "----------------" )
 		tips:insertLocalized( "TXT_KEY_YIELD_BASE", baseYield, yieldIconString )
-		tips:insertIf( strAfterBase ) -- Vox Populi
 		tips:insert( strModifiersString )
 	end
 	-- Total
