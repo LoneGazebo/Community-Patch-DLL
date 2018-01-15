@@ -2263,7 +2263,7 @@ local function GetCultureTooltip( city )
 	-- END
 	
 	-- Vox Populi Base Yield from Process
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess( yieldID ), yieldIconString)
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")
 	
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
