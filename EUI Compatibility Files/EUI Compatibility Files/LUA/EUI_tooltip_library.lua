@@ -2129,7 +2129,7 @@ local function GetProductionTooltip( city )
 			strModifiersString = strModifiersString .. L( "TXT_KEY_PRODMOD_FOOD_CONVERSION", productionFromFood / 100 )
 		end
 	end
-	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ) + city:GetYieldPerPopTimes100( yieldID ) * city:GetPopulation() / 100, productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
+	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ) + city:GetYieldPerPopTimes100( YieldTypes.YIELD_PRODUCTION ) * city:GetPopulation() / 100, productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
 
 	-- Basic explanation of production
 	if isNoob then
