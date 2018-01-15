@@ -2077,12 +2077,6 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 
-	// Header for Food Modifier
-	if(eYield == YIELD_FOOD)
-	{	
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_FOOD", 1);
-	}
-
 	// City Yield Rate Modifier
 	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
 
@@ -2101,7 +2095,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_GROWTH", 1);
+		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		pkCity->foodDifferenceTimes100(true, &toolTip);
 	}
 
