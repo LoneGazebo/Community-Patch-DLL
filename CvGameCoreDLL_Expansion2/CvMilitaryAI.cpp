@@ -4892,14 +4892,20 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
+		//needed later
+		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
+
 		bool bIsUseless = false;
 		bool bStillNeeded = false;
 
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
-		if (!pLoopUnit->canScrap())
-			continue;
+		//Failsafe to keep AI from deleting advanced start settlers
+		//Probably useless because of the combat unit check above
+		if (m_pPlayer->GetNumCitiesFounded() < 3)
+			if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+				continue;
 
 		if(bLand && pLoopUnit->getDomainType() != DOMAIN_LAND)
 			continue;
@@ -4910,9 +4916,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		// Following checks are for the case where the AI is trying to decide if it is a good idea to disband this unit (as opposed to when the game is FORCING the player to disband one)
 		if(!bDeficitForcedDisband)
 		{
-			//needed later
-			CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
-
 			if (bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
 				continue;
 			else if(!bLand && m_eNavalDefenseState == DEFENSE_STATE_CRITICAL)
@@ -4936,15 +4939,9 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 				}
 			}
 
-			//Failsafe to keep AI from deleting advanced start settlers
-			//Probably useless because of the combat unit check above
-			if(m_pPlayer->GetNumCitiesFounded() < 3)
-				if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-					continue;
-
 			// Is this a unit who has an obsolete tech that I have researched?
-			if((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-				continue;
+			if ((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
+				bIsUseless = true;
 
 			// Does this unit's upgrade require a resource?
 			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
@@ -4985,6 +4982,10 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if( (!bStillNeeded || bIsUseless))
 		{
 			iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
+
+			//prefer units which are at home, meaning we get some money back
+			if (pLoopUnit->canScrap())
+				iScore = (iScore * 8) / 10;
 
 			if(iScore < iBestScore)
 			{
