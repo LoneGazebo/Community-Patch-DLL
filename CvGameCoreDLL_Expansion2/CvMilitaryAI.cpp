@@ -4750,7 +4750,7 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	}
 
 	// do we have way too many units?
-	int iMaxExcessUnits = bConquestGrandStrategy ? 9 : 6;
+	int iMaxExcessUnits = bConquestGrandStrategy ? 5 : 3;
 	bool bOverSupplyCap = (m_pPlayer->GetNumUnitsOutOfSupply() > iMaxExcessUnits);
 
 	//nothing to do
@@ -4922,18 +4922,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 			if(pLoopUnit->getArmyID() != -1)
 				continue;
 
-			// Can I still build this unit? If so too new to scrap
-			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, true /*bTestVisible*/, true /*bIgnoreCost*/))
-				//But not for scouts - let's pick those off first.
-				if(bLand && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
-				{
-					continue;
-				}
-				else if(!bLand && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
-				{
-					continue;
-				}
-
 			// Is this a ship on a water body without enemies?
 			if (!bLand && pLoopUnit->plot()->isWater())
 			{
@@ -4956,10 +4944,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 
 			// Is this a unit who has an obsolete tech that I have researched?
 			if((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-				continue;
-
-			// Is this unit's INTRINSIC power less than half that of the best unit I can build for this domain?
-			if((pLoopUnit->getUnitInfo().GetPower() * 2) >= GetPowerOfStrongestBuildableUnit(pLoopUnit->getDomainType()))
 				continue;
 
 			// Does this unit's upgrade require a resource?
