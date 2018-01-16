@@ -299,6 +299,12 @@ public:
 	int GetUnitClassAttackModifier(int i) const;
 	int GetUnitClassDefenseModifier(int i) const;
 
+#if defined(MOD_BALANCE_CORE)
+	int GetCombatModPerAdjacentUnitCombatModifierPercent(int i) const;
+	int GetCombatModPerAdjacentUnitCombatAttackModifier(int i) const;
+	int GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) const;
+#endif
+
 	bool GetTerrainDoubleMove(int i) const;
 	bool GetFeatureDoubleMove(int i) const;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -576,6 +582,12 @@ protected:
 
 	int* m_piUnitClassAttackModifier;
 	int* m_piUnitClassDefenseModifier;
+
+#if defined(MOD_BALANCE_CORE)
+	int* m_piCombatModPerAdjacentUnitCombatModifierPercent;
+	int* m_piCombatModPerAdjacentUnitCombatAttackModifier;
+	int* m_piCombatModPerAdjacentUnitCombatDefenseModifier;
+#endif
 
 	int* m_piTerrainPassableTech;
 	int* m_piFeaturePassableTech;

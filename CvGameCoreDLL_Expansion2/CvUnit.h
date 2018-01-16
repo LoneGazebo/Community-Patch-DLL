@@ -826,6 +826,11 @@ public:
 	int unitCombatModifier(UnitCombatTypes eUnitCombat) const;
 	int domainModifier(DomainTypes eDomain) const;
 
+#if defined(MOD_BALANCE_CORE)
+	//int combatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const;
+	int combatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
+#endif
+
 	int GetYieldModifier(YieldTypes eYield) const;
 	void SetYieldModifier(YieldTypes eYield, int iValue);
 
@@ -1430,6 +1435,15 @@ public:
 
 	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
+
+	int getCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex) const;
+	void changeCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
+
+	int getCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const;
+	void changeCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex, int iChange);
+
+	int getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
+	void changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex, int iChange);
 #endif
 
 	int getImpassableCount() const;
@@ -2072,6 +2086,11 @@ protected:
 #endif
 	FAutoVariable<std::vector<int>, CvUnit> m_extraUnitCombatModifier;
 	FAutoVariable<std::vector<int>, CvUnit> m_unitClassModifier;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatModifier;
+	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatAttackMod;
+	FAutoVariable<std::vector<int>, CvUnit> m_iCombatModPerAdjacentUnitCombatDefenseMod;
+#endif
 	FAutoVariable<int, CvUnit> m_iMissionTimer;
 	FAutoVariable<int, CvUnit> m_iMissionAIX;
 	FAutoVariable<int, CvUnit> m_iMissionAIY;

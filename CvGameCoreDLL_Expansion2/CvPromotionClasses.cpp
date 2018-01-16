@@ -264,6 +264,11 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piFeaturePassableTech(NULL),
 	m_piUnitClassAttackModifier(NULL),
 	m_piUnitClassDefenseModifier(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piCombatModPerAdjacentUnitCombatModifierPercent(NULL),
+	m_piCombatModPerAdjacentUnitCombatAttackModifier(NULL),
+	m_piCombatModPerAdjacentUnitCombatDefenseModifier(NULL),
+#endif
 	m_pbTerrainDoubleMove(NULL),
 	m_pbFeatureDoubleMove(NULL),
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -309,6 +314,11 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piFeaturePassableTech);
 	SAFE_DELETE_ARRAY(m_piUnitClassAttackModifier);
 	SAFE_DELETE_ARRAY(m_piUnitClassDefenseModifier);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatModifierPercent);
+	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatAttackModifier);
+	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatDefenseModifier);
+#endif
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleMove);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -897,6 +907,45 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 		pResults->Reset();
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//UnitPromotions_CombatModPerAdjacentUnitCombat
+	{
+		kUtility.InitializeArray(m_piCombatModPerAdjacentUnitCombatModifierPercent, iNumUnitCombatClasses, 0);
+		kUtility.InitializeArray(m_piCombatModPerAdjacentUnitCombatAttackModifier, iNumUnitCombatClasses, 0);
+		kUtility.InitializeArray(m_piCombatModPerAdjacentUnitCombatDefenseModifier, iNumUnitCombatClasses, 0);
+
+		std::string sqlKey = "UnitPromotions_CombatModPerAdjacentUnitCombat";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select UnitCombatInfos.ID, Modifier, Attack, Defense from UnitPromotions_CombatModPerAdjacentUnitCombat inner join UnitCombatInfos on UnitCombatType = UnitCombatInfos.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if(!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while(pResults->Step())
+		{
+			const int iUnitCombatID = pResults->GetInt(0);
+			CvAssert(iUnitCombatID > -1 && iUnitCombatID  < iNumUnitCombatClasses);
+
+			const int iModifier = pResults->GetInt("Modifier");
+			m_piCombatModPerAdjacentUnitCombatModifierPercent[iUnitCombatID] = iModifier;
+
+			const int iAttack = pResults->GetInt("Attack");
+			m_piCombatModPerAdjacentUnitCombatAttackModifier[iUnitCombatID] = iAttack;
+
+			const int iDefense = pResults->GetInt("Defense");
+			m_piCombatModPerAdjacentUnitCombatDefenseModifier[iUnitCombatID] = iDefense;
+		}
+
+		pResults->Reset();
+	}
+#endif
 
 	//UnitPromotions_Domains
 	{
@@ -2444,6 +2493,47 @@ int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 
 	return -1;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatModifierPercent)
+	{
+		return m_piCombatModPerAdjacentUnitCombatModifierPercent[i];
+	}
+
+	return -1;
+}
+
+int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatAttackModifier)
+	{
+		return m_piCombatModPerAdjacentUnitCombatAttackModifier[i];
+	}
+
+	return -1;
+}
+
+int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatDefenseModifier)
+	{
+		return m_piCombatModPerAdjacentUnitCombatDefenseModifier[i];
+	}
+
+	return -1;
+}
+#endif
 
 /// Returns an array that indicates if a feature type is traversable by the unit
 int CvPromotionEntry::GetFeaturePassableTech(int i) const
