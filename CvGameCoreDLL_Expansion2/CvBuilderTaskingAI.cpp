@@ -845,7 +845,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
 		CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(),pUnit->AI_getUnitAIType());
-		if (pAltWorker != pUnit)
+		if (pAltWorker && pAltWorker != pUnit)
 		{
 			continue;
 		}
@@ -921,7 +921,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
 		CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(), pUnit->AI_getUnitAIType());
-		if (pAltWorker != pUnit)
+		if (pAltWorker && pAltWorker != pUnit)
 		{
 			continue;
 		}
@@ -1010,7 +1010,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 						}
 
 						CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(), pUnit->AI_getUnitAIType());
-						if (pAltWorker != pUnit)
+						if (pAltWorker && pAltWorker != pUnit)
 						{
 							continue;
 						}

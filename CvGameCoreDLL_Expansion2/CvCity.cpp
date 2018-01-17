@@ -26441,7 +26441,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	//protect against citadels
 	CvUnit* pGeneral = pPlot->getFirstUnitOfAITypeOtherTeam(getTeam(), UNITAI_GENERAL);
-	if (pGeneral)
+	if (pGeneral && plotDistance(*plot(),*pPlot)<4)
 	{
 		int iBonus = 50 * pPlot->getNumAdjacentOwnedBy(getOwner());
 		iRtnValue += (iRtnValue*iBonus) / 100;
