@@ -27892,27 +27892,8 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	CvPlot* pkNextPlot = m_kLastPath.GetFirstPlot();
 	if ( m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
 	{
-		int iModifiedFlags = iFlags;
-
-		//do we need to stay there?
-		if (m_kLastPath.front().m_iMoves == 0)
-			iModifiedFlags |= CvUnit::MOVEFLAG_DESTINATION;
-
-		//normally we would allow an attack at the destination
-		//since it was invisible we didn't even know that there's a unit there
-		//but we do allow attacks on cities
-		if (pkNextPlot==pDestPlot && pDestPlot->isEnemyCity(*this))
-			iModifiedFlags |= CvUnit::MOVEFLAG_ATTACK;
-		else
-			iModifiedFlags &= ~CvUnit::MOVEFLAG_ATTACK;
-
-		bHaveValidPath = canMoveInto(*pkNextPlot,iModifiedFlags);
-
-		//AI chugs along, human gets a chance to reconsider
-		//don't recompute for the destination plot because it's pointless and because it could succeed 
-		//(the pathfinder dynamically sets the attack flag for the destination)
-		if (!bHaveValidPath && pkNextPlot!=pDestPlot && !GET_PLAYER(m_eOwner).isHuman())
-			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
+		//did we just reveal a unit? if so, abort movement
+		bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
 	}
 	else
 	{
