@@ -1099,9 +1099,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 
-		int iFirstUnitID = 0;
 		//There's a settler waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, iFirstUnitID) > 0)
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE,m_pCity->getOwner()) > 0)
 		{
 			return 0;
 		}
@@ -1327,9 +1326,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Make sure we need naval workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
-		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER_SEA, iFirstUnitID) > 0)
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER_SEA, m_pCity->getOwner()) > 0)
 		{
 			return 0;
 		}
@@ -1384,9 +1382,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if (!kPlayer.isMinorCiv())
 		{
-			int iFirstUnitID;
 			//There's a worker waiting here? Abort!
-			if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
+			if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, m_pCity->getOwner()) > 0)
 			{
 				return 0;
 			}

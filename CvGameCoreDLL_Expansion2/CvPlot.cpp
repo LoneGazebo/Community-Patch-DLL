@@ -4119,6 +4119,21 @@ bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlot::getNumAdjacentOwnedBy(PlayerTypes ePlayer) const
+{
+	int iAdjacentOwnedCount = 0;
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor && pNeighbor->getOwner() == ePlayer)
+			iAdjacentOwnedCount++;
+	}
+
+	return iAdjacentOwnedCount;
+}
+
+//	--------------------------------------------------------------------------------
 int CvPlot::getNumAdjacentNonvisible(TeamTypes eTeam) const
 {
 	CvPlot* pAdjacentPlot;
@@ -4513,25 +4528,55 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 	return 0;
 }
 
-int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const
+int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = m_units.head();
 	int iCount = 0;
-	iFirstUnitID = 0;
 	while(pUnitNode)
 	{
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = m_units.next(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->AI_getUnitAIType()==eType)
-		{
-			if (iCount==0)
-				iFirstUnitID = pLoopUnit->GetID();
-			++iCount;
-		}
+			if(ePlayer==NO_PLAYER || pLoopUnit->getOwner()==ePlayer)
+				++iCount;
 	}
 
 	return iCount;
+}
+
+//	-----------------------------------------------------------------------------------------------
+CvUnit* CvPlot::getFirstUnitOfAITypeSameTeam(TeamTypes eTeam, UnitAITypes eType) const
+{
+	const IDInfo* pUnitNode = m_units.head();
+	while (pUnitNode)
+	{
+		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = m_units.next(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == eType)
+			if (eTeam == NO_TEAM || pLoopUnit->getTeam() == eTeam)
+				return pLoopUnit;
+	}
+
+	return NULL;
+}
+
+//	-----------------------------------------------------------------------------------------------
+CvUnit* CvPlot::getFirstUnitOfAITypeOtherTeam(TeamTypes eTeam, UnitAITypes eType) const
+{
+	const IDInfo* pUnitNode = m_units.head();
+	while (pUnitNode)
+	{
+		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = m_units.next(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == eType)
+			if (eTeam == NO_TEAM || pLoopUnit->getTeam() != eTeam)
+				return pLoopUnit;
+	}
+
+	return NULL;
 }
 
 //	-----------------------------------------------------------------------------------------------
