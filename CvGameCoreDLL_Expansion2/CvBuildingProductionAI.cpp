@@ -1190,7 +1190,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
-		iBonus *= 10;
+		// scale off with pop so UB will not be the first building to build in a fresh city
+		iBonus *= min(max(1, m_pCity->getPopulation()), 10);
 	}
 
 	//Danger? Prioritize units!
