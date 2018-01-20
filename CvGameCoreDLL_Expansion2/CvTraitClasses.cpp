@@ -3002,6 +3002,7 @@ bool CvPlayerTraits::IsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
+		(IsIgnorePuppetPenalties() && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
 		return true;
@@ -3068,6 +3069,7 @@ bool CvPlayerTraits::IsDiplomat()
 		GetAllianceCSStrength() != 0 ||
 		GetInfluenceMeetCS() != 0 ||
 		GetStartingSpies() != 0 ||
+		GetNumTradeRoutesModifier() != 0 ||
 		GetLandTradeRouteRangeBonus() != 0 ||
 		GetSeaTradeRouteRangeBonus() != 0 ||
 		GetQuestYieldModifier() != 0 ||
@@ -3118,6 +3120,7 @@ bool CvPlayerTraits::IsSmaller()
 	if (IsImportsCountTowardsMonopolies() ||
 		IsAdoptionFreeTech() ||
 		IsPopulationBoostReligion() ||
+		IsNoAnnexing() ||
 		IsTechBoostFromCapitalScienceBuildings())
 		return true;
 

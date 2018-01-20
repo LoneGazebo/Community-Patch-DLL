@@ -739,6 +739,9 @@
         <Row Tag="TXT_KEY_PROMOTIONS_PEDIA_CARSUB">
             <Text>Carriers and Submarines</Text>
         </Row>
+		<Row Tag="TXT_KEY_PROMOTIONS_PEDIA_MOUNTED">
+			<Text>Mounted and Armored</Text>
+		</Row>
         <Row Tag="TXT_KEY_PROMOTIONS_PEDIA_BARBARIAN">
             <Text>Barbarian Promotions</Text>
         </Row>

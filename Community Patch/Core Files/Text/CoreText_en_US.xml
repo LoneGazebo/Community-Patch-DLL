@@ -6037,11 +6037,8 @@
 		</Row>
 
 		<!-- Tooltips for Growth Modifiers -->
-		<Row Tag="TXT_KEY_FOODMOD_HEAD_FOOD">
-			<Text>[NEWLINE][ICON_FOOD] Food Modifiers</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FOODMOD_HEAD_GROWTH">
-			<Text>[NEWLINE][ICON_CITIZEN] Growth Modifiers</Text>
+		<Row Tag="TXT_KEY_FOODMOD_EATEN_FOOD">
+			<Text>[NEWLINE][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_PUPPET">
 			<Text>[NEWLINE][ICON_BULLET][ICON_PUPPET] Modifier for Puppet: {1_Num}%</Text>
@@ -6077,6 +6074,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WLTKD_TRAIT">
 			<Text>[NEWLINE][ICON_BULLET]We Love the King Day Modifier (Player): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_GREAT_WORKS">
+			<Text>[NEWLINE][ICON_BULLET]Great Works Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_SPIES">
+			<Text>[NEWLINE][ICON_BULLET]Active Spies Modifier: {1_Num}%</Text>
 		</Row>
 
 		<!-- Lua for Buildings -->

@@ -17261,7 +17261,6 @@ int CvCity::getJONSCulturePerTurn() const
 	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, getCultureRateModifier());
 #else
 	iModifier += getCultureRateModifier();
-#endif
 
 	// Player modifier
 	iModifier += GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
@@ -17282,6 +17281,7 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
 	}
 #endif
+#endif // the above 4 modifiers are moved into getBaseYieldRateModifier to properly create all tooltips
 
 	iCulture *= iModifier;
 	iCulture /= 100;
@@ -21905,19 +21905,14 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) != 0)
 	{
 		iTempMod = min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
-		if (iTempMod != 0)
-		{
-			iModifier += iTempMod;
-			if (toolTipSink && eIndex != YIELD_CULTURE)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_GREAT_WORK_MODIFIER", iTempMod);
-		}
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_GREAT_WORKS", iTempMod);
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
 		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
 		iModifier += iTempMod;
-		if (toolTipSink && eIndex != YIELD_CULTURE)
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_SPY_MODIFIER", iTempMod);
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPIES", iTempMod);
 	}
 #endif
 
@@ -22099,8 +22094,43 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 			break;
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
+			iTempMod = GC.getPUPPET_CULTURE_MODIFIER();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#endif
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Culture specific modifiers taken from getJONSCulturePerTurn
+	if(eIndex == YIELD_CULTURE)
+	{
+		// Player modifier
+		iTempMod = GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
+		iModifier += iTempMod;
+		// we'll use the same tooltip as for Building_GlobalYieldModifiers
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_PLAYER", iTempMod);
+
+		// Wonder here?
+		if(getNumWorldWonders() > 0)
+		{
+			// policy that grants culture modifier from each wonder (field CultureWonderMultiplier)
+			iTempMod = GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
+		}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueAid())
+		{
+			iTempMod = GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempMod);
+		}
+#endif
+	}
+#endif
 
 	iModifier += iExtra;
 
@@ -22294,7 +22324,7 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 	if (iNonSpecialist != 0)
 	{
 		 int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		 iBonusTimes100 /= 100;
+		 iBonusTimes100 *= 100;
 		 iBaseYield += iBonusTimes100;
 	}
 
