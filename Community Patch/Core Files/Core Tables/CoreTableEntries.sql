@@ -758,6 +758,7 @@ ALTER TABLE UnitPromotions ADD 'SplashDamage' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AoEWhileFortified' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD 'AoEDamageOnMove' INTEGER DEFAULT 0; -- JJ: Do AoE damage when the unit moves
 
 ALTER TABLE UnitPromotions ADD 'WorkRateMod' INTEGER DEFAULT 0;
 

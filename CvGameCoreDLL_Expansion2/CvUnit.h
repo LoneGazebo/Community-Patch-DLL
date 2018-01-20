@@ -953,8 +953,12 @@ public:
 	void changeFortifyTurns(int iChange);
 	bool IsFortifiedThisTurn() const;
 	void SetFortifiedThisTurn(bool bValue);
-
+	
+#if defined(MOD_BALANCE_CORE)
+	void DoAoEDamage(int iValue, char chText[256]);
+#else
 	void DoAoEDamage(int iValue);
+#endif
 
 	int getBlitzCount() const;
 	bool isBlitz() const;
@@ -990,6 +994,9 @@ public:
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
+	
+	int getAoEDamageOnMove() const;
+	void changeAoEDamageOnMove(int iChange);
 
 	int getSplashDamage() const;
 	void changeSplashDamage(int iChange);
@@ -1824,6 +1831,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
 	FAutoVariable<int, CvUnit> m_iAOEDamageOnKill;
+	FAutoVariable<int, CvUnit> m_iAoEDamageOnMove;
 	FAutoVariable<int, CvUnit> m_iSplashDamage;
 	FAutoVariable<int, CvUnit> m_iMultiAttackBonus;
 	FAutoVariable<int, CvUnit> m_iLandAirDefenseValue;

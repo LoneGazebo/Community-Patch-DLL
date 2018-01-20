@@ -173,6 +173,7 @@ public:
 	bool IsStrongerDamaged() const;
 	bool IsMountainsDoubleMove() const;
 	int GetAOEDamageOnKill() const;
+	int GetAoEDamageOnMove() const;
 	int GetSplashDamage() const;
 	int GetMinRange() const;
 	int GetMaxRange() const;
@@ -479,6 +480,7 @@ protected:
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
 	int m_iWonderProductionModifier;
 	int m_iAOEDamageOnKill;
+	int m_iAoEDamageOnMove;
 	int m_iSplashDamage;
 	int m_iMinRange;
 	int m_iMaxRange;

@@ -171,6 +171,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iCombatBonusFromNearbyUnitClass(NO_UNITCLASS),
 	m_iWonderProductionModifier(0),
 	m_iAOEDamageOnKill(0),
+	m_iAoEDamageOnMove(0),
 	m_iSplashDamage(0),
 	m_iMinRange(0),
 	m_iMaxRange(0),
@@ -397,6 +398,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyUnitClassBonus = kResults.GetInt("NearbyUnitClassBonus");
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
 	m_iAOEDamageOnKill = kResults.GetInt("AOEDamageOnKill");
+	m_iAoEDamageOnMove = kResults.GetInt("AoEDamageOnMove");
 	m_iSplashDamage = kResults.GetInt("SplashDamage");
 	m_iMinRange = kResults.GetInt("MinimumRangeRequired");
 	m_iMaxRange = kResults.GetInt("MaximumRangeRequired");
@@ -1902,6 +1904,10 @@ int CvPromotionEntry::GetWonderProductionModifier() const
 int CvPromotionEntry::GetAOEDamageOnKill() const
 {
 	return m_iAOEDamageOnKill;
+}
+int CvPromotionEntry::GetAoEDamageOnMove() const
+{
+	return m_iAoEDamageOnMove;
 }
 int CvPromotionEntry::GetSplashDamage() const
 {
