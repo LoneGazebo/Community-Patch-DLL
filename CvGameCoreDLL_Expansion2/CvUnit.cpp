@@ -347,10 +347,15 @@ CvUnit::CvUnit() :
 	, m_extraTerrainDefensePercent("CvUnit::m_extraTerrainDefensePercent", m_syncArchive/*, true*/)
 	, m_extraFeatureAttackPercent("CvUnit::m_extraFeatureAttackPercent", m_syncArchive/*, true*/)
 	, m_extraFeatureDefensePercent("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
-	, m_extraUnitClassAttackMod("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
-	, m_extraUnitClassDefenseMod("CvUnit::m_extraFeatureDefensePercent", m_syncArchive/*, true*/)
+	, m_extraUnitClassAttackMod("CvUnit::m_extraUnitClassAttackMod", m_syncArchive/*, true*/)
+	, m_extraUnitClassDefenseMod("CvUnit::m_extraUnitClassDefenseMod", m_syncArchive/*, true*/)
 	, m_extraUnitCombatModifier("CvUnit::m_extraUnitCombatModifier", m_syncArchive/*, true*/)
 	, m_unitClassModifier("CvUnit::m_unitClassModifier", m_syncArchive/*, true*/)
+#if defined(MOD_BALANCE_CORE)
+	, m_iCombatModPerAdjacentUnitCombatModifier("CvUnit::m_iCombatModPerAdjacentUnitCombatModifier", m_syncArchive/*, true*/)
+	, m_iCombatModPerAdjacentUnitCombatAttackMod("CvUnit::m_iCombatModPerAdjacentUnitCombatAttackMod", m_syncArchive/*, true*/)
+	, m_iCombatModPerAdjacentUnitCombatDefenseMod("CvUnit::m_iCombatModPerAdjacentUnitCombatDefenseMod", m_syncArchive/*, true*/)
+#endif
 	, m_iMissionTimer("CvUnit::m_iMissionTimer", m_syncArchive)
 	, m_iMissionAIX("CvUnit::m_iMissionAIX", m_syncArchive)
 	, m_iMissionAIY("CvUnit::m_iMissionAIY", m_syncArchive)
@@ -1664,9 +1669,22 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		CvAssertMsg((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
 		m_extraUnitCombatModifier.clear();
 		m_extraUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
+#if defined(MOD_BALANCE_CORE)
+		m_iCombatModPerAdjacentUnitCombatModifier.clear();
+		m_iCombatModPerAdjacentUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
+		m_iCombatModPerAdjacentUnitCombatAttackMod.clear();
+		m_iCombatModPerAdjacentUnitCombatAttackMod.resize(GC.getNumUnitCombatClassInfos());
+		m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
+		m_iCombatModPerAdjacentUnitCombatDefenseMod.resize(GC.getNumUnitCombatClassInfos());
+#endif
 		for(int i = 0; i < GC.getNumUnitCombatClassInfos(); i++)
 		{
 			m_extraUnitCombatModifier.setAt(i,0);
+#if defined(MOD_BALANCE_CORE)
+			m_iCombatModPerAdjacentUnitCombatModifier.setAt(i,0);
+			m_iCombatModPerAdjacentUnitCombatAttackMod.setAt(i,0);
+			m_iCombatModPerAdjacentUnitCombatDefenseMod.setAt(i,0);
+#endif
 		}
 
 		m_unitClassModifier.clear();
@@ -1782,6 +1800,11 @@ void CvUnit::uninitInfos()
 
 	m_extraUnitClassAttackMod.dirtyGet().clear();
 	m_extraUnitClassDefenseMod.dirtyGet().clear();
+#if defined(MOD_BALANCE_CORE)
+	m_iCombatModPerAdjacentUnitCombatModifier.clear();
+	m_iCombatModPerAdjacentUnitCombatAttackMod.clear();
+	m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
@@ -15459,7 +15482,24 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 	// Adjacent Friendly military Unit?
 	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	{
 		iModifier += GetAdjacentModifier();
+#if defined(MOD_BALANCE_CORE)
+		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
+		{
+			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+			int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
+			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			{
+				int iNumFriendliesAdjacent = 0;
+				iNumFriendliesAdjacent += pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+				iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
+			}
+		}
+			
+#endif
+	}
 
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
@@ -15815,6 +15855,24 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	// Adjacent Friendly military Unit? (attack mod only)
+	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	{
+		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
+		{
+			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+			int iModPerAdjacent = getCombatModPerAdjacentUnitCombatAttackMod(eUnitCombat);
+			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			{
+				int iNumFriendliesAdjacent = 0;
+				iNumFriendliesAdjacent += pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+				iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
+			}
+		}
+	}
+#endif
 
 	////////////////////////
 	// KNOWN DESTINATION PLOT
@@ -16023,6 +16081,24 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 			if (pInfo && pInfo->getMonopolyDefenseBonus() > 0)
 			{
 				iModifier += pInfo->getMonopolyDefenseBonus();
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	// Adjacent Friendly military Unit? (defense mod only)
+	if (pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	{
+		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
+		{
+			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+			int iModPerAdjacent = getCombatModPerAdjacentUnitCombatDefenseMod(eUnitCombat);
+			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			{
+				int iNumFriendliesAdjacent = 0;
+				iNumFriendliesAdjacent += pInPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+				iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
 			}
 		}
 	}
@@ -25703,6 +25779,63 @@ void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eUnitClass, int iChange)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
+int CvUnit::getCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_iCombatModPerAdjacentUnitCombatModifier[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCombatModPerAdjacentUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_iCombatModPerAdjacentUnitCombatModifier.setAt(eIndex, m_iCombatModPerAdjacentUnitCombatModifier[eIndex] + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCombatModPerAdjacentUnitCombatAttackMod(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_iCombatModPerAdjacentUnitCombatAttackMod.setAt(eIndex, m_iCombatModPerAdjacentUnitCombatAttackMod[eIndex] + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_iCombatModPerAdjacentUnitCombatDefenseMod.setAt(eIndex, m_iCombatModPerAdjacentUnitCombatDefenseMod[eIndex] + iChange);
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
@@ -26442,6 +26575,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
 			changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
+#if defined(MOD_BALANCE_CORE)
+			changeCombatModPerAdjacentUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatModifierPercent(iI) * iChange));
+			changeCombatModPerAdjacentUnitCombatAttackMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatAttackModifier(iI) * iChange));
+			changeCombatModPerAdjacentUnitCombatDefenseMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatDefenseModifier(iI) * iChange));
+#endif
 		}
 
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)

@@ -935,6 +935,10 @@ public:
 	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	int GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude = NULL) const;
+#endif
+
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
 
 protected:
