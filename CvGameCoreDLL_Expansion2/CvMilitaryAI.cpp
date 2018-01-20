@@ -4750,7 +4750,7 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	}
 
 	// do we have way too many units?
-	int iMaxExcessUnits = bConquestGrandStrategy ? 9 : 6;
+	int iMaxExcessUnits = bConquestGrandStrategy ? 5 : 3;
 	bool bOverSupplyCap = (m_pPlayer->GetNumUnitsOutOfSupply() > iMaxExcessUnits);
 
 	//nothing to do
@@ -4892,14 +4892,20 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
+		//needed later
+		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
+
 		bool bIsUseless = false;
 		bool bStillNeeded = false;
 
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
-		if (!pLoopUnit->canScrap())
-			continue;
+		//Failsafe to keep AI from deleting advanced start settlers
+		//Probably useless because of the combat unit check above
+		if (m_pPlayer->GetNumCitiesFounded() < 3)
+			if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+				continue;
 
 		if(bLand && pLoopUnit->getDomainType() != DOMAIN_LAND)
 			continue;
@@ -4910,9 +4916,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		// Following checks are for the case where the AI is trying to decide if it is a good idea to disband this unit (as opposed to when the game is FORCING the player to disband one)
 		if(!bDeficitForcedDisband)
 		{
-			//needed later
-			CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
-
 			if (bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
 				continue;
 			else if(!bLand && m_eNavalDefenseState == DEFENSE_STATE_CRITICAL)
@@ -4921,18 +4924,6 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 			// Is it in an army?
 			if(pLoopUnit->getArmyID() != -1)
 				continue;
-
-			// Can I still build this unit? If so too new to scrap
-			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, true /*bTestVisible*/, true /*bIgnoreCost*/))
-				//But not for scouts - let's pick those off first.
-				if(bLand && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
-				{
-					continue;
-				}
-				else if(!bLand && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
-				{
-					continue;
-				}
 
 			// Is this a ship on a water body without enemies?
 			if (!bLand && pLoopUnit->plot()->isWater())
@@ -4948,19 +4939,9 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 				}
 			}
 
-			//Failsafe to keep AI from deleting advanced start settlers
-			//Probably useless because of the combat unit check above
-			if(m_pPlayer->GetNumCitiesFounded() < 3)
-				if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-					continue;
-
 			// Is this a unit who has an obsolete tech that I have researched?
-			if((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-				continue;
-
-			// Is this unit's INTRINSIC power less than half that of the best unit I can build for this domain?
-			if((pLoopUnit->getUnitInfo().GetPower() * 2) >= GetPowerOfStrongestBuildableUnit(pLoopUnit->getDomainType()))
-				continue;
+			if ((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
+				bIsUseless = true;
 
 			// Does this unit's upgrade require a resource?
 			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
@@ -5001,6 +4982,10 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if( (!bStillNeeded || bIsUseless))
 		{
 			iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost();
+
+			//prefer units which are at home, meaning we get some money back
+			if (pLoopUnit->canScrap())
+				iScore = (iScore * 8) / 10;
 
 			if(iScore < iBestScore)
 			{
@@ -5564,7 +5549,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		// Very first update (to write header row?)
 		if(GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() == 0)
 		{
-			strTemp.Format("Turn, Player, Cities, Settlers, Civ Threat, Barb Threat, Land Units, Land In Armies, Rec Land Size, Land Reserve, Naval Units, Naval In Armies, Rec Naval Size, Most Threatened, Danger");
+			strTemp.Format("Turn, Player, Cities, Settlers, CivThreat, BarbThreat, LandUnits, LandArmySize, RecLandSize, LandReserve, NavalUnits, NavalArmySize, RecNavySize, TotalUnits, MilitaryUnits, SupplyLimit, NoSupplyUnits, OutOfSupply, WarCount, MostEndangeredCity, Danger");
 			pLog->Msg(strTemp);
 		}
 
@@ -5573,19 +5558,19 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strBaseString += playerName + ", ";
 
 		// City info
-		strTemp.Format("Cities %d, Settlers %d, ", m_pPlayer->getNumCities(), m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true));
+		strTemp.Format("%d, %d, ", m_pPlayer->getNumCities(), m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true));
 		strOutBuf = strBaseString + strTemp;
 
 		//Threat Info
-		strTemp.Format("Threat %d, Barb %d, ", m_iTotalThreatWeight, GetBarbarianThreatTotal());
+		strTemp.Format("%d, %d, ", m_iTotalThreatWeight, GetBarbarianThreatTotal());
 		strOutBuf += strTemp;
 
 		// Military size Info
-		strTemp.Format("Land %d, Army %d, Rec %d, Req %d, Nav %d, NavA %d, Rec %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecommendedMilitarySize, m_iMandatoryReserveSize, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavySize);
+		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecommendedMilitarySize, m_iMandatoryReserveSize, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavySize);
 		strOutBuf += strTemp;
 
 		// Unit supply
-		strTemp.Format("Units %d, MilUnits %d, Supply %d, NoSupplyUnits %d, OoS %d, War %d, ", 
+		strTemp.Format("%d, %d, %d, %d, %d, %d, ", 
 			m_pPlayer->getNumUnits(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->getNumUnitsSupplyFree(), 
 			m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetPlayersAtWarWith().size());
 		strOutBuf += strTemp;
@@ -5595,6 +5580,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		if(pCity != NULL)
 		{
 			cityName = pCity->getName();
+			cityName.Replace(' ', '_'); //easier spreadsheet import
 			strOutBuf += cityName;
 			strTemp.Format(", %d", pCity->getThreatValue());
 			strOutBuf += strTemp;

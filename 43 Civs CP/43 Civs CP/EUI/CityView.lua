@@ -448,6 +448,7 @@ local function GetSpecialistYields( city, specialist )
 		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
 		-- Vox Populi food info
 		local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
+		if specialist.Type == "SPECIALIST_CITIZEN" then foodPerSpec = GameDefines.FOOD_CONSUMPTION_PER_POPULATION end
 		yieldTips:insertIf( foodPerSpec ~= 0 and StringFormatNeatFloat(-foodPerSpec) .. "[ICON_FOOD]" );
 		-- Vox Populi end
 	end
@@ -910,8 +911,8 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			cityYieldRateModifier = 100
 			-- Vox Populi calculate impact of that single building on base yields
 			--buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
-			local iYieldFromBuildingModifier = city:GetBaseYieldRate(yieldID) * buildingYieldModifier / 100;
-			buildingYieldRate = buildingYieldRate + iYieldFromBuildingModifier
+			--local iYieldFromBuildingModifier = city:GetBaseYieldRate(yieldID) * buildingYieldModifier / 100;
+			--buildingYieldRate = buildingYieldRate + iYieldFromBuildingModifier
 			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate) .. tostring(YieldIcons[ yieldID ]) )
 			-- Vox Populi end
 		end
@@ -936,7 +937,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			buildingName = L( "TXT_KEY_RELIGIOUS_BUILDING", buildingName, Players[city:GetOwner()]:GetStateReligionKey() )
 		end
 		if city:GetNumFreeBuilding( buildingID ) > 0 then
-			buildingName = buildingName .. " (" .. L"TXT_KEY_FREE" .. ")"
+			buildingName = buildingName .. " ([COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_FREE" .. "[ENDCOLOR])"
 		else
 			tips:insertIf( maintenanceCost ~=0 and -maintenanceCost .. g_currencyIcon )
 		end
@@ -1300,6 +1301,8 @@ local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVenice
 				instance.PQGoldButton:RegisterCallback( Mouse.eLClick, PQGoldButtonCallback )
 				instance.PQGoldButton:SetToolTipCallback ( PQGoldButtonToolTip )
 			end
+		else
+			instance.PQGoldButton:SetHide( true )
 		end
 		-- Vox Populi end
 		
@@ -1778,8 +1781,9 @@ local function UpdateCityViewNow()
 		-- Resistance tooltip
 		if (iResistanceUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+		end
 		-- Occupation tooltip
-		elseif (iOccupationUnhappiness ~= 0) then
+		if (iOccupationUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
 		end
 

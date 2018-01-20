@@ -53,7 +53,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_LEAGUE">
-			<Text>[NEWLINE][ICON_BULLET] +{1_Num}% [ICON_PRODUCTION] from Resolutions</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Resolutions: +{1_Num}%</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -466,6 +466,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRateFromMisc);
 	Method(ChangeBaseYieldRateFromMisc);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetBaseYieldRateFromProcess);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
@@ -2074,12 +2077,6 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 
-	// Header for Food Modifier
-	if(eYield == YIELD_FOOD)
-	{	
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_FOOD", 1);
-	}
-
 	// City Yield Rate Modifier
 	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
 
@@ -2098,7 +2095,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_GROWTH", 1);
+		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		pkCity->foodDifferenceTimes100(true, &toolTip);
 	}
 
@@ -4307,6 +4304,13 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::ChangeBaseYieldRateFromMisc);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+// Base yield rate from active conversion process
+int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromProcess);
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)

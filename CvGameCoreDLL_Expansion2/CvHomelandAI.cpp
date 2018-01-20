@@ -6608,9 +6608,8 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 			{
 				iValue /= 2;
 			}
-			int iFirstUnitID;
-			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(), iFirstUnitID) * 10;
 
+			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType()) * 10;
 			iValue -= iNumFriendlies;
 
 			//Add back in our value if this is our plot.
@@ -7603,15 +7602,15 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		bool bIgnore = false;
 		for (int i=0; i<RING1_PLOTS; i++)
 		{
-			int iUnitID = 0;
 			CvPlot* pTest = iterateRingPlots(pTarget,i);
-			if (pTest && pTest->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST,iUnitID)>0)
+			if (!pTest || pTest==pUnit->plot())
+				continue;
+
+			//other players' units are also a bad sign
+			if (pTest->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST,NO_PLAYER)>0)
 			{
-				if (iUnitID != pUnit->GetID())
-				{
-					bIgnore = true;
-					break;
-				}
+				bIgnore = true;
+				break;
 			}
 		}
 

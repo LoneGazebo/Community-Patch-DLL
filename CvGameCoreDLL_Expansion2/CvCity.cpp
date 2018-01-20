@@ -17261,7 +17261,6 @@ int CvCity::getJONSCulturePerTurn() const
 	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, getCultureRateModifier());
 #else
 	iModifier += getCultureRateModifier();
-#endif
 
 	// Player modifier
 	iModifier += GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
@@ -17282,6 +17281,7 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
 	}
 #endif
+#endif // the above 4 modifiers are moved into getBaseYieldRateModifier to properly create all tooltips
 
 	iCulture *= iModifier;
 	iCulture /= 100;
@@ -21905,19 +21905,14 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) != 0)
 	{
 		iTempMod = min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
-		if (iTempMod != 0)
-		{
-			iModifier += iTempMod;
-			if (toolTipSink && eIndex != YIELD_CULTURE)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_GREAT_WORK_MODIFIER", iTempMod);
-		}
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_GREAT_WORKS", iTempMod);
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
 		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
 		iModifier += iTempMod;
-		if (toolTipSink && eIndex != YIELD_CULTURE)
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_SPY_MODIFIER", iTempMod);
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPIES", iTempMod);
 	}
 #endif
 
@@ -21937,7 +21932,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
-			if (toolTipSink && eIndex != YIELD_CULTURE)
+			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
 		}
 
@@ -22022,6 +22017,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				{
 					iTempMod = iGoldenAge;
 					iModifier += iTempMod;
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION", iTempMod);
 				}
 			}
 			int iWLTKD = pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
@@ -22031,6 +22027,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				{
 					iTempMod = iWLTKD;
 					iModifier += iTempMod;
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_RELIGION", iTempMod);
 				}
 			}
 		}
@@ -22041,11 +22038,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		{
 			iTempMod = (GetYieldFromWLTKD(eIndex) + GET_PLAYER(getOwner()).GetYieldFromWLTKD(eIndex));
 			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD", iTempMod);
 		}
 		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture() != 0 && eIndex == YIELD_CULTURE)
 		{
 			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture();
 			iModifier += iTempMod; 
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_TRAIT", iTempMod);
 		}
 	}
 #endif
@@ -22095,8 +22094,43 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 			break;
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
+			iTempMod = GC.getPUPPET_CULTURE_MODIFIER();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#endif
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Culture specific modifiers taken from getJONSCulturePerTurn
+	if(eIndex == YIELD_CULTURE)
+	{
+		// Player modifier
+		iTempMod = GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
+		iModifier += iTempMod;
+		// we'll use the same tooltip as for Building_GlobalYieldModifiers
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_PLAYER", iTempMod);
+
+		// Wonder here?
+		if(getNumWorldWonders() > 0)
+		{
+			// policy that grants culture modifier from each wonder (field CultureWonderMultiplier)
+			iTempMod = GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
+		}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueAid())
+		{
+			iTempMod = GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempMod);
+		}
+#endif
+	}
+#endif
 
 	iModifier += iExtra;
 
@@ -22290,7 +22324,7 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 	if (iNonSpecialist != 0)
 	{
 		 int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		 iBonusTimes100 /= 100;
+		 iBonusTimes100 *= 100;
 		 iBaseYield += iBonusTimes100;
 	}
 
@@ -22594,6 +22628,17 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 			}
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+//	Base yield rate from active conversion Process
+int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	// Process production into specific yield
+	return (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(eIndex) / 100;
 }
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
@@ -25977,15 +26022,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 #endif
 
 	// Discount for adjacent plots owned by us
-	int iAdjacentOwnedCount = 0;
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
-	for (int i = 0; i < 6; i++)
-	{
-		CvPlot* pNeighbor = aNeighbors[i];
-		if (pNeighbor && pNeighbor->getOwner()==getOwner())
-			iAdjacentOwnedCount++;
-	}
-	iCost = iCost * (105 - iAdjacentOwnedCount*5); //we know that one is always owned
+	iCost = iCost * (105 - pPlot->getNumAdjacentOwnedBy(getOwner())*5); //we know that one is always owned
 	iCost /= 100;
 
 	// Game Speed Mod
@@ -26446,6 +26483,14 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	int iCost = GetBuyPlotCost(pPlot->getX(), pPlot->getY());
 
 	iRtnValue *= GET_PLAYER(getOwner()).GetBuyPlotCost();
+
+	//protect against citadels
+	CvUnit* pGeneral = pPlot->getFirstUnitOfAITypeOtherTeam(getTeam(), UNITAI_GENERAL);
+	if (pGeneral && plotDistance(*plot(),*pPlot)<4)
+	{
+		int iBonus = 50 * pPlot->getNumAdjacentOwnedBy(getOwner());
+		iRtnValue += (iRtnValue*iBonus) / 100;
+	}
 
 	// Protect against div by 0.
 	CvAssertMsg(iCost != 0, "Plot cost is 0");

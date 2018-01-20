@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+﻿/*	-------------------------------------------------------------------------------------------------------
 	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -5232,6 +5232,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//And here's what the value represents.
 		//Era = higher era, less valuable in game.
 		iActualIncrease = (iFlatYield * (100 - (iEra * 5)));
+		iActualIncrease /= 100; // fix for #3870
 		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;

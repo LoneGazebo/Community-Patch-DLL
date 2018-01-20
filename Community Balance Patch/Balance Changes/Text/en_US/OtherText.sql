@@ -37,7 +37,7 @@ WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE' AND EXISTS (SELECT * FROM COM
 
 -- Citizen Food Consumption
 UPDATE Language_en_US	
-SET Text = '-{1_Num} {2_IconString} eaten by [ICON_CITIZEN] Citizens'
+SET Text = '[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} eaten by [ICON_CITIZEN] Citizens'
 WHERE Tag = 'TXT_KEY_YIELD_EATEN_BY_POP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 -- Citizen Food Consumption

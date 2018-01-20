@@ -79,7 +79,7 @@
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **********************************************************************/
-#include "../CvGameCoreDLLPCH.h"
+#include "CvGameCoreDLLPCH.h"
 #include <windows.h>
 #include <tchar.h>
 #include <stdio.h>

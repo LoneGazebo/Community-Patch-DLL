@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+﻿/*	-------------------------------------------------------------------------------------------------------
 	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -239,7 +239,8 @@ public:
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
-	int  getNumAdjacentNonvisible(TeamTypes eTeam) const;
+	int getNumAdjacentNonvisible(TeamTypes eTeam) const;
+	int getNumAdjacentOwnedBy(PlayerTypes ePlayer) const;
 
 	bool isGoody(TeamTypes eTeam = NO_TEAM) const;
 	bool isRevealedGoody(TeamTypes eTeam = NO_TEAM) const;
@@ -294,7 +295,9 @@ public:
 	int getNumDefenders(PlayerTypes ePlayer) const;
 	int getNumNavalDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
-	int getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const;
+	int getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer=NO_PLAYER) const;
+	CvUnit* getFirstUnitOfAITypeSameTeam(TeamTypes eTeam, UnitAITypes eType) const;
+	CvUnit* getFirstUnitOfAITypeOtherTeam(TeamTypes eTeam, UnitAITypes eType) const;
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
@@ -933,6 +936,10 @@ public:
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
 	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	int GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude = NULL) const;
 #endif
 
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
