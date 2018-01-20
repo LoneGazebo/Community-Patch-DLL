@@ -26022,15 +26022,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 #endif
 
 	// Discount for adjacent plots owned by us
-	int iAdjacentOwnedCount = 0;
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
-	for (int i = 0; i < 6; i++)
-	{
-		CvPlot* pNeighbor = aNeighbors[i];
-		if (pNeighbor && pNeighbor->getOwner()==getOwner())
-			iAdjacentOwnedCount++;
-	}
-	iCost = iCost * (105 - iAdjacentOwnedCount*5); //we know that one is always owned
+	iCost = iCost * (105 - pPlot->getNumAdjacentOwnedBy(getOwner())*5); //we know that one is always owned
 	iCost /= 100;
 
 	// Game Speed Mod
@@ -26491,6 +26483,14 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	int iCost = GetBuyPlotCost(pPlot->getX(), pPlot->getY());
 
 	iRtnValue *= GET_PLAYER(getOwner()).GetBuyPlotCost();
+
+	//protect against citadels
+	CvUnit* pGeneral = pPlot->getFirstUnitOfAITypeOtherTeam(getTeam(), UNITAI_GENERAL);
+	if (pGeneral && plotDistance(*plot(),*pPlot)<4)
+	{
+		int iBonus = 50 * pPlot->getNumAdjacentOwnedBy(getOwner());
+		iRtnValue += (iRtnValue*iBonus) / 100;
+	}
 
 	// Protect against div by 0.
 	CvAssertMsg(iCost != 0, "Plot cost is 0");

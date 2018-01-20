@@ -440,6 +440,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS">
 			<Text>Lower Population than Enemy</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT">
+			<Text>Bonus from Adjacent Units</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER">
 			<Text>War Elephant</Text>
