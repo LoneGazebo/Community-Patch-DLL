@@ -888,11 +888,13 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				-- Vox Populi Comparable Yields
 				--buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
 				--buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0) -- FoodKept has a different meaning
+				--[[ Infixo turned off due to confusion
 				if foodConsumed < foodPerPop * population then 
 					-- this only happens when specialists in the city consume less food that normal population
 					local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
 					buildingYieldRate = buildingYieldRate + (foodPerPop - foodPerSpec) * numSpecialistsInBuilding;
 				end
+				--]]
 				-- Vox Populi end
 				cityYieldRate = city:FoodDifferenceTimes100() / 100 -- cityYieldRate - foodConsumed 
 				cityYieldRateModifier = cityYieldRateModifier + city:GetMaxFoodKeptPercent()
