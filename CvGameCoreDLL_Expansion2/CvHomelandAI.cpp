@@ -828,11 +828,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->getWorkingCity() != NULL && 
 				pLoopPlot->getWorkingCity()->IsBastion())
 			{
-				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-				
-				if( (eFort != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eFort) ||
-					(eCitadel != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eCitadel) )
+				if (pLoopPlot->isFortification(m_pPlayer->getTeam()))
 				{
 					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(),false,false);
 
@@ -882,9 +878,7 @@ void CvHomelandAI::FindHomelandTargets()
 								iWeight += 100;
 							}
 						}
-#if !defined(MOD_CORE_REDUCE_RANDOMNESS)
-						iWeight += GC.getGame().getJonRandNum(25, "Roll for randomness");
-#endif
+
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
 						newTarget.SetTargetY(pLoopPlot->getY());
@@ -903,7 +897,6 @@ void CvHomelandAI::FindHomelandTargets()
 				if (pWorkingCity != NULL && pWorkingCity->getOwner() == m_pPlayer->GetID() && pWorkingCity->isCoastal() && pWorkingCity->IsBastion())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
-
 					if (iDistance > 3)
 						continue;
 
@@ -1012,17 +1005,17 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #if defined(MOD_BALANCE_CORE)
-			//Let's make a list of all other plots.
-			if (pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && pLoopPlot->getWorkingCity() != NULL)
+			//Let's make a list of all other non-border plots
+			else if (pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && 
+						pLoopPlot->getWorkingCity() != NULL && !pLoopPlot->IsAdjacentOwnedByOtherTeam(m_pPlayer->getTeam()))
 			{
 				pZone = pTactMap->GetZoneByCity(pLoopPlot->getWorkingCity(), false);
-				if (pZone)
+				if (pZone && (pZone->GetBorderScore()>0 || pZone->GetTotalEnemyUnitCount()>0))
 				{
-					int iValue = 100 - pZone->GetTotalFriendlyUnitCount();
+					int iValue = pZone->GetTotalEnemyUnitCount() + pZone->GetBorderScore() - pZone->GetTotalFriendlyUnitCount();
 					if (pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->IsBastion())
-					{
-						iValue *= 10;
-					}
+						iValue *= 2;
+
 					if (iValue > 0)
 					{
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_UNASSIGNED);
