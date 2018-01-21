@@ -262,16 +262,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Sanitize...
 	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
 	{
-		if (iTempWeight > 600)
+		if (iTempWeight > 450)
 		{
-			iTempWeight = 600;
+			iTempWeight = 450;
 		}
 	}
 	else
 	{
-		if (iTempWeight > 400)
+		if (iTempWeight > 300)
 		{
-			iTempWeight = 400;
+			iTempWeight = 300;
 		}
 	}
 
@@ -1538,7 +1538,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		
 		if (iPromotionBonus != 0)
 		{
-			iBonus += iPromotionBonus * 10;
+			iBonus += iPromotionBonus * 8; // was 10
 		}
 	
 		//Uniques? They're generally good enough to spam.

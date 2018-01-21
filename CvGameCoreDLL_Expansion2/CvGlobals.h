@@ -8941,6 +8941,10 @@ public:
 	GD_INT_DEF(GREAT_GENERAL_MAX_RANGE)
 #endif
 #endif
+	inline int getMAX_PLOTS_PER_EXPLORER()
+	{
+		return m_iMAX_PLOTS_PER_EXPLORER;
+	}
 
 	////////////// END DEFINES //////////////////
 
@@ -11355,6 +11359,7 @@ protected:
 	int m_iTARGET_VASSAL_BACKUP_NEIGHBORS;
 	int m_iVASSAL_RELIGIOUS_PRESSURE_MODIFIER;
 	int m_iVASSAL_TOURISM_MODIFIER;
+	int m_iMAX_PLOTS_PER_EXPLORER;
 #endif
 
 	// DLL interface
