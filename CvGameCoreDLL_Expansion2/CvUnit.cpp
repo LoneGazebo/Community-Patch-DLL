@@ -27893,7 +27893,10 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	if ( m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
 	{
 		//did we just reveal a unit? if so, abort movement
-		bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
+		if (isHuman())
+			bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
+		else
+			bHaveValidPath = !(pkNextPlot->isVisibleEnemyUnit(getOwner()));
 	}
 	else
 	{
