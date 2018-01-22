@@ -622,6 +622,17 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	return bWithinDistance;
 }
 
+EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
+{
+	EraTypes eGPEra = (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
+	EraTypes eSpecialEra = (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra();
+	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
+	{
+		return eSpecialEra;
+	}
+	return eGPEra;
+}
+
 /// Religious activities at the start of a player's turn
 void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 {
@@ -675,7 +686,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 
 	// Check for pantheon or great prophet spawning (now restricted so must occur before Industrial era)
 #if defined(MOD_CONFIG_GAME_IN_XML)
-	if(kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() <= GD_INT_GET(RELIGION_LAST_FOUND_ERA))
+	if (kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() < GD_INT_GET(RELIGION_LAST_FOUND_ERA))
 #else
 	if(kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL"))
 #endif
@@ -711,7 +722,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 		{
 		case NO_AUTOMATIC_FAITH_PURCHASE:
 		case FAITH_PURCHASE_SAVE_PROPHET:
-				CheckSpawnGreatProphet(kPlayer);
+			CheckSpawnGreatProphet(kPlayer);
 				break;
 		}
 	}
@@ -773,7 +784,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 			bSelectionStillValid = false;
 		}
 #if defined(MOD_CONFIG_GAME_IN_XML)
-		else if (kPlayer.GetCurrentEra() > GD_INT_GET(RELIGION_LAST_FOUND_ERA))
+		else if (kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
 #else
 		else if (kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL"))
 #endif
@@ -7966,7 +7977,7 @@ bool CvReligionAI::DoFaithPurchases()
 		}
 		// SECOND PRIORITY
 		// If in Industrial, see if we want to save for buying a great person, but only if we've already got a Reformation belief and our cities are in good shape.
-		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA) && GetDesiredFaithGreatPerson() != NO_UNIT)
+		if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(m_pPlayer) && GetDesiredFaithGreatPerson() != NO_UNIT)
 		{
 			if(pMyReligion != NULL)
 			{
@@ -8906,7 +8917,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldPerLux(iI) > 0)
 		{
-			int ModifierValue = 2;
+			int ModifierValue = 1;
 			
 			if (m_pPlayer->GetPlayerTraits()->GetLuxuryHappinessRetention() || m_pPlayer->GetPlayerTraits()->GetUniqueLuxuryQuantity() != 0 || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 			{
@@ -8928,7 +8939,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldPerBorderGrowth(iI) > 0)
 		{
-			iTotalRtnValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iCulture) / max(3, pCity->GetJONSCultureLevel() * 3));
+			iTotalRtnValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iCulture) / max(3, pCity->GetJONSCultureLevel() * 4));
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
 				iTempValue *= 2;

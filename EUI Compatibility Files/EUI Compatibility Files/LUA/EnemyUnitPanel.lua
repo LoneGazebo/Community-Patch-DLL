@@ -1311,6 +1311,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+-- CBP
+			-- PerAdjacentUnitCombatModifier
+			iModifier = pMyUnit:PerAdjacentUnitCombatModifier() + pMyUnit:PerAdjacentUnitCombatAttackMod();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				--local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+-- END
+	
 			-- DomainModifier
 			iModifier = pMyUnit:DomainModifier(pTheirUnit:GetDomainType());
 			if (iModifier ~= 0) then
@@ -1806,6 +1817,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitCombatClassInfo(pMyUnit:getUnitCombatType()).GetTextKey()));
 					--end
 				--end
+
+-- CBP
+				-- PerAdjacentUnitCombatModifier
+				iModifier = pTheirUnit:PerAdjacentUnitCombatModifier() + pTheirUnit:PerAdjacentUnitCombatDefenseMod();
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					--local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+-- END
 
 				-- DomainModifier
 				iModifier = pTheirUnit:DomainModifier(pMyUnit:GetDomainType());

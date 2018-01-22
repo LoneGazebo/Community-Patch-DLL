@@ -609,6 +609,8 @@ public:
 
 	int GetSciencePerTurnFromMinorCivs() const;
 	int GetSciencePerTurnFromMinor(PlayerTypes eMinor) const;
+
+	int GetYieldPerTurnFromMinors(YieldTypes eYield, bool bCityLevel = false, bool bCapital = false) const;
 #endif
 	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
 	int GetFaithPerTurnFromReligion() const;
@@ -1640,6 +1642,10 @@ public:
 
 	int GetNoUnhappfromXSpecialistsCapital() const;
 	void ChangeNoUnhappfromXSpecialistsCapital(int iChange);
+
+	int GetSpecialistFoodChange() const;
+	void ChangeSpecialistFoodChange(int iChange);
+
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
 
@@ -3089,6 +3095,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialists;
 	FAutoVariable<int, CvPlayer> m_iHappfromXSpecialists;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialistsCapital;
+	FAutoVariable<int, CvPlayer> m_iSpecialistFoodChange;
 	FAutoVariable<int, CvPlayer> m_iWarWearinessModifier;
 	FAutoVariable<int, CvPlayer> m_iWarScoreModifier;
 #endif

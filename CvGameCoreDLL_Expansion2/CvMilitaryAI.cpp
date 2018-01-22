@@ -4719,7 +4719,7 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 
 	if (m_pPlayer->isMinorCiv())
 	{
-		if (m_pPlayer->GetNumUnitsToSupply() < min(3, ((m_pPlayer->GetCurrentEra() + 2) * m_pPlayer->getNumCities())))
+		if (m_pPlayer->GetNumUnitsToSupply() < max(4, ((m_pPlayer->GetCurrentEra() + 2) * max(1, m_pPlayer->getNumCities()))))
 			return;
 		else
 			bInDeficit = true;

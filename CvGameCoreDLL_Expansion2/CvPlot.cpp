@@ -15531,6 +15531,50 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 	return iNumFriendliesAdjacent;
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude) const
+{
+	int iNumber = 0;
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if(pLoopPlot != NULL)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while(pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					{
+						// Same team?
+						if(pLoopUnit->getTeam() == eMyTeam)
+						{
+							// Must be same unit combat type
+							if (pLoopUnit->getUnitCombatType() == eUnitCombat)
+							{
+								iNumber++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumber;
+}
+#endif
+
 bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);

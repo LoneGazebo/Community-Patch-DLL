@@ -618,6 +618,7 @@
 
 // Event sent upon a City State giving a gift (v73)
 //   GameEvents.MinorGift.Add(function(iMinor, iMajor, iGift, iFriendshipBoost, 0, bFirstMajorCiv, false, szTxtKeySuffix) end)
+//   GameEvents.MinorGiftUnit.Add(function(iMinor, iMajor, iUnitType) end)
 #define MOD_EVENTS_MINORS_GIFTS                     gCustomMods.isEVENTS_MINORS_GIFTS()
 
 // Events sent on interaction with City States (v68)
@@ -1150,6 +1151,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_MinorAlliesChanged			"MinorAlliesChanged",			"iibii"
 #define GAMEEVENT_MinorFriendsChanged			"MinorFriendsChanged",			"iibii"
 #define GAMEEVENT_MinorGift						"MinorGift",					"iiiiibbs"
+#define GAMEEVENT_MinorGiftUnit					"MinorGiftUnit",				"iii"
 #define GAMEEVENT_NaturalWonderDiscovered		"NaturalWonderDiscovered",		"iiiibii"
 #define GAMEEVENT_NuclearDetonation				"NuclearDetonation",			"iiibb"
 #define GAMEEVENT_PantheonFounded				"PantheonFounded",				"iiii"
@@ -1239,6 +1241,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
+#define GAMEEVENT_GetMinorCivAllyBonus		"GetMinorCivAllyBonus", "iiiiibb"
+#define GAMEEVENT_GetMinorCivFriendBonus	"GetMinorCivFriendBonus", "iiiiibb"
 //Contracts
 #define GAMEEVENT_GetNumContractUnit		"GetNumContractUnit", "ii"
 #define GAMEEVENT_GetContractMaintenance	"GetContractMaintenance", "ii"

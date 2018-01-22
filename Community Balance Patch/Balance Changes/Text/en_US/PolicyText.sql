@@ -153,7 +153,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARSENAL_DEMOCRACY_HELP' AND EXISTS (SELECT * FROM CO
 -- Capitalism
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Capitalism[ENDCOLOR]: 6 [ICON_CITIZEN] Specialists in each of your cities generate [ICON_HAPPINESS_1] Happiness instead of creating [ICON_HAPPINESS_3] Unhappiness.'
+SET Text = '[COLOR_POSITIVE_TEXT]Capitalism[ENDCOLOR]: 3 [ICON_CITIZEN] Specialists in each of your cities generate [ICON_HAPPINESS_1] Happiness instead of creating [ICON_HAPPINESS_3] Unhappiness.'
 WHERE Tag = 'TXT_KEY_POLICY_CAPITALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Open Society
@@ -161,6 +161,12 @@ WHERE Tag = 'TXT_KEY_POLICY_CAPITALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Avant Garde[ENDCOLOR]: The rate at which [ICON_GREAT_PEOPLE] Great People are born is increased by 33%.'
 WHERE Tag = 'TXT_KEY_POLICY_OPEN_SOCIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+-- Civil Society
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Civil Society[ENDCOLOR][NEWLINE]Specialists consume 2 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food).'
+WHERE Tag = 'TXT_KEY_POLICY_CIVIL_SOCIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Covert Action
 
@@ -366,7 +372,7 @@ WHERE Tag = 'TXT_KEY_AESTHETICS_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] allows you to maximize the potential of [ICON_GREAT_WORK] Great Works, [ICON_GREAT_PEOPLE] Great People, and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +25% [ICON_GREAT_PEOPLE] Great Person rates in all cities.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] construction rate of all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +2 [ICON_GOLDEN_AGE] Golden Age Points and +1 [ICON_RESEARCH] Science in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Louvre[ENDCOLOR]. [NEWLINE][ICON_BULLET] Completing an Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age generates [ICON_TOURISM] Tourism with all known Civilizations. [NEWLINE][ICON_BULLET] Allows you to see Hidden Antiquity Sites. [NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] allows you to maximize the potential of [ICON_GREAT_WORK] Great Works, [ICON_GREAT_PEOPLE] Great People, and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +25% [ICON_GREAT_PEOPLE] Great Person rates in all cities.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] construction rate of all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +2 [ICON_GOLDEN_AGE] Golden Age Points and +1 [ICON_RESEARCH] Science in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Louvre[ENDCOLOR]. [NEWLINE][ICON_BULLET] Completing an Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age generates [ICON_TOURISM] Tourism with all known Civilizations. [NEWLINE][ICON_BULLET] Allows you to see Hidden Antiquity Sites, and Landmarks gain +3 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points. [NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_AESTHETICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -403,7 +409,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Flourishing of the Arts
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE]+50 [ICON_GOLDEN_AGE] Golden Age Points when you construct World or National Wonders, scaling with Era. +3 [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Points from Universities, and the [ICON_TOURISM] Tourism Penalty from the number of owned Cities is reduced by 3% per City.'
+SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE]+100 [ICON_GOLDEN_AGE] Golden Age Points when you construct World or National Wonders, scaling with Era. +4 [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Points from Universities.'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -747,7 +753,7 @@ SET Text = 'Expertise'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Expertise[ENDCOLOR][NEWLINE]+10% [ICON_PRODUCTION] Production towards buildings. [ICON_CULTURE] Culture cost of future Policies reduced by 5%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Expertise[ENDCOLOR][NEWLINE]+10% [ICON_PRODUCTION] Production towards buildings. +2 [ICON_GOLD] Gold and +2 [ICON_PRODUCTION] Production in every City.'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -760,7 +766,7 @@ SET Text = 'Equality'
 WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Equality[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold and +2 [ICON_PRODUCTION] Production in every City. +1 [ICON_HAPPINESS_1] Happiness for every 15 [ICON_CITIZEN] Citizens in your Empire.'
+SET Text = '[COLOR_POSITIVE_TEXT]Equality[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness for every 15 [ICON_CITIZEN] Citizens in your Empire. [ICON_HAPPINESS_3] Unhappiness from Poverty, Illiteracy, Boredom, and Crime reduced by 5% in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -1007,7 +1013,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY
 -- Sovereignty
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]Foreign [ICON_SPY] Spies are 25% less effective in all owned cities. Base [ICON_RESEARCH] Science penalty per number of owned [ICON_PUPPET] non-Puppet Cities reduced by 2% (minimum 1%).'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]Foreign [ICON_SPY] Spies are 25% less effective in all owned cities. Specialists consume 1 less [ICON_FOOD] Food than normal (minimum 1).'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
