@@ -1,14 +1,14 @@
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.[NEWLINE][NEWLINE]Can only be constructed in a Capital. The cost goes up the more cities there are in the empire.';
+SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.[NEWLINE][NEWLINE]The cost goes up the more cities there are in the empire.';
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY', 'This National Wonder is unique, in that players may build it in their Capital without any other prerequisites. It gives a small production boost when building diplomatic units in the capital, and one [ICON_RES_PAPER] Paper resource. Build this building if you want to secure a city-state ally or two during the first few eras of the game. The additional yields from City-State Friends and Allies increases the value of early positive City-State relations.';
+SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY', 'This National Wonder is unique, in that players may build it in their Capital without any other prerequisites. It gives a small production boost when building diplomatic units in the capital, and 1 [ICON_RES_PAPER] Paper resources. Build this building if you want to secure a city-state ally or two during the first few eras of the game. The additional yields from City-State Friends and Allies increases the value of early positive City-State relations.';
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CHANCERY_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold in City for every City-State Friend, and +2 [ICON_PRODUCTION] Production for every Ally.';
+SELECT 'TXT_KEY_BUILDING_CHANCERY_HELP', '+10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold in City for every City-State Friend, and +2 [ICON_PRODUCTION] Production for every Ally.';
 
 INSERT INTO Language_en_US (
   Tag, Text)
@@ -20,4 +20,4 @@ SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY', 'Increases Diplomatic Unit prod
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_HELP', '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture in City for every City-State Friend, and +2 [ICON_RESEARCH] Science for every Ally.';
+SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_HELP', '+20% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture in City for every City-State Friend, and +2 [ICON_RESEARCH] Science for every Ally.';

@@ -65,7 +65,7 @@
 			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP">
-			<Text>+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in all cities. The cost goes up the more cities there are in the empire.</Text>
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<!--
 		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_HELP">
@@ -79,16 +79,16 @@
 			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Nobility[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP">
-			<Text>Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Research Agreement[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in all cities. The cost goes up the more cities there are in the empire.</Text>
+			<Text>Requires Order. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. Receive one vote for every [COLOR_POSITIVE_TEXT]Research Agreement[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_HELP">
-			<Text>Requires Autocracy. +15 [ICON_TOURISM] Tourism and +25% [ICON_PRODUCTION] Production in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in all cities. The cost goes up the more cities there are in the empire.</Text>
+			<Text>Requires Autocracy. +15 [ICON_TOURISM] Tourism and +10% [ICON_PRODUCTION] Production in the city where it is built. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_HELP">
-			<Text>Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. +1 [ICON_RES_PAPER] Paper. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in all cities. The cost goes up the more cities there are in the empire.</Text>
+			<Text>Requires Freedom. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in all cities. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_HELP">
-			<Text>Receive an additional Trade Route. Grants all naval units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% Combat Strength when attacking, +1 [ICON_MOVES] Movement, +1 Sight, and the ability to heal outside of friendly territory.</Text>
+			<Text>Receive an additional Trade Route. Grants all naval units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% Combat Strength when attacking, +1 Sight, and the ability to heal outside of friendly territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP">
 			<Text>25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the city where it is built.</Text>

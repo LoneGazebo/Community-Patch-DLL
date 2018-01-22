@@ -3,7 +3,6 @@
 	<Resources>
 		<Row>
 			<Type>RESOURCE_PAPER</Type>
-			<TechCityTrade>TECH_WRITING</TechCityTrade>
 			<Description>TXT_KEY_RESOURCE_PAPER</Description>
 			<Civilopedia>TXT_KEY_CIV5_RESOURCE_PAPER_TEXT</Civilopedia>
 			<Help>TXT_KEY_RESOURCE_PAPER_HELP</Help>
@@ -14,6 +13,7 @@
 			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>CSD_RESOURCE_ATLAS</IconAtlas>
 			<TechReveal>TECH_WRITING</TechReveal>
+			<TechObsolete>TECH_AGRICULTURE</TechObsolete>
 			<ArtDefineTag>ART_DEF_RESOURCE_FUR</ArtDefineTag>
 		</Row>
 	</Resources>
@@ -29,7 +29,7 @@
 			<Text>Paper</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_PAPER_HELP">
-			<Text>Required to produce [ICON_INFLUENCE] Diplomatic Units. More advanced Diplomatic Units require more than one unit of Paper to be produced.</Text>
+			<Text>Required to produce [ICON_INFLUENCE] Diplomatic Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_RESOURCE_PAPER">
 			<Text>Paper</Text>
