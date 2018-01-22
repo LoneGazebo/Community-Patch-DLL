@@ -4826,6 +4826,42 @@ int CvCityBuildings::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) 
 	return iCount;
 }
 
+int CvCityBuildings::GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) const
+{
+	int iCount = 0;
+
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes)iI;
+		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
+		if (pkCivInfo)
+		{
+			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			if (NO_BUILDING != eBuilding)
+			{
+				if (GetNumBuilding(eBuilding) > 0)
+				{
+					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+					if (pkBuilding)
+					{
+						if (pkBuilding->GetGreatWorkSlotType() == eSlotType)
+						{
+							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							int iNumFilledSlots = GetNumGreatWorksInBuilding(eLoopBuildingClass) - iNumSlots;
+							if (iNumFilledSlots > 0)
+							{
+								iCount += iNumFilledSlots;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iCount;
+}
+
 /// Accessor: Is there a Great Work slot of this type somewhere in the city?
 bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const
 {

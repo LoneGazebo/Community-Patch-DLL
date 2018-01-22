@@ -483,6 +483,10 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	{
 		iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
 	}
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iNetGold += m_pPlayer->GetYieldPerTurnFromMinors(YIELD_GOLD) * 100;
+	}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	//Mod for national unhappiness

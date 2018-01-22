@@ -297,6 +297,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseTourism);
 #if defined(MOD_BALANCE_CORE)
 	Method(RefreshTourism);
+	Method(GetNumGreatWorksFilled);
 #endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
@@ -3139,6 +3140,16 @@ int CvLuaCity::lRefreshTourism(lua_State* L)
 	pkCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	pkCity->GetCityCulture()->CalculateBaseTourism();
 	return 0;
+}
+//------------------------------------------------------------------------------
+//int GetNumGreatWorksFilled();
+int CvLuaCity::lGetNumGreatWorksFilled(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 2));
+
+	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumFilledGreatWorkSlots(eGreatWorkSlot));
+	return 1;
 }
 #endif
 //------------------------------------------------------------------------------

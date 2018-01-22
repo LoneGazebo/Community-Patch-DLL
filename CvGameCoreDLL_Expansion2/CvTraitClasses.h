@@ -322,6 +322,8 @@ public:
 	bool IsPopulationBoostReligion() const;
 	bool IsCombatBoostNearNaturalWonder() const;
 	int GetFreePolicyPerXTechs() const;
+	EraTypes GetGPFaithPurchaseEra() const;
+	int GetFaithCostModifier() const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
@@ -634,6 +636,8 @@ protected:
 	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
 	int m_iFreePolicyPerXTechs;
+	EraTypes m_eGPFaithPurchaseEra;
+	int m_iFaithCostModifier;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
@@ -1604,6 +1608,14 @@ public:
 	{
 		return m_iFreePolicyPerXTechs;
 	};
+	EraTypes GetGPFaithPurchaseEra() const
+	{
+		return m_eGPFaithPurchaseEra;
+	};
+	int GetFaithCostModifier() const
+	{
+		return m_iFaithCostModifier;
+	};
 	bool IsFreeGreatWorkOnConquest() const
 	{
 		return m_bFreeGreatWorkOnConquest;
@@ -2034,6 +2046,8 @@ private:
 	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
 	int m_iFreePolicyPerXTechs;
+	EraTypes m_eGPFaithPurchaseEra;
+	int m_iFaithCostModifier;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;

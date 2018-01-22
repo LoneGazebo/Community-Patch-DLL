@@ -16225,19 +16225,32 @@ int CvUnit::GetEmbarkedUnitDefense() const
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
 	int iResistance = 0;
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 	{
-		iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
+		if (pOtherUnit->getOwner() == NO_PLAYER)
+			return 0;
 
+		if (pOtherUnit->isBarbarian() || isBarbarian())
+			return 0;
+
+		if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
+			return 0;
+
+		//Not our territory?
+		if (plot()->getOwner() != getOwner())
+			return 0;
+
+		int iHandicap = 5;
 		if (GET_PLAYER(pOtherUnit->getOwner()).isHuman())
 		{
-			int iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 10;
-			iResistance *= (100 + iHandicap);
-			iResistance /= 100;
+			iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase();
 		}
+		//iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
+		iResistance = GET_PLAYER(getOwner()).GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(pOtherUnit->getOwner());
+		iResistance /= max(1, (15 - iHandicap));
 	}
 
-	return iResistance;
+	return min(75, iResistance);
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -20112,6 +20125,11 @@ if (!bDoEvade)
 								{
 									iCulturePoints = GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
 								}
+
+								// Game Speed Mod
+								iCulturePoints *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getTrainPercent();
+								iCulturePoints /= 100;
+
 								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
 								if(kPlayer.getCapitalCity() != NULL)
 								{

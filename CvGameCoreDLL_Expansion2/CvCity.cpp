@@ -9436,9 +9436,13 @@ void CvCity::DoTestResourceDemanded()
 			// Do we have the right Resource?
 			if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
 			{
-				ChangeWeLoveTheKingDayCounter(/*20*/ GC.getCITY_RESOURCE_WLTKD_TURNS());
+				int iWLTKD = GC.getCITY_RESOURCE_WLTKD_TURNS();
+				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iWLTKD /= 100;
+
+				ChangeWeLoveTheKingDayCounter(/*20*/ iWLTKD);
 #if defined(MOD_BALANCE_CORE)
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), GC.getCITY_RESOURCE_WLTKD_TURNS());
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iWLTKD);
 #endif
 
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -9448,7 +9452,7 @@ void CvCity::DoTestResourceDemanded()
 					if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
 					{					
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE");
-						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << /*20*/ GC.getCITY_RESOURCE_WLTKD_TURNS() << GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
+						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << iWLTKD << GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE");
 						strSummary << getNameKey();
 						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
@@ -10893,8 +10897,8 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	{
 		//Increase cost based on # of techs researched.
 		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-		iTechProgress *= 75;
-		iTechProgress /= 100;
+
+		iTechProgress /= 2;
 		if(iTechProgress > 0)
 		{
 			iCost *= (100 + iTechProgress);
@@ -10902,14 +10906,11 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		}
 	}
 #endif
-	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Decrease base cost, then increase based on # of cities in empire.
-		iCost *= 2;
-		iCost /= 3;
-
-		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 5);
-		iCost /= 100;
+		iCost *= 8;
+		iCost /= 10;
 	}
 
 	// Make the number not be funky
@@ -10941,7 +10942,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	{
 		// We must be into the industrial era
 #if defined(MOD_CONFIG_GAME_IN_XML)
-		if(kPlayer.GetCurrentEra() >= GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA))
+		if (kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(&kPlayer))
 #else
 		if(kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 #endif
@@ -11187,6 +11188,9 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			iCost /= 100;
 		}
 	}
+	int iTraitValue = kPlayer.GetPlayerTraits()->GetFaithCostModifier();
+	iCost *= (100 + iTraitValue);
+	iCost /= 100;
 #endif
 	// Make the number not be funky
 	int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
@@ -11257,11 +11261,8 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	{
 		//Decrease base cost, then increase based on # of cities in empire.
-		iCost *= 2;
-		iCost /= 3;
-		
-		iCost *= (100 + GET_PLAYER(getOwner()).getNumCities() * 5);
-		iCost /= 100;
+		iCost *= 6;
+		iCost /= 10;
 	}
 #endif
 
@@ -11315,6 +11316,11 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 			iCost /= 100;
 		}
 	}
+
+	int iTraitValue = GET_PLAYER(getOwner()).GetPlayerTraits()->GetFaithCostModifier();
+	iCost *= (100 + iTraitValue);
+	iCost /= 100;
+
 #endif
 
 	// Make the number not be funky
@@ -15478,8 +15484,11 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
-		iFoodPerSpec = std::max((int)GET_PLAYER(getOwner()).GetCurrentEra(), GC.getFOOD_CONSUMPTION_PER_POPULATION()) + 1;
-		iFoodPerSpec = std::min(iFoodPerSpec, 10) * 100;
+		iFoodPerSpec = max((int)GET_PLAYER(getOwner()).GetCurrentEra(), GC.getFOOD_CONSUMPTION_PER_POPULATION()) + 1;
+		iFoodPerSpec = min(iFoodPerSpec, 10) * 100;
+
+		iFoodPerSpec += GET_PLAYER(getOwner()).GetSpecialistFoodChange() * 100;
+
 		// Specialists eat less food? (Policies, etc.)
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 		{
@@ -15488,6 +15497,10 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
 		{
 			iFoodPerSpec /= 2;
+		}		
+		if (iFoodPerSpec <= 100)
+		{
+			iFoodPerSpec = 100;
 		}
 	}
 	else
@@ -15540,7 +15553,13 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 			iEra = 10;
 		}
 
-		int iSpecialistFood = (iEra * iSpecialists);
+		iEra += GET_PLAYER(getOwner()).GetSpecialistFoodChange();
+
+		if (iEra <= 1)
+			iEra = 1;
+
+		int iSpecialistFood = (iEra * iSpecialists);	
+
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 		{
 			iSpecialistFood /= 2;
@@ -17364,6 +17383,10 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetBaseYieldRateFromCSFriendship(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldChangeFromCorporationFranchises(YIELD_CULTURE);
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iCulturePerTurn += GET_PLAYER(getOwner()).GetYieldPerTurnFromMinors(YIELD_CULTURE, isCapital(), true);
+	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetEventCityYield(YIELD_CULTURE);
@@ -17599,6 +17622,10 @@ int CvCity::GetFaithPerTurn() const
 	iFaith += GetBaseYieldRateFromCSFriendship(YIELD_FAITH);
 	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
 	iFaith += GetYieldChangeFromCorporationFranchises(YIELD_FAITH);
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iFaith += GET_PLAYER(getOwner()).GetYieldPerTurnFromMinors(YIELD_FAITH, isCapital(), true);
+	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetEventCityYield(YIELD_FAITH);
@@ -22101,7 +22128,9 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
 		}
+#endif
 	}
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// Culture specific modifiers taken from getJONSCulturePerTurn
@@ -22399,6 +22428,10 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromCSFriendship(eIndex);
 	iValue += GetYieldPerTurnFromTraits(eIndex);
 	iValue += GetYieldChangeFromCorporationFranchises(eIndex);
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iValue += GET_PLAYER(getOwner()).GetYieldPerTurnFromMinors(eIndex, isCapital(), true);
+	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetEventCityYield(eIndex);

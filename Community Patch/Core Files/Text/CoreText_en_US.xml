@@ -5180,7 +5180,7 @@
 		</Row>
 		<!-- Global Domination Resistance -->
 		<Row Tag="TXT_KEY_EUPANEL_RESISTANCE_POWER">
-			<Text>Resistance (Domination)</Text>
+			<Text>Anti-Warmonger Fervor</Text>
 		</Row>
 
 		<!-- Tooltips for required resource monopolies-->

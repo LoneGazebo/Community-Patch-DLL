@@ -1241,6 +1241,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
+#define GAMEEVENT_GetMinorCivAllyBonus		"GetMinorCivAllyBonus", "iiiiibb"
+#define GAMEEVENT_GetMinorCivFriendBonus	"GetMinorCivFriendBonus", "iiiiibb"
 //Contracts
 #define GAMEEVENT_GetNumContractUnit		"GetNumContractUnit", "ii"
 #define GAMEEVENT_GetContractMaintenance	"GetContractMaintenance", "ii"

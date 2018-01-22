@@ -885,6 +885,12 @@ ALTER TABLE Units ADD COLUMN 'IsMounted' BOOLEAN DEFAULT 0;
 -- Investment reduction costs -- policy -- negative makes it stronger!
 ALTER TABLE Policies ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
 
+-- Starting era for GP faith purchases
+ALTER TABLE Traits ADD COLUMN 'GPFaithPurchaseEra' TEXT DEFAULT NULL;
+
+-- Faith purchase % reduction. Negative reduces.
+ALTER TABLE Traits ADD COLUMN 'FaithCostModifier' INTEGER DEFAULT 0;
+
 -- Investment reduction costs -- trait -- negative makes it stronger!
 ALTER TABLE Traits ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
 
@@ -982,6 +988,9 @@ ALTER TABLE Policies ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'HappinessPerXPolicies' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'HappinessPerXGreatWorks' INTEGER DEFAULT 0;
+
+-- Alters food consumption of specialists - use integer (is raised to 100s later)
+ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;

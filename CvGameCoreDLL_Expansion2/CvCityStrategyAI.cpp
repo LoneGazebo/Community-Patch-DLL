@@ -3298,6 +3298,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	}
 	
 	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	if (iNumBuilders <= 0)
+		return false;
 
 #if defined(MOD_BALANCE_CORE)
 	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
@@ -3325,8 +3327,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 					iNumWorkersHere++;
 				}
 			}
-			//Already improved? Continue.
-			if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			//Already improved and not pillaged? Continue.
+			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && !pLoopPlot->IsRoutePillaged())
 				continue;
 
 			//Skip cities.
@@ -3371,9 +3373,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	{
 		return true;
 	}
-	//Gotta have at least one!
-	if(iNumBuilders <= 1)
-		return false;
 
 	//Not enough workers here? 4:1 ratio is good ratio.
 	if((iNumWorkersHere * 4) < iCanImprove)
