@@ -9,7 +9,7 @@
 			<GreatPeopleTitle>TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE</GreatPeopleTitle>
 			<Visible>true</Visible>
 			<Cost>0</Cost>
-			<CulturePerTurn>2</CulturePerTurn>
+			<CulturePerTurn>1</CulturePerTurn>
 			<IconAtlas>CSDSPECIALIST_ATLAS</IconAtlas>
 			<PortraitIndex>0</PortraitIndex>
 			<GreatPeopleUnitClass>UNITCLASS_GREAT_DIPLOMAT</GreatPeopleUnitClass>
@@ -56,7 +56,7 @@
 			<Plurality>1|2</Plurality>
 		</Row>
 		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY">
-			<Text>Civil Servants produce 2 [ICON_RESEARCH] Science, 2 [ICON_CULTURE] Culture, and 2 [ICON_GOLD] Gold, and speed the creation of Great Diplomats.</Text>
+			<Text>Civil Servants produce 1 [ICON_RESEARCH] Science, 1 [ICON_CULTURE] Culture, and 2 [ICON_GOLD] Gold, and speed the creation of Great Diplomats.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_SLOTS">
 			<Text>Civil Servant Slots:</Text>

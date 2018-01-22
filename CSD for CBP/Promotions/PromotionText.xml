@@ -51,7 +51,7 @@
 		</Row>
 		<!--Diplo Promotion Help-->
 		<Row Tag="TXT_KEY_PROMOTION_EMISSARY_HELP">
-			<Text>Earn 40 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
+			<Text>Earn 30 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENVOY_HELP">
 			<Text>Earn 45 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission.</Text>
@@ -90,7 +90,7 @@
 			<Text>+15 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State, and the ability to enter a rival player's territory without an Open Borders agreement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET_HELP">
-			<Text>Grants +1 [ICON_MOVES] movement, +1 Sight, +10% Combat Bonus when attacking, and the ability to heal in non-friendly waters.</Text>
+			<Text>+1 Sight, +10% Combat Bonus when attacking, and the ability to heal in non-friendly waters.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
