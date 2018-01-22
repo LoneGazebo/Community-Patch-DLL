@@ -22127,8 +22127,40 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
+<<<<<<< HEAD
+=======
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Culture specific modifiers taken from getJONSCulturePerTurn
+	if(eIndex == YIELD_CULTURE)
+	{
+		// Player modifier
+		iTempMod = GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
+		iModifier += iTempMod;
+		// we'll use the same tooltip as for Building_GlobalYieldModifiers
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_PLAYER", iTempMod);
+
+		// Wonder here?
+		if(getNumWorldWonders() > 0)
+		{
+			// policy that grants culture modifier from each wonder (field CultureWonderMultiplier)
+			iTempMod = GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
+		}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueAid())
+		{
+			iTempMod = GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempMod);
+>>>>>>> origin/master
+		}
+#endif
+	}
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// Culture specific modifiers taken from getJONSCulturePerTurn

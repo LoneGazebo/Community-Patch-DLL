@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /*	-------------------------------------------------------------------------------------------------------
 	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+=======
+﻿/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+>>>>>>> origin/master
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -262,16 +267,28 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Sanitize...
 	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
 	{
+<<<<<<< HEAD
 		if (iTempWeight > 400)
 		{
 			iTempWeight = 400;
+=======
+		if (iTempWeight > 450)
+		{
+			iTempWeight = 450;
+>>>>>>> origin/master
 		}
 	}
 	else
 	{
+<<<<<<< HEAD
 		if (iTempWeight > 275)
 		{
 			iTempWeight = 275;
+=======
+		if (iTempWeight > 300)
+		{
+			iTempWeight = 300;
+>>>>>>> origin/master
 		}
 	}
 
