@@ -107,7 +107,7 @@
 			<Strategy>TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY</Strategy>
 			<AdvancedStartCost>-1</AdvancedStartCost>
 			<BaseGold>1</BaseGold>
-			<NumInfPerEra>10</NumInfPerEra>
+			<NumInfPerEra>15</NumInfPerEra>
 			<WorkRate>1</WorkRate>
 			<CombatLimit>0</CombatLimit>
 			<UnitArtInfo>ART_DEF_UNIT_GREAT_DIPLOMAT</UnitArtInfo>
@@ -118,6 +118,13 @@
 			<IconAtlas>CSD_ATLAS</IconAtlas>
 		</Row>
 	</Units>
+	<Unit_ResourceQuantityExpended>
+		<Row>
+			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>
+			<ResourceType>RESOURCE_PAPER</ResourceType>
+			<Amount>1</Amount>
+		</Row>
+	</Table>
 	<UnitGameplay2DScripts>
 		<Row>
 			<UnitType>UNIT_AMBASSADOR</UnitType>
@@ -259,17 +266,17 @@
 		<Row>
 			<UnitType>UNIT_ENVOY</UnitType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Cost>3</Cost>
+			<Cost>1</Cost>
 		</Row>
 		<Row>
 			<UnitType>UNIT_DIPLOMAT</UnitType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Cost>5</Cost>
+			<Cost>2</Cost>
 		</Row>
 		<Row>
 			<UnitType>UNIT_AMBASSADOR</UnitType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Cost>7</Cost>
+			<Cost>2</Cost>
 		</Row>
 	</Unit_ResourceQuantityRequirements>
 	<Unit_Builds>

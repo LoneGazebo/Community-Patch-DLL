@@ -9,12 +9,12 @@
 			<Help>TXT_KEY_PROMOTION_EMISSARY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-60</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-70</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EMISSARY</PediaEntry>
 		</Row>
 		<Row>
@@ -28,7 +28,7 @@
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENVOY</PediaEntry>
 		</Row>
 		<Row>
@@ -42,7 +42,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>41</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DIPLOMAT</PediaEntry>
 		</Row>
 		<Row>
@@ -56,7 +56,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AMBASSADOR</PediaEntry>
 		</Row>
 		<Row>
@@ -73,7 +73,7 @@
 			<ExtraNavalMovement>2</ExtraNavalMovement>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GREAT_DIPLOMAT</PediaEntry>
 		</Row>
 		<Row>
@@ -87,7 +87,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_CIVILIAN</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GREAT_MERCHANT</PediaEntry>
 		</Row>
 		<!-- Special Promotions -->
@@ -101,7 +101,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_NOBEL_LAUREATE</PediaEntry>
 		</Row>
 		<Row>
@@ -114,7 +114,7 @@
 			<TradeMissionInfluenceModifier>5</TradeMissionInfluenceModifier>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SIGNET</PediaEntry>
 		</Row>
 		<Row>
@@ -129,7 +129,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>33</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EXPRESS</PediaEntry>
 		</Row>
 		<Row>
@@ -145,7 +145,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LITERACY</PediaEntry>
 		</Row>
 		<Row>
@@ -159,7 +159,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>42</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_IMMUNITY</PediaEntry>
 		</Row>
 		<Row>
@@ -174,7 +174,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>10</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PAX</PediaEntry>
 		</Row>
 		<Row>
@@ -188,7 +188,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>21</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_DIPLO</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_NOBILITY</PediaEntry>
 		</Row>
 		<Row>
@@ -197,7 +197,6 @@
 			<Help>TXT_KEY_PROMOTION_TREASURE_FLEET_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<HealOutsideFriendly>true</HealOutsideFriendly>
 			<AttackMod>10</AttackMod>
 			<VisibilityChange>1</VisibilityChange>
