@@ -524,6 +524,7 @@ public:
 	const std::vector<int>& GetNeighboringZones() const { return m_vNeighboringZones; }
 	void AddNeighboringZone(int iZoneID);
 	void ClearNeighboringZones() { m_vNeighboringZones.clear(); }
+	int GetBorderScore() const;
 #endif
 
 private:
@@ -616,6 +617,7 @@ protected:
 	void MarkCellsNearEnemy();
 	CvTacticalDominanceZone* MergeWithExistingZone(CvTacticalDominanceZone* pNewZone);
 	eTacticalDominanceFlags ComputeDominance(CvTacticalDominanceZone* pZone);
+	CvTacticalDominanceZone* AddNewDominanceZone(CvTacticalDominanceZone& zone);
 
 	// Cached global define values
 	int m_iDominancePercentage;
@@ -626,6 +628,7 @@ protected:
 	std::vector<CvTacticalAnalysisCell> m_vCells;
 	int m_iTurnBuilt;
 
+	std::map<int, int> m_IdLookup;
 	std::vector<CvTacticalDominanceZone> m_DominanceZones;
 	std::vector<IDInfo> m_EnemyUnits;
 	std::vector<IDInfo> m_EnemyCities;

@@ -2516,7 +2516,7 @@ void CvEconomicAI::DoReconState()
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
-	int iPlotsPerExplorer = 20 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	int iPlotsPerExplorer = /*20*/GC.getMAX_PLOTS_PER_EXPLORER() - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 50 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 	if (bWar)
 		iNumExplorersNeededTimes100 /= 2;
@@ -2539,7 +2539,8 @@ void CvEconomicAI::DoReconState()
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
 				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
-				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
+				if(pLoopUnit->getArmyID() == -1 && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL &&
+					(pLoopUnit->getHomelandMove()==AI_HOMELAND_MOVE_MOBILE_RESERVE || pLoopUnit->getHomelandMove()==AI_HOMELAND_MOVE_UNASSIGNED))
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 					eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
