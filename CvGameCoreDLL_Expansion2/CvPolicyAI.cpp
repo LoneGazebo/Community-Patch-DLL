@@ -2358,11 +2358,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 						if (iValue > 0)
 						{
 							if (pkBuildingInfo->IsCapitalOnly())
-								iValue /= 5;
-							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 								iValue /= 3;
-							else
+							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 								iValue /= 2;
+
 							yield[YIELD_PRODUCTION] += iValue;
 						}
 					}
@@ -2837,10 +2836,8 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (iValue > 0)
 					{
 						if (pkBuildingInfo->IsCapitalOnly())
-							iValue /= 5;
-						else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 							iValue /= 3;
-						else
+						else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 							iValue /= 2;
 						yield[YIELD_PRODUCTION] += iValue;
 					}
@@ -3438,10 +3435,8 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 								yield[YIELD_FAITH] += iValue;
 							}
 							else if (pkBuildingInfo->IsCapitalOnly())
-								iValue /= 5;
-							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 								iValue /= 3;
-							else
+							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 								iValue /= 2;
 							yield[YIELD_PRODUCTION] += iValue;
 						}
@@ -3510,11 +3505,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 							if (iValue > 0)
 							{
 								if (pkBuildingInfo->IsCapitalOnly())
-									iValue /= 5;
-								else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 									iValue /= 3;
-								else
+								else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 									iValue /= 2;
+
 								yield[YIELD_PRODUCTION] += iValue;
 							}
 						}

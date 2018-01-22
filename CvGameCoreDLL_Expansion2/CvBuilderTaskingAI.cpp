@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 /*	-------------------------------------------------------------------------------------------------------
 	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-=======
-﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
->>>>>>> origin/master
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
