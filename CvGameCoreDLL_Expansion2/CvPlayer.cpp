@@ -3006,7 +3006,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		if(pLoopUnit && pLoopUnit->getTeam() != getTeam())
 		{
-			if(pLoopUnit->IsImmobile())
+			if(pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
 				pLoopUnit->kill(false, GetID());
 #if defined(MOD_API_EXTENSIONS)

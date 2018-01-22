@@ -2677,7 +2677,7 @@ void CvCity::kill()
 
 		if(pLoopUnit)
 		{
-			if(pLoopUnit->IsImmobile())
+			if(pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
 				pLoopUnit->kill(false);
 			}
