@@ -22128,9 +22128,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
 		}
-#endif
 	}
-#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// Culture specific modifiers taken from getJONSCulturePerTurn
