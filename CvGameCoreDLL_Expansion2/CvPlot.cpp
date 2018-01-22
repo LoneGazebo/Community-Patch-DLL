@@ -3264,6 +3264,18 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 
 #if defined(MOD_BALANCE_CORE)
 
+bool CvPlot::isFortification(TeamTypes eTeam) const
+{
+	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+
+	if ((eFort != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eFort) ||
+		(eCitadel != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eCitadel))
+		return true;
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp) const
 {
@@ -4119,6 +4131,21 @@ bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlot::getNumAdjacentOwnedBy(PlayerTypes ePlayer) const
+{
+	int iAdjacentOwnedCount = 0;
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor && pNeighbor->getOwner() == ePlayer)
+			iAdjacentOwnedCount++;
+	}
+
+	return iAdjacentOwnedCount;
+}
+
+//	--------------------------------------------------------------------------------
 int CvPlot::getNumAdjacentNonvisible(TeamTypes eTeam) const
 {
 	CvPlot* pAdjacentPlot;
@@ -4513,25 +4540,55 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 	return 0;
 }
 
-int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const
+int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = m_units.head();
 	int iCount = 0;
-	iFirstUnitID = 0;
 	while(pUnitNode)
 	{
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = m_units.next(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->AI_getUnitAIType()==eType)
-		{
-			if (iCount==0)
-				iFirstUnitID = pLoopUnit->GetID();
-			++iCount;
-		}
+			if(ePlayer==NO_PLAYER || pLoopUnit->getOwner()==ePlayer)
+				++iCount;
 	}
 
 	return iCount;
+}
+
+//	-----------------------------------------------------------------------------------------------
+CvUnit* CvPlot::getFirstUnitOfAITypeSameTeam(TeamTypes eTeam, UnitAITypes eType) const
+{
+	const IDInfo* pUnitNode = m_units.head();
+	while (pUnitNode)
+	{
+		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = m_units.next(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == eType)
+			if (eTeam == NO_TEAM || pLoopUnit->getTeam() == eTeam)
+				return pLoopUnit;
+	}
+
+	return NULL;
+}
+
+//	-----------------------------------------------------------------------------------------------
+CvUnit* CvPlot::getFirstUnitOfAITypeOtherTeam(TeamTypes eTeam, UnitAITypes eType) const
+{
+	const IDInfo* pUnitNode = m_units.head();
+	while (pUnitNode)
+	{
+		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = m_units.next(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit->AI_getUnitAIType() == eType)
+			if (eTeam == NO_TEAM || pLoopUnit->getTeam() != eTeam)
+				return pLoopUnit;
+	}
+
+	return NULL;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -15473,6 +15530,50 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 
 	return iNumFriendliesAdjacent;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude) const
+{
+	int iNumber = 0;
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if(pLoopPlot != NULL)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while(pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					{
+						// Same team?
+						if(pLoopUnit->getTeam() == eMyTeam)
+						{
+							// Must be same unit combat type
+							if (pLoopUnit->getUnitCombatType() == eUnitCombat)
+							{
+								iNumber++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumber;
+}
+#endif
 
 bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 {

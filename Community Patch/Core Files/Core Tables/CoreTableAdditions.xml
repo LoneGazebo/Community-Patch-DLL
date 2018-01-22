@@ -900,6 +900,15 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Promotion: Unit gains the specified combat modifier (can specify attack or defense only) per adjacent unit of the specified unit combat type -->
+	<Table name="UnitPromotions_CombatModPerAdjacentUnitCombat">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="Modifier" type="integer"/>
+		<Column name="Attack" type="integer"/>
+		<Column name="Defense" type="integer"/> <!-- note the American spelling -->
+	</Table>
+
 
 	
 	<!-- Corporations System -->

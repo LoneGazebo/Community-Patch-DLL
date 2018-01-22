@@ -174,9 +174,11 @@ public:
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
+	bool isFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
+
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
@@ -239,7 +241,8 @@ public:
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
-	int  getNumAdjacentNonvisible(TeamTypes eTeam) const;
+	int getNumAdjacentNonvisible(TeamTypes eTeam) const;
+	int getNumAdjacentOwnedBy(PlayerTypes ePlayer) const;
 
 	bool isGoody(TeamTypes eTeam = NO_TEAM) const;
 	bool isRevealedGoody(TeamTypes eTeam = NO_TEAM) const;
@@ -294,7 +297,9 @@ public:
 	int getNumDefenders(PlayerTypes ePlayer) const;
 	int getNumNavalDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
-	int getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const;
+	int getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer=NO_PLAYER) const;
+	CvUnit* getFirstUnitOfAITypeSameTeam(TeamTypes eTeam, UnitAITypes eType) const;
+	CvUnit* getFirstUnitOfAITypeOtherTeam(TeamTypes eTeam, UnitAITypes eType) const;
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
@@ -933,6 +938,10 @@ public:
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
 	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	int GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude = NULL) const;
 #endif
 
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;

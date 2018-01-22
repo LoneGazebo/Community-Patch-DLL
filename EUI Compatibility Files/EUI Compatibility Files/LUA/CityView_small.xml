@@ -55,7 +55,7 @@
 			</Button>
 			<!-- Tourism Info -->
 			<Button ID="TourismBox" Size="196,24">
-				<Label Anchor="L,C" Offset="6,0" String="[ICON_TOURISM"/>
+				<Label Anchor="L,C" Offset="6,0" String="[ICON_TOURISM]"/>
 				<Label Anchor="L,C" Offset="32,0" String="TXT_KEY_CITYVIEW_TOURISM_TEXT"/>
 				<Label ID="TourismPerTurnLabel" Anchor="R,C" String=""/>
 				<Box Anchor="L,B" Color="27.53.64.255" Offset="4,0" Size="196,1"/>
@@ -63,7 +63,7 @@
 			<!-- CBP -->
 			<!-- Happiness Info -->
 			<Button ID="HappinessBox" Size="196,24">
-				<Label Anchor="L,C" Offset="6,0" String="[ICON_HAPPINESS_1"/>
+				<Label Anchor="L,C" Offset="6,0" String="[ICON_HAPPINESS_1]"/>
 				<Label Anchor="L,C" Offset="32,0" String="TXT_KEY_CITYVIEW_HAPPINESS_TEXT"/>
 				<Label ID="HappinessPerTurnLabel" Anchor="R,C" String=""/>
 				<Box Anchor="L,B" Color="27.53.64.255" Offset="4,0" Size="196,1"/>

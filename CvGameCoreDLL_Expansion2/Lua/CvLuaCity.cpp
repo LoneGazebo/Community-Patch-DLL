@@ -297,6 +297,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseTourism);
 #if defined(MOD_BALANCE_CORE)
 	Method(RefreshTourism);
+	Method(GetNumGreatWorksFilled);
 #endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
@@ -466,6 +467,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRateFromMisc);
 	Method(ChangeBaseYieldRateFromMisc);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetBaseYieldRateFromProcess);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
@@ -2074,12 +2078,6 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 
-	// Header for Food Modifier
-	if(eYield == YIELD_FOOD)
-	{	
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_FOOD", 1);
-	}
-
 	// City Yield Rate Modifier
 	pkCity->getBaseYieldRateModifier(eYield, 0, &toolTip);
 
@@ -2098,7 +2096,7 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
-		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_HEAD_GROWTH", 1);
+		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		pkCity->foodDifferenceTimes100(true, &toolTip);
 	}
 
@@ -3142,6 +3140,16 @@ int CvLuaCity::lRefreshTourism(lua_State* L)
 	pkCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	pkCity->GetCityCulture()->CalculateBaseTourism();
 	return 0;
+}
+//------------------------------------------------------------------------------
+//int GetNumGreatWorksFilled();
+int CvLuaCity::lGetNumGreatWorksFilled(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 2));
+
+	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumFilledGreatWorkSlots(eGreatWorkSlot));
+	return 1;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -4307,6 +4315,13 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::ChangeBaseYieldRateFromMisc);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+// Base yield rate from active conversion process
+int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromProcess);
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)

@@ -1899,15 +1899,20 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 -- CBP
 	-- WLTKD MOD
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_WLTKD", city:GetModFromWLTKD(yieldID), yieldIconString)
+	--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_WLTKD", city:GetModFromWLTKD(yieldID), yieldIconString)
 
 	-- Golden Age MOD
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID), yieldIconString)
+	--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID), yieldIconString)
 
 	-- CP EVENTS
 	-- Base Yield from Events
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_EVENTS", city:GetEventCityYield(yieldID), yieldIconString)
+
 -- END CBP
+
+	-- Vox Populi Base Yield from Process
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess( yieldID ), yieldIconString)
+
 -- Base Yield from League Art (CSD)
 	if(yieldID == YieldTypes.YIELD_SCIENCE) then
 		local iYieldFromLeague = city:GetBaseYieldRateFromLeague(yieldID);
@@ -1931,7 +1936,7 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	-- Food eaten by pop
 	if yieldID == YieldTypes.YIELD_FOOD then
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetYieldRate( yieldID, false ) - city:GetYieldRate( yieldID, true ) )
-		strModifiersString = "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString ) .. strModifiersString
+		--strModifiersString = "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString ) .. strModifiersString
 	elseif civBE_mode then
 		local yieldFromTrade = city:GetYieldPerTurnFromTrade( yieldID )
 		if yieldFromTrade ~= 0 then
@@ -2124,7 +2129,7 @@ local function GetProductionTooltip( city )
 			strModifiersString = strModifiersString .. L( "TXT_KEY_PRODMOD_FOOD_CONVERSION", productionFromFood / 100 )
 		end
 	end
-	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ) + city:GetYieldPerPopTimes100( yieldID ) * city:GetPopulation() / 100, productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
+	tipText = GetYieldTooltip( city, YieldTypes.YIELD_PRODUCTION, city:GetBaseYieldRate( YieldTypes.YIELD_PRODUCTION ) + city:GetYieldPerPopTimes100( YieldTypes.YIELD_PRODUCTION ) * city:GetPopulation() / 100, productionPerTurn100 / 100, "[ICON_PRODUCTION]", strModifiersString ) .. "[NEWLINE][NEWLINE]" .. tipText
 
 	-- Basic explanation of production
 	if isNoob then
@@ -2253,6 +2258,10 @@ local function GetCultureTooltip( city )
 	-- Base Yield from Misc
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END
+	
+	-- Vox Populi Base Yield from Process
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")
+	
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
 		tips:insert( "----------------" )
@@ -2261,7 +2270,7 @@ local function GetCultureTooltip( city )
 	end
 
 	-- Empire Culture modifier
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_PLAYER_MOD", cityOwner and cityOwner:GetCultureCityModifier() or 0 )
+	-- tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_PLAYER_MOD", cityOwner and cityOwner:GetCultureCityModifier() or 0 ) -- Vox Populi
 
 	local trculture = city:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE)
 	if(trculture ~= "") then
@@ -2270,39 +2279,41 @@ local function GetCultureTooltip( city )
 
 	if civ5_mode then
 		-- City Culture modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_CITY_MOD", city:GetCultureRateModifier())
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_CITY_MOD", city:GetCultureRateModifier()) -- Vox Populi
 
 		-- Culture Wonders modifier
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 ) -- Vox Populi
 		
 -- CBP
 		-- WLTKD MOD
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
 
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval())
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval()) -- Vox Populi already handled by modifier tooltip
 
 		-- Golden Age MOD
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
 		
 -- END
 
 -- CBP -- Resource Monopoly
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE)) -- Vox Populi already handled by modifier tooltip 
 		
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE)) -- Vox Populi already handled by modifier tooltip
 
 		
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_GWS", city:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_GWS", city:GetGreatWorkYieldMod(YieldTypes.YIELD_CULTURE)) -- Vox Populi
 
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_SPIES", city:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_SPIES", city:GetActiveSpyYieldMod(YieldTypes.YIELD_CULTURE)) -- Vox Populi
 -- END
 	end
 
 	-- Puppet modifier
-	local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
-	if (puppetMod ~= 0 and not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
-		tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
-	end
+	-- Vox Populi
+	--local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
+	--if (puppetMod ~= 0 and not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
+	--	tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
+	--end
+	-- Vox Populi end
 
 	-- Total
 	tips:insert( "----------------" )
@@ -2614,9 +2625,9 @@ local function GetFaithTooltip( city )
 		-- Yield Increase from CS Alliance
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
 	
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
 				
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
 	
 		-- Yield from Great Works
 		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", city:GetBaseYieldRateFromGreatWorks( YieldTypes.YIELD_FAITH ))

@@ -426,6 +426,7 @@ public:
 	int GetNoUnhappfromXSpecialists() const;
 	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
+	int GetSpecialistFoodChange() const;
 
 	int GetWarWearinessModifier() const;
 	int GetWarScoreModifier() const;
@@ -642,6 +643,7 @@ private:
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
+	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 

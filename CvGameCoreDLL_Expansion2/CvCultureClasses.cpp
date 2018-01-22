@@ -6686,6 +6686,12 @@ int CvCityCulture::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) co
 	return (m_pCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eSlotType));
 }
 
+/// How many OPEN Great Works slots of a particular type are available in the city?
+int CvCityCulture::GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) const
+{
+	return (m_pCity->GetCityBuildings()->GetNumFilledGreatWorkSlots(eSlotType));
+}
+
 /// Clear out Great Works in a city (used by scenarios)
 void CvCityCulture::ClearGreatWorks()
 {

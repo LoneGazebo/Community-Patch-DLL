@@ -252,6 +252,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iChanceToConvertReligiousUnits(0),
 	m_iGoldenAgeFromVictory(0),
 	m_iFreePolicyPerXTechs(0),
+	m_eGPFaithPurchaseEra(NO_ERA),
+	m_iFaithCostModifier(0),
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
 	m_bCombatBoostNearNaturalWonder(false),
@@ -1449,6 +1451,16 @@ int CvTraitEntry::GetFreePolicyPerXTechs() const
 {
 	return m_iFreePolicyPerXTechs;
 }
+EraTypes CvTraitEntry::GetGPFaithPurchaseEra() const
+{
+	return m_eGPFaithPurchaseEra;
+}
+int CvTraitEntry::GetFaithCostModifier() const
+{
+	return m_iFaithCostModifier;
+}
+
+
 int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 {
 	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
@@ -2530,6 +2542,13 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
 	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
 	m_iFreePolicyPerXTechs = kResults.GetInt("FreePolicyPerXTechs");
+
+	szTextVal = kResults.GetText("GPFaithPurchaseEra");
+	if (szTextVal)
+	{
+		m_eGPFaithPurchaseEra = (EraTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
+	m_iFaithCostModifier = kResults.GetInt("FaithCostModifier");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
 	m_bCombatBoostNearNaturalWonder = kResults.GetBool("CombatBoostNearNaturalWonder");
@@ -3002,6 +3021,7 @@ bool CvPlayerTraits::IsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
+		(IsIgnorePuppetPenalties() && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
 		return true;
@@ -3068,6 +3088,7 @@ bool CvPlayerTraits::IsDiplomat()
 		GetAllianceCSStrength() != 0 ||
 		GetInfluenceMeetCS() != 0 ||
 		GetStartingSpies() != 0 ||
+		GetNumTradeRoutesModifier() != 0 ||
 		GetLandTradeRouteRangeBonus() != 0 ||
 		GetSeaTradeRouteRangeBonus() != 0 ||
 		GetQuestYieldModifier() != 0 ||
@@ -3118,6 +3139,7 @@ bool CvPlayerTraits::IsSmaller()
 	if (IsImportsCountTowardsMonopolies() ||
 		IsAdoptionFreeTech() ||
 		IsPopulationBoostReligion() ||
+		IsNoAnnexing() ||
 		IsTechBoostFromCapitalScienceBuildings())
 		return true;
 
@@ -3184,8 +3206,9 @@ bool CvPlayerTraits::IsReligious()
 			return true;
 	}
 
-	if (GetTradeReligionModifier() != 0)
+	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0)
 		return true;
+	
 
 	if (m_pPlayer->GetReligions()->GetCurrentReligion() != NO_RELIGION)
 		return true;
@@ -3666,6 +3689,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
 				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
 				m_iFreePolicyPerXTechs = trait->GetFreePolicyPerXTechs();
+				m_eGPFaithPurchaseEra = trait->GetGPFaithPurchaseEra();
+				m_iFaithCostModifier = trait->GetFaithCostModifier();
 				if(trait->IsFreeGreatWorkOnConquest())
 				{
 					m_bFreeGreatWorkOnConquest = true;
@@ -4186,7 +4211,9 @@ void CvPlayerTraits::Reset()
 		m_iVotePerXCSFollowingFollowingYourReligion = 0;
 		m_iChanceToConvertReligiousUnits = 0;
 		m_iGoldenAgeFromVictory = 0;
-		m_iFreePolicyPerXTechs;
+		m_iFreePolicyPerXTechs = 0;
+		m_eGPFaithPurchaseEra = NO_ERA;
+		m_iFaithCostModifier = 0;
 		m_bFreeGreatWorkOnConquest = false;
 		m_bPopulationBoostReligion = false;
 		m_bCombatBoostNearNaturalWonder = false;
@@ -6323,6 +6350,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_eGPFaithPurchaseEra, NO_ERA);
+	MOD_SERIALIZE_READ(66, kStream, m_iFaithCostModifier, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
@@ -6700,6 +6729,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreePolicyPerXTechs);
+	MOD_SERIALIZE_WRITE(kStream, m_eGPFaithPurchaseEra);
+	MOD_SERIALIZE_WRITE(kStream, m_iFaithCostModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSFollowingFollowingYourReligion);
 	MOD_SERIALIZE_WRITE(kStream, m_iChanceToConvertReligiousUnits);
 #endif

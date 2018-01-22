@@ -11960,16 +11960,14 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer)
 		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isEnemyUnit(ePlayer,false,false); //visibility is checked elsewhere!
 
 		//general handling is a bit awkward
-		int iDummy = 0;
-		bSupportUnitPresent = pPlot->getNumUnitsOfAIType(UNITAI_GENERAL,iDummy) || pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL,iDummy);
+		bSupportUnitPresent = (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL,ePlayer) + pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL,ePlayer))>0;
 		nSupportUnitsAdjacent = 0;
 		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
 		for (int i = 0; i < 6; i++)
 		{
 			CvPlot* pNeighbor = aNeighbors[i];
-			if (pNeighbor)
-				if (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL,iDummy) || pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL,iDummy))
-					nSupportUnitsAdjacent++;
+			if (pNeighbor && (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL,ePlayer)+pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL,ePlayer))>0)
+				nSupportUnitsAdjacent++;
 		}
 
 		//plot type is set later

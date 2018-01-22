@@ -419,6 +419,12 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '0';
 
+-- Recon units calculations
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'MAX_PLOTS_PER_EXPLORER', '20';
+
 -- AI Military Strategies - no CSs
 
 UPDATE AIMilitaryStrategies

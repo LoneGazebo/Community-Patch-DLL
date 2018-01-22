@@ -375,6 +375,9 @@ protected:
 	static int lUnitClassDefenseModifier(lua_State* L);
 	static int lUnitCombatModifier(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lPerAdjacentUnitCombatModifier(lua_State* L);
+	static int lPerAdjacentUnitCombatAttackMod(lua_State* L);
+	static int lPerAdjacentUnitCombatDefenseMod(lua_State* L);
 	static int lBarbarianCombatBonus(lua_State* L);
 	static int lIsMounted(lua_State* L);
 	static int lIsStrongerDamaged(lua_State* L);

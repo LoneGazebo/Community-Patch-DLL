@@ -3514,11 +3514,11 @@ AIOperationAbortReason CvAIOperationAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI
 
 			SetMusterPlot( pMusterCity->plot() );
 
-			int iUnitID = 0;
-			if (pNewTarget->getNumUnitsOfAIType(UNITAI_SETTLE,iUnitID))
-				m_iUnitToRescue = iUnitID;
-			else if (pNewTarget->getNumUnitsOfAIType(UNITAI_WORKER,iUnitID))
-				m_iUnitToRescue = iUnitID;
+			CvUnit* pRescueUnit = pNewTarget->getFirstUnitOfAITypeSameTeam(BARBARIAN_TEAM, UNITAI_SETTLE);
+			if (!pRescueUnit)
+				pRescueUnit = pNewTarget->getFirstUnitOfAITypeSameTeam(BARBARIAN_TEAM, UNITAI_WORKER);
+			if (pRescueUnit)
+				m_iUnitToRescue = pRescueUnit->GetID();
 
 			// If we're traveling on a single continent, set our destination to be a few plots shy of the final target
 			if (pArmy->GetArea() == GetTargetPlot()->getArea())
@@ -3761,8 +3761,7 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 				continue;
 
 			// bonus for captured civilians (settlers and workers, not missionaries)
-			int iDummy;
-			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE, iDummy) * 2;
+			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 2;
 
 			int iCityLoop;
 			// Loop through each of our cities
@@ -3820,7 +3819,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		if (pLoopUnit->IsGarrisoned())
 		{
 			CvTacticalDominanceZone* pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopUnit->plot()->getPlotCity(),false);
-			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>1)
 				return false;
 		}
 		else

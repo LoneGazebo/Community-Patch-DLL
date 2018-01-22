@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -422,10 +422,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if (iPlotsNeeded<=3)
 			iSideBenefits += 10000;
 
-		if(pTargetCity->getUnhappinessFromConnection() > 0)
+		if(pTargetCity->getUnhappinessFromConnection() > 0 && m_pPlayer->GetExcessHappiness()<10)
 		{
-			//assume one unhappiness is worth 10 gold per turn
-			iSideBenefits += (pTargetCity->getUnhappinessFromConnection() * 1000);
+			//assume one unhappiness is worth 1 gold per turn per city
+			iSideBenefits += (pTargetCity->getUnhappinessFromConnection() * 100 * m_pPlayer->getNumCities());
 		}
 
 		if(bIndustrialRoute)
@@ -433,14 +433,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iSideBenefits += (pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD());
 		}
 
-		//bring it out of the hundreds
-		int iProfit = (iGoldForRoute + iSideBenefits - ((iRoadLength + iWildPlots)*iMaintenancePerTile)) / 100;
-		if (iProfit < 0)
+		int iProfit = iGoldForRoute + iSideBenefits - iRoadLength*iMaintenancePerTile;
+		if (iProfit < 0 || (iProfit+iNetGoldTimes100 < 0))
 			return;
-		else if (iNetGoldTimes100<=0 && iProfit<-iNetGoldTimes100)
-			return;
-		else
-			sValue = min(iProfit, MAX_SHORT);
+
+		//bring it out of the hundreds to avoid overflow
+		sValue = min(iProfit/100, MAX_SHORT);
 	}
 
 	for (size_t i=0; i<path.vPlots.size(); i++)
@@ -451,6 +449,16 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 			continue;
+		
+		//don't build roads if our trait gives the same benefit
+		if (m_pPlayer->getBestRoute() == ROUTE_ROAD && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() || m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
+		{
+			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+				return;
+			
+			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
+				return;
+		}
 
 		// if we already know about this plot, continue on
 		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
@@ -697,7 +705,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				if (bConnectOnlyCapitals)
 				{
 					// only need to build roads to the capital for the money and happiness
-					if(!pFirstCity->isCapital() && !pSecondCity->isCapital())
+					if(!pFirstCity->isCapital() && !pSecondCity->isCapital() && iNetGoldTimes100>0)
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
@@ -811,8 +819,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		}
 	}
 
-	int iGold = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
-
 	// go through all the plots the player has under their control
 	for(set<int>::iterator it=m_aiPlots.begin(); it!=m_aiPlots.end(); ++it)
 	{
@@ -844,9 +850,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
-		int iFirstUnitID = 0;
-		int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
-		if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+		CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(),pUnit->AI_getUnitAIType());
+		if (pAltWorker && pAltWorker != pUnit)
 		{
 			continue;
 		}
@@ -866,7 +871,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 		UpdateCurrentPlotYields(pPlot);
 
-		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway, iGold);
+		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddImprovingResourcesDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddImprovingPlotsDirectives(pUnit, pPlot, iMoveTurnsAway);
 		if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
@@ -921,9 +926,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
-		int iFirstUnitID = 0;
-		int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
-		if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+		CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(), pUnit->AI_getUnitAIType());
+		if (pAltWorker && pAltWorker != pUnit)
 		{
 			continue;
 		}
@@ -949,7 +953,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			LogInfo(strLog, m_pPlayer);
 		}
 
-		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway, iGold);
+		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -1011,9 +1015,8 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							continue;
 						}
 
-						int iFirstUnitID = 0;
-						int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
-						if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+						CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(), pUnit->AI_getUnitAIType());
+						if (pAltWorker && pAltWorker != pUnit)
 						{
 							continue;
 						}
@@ -1636,7 +1639,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway, int iGold)
+void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
 
@@ -1660,26 +1663,9 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(eBestRouteType == ROUTE_ROAD && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() || m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
-	{
-		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-		{
-			return;
-		}
-		else if(m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
-		{
-			return;
-		}
-	}
-	//abort if we're running low on gold.
-	if (iGold <= 3)
-		return;
-#endif
 
 	// find the route build
 	BuildTypes eRouteBuild = NO_BUILD;
-
 	RouteTypes eRoute = pPlot->GetBuilderAIScratchPadRoute();
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{

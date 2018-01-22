@@ -2354,15 +2354,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkBuildingInfo)
 					{
-						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 2, 10, 10, 10, false, true, true);
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 5, 10, 10, 10, false, true, true);
 						if (iValue > 0)
 						{
 							if (pkBuildingInfo->IsCapitalOnly())
-								iValue /= 18;
+								iValue /= 5;
 							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
-								iValue /= 8;
+								iValue /= 3;
 							else
-								iValue /= 4;
+								iValue /= 2;
 							yield[YIELD_PRODUCTION] += iValue;
 						}
 					}
@@ -2833,13 +2833,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType());
 				if (pkBuildingClassInfo)
 				{
-					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(PolicyInfo->GetFreeBuildingOnConquest(), 2, 10, 10, 10, false, true, true);
+					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(PolicyInfo->GetFreeBuildingOnConquest(), 5, 10, 10, 10, false, true, true);
 					if (iValue > 0)
 					{
 						if (pkBuildingInfo->IsCapitalOnly())
-							iValue /= 10;
-						else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 							iValue /= 5;
+						else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+							iValue /= 3;
 						else
 							iValue /= 2;
 						yield[YIELD_PRODUCTION] += iValue;
@@ -3013,6 +3013,19 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += PolicyInfo->GetNoUnhappfromXSpecialistsCapital();
 		}
 	}
+
+	if (PolicyInfo->GetSpecialistFoodChange() != 0)
+	{
+		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * 8;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * 3;
+		}
+	}
+
 	if (PolicyInfo->GetWarWearinessModifier() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
@@ -3412,7 +3425,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkBuildingInfo && (pkBuildingInfo->GetPolicyType() == ePolicy || (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE && pkBuildingInfo->GetPolicyBranchType() == GC.getPolicyInfo(ePolicy)->GetPolicyBranchType())))
 					{
-						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 2, 10, 10, 10, false, true, true);
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 5, 10, 10, 10, false, true, true);
 						if (iValue > 0)
 						{
 							if (pkBuildingInfo->GetFaithCost() != 0)
@@ -3425,9 +3438,9 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 								yield[YIELD_FAITH] += iValue;
 							}
 							else if (pkBuildingInfo->IsCapitalOnly())
-								iValue /= 10;
-							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 								iValue /= 5;
+							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+								iValue /= 3;
 							else
 								iValue /= 2;
 							yield[YIELD_PRODUCTION] += iValue;
@@ -3493,13 +3506,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 						if (pkBuildingInfo)
 						{
-							int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 2, 10, 10, 10, false, true, true);
+							int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 5, 10, 10, 10, false, true, true);
 							if (iValue > 0)
 							{
 								if (pkBuildingInfo->IsCapitalOnly())
-									iValue /= 10;
-								else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
 									iValue /= 5;
+								else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+									iValue /= 3;
 								else
 									iValue /= 2;
 								yield[YIELD_PRODUCTION] += iValue;

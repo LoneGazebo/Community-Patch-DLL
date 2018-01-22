@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -262,16 +262,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Sanitize...
 	if (kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->isCapital())
 	{
-		if (iTempWeight > 600)
+		if (iTempWeight > 400)
 		{
-			iTempWeight = 600;
+			iTempWeight = 400;
 		}
 	}
 	else
 	{
-		if (iTempWeight > 400)
+		if (iTempWeight > 275)
 		{
-			iTempWeight = 400;
+			iTempWeight = 275;
 		}
 	}
 
@@ -1099,9 +1099,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 
-		int iFirstUnitID = 0;
 		//There's a settler waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, iFirstUnitID) > 0)
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE,m_pCity->getOwner()) > 0)
 		{
 			return 0;
 		}
@@ -1268,6 +1267,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if (iFlavorExpansion <= 0)
 			iFlavorExpansion = 1;
+		
+		//Higher-level AI should expand more quickly.
+		int iExpansionVal = 700;
+		if (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() > 0)
+		{
+			iExpansionVal += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 25;
+		}
 
 		int iSettlerDesire = (iFlavorExpansion * 700);
 		iBonus += iSettlerDesire;
@@ -1327,9 +1333,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Make sure we need naval workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
-		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
-		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER_SEA, iFirstUnitID) > 0)
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER_SEA, m_pCity->getOwner()) > 0)
 		{
 			return 0;
 		}
@@ -1384,9 +1389,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if (!kPlayer.isMinorCiv())
 		{
-			int iFirstUnitID;
 			//There's a worker waiting here? Abort!
-			if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
+			if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, m_pCity->getOwner()) > 0)
 			{
 				return 0;
 			}
@@ -1541,7 +1545,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		
 		if (iPromotionBonus != 0)
 		{
-			iBonus += iPromotionBonus * 10;
+			iBonus += iPromotionBonus * 8; // was 10
 		}
 	
 		//Uniques? They're generally good enough to spam.

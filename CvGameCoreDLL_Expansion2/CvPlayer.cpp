@@ -633,6 +633,7 @@ CvPlayer::CvPlayer() :
 	, m_iNoUnhappfromXSpecialists("CvPlayer::m_iNoUnhappfromXSpecialists", m_syncArchive)
 	, m_iHappfromXSpecialists("CvPlayer::m_iHappfromXSpecialists", m_syncArchive)
 	, m_iNoUnhappfromXSpecialistsCapital("CvPlayer::m_iNoUnhappfromXSpecialistsCapital", m_syncArchive)
+	, m_iSpecialistFoodChange("CvPlayer::m_iSpecialistFoodChange", m_syncArchive)
 	, m_iWarWearinessModifier("CvPlayer::m_iWarWearinessModifier", m_syncArchive)
 	, m_iWarScoreModifier("CvPlayer::m_iWarScoreModifier", m_syncArchive)
 #endif
@@ -1619,6 +1620,7 @@ void CvPlayer::uninit()
 	m_iNoUnhappfromXSpecialists = 0;
 	m_iHappfromXSpecialists = 0;
 	m_iNoUnhappfromXSpecialistsCapital = 0;
+	m_iSpecialistFoodChange = 0;
 	m_iWarWearinessModifier = 0;
 	m_iWarScoreModifier = 0;
 	m_iPlayerEventCooldown = 0;
@@ -9890,7 +9892,6 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	}
 
 	m_kPlayerAchievements.AddUnit(pUnit);
-
 	return pUnit;
 }
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
@@ -10882,14 +10883,16 @@ void CvPlayer::doTurn()
 	}
 	GET_TEAM(getTeam()).updateTeamStatus();
 	UpdateBestMilitaryCities();
-	DoArmyDiversity();
-	DoNavyDiversity();
+	
 	if(GetFaithPurchaseCooldown() > 0)
 	{
 		ChangeFaithPurchaseCooldown(-1);
 	}
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
+		DoArmyDiversity();
+		DoNavyDiversity();
+
 		RefreshCSAlliesFriends();
 		UpdateHappinessFromMinorCivs();
 #endif
@@ -18102,6 +18105,11 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 		// We're a vassal of someone, we get x% of his science
 		iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
 	}
+
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
+	}
 #endif
 
 	// Golden Age bonus
@@ -18386,6 +18394,11 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 		if (MOD_DIPLOMACY_CIV4_FEATURES) {
 			// We're a vassal of someone, we get x% of his science
 			iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
+		}
+
+		if (MOD_BALANCE_CORE_JFD)
+		{
+			iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
 		}
 #endif
 
@@ -19836,11 +19849,11 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	int iFaithPerTurn = 0;
 
 	// If we're in anarchy, then no Faith is generated!
-	if(IsAnarchy())
+	if (IsAnarchy())
 		return 0;
 #if defined(MOD_BALANCE_CORE)
 	//No barbs or minors, please!
-	if(isBarbarian() || isMinorCiv())
+	if (isBarbarian() || isMinorCiv())
 		return 0;
 #endif
 
@@ -19862,6 +19875,11 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		// We're a vassal of someone, we get x% of his faith
 		iFaithPerTurn += (GetYieldPerTurnFromVassals(YIELD_FAITH));
+	}
+
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
 	}
 #endif
 
@@ -19951,6 +19969,35 @@ int CvPlayer::GetSciencePerTurnFromMinor(PlayerTypes eMinor) const
 	}
 
 	return iSciencePerTurn;
+}
+
+int CvPlayer::GetYieldPerTurnFromMinors(YieldTypes eYield, bool bCityLevel, bool bCapital) const
+{
+	int iTotal = 0;
+	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMinorCiv())
+		{
+			if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetID())
+			{
+				int iValue = 0;
+				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetMinorCivAllyBonus, GetID(), ePlayer, GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait(), eYield, bCapital, bCityLevel) == GAMEEVENTRETURN_VALUE)
+				{
+					iTotal += iValue;
+				}
+			}
+			else if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(GetID()))
+			{
+				int iValue = 0;
+				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetMinorCivFriendBonus, GetID(), ePlayer, GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait(), eYield, bCapital, bCityLevel) == GAMEEVENTRETURN_VALUE)
+				{
+					iTotal += iValue;
+				}
+			}
+		}
+	}
+	return iTotal;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -24403,6 +24450,12 @@ int CvPlayer::GetGoldenAgePointsFromEmpire()
 	iGAPoints +=  GetYieldPerTurnFromTraits(YIELD_GOLDEN_AGE_POINTS);
 
 	iGAPoints += GetGoldenAgePointsFromCities();
+
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iGAPoints += GetYieldPerTurnFromMinors(YIELD_GOLDEN_AGE_POINTS);
+	}
+
 	return iGAPoints;
 }
 
@@ -26115,7 +26168,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 
 					//Exclusion for birth yields and GP expense and policy unlocks (as we do it up above to avoid % growth and religion bonuses from being scaled).
-					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK)
+					if (bEraScale && eYield != YIELD_TOURISM && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK)
 					{
 						iValue *= iEra;
 					}
@@ -30440,6 +30493,21 @@ void CvPlayer::ChangeNoUnhappfromXSpecialistsCapital(int iChange)
 {
 	m_iNoUnhappfromXSpecialistsCapital += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetSpecialistFoodChange() const
+{
+	return m_iSpecialistFoodChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeSpecialistFoodChange(int iChange)
+{
+	m_iSpecialistFoodChange += iChange;
+}
+
+
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetWarWearinessModifier() const
 {
@@ -34522,6 +34590,11 @@ int CvPlayer::GetScienceTimes100() const
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		// We're a vassal of someone, we get x% of his science
 		iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
+	}
+
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		iValue += GetYieldPerTurnFromMinors(YIELD_FAITH) * 100;
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -41513,6 +41586,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeNoUnhappfromXSpecialists(pPolicy->GetNoUnhappfromXSpecialists() * iChange);
 		ChangeHappfromXSpecialists(pPolicy->GetHappfromXSpecialists() * iChange);
 		ChangeNoUnhappfromXSpecialistsCapital(pPolicy->GetNoUnhappfromXSpecialistsCapital() * iChange);
+		ChangeSpecialistFoodChange(pPolicy->GetSpecialistFoodChange() * iChange);
 		ChangeWarWearinessModifier(pPolicy->GetWarWearinessModifier() * iChange);
 		ChangeWarScoreModifier(pPolicy->GetWarScoreModifier() * iChange);
 
