@@ -783,6 +783,7 @@
 
 // Events sent by golden ages (v52)
 //   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end)
+//   GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
 #define MOD_EVENTS_GOLDEN_AGE                       gCustomMods.isEVENTS_GOLDEN_AGE()
 
 // Events sent after a city produces/buys something
@@ -1189,6 +1190,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanTransitMinorCity		"PlayerCanTransitMinorCity",	"iiiii"
 #define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
 #define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
+#define GAMEEVENT_PlayerEndOfMayaLongCount		"PlayerEndOfMayaLongCount",		"iii"
 #define GAMEEVENT_PlayerLiberated				"PlayerLiberated",				"iii"
 #define GAMEEVENT_PlayerPlunderedTradeRoute		"PlayerPlunderedTradeRoute",	"iiiiiiiii"
 #define GAMEEVENT_PlayerProtected				"PlayerProtected",				"ii"

@@ -5327,6 +5327,10 @@ bool CvPlayerTraits::IsEndOfMayaLongCount()
 	if(m_iBaktunPreviousTurn + 1 == m_iBaktun)
 	{
 		bRtnValue = true;
+		// Since m_iBaktunPreviousTurn will be overwritten in a moment, this is the only place to properly send an event for end of Maya long count
+		if(m_pPlayer != NULL)
+			// GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerEndOfMayaLongCount, m_pPlayer->GetID(), m_iBaktun, m_iBaktunPreviousTurn);
 	}
 
 	m_iBaktunPreviousTurn = m_iBaktun;
