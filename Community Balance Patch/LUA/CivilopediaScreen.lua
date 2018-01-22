@@ -70,17 +70,6 @@ local categorizedList = {};
 local absurdlyLargeNumTopicsInCategory = 10000;
 local homePageOfCategoryID = 9999;
 
--- Putmalk: These boolean variables check whether or not certain game options are enabled.
-	local g_bResearchAgreementTrading = false;
-	local g_bTechTrading = true;
-	local g_bNoVassalage= false;
-	if(Game ~= nil)then
-		g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-		g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
-		g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
-	end
--- END
-
 -- These projects were more of an implementation detail and not explicit projects
 -- that the user can build.  So to avoid confusion, we shall ignore them from the pedia.
 local projectsToIgnore = {
@@ -309,8 +298,7 @@ CivilopediaCategory[CategoryGameConcepts].PopulateList = function()
 		HEADER_TRADE = 24,
 		HEADER_WORLDCONGRESS = 25,
 -- CBP
-		HEADER_VASSALAGE = 26,
-		HEADER_CORPORATIONS = 27
+		HEADER_CORPORATIONS = 26,
 -- END
 	}
 	
@@ -2717,42 +2705,6 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			numAbilities = numAbilities + 1;
 		end	
 -- END	
--- Putmalk: If this tech grants Research Agreements, and Research Agreements are enabled, then display it on the tech info page
-		if (thisTech.ResearchAgreementTradingAllowed and g_bResearchAgreementTrading) then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_R_PACT_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-	
-		-- Putmalk: If this tech grants Map Trading then display it on the tech info page
-		if thisTech.MapTrading then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_MAP_TRADING_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-	
-		-- Putmalk: If this tech grants Tech Trading, and Tech trading is active, then display it on the tech info page
-		if (thisTech.TechTrading and g_bTechTrading) then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_TRADING_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-	
-		-- Putmalk: If this tech grants vassalage, and vassalage isn't disabled, then display it on the tech info page
-		if (thisTech.VassalageTradingAllowed and not g_bNoVassalage) then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_VASSALAGE_STRING" );
-			numAbilities = numAbilities + 1;
-		end
--- END		
 		if thisTech.AllowEmbassyTradingAllowed then
 			if numAbilities > 0 then
 				abilitiesString = abilitiesString .. "[NEWLINE]";

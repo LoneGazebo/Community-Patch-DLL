@@ -379,6 +379,7 @@ public:
 #endif
 	int GetNumGreatWorkSlots() const;
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) const;
+	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	void ClearGreatWorks();
 	GreatWorkSlotType GetSlotTypeFirstAvailableCultureBuilding() const;
 #if defined(MOD_BALANCE_CORE)

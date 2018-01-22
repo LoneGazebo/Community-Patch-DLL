@@ -1499,7 +1499,11 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 		{
 			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 		} 
-		if(eFoundedReligion != NO_RELIGION)
+		if (eFoundedReligion == NO_RELIGION)
+		{
+			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionInMostCities();
+		}
+		if (eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
@@ -1552,7 +1556,11 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 		{
 			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
 		} 
-		if(eFoundedReligion != NO_RELIGION)
+		if (eFoundedReligion == NO_RELIGION)
+		{
+			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionInMostCities();
+		}
+		if (eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)

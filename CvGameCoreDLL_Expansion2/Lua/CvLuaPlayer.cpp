@@ -1298,6 +1298,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetVassalIndependenceTooltipAsVassal);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	Method(GetYieldPerTurnFromMinors);
 	Method(GetScoreFromMinorAllies);
 	Method(GetScoreFromMilitarySize);
 #endif
@@ -14261,6 +14262,18 @@ LUAAPIIMPL(Player, CountAllTerrain)
 LUAAPIIMPL(Player, CountAllWorkedTerrain)
 #endif
 #if defined(MOD_BALANCE_CORE)
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lGetYieldPerTurnFromMinors(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	bool bIsCityLevel = pkCity != NULL;
+	bool bIsCapital = bIsCityLevel && pkCity->isCapital();
+	const int iResult = pkPlayer->GetYieldPerTurnFromMinors(eYield, bIsCityLevel, bIsCapital);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //-------------------------------------------------------------------------
 int CvLuaPlayer::lGetScoreFromMinorAllies(lua_State* L)
 {

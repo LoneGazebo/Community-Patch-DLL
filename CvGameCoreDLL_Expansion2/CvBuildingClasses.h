@@ -1057,6 +1057,7 @@ public:
 	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot) const;
 	int GetNumAvailableGreatWorkSlots() const;
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
+	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 

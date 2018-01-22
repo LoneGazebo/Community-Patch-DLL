@@ -3549,7 +3549,7 @@
 			<Help>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionPrereqOr1>
+			<CannotBeChosen>true</CannotBeChosen>
 			<GainsXPFromPillaging>true</GainsXPFromPillaging>
 			<PortraitIndex>5</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3562,7 +3562,7 @@
 			<Help>TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_1</PromotionPrereqOr1>
+			<CannotBeChosen>true</CannotBeChosen>
 			<GainsXPFromSpotting>true</GainsXPFromSpotting>
 			<PortraitIndex>43</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
