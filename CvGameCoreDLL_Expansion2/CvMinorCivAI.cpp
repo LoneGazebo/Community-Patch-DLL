@@ -1331,11 +1331,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 150;
 				iBonus /= 100;
 			}
-			//Cap it to keep things under control.
-			if(iBonus > pkSmallAwardInfo->GetHappiness() * 4)
-			{
-				iBonus = pkSmallAwardInfo->GetHappiness() * 4;
-			}
+			//Cap it both sides to keep things under control.
+			iBonus = min( max(iBonus, pkSmallAwardInfo->GetHappiness()), 4*pkSmallAwardInfo->GetHappiness());
 			SetHappiness(iBonus);
 		}
 		if(pkSmallAwardInfo->GetTourism() > 0)
