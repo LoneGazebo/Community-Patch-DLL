@@ -1331,11 +1331,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 150;
 				iBonus /= 100;
 			}
-			//Cap it to keep things under control.
-			if(iBonus > pkSmallAwardInfo->GetHappiness() * 4)
-			{
-				iBonus = pkSmallAwardInfo->GetHappiness() * 4;
-			}
+			//Cap it both sides to keep things under control.
+			iBonus = min( max(iBonus, pkSmallAwardInfo->GetHappiness()), 4*pkSmallAwardInfo->GetHappiness());
 			SetHappiness(iBonus);
 		}
 		if(pkSmallAwardInfo->GetTourism() > 0)
@@ -15258,14 +15255,12 @@ void CvMinorCivAI::DoUnitSpawnTurn()
 			// Time to spawn!
 			if(GetUnitSpawnCounter(eMajor) == 0)
 			{
-#if defined(MOD_GLOBAL_CS_GIFTS)
+#if defined(MOD_EVENTS_MINORS_GIFTS)
 				CvUnit* pSpawnUnit = DoSpawnUnit(eMajor);
 				// Send an event with the details
-				if (MOD_GLOBAL_CS_GIFTS && pSpawnUnit != NULL) // don't use MOD_EVENTS_MINORS_GIFTS here, units are gifted regardless of events!
-				{
+				if (MOD_EVENTS_MINORS_GIFTS && pSpawnUnit != NULL)
 					// GameEvents.MinorGiftUnit.Add(function(iMinor, iMajor, iUnitType) end)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorGiftUnit, GetPlayer()->GetID(), eMajor, pSpawnUnit->getUnitType());
-				}
 #else
 				DoSpawnUnit(eMajor);
 #endif

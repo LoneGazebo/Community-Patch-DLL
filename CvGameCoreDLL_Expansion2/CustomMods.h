@@ -650,6 +650,7 @@
 
 // Event sent when a Goody Hut is entered (v33)
 //   GameEvents.GoodyHutCanNotReceive.Add(function(iPlayer, iUnit, eGoody, bPick) return false end)
+//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
 #define MOD_EVENTS_GOODY_CHOICE                     gCustomMods.isEVENTS_GOODY_CHOICE()
 
 // Events sent if a Goody Hut is giving a tech
@@ -1143,6 +1144,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_GetReligionToFound			"GetReligionToFound",			"iib"
 #define GAMEEVENT_GetBeliefToFound				"GetBeliefToFound",				"ii"
 #define GAMEEVENT_GoodyHutCanNotReceive			"GoodyHutCanNotReceive",		"iiib"
+#define GAMEEVENT_GoodyHutReceivedBonus			"GoodyHutReceivedBonus",		"iiiii"
 #define GAMEEVENT_GoodyHutCanResearch			"GoodyHutCanResearch",			"ii"
 #define GAMEEVENT_GoodyHutTechResearched		"GoodyHutTechResearched",		"ii"
 #define GAMEEVENT_GreatPersonExpended			"GreatPersonExpended",			"iiiii"

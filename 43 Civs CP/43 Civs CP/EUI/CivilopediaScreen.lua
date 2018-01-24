@@ -4248,6 +4248,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		local sText = "[COLOR_CYAN]Features[ENDCOLOR] of this building:"; -- change to TXT_KEY_ later
 		-- Generic info from main table
 		local function AnalyzeBuilding(sField, sSuffix)
+			--print("AnalyzeBuilding", sField, sSuffix)
 			sText = sText .. AnalyzeObjectField(thisBuilding, sField, sSuffix);
 		end
 		--AnalyzeBuilding("CapitalOnly", "");
@@ -4368,7 +4369,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		--AnalyzeBuilding("ObsoleteTech");
 		if thisBuilding.ObsoleteTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Obsolete with [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Technologies[thisBuilding.ObsoleteTech].Description).."[ENDCOLOR]"; end
 		--AnalyzeBuilding("EnhancedYieldTech");
-		if thisBuilding.EnhancedYieldTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Additional yields with [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.BuildingClasses[thisBuilding.EnhancedYieldTech].Description).."[ENDCOLOR]"; end
+		if thisBuilding.EnhancedYieldTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Additional yields with [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.Technologies[thisBuilding.EnhancedYieldTech].Description).."[ENDCOLOR]"; end
 		AnalyzeBuilding("TechEnhancedTourism", "[ICON_TOURISM]");
 		--AnalyzeBuilding("FreeBuilding");
 		if thisBuilding.FreeBuilding ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Free [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.BuildingClasses[thisBuilding.FreeBuilding].Description).."[ENDCOLOR] in all Cities"; end
@@ -4495,6 +4496,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		if thisBuilding.MaxStartEra ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Only until [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Eras[thisBuilding.MaxStartEra].Description).."[ENDCOLOR]"; end
 		-------------------
 		local function AnalyzeBuildingYields(sTable, sFieldName, sRefTable, sFlags, sInfo)
+			--print("AnalyzeBuildingYields", sTable, sFieldName, sRefTable, sFlags, sInfo)
 			local sLocText = "";
 			--"SELECT [sTable].Yield, [sRefTable].Description
 			--FROM [sTable]
@@ -4912,6 +4914,15 @@ CivilopediaCategory[CategoryPeople].SelectArticle =  function( rawPeopleID, shou
 				SELECT Buildings.Description, Yields.IconString, Building_SpecialistYieldChangesLocal.Yield
 				FROM Building_SpecialistYieldChangesLocal INNER JOIN Yields, Buildings ON Building_SpecialistYieldChangesLocal.YieldType = Yields.Type AND Building_SpecialistYieldChangesLocal.BuildingType = Buildings.Type
 				WHERE Building_SpecialistYieldChangesLocal.SpecialistType = ?]];
+			for row in DB.Query(sql, thisPerson.Type) do
+				sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description)..string.format(" %+d", row.Yield)..row.IconString;
+			end
+			sText = sText.."[NEWLINE][COLOR_CYAN]Technologies[ENDCOLOR] that increase yields:";
+			local sql = [[
+				SELECT Technologies.Description, Yields.IconString, Tech_SpecialistYieldChanges.Yield
+				FROM Tech_SpecialistYieldChanges INNER JOIN Yields, Technologies ON Tech_SpecialistYieldChanges.YieldType = Yields.Type AND Tech_SpecialistYieldChanges.TechType = Technologies.Type
+				WHERE Tech_SpecialistYieldChanges.SpecialistType = ?
+				ORDER BY Technologies.GridX]];
 			for row in DB.Query(sql, thisPerson.Type) do
 				sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description)..string.format(" %+d", row.Yield)..row.IconString;
 			end

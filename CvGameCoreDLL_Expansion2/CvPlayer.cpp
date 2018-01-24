@@ -14155,6 +14155,11 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 #endif
 					eGoody = (GoodyTypes) avValidGoodies[iRand];
 					receiveGoody(pPlot, eGoody, pUnit);
+#if defined(MOD_EVENTS_GOODY_CHOICE)
+					if (MOD_EVENTS_GOODY_CHOICE)
+						//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_GoodyHutReceivedBonus, GetID(), pUnit ? pUnit->GetID() : -1, eGoody, pPlot->getX(), pPlot->getY());
+#endif
 				}
 				
 #if !defined(NO_ACHIEVEMENTS)
