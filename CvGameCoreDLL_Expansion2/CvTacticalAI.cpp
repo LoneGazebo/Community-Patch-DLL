@@ -8203,7 +8203,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 				continue;
 
 			//performance optimization
-			if (plotDistance(*pTarget,*pLoopUnit->plot())>iNumTurnsAway*3)
+			if (plotDistance(*pTarget,*pLoopUnit->plot())>(iNumTurnsAway+1)*3)
 				continue;
 
 			int iTurnsCalculated = -1;
