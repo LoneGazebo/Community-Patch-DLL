@@ -444,7 +444,9 @@ CivilopediaCategory[CategoryTech].PopulateList = function()
 	sortedList[CategoryTech] = {};
 	
 	-- for each era
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Type FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID;
 	
@@ -529,7 +531,9 @@ CivilopediaCategory[CategoryUnits].PopulateList = function()
 	local UnitsByEra = DB.CreateQuery(sql);
 	
 	local bFirstEra = true;
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Type FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID + sectionID;
 	
@@ -824,7 +828,9 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 	
 	-- for each era
 	local bFirstEra = true;
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Type FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID + sectionID;
 	
@@ -4491,9 +4497,17 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("NukeImmune");
 		AnalyzeBuilding("ConquestProb", "");
 		--AnalyzeBuilding("FreeStartEra");
-		if thisBuilding.FreeStartEra ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Free in [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.Eras[thisBuilding.FreeStartEra].Description).."[ENDCOLOR]"; end
+		if thisBuilding.FreeStartEra ~= nil then
+			local sDesc = ""
+			for era in DB.Query("SELECT Description FROM Eras WHERE Type = ?", thisBuilding.FreeStartEra) do sDesc = era.Description end
+			sText = sText.."[NEWLINE][ICON_BULLET]Free in [COLOR_POSITIVE_TEXT]"..Locale.Lookup(sDesc).."[ENDCOLOR]"
+		end
 		--AnalyzeBuilding("MaxStartEra");
-		if thisBuilding.MaxStartEra ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Only until [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Eras[thisBuilding.MaxStartEra].Description).."[ENDCOLOR]"; end
+		if thisBuilding.MaxStartEra ~= nil then
+			local sDesc = ""
+			for era in DB.Query("SELECT Description FROM Eras WHERE Type = ?", thisBuilding.MaxStartEra) do sDesc = era.Description end
+			sText = sText.."[NEWLINE][ICON_BULLET]Only until [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(sDesc).."[ENDCOLOR]"
+		end
 		-------------------
 		local function AnalyzeBuildingYields(sTable, sFieldName, sRefTable, sFlags, sInfo)
 			--print("AnalyzeBuildingYields", sTable, sFieldName, sRefTable, sFlags, sInfo)
@@ -6813,7 +6827,9 @@ CivilopediaCategory[CategoryTech].SelectHeading = function( selectedEraID, dummy
 		otherSortedList[tostring( thisTechInstance.ListItemButton )] = sortOrder;
 	end
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID;
 		-- add an era header
@@ -6916,7 +6932,9 @@ CivilopediaCategory[CategoryUnits].SelectHeading = function( selectedEraID, dumm
 		sectionID = sectionID + 1;
 	end
 
-	for era in GameInfo.Eras() do	
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		PopulateHeaderAndItems(sectionID, headingName);
@@ -7064,7 +7082,9 @@ CivilopediaCategory[CategoryBuildings].SelectHeading = function( selectedEraID, 
 	PopulateAndAdd(sectionID, "TXT_KEY_TOPIC_CORPORATION");
 	sectionID = sectionID + 1;
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		PopulateAndAdd(sectionID, headingName);
@@ -7836,7 +7856,9 @@ CivilopediaCategory[CategoryTech].DisplayList = function()
 		otherSortedList[tostring( thisTechInstance.ListItemButton )] = sortOrder;
 	end
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID;
 		-- add an era header
@@ -7928,7 +7950,9 @@ CivilopediaCategory[CategoryUnits].DisplayList = function()
 		sectionID = sectionID + 1;
 	end
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		
@@ -8054,7 +8078,9 @@ CivilopediaCategory[CategoryBuildings].DisplayList = function()
 	PopulateAndAdd(sectionID, "TXT_KEY_TOPIC_CORPORATION");
 	sectionID = sectionID + 1;
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		PopulateAndAdd(eraID + sectionID, headingName);
