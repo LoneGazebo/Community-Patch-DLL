@@ -28099,15 +28099,29 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
 		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) >= 0;
 
-	// Was the next plot invisible at the time of generation? See if it is visible now.
-	CvPlot* pkNextPlot = m_kLastPath.GetFirstPlot();
-	if ( m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
+	bool bCheckCivilianStacking = !MOD_GLOBAL_BREAK_CIVILIAN_1UPT;
+#else
+	bool bCheckCivilianStacking = true;
+#endif
+
+	if (IsCombatUnit() || bCheckCivilianStacking || !isHuman())
 	{
-		//did we just reveal a unit? if so, abort movement
-		if (isHuman())
-			bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
+		// Was the next plot invisible at the time of generation? See if it is visible now.
+		CvPlot* pkNextPlot = m_kLastPath.GetFirstPlot();
+		if (m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
+		{
+			//did we just reveal a unit? if so, abort movement
+			if (isHuman())
+				bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
+			else
+				bHaveValidPath = !(pkNextPlot->isVisibleEnemyUnit(getOwner()));
+		}
 		else
-			bHaveValidPath = !(pkNextPlot->isVisibleEnemyUnit(getOwner()));
+		{
+			// The path is still good, just use the next node
+			bHaveValidPath = IsCachedPathValid();
+		}
 	}
 	else
 	{
