@@ -864,6 +864,10 @@ public:
 	bool IsLeagueAid() const;
 
 	void ProcessLeagueResolutions();
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes AidRankGeneric(int eType = 0);
+	int ScoreDifferencePercent(int eType = 0);
+#endif
 	PlayerTypes AidRank();
 	int ScoreDifference();
 
