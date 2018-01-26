@@ -27467,12 +27467,22 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
 	if (iArtsyMod != 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		// scale GPP the same way as yields
+		iArtsyMod *= ScoreDifferencePercent(1);
+		iArtsyMod /= 100;
+#endif
 		m_iGreatWriterRateModifier += iArtsyMod;
 		m_iGreatArtistRateModifier += iArtsyMod;
 		m_iGreatMusicianRateModifier += iArtsyMod;
 	}
 	if (iScienceyMod != 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		// scale GPP the same way as yields
+		iScienceyMod *= ScoreDifferencePercent(2);
+		iScienceyMod /= 100;
+#endif
 		m_iGreatScientistRateModifier += iScienceyMod;
 		m_iGreatEngineerRateModifier += iScienceyMod;
 		m_iGreatMerchantRateModifier += iScienceyMod;
@@ -47547,7 +47557,7 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / (30 + getNumCities()));
+	return (GetMilitaryMight() / (20 + getNumCities()));  // was 30
 }
 #endif
 

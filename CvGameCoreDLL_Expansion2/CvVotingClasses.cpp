@@ -11913,7 +11913,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #if defined(MOD_BALANCE_CORE)
 			if (bFoundedReligion)
 			{ 
-				iScore += 500;
+				iScore += 300;
 			}
 			else
 			{
@@ -12188,7 +12188,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if(GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
 			{
 				iScore += 50;
-				iScore += GetPlayer()->ScoreDifferencePercent(1)/3; // was 10..30, gonna be 0.33
+				iScore += GetPlayer()->ScoreDifferencePercent(1)/2; // was 10..30, gonna be 0..50
 			}
 #else
 			if(GetPlayer()->AidRank() != NO_PLAYER)
@@ -12199,7 +12199,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 			else
 			{
-				iScore += -25;
+				iScore += -50; // be more against if we don't need it
 			}
 		}
 #endif
@@ -12245,7 +12245,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if(GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
 			{
 				iScore += 50;
-				iScore += GetPlayer()->ScoreDifferencePercent(2)/3;  // was 10..30, gonna be 0.33
+				iScore += GetPlayer()->ScoreDifferencePercent(2)/2;  // was 10..30, gonna be 0..50
 			}
 #else
 			if(GetPlayer()->AidRank() != NO_PLAYER)
@@ -12256,7 +12256,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 			else
 			{
-				iScore += -25;
+				iScore += -50; // be more against if we don't need it
 			}
 		}
 #endif
