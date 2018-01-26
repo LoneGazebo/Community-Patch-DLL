@@ -864,6 +864,10 @@ public:
 	bool IsLeagueAid() const;
 
 	void ProcessLeagueResolutions();
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes AidRankGeneric(int eType = 0);
+	int ScoreDifferencePercent(int eType = 0);
+#endif
 	PlayerTypes AidRank();
 	int ScoreDifference();
 
@@ -1152,6 +1156,10 @@ public:
 	int getGreatDiplomatRateModifier() const;
 #endif
 	int getDomesticGreatGeneralRateModifier() const;
+#if defined(MOD_BALANCE_CORE)
+	int getArtsyGreatPersonRateModifier();
+	int getScienceyGreatPersonRateModifier();
+#endif
 	void changeGreatPeopleRateModFromBldgs(int ichange);
 	void changeGreatGeneralRateModFromBldgs(int ichange);
 	void recomputeGreatPeopleModifiers();

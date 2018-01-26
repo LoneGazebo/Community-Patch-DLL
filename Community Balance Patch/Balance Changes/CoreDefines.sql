@@ -142,3 +142,8 @@ UPDATE Defines SET Value = '50' WHERE Name = 'TEMPORARY_TOURISM_BOOST_MOD';
 
 UPDATE Resolutions SET TechPrereqAnyMember = 'TECH_TELECOM' WHERE Type = 'RESOLUTION_WORLD_IDEOLOGY';
 
+-- Global Score
+UPDATE Defines SET Value = '10' WHERE Name = 'SCORE_CITY_MULTIPLIER'; -- def. 8
+UPDATE Defines SET Value =  '2' WHERE Name = 'SCORE_POPULATION_MULTIPLIER'; -- def. 4
+UPDATE Defines SET Value =  '6' WHERE Name = 'SCORE_TECH_MULTIPLIER';  -- def. 4
+UPDATE Defines SET Value = '16' WHERE Name = 'SCORE_POLICY_MULTIPLIER';  -- def. 4

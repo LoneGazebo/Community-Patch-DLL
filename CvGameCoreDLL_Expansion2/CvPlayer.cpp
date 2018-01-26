@@ -23291,14 +23291,26 @@ void CvPlayer::ProcessLeagueResolutions()
 		if ( pLeague->GetArtsyGreatPersonRateModifier() > 0)
 		{
 			//Production and Culture
+#if defined(MOD_BALANCE_CORE)
+			if(AidRankGeneric(1) == GetID()) // calculate only Culture related score
+#else
 			if(AidRank() == GetID())
+#endif
 			{
+#if defined(MOD_BALANCE_CORE)
+				// calculate modifier that is actually related to Resolution's ArtsyGreatPersonRateMod parameter
+				int iScoreMod = pLeague->GetArtsyGreatPersonRateModifier() * ScoreDifferencePercent(1) / 100;
+#endif
 				CvCity* pLoopCity;
 				int iLoop;
 				int iAid = 0;
 				for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
 				{
+#if defined(MOD_BALANCE_CORE)
+					int iAid = (iScoreMod - pLoopCity->GetTotalArtsyAid());
+#else
 					int iAid = (ScoreDifference() - pLoopCity->GetTotalArtsyAid());
+#endif
 					if(iAid != 0)
 					{
 						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_PRODUCTION, iAid);
@@ -23307,14 +23319,22 @@ void CvPlayer::ProcessLeagueResolutions()
 					}
 
 				}
+#if defined(MOD_BALANCE_CORE)
+				iAid = iScoreMod - GetLeagueCultureCityModifier();
+#else
 				iAid = ScoreDifference() - GetLeagueCultureCityModifier();
+#endif
 				if(iAid != 0)
 				{
 					ChangeLeagueCultureCityModifier(iAid);
 				}
 			}
 			//Remove bonuses from filty first-worlders.
+#if defined(MOD_BALANCE_CORE)
+			if(AidRankGeneric(1) != GetID()) // calculate only Culture related score
+#else
 			if(AidRank() != GetID())
+#endif
 			{
 				CvCity* pLoopCity;
 				int iLoop;
@@ -23337,14 +23357,26 @@ void CvPlayer::ProcessLeagueResolutions()
 		else if (pLeague && pLeague->GetScienceyGreatPersonRateModifier() > 0)
 		{
 			//Food and Research
+#if defined(MOD_BALANCE_CORE)
+			if(AidRankGeneric(2) == GetID()) // calculate only Research related score
+#else
 			if(AidRank() == GetID())
+#endif
 			{
+#if defined(MOD_BALANCE_CORE)
+				// calculate modifier that is actually related to Resolution's ScienceyGreatPersonRateMod parameter
+				int iScoreMod = pLeague->GetScienceyGreatPersonRateModifier() * ScoreDifferencePercent(2) / 100;
+#endif
 				CvCity* pLoopCity;
 				int iLoop;
 				int iAid = 0;
 				for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
 				{
+#if defined(MOD_BALANCE_CORE)
+					iAid = (iScoreMod - pLoopCity->GetTotalScienceyAid());
+#else
 					iAid = (ScoreDifference() - pLoopCity->GetTotalScienceyAid());
+#endif
 					if(iAid != 0)
 					{
 						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_FOOD, iAid);
@@ -23353,14 +23385,22 @@ void CvPlayer::ProcessLeagueResolutions()
 					}
 				}
 				//Global
+#if defined(MOD_BALANCE_CORE)
+				iAid = (iScoreMod - GetScienceRateFromLeagueAid());
+#else
 				iAid = (ScoreDifference() - GetScienceRateFromLeagueAid());
+#endif
 				if(iAid != 0)
 				{
 					ChangeScienceRateFromLeagueAid(iAid);
 				}
 			}
 			//Remove bonuses from filty first-worlders.
+#if defined(MOD_BALANCE_CORE)
+			if(AidRankGeneric(2) != GetID()) // calculate only Research related score
+#else
 			if(AidRank() != GetID())
+#endif
 			{
 				CvCity* pLoopCity;
 				int iLoop;
@@ -23442,11 +23482,73 @@ void CvPlayer::ProcessLeagueResolutions()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+//	League Bonuses for Poor Players - modified version of CvPlayer::AidRank()
+//	Calculates if the player is below median score depending on type of score
+//	eType 0 total score, 1 art, 2 science
+PlayerTypes CvPlayer::AidRankGeneric(int eType)
+{
+	int iRank = 0;
+	int iMajorCivs = 0;
+	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMajorRankings;
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer* pMajorLoop = &GET_PLAYER(eLoopPlayer);
+	
+		if(pMajorLoop->isAlive() && !pMajorLoop->isMinorCiv())
+		{
+			switch(eType)
+			{
+			case 1:
+				iRank = pMajorLoop->GetScoreFromPolicies() + pMajorLoop->GetScoreFromGreatWorks();
+				break;
+			case 2:
+				iRank = pMajorLoop->GetScoreFromTechs() + pMajorLoop->GetScoreFromFutureTech();
+				break;
+			default:
+				iRank = pMajorLoop->GetScore();
+			}
+			if(iRank > 0)
+			{
+				veMajorRankings.push_back(eLoopPlayer, iRank);
+				iMajorCivs++;
+			}
+		}
+	}
 
+	//Find the median of the Civs.
+	int iTopTier = (iMajorCivs / 2);
+	if(iTopTier <= 0)
+	{
+		iTopTier = 1;
+	}
 
+	veMajorRankings.SortItems();
+	if(veMajorRankings.size() != 0)
+	{
+		for(int iRanking = 0; iRanking < veMajorRankings.size(); iRanking++)
+		{
+			if(veMajorRankings.GetElement(iRanking) == GetID())
+			{
+				//Are we in the bottom 50% of Civs? If so, we need aid!
+				if(iRanking >= iTopTier)
+				{
+					return GetID();
+				}
+			}
+		}
+	}
+	return NO_PLAYER;
+}
+#endif
 /// League Bonuses for Poor Players
 PlayerTypes CvPlayer::AidRank()
 {
+#if defined(MOD_BALANCE_CORE)
+	return AidRankGeneric();
+#else
 	int iRank = 0;
 	int iMajorCivs = 0;
 	CvWeightedVector<PlayerTypes, MAX_CIV_PLAYERS, true> veMajorRankings;
@@ -23491,8 +23593,46 @@ PlayerTypes CvPlayer::AidRank()
 		}
 	}
 	return NO_PLAYER;
+#endif
 }
-
+#if defined(MOD_BALANCE_CORE)
+//	League Bonuses for Poor Players - modified version of CvPlayer::ScoreDifference()
+//	Calculates difference between player's score and best score using percentage scale
+//	0% - best score, 100% - worst score
+int CvPlayer::ScoreDifferencePercent(int eType)
+{
+	int iScore = 0;
+	int iBestScore = 0;
+	int iWorstScore = INT_MAX;
+	int iPlayerScore = 0;
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer* pMajorLoop = &GET_PLAYER(eLoopPlayer);
+		if(pMajorLoop->isAlive() && !pMajorLoop->isMinorCiv())
+		{
+			switch(eType)
+			{
+			case 1:
+				iScore = pMajorLoop->GetScoreFromPolicies() + pMajorLoop->GetScoreFromGreatWorks();
+				break;
+			case 2:
+				iScore = pMajorLoop->GetScoreFromTechs() + pMajorLoop->GetScoreFromFutureTech();
+				break;
+			default:
+				iScore = pMajorLoop->GetScore();
+			}
+			if(iScore > iBestScore) iBestScore = iScore;
+			if(iScore < iWorstScore) iWorstScore = iScore;
+			if(GetID() == eLoopPlayer) iPlayerScore = iScore;
+		}
+	}
+	if(iBestScore == 0) return 0; // nothing to scale
+	// rescale to 0..100
+	return MapToPercent(iPlayerScore, iBestScore, iWorstScore);
+}
+#endif
 /// League Bonuses for Poor Players
 int CvPlayer::ScoreDifference()
 {
@@ -27266,6 +27406,36 @@ void CvPlayer::ChangeGreatPersonExpendGold(int ichange)
 	m_iGreatPersonExpendGold += ichange;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+//	Calculate score-scaled ArtsyGreatPersonRateModifier
+int CvPlayer::getArtsyGreatPersonRateModifier()
+{
+	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
+	if(iArtsyMod == 0) return 0;
+	// scale GPP the same way as yields; tricky part is for negatives!
+	if(iArtsyMod > 0)
+		iArtsyMod *= ScoreDifferencePercent(1);
+	else
+		iArtsyMod *= (100-ScoreDifferencePercent(1));
+	iArtsyMod /= 100;
+	return iArtsyMod;
+}
+//	Calculate score-scaled ScienceyGreatPersonRateModifier
+int CvPlayer::getScienceyGreatPersonRateModifier()
+{
+	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
+	if(iScienceyMod == 0) return 0;
+	// scale GPP the same way as yields; tricky part is for negatives!
+	if(iScienceyMod > 0)
+		iScienceyMod *= ScoreDifferencePercent(2);
+	else
+		iScienceyMod *= (100-ScoreDifferencePercent(2));
+	iScienceyMod /= 100;
+	return iScienceyMod;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 void CvPlayer::recomputeGreatPeopleModifiers()
 {
@@ -27323,8 +27493,13 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatPeopleRateModifier += GetGreatPeopleRateModFromFriendships();
 
 	// And effects from Leagues
+#if defined(MOD_BALANCE_CORE)
+	int iArtsyMod = getArtsyGreatPersonRateModifier();
+	int iScienceyMod = getScienceyGreatPersonRateModifier();
+#else
 	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
 	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
+#endif
 	if (iArtsyMod != 0)
 	{
 		m_iGreatWriterRateModifier += iArtsyMod;
@@ -47407,7 +47582,7 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / (30 + getNumCities()));
+	return (GetMilitaryMight() / (20 + getNumCities()));  // was 30
 }
 #endif
 
