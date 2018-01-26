@@ -12199,7 +12199,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 			else
 			{
-				iScore += -50; // be more against if we don't need it
+#if defined(MOD_BALANCE_CORE)
+				// be more against it the more we don't need it
+				iScore += (GetPlayer()->ScoreDifferencePercent(1) - 100);
+#else
+				iScore += -25;
+#endif
 			}
 		}
 #endif
@@ -12256,7 +12261,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 			else
 			{
-				iScore += -50; // be more against if we don't need it
+#if defined(MOD_BALANCE_CORE)
+				// be more against it the more we don't need it
+				iScore += (GetPlayer()->ScoreDifferencePercent(2) - 100);
+#else
+				iScore += -25;
+#endif
 			}
 		}
 #endif
