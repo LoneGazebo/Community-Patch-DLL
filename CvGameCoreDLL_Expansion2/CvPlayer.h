@@ -1156,6 +1156,10 @@ public:
 	int getGreatDiplomatRateModifier() const;
 #endif
 	int getDomesticGreatGeneralRateModifier() const;
+#if defined(MOD_BALANCE_CORE)
+	int getArtsyGreatPersonRateModifier();
+	int getScienceyGreatPersonRateModifier();
+#endif
 	void changeGreatPeopleRateModFromBldgs(int ichange);
 	void changeGreatGeneralRateModFromBldgs(int ichange);
 	void recomputeGreatPeopleModifiers();

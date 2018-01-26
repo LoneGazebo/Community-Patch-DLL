@@ -27406,6 +27406,36 @@ void CvPlayer::ChangeGreatPersonExpendGold(int ichange)
 	m_iGreatPersonExpendGold += ichange;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+//	Calculate score-scaled ArtsyGreatPersonRateModifier
+int CvPlayer::getArtsyGreatPersonRateModifier()
+{
+	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
+	if(iArtsyMod == 0) return 0;
+	// scale GPP the same way as yields; tricky part is for negatives!
+	if(iArtsyMod > 0)
+		iArtsyMod *= ScoreDifferencePercent(1);
+	else
+		iArtsyMod *= (100-ScoreDifferencePercent(1));
+	iArtsyMod /= 100;
+	return iArtsyMod;
+}
+//	Calculate score-scaled ScienceyGreatPersonRateModifier
+int CvPlayer::getScienceyGreatPersonRateModifier()
+{
+	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
+	if(iScienceyMod == 0) return 0;
+	// scale GPP the same way as yields; tricky part is for negatives!
+	if(iScienceyMod > 0)
+		iScienceyMod *= ScoreDifferencePercent(2);
+	else
+		iScienceyMod *= (100-ScoreDifferencePercent(2));
+	iScienceyMod /= 100;
+	return iScienceyMod;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 void CvPlayer::recomputeGreatPeopleModifiers()
 {
@@ -27463,26 +27493,21 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatPeopleRateModifier += GetGreatPeopleRateModFromFriendships();
 
 	// And effects from Leagues
+#if defined(MOD_BALANCE_CORE)
+	int iArtsyMod = getArtsyGreatPersonRateModifier();
+	int iScienceyMod = getScienceyGreatPersonRateModifier();
+#else
 	int iArtsyMod = GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetID());
 	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
+#endif
 	if (iArtsyMod != 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		// scale GPP the same way as yields
-		iArtsyMod *= ScoreDifferencePercent(1);
-		iArtsyMod /= 100;
-#endif
 		m_iGreatWriterRateModifier += iArtsyMod;
 		m_iGreatArtistRateModifier += iArtsyMod;
 		m_iGreatMusicianRateModifier += iArtsyMod;
 	}
 	if (iScienceyMod != 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		// scale GPP the same way as yields
-		iScienceyMod *= ScoreDifferencePercent(2);
-		iScienceyMod /= 100;
-#endif
 		m_iGreatScientistRateModifier += iScienceyMod;
 		m_iGreatEngineerRateModifier += iScienceyMod;
 		m_iGreatMerchantRateModifier += iScienceyMod;
