@@ -17275,9 +17275,8 @@ int CvCity::getJONSCulturePerTurn() const
 
 	// City modifier
 #if defined(MOD_API_UNIFIED_YIELDS)
-	// getCultureRateModifier() is just the culture specific building modifiers
-	// we want getBaseYieldRateModifier(YIELD_CULTURE) as well
-	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, getCultureRateModifier());
+	iModifier = getBaseYieldRateModifier(YIELD_CULTURE);
+	// the below section is executed within getBaseYieldRateModifier()
 #else
 	iModifier += getCultureRateModifier();
 
@@ -22134,6 +22133,11 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	// Culture specific modifiers taken from getJONSCulturePerTurn
 	if(eIndex == YIELD_CULTURE)
 	{
+		// getCultureRateModifier() is just the culture specific building modifiers
+		iTempMod = getCultureRateModifier();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_CITY", iTempMod);
+
 		// Player modifier
 		iTempMod = GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
 		iModifier += iTempMod;
