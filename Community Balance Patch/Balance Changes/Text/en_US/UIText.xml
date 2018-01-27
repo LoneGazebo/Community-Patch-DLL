@@ -693,6 +693,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_PROCESS">
 			<Text>{1_Num} {2_IconString} from [ICON_SWAP] Process</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TRADE_ROUTES">
+			<Text>{1_Num:number "#.##"} {2_IconString} from [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>
+		</Row>
 
 		<!-- Civilopedia -->
 		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BUILDING_NAME">
