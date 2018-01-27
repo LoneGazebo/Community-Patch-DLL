@@ -239,7 +239,7 @@ WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_3_HELP' AND EXISTS (SELEC
 -- Arts/Sciences Funding
 
 UPDATE Language_en_US
-SET Text = 'Increases generation of Great Writers, Artists, and Musicians by 33%.  Decreases generation of Great Scientists, Engineers, and Merchants by 33%. [NEWLINE][NEWLINE]Civilizations with Scores [COLOR_POSITIVE_TEXT]below the global average[ENDCOLOR] will receive a boost to [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture anywhere from 10-30%. [NEWLINE][NEWLINE]Details: The boost is the difference between the score of the Civilization and the leader, divided by 50.'
+SET Text = 'Increases up to 33% generation of Great Writers, Artists, and Musicians. Decreases up to 33% generation of Great Scientists, Engineers, and Merchants. [NEWLINE][NEWLINE]Civilizations with Scores from Policies and Great Works [COLOR_POSITIVE_TEXT]below the global median[ENDCOLOR] will receive a boost to [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture up to 33%. [NEWLINE][NEWLINE]Details: The boosts are proportional to the difference between the score of the Civilization and the leader.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_ARTS_FUNDING_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -247,7 +247,7 @@ SET Text = 'Endowment for the Arts'
 WHERE Tag = 'TXT_KEY_RESOLUTION_ARTS_FUNDING' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Increases generation of Great Scientists, Engineers, and Merchants by 33%.  Decreases generation of Great Writers, Artists, and Musicians by 33%. [NEWLINE][NEWLINE]Civilizations with Scores [COLOR_POSITIVE_TEXT]below the global average[ENDCOLOR] will receive a boost to [ICON_FOOD] Food and [ICON_RESEARCH] Science anywhere from 10-30%. [NEWLINE][NEWLINE]Details: The boost is the difference between the score of the Civilization and the leader, divided by 50.'
+SET Text = 'Increases up to 33% generation of Great Scientists, Engineers, and Merchants. Decreases up to 33% generation of Great Writers, Artists, and Musicians. [NEWLINE][NEWLINE]Civilizations with Scores from Technologies and Future Tech [COLOR_POSITIVE_TEXT]below the global median[ENDCOLOR] will receive a boost to [ICON_FOOD] Food and [ICON_RESEARCH] Science up to 33%. [NEWLINE][NEWLINE]Details: The boosts are proportional to the difference between the score of the Civilization and the leader.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_SCIENCES_FUNDING_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US

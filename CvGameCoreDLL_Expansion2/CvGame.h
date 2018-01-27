@@ -213,6 +213,9 @@ public:
 	int getTotalPopulation() const;
 	void changeTotalPopulation(int iChange);
 
+	int getTotalEconomicValue() const;
+	void setTotalEconomicValue(int iValue);
+
 	int getNoNukesCount() const;
 	bool isNoNukes() const;
 	void changeNoNukesCount(int iChange);
@@ -466,6 +469,7 @@ public:
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	void updateEconomicTotal();
 	void updateGlobalAverage();
 	int GetCultureAverage() const;
 	void SetCultureAverage(int iValue);
@@ -726,6 +730,7 @@ protected:
 	int m_iCutoffSlice;
 	int m_iNumCities;
 	int m_iTotalPopulation;
+	int m_iTotalEconomicValue;
 	int m_iNoNukesCount;
 	int m_iNukesExploded;
 	int m_iMaxPopulation;

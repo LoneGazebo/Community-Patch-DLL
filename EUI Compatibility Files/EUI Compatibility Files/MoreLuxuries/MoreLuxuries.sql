@@ -84,9 +84,6 @@ SELECT 'BUILDING_STONE_WORKS', 'RESOURCE_JADE' , 'YIELD_PRODUCTION' , '1';
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_STONE_WORKS', 'RESOURCE_JADE' , 'YIELD_GOLD' , '1';
 
-INSERT INTO Building_LocalResourceOrs (BuildingType, ResourceType)
-SELECT 'BUILDING_STONE_WORKS', 'RESOURCE_JADE';
-
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_JADE' , 'YIELD_PRODUCTION' , '1';
 

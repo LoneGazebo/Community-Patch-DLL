@@ -686,7 +686,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 
 	// Check for pantheon or great prophet spawning (now restricted so must occur before Industrial era)
 #if defined(MOD_CONFIG_GAME_IN_XML)
-	if (kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() < GD_INT_GET(RELIGION_LAST_FOUND_ERA))
+	if (kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() <= GD_INT_GET(RELIGION_LAST_FOUND_ERA))
 #else
 	if(kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL"))
 #endif
@@ -4199,6 +4199,7 @@ int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAd
 				pHolyCity = pHolyCityPlot->getPlotCity();
 			}
 			int iProphetCostMod = pReligion->m_Beliefs.GetProphetCostModifier(m_pPlayer->GetID(), pHolyCity);
+			iProphetCostMod += m_pPlayer->GetPlayerTraits()->GetFaithCostModifier();
 
 			if(iProphetCostMod != 0)
 			{
@@ -7211,7 +7212,7 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 		{
 			if (pEntry->GetID() != iExcludeBelief1 && pEntry->GetID() != iExcludeBelief2 && pEntry->GetID() != iExcludeBelief3)
 			{
-				const int iScore = ScoreBelief(pEntry);
+				const int iScore = ScoreBelief(pEntry, true);
 #if !defined(MOD_BUGFIX_MINOR)
 				if(iScore > 0)
 				{
@@ -8505,15 +8506,16 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	}
 	if (m_pPlayer->GetPlayerTraits()->IsBonusReligiousBelief() && bForBonus)
 	{
-		int iModifer = 0;
+		int iModifier = 0;
 		if (pEntry->IsFounderBelief())
-			iModifer += -3;
+			iModifier += 5;
 		else if(pEntry->IsPantheonBelief())
-			iModifer += 3;
+			iModifier += -5;
 		else if (pEntry->IsEnhancerBelief())
-			iModifer += -3;
+			iModifier += 5;
 		else if (pEntry->IsFollowerBelief())
 		{
+			bool bNoBuilding = true;
 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				if (pEntry->IsBuildingClassEnabled(iI))
@@ -8523,13 +8525,49 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 
 					if (pBuildingEntry)
 					{
-						iModifer += 3;
+						bNoBuilding = false;
+						if (m_pPlayer->GetPlayerTraits()->GetFaithCostModifier() != 0)
+						{
+							iModifier += 5;
+						}
+						else
+						{
+							iModifier += 1;
+						}
 						break;
 					}
 				}
 			}
+			if (bNoBuilding)
+				iModifier += -2;
 		}
-		iRtnValue *= (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= GC.getMap().getWorldInfo().getMaxActiveReligions() / 2) ? iModifer : iModifer*-1;
+
+		if (iModifier != 0)
+		{
+			iModifier *= 100;
+			bool ShouldSpread = false;
+
+			//Increase based on nearby cities that lack our faith.
+			//Subtract the % of enhanced faiths. More enhanced = less room for spread.
+			int iNumEnhancedReligions = GC.getGame().GetGameReligions()->GetNumReligionsEnhanced();
+			int iReligionsEnhancedPercent = (100 * iNumEnhancedReligions) / GC.getMap().getWorldInfo().getMaxActiveReligions();
+
+			//Let's look at all cities and get their religious status. Gives us a feel for what we can expect to gain in the near future.
+			int iNumNearbyCities = GetNumCitiesWithReligionCalculator();
+
+			int iSpreadTemp = 100;
+			//Increase based on nearby cities that lack our faith.
+			iSpreadTemp *= iNumNearbyCities;
+			//Divide by estimated total # of cities on map.
+			iSpreadTemp /= GC.getMap().getWorldInfo().GetEstimatedNumCities();
+
+			if (iReligionsEnhancedPercent <= 50 || iSpreadTemp >= 25)
+				ShouldSpread = true;
+
+			iRtnValue += ShouldSpread ? iModifier : iModifier*-1;
+			if (iRtnValue <= 0)
+				iRtnValue = 1;
+		}
 	}
 
 	int iRand = 0;

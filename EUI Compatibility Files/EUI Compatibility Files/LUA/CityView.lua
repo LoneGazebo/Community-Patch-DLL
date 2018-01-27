@@ -1967,7 +1967,7 @@ local function UpdateCityViewNow()
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatWriterRateModifier()
 							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatWriterRateModifier()
 							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetArtsyGreatPersonRateModifier()
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetArtsyGreatPersonRateModifier()
 							end
 							if isGoldenAge and cityOwner:GetGoldenAgeGreatWriterRateModifier() > 0 then
 								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatWriterRateModifier()
@@ -1976,7 +1976,7 @@ local function UpdateCityViewNow()
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatArtistRateModifier()
 							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatArtistRateModifier()
 							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetArtsyGreatPersonRateModifier()
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetArtsyGreatPersonRateModifier()
 							end
 							if isGoldenAge and cityOwner:GetGoldenAgeGreatArtistRateModifier() > 0 then
 								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatArtistRateModifier()
@@ -1985,7 +1985,7 @@ local function UpdateCityViewNow()
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatMusicianRateModifier()
 							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatMusicianRateModifier()
 							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetArtsyGreatPersonRateModifier()
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetArtsyGreatPersonRateModifier()
 							end
 							if isGoldenAge and cityOwner:GetGoldenAgeGreatMusicianRateModifier() > 0 then
 								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatMusicianRateModifier()
@@ -1994,7 +1994,7 @@ local function UpdateCityViewNow()
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatScientistRateModifier()
 							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatScientistRateModifier()
 							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetScienceyGreatPersonRateModifier()
 							end
 --CBP
 							if isGoldenAge and cityOwner:GetGoldenAgeGreatScientistRateModifier() > 0 then
@@ -2005,7 +2005,7 @@ local function UpdateCityViewNow()
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatMerchantRateModifier()
 							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatMerchantRateModifier()
 							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetScienceyGreatPersonRateModifier()
 							end
 --CBP
 							if isGoldenAge and cityOwner:GetGoldenAgeGreatMerchantRateModifier() > 0 then
@@ -2016,7 +2016,7 @@ local function UpdateCityViewNow()
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatEngineerRateModifier()
 							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatEngineerRateModifier()
 							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
+								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetScienceyGreatPersonRateModifier()
 							end
 --CBP
 							if isGoldenAge and cityOwner:GetGoldenAgeGreatEngineerRateModifier() > 0 then

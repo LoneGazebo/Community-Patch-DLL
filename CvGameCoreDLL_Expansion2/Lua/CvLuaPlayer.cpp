@@ -555,6 +555,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetScienceRateFromLeagueAid);
 	Method(GetLeagueCultureCityModifier);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	Method(GetArtsyGreatPersonRateModifier);
+	Method(GetScienceyGreatPersonRateModifier);
+#endif
 
 	Method(GetPolicyGreatPeopleRateModifier);
 	Method(GetPolicyGreatWriterRateModifier);
@@ -7021,7 +7025,18 @@ int CvLuaPlayer::lGetLeagueCultureCityModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetLeagueCultureCityModifier);
 }
 #endif
-
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+//int GetArtsyGreatPersonRateModifier();
+int CvLuaPlayer::lGetArtsyGreatPersonRateModifier(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getArtsyGreatPersonRateModifier);
+}
+//int GetScienceyGreatPersonRateModifier();
+int CvLuaPlayer::lGetScienceyGreatPersonRateModifier(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getScienceyGreatPersonRateModifier);
+}
+#endif
 //------------------------------------------------------------------------------
 //int getGreatEngineerRateModifier();
 int CvLuaPlayer::lGetGreatEngineerRateModifier(lua_State* L)
@@ -14265,9 +14280,9 @@ LUAAPIIMPL(Player, CountAllWorkedTerrain)
 //-------------------------------------------------------------------------
 int CvLuaPlayer::lGetYieldPerTurnFromMinors(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
+CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	bool bIsCityLevel = pkCity != NULL;
 	bool bIsCapital = bIsCityLevel && pkCity->isCapital();
 	const int iResult = pkPlayer->GetYieldPerTurnFromMinors(eYield, bIsCityLevel, bIsCapital);

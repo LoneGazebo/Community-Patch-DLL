@@ -650,6 +650,7 @@
 
 // Event sent when a Goody Hut is entered (v33)
 //   GameEvents.GoodyHutCanNotReceive.Add(function(iPlayer, iUnit, eGoody, bPick) return false end)
+//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
 #define MOD_EVENTS_GOODY_CHOICE                     gCustomMods.isEVENTS_GOODY_CHOICE()
 
 // Events sent if a Goody Hut is giving a tech
@@ -783,6 +784,7 @@
 
 // Events sent by golden ages (v52)
 //   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end)
+//   GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
 #define MOD_EVENTS_GOLDEN_AGE                       gCustomMods.isEVENTS_GOLDEN_AGE()
 
 // Events sent after a city produces/buys something
@@ -1142,6 +1144,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_GetReligionToFound			"GetReligionToFound",			"iib"
 #define GAMEEVENT_GetBeliefToFound				"GetBeliefToFound",				"ii"
 #define GAMEEVENT_GoodyHutCanNotReceive			"GoodyHutCanNotReceive",		"iiib"
+#define GAMEEVENT_GoodyHutReceivedBonus			"GoodyHutReceivedBonus",		"iiiii"
 #define GAMEEVENT_GoodyHutCanResearch			"GoodyHutCanResearch",			"ii"
 #define GAMEEVENT_GoodyHutTechResearched		"GoodyHutTechResearched",		"ii"
 #define GAMEEVENT_GreatPersonExpended			"GreatPersonExpended",			"iiiii"
@@ -1189,6 +1192,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanTransitMinorCity		"PlayerCanTransitMinorCity",	"iiiii"
 #define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
 #define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
+#define GAMEEVENT_PlayerEndOfMayaLongCount		"PlayerEndOfMayaLongCount",		"iii"
 #define GAMEEVENT_PlayerLiberated				"PlayerLiberated",				"iii"
 #define GAMEEVENT_PlayerPlunderedTradeRoute		"PlayerPlunderedTradeRoute",	"iiiiiiiii"
 #define GAMEEVENT_PlayerProtected				"PlayerProtected",				"ii"
@@ -1241,8 +1245,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
-#define GAMEEVENT_GetMinorCivAllyBonus		"GetMinorCivAllyBonus", "iiiiibb"
-#define GAMEEVENT_GetMinorCivFriendBonus	"GetMinorCivFriendBonus", "iiiiibb"
+#define GAMEEVENT_GetMinorCivAllyBonus		"GetMinorCivAllyBonus", "iiiibb"
+#define GAMEEVENT_GetMinorCivFriendBonus	"GetMinorCivFriendBonus", "iiiibb"
 //Contracts
 #define GAMEEVENT_GetNumContractUnit		"GetNumContractUnit", "ii"
 #define GAMEEVENT_GetContractMaintenance	"GetContractMaintenance", "ii"
