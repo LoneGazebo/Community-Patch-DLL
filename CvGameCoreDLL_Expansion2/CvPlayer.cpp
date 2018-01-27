@@ -452,6 +452,7 @@ CvPlayer::CvPlayer() :
 	, m_bProcessedAutoMoves(false)
 	, m_kPlayerAchievements(*this)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	, m_aiDomainDiversity("CvPlayer::m_aiDomainDiversity", m_syncArchive)
 	, m_aiCityYieldModFromMonopoly("CvPlayer::m_aiCityYieldModFromMonopoly", m_syncArchive)
 	, m_paiNumCivsConstructingWonder("CvPlayer::m_paiNumCivsConstructingWonder", m_syncArchive)
 	, m_iUnhappiness("CvPlayer::m_iUnhappiness", m_syncArchive)
@@ -577,8 +578,6 @@ CvPlayer::CvPlayer() :
 	, m_abActiveContract("CvPlayer::m_abActiveContract", m_syncArchive)
 	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
 	, m_iArchaeologicalDigTourism("CvPlayer::m_iArchaeologicalDigTourism", m_syncArchive)
-	, m_iUnitDiversity("CvPlayer::m_iUnitDiversity", m_syncArchive)
-	, m_iNavyUnitDiversity("CvPlayer::m_iNavyUnitDiversity", m_syncArchive)
 	, m_iGoldenAgeTourism("CvPlayer::m_iGoldenAgeTourism", m_syncArchive)
 	, m_iExtraCultureandScienceTradeRoutes("CvPlayer::m_iExtraCultureandScienceTradeRoutes", m_syncArchive)
 	, m_iRazingSpeedBonus("CvPlayer::m_iRazingSpeedBonus", m_syncArchive)
@@ -1581,8 +1580,6 @@ void CvPlayer::uninit()
 	m_iArchaeologicalDigTourism = 0;
 	m_iGoldenAgeTourism = 0;
 	m_iExtraCultureandScienceTradeRoutes = 0;
-	m_iUnitDiversity = -1;
-	m_iNavyUnitDiversity = -1;
 	m_iRazingSpeedBonus = 0;
 	m_iNoPartisans = 0;
 	m_iSpawnCooldown = 0;
@@ -1942,6 +1939,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiCityYieldModFromMonopoly.clear();
 	m_aiCityYieldModFromMonopoly.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiDomainDiversity.clear();
+	m_aiDomainDiversity.resize(NUM_DOMAIN_TYPES, -1);
 
 	m_abActiveContract.clear();
 	m_abActiveContract.resize(GC.getNumContractInfos(), false);
@@ -3006,7 +3006,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		if(pLoopUnit && pLoopUnit->getTeam() != getTeam())
 		{
-			if(pLoopUnit->IsImmobile())
+			if(pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
 				pLoopUnit->kill(false, GetID());
 #if defined(MOD_API_EXTENSIONS)
@@ -5365,54 +5365,6 @@ void CvPlayer::UpdateBestMilitaryCities()
 	//First let's test domain, then we'll test combat class.
 	CvCity* pLoopCity = NULL;
 	int iLoop;
-	
-	//Domain Value - let's get the city with the higher # of domain bonuses, and make it our best domain city.
-	for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
-	{
-		int iBestDomainValue = 0;
-		DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
-		if(eTestDomain != NO_DOMAIN)
-		{
-			CvCity* pBestDomainCity = NULL;
-			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				//Production is king, and also our base value.
-				int iDomainValue = (pLoopCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
-				if(pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
-				}
-				if(pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
-				}
-				if(pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
-				}
-				if(pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
-				}
-				if(iDomainValue > iBestDomainValue)
-				{
-					iBestDomainValue = iDomainValue;
-					pBestDomainCity = pLoopCity;
-				}
-			}
-			if(pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strCity = pBestDomainCity->getName();
-					CvString strLogString;
-					strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
-			}
-		}
-	}
 
 	//Unitcombat Value - let's find the best unitcombat class city (includes promotions for unit combat classes below).
 	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -5427,6 +5379,10 @@ void CvPlayer::UpdateBestMilitaryCities()
 			{
 				//Production is king, and also our base value.
 				int iCombatClassValue = (pLoopCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
+
+				//Also get our XP boosts local to this city.
+				iCombatClassValue += pLoopCity->getFreeExperience();
+
 				if(pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
 					iCombatClassValue += max(1, pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass));
@@ -5446,7 +5402,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 						{
 							if(pkPromotionInfo->GetUnitCombatClass(eUnitCombatClass))
 							{
-								iCombatClassValue += 25;
+								iCombatClassValue += 50;
 							}
 						}
 					}
@@ -5467,6 +5423,72 @@ void CvPlayer::UpdateBestMilitaryCities()
 					strLogString.Format("***************** New Military Combat Class City Chosen for class %d: %s. ****************", eUnitCombatClass, strCity.c_str());
 					GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
+			}
+		}
+	}
+
+	//Domain Value - let's get the city with the higher # of domain bonuses, and make it our best domain city.
+	for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
+	{
+		int iBestDomainValue = 0;
+		DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
+		if (eTestDomain != NO_DOMAIN)
+		{
+			CvCity* pBestDomainCity = NULL;
+			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				//Production is king, and also our base value.
+				int iDomainValue = (pLoopCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
+
+				//Also get our XP boosts local to this city.
+				iDomainValue += pLoopCity->getFreeExperience();
+
+				if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
+				{
+					iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
+				}
+				if (pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
+				{
+					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
+				}
+				if (pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
+				{
+					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
+				}
+				if (pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
+				{
+					iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
+				}
+
+				//Let's try to synergize our domain and combat class productions in the same cities.
+				for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+				{
+					const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+					CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
+					if (pkUnitCombatClassInfo)
+					{
+						if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
+						{
+							iDomainValue *= 2;
+						}
+					}
+				}
+				if (iDomainValue > iBestDomainValue)
+				{
+					iBestDomainValue = iDomainValue;
+					pBestDomainCity = pLoopCity;
+				}
+			}
+			if (pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strCity = pBestDomainCity->getName();
+					CvString strLogString;
+					strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
 			}
 		}
 	}
@@ -10890,8 +10912,10 @@ void CvPlayer::doTurn()
 	}
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
-		DoArmyDiversity();
-		DoNavyDiversity();
+		for (int i = 0; i < NUM_DOMAIN_TYPES; i++)
+		{
+			DoDiversity((DomainTypes)i);
+		}
 
 		RefreshCSAlliesFriends();
 		UpdateHappinessFromMinorCivs();
@@ -16518,7 +16542,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 					if(iNumMinor > 1)
 					{
-						iNumSpies = iNumMinor;
+						iNumSpies += iNumMinor;
 					}
 				}
 #endif
@@ -26308,12 +26332,19 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD)
 					{
-						iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iValue /= 100;
+						if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
+						{
+							//nothing
+						}
+						else
+						{
+							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iValue /= 100;
+						}
 					}
 
 					//Exclusion for birth yields and GP expense and policy unlocks (as we do it up above to avoid % growth and religion bonuses from being scaled).
-					if (bEraScale && eYield != YIELD_TOURISM && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK)
+					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK)
 					{
 						iValue *= iEra;
 					}
@@ -29742,79 +29773,95 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 }
 
 //JFD DONE
-void CvPlayer::DoArmyDiversity()
+void CvPlayer::DoDiversity(DomainTypes eDomain)
 {
 	//////Let's get sum total of all land military unit AI types and boost the lowest type.
 	int iLowest = MAX_INT;
 	int iUnitAI = -1;
 
-	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
-	{
-		UnitAITypes eUnitAI = (UnitAITypes)iI;
-		if(eUnitAI == NO_UNITAI)
-			continue;
+	CvWeightedVector<UnitAITypes, NUM_UNITAI_TYPES, true> veAITypeTotals;
 
-		if(eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_CITY_BOMBARD || eUnitAI == UNITAI_FAST_ATTACK  || eUnitAI == UNITAI_DEFENSE || eUnitAI == UNITAI_COUNTER || eUnitAI == UNITAI_RANGED)
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+	{
+		const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+		if (pkUnitInfo)
 		{
-			int iNumUnits = GetNumUnitsWithUnitAI(eUnitAI, true, false);
-			if(iNumUnits < iLowest)
-			{
-				iLowest = iNumUnits;
-				iUnitAI = (int)eUnitAI;
-			}
+			if (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0)
+				continue;
+
+			if (pkUnitInfo->GetDomainType() != eDomain)
+				continue;
+
+			if (!canTrain(eLoopUnit))
+				continue;
+
+			int iNumUnits = GetNumUnitsWithUnitAI(pkUnitInfo->GetDefaultUnitAIType(), true, eDomain == DOMAIN_SEA);
+
+			veAITypeTotals.push_back(pkUnitInfo->GetDefaultUnitAIType(), iNumUnits);
 		}
 	}
-	if (iUnitAI != m_iUnitDiversity)
+
+	veAITypeTotals.SortItems();
+	for (int i = 0; i < veAITypeTotals.size(); i++)
+	{
+		UnitAITypes UnitAI = (UnitAITypes)veAITypeTotals.GetElement(i);
+		int iNumUnits = veAITypeTotals.GetWeight(i);
+		if (iNumUnits < iLowest)
+		{
+			iLowest = iNumUnits;
+			iUnitAI = (int)UnitAI;
+		}
+	}
+
+	if (iUnitAI != m_aiDomainDiversity[eDomain])
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
-			CvString strLogString("ARMY DIVERSITY CHANGE! WE NEED: "), strAI;
+			CvString strLogString;
+			CvString strAI;
 			getUnitAIString(strAI, (UnitAITypes)iUnitAI);
-			GetHomelandAI()->LogHomelandMessage(strLogString + strAI);
-		}
-		m_iUnitDiversity = iUnitAI;
-	}
-}
-int CvPlayer::GetArmyDiversity() const
-{
-	return m_iUnitDiversity;
-}
-void CvPlayer::DoNavyDiversity()
-{
-	//////Let's get sum total of all land military unit AI types and boost the lowest type.
-	int iLowest = MAX_INT;
-	int iUnitAI = -1;
 
-	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
-	{
-		UnitAITypes eUnitAI = (UnitAITypes)iI;
-		if (eUnitAI == NO_UNITAI)
-			continue;
-
-		if (eUnitAI == UNITAI_ATTACK_SEA || eUnitAI == UNITAI_ASSAULT_SEA)
-		{
-			int iNumUnits = GetNumUnitsWithUnitAI(eUnitAI, true, true);
-			if (iNumUnits < iLowest)
+			switch (eDomain)
 			{
-				iLowest = iNumUnits;
-				iUnitAI = (int)eUnitAI;
+			case DOMAIN_LAND:
+				strLogString.Format("ARMY DIVERSITY CHANGE! WE NEED: ");
+				break;
+			case DOMAIN_SEA:
+				strLogString.Format("NAVY DIVERSITY CHANGE! WE NEED: ");
+				break;
+			case DOMAIN_AIR:
+				strLogString.Format("AIR DIVERSITY CHANGE! WE NEED: ");
+				break;
 			}
+			strLogString += strAI;
+			GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
-	}
-	if (iUnitAI != m_iNavyUnitDiversity)
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString("NAVY DIVERSITY CHANGE! WE NEED: "), strAI;
-			getUnitAIString(strAI, (UnitAITypes)iUnitAI);
-			GetHomelandAI()->LogHomelandMessage(strLogString + strAI);
-		}
-		m_iNavyUnitDiversity = iUnitAI;
+
+		m_aiDomainDiversity.setAt(eDomain, iUnitAI);
 	}
 }
-int CvPlayer::GetNavyDiversity() const
+int CvPlayer::GetDiversity(DomainTypes eDomain) const
 {
-	return m_iNavyUnitDiversity;
+	return m_aiDomainDiversity[eDomain];
+}
+
+int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
+{
+	int iHandicap = 5;
+	if (GET_PLAYER(ePlayer).isHuman())
+	{
+		iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase();
+	}
+
+	int iMaxThreshold = GC.getWARMONGER_THREAT_CRITICAL_THRESHOLD() * 100;
+	iMaxThreshold /= max(1, iHandicap);
+
+	int iResistance = GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(ePlayer);
+	iResistance *= 100;
+	iResistance /= max(1, iMaxThreshold);
+
+	return min((iHandicap * iHandicap), iResistance);
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetArchaeologicalDigTourism() const
@@ -30469,7 +30516,7 @@ void CvPlayer::RefreshCSAlliesFriends()
 			{
 				iAllies++;
 			}
-			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetID()))
+			else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetID()))
 			{
 				iFriends++;
 			}
@@ -41833,7 +41880,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
 					if(iNumMinor > 1)
 					{
-						iNumSpies = iNumMinor;
+						iNumSpies += iNumMinor;
 					}
 				}
 #endif
@@ -47582,7 +47629,7 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / (20 + getNumCities()));  // was 30
+	return (GetMilitaryMight() / (20 + getNumCities()));
 }
 #endif
 

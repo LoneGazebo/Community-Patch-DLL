@@ -93,7 +93,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS_SHORT' AND EXISTS (SELECT * FR
 
 -- God of Festivals
 UPDATE Language_en_US
-SET Text = '+3 [ICON_GOLD] Gold, +1 [ICON_PEACE] Faith, and +1 [ICON_CULTURE] Culture for every unique Luxury Resource you control'
+SET Text = '+3 [ICON_GOLD] Gold, +1 [ICON_PEACE] Faith, and +1 [ICON_CULTURE] Culture for every unique Luxury Resource in owned lands'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Oral Tradition (Now Goddess of Springtime)
@@ -289,7 +289,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR_SHORT' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Heathen Conversion (Now Holy Warriors)
 UPDATE Language_en_US
-SET Text = 'May spend Faith to purchase land units in Cities. Strategic Resource quantities increase by 3% per following City (up to 50%).'
+SET Text = 'May spend Faith to purchase land units in Cities. Strategic Resource quantities increase by 1% per following City (up to 50%).'
 WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

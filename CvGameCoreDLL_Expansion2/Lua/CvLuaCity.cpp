@@ -298,6 +298,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(RefreshTourism);
 	Method(GetNumGreatWorksFilled);
+	Method(GetNumAvailableGreatWorkSlots);
 #endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
@@ -3151,6 +3152,17 @@ int CvLuaCity::lGetNumGreatWorksFilled(lua_State* L)
 	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumFilledGreatWorkSlots(eGreatWorkSlot));
 	return 1;
 }
+
+int CvLuaCity::lGetNumAvailableGreatWorkSlots(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 2));
+
+	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumAvailableGreatWorkSlots(eGreatWorkSlot));
+	return 1;
+}
+
+
 #endif
 //------------------------------------------------------------------------------
 //int GetTourismMultiplier(PlayerTypes ePlayer);

@@ -10934,7 +10934,10 @@ void CvPlot::flipVisibility(TeamTypes eTeam)
 	{
 		m_aiVisibilityCountThisTurnMax[eTeam] = m_aiVisibilityCount[eTeam];
 		if (m_aiVisibilityCount[eTeam] == 0) //in case it's now invisible
+		{
 			updateFog();
+			updateSymbols();
+		}
 	}
 }
 

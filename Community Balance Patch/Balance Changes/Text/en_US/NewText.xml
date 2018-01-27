@@ -19,7 +19,7 @@
 			<Text>Universal Healthcare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
-			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you win a battle. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall</Text>
+			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you kill a unit. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
 			<Text>Morrigan, Harbinger of Strife</Text>

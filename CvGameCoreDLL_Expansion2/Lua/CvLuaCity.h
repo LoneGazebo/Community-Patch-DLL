@@ -288,6 +288,7 @@ protected:
 	static int lGetBaseTourism(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetNumGreatWorksFilled(lua_State* L);
+	static int lGetNumAvailableGreatWorkSlots(lua_State* L);
 	static int lRefreshTourism(lua_State* L);
 #endif
 	static int lGetTourismMultiplier(lua_State* L);

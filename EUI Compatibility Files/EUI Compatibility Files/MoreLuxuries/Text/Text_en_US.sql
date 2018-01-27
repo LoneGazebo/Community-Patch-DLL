@@ -36,7 +36,7 @@ SET Text = 'Allows [ICON_PRODUCTION] Production to be moved from this city along
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_HELP';
 	
 UPDATE Language_en_US
-SET Text = 'Stone Works can only be constructed in a city near an improved [ICON_RES_STONE] Stone, [ICON_RES_MARBLE] Marble, [ICON_RES_SALT] Salt, or [ICON_RES_JADE] Jade resource. Stone Works increase [ICON_PRODUCTION] Production, and allow [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = 'Stone Works can only be constructed in a city near an improved [ICON_RES_STONE] Stone, [ICON_RES_MARBLE] Marble, [ICON_RES_SALT] Salt, [ICON_RES_JADE] Jade, [ICON_RES_URANIUM] Uranium, [ICON_RES_LAPIS] Lapis Lazuli, or [ICON_RES_AMBER] Amber resource. Stone Works increase [ICON_PRODUCTION] Production, and allow [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_STRATEGY';
 
 UPDATE Language_en_US

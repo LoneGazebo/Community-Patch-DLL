@@ -3819,7 +3819,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		if (pLoopUnit->IsGarrisoned())
 		{
 			CvTacticalDominanceZone* pZone = GET_PLAYER(pLoopUnit->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopUnit->plot()->getPlotCity(),false);
-			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>1)
+			if (!pZone || pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pZone->GetBorderScore()>2)
 				return false;
 		}
 		else

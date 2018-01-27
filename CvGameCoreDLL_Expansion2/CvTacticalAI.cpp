@@ -2736,7 +2736,7 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 /// Assigns units to pillage enemy improvements
 void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate)
 {
-	int iPillageHeal = GC.getPILLAGE_HEAL_AMOUNT();
+	int iMinDamage = GC.getPILLAGE_HEAL_AMOUNT();
 
 	CvString szTargetName = "";
 	if(GC.getLogging() && GC.getAILogging())
@@ -2744,10 +2744,12 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		if (eTarget == AI_TACTICAL_TARGET_CITADEL)
 		{
 			szTargetName = "Citadel";
+			iMinDamage = 0; //also undamaged units may pillage this
 		}
 		else if (eTarget == AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE)
 		{
 			szTargetName = "Improved Resource";
+			iMinDamage = 0; //also undamaged units may pillage this
 		}
 		else if (eTarget == AI_TACTICAL_TARGET_IMPROVEMENT)
 		{
@@ -2784,7 +2786,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 			}
 
 		}
-		else if (bImmediate && FindUnitsCloseToPlot(pPlot,0,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
+		else if (bImmediate && FindUnitsCloseToPlot(pPlot,0,GC.getMAX_HIT_POINTS()/3,GC.getMAX_HIT_POINTS()-iMinDamage,DOMAIN_LAND,true))
 		{
 			// Queue best one up to capture it
 			ExecutePillage(pPlot);
@@ -2796,7 +2798,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 				LogTacticalMessage(strLogString);
 			}
 		}
-		else if (!bImmediate && FindUnitsCloseToPlot(pPlot,2,33,GC.getMAX_HIT_POINTS()-iPillageHeal,DOMAIN_LAND,true))
+		else if (!bImmediate && FindUnitsCloseToPlot(pPlot,2,GC.getMAX_HIT_POINTS()/3,GC.getMAX_HIT_POINTS()-iMinDamage,DOMAIN_LAND,true))
 		{
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
@@ -2956,14 +2958,14 @@ void CvTacticalAI::PlotHealMoves()
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(!pUnit)
+		if(pUnit == NULL)
 			continue;
 
 		//the really bad cases have already been added in CommandeerUnits
 		//now we need to take care of the units which are damaged and have nothing else to do
 
 		CvPlot* pUnitPlot = pUnit->plot();
-		if (!pUnitPlot)
+		if (pUnitPlot == NULL)
 			continue;
 		int iAcceptableDamage = 20;
 
@@ -8201,7 +8203,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 				continue;
 
 			//performance optimization
-			if (plotDistance(*pTarget,*pLoopUnit->plot())>iNumTurnsAway*3)
+			if (plotDistance(*pTarget, *pLoopUnit->plot())>(iNumTurnsAway + 1) * 3)
 				continue;
 
 			int iTurnsCalculated = -1;
@@ -8209,13 +8211,24 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 			{
 				CvTacticalUnit unit;
 				unit.SetID(pLoopUnit->GetID());
-				unit.SetAttackStrength( 1000 - iTurnsCalculated );
-				unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
+
+				//sorting is by the product of these two values
+				if (bMustPillage)
+				{
+					unit.SetAttackStrength(3 - iTurnsCalculated);
+					unit.SetHealthPercent(pLoopUnit->getDamage(),100); //fake it
+				}
+				else
+				{
+					unit.SetAttackStrength(10 - iTurnsCalculated);
+					unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
+				}
+
 				m_CurrentMoveUnits.push_back(unit);
 				rtnValue = true;
 
 				//won't get any better
-				if (iTurnsCalculated==0)
+				if (iTurnsCalculated==0 && pLoopUnit->getDamage()>=GC.getPILLAGE_HEAL_AMOUNT())
 					break;
 			}
 		}
@@ -9025,6 +9038,9 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 /// Find a multi-turn target for a land unit to wander towards
 CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType, bool bAllowDefensiveTargets)
 {
+	if (pUnit == NULL)
+		return NULL;
+
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = 0;
 	int iMaxTurns = iRange/2+3;
@@ -9974,106 +9990,96 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 		return 0;
 
 	ReachablePlots distFromTarget;
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_REACHABLE_PLOTS, -1, 5);
-	GC.GetStepFinder().GetPlotsInReach(pTarget, data);
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_REACHABLE_PLOTS, -1, m_iDeployRadius/2);
+	distFromTarget = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
-	for (int iDX = -m_iDeployRadius; iDX <= m_iDeployRadius; iDX++)
+	//we want to be close to the target
+	for (ReachablePlots::iterator it = distFromTarget.begin(); it != distFromTarget.end(); ++it)
 	{
-		for (int iDY = -m_iDeployRadius; iDY <= m_iDeployRadius; iDY++)
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		if (!pPlot)
+			continue;
+
+		//don't walk into traps
+		int iEnemies = pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),pTarget->getDomain());
+		int iInvisible = pPlot->getNumAdjacentNonvisible(m_pPlayer->getTeam());
+		if (iEnemies>2 || iInvisible>3)
+			continue;
+
+		CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(it->iPlotIndex);
+		//if an enemy unit is revealed in the course of the turn, this might return true incorrectly!
+		if (!pCell->CanUseForOperationGathering())
+			continue;
+
+		int iScore = 10000 - (100 + it->iTurns * 100 - it->iMovesLeft / 10);
+
+		//don't know the unit here, so use the generic danger calculation (but danger is only a secondary factor)
+		iScore -= m_pPlayer->GetPlotDanger(*pPlot)*10;
+
+		//try to avoid isolated plots
+		int nFreeNeighbors = 0;
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+		for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 		{
-			CvPlot* pPlot = plotXYWithRangeCheck(pTarget->getX(), pTarget->getY(), iDX, iDY, m_iDeployRadius);
-
-			if (!pPlot)
+			if (!aPlotsToCheck[iI] || !aPlotsToCheck[iI]->isVisible(m_pPlayer->getTeam()))
 				continue;
 
-			//don't walk into traps
-			int iEnemies = pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),pTarget->getDomain());
-			int iInvisible = pPlot->getNumAdjacentNonvisible(m_pPlayer->getTeam());
-			if (iEnemies>2 || iInvisible>3)
-				continue;
-
-			int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-			CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
-
-			//if an enemy unit is revealed in the course of the turn, this might return true incorrectly!
-			if (pCell->CanUseForOperationGathering())
-			{
-				bool bChoiceBombardSpot = false;
-
-				//don't know the unit here, so use the generic danger calculation (but danger is only a secondary factor)
-				int	iScore = 10000 - m_pPlayer->GetPlotDanger(*pPlot)*10;
-
-				//try to avoid isolated plots
-				int nFreeNeighbors = 0;
-				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-				for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
-				{
-					if (!aPlotsToCheck[iI] || !aPlotsToCheck[iI]->isVisible(m_pPlayer->getTeam()))
-						continue;
-
-					CvTacticalAnalysisCell* pAdjCell = GetTacticalAnalysisMap()->GetCell(aPlotsToCheck[iI]->GetPlotIndex());
-					if (pAdjCell && pAdjCell->CanUseForOperationGatheringCheckWater(pCell->IsWater()))
-						nFreeNeighbors++;
-				}
-				//don't add too much else we'll never engage the enemy ... 
-				iScore += nFreeNeighbors * 40;
-
-				//we want to be close to the target
-				ReachablePlots::iterator it = distFromTarget.find(pPlot->GetPlotIndex());
-				if (it != distFromTarget.end())
-					iScore -= (100 + it->iTurns * 100 - it->iMovesLeft/10);
-				else
-					continue;
-
-				//see how far it is for the units
-				int iTurnsAway = INT_MAX;
-				for ( std::map<int,ReachablePlots>::const_iterator itUnit = unitMovePlots.begin(); itUnit!=unitMovePlots.end(); ++itUnit)
-				{
-					std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pPlot->GetPlotIndex());
-					if (itPlot!=itUnit->second.end())
-						iTurnsAway = min(iTurnsAway,itPlot->iTurns);
-				}
-				iScore -= iTurnsAway * 100;
-
-				// Unescorted civilian?
-				if (pPlot->isEnemyUnit(m_pPlayer->GetID(),false,true) && !pPlot->isEnemyUnit(m_pPlayer->GetID(),true,true))
-					iScore += 500;
-
-				bool bHasLOS = pPlot->canSeePlot(pTarget, m_pPlayer->getTeam(), 3, NO_DIRECTION);
-				if (bHasLOS)
-					iScore += 80;
-
-				// Top priority is hexes to bombard from (within range but not adjacent)
-				int iPlotDistance = plotDistance(*pPlot,*pTarget);
-				pCell->SetTargetDistance(iPlotDistance);
-				if (iPlotDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain(), NULL, false)==0 && iInvisible<2)
-					bChoiceBombardSpot = true;
-
-				pCell->SetHasLOS(bHasLOS);
-				pCell->SetSafeForDeployment(bChoiceBombardSpot);
-				pCell->SetDeploymentScore(iScore);
-
-				// Save this in our list of potential targets
-				CvTacticalTarget target;
-				target.SetTargetX(pPlot->getX());
-				target.SetTargetY(pPlot->getY());
-				target.SetAuxIntData(iScore);
-
-				// A bit of a hack -- use high priority targets to indicate good plots for ranged units
-				if (bChoiceBombardSpot)
-				{
-					target.SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-					iRtnValue++;
-				}
-				else
-				{
-					target.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
-				}
-
-				m_TempTargets.push_back(target);
-			}
+			CvTacticalAnalysisCell* pAdjCell = GetTacticalAnalysisMap()->GetCell(aPlotsToCheck[iI]->GetPlotIndex());
+			if (pAdjCell && pAdjCell->CanUseForOperationGatheringCheckWater(pCell->IsWater()))
+				nFreeNeighbors++;
 		}
+		//don't add too much else we'll never engage the enemy ... 
+		iScore += nFreeNeighbors * 40;
+
+		//see how far it is for the units
+		int iTurnsAway = INT_MAX;
+		for ( std::map<int,ReachablePlots>::const_iterator itUnit = unitMovePlots.begin(); itUnit!=unitMovePlots.end(); ++itUnit)
+		{
+			std::map<int,ReachablePlots>::value_type::second_type::const_iterator itPlot = itUnit->second.find(pPlot->GetPlotIndex());
+			if (itPlot!=itUnit->second.end())
+				iTurnsAway = min(iTurnsAway,itPlot->iTurns);
+		}
+		iScore -= iTurnsAway * 100;
+
+		// Unescorted civilian?
+		if (pPlot->isEnemyUnit(m_pPlayer->GetID(),false,true) && !pPlot->isEnemyUnit(m_pPlayer->GetID(),true,true))
+			iScore += 500;
+
+		bool bHasLOS = pPlot->canSeePlot(pTarget, m_pPlayer->getTeam(), 3, NO_DIRECTION);
+		if (bHasLOS)
+			iScore += 80;
+
+		// Top priority is hexes to bombard from (within range but not adjacent)
+		bool bChoiceBombardSpot = false;
+		int iPlotDistance = plotDistance(*pPlot,*pTarget);
+		pCell->SetTargetDistance(iPlotDistance);
+		if (iPlotDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain(), NULL, false)==0 && iInvisible<2)
+			bChoiceBombardSpot = true;
+
+		pCell->SetHasLOS(bHasLOS);
+		pCell->SetSafeForDeployment(bChoiceBombardSpot);
+		pCell->SetDeploymentScore(iScore);
+
+		// Save this in our list of potential targets
+		CvTacticalTarget target;
+		target.SetTargetX(pPlot->getX());
+		target.SetTargetY(pPlot->getY());
+		target.SetAuxIntData(iScore);
+
+		// A bit of a hack -- use high priority targets to indicate good plots for ranged units
+		if (bChoiceBombardSpot)
+		{
+			target.SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
+			iRtnValue++;
+		}
+		else
+		{
+			target.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
+		}
+
+		m_TempTargets.push_back(target);
 	}
+
 	return iRtnValue;
 }
 

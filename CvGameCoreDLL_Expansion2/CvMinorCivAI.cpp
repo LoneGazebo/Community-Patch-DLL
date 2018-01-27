@@ -15725,7 +15725,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	int iScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	const int iFailScore = -1000;
+	const int iFailScore = -5000;
 #else
 	const int iFailScore = -300;
 #endif
@@ -16027,7 +16027,18 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	if(iLastBullyTurn >= 0)
 	{
-		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
+		if (iLastBullyTurn == GC.getGame().getGameTurn())
+		{
+			if (sTooltipSink)
+			{
+				iScore += iFailScore * 2;
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iFailScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+		else if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
 		{
 			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -75);
 			iScore += iBulliedVeryRecentlyScore;

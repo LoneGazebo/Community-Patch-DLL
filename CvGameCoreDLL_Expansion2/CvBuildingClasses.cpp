@@ -4846,8 +4846,7 @@ int CvCityBuildings::GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) con
 					{
 						if (pkBuilding->GetGreatWorkSlotType() == eSlotType)
 						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
-							int iNumFilledSlots = GetNumGreatWorksInBuilding(eLoopBuildingClass) - iNumSlots;
+							int iNumFilledSlots = GetNumGreatWorksInBuilding(eLoopBuildingClass);
 							if (iNumFilledSlots > 0)
 							{
 								iCount += iNumFilledSlots;

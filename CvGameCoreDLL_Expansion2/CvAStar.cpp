@@ -792,7 +792,6 @@ struct UnitPathCacheData
 	DomainTypes m_eDomainType;
 
 	bool m_bAIControl;
-	bool m_bIsImmobile;
 	bool m_bIsNoRevealMap;
 	bool m_bCanEverEmbark;
 	bool m_bIsEmbarked;
@@ -804,7 +803,6 @@ struct UnitPathCacheData
 	inline TeamTypes getTeam() const { return m_eTeamID; }
 	inline DomainTypes getDomainType() const { return m_eDomainType; }
 	inline bool isAIControl() const { return m_bAIControl; }
-	inline bool IsImmobile() const { return m_bIsImmobile; }
 	inline bool isNoRevealMap() const { return m_bIsNoRevealMap; }
 	inline bool CanEverEmbark() const { return m_bCanEverEmbark; }
 	inline bool isEmbarked() const { return m_bIsEmbarked; }
@@ -828,7 +826,6 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_eTeamID = pUnit->getTeam();
 	pCacheData->m_eDomainType = pUnit->getDomainType();
 	pCacheData->m_bAIControl = !pUnit->isHuman() || pUnit->IsAutomated();
-	pCacheData->m_bIsImmobile = pUnit->IsImmobile();
 	pCacheData->m_bIsNoRevealMap = pUnit->isNoRevealMap();
 	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
@@ -1009,7 +1006,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 	if(pUnit->plot() == pToPlot)
 		return TRUE;
 
-	if(pCacheData->IsImmobile())
+	if(pUnit->IsImmobile())
 		return FALSE;
 
 	//in this case we don't know the real target plot yet, need to rely on PathValid() checks later 

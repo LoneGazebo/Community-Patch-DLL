@@ -14280,9 +14280,9 @@ LUAAPIIMPL(Player, CountAllWorkedTerrain)
 //-------------------------------------------------------------------------
 int CvLuaPlayer::lGetYieldPerTurnFromMinors(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
+CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	bool bIsCityLevel = pkCity != NULL;
 	bool bIsCapital = bIsCityLevel && pkCity->isCapital();
 	const int iResult = pkPlayer->GetYieldPerTurnFromMinors(eYield, bIsCityLevel, bIsCapital);

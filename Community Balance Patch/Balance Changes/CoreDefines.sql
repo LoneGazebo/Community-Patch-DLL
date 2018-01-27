@@ -1,4 +1,8 @@
 -- General Changes to the DLL's Global Values
+-- Score
+UPDATE Defines SET Value = '1' WHERE Name = 'SCORE_POPULATION_MULTIPLIER';
+UPDATE Defines SET Value = '5' WHERE Name = 'SCORE_POLICY_MULTIPLIER';
+
 
 -- War
 UPDATE Defines SET Value = '100' WHERE Name = 'NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER';
