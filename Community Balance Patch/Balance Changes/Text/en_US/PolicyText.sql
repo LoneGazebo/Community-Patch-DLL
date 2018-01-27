@@ -315,7 +315,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Socialist Realism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]People''s Army[ENDCOLOR]: Receive a free Military Academy in every City. Military Academies produce +3 [ICON_CULTURE] Culture and +1 [ICON_HAPPINESS_1] Happiness.'
+SET Text = '[COLOR_POSITIVE_TEXT]People''s Army[ENDCOLOR]: Receive a free Military Academy in every City. Public Schools produce +3 [ICON_CULTURE] Culture and +1 [ICON_HAPPINESS_1] Happiness.'
 WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -298,6 +298,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(RefreshTourism);
 	Method(GetNumGreatWorksFilled);
+	Method(GetNumAvailableGreatWorkSlots);
 #endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
@@ -469,6 +470,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetBaseYieldRateFromProcess);
+	Method(GetBaseYieldRateFromTradeRoutes);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
@@ -2087,16 +2089,15 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 		pkCity->getProductionModifier(&toolTip);
 	}
 
-	if (eYield != YIELD_FOOD)
-	{
-		// Trade Yield Modifier
-		pkCity->GetTradeYieldModifier(eYield, &toolTip);
-	}
+	// Trade Yield Modifier
+	// This is actually added after all modifiers, except for Food (added after Consumption) and Culture (added to Base)
+	//pkCity->GetTradeYieldModifier(eYield, &toolTip);
 
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
+		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
 		pkCity->foodDifferenceTimes100(true, &toolTip);
 	}
 
@@ -3151,6 +3152,17 @@ int CvLuaCity::lGetNumGreatWorksFilled(lua_State* L)
 	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumFilledGreatWorkSlots(eGreatWorkSlot));
 	return 1;
 }
+
+int CvLuaCity::lGetNumAvailableGreatWorkSlots(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 2));
+
+	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumAvailableGreatWorkSlots(eGreatWorkSlot));
+	return 1;
+}
+
+
 #endif
 //------------------------------------------------------------------------------
 //int GetTourismMultiplier(PlayerTypes ePlayer);
@@ -4320,6 +4332,15 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromProcess);
+}
+//	Base yield rate from trade routes established with this city
+int CvLuaCity::lGetBaseYieldRateFromTradeRoutes(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	int iReturnValue = GET_PLAYER(pkCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(pkCity, eIndex);
+	lua_pushinteger(L, iReturnValue);
+	return 1;
 }
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)

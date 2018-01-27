@@ -431,6 +431,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBonus += 100 * max(1, m_pCity->getPopulation());
 			}
+			else
+			{
+				iBonus += 50 * max(1, m_pCity->getPopulation());
+			}
 
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
@@ -744,7 +748,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Courthouse? Let's get it ASAP.
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
 	{
-		if(m_pCity->IsOccupied() || !m_pCity->IsNoOccupiedUnhappiness())
+		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			//Extend based on population.
 			iBonus += 5000 * m_pCity->getPopulation();

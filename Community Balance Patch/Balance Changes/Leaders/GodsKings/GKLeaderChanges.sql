@@ -537,7 +537,7 @@ WHERE Type = 'TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 175);
+	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 125);
 
 INSERT INTO Trait_TerrainClaimBoost
 	(TraitType, TerrainType)
@@ -554,6 +554,11 @@ INSERT INTO Building_ScienceFromYield
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_COFFEE_HOUSE', 'YIELD_CULTURE', 10);
+
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+VALUES
+	('BUILDING_COFFEE_HOUSE', 'RESOURCE_BANANA', 'YIELD_GOLD', 2);
 
 INSERT INTO Building_ClassesNeededInCity
 	(BuildingType, BuildingClassType)

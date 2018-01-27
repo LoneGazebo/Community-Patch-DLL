@@ -1935,7 +1935,8 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 	-- Food eaten by pop
 	if yieldID == YieldTypes.YIELD_FOOD then
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetYieldRate( yieldID, false ) - city:GetYieldRate( yieldID, true ) )
+		-- Vox Populi food from TRs is listed with modifiers
+		--tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FOOD_FROM_TRADE_ROUTES", city:GetYieldRate( yieldID, false ) - city:GetYieldRate( yieldID, true ) )
 		--strModifiersString = "[NEWLINE][ICON_BULLET]" .. L( "TXT_KEY_YIELD_EATEN_BY_POP", city:FoodConsumption( true, 0 ), yieldIconString ) .. strModifiersString
 	elseif civBE_mode then
 		local yieldFromTrade = city:GetYieldPerTurnFromTrade( yieldID )
@@ -1950,6 +1951,12 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalized( "TXT_KEY_YIELD_BASE", baseYield, yieldIconString )
 		tips:insert( strModifiersString )
 	end
+
+	-- Vox Populi Base Yield from Trade Routes
+	if yieldID ~= YieldTypes.YIELD_FOOD then
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes( yieldID )/100.0, yieldIconString)
+	end
+	
 	-- Total
 	tips:insert( "----------------" )
 	tips:insertLocalized( totalYield >= 0 and "TXT_KEY_YIELD_TOTAL" or "TXT_KEY_YIELD_TOTAL_NEGATIVE", totalYield, yieldIconString )
@@ -2258,6 +2265,9 @@ local function GetCultureTooltip( city )
 	-- Base Yield from Misc
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_MISC", city:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE), GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString)
 	-- END
+	
+	-- Vox Populi Base Yield from Trade Routes
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_TRADE_ROUTES", city:GetBaseYieldRateFromTradeRoutes(YieldTypes.YIELD_CULTURE)/100.0, "[ICON_CULTURE]")
 	
 	-- Vox Populi Base Yield from Process
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PROCESS", city:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE), "[ICON_CULTURE]")

@@ -7,7 +7,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EMBASSY_TEXT">
 			<Text>
-				Embassies can only be built in City-State territory by Great Diplomats.
+				Embassies can only be built in City-State territory by Great Diplomats, and cannot be built on top of Resources.
 				[NEWLINE][NEWLINE]The first player (and only the first!) to construct an Embassy in a City-State's land [COLOR_POSITIVE_TEXT]earns an extra vote in the World Congress[ENDCOLOR]. No player will receive additional votes for Embassies beyond the first one placed in a City-State's territory.
 				[NEWLINE][NEWLINE]An Embassy cannot be pillaged - once built, they can never be removed, and they will always grant their additional World Congress vote to the original builder. If, however, the original builder is conquered, the conqueror will take ownership of their Embassies, and their votes!</Text>
 		</Row>
@@ -33,7 +33,7 @@
 		<!-- Tooltips for Resolutions -->
 		
 		<Row Tag="TXT_KEY_FOODMOD_LEAGUE">
-			<Text>[NEWLINE][ICON_BULLET][ICON_CITY_STATE] Resolution Growth Modifier: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Resolution Growth Modifier: {1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES">

@@ -1588,8 +1588,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
 	m_iTurnsSinceRankAnnouncement = 0;
-	m_aiEconomicValue.resize(MAX_MAJOR_CIVS);
-	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
+	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		m_aiEconomicValue.setAt(iI, 0);
 		
@@ -2677,7 +2677,7 @@ void CvCity::kill()
 
 		if(pLoopUnit)
 		{
-			if(pLoopUnit->IsImmobile())
+			if(pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
 				pLoopUnit->kill(false);
 			}
@@ -7132,7 +7132,7 @@ void CvCity::updateEconomicValue()
 		} //owned plots
 	} //all plots
 
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePossibleOwner = (PlayerTypes)iPlayerLoop;
 		m_aiEconomicValue.setAt(iPlayerLoop, 0); //everybody gets a new value
@@ -7192,7 +7192,7 @@ void CvCity::updateEconomicValue()
 
 int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 {
-	if (ePossibleOwner==NO_PLAYER || ePossibleOwner>=MAX_MAJOR_CIVS)
+	if (ePossibleOwner==NO_PLAYER || ePossibleOwner>=MAX_CIV_PLAYERS)
 		return 0;
 
 	if ((int)m_aiEconomicValue.size() <= ePossibleOwner)
@@ -17275,9 +17275,8 @@ int CvCity::getJONSCulturePerTurn() const
 
 	// City modifier
 #if defined(MOD_API_UNIFIED_YIELDS)
-	// getCultureRateModifier() is just the culture specific building modifiers
-	// we want getBaseYieldRateModifier(YIELD_CULTURE) as well
-	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, getCultureRateModifier());
+	iModifier = getBaseYieldRateModifier(YIELD_CULTURE);
+	// the below section is executed within getBaseYieldRateModifier()
 #else
 	iModifier += getCultureRateModifier();
 
@@ -22134,6 +22133,11 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	// Culture specific modifiers taken from getJONSCulturePerTurn
 	if(eIndex == YIELD_CULTURE)
 	{
+		// getCultureRateModifier() is just the culture specific building modifiers
+		iTempMod = getCultureRateModifier();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_CITY", iTempMod);
+
 		// Player modifier
 		iTempMod = GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
 		iModifier += iTempMod;

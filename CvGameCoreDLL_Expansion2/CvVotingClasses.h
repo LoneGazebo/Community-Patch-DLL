@@ -78,7 +78,7 @@ namespace LeagueHelpers
 	const int CHOICE_NO = 0;
 	const int CHOICE_YES = 1;
 
-	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 2;
+	const int AI_CHOOSE_PROPOSAL_FROM_TOP = 3;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	// Moved to xml, use

@@ -9,7 +9,7 @@
 			<Help>TXT_KEY_PROMOTION_EMISSARY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>-60</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>-70</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>40</PortraitIndex>
@@ -197,7 +197,6 @@
 			<Help>TXT_KEY_PROMOTION_TREASURE_FLEET_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<HealOutsideFriendly>true</HealOutsideFriendly>
 			<AttackMod>10</AttackMod>
 			<VisibilityChange>1</VisibilityChange>

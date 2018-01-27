@@ -4,18 +4,18 @@
 		<!-- Multiplicative modifier for how much more the capital is worth -->
 		<Row Name="WARMONGER_THREAT_CAPITAL_CITY_PERCENT">
 			<!-- Default 100 -->
-			<Value>150</Value>
+			<Value>125</Value>
 		</Row>
 		<!-- Warmonger threat for capturing a major's city -->
 		<Row Name="WARMONGER_THREAT_MAJOR_CITY_WEIGHT">
 			<!-- Default 1000 -->
-			<Value>850</Value>
+			<Value>200</Value>
 		</Row>
 		<!-- Warmonger threat for capturing a minor's city -->
 		<Row Name="WARMONGER_THREAT_MINOR_CITY_WEIGHT">
 			<!-- Default 1000 -->
 			<!-- As a minor city will almost always be a capital, this should be the desired value divided by WARMONGER_THREAT_CAPITAL_CITY_PERCENT -->
-			<Value>650</Value>
+			<Value>150</Value>
 		</Row>
 
 		<!-- Multiplicative modifier for when the bystander does know the defender, they may or may not know the attacker -->
@@ -50,25 +50,25 @@
 		<!-- Used twice, the warmonger value is modified UP based on C's approach to A and DOWN based on C's approach to B - the enemy of my enemy is my friend -->
 		<!-- A captures B's city, C has met both A and B. If C is already hostile to A, they will hate them even more -->
 		<!-- If C is hostile to B they won't care so much about what A does to their enemy -->
-		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_HOSTILE">
+		<Row Name="WARMONGER_THREAT_MODIFIER_LARGE">
 			<!-- Default 0 -->
-			<Value>50</Value>
+			<Value>60</Value>
 		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_AFRAID">
+		<Row Name="WARMONGER_THREAT_MODIFIER_MEDIUM">
 			<!-- Default 0 -->
-			<Value>25</Value>
+			<Value>40</Value>
 		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_GUARDED">
+		<Row Name="WARMONGER_THREAT_MODIFIER_SMALL">
 			<!-- Default 0 -->
-			<Value>30</Value>
+			<Value>20</Value>
 		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_NEUTRAL">
+		<Row Name="WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL">
 			<!-- Default 0 -->
-			<Value>0</Value>
+			<Value>-15</Value>
 		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_PERCENT_FRIENDLY">
+		<Row Name="WARMONGER_THREAT_MODIFIER_NEGATIVE_MEDIUM">
 			<!-- Default 0 -->
-			<Value>-10</Value>
+			<Value>-30</Value>
 		</Row>
 
 		<!-- If enabled, city size is taken into consideration as well as remaining cities in empire -->
@@ -82,7 +82,7 @@
 
 		<Update>
 			<Where Name="WARMONGER_THREAT_PER_TURN_DECAY" />
-			<Set Value="-8" />
+			<Set Value="-5" />
 		</Update>
 		<!-- Default -5 -->
 		<!--
@@ -91,25 +91,17 @@
 			<Value>10</Value>
 		</Row>
 -->
-		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_HOSTILE">
+		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_LARGE">
 			<!-- Default 100 -->
-			<Value>70</Value>
+			<Value>225</Value>
 		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_AFRAID">
+		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_MEDIUM">
 			<!-- Default 100 -->
-			<Value>110</Value>
+			<Value>150</Value>
 		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_GUARDED">
+		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_SMALL">
 			<!-- Default 100 -->
-			<Value>90</Value>
-		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_NEUTRAL">
-			<!-- Default 100 -->
-			<Value>100</Value>
-		</Row>
-		<Row Name="WARMONGER_THREAT_APPROACH_DECAY_PERCENT_FRIENDLY">
-			<!-- Default 100 -->
-			<Value>125</Value>
+			<Value>75</Value>
 		</Row>
 	</Defines>
 </GameData>

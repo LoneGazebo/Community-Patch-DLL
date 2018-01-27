@@ -864,6 +864,10 @@ public:
 	bool IsLeagueAid() const;
 
 	void ProcessLeagueResolutions();
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes AidRankGeneric(int eType = 0);
+	int ScoreDifferencePercent(int eType = 0);
+#endif
 	PlayerTypes AidRank();
 	int ScoreDifference();
 
@@ -1152,6 +1156,10 @@ public:
 	int getGreatDiplomatRateModifier() const;
 #endif
 	int getDomesticGreatGeneralRateModifier() const;
+#if defined(MOD_BALANCE_CORE)
+	int getArtsyGreatPersonRateModifier();
+	int getScienceyGreatPersonRateModifier();
+#endif
 	void changeGreatPeopleRateModFromBldgs(int ichange);
 	void changeGreatGeneralRateModFromBldgs(int ichange);
 	void recomputeGreatPeopleModifiers();
@@ -1516,11 +1524,10 @@ public:
 	void SetActiveContract(ContractTypes eContract, bool bValue);
 
 	//DONE
-	void DoArmyDiversity();
-	int GetArmyDiversity() const;
+	void DoDiversity(DomainTypes eDomain);
+	int GetDiversity(DomainTypes eDomain) const;
 
-	void DoNavyDiversity();
-	int GetNavyDiversity() const;
+	int GetDominationResistance(PlayerTypes ePlayer);
 
 	void ChangeArchaeologicalDigTourism(int iChange);
 	int GetArchaeologicalDigTourism() const;
@@ -3229,8 +3236,6 @@ protected:
 	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
 	FAutoVariable<int, CvPlayer> m_iJFDProsperity;
 	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
-	FAutoVariable<int, CvPlayer> m_iUnitDiversity;
-	FAutoVariable<int, CvPlayer> m_iNavyUnitDiversity;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
 	FAutoVariable<int, CvPlayer> m_iExtraCultureandScienceTradeRoutes;
 	FAutoVariable<int, CvPlayer> m_iArchaeologicalDigTourism;
@@ -3412,6 +3417,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCivsConstructingWonder;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCityYieldModFromMonopoly;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainDiversity;
 	FAutoVariable<bool, CvPlayer> m_bAllowsProductionTradeRoutesGlobal;
 	FAutoVariable<bool, CvPlayer> m_bAllowsFoodTradeRoutesGlobal;
 #endif

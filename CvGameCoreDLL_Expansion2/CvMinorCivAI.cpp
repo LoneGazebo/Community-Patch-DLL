@@ -1331,11 +1331,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 150;
 				iBonus /= 100;
 			}
-			//Cap it to keep things under control.
-			if(iBonus > pkSmallAwardInfo->GetHappiness() * 4)
-			{
-				iBonus = pkSmallAwardInfo->GetHappiness() * 4;
-			}
+			//Cap it both sides to keep things under control.
+			iBonus = min( max(iBonus, pkSmallAwardInfo->GetHappiness()), 4*pkSmallAwardInfo->GetHappiness());
 			SetHappiness(iBonus);
 		}
 		if(pkSmallAwardInfo->GetTourism() > 0)
@@ -15258,14 +15255,12 @@ void CvMinorCivAI::DoUnitSpawnTurn()
 			// Time to spawn!
 			if(GetUnitSpawnCounter(eMajor) == 0)
 			{
-#if defined(MOD_GLOBAL_CS_GIFTS)
+#if defined(MOD_EVENTS_MINORS_GIFTS)
 				CvUnit* pSpawnUnit = DoSpawnUnit(eMajor);
 				// Send an event with the details
-				if (MOD_GLOBAL_CS_GIFTS && pSpawnUnit != NULL) // don't use MOD_EVENTS_MINORS_GIFTS here, units are gifted regardless of events!
-				{
+				if (MOD_EVENTS_MINORS_GIFTS && pSpawnUnit != NULL)
 					// GameEvents.MinorGiftUnit.Add(function(iMinor, iMajor, iUnitType) end)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorGiftUnit, GetPlayer()->GetID(), eMajor, pSpawnUnit->getUnitType());
-				}
 #else
 				DoSpawnUnit(eMajor);
 #endif
@@ -15730,7 +15725,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	int iScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	const int iFailScore = -1000;
+	const int iFailScore = -5000;
 #else
 	const int iFailScore = -300;
 #endif
@@ -16032,7 +16027,18 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	if(iLastBullyTurn >= 0)
 	{
-		if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
+		if (iLastBullyTurn == GC.getGame().getGameTurn())
+		{
+			if (sTooltipSink)
+			{
+				iScore += iFailScore * 2;
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iFailScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+		else if(iLastBullyTurn + 10 >= GC.getGame().getGameTurn())
 		{
 			int iBulliedVeryRecentlyScore = (((iLastBullyTurn + 10) - (GC.getGame().getGameTurn())) * -75);
 			iScore += iBulliedVeryRecentlyScore;

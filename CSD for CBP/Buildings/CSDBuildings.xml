@@ -116,12 +116,12 @@
 			<Strategy>TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<RAToVotes>1</RAToVotes>
-			<SpecialistCount>1</SpecialistCount>
+			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
 			<MinAreaSize>-1</MinAreaSize>
-			<CultureRateModifier>15</CultureRateModifier>
+			<CultureRateModifier>5</CultureRateModifier>
 			<ConquestProb>0</ConquestProb>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
@@ -138,7 +138,7 @@
 			<Strategy>TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<DoFToVotes>1</DoFToVotes>
-			<SpecialistCount>1</SpecialistCount>
+			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_FREEDOM</PolicyBranchType>
@@ -155,11 +155,11 @@
 			<PrereqTech>TECH_BALLISTICS</PrereqTech>
 			<Help>TXT_KEY_BUILDING_EHRENHALLE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_EHRENHALLE</Description>
+			<NeverCapture>true</NeverCapture>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_EHRENHALLE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<CapitalsToVotes>2</CapitalsToVotes>
-			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
@@ -364,10 +364,6 @@
 		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<BuildingClassType>BUILDINGCLASS_CHANCERY</BuildingClassType>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
@@ -890,37 +886,27 @@
 		<Row>
 			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>15</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>15</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>25</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Building_YieldModifiers>
 	<Building_ResourceQuantity>
 		<Row>
 			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
-			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CHANCERY</BuildingType>
-			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
 			<Quantity>1</Quantity>
 		</Row>
@@ -932,7 +918,7 @@
 		<Row>
 			<BuildingType>BUILDING_FOREIGN_OFFICE</BuildingType>
 			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>2</Quantity>
+			<Quantity>1</Quantity>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_FORUM</BuildingType>
@@ -944,28 +930,6 @@
 			<ResourceType>RESOURCE_PAPER</ResourceType>
 			<Quantity>1</Quantity>
 		</Row>
-		<Row>
-			<BuildingType>BUILDING_PALACE_SCIENCE_CULTURE</BuildingType>
-			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_EHRENHALLE</BuildingType>
-			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_FINANCE_CENTER</BuildingType>
-			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-		<!--
-		<Row>
-			<BuildingType>BUILDING_SECURITY_COUNCIL</BuildingType>
-			<ResourceType>RESOURCE_PAPER</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-		-->
 	</Building_ResourceQuantity>
 	<Building_FreeUnits>
 		<Row>

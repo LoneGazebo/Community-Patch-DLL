@@ -1472,6 +1472,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	void LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApproachValues, const int* aiScratchValues);
 #endif
+	void LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, bool bUpdateLogsSpecial);
+
 	void LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, WarFaceTypes eNewWarFace);
 	void LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MinorCivApproachTypes eNewMinorCivApproach, MinorCivApproachTypes eOldApproach);
 	void LogPersonality();
@@ -2131,13 +2133,12 @@ private:
 namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
-	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
+	int GetWarmongerOffset(bool bIsCapital, CvCity* pCity = NULL, PlayerTypes eWarmonger = NO_PLAYER);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, bool bIsCapital = false, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity);
 	int GetPlayerCaresValue(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital, CvCity* pCity, PlayerTypes eCaringPlayer, bool bLiberation = false);
 #else
-	int GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMinor);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);
