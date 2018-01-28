@@ -60,13 +60,6 @@ void CvDangerPlots::Init(PlayerTypes ePlayer, bool bAllocate)
 	}
 }
 
-/// Initialize if not already - temp fix
-void CvDangerPlots::InitIfNot(PlayerTypes ePlayer, bool bAllocate)
-{
-	if(!m_bArrayAllocated)
-		Init(ePlayer, bAllocate);
-}
-
 /// Uninitialize
 void CvDangerPlots::Uninit()
 {

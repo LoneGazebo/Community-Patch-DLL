@@ -45252,7 +45252,6 @@ void CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	m_pDangerPlots->InitIfNot(GetID(), true); // temp fix
 	m_pDangerPlots->AddKnownAttacker(pAttacker);
 }
 

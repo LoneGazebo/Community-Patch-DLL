@@ -147,7 +147,6 @@ public:
 	~CvDangerPlots(void);
 
 	void Init(PlayerTypes ePlayer, bool bAllocate);
-	void InitIfNot(PlayerTypes ePlayer, bool bAllocate); // temp fix
 	void Uninit();
 	void Reset();
 
