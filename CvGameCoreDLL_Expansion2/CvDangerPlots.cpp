@@ -383,7 +383,7 @@ void CvDangerPlots::ResetDangerCache(const CvPlot* pCenterPlot, int iRange)
 
 bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 {
-	if (!pUnit)
+	if (!m_bArrayAllocated  || !pUnit)
 		return false;
 
 	return m_knownUnits.find(std::make_pair(pUnit->getOwner(), pUnit->GetID())) != m_knownUnits.end();
@@ -391,7 +391,7 @@ bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 
 void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 {
-	if (!pUnit)
+	if (!m_bArrayAllocated  || !pUnit)
 		return;
 
 	if (!IsKnownAttacker(pUnit))
