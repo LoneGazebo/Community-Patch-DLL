@@ -3795,7 +3795,7 @@ void CvCityBuildings::Reset()
 /// Serialization read
 void CvCityBuildings::Read(FDataStream& kStream)
 {
-	CvAssertMsg(m_pBuildings != NULL && m_pBuildings->GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
+	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
@@ -3837,7 +3837,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 /// Serialization write
 void CvCityBuildings::Write(FDataStream& kStream)
 {
-	CvAssertMsg(m_pBuildings != NULL && m_pBuildings->GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
+	CvAssertMsg(GetNumBuildings() > 0, "Number of buildings to serialize is expected to greater than 0");
 
 	// Current version number
 	uint uiVersion = 1;
@@ -4017,7 +4017,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 
 	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
 	if(!pkBuildingEntry)
@@ -4043,7 +4043,7 @@ void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 int CvCityBuildings::GetSellBuildingRefund(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 
 	int iRefund = GET_PLAYER(m_pCity->getOwner()).getProductionNeeded(eIndex);
 	iRefund /= /*10*/ GC.getBUILDING_SALE_DIVISOR();
@@ -4088,7 +4088,7 @@ int CvCityBuildings::GetTotalBaseBuildingMaintenance() const
 int CvCityBuildings::GetBuildingProduction(BuildingTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiBuildingProduction[eIndex] / 100;
 }
 
@@ -4096,7 +4096,7 @@ int CvCityBuildings::GetBuildingProduction(BuildingTypes eIndex)	const
 int CvCityBuildings::GetBuildingProductionTimes100(BuildingTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiBuildingProduction[eIndex];
 }
 
@@ -4110,7 +4110,7 @@ void CvCityBuildings::SetBuildingProduction(BuildingTypes eIndex, int iNewValue)
 void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings())");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings())");
 
 	if(GetBuildingProductionTimes100(eIndex) != iNewValue)
 	{
@@ -4149,7 +4149,7 @@ void CvCityBuildings::ChangeBuildingProductionTimes100(BuildingTypes eIndex, int
 int CvCityBuildings::GetBuildingProductionTime(BuildingTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiBuildingProductionTime[eIndex];
 }
 
@@ -4157,7 +4157,7 @@ int CvCityBuildings::GetBuildingProductionTime(BuildingTypes eIndex)	const
 void CvCityBuildings::SetBuildingProductionTime(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	m_paiBuildingProductionTime[eIndex] = iNewValue;
 	CvAssert(GetBuildingProductionTime(eIndex) >= 0);
 }
@@ -4172,7 +4172,7 @@ void CvCityBuildings::ChangeBuildingProductionTime(BuildingTypes eIndex, int iCh
 int CvCityBuildings::GetBuildingOriginalOwner(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiBuildingOriginalOwner[eIndex];
 }
 
@@ -4180,7 +4180,7 @@ int CvCityBuildings::GetBuildingOriginalOwner(BuildingTypes eIndex) const
 void CvCityBuildings::SetBuildingOriginalOwner(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	m_paiBuildingOriginalOwner[eIndex] = iNewValue;
 }
 
@@ -4188,7 +4188,7 @@ void CvCityBuildings::SetBuildingOriginalOwner(BuildingTypes eIndex, int iNewVal
 int CvCityBuildings::GetBuildingOriginalTime(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiBuildingOriginalTime[eIndex];
 }
 
@@ -4196,7 +4196,7 @@ int CvCityBuildings::GetBuildingOriginalTime(BuildingTypes eIndex) const
 void CvCityBuildings::SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	m_paiBuildingOriginalTime[eIndex] = iNewValue;
 }
 
@@ -4204,7 +4204,7 @@ void CvCityBuildings::SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValu
 int CvCityBuildings::GetNumRealBuilding(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiNumRealBuilding[eIndex];
 }
 
@@ -4232,7 +4232,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
 
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 
 	int iChangeNumRealBuilding = iNewValue - GetNumRealBuilding(eIndex);
 
@@ -4497,7 +4497,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 int CvCityBuildings::GetNumFreeBuilding(BuildingTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiNumFreeBuilding[eIndex];
 }
 
@@ -4505,7 +4505,7 @@ int CvCityBuildings::GetNumFreeBuilding(BuildingTypes eIndex) const
 void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 
 	if(GetNumFreeBuilding(eIndex) != iNewValue)
 	{
@@ -4573,13 +4573,13 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 int CvCityBuildings::IsFirstTimeBuilding(BuildingTypes eBuilding)
 {
 	CvAssertMsg(eBuilding >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuilding < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eBuilding < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	return m_paiFirstTimeBuilding[eBuilding];
 }
 void CvCityBuildings::SetFirstTimeBuilding(BuildingTypes eBuilding, int iValue)
 {
 	CvAssertMsg(eBuilding >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuilding < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eBuilding < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 	if(IsFirstTimeBuilding(eBuilding) != iValue)
 	{
 		m_paiFirstTimeBuilding[eBuilding] = iValue;
@@ -5160,7 +5160,7 @@ int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
 void CvCityBuildings::SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex)
 {
 	CvAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
-	CvAssertMsg(eBuilding < m_pBuildings->GetNumBuildings(), "eBuilding expected to be < m_pBuildings->GetNumBuildings()");
+	CvAssertMsg(eBuilding < GetNumBuildings(), "eBuilding expected to be < GetNumBuildings()");
 	if (GetThemingBonusIndex(eBuilding) != iIndex)
 	{
 		m_paiThemingBonusIndex[eBuilding] = iIndex;

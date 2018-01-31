@@ -2387,7 +2387,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		while(pResults->Step())
 		{
 			const int iUnitClassID = pResults->GetInt(0);
-			CvAssert(iUnitCombatID > -1 && iUnitCombatID < iNumUnitClasses);
+//			CvAssert(iUnitCombatID > -1 && iUnitCombatID < iNumUnitClasses);
 
 			const int iMovesChange = pResults->GetInt(1);
 			m_piMovesChangeUnitClasses[iUnitClassID] = iMovesChange;
@@ -4504,7 +4504,7 @@ int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, Yie
 }
 int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	CvAssertMsg(eImprovement < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
 
 	if(eTerrain == NO_TERRAIN)
@@ -4646,7 +4646,7 @@ int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, Y
 }
 int CvPlayerTraits::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
 {
-	CvAssertMsg(eSpecialist < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
 
 	if(eGreatPerson == NO_GREATPERSON)

@@ -3579,8 +3579,8 @@ void CvCity::ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eIndex
 //	--------------------------------------------------------------------------------
 int CvCity::GetEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2)	const
 {
-	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eResource < GC.getNumSpecialistInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaiEventSpecialistYield[eSpecialist][eIndex2];
@@ -3588,8 +3588,8 @@ int CvCity::GetEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eInd
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2, int iChange)
 {
-	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eResource < GC.getNumSpecialistInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
@@ -17932,15 +17932,15 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumTerrainWorked(TerrainTypes eTerrain)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumTerrainWorked[eTerrain];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	m_paiNumTerrainWorked.setAt(eTerrain, m_paiNumTerrainWorked[eTerrain] + iChange);
 	CvAssert(GetNumTerrainWorked(eTerrain) >= 0);
 
@@ -17954,15 +17954,15 @@ void CvCity::ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange)
 
 int CvCity::GetNumFeaturelessTerrainWorked(TerrainTypes eTerrain)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumFeaturelessTerrainWorked[eTerrain];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumTerrainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
 	m_paiNumFeaturelessTerrainWorked.setAt(eTerrain, m_paiNumFeaturelessTerrainWorked[eTerrain] + iChange);
 	CvAssert(GetNumFeaturelessTerrainWorked(eTerrain) >= 0);
 
@@ -17976,15 +17976,15 @@ void CvCity::ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChang
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumFeatureWorked(FeatureTypes eFeature)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumFeatureWorked[eFeature];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumFeatureInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
 	m_paiNumFeatureWorked.setAt(eFeature, m_paiNumFeatureWorked[eFeature] + iChange);
 	CvAssert(GetNumFeatureWorked(eFeature) >= 0);
 	
@@ -17997,30 +17997,30 @@ void CvCity::ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange)
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumResourceWorked(ResourceTypes eResource)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceWorked[eResource];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumResourceWorked(ResourceTypes eResource, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
 	m_paiNumResourceWorked.setAt(eResource, m_paiNumResourceWorked[eResource] + iChange);
 	CvAssert(GetNumResourceWorked(eResource) >= 0);
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetNumImprovementWorked(ImprovementTypes eImprovement)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumImprovementWorked[eImprovement];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
 	m_paiNumImprovementWorked.setAt(eImprovement, m_paiNumImprovementWorked[eImprovement] + iChange);
 	CvAssert(GetNumImprovementWorked(eImprovement) >= 0);
 }
@@ -23195,7 +23195,7 @@ void CvCity::ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChan
 	if(iChange != 0)
 	{
 		m_aiSpecialistRateModifier.setAt(eSpecialist, m_aiSpecialistRateModifier[eSpecialist] + iChange);
-		CvAssert(GetSpecialistRateModifier(eIndex) >= 0);
+		CvAssert(GetSpecialistRateModifier(eSpecialist) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -23673,8 +23673,8 @@ void CvCity::SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iTot
 int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldChangeFromCorporationFranchises[eIndex];
 }
@@ -23712,13 +23712,13 @@ int CvCity::GetResourceQuantityPerXFranchises(ResourceTypes eResource) const
 void CvCity::ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
+	CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
 
 	if(iChange != 0)
 	{
 		m_aiResourceQuantityPerXFranchises.setAt(eResource, m_aiResourceQuantityPerXFranchises[eResource] + iChange);
-		CvAssert(GetCorporationResourceQuantity(eResource) >= 0); 
+//		CvAssert(GetCorporationResourceQuantity(eResource) >= 0); 
 	}
 }
 void CvCity::SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue)

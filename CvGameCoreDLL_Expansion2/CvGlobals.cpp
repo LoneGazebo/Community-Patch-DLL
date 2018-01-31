@@ -3398,7 +3398,7 @@ std::vector<CvEventLinkingInfo*>& CvGlobals::getEventLinkingInfo()
 CvEventLinkingInfo* CvGlobals::getEventLinkingInfo(EventTypes e)
 {
 	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEventLinkingInfo());
+	CvAssert(e < GC.getNumEventLinkingInfos());
 	if(e > -1 && e < (int)m_paEventLinkingInfo.size())
 		return m_paEventLinkingInfo[e];
 	else
@@ -3418,7 +3418,7 @@ std::vector<CvEventChoiceLinkingInfo*>& CvGlobals::getEventChoiceLinkingInfo()
 CvEventChoiceLinkingInfo* CvGlobals::getEventChoiceLinkingInfo(EventChoiceTypes e)
 {
 	CvAssert(e > -1);
-	CvAssert(e < GC.getNumEventChoiceLinkingInfo());
+	CvAssert(e < GC.getNumEventChoiceLinkingInfos());
 	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size())
 		return m_paEventChoiceLinkingInfo[e];
 	else
@@ -3438,7 +3438,7 @@ std::vector<CvCityEventLinkingInfo*>& CvGlobals::getCityEventLinkingInfo()
 CvCityEventLinkingInfo* CvGlobals::getCityEventLinkingInfo(CityEventTypes e)
 {
 	CvAssert(e > -1);
-	CvAssert(e < GC.getNumCityEventLinkingInfo());
+	CvAssert(e < GC.getNumCityEventLinkingInfos());
 	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size())
 		return m_paCityEventLinkingInfo[e];
 	else
@@ -3458,7 +3458,7 @@ std::vector<CvCityEventChoiceLinkingInfo*>& CvGlobals::getCityEventChoiceLinking
 CvCityEventChoiceLinkingInfo* CvGlobals::getCityEventChoiceLinkingInfo(CityEventChoiceTypes e)
 {
 	CvAssert(e > -1);
-	CvAssert(e < GC.getNumCityEventChoiceLinkingInfo());
+	CvAssert(e < GC.getNumCityEventChoiceLinkingInfos());
 	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size())
 		return m_paCityEventChoiceLinkingInfo[e];
 	else

@@ -13030,7 +13030,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			for (LeagueHelpers::PlayerList::iterator it = vLikers.begin(); it != vLikers.end(); ++it)
 			{
 				CvAssert((*it) != NO_PLAYER);
-				CvAssert(CanEverVote(*it));
+				CvAssert(pLeague->CanEverVote(*it));
 				if(*it != NO_PLAYER)
 				{	
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);
@@ -13050,7 +13050,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			for (LeagueHelpers::PlayerList::iterator it = vDislikers.begin(); it != vDislikers.end(); ++it)
 			{
 				CvAssert((*it) != NO_PLAYER);
-				CvAssert(CanEverVote(*it));
+				CvAssert(pLeague->CanEverVote(*it));
 				if(*it != NO_PLAYER)
 				{	
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);

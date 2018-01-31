@@ -8448,7 +8448,7 @@ int CvModEventChoiceInfo::getFlavorValue(int i) const
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventResourceChange(ResourceTypes eResource) const
 {
-	CvAssertMsg(eResource < GC.getNumResourceTypes(), "Index out of bounds");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
 	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
 }
@@ -8475,7 +8475,7 @@ int CvModEventChoiceInfo::getPreCheckEventYield(YieldTypes eYield) const
 }
 CvEventNotificationInfo *CvModEventChoiceInfo::GetNotificationInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
+//	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paNotificationInfo[0].GetNotificationString() == "" || m_paNotificationInfo[0].GetNotificationString() == NULL)
@@ -10039,7 +10039,7 @@ int CvModEventCityChoiceInfo::getCityWideDestructionChance() const
 
 CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
+//	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityNotificationInfo[0].GetNotificationString() == "" || m_paCityNotificationInfo[0].GetNotificationString() == NULL)
@@ -10135,7 +10135,7 @@ int CvModEventCityChoiceInfo::getCitySpecialistYieldChange(int i, int j) const
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventResourceChange(ResourceTypes eResource) const
 {
-	CvAssertMsg(eResource < GC.getNumResourceTypes(), "Index out of bounds");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
 	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
 }

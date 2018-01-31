@@ -294,6 +294,7 @@ void CvPlayerAI::AI_unitUpdate()
 		CvUnit::dispatchingNetMessage(true);
 		//no tactical AI for human
 		GetHomelandAI()->Update();
+		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished Human HomelandAI update", GC.getGame().getElapsedGameTurns()));
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else
@@ -303,6 +304,7 @@ void CvPlayerAI::AI_unitUpdate()
 		// AI subsystems. Tactical map has already been refreshed above.
 		GetTacticalAI()->Update();
 		GetHomelandAI()->Update();
+		AI_PERF_FORMAT("AI-perf.csv", ("AI_unitUpdate, Turn %03d, finished AI HomelandAI update", GC.getGame().getElapsedGameTurns()));
 	}
 }
 

@@ -149,7 +149,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 
 	// wipe out values
 	int iGridSize = GC.getMap().numPlots();
-	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
+//	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
 	for(int i = 0; i < iGridSize; i++)
 		m_DangerPlots[i].clear();
 
