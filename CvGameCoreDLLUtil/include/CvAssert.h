@@ -26,7 +26,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 // Only compile in FAssert's if CVASSERT_ENABLE is defined.  By default, however, let's key off of
 // _DEBUG.  Sometimes, however, it's useful to enable asserts in release builds, and you can do that
 // simply by changing the following lines to define CVASSERT_ENABLE or using project settings to override
-#if !defined(FINAL_RELEASE)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 #define		CVASSERT_ENABLE
 #endif	// FINAL_RELEASE
 
