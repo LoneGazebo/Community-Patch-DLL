@@ -3707,21 +3707,22 @@ int CvLuaUnit::lPerAdjacentUnitCombatModifier(lua_State* L)
 	//const UnitCombatTypes eUnitCombat = (UnitCombatTypes)lua_tointeger(L, 2);
 
 	CvPlot* pFromPlot = pkUnit->plot();
-	
+
 	int iResult = 0;
-	
-	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	if (pFromPlot != NULL)
 	{
-		const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
-		CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
-		int iModPerAdjacent = pkUnit->getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
-		if (pkUnitCombatInfo && iModPerAdjacent != 0)
+		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
-			int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(pkUnit->getTeam(), eUnitCombat, NULL);
-			iResult += (iNumFriendliesAdjacent * iModPerAdjacent);			
+			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+			int iModPerAdjacent = pkUnit->getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
+			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			{
+				int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(pkUnit->getTeam(), eUnitCombat, NULL);
+				iResult += (iNumFriendliesAdjacent * iModPerAdjacent);
+			}
 		}
 	}
-	
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3735,16 +3736,18 @@ int CvLuaUnit::lPerAdjacentUnitCombatAttackMod(lua_State* L)
 	CvPlot* pFromPlot = pkUnit->plot();
 	
 	int iResult = 0;
-	
-	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	if (pFromPlot != NULL)
 	{
-		const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
-		CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
-		int iModPerAdjacent = pkUnit->getCombatModPerAdjacentUnitCombatAttackMod(eUnitCombat);
-		if (pkUnitCombatInfo && iModPerAdjacent != 0)
+		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
-			int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(pkUnit->getTeam(), eUnitCombat, NULL);
-			iResult += (iNumFriendliesAdjacent * iModPerAdjacent);			
+			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+			int iModPerAdjacent = pkUnit->getCombatModPerAdjacentUnitCombatAttackMod(eUnitCombat);
+			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			{
+				int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(pkUnit->getTeam(), eUnitCombat, NULL);
+				iResult += (iNumFriendliesAdjacent * iModPerAdjacent);
+			}
 		}
 	}
 	
@@ -3761,16 +3764,18 @@ int CvLuaUnit::lPerAdjacentUnitCombatDefenseMod(lua_State* L)
 	CvPlot* pFromPlot = pkUnit->plot();
 	
 	int iResult = 0;
-	
-	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	if (pFromPlot != NULL)
 	{
-		const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
-		CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
-		int iModPerAdjacent = pkUnit->getCombatModPerAdjacentUnitCombatDefenseMod(eUnitCombat);
-		if (pkUnitCombatInfo && iModPerAdjacent != 0)
+		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
-			int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(pkUnit->getTeam(), eUnitCombat, NULL);
-			iResult += (iNumFriendliesAdjacent * iModPerAdjacent);			
+			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+			int iModPerAdjacent = pkUnit->getCombatModPerAdjacentUnitCombatDefenseMod(eUnitCombat);
+			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			{
+				int iNumFriendliesAdjacent = pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(pkUnit->getTeam(), eUnitCombat, NULL);
+				iResult += (iNumFriendliesAdjacent * iModPerAdjacent);
+			}
 		}
 	}
 	

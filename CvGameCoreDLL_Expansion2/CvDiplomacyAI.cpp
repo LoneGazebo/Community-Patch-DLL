@@ -13570,7 +13570,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			int iTheirScore = GET_PLAYER(ePlayer).GetScore();
 			int iOurScore = GetPlayer()->GetScore();
 
-			int iDelta = (iTheirScore - iOurScore) / 175;
+			int iDelta = (iTheirScore - iOurScore) / 50;
 			
 			//If their score is much higher than ours, we don't like that!!
 			if (iDelta > 0)
@@ -13755,8 +13755,15 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 				iDPWeight += 10;
 
+			//If our scores are close, all the better!
+			int iTheirScore = GET_PLAYER(ePlayer).GetScore();
+			int iOurScore = GetPlayer()->GetScore();
+
+			int iDelta = abs(iTheirScore - iOurScore) / 10;
+			iDPWeight += max(0, (100 - iDelta));
+
 			//Let's not have too many defensive pacts.
-			iDPWeight -= (GetNumDefensePacts() * 5);
+			iDPWeight -= (GetNumDefensePacts() * 15);
 
 			//He hates who we hate? We love this guy!
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBiggestCompetitor() == GetBiggestCompetitor())
@@ -13909,8 +13916,15 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				}
 			}
 
+			//If our scores are close, all the better!
+			int iTheirScore = GET_PLAYER(ePlayer).GetScore();
+			int iOurScore = GetPlayer()->GetScore();
+
+			int iDelta = abs(iTheirScore - iOurScore) / 10;
+			iDoFWeight += max(0, (100 - iDelta));
+
 			//Subtract for # of existing DoFs - want only a few close friends.
-			iDoFWeight -= (GetNumDoF() * 6);
+			iDoFWeight -= (GetNumDoF() * 15);
 			
 			// Weight for Approach
 			if (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)

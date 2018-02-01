@@ -16087,7 +16087,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 #endif
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (defense mod only)
-	if (pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	if (pInPlot != NULL && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 		{

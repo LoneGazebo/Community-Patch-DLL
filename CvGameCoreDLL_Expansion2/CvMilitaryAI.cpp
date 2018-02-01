@@ -4702,6 +4702,9 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;
 
+	if (m_pPlayer->isBarbarian())
+		return;
+
 	// Don't do this if at war
 #if defined(MOD_BALANCE_CORE)
 	if(GetNumberCivsAtWarWith(false) > 0)

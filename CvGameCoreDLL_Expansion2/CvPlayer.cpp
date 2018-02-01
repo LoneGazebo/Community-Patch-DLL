@@ -644,6 +644,7 @@ CvPlayer::CvPlayer() :
 	, m_paiResourceFromCSAlliances("CvPlayer::m_paiResourceFromCSAlliances", m_syncArchive)
 	, m_paiResourceOverValue("CvPlayer::m_paiResourceOverValue", m_syncArchive)
 	, m_aiGlobalTourismAlreadyReceived("CvPlayer::m_aiGlobalTourismAlreadyReceived", m_syncArchive)
+	, m_aiYieldFromMinors("CvPlayer::m_aiYieldFromMinors", m_syncArchive)
 	, m_aiYieldFromBirth("CvPlayer::m_aiYieldFromBirth", m_syncArchive)
 	, m_aiYieldFromBirthCapital("CvPlayer::m_aiYieldFromBirthCapital", m_syncArchive)
 	, m_aiYieldFromBirthRetroactive("CvPlayer::m_aiYieldFromBirthRetroactive", m_syncArchive)
@@ -1834,6 +1835,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_aiGlobalTourismAlreadyReceived.clear();
 	m_aiGlobalTourismAlreadyReceived.resize(NUM_MINOR_CIV_QUEST_TYPES, 0);
+
+	m_aiYieldFromMinors.clear();
+	m_aiYieldFromMinors.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldFromBirth.clear();
 	m_aiYieldFromBirth.resize(NUM_YIELD_TYPES, 0);
@@ -4640,20 +4644,23 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 			pNewCity->SetOccupied(true);
 
-			int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
-#if defined(MOD_BALANCE_CORE)
-			int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iInfluenceReduction)) / 100;
-			if(iResistanceTurns <= 0)
+			if (!bGift)
 			{
-				iResistanceTurns = 1;
-			}
+				int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
+#if defined(MOD_BALANCE_CORE)
+				int iResistanceTurns = (((pNewCity->getPopulation() * 2) / 3) * (100 - iInfluenceReduction)) / 100;
+				if (iResistanceTurns <= 0)
+				{
+					iResistanceTurns = 1;
+				}
 #else
-			int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
+				int iResistanceTurns = pNewCity->getPopulation() * (100 - iInfluenceReduction) / 100;
 #endif
 
-			if (iResistanceTurns > 0)
-			{
-				pNewCity->ChangeResistanceTurns(iResistanceTurns);
+				if (iResistanceTurns > 0)
+				{
+					pNewCity->ChangeResistanceTurns(iResistanceTurns);
+				}
 			}
 		}
 
@@ -5206,12 +5213,12 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 		FILogFile* pLog;
 		CvString strBaseString;
 		CvString strOutBuf;
-		CvString strFileName = "CustomMods.csv";
+		CvString strFileName = "CityRevolutions.csv";
 		playerName = getCivilizationShortDescription();
 		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", ";
-		strOutBuf.Format("Revolution! City restored to %s", GET_PLAYER(pCity->getOwner()).getName());
+		strOutBuf.Format("Revolution! Civ Liberated and %s restored to %s", pCity->getName().GetCString(), GET_PLAYER(ePlayer).getName());
 		strBaseString += strOutBuf;
 		pLog->Msg(strBaseString);
 	}
@@ -15990,26 +15997,30 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 					{
 						if(isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 						{
-							if(pkeBuildingInfo->GetPrereqAndTech() != NO_TECH)
-							{
-								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
-								if(pkTechInfo)
-								{
-									// Loop through all eras and apply Building production mod based on how much time has passed
-									EraTypes eBuildingUnlockedEra = (EraTypes) pkTechInfo->GetEra();
+							if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+								continue;
 
-									if(eBuildingUnlockedEra == GetCurrentEra())
-									{
-										iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
-									}
-									else if((GetCurrentEra() - eBuildingUnlockedEra) == 1)
-									{
-										iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
-									}
-									else if((GetCurrentEra() - eBuildingUnlockedEra) > 1)
-									{
-										iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
-									}
+							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+							if (pkTechInfo)
+							{
+								// Loop through all eras and apply Building production mod based on how much time has passed
+								EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+								if (eBuildingUnlockedEra == NO_ERA)
+									continue;
+
+								int iEraDivisor = GetCurrentEra() - eBuildingUnlockedEra;
+								switch (iEraDivisor)
+								{
+								case 0:
+									iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+									break;
+								case 1:
+									iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+									break;
+								case 2:
+									iProductionModifier += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+									break;
 								}
 							}
 						}
@@ -16900,6 +16911,12 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 								{
 									pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
 								}
+
+								int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
+								if (iYieldMod != 0)
+								{
+									pLoopCity->changeYieldRateModifier(eYield, iYieldMod * iBuildingCount * iChange);
+								}
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 							}
 							}
@@ -16955,6 +16972,35 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 		}
 	}
 #endif
+
+	return rtnValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// Get yield change from buildings for a specific building class
+int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
+{
+	int rtnValue = 0;
+
+	CvBuildingXMLEntries* pBuildings = GC.GetGameBuildings();
+
+	if (pBuildings)
+	{
+		for (int i = 0; i < pBuildings->GetNumBuildings(); i++)
+		{
+			// Do we have this building anywhere in empire?
+			int iNum = countNumBuildings((BuildingTypes)i);
+
+			if (iNum > 0)
+			{
+				CvBuildingEntry* pEntry = pBuildings->GetEntry(i);
+				if (pEntry)
+				{
+					rtnValue += (pEntry->GetBuildingClassYieldModifier(eBuildingClass, eYieldType) * iNum);
+				}
+			}
+		}
+	}
 
 	return rtnValue;
 }
@@ -20000,33 +20046,16 @@ int CvPlayer::GetSciencePerTurnFromMinor(PlayerTypes eMinor) const
 	return iSciencePerTurn;
 }
 
-int CvPlayer::GetYieldPerTurnFromMinors(YieldTypes eYield, bool bCityLevel, bool bCapital) const
+int CvPlayer::GetYieldPerTurnFromMinors(YieldTypes eYield) const
 {
-	int iTotal = 0;
-	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	return m_aiYieldFromMinors[eYield];
+}
+void CvPlayer::SetYieldPerTurnFromMinors(YieldTypes eYield, int iValue)
+{
+	if (iValue != m_aiYieldFromMinors[eYield])
 	{
-		PlayerTypes ePlayer = (PlayerTypes)i;
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMinorCiv())
-		{
-			if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetID())
-			{
-				int iValue = 0;
-				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetMinorCivAllyBonus, GetID(), ePlayer, GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait(), eYield, bCapital, bCityLevel) == GAMEEVENTRETURN_VALUE)
-				{
-					iTotal += iValue;
-				}
-			}
-			else if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(GetID()))
-			{
-				int iValue = 0;
-				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetMinorCivFriendBonus, GetID(), ePlayer, GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait(), eYield, bCapital, bCityLevel) == GAMEEVENTRETURN_VALUE)
-				{
-					iTotal += iValue;
-				}
-			}
-		}
+		m_aiYieldFromMinors.setAt(eYield, iValue);
 	}
-	return iTotal;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -20843,7 +20872,11 @@ void CvPlayer::DoUprising()
 void CvPlayer::DoUpdateCityRevolts()
 {
 	int iPublicUnhappiness = GetCulture()->GetPublicOpinionUnhappiness() / 5;
-	if (IsEmpireSuperUnhappy() && iPublicUnhappiness > 0)
+	if (iPublicUnhappiness <= 0 && IsEmpireSuperUnhappy())
+	{
+		iPublicUnhappiness = 1;
+	}
+	if (IsEmpireVeryUnhappy() && iPublicUnhappiness > 0)
 	{
 		if(GetCityRevoltCounter() > 0)
 		{
@@ -20883,13 +20916,39 @@ void CvPlayer::SetCityRevoltCounter(int iValue)
 void CvPlayer::ChangeCityRevoltCounter(int iChange)
 {
 	SetCityRevoltCounter(GetCityRevoltCounter() + iChange);
+
+	if ((GC.getLogging() && GC.getAILogging()))
+	{
+		CvString strLogString;
+		strLogString.Format("CP - Countdown for City Revolt CONTINUES - %d turns.", m_iCityRevoltCounter);
+
+		CvString strTemp;
+
+		CvString strFileName = "CityRevolutions.csv";
+		FILogFile* pLog;
+		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+		CvString strPlayerName;
+		strPlayerName = getCivilizationShortDescription();
+		strTemp += strPlayerName;
+		strTemp += ", ";
+
+		CvString strTurn;
+
+		strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+		strTemp += strTurn;
+
+		strTemp += strLogString;
+
+		pLog->Msg(strTemp);
+	}
 }
 
 //	--------------------------------------------------------------------------------
 /// City revolt countdown - seed
 void CvPlayer::DoResetCityRevoltCounter()
 {
-	int iTurns = /*5*/ GC.getREVOLT_COUNTER_MIN() * 4;
+	int iTurns = /*5*/ GC.getREVOLT_COUNTER_MIN();
 	CvGame& theGame = GC.getGame();
 
 	// Game speed mod
@@ -20905,8 +20964,8 @@ void CvPlayer::DoResetCityRevoltCounter()
 		iTurns = 1;
 
 	CvCity *pMostUnhappyCity = GetMostUnhappyCity();
-	PlayerTypes eRecipient = GetMostUnhappyCityRecipient();
-	if(pMostUnhappyCity && eRecipient != NO_PLAYER)
+	PlayerTypes eRecipient = GetMostUnhappyCityRecipient(pMostUnhappyCity);
+	if(pMostUnhappyCity != NULL && eRecipient != NO_PLAYER && GET_PLAYER(eRecipient).isAlive())
 	{
 		SetCityRevoltCounter(iTurns);
 
@@ -20917,21 +20976,69 @@ void CvPlayer::DoResetCityRevoltCounter()
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
 			pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 		}
+		
+		if ((GC.getLogging() && GC.getAILogging()))
+		{
+			CvString strLogString;
+			strLogString.Format("CP - Countdown for City Revolt BEGINS - %s, will go to %s in %d turns.", pMostUnhappyCity->getName().GetCString(), GET_PLAYER(eRecipient).getName(), iTurns);
+
+			CvString strTemp;
+
+			CvString strFileName = "CityRevolutions.csv";
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+			CvString strPlayerName;
+			strPlayerName = getCivilizationShortDescription();
+			strTemp += strPlayerName;
+			strTemp += ", ";
+
+			CvString strTurn;
+
+			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+			strTemp += strTurn;
+
+			strTemp += strLogString;
+
+			pLog->Msg(strTemp);
+		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	else if(pMostUnhappyCity && eRecipient == NO_PLAYER)
+	else if (pMostUnhappyCity && eRecipient != NO_PLAYER && !GET_PLAYER(eRecipient).isAlive())
 	{
-		PlayerTypes eOldPlayer = pMostUnhappyCity->getOriginalOwner();
-		if(eOldPlayer != NO_PLAYER && !GET_PLAYER(eOldPlayer).isAlive())
+		SetCityRevoltCounter(iTurns);
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications && isHuman())
 		{
-			SetCityRevoltCounter(iTurns);
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications && isHuman())
-			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eOldPlayer).getCivilizationShortDescription()).c_str();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
-				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
-			}
+			Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()).c_str();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
+			pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
+		}
+
+		if ((GC.getLogging() && GC.getAILogging()))
+		{
+			CvString strLogString;
+			strLogString.Format("CP - Countdown for City Revolt BEGINS - %s, will go to DEAD PLAYER %s in %d turns.", pMostUnhappyCity->getName().GetCString(), GET_PLAYER(eRecipient).getName(), iTurns);
+
+			CvString strTemp;
+
+			CvString strFileName = "CityRevolutions.csv";
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+			CvString strPlayerName;
+			strPlayerName = getCivilizationShortDescription();
+			strTemp += strPlayerName;
+			strTemp += ", ";
+
+			CvString strTurn;
+
+			strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+			strTemp += strTurn;
+
+			strTemp += strLogString;
+
+			pLog->Msg(strTemp);
 		}
 	}
 #endif
@@ -20942,64 +21049,81 @@ void CvPlayer::DoResetCityRevoltCounter()
 void CvPlayer::DoCityRevolt()
 {
 	CvCity *pMostUnhappyCity = GetMostUnhappyCity();
-	PlayerTypes eRecipient = GetMostUnhappyCityRecipient();
+	PlayerTypes eRecipient = GetMostUnhappyCityRecipient(pMostUnhappyCity);
 	if(pMostUnhappyCity && eRecipient != NO_PLAYER)
 	{
-		CvPlayer &kRecipient = GET_PLAYER(eRecipient);
-		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
-			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
-			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-			if(pNotifications)
+		if (pMostUnhappyCity && !GET_PLAYER(eRecipient).isAlive())
+		{
+			PlayerTypes eOldPlayer = pMostUnhappyCity->getOriginalOwner();
+			if (eOldPlayer != NO_PLAYER && !GET_PLAYER(eOldPlayer).isAlive())
 			{
-				Localization::String strMessage;
-				if (eNotifyPlayer == GetID())
-				{
-					strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_REVOLT", pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
-				}
-				else
-				{
-					strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT", getCivilizationAdjective(), pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
-				}
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_REVOLT_SUMMARY");
-				pNotifications->Add(NOTIFICATION_CITY_REVOLT, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
+				DoRevolutionPlayer(eOldPlayer, pMostUnhappyCity->GetID());
 			}
 		}
-
-		kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
-
-		// Move Units from player that don't belong here
-		CvPlot *pPlot = pMostUnhappyCity->plot();
-		if(pPlot->getNumUnits() > 0)
+		else
 		{
-			// Get the current list of units because we will possibly be moving them out of the plot's list
-			IDInfoVector currentUnits;
-			if (pPlot->getUnits(&currentUnits) > 0)
-			{
-				for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			CvPlayer &kRecipient = GET_PLAYER(eRecipient);
+			for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+				PlayerTypes eNotifyPlayer = (PlayerTypes)iNotifyLoop;
+				CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+				CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+				if (pNotifications)
 				{
-					CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
-
-					if(pLoopUnit && pLoopUnit->getOwner() == GetID())
+					Localization::String strMessage;
+					if (eNotifyPlayer == GetID())
 					{
-						pLoopUnit->finishMoves();
-						if (!pLoopUnit->jumpToNearestValidPlot())
-							pLoopUnit->kill(false);
+						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_CITY_REVOLT", pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
+					}
+					else
+					{
+						strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT", getCivilizationAdjective(), pMostUnhappyCity->getName(), kRecipient.getCivilizationShortDescription());
+					}
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_REVOLT_SUMMARY");
+					pNotifications->Add(NOTIFICATION_CITY_REVOLT, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
+				}
+			}
+
+			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
+
+			// Move Units from player that don't belong here
+			CvPlot *pPlot = pMostUnhappyCity->plot();
+			if (pPlot->getNumUnits() > 0)
+			{
+				// Get the current list of units because we will possibly be moving them out of the plot's list
+				IDInfoVector currentUnits;
+				if (pPlot->getUnits(&currentUnits) > 0)
+				{
+					for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+					{
+						CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+						if (pLoopUnit && pLoopUnit->getOwner() == GetID())
+						{
+							pLoopUnit->finishMoves();
+							if (!pLoopUnit->jumpToNearestValidPlot())
+								pLoopUnit->kill(false);
+						}
 					}
 				}
 			}
+
+			if (GC.getLogging() && GC.getAILogging() && pMostUnhappyCity != NULL)
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "CityRevolutions.csv";
+				playerName = getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("Defection! %s restored to %s", pMostUnhappyCity->getName().GetCString(), GET_PLAYER(pMostUnhappyCity->getOwner()).getName());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(pMostUnhappyCity && eRecipient == NO_PLAYER && pMostUnhappyCity->getOriginalOwner() != NULL)
-	{
-		PlayerTypes eOldPlayer = pMostUnhappyCity->getOriginalOwner();
-		if(eOldPlayer != NO_PLAYER && !GET_PLAYER(eOldPlayer).isAlive())
-		{
-			DoRevolutionPlayer(eOldPlayer, pMostUnhappyCity->GetID());
-		}
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -21018,37 +21142,60 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (pLoopCity->isCapital())
-			{
 				continue;
-			}
+
+			if (pLoopCity->IsOriginalMajorCapital())
+				continue;
 
 			// mind the sign change
-			int iUnhappiness = - pLoopCity->getHappinessDelta(); 
+			int iUnhappiness = -1 * pLoopCity->getHappinessDelta(); 
+
+			if (iUnhappiness <= 0)
+				continue;
 
 			// Look at each civ
-			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
 			{
 				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-				if (iLoopPlayer != GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
-				{
-					PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-					if (eOtherCivIdeology == ePreferredIdeology)
+				if (iLoopPlayer != GetID())
+				{		
+					PolicyBranchTypes eOtherCivIdeology = NO_POLICY_BRANCH_TYPE;
+					int iCulturalDominanceOverUs = 0;
+					if (kPlayer.isAlive() && !kPlayer.isMinorCiv())
 					{
-						int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(GetID()) - GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
-						if (iCulturalDominanceOverUs > 0 && kPlayer.getCapitalCity() != NULL)
+						if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE && eOtherCivIdeology == ePreferredIdeology)
 						{
-							// Find how far their capital is from this city
-							int iCapitalDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY());
-							if (iCapitalDistance < 100)
-							{
-								int iDistanceFactor = 100 - iCapitalDistance;
-								iDistanceFactor = (int)sqrt((float)iDistanceFactor);
-								iUnhappiness += (iDistanceFactor * iCulturalDominanceOverUs);
-							}
+							iUnhappiness *= 20;
+						}
+						iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(GetID()) - GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+					}
+					else
+					{
+						if (!kPlayer.isAlive() && kPlayer.isMinorCiv())
+						{
+							iCulturalDominanceOverUs = 5;
+						}
+						else if (!kPlayer.isAlive())
+						{
+							iCulturalDominanceOverUs = 5;
 						}
 					}
+					// Find how far their capital is from this city
+					int iX = kPlayer.GetOriginalCapitalX();
+					int iY = kPlayer.GetOriginalCapitalY();
+					int iCapitalDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), iX, iY);
+
+					int iDistanceFactor = 100 - iCapitalDistance;
+					if (iDistanceFactor <= 0)
+						iDistanceFactor = 1;
+
+					iDistanceFactor = (int)sqrt((float)iDistanceFactor);
+					iUnhappiness += (iDistanceFactor * iCulturalDominanceOverUs);
 				}
 			}
+
+			if (pLoopCity->getOriginalOwner() == GetID())
+				iUnhappiness /= 4;
 
 			if (iUnhappiness > iHighestUnhappiness)
 			{
@@ -21062,39 +21209,53 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 }
 
 // Calculate player that will receive city if it revolts
-PlayerTypes CvPlayer::GetMostUnhappyCityRecipient()
+PlayerTypes CvPlayer::GetMostUnhappyCityRecipient(CvCity* pMostUnhappyCity)
 {
 	PlayerTypes eRtnValue = NO_PLAYER;
-	CvCity *pMostUnhappyCity = GetMostUnhappyCity();
-	int iClosestCapital = MAX_INT;
+	int iBestValue = 0;
 
-	if (pMostUnhappyCity)
+	if (pMostUnhappyCity != NULL)
 	{
+		if (!GET_PLAYER(pMostUnhappyCity->getOriginalOwner()).isAlive())
+			return pMostUnhappyCity->getOriginalOwner();
+
 		PolicyBranchTypes ePreferredIdeology = GetCulture()->GetPublicOpinionPreferredIdeology();
 
 		// Look at each civ
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
 			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-			if (iLoopPlayer != GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
+			if (iLoopPlayer != GetID())
 			{
-				PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-				if (eOtherCivIdeology == ePreferredIdeology)
+				if (kPlayer.isAlive() && !kPlayer.isMinorCiv() && kPlayer.getCapitalCity() != NULL)
 				{
-#if defined(MOD_BALANCE_CORE)		
+					if (kPlayer.IsEmpireSuperUnhappy())
+						continue;
+
 					PublicOpinionTypes eOpinionInMyCiv = GetCulture()->GetPublicOpinionType();
-					if(eOpinionInMyCiv == PUBLIC_OPINION_REVOLUTIONARY_WAVE && kPlayer.getCapitalCity() != NULL)
-#else
+					bool bOriginalOwner = pMostUnhappyCity->getOriginalOwner() == kPlayer.GetID();
 					int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(GetID()) - GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
-					if (iCulturalDominanceOverUs > 0 && kPlayer.getCapitalCity() != NULL)
-#endif
+					if (eOpinionInMyCiv == PUBLIC_OPINION_REVOLUTIONARY_WAVE || (IsEmpireSuperUnhappy() && (iCulturalDominanceOverUs > 1 || bOriginalOwner)))
 					{
+						int iValue = 1000;
+						if (iCulturalDominanceOverUs > 0)
+						{
+							iValue *= iCulturalDominanceOverUs+1;
+						}
 						// Find how far their capital is from this city
 						int iCapitalDistance = plotDistance(pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY());
 
-						if (iCapitalDistance < iClosestCapital)
+						iValue -= iCapitalDistance * 2;
+
+						PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+						if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE && eOtherCivIdeology == ePreferredIdeology)
+							iValue *= 3;
+						if (bOriginalOwner)
+							iValue *= 10;
+
+						if (iValue > iBestValue)
 						{
-							iClosestCapital = iCapitalDistance;
+							iBestValue = iValue;
 							eRtnValue = (PlayerTypes)iLoopPlayer;
 						}
 					}
@@ -26236,14 +26397,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							{
 								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
 							}
-							if(eYield == YIELD_SCIENCE && iPassYield > 0)
-							{
-								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
-								if(eCurrentReligion != eReligion && eCurrentReligion != NO_RELIGION)
-								{
-									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity, true));
-								}
-							}
 						}
 					}
 					break;
@@ -26262,6 +26415,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							iTempValue *= max(1, iPassYield+1);
 
 							iValue += iTempValue;
+						}
+						if (pCity != NULL)
+						{
+							if (eYield == YIELD_SCIENCE && iPassYield > 0)
+							{
+								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
+								if (eCurrentReligion != eReligion && eCurrentReligion != NO_RELIGION)
+								{
+									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity, true));
+								}
+							}
 						}
 					}
 					

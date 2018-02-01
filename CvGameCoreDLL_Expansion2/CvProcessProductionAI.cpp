@@ -292,6 +292,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						iModifier += 30;
 					}
+					if (kPlayer.GetTreasury()->GetGold() <= 0 && kPlayer.GetTreasury()->AverageIncome(5) <= 0)
+						iModifier += 500;
 				}
 				break;
 				case YIELD_CULTURE:

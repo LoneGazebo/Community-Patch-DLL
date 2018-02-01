@@ -544,3 +544,13 @@ WHERE Tag = 'TXT_KEY_FOODMOD_RELIGION';
 UPDATE Language_en_US
 SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] We Love the King Day Modifier: {1_Num}%'
 WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
+
+-- Revolt TT fix.
+UPDATE Language_en_US
+SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
+
+
+UPDATE Language_en_US
+SET Text = 'Very well. Not that it will help either of us in the long run – we will all die soon enough.'
+WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';

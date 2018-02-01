@@ -4544,7 +4544,7 @@ int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = m_units.head();
 	int iCount = 0;
-	while(pUnitNode)
+	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = m_units.next(pUnitNode);
@@ -10934,10 +10934,7 @@ void CvPlot::flipVisibility(TeamTypes eTeam)
 	{
 		m_aiVisibilityCountThisTurnMax[eTeam] = m_aiVisibilityCount[eTeam];
 		if (m_aiVisibilityCount[eTeam] == 0) //in case it's now invisible
-		{
 			updateFog();
-			updateSymbols();
-		}
 	}
 }
 

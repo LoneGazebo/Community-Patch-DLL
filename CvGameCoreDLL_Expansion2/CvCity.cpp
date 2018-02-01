@@ -365,6 +365,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromSpyDefense("CvCity::m_aiYieldFromSpyDefense", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiBaseYieldRateFromCSFriendship("CvCity::m_aiBaseYieldRateFromCSFriendship", m_syncArchive)
+	, m_aiYieldFromMinors("CvCity::m_aiYieldFromMinors", m_syncArchive)
 	, m_aiResourceQuantityPerXFranchises("CvCity::m_aiResourceQuantityPerXFranchises", m_syncArchive)
 	, m_aiYieldChangeFromCorporationFranchises("CvCity::m_aiYieldChangeFromCorporationFranchises", m_syncArchive)
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
@@ -1605,6 +1606,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
+	m_aiYieldFromMinors.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSFriendship.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSAlliance.resize(NUM_YIELD_TYPES);
 #endif
@@ -1657,6 +1659,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
+		m_aiYieldFromMinors.setAt(iI, 0);
 		m_aiBaseYieldRateFromCSFriendship.setAt(iI, 0);
 		m_aiBaseYieldRateFromCSAlliance.setAt(iI, 0);
 		m_aiStaticCityYield.setAt(iI, 0);
@@ -9441,9 +9444,6 @@ void CvCity::DoTestResourceDemanded()
 				iWLTKD /= 100;
 
 				ChangeWeLoveTheKingDayCounter(/*20*/ iWLTKD);
-#if defined(MOD_BALANCE_CORE)
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iWLTKD);
-#endif
 
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if(pNotifications)
@@ -14345,6 +14345,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
 			changeYieldRateModifier(eYield, pPolicies->GetBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
 			ChangeBaseYieldRateFromBuildings(eYield, pPolicies->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
+
+			int iYieldMod = pBuildingInfo->GetBuildingClassYieldModifier(eBuildingClass, eYield);
+			if (iYieldMod != 0)
+			{
+				changeYieldRateModifier(eYield, iYieldMod * iChange);
+			}
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 			ChangeBaseYieldRateFromBuildings(eYield, GET_PLAYER(getOwner()).GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
 #endif
@@ -17380,12 +17387,9 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetBaseYieldRateFromCSAlliance(YIELD_CULTURE);
 	iCulturePerTurn += GetBaseYieldRateFromCSFriendship(YIELD_CULTURE);
+	iCulturePerTurn += GetYieldFromMinors(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldChangeFromCorporationFranchises(YIELD_CULTURE);
-	if (MOD_BALANCE_CORE_JFD)
-	{
-		iCulturePerTurn += GET_PLAYER(getOwner()).GetYieldPerTurnFromMinors(YIELD_CULTURE, isCapital(), true);
-	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetEventCityYield(YIELD_CULTURE);
@@ -17619,12 +17623,9 @@ int CvCity::GetFaithPerTurn() const
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetBaseYieldRateFromCSAlliance(YIELD_FAITH);
 	iFaith += GetBaseYieldRateFromCSFriendship(YIELD_FAITH);
+	iFaith += GetYieldFromMinors(YIELD_FAITH);
 	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
 	iFaith += GetYieldChangeFromCorporationFranchises(YIELD_FAITH);
-	if (MOD_BALANCE_CORE_JFD)
-	{
-		iFaith += GET_PLAYER(getOwner()).GetYieldPerTurnFromMinors(YIELD_FAITH, isCapital(), true);
-	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetEventCityYield(YIELD_FAITH);
@@ -21357,7 +21358,18 @@ void CvCity::SetWeLoveTheKingDayCounter(int iValue)
 void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 {
 	VALIDATE_OBJECT
+
+	bool bNewWLTKD = false;
+	if (m_iWeLoveTheKingDayCounter <= 0 && iChange > 0)
+		bNewWLTKD = true;
+
 	SetWeLoveTheKingDayCounter(GetWeLoveTheKingDayCounter() + iChange);
+	if (bNewWLTKD)
+	{
+#if defined(MOD_BALANCE_CORE)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iChange);
+#endif
+	}
 	if (iChange > 0 && bUATrigger)
 	{
 		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -22428,12 +22440,9 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
 	iValue += GetBaseYieldRateFromCSFriendship(eIndex);
+	iValue += GetYieldFromMinors(eIndex);
 	iValue += GetYieldPerTurnFromTraits(eIndex);
 	iValue += GetYieldChangeFromCorporationFranchises(eIndex);
-	if (MOD_BALANCE_CORE_JFD)
-	{
-		iValue += GET_PLAYER(getOwner()).GetYieldPerTurnFromMinors(eIndex, isCapital(), true);
-	}
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetEventCityYield(eIndex);
@@ -23475,6 +23484,15 @@ void CvCity::SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue)
 		m_aiBaseYieldRateFromCSFriendship.setAt(eIndex, iValue);
 	}
 }
+
+void CvCity::SetYieldFromMinors(YieldTypes eYield, int iValue)
+{
+	m_aiYieldFromMinors.setAt(eYield, iValue);
+}
+int CvCity::GetYieldFromMinors(YieldTypes eYield) const
+{
+	return m_aiYieldFromMinors[eYield];
+}
 //CORPORATIONS
 //	--------------------------------------------------------------------------------
 // Get the yield modifier change from having a Corporation
@@ -24122,8 +24140,7 @@ void CvCity::DoBarbIncursion()
 							{
 								if((getProduction() > 0) && (getProductionTurnsLeft() >= 2) && (getProductionTurnsLeft() != INT_MAX))
 								{
-									iTheft *= 2;
-									iTheft /= 3;
+									iTheft /= 2;
 									int iProduction = ((getBaseYieldRate(YIELD_PRODUCTION) * iTheft) / 100);
 									if(iProduction > 0)
 									{

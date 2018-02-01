@@ -1,5 +1,5 @@
-/*-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -4763,6 +4763,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					iFlatYield += (pkBuildingInfo->GetBuildingClassLocalYieldChange(pkLoopBuilding->GetBuildingClassType(), eYield));
 				}
 			}
+			//Stick this modifier here...okay?
+			if (pkBuildingInfo->GetBuildingClassYieldModifier(pkLoopBuilding->GetBuildingClassType(), eYield) > 0)
+			{
+				iModifier += (pkBuildingInfo->GetBuildingClassYieldModifier(pkLoopBuilding->GetBuildingClassType(), eYield) * kPlayer.getNumCities() * 2);
+			}
 		}
 	}
 	int iNumTerrainInfos = GC.getNumTerrainInfos();
@@ -5262,13 +5267,15 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		iYieldValue += (iActualIncrease * iEra * 2);
 	}
+	
+	AICityStrategyTypes eNeedCulture = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_CULTURE_BUILDING");
+	EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 
 	if (iYieldValue > 0)
 	{
-		//Grand Strategy Modifiers
-		if (eYield == YIELD_CULTURE)
+		switch (eYield)
 		{
-			AICityStrategyTypes eNeedCulture = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_CULTURE_BUILDING");
+		case YIELD_CULTURE:
 			if (eNeedCulture != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedCulture))
 			{
 				iYieldValue *= 2;
@@ -5297,12 +5304,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					}
 				}
 			}
-		}
-
-		if (eYield == YIELD_SCIENCE)
-		{
-			AICityStrategyTypes eNeedScience = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_SCIENCE_BUILDING");
-			if (eNeedScience != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedScience))
+			break;
+		case YIELD_SCIENCE:
+			if (pCity->GetJONSCulturePerTurnFromBuildings() <= 0)
 			{
 				iYieldValue *= 2;
 			}
@@ -5310,35 +5314,46 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			{
 				iYieldValue *= 2;
 			}
-		}
-		if (eYield == YIELD_PRODUCTION)
-		{
+			break;
+		case YIELD_PRODUCTION:
 			if (kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
 				iYieldValue *= 2;
 			}
-		}
-		if (eYield == YIELD_TOURISM)
-		{
+			break;
+		case YIELD_TOURISM:
 			if (kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
 				iYieldValue *= 2;
 			}
-		}
-
-		if (eYield == YIELD_FAITH)
-		{
-			AICityStrategyTypes eNeedFaith = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_FAITH_BUILDING");
-			if (eNeedFaith != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFaith))
+			break;
+		case YIELD_FAITH:
+			
+			int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			
+			if (kPlayer.GetPlayerTraits()->IsReligious())
 			{
-				iYieldValue *= 3;
+				iFlavorReligion *= 3;
+				iFlavorReligion /= 2;
 			}
-			EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+			else
+			{
+				iFlavorReligion *= 2;
+				iFlavorReligion /= 3;
+			}
+
+			if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
+			{		
+				iYieldValue *= max(1, iFlavorReligion);
+			}
+			
 			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
 			{
-				iYieldValue *= 2;
+				iYieldValue *= max(1, iFlavorReligion);
 			}
+			break;
 		}
+
 		AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
 		bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
 		bool bSeekingConquestVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
@@ -6135,9 +6150,10 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		if (eFreeBuildingThisCity != NO_BUILDING)
 		{
 			if(pCity->GetCityBuildings()->GetNumBuilding(eFreeBuildingThisCity) <= 0)
-			{
+				iValue += pCity->getPopulation() * 20;
+			else
 				iValue += pCity->getPopulation() * 10;
-			}
+
 		}
 	}
 	if(pkBuildingInfo->GetCultureRateModifier() > 0)

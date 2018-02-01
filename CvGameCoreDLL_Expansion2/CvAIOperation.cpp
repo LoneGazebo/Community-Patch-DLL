@@ -3761,7 +3761,7 @@ CvPlot* OperationalAIHelpers::FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppM
 				continue;
 
 			// bonus for captured civilians (settlers and workers, not missionaries)
-			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 2;
+			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_WORKER) * 2;
 
 			int iCityLoop;
 			// Loop through each of our cities

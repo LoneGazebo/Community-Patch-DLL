@@ -3206,7 +3206,19 @@ bool CvPlayerTraits::IsReligious()
 			return true;
 	}
 
-	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0)
+	if (GetYieldFromHistoricEvent(YIELD_FAITH) != 0 ||
+		GetYieldFromLevelUp(YIELD_FAITH) != 0 ||
+		GetYieldFromConquest(YIELD_FAITH) != 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
+		GetYieldFromCSAlly(YIELD_FAITH) != 0 ||
+		GetYieldFromCSFriend(YIELD_FAITH) != 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
+		GetYieldFromTilePurchase(YIELD_FAITH) != 0 ||
+		GetYieldFromTileEarn(YIELD_FAITH) != 0 ||
+		GetYieldFromSettle(YIELD_FAITH) != 0)
+		return true;
+
+	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0 || GetFaithFromKills() != 0)
 		return true;
 	
 
@@ -4871,9 +4883,9 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 						iNumResourceGiven++;
 						if(iNumResourceGiven >= iNumResourceTotal)
 						{
+							bResult = true;
 							break;
 						}
-						bResult = true;
 					}
 				}
 			}

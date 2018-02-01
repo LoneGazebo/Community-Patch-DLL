@@ -256,6 +256,8 @@ public:
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 #if defined(MOD_BALANCE_CORE)
+	int GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes ePlayer);
+	int GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
 #endif
