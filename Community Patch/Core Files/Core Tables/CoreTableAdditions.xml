@@ -266,6 +266,14 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="NumPlots" type="integer" default="0"/>
 	</Table>
+
+	<!-- BUILDING: Global yield modifier bonus to a building class of a specific type. -->
+	<Table name="Building_BuildingClassYieldModifiers">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Modifier" type="integer" default="0"/>
+	</Table>
 	
 	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is victorious, where X is the number below.  -->
 	<Table name="Building_YieldFromVictory">

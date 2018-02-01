@@ -7,7 +7,7 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(1-26) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
+    <Teaser>(2-1) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
     <Description>LUA and mod compatibility files for CBO if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>

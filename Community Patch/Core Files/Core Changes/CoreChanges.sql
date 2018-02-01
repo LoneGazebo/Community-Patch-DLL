@@ -76,6 +76,12 @@ UPDATE AIEconomicStrategies
 SET NoMinorCivs = '1'
 WHERE Type = 'ECONOMICAISTRATEGY_LOSING_MONEY';
 
+-- Revolt Timer
+
+UPDATE Defines
+SET Value = '10'
+WHERE Name = 'REVOLT_COUNTER_MIN';
+
 -- AI Spam message reduction
 UPDATE Defines
 SET Value = '3'

@@ -381,6 +381,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiPlotYieldChange(NULL),
 #endif
 	m_ppiBuildingClassYieldChanges(NULL),
+	m_ppiBuildingClassYieldModifiers(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_ppiBuildingClassLocalYieldChanges(NULL),
 #endif
@@ -495,6 +496,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassLocalHappiness);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassLocalYieldChanges);
@@ -1200,6 +1202,28 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int iYieldChange = pResults->GetInt(2);
 
 			m_ppiBuildingClassYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
+		}
+	}
+	//BuildingClassYieldModifiers
+	{
+		kUtility.Initialize2DArray(m_ppiBuildingClassYieldModifiers, "BuildingClasses", "Yields");
+
+		std::string strKey("Building_BuildingClassYieldModifiers");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select BuildingClasses.ID as BuildingClassID, Yields.ID as YieldID, Modifier from Building_BuildingClassYieldModifiers inner join BuildingClasses on BuildingClasses.Type = BuildingClassType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldModifier = pResults->GetInt(2);
+
+			m_ppiBuildingClassYieldModifiers[BuildingClassID][iYieldID] = iYieldModifier;
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -3396,6 +3420,16 @@ int CvBuildingEntry::GetBuildingClassYieldChange(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiBuildingClassYieldChanges[i][j];
 }
+
+/// Yield change for a specific BuildingClass by yield type
+int CvBuildingEntry::GetBuildingClassYieldModifier(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiBuildingClassYieldModifiers[i][j];
+}
 #if defined(MOD_BALANCE_CORE)
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassLocalYieldChange(int i, int j) const
@@ -4932,7 +4966,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
 
 	//Simplification - errata yields not worth considering.
-	if(eYield > YIELD_GOLDEN_AGE_POINTS)
+	if(eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 	{
 		return 0;
 	}

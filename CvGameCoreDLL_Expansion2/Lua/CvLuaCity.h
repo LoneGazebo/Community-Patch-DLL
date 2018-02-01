@@ -583,6 +583,8 @@ protected:
 	LUAAPIEXTN(GetBuildingClassCultureChange, int);
 	LUAAPIEXTN(GetReligionYieldRateModifier, int);
 	LUAAPIEXTN(GetReligionBuildingYieldRateModifier, int);
+	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
+	LUAAPIEXTN(GetYieldPerTurnFromMinors, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetBaseYieldRateFromCSAlliance, int);

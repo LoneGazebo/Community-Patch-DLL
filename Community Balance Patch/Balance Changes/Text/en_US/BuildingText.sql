@@ -496,7 +496,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom in all cities. Increases Military
 WHERE Tag = 'TXT_KEY_WONDER_PARTHENON_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Instantly receive 500 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. Receive a free Temple in the City where it is built.'
+SET Text = 'Instantly receive 500 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. Receive a free Temple in the City where it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_ORACLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

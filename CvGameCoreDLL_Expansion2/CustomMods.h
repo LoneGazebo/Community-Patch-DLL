@@ -1245,8 +1245,6 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
-#define GAMEEVENT_GetMinorCivAllyBonus		"GetMinorCivAllyBonus", "iiiibb"
-#define GAMEEVENT_GetMinorCivFriendBonus	"GetMinorCivFriendBonus", "iiiibb"
 //Contracts
 #define GAMEEVENT_GetNumContractUnit		"GetNumContractUnit", "ii"
 #define GAMEEVENT_GetContractMaintenance	"GetContractMaintenance", "ii"
@@ -1259,6 +1257,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_LoyaltyStateChanged       "LoyaltyStateChanged", "iiii"
 //Other
 #define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
+#define GAMEEVENT_CityEndsWLTKD				"CityEndsWLTKD", "iiii"
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"

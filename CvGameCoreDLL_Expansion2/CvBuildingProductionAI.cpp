@@ -955,7 +955,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 			case YIELD_GOLD:
 				if (bSmall)
-					iYieldValue /= 3;
+					iYieldValue /= 2;
 				if (iGPT <= 10)
 				{
 					iYieldValue += (iGPT * -25);
@@ -971,7 +971,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				break;
 			case YIELD_SCIENCE:
 				if (bSmall)
-					iYieldValue /= 4;
+					iYieldValue /= 2;
 				if (iIlliteracy > 0)
 				{
 					iYieldValue += (iIlliteracy * 100);
@@ -979,8 +979,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				break;
 			case YIELD_FAITH:
-				if (bSmall)
-					iYieldValue /= 4;
+				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
+					iYieldValue /= 3;
 				if (iReligion > 0)
 				{
 					iYieldValue += (iReligion * 100);

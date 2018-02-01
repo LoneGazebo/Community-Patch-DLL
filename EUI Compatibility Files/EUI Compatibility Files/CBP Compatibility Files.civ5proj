@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(1-26) CBO Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(2-1) CBO Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBO, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBO by themselves.
 
 NOTE: Make sure to delete the LUA folder in the CBO if you are using this!</Description>
