@@ -537,6 +537,7 @@ public:
 	int* GetPlotYieldChangeArray(int i) const;
 #endif
 	int GetBuildingClassYieldChange(int i, int j) const;
+	int GetBuildingClassYieldModifier(int i, int j) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetBuildingClassLocalYieldChange(int i, int j) const;
 	int GetBuildingClassLocalHappiness(int i) const;
@@ -928,6 +929,7 @@ private:
 	int** m_ppaiPlotYieldChange;
 #endif
 	int** m_ppiBuildingClassYieldChanges;
+	int** m_ppiBuildingClassYieldModifiers;
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppiBuildingClassLocalYieldChanges;
 	int* m_paiBuildingClassLocalHappiness;

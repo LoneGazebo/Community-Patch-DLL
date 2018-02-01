@@ -1130,6 +1130,9 @@ public:
 	void ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange);
 	void SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue);
 
+	void SetYieldFromMinors(YieldTypes eYield, int iValue);
+	int GetYieldFromMinors(YieldTypes eYield) const;
+
 	int GetReligiousTradeModifier() const;
 	void ChangeReligiousTradeModifier(int iChange);
 	void SetReligiousTradeModifier(int iValue);
@@ -1838,6 +1841,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSFriendship;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromMinors;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceQuantityPerXFranchises;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldChangeFromCorporationFranchises;
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;

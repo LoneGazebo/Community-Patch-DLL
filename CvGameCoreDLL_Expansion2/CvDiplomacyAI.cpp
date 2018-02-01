@@ -9614,8 +9614,8 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 /// How many turns have we been at war with this Team?
 int CvDiplomacyAI::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Team Index.");
-	CvAssertMsg(ePlayer < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.");
+	CvAssertMsg(eTeam >= 0, "DIPLOMACY_AI: Invalid Team Index.");
+	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.");
 	int iMaxTurns = 0;
 	
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i) {
@@ -13232,8 +13232,8 @@ void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eB
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eDisputeLevel >= 0, "DIPLOMACY_AI: Invalid DisputeLevelType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eDisputeLevel < NUM_BLOCK_LEVELS, "DIPLOMACY_AI: Invalid DisputeLevelType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eBlockLevel >= 0, "DIPLOMACY_AI: Invalid DisputeLevelType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eBlockLevel < NUM_BLOCK_LEVELS, "DIPLOMACY_AI: Invalid DisputeLevelType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paePlayerVictoryBlockLevel[ePlayer] = eBlockLevel;
 }
 
@@ -13570,7 +13570,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			int iTheirScore = GET_PLAYER(ePlayer).GetScore();
 			int iOurScore = GetPlayer()->GetScore();
 
-			int iDelta = (iTheirScore - iOurScore) / 175;
+			int iDelta = (iTheirScore - iOurScore) / 50;
 			
 			//If their score is much higher than ours, we don't like that!!
 			if (iDelta > 0)
@@ -13755,8 +13755,15 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			if (GET_TEAM(GetTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 				iDPWeight += 10;
 
+			//If our scores are close, all the better!
+			int iTheirScore = GET_PLAYER(ePlayer).GetScore();
+			int iOurScore = GetPlayer()->GetScore();
+
+			int iDelta = abs(iTheirScore - iOurScore) / 10;
+			iDPWeight += max(0, (100 - iDelta));
+
 			//Let's not have too many defensive pacts.
-			iDPWeight -= (GetNumDefensePacts() * 5);
+			iDPWeight -= (GetNumDefensePacts() * 15);
 
 			//He hates who we hate? We love this guy!
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBiggestCompetitor() == GetBiggestCompetitor())
@@ -13909,8 +13916,15 @@ void CvDiplomacyAI::DoRelationshipPairing()
 				}
 			}
 
+			//If our scores are close, all the better!
+			int iTheirScore = GET_PLAYER(ePlayer).GetScore();
+			int iOurScore = GetPlayer()->GetScore();
+
+			int iDelta = abs(iTheirScore - iOurScore) / 10;
+			iDoFWeight += max(0, (100 - iDelta));
+
 			//Subtract for # of existing DoFs - want only a few close friends.
-			iDoFWeight -= (GetNumDoF() * 6);
+			iDoFWeight -= (GetNumDoF() * 15);
 			
 			// Weight for Approach
 			if (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
@@ -40290,7 +40304,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	eVassalEcoStrength = (StrengthTypes) iEcoStrengthScore;
 
 	CvAssertMsg(eMasterApproach >= NO_MAJOR_CIV_APPROACH && eMasterApproach < NUM_MAJOR_CIV_APPROACHES, "Something went wrong with the evaluation for approaches.");
-	CvAssertMsg(eMasterOpinion >= NO_MAJOR_CIV_OPINION_TYPE && eMasterOpinion < NUM_MAJOR_CIV_OPINIONS, "Something went wrong with the evaluation for opinions.");
+	CvAssertMsg(eMasterOpinion >= NO_MAJOR_CIV_OPINION_TYPE && eMasterOpinion < NUM_MAJOR_CIV_OPINION_TYPES, "Something went wrong with the evaluation for opinions.");
 	CvAssertMsg(eVassalStrength >= NO_STRENGTH_VALUE && eMasterOpinion < NUM_STRENGTH_VALUES, "Something went wrong with the evaluation for strengths.");
 	CvAssertMsg(eMasterInfluence >= NO_INFLUENCE_LEVEL && eMasterInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
 	CvAssertMsg(eVassalInfluence >= NO_INFLUENCE_LEVEL && eMasterInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
@@ -41157,7 +41171,7 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 /// Player ended vassalage with us, is that acceptable?
 bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 {
-	CvAssertMsg(GET_PLAYER(eHuman).GetDiplomacy()->IsVassal(GetPlayer()->GetID()), "CvDiplomacyAI: Human ending vassalage with us, but he's not our vassal.");
+//	CvAssertMsg(GET_PLAYER(eHuman).GetDiplomacy()->IsVassal(GetPlayer()->GetID()), "CvDiplomacyAI: Human ending vassalage with us, but he's not our vassal.");
 
 	int iChanceToGiveIn = 0;
 
@@ -42593,10 +42607,10 @@ void CvDiplomacyAI::DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered
 // eMasterTeam became our master
 void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVoluntary)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+//	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+//	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eMasterTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eMasterTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	
 	PlayerTypes eOtherTeamPlayer; // a player on eMasterTeam
 	for(int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
@@ -42709,8 +42723,8 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 /// ePlayer ended vassalage with someone, so figure out what that means
 void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 {
-	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	PlayerTypes ePlayer;
 	// Loop through players, check it's team, and set the number of times demanded to be 0
@@ -42736,8 +42750,8 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 // We are liberated by a master
 void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 {
-	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	// Only do this if we are a vassal
 	if(!GET_TEAM(GetPlayer()->getTeam()).IsVassal(eTeam))
@@ -43476,8 +43490,8 @@ bool CvDiplomacyAI::IsVassal(PlayerTypes eOtherPlayer) const
 /// Helper function to determine how many vassals ePlayer has
 int CvDiplomacyAI::GetNumVassals(PlayerTypes eOtherPlayer) const
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	return GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals();
 }

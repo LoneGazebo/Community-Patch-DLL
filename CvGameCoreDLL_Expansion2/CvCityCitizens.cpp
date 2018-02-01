@@ -922,6 +922,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 			{
 				iYield *= 10;
 			}
+			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
+			{
+				iYield *= 5;
+			}
 			CityAIFocusTypes eFocus = GetFocusType();
 			if (eYield == YIELD_FOOD && !m_pCity->isFoodProduction())
 			{
@@ -1707,6 +1711,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
+				iYield *= 10;
+			}
+			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
+			{
 				iYield *= 5;
 			}
 			if (eYield == YIELD_FOOD)
@@ -1778,25 +1786,31 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 				case YIELD_GOLD:
 					if (m_pCity->getUnhappinessFromGold() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				case YIELD_SCIENCE:
 					if (m_pCity->getUnhappinessFromScience() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				case YIELD_CULTURE:
 					if (m_pCity->getUnhappinessFromScience() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
 					}
 					break;
 				case YIELD_FAITH:
 					if (m_pCity->getUnhappinessFromReligion() > 0)
 					{
-						iYield *= 2;
+						iYield *= 5;
+					}
+					break;
+				case YIELD_PRODUCTION:
+					if (m_pCity->getUnhappinessFromDefense() > 0)
+					{
+						iYield *= 5;
 					}
 					break;
 				}
