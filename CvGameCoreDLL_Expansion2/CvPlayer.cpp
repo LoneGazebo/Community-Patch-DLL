@@ -2913,7 +2913,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 {
 	CvCity* pNewCity = addCity();
 
-	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
+	CvAssertMsg(pNewCity != NULL, "City is not assigned a valid value");
 	if(pNewCity != NULL)
 	{
 		CvAssertMsg(!(GC.getMap().plot(iX, iY)->isCity()), "No city is expected at this plot when initializing new city");
@@ -12280,8 +12280,8 @@ int CvPlayer::getCityFeatures(FeatureTypes eFeature) const
 }
 void CvPlayer::setNumBuildings(BuildingTypes eBuilding, int iValue)
 {
-	CvAssertMsg(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eFeature < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
 
 	m_piNumBuildings[eBuilding] = iValue;
 }
@@ -18798,8 +18798,8 @@ void CvPlayer::ChangeNumCitiesFreeFoodBuilding(int iChange)
 /// Cities remaining to get a free building
 int CvPlayer::GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const
 {
-	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingClass > -1, "Index out of bounds");
 	return m_paiNumCitiesFreeChosenBuilding[eBuildingClass];
 }
 
@@ -18813,8 +18813,8 @@ void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingCla
 /// Cities remaining to get a free building
 bool CvPlayer::IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const
 {
-	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingClass > -1, "Index out of bounds");
 	return m_pabFreeChosenBuildingNewCity[eBuildingClass];
 }
 
@@ -29758,14 +29758,14 @@ bool CvPlayer::PlayerHasContract(ContractTypes eContract) const
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eContract >= 0, "eContract expected to be >= 0");
-	CvAssertMsg(eContract < GC.GetNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
+	CvAssertMsg(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
 	return m_abActiveContract[eContract];
 }
 void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eContract >= 0, "eContract expected to be >= 0");
-	CvAssertMsg(eContract < GC.GetNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
+	CvAssertMsg(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
 	if (m_abActiveContract[eContract] != bValue)
 	{
 		m_abActiveContract.setAt(eContract, bValue);
@@ -38390,7 +38390,7 @@ void CvPlayer::changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTyp
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiGreatPersonExpendedYield[eIndex1];
 		yields[eIndex2] = (m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] + iChange);
 		m_ppiGreatPersonExpendedYield[eIndex1] = yields;
-		CvAssert(GetGreatPersonExpendedYield(eIndex1, eIndex2) >= 0);
+		CvAssert(getGreatPersonExpendedYield(eIndex1, eIndex2) >= 0);
 
 		updateYield();
 	}

@@ -122,7 +122,7 @@ int CvContractEntry::GetYieldCost(YieldTypes eYield) const
 }
 int CvContractEntry::GetFlavorValue(FlavorTypes eFlavor) const
 {
-	CvAssertMsg(eFlavor < GC.getNumFlavors(), "Index out of bounds");
+	CvAssertMsg(eFlavor < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(eFlavor > -1, "Index out of bounds");
 	return m_piFlavor ? m_piFlavor[eFlavor] : -1;
 }

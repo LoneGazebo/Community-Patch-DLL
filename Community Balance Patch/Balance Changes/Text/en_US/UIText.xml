@@ -704,6 +704,9 @@
 		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_BLDG_LABEL">
 			<Text>Leads to Buildings:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TOURISM_LABEL">
+			<Text>Tourism:</Text>
+		</Row>
 
 		<!-- Civilopedia more categories for Unit Promotions -->
         <Row Tag="TXT_KEY_PROMOTIONS_PEDIA_MELEE">

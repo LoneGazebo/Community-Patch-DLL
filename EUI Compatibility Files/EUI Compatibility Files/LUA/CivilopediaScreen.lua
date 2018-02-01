@@ -3969,7 +3969,21 @@ function SelectBuildingOrWonderArticle( buildingID )
 			Controls.ProductionLabel:SetText( table.concat(productionItems, ", ") );
 			Controls.ProductionFrame:SetHide( false );
 		end
-
+-- Vox Populi update the Tourism
+		local tourismItems = {}
+		local iTourism = GetBuildingYieldModifier(buildingID, "YIELD_TOURISM");
+		if(iTourism > 0) then
+			table.insert(tourismItems, "+" .. tostring(iTourism).."% [ICON_TOURISM]" );
+		end
+		iTourism = GetBuildingYieldChange(buildingID, "YIELD_TOURISM");
+		if(iTourism > 0) then
+			table.insert(tourismItems, "+" .. tostring(iTourism).." [ICON_TOURISM]" );
+		end
+		if(#tourismItems > 0) then
+			Controls.TourismLabel:SetText( table.concat(tourismItems, ", ") );
+			Controls.TourismFrame:SetHide( false );
+		end
+-- Vox Populi end
 		-- update the Great People
 		local iGPType = thisBuilding.SpecialistType;
 		if iGPType ~= nil then
@@ -8667,6 +8681,7 @@ function ClearArticle()
 	Controls.GoldFrame:SetHide( true );
 	Controls.ScienceFrame:SetHide( true );
 	Controls.ProductionFrame:SetHide( true );
+	Controls.TourismFrame:SetHide( true ); -- Vox Populi Tourism
 	Controls.GreatPeopleFrame:SetHide( true );
 	Controls.CombatFrame:SetHide( true );
 	Controls.RangedCombatFrame:SetHide( true );
