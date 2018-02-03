@@ -1,3 +1,4 @@
+print("Loading VictoryProgress.lua from Vox Populi")
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 include( "IconSupport" );
@@ -425,6 +426,8 @@ function AddDominationCiv(pPlayer, pDominatingPlayer, numItems, civMgr)
 end 
 
 ----------------------------------------------------------------
+-- Vox Populi reworked to avoid recursive calls
+local eApolloTech = GameInfoTypes[ GameInfo.Projects["PROJECT_APOLLO_PROGRAM"].TechPrereq ];
 ----------------------------------------------------------------
 function PopulateSpaceRace()
 	if(PreGame.IsVictory(GameInfo.Victories["VICTORY_SPACE_RACE"].ID))then
@@ -444,6 +447,19 @@ function PopulateSpaceRace()
 				SetProjectValue("PROJECT_SS_STASIS_CHAMBER", iTeam, Controls, "Chamber");
 				SetProjectValue("PROJECT_SS_ENGINE", iTeam, Controls, "Engine");
 			else
+				-- Vox Populi reworked to avoid recursive calls
+				local techsToComplete = Players[ Game.GetActivePlayer() ]:FindPathLength(eApolloTech, false)
+				techsToComplete = math.min(10, techsToComplete)
+				Controls.TechProgress:SetHide(false)
+				if techsToComplete > 0 then
+					Controls.TechProgress:SetPercent((10-techsToComplete)/10)
+					Controls.BubblesAnim:SetHide(false)
+				else
+					Controls.TechProgress:SetPercent(1)
+					Controls.TechIconAnim:SetHide(false)
+					Controls.BubblesAnim:SetHide(true)
+				end
+			--[[
 				local totalPreReqs = #g_TechPreReqList;
 				
 				-- Prevent a divide by 0.
@@ -459,6 +475,7 @@ function PopulateSpaceRace()
 					Controls.TechIconAnim:SetHide(false);
 					Controls.BubblesAnim:SetHide(true);
 				end
+			--]]
 			end
 			
 			local numApollo = 0;
@@ -1277,7 +1294,8 @@ function CountPreReqsAcquired()
 		end
 	end
 end
-Events.TechAcquired.Add( CountPreReqsAcquired );
+-- Vox Populi
+--Events.TechAcquired.Add( CountPreReqsAcquired );
 
 --------------------------------------------
 --------------------------------------------
@@ -1285,8 +1303,9 @@ Events.TechAcquired.Add( CountPreReqsAcquired );
 --------------------------------------------
 local ApolloTech = GameInfo.Projects["PROJECT_APOLLO_PROGRAM"].TechPrereq;
 
-GetPreReqs(ApolloTech);
-CountPreReqsAcquired();
+-- Vox Populi biggest offender here
+--GetPreReqs(ApolloTech);
+--CountPreReqsAcquired();
 
 
 -------------------------------------------------
@@ -1354,3 +1373,5 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 -- 'Active' (local human) player has changed
 ----------------------------------------------------------------
 Events.GameplaySetActivePlayer.Add(OnBack);
+
+print("OK loaded VictoryProgress.lua from Vox Populi")
