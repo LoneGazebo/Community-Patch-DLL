@@ -16929,9 +16929,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	DoUpdateHappinessFromBuildings();
 	//Refresh cache data.
 	countNumBuildings(eBuilding, true);
+	DoUpdateHappinessFromBuildings(); // fix for 3939, this function needs player's building count already updated!
 #endif
 }
 
