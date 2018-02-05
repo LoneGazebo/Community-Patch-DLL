@@ -2116,7 +2116,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				if (pPlot->getOwner() == m_pPlayer->GetID())
 				{
 					DeleteTemporaryZone(pPlot);
-					pZone->SetNavalInvasion(false);
+					if (pZone) pZone->SetNavalInvasion(false); // TEMP FIX FOR 3938
 				}
 			}
 		}
