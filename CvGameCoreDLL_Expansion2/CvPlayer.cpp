@@ -12228,7 +12228,7 @@ int CvPlayer::countNumBuildings(BuildingTypes eBuilding) const
 	}
 #if defined(MOD_BALANCE_CORE)
 		GET_PLAYER(GetID()).setNumBuildings(eBuilding, iCount);
-		return 0;
+		return iCount;
 	}
 	else
 	{
