@@ -1083,6 +1083,7 @@ void CvGame::uninit()
 	m_iCutoffSlice = 0;
 	m_iNumCities = 0;
 	m_iTotalPopulation = 0;
+	m_iTotalEconomicValue = 0;
 	m_iNoNukesCount = 0;
 	m_iNukesExploded = 0;
 	m_iMaxPopulation = 0;
@@ -1776,6 +1777,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 						// In that case, the local human is (should be) the player we just deactivated the turn for
 						// and the AI players will be activated all at once in CvGame::doTurn, once we have received
 						// all the moves from the other human players
+						AI_PERF_FORMAT("AI-perf.csv", ("CheckPlayerTurnDeactivate(), Turn %03d, %s: activate next player", GC.getGame().getElapsedGameTurns(), kPlayer.getName()));
 						if(!kPlayer.isSimultaneousTurns())
 						{
 							if((isPbem() || isHotSeat()) && kPlayer.isHuman() && countHumanPlayersAlive() > 1)
@@ -5110,6 +5112,20 @@ void CvGame::changeTotalPopulation(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvGame::getTotalEconomicValue() const
+{
+	return m_iTotalEconomicValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvGame::setTotalEconomicValue(int iChange)
+{
+	m_iTotalEconomicValue = iChange;
+	CvAssert(getTotalEconomicValue() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
 int CvGame::getNoNukesCount() const
 {
 	return m_iNoNukesCount;
@@ -8136,6 +8152,7 @@ void CvGame::doTurn()
 	{
 		updateGlobalAverage();
 	}
+	updateEconomicTotal();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	SetHighestPotential();
@@ -9140,7 +9157,6 @@ void CvGame::updateMoves()
 					if(needsAIUpdate || !player.isHuman())
 					{
 						player.AI_unitUpdate();
-
 						NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player.AI_unitUpdate() called for player " << player.GetID() << " " << player.getName()); 
 					}
 
@@ -10545,6 +10561,29 @@ uint CvGame::getNumReplayMessages() const
 }
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+void CvGame::updateEconomicTotal()
+{
+	CvCity* pLoopCity;
+	int iCityLoop;
+	PlayerTypes eLoopPlayer;
+
+	int iTotalEconomicValue = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		{
+			for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+			{
+				if (pLoopCity != NULL)
+				{
+					iTotalEconomicValue += pLoopCity->getEconomicValue(pLoopCity->getOwner());
+				}
+			}
+		}
+	}
+	setTotalEconomicValue(iTotalEconomicValue);
+}
 //	--------------------------------------------------------------------------------
 void CvGame::updateGlobalAverage()
 {
@@ -10857,6 +10896,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iCutoffSlice;
 	kStream >> m_iNumCities;
 	kStream >> m_iTotalPopulation;
+	kStream >> m_iTotalEconomicValue;
 	kStream >> m_iNoNukesCount;
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
@@ -11124,6 +11164,7 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iCutoffSlice;
 	kStream << m_iNumCities;
 	kStream << m_iTotalPopulation;
+	kStream << m_iTotalEconomicValue;
 	kStream << m_iNoNukesCount;
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
@@ -13803,7 +13844,7 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eContract > -1 && eContract < GC.getNumContratInfos(), "Invalid eContract index.");
+	CvAssertMsg(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
 	CvAssertMsg(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
 	if(m_ppaiContractUnits[eContract][eUnit] != iValue)
@@ -13814,7 +13855,7 @@ void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iVal
 int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eContract > -1 && eContract < GC.getNumContratInfos(), "Invalid eContract index.");
+	CvAssertMsg(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
 	CvAssertMsg(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
 	return m_ppaiContractUnits[eContract][eUnit];

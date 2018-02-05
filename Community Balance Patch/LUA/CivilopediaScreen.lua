@@ -432,7 +432,9 @@ CivilopediaCategory[CategoryTech].PopulateList = function()
 	sortedList[CategoryTech] = {};
 	
 	-- for each era
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Type FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID;
 	
@@ -517,7 +519,9 @@ CivilopediaCategory[CategoryUnits].PopulateList = function()
 	local UnitsByEra = DB.CreateQuery(sql);
 	
 	local bFirstEra = true;
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Type FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID + sectionID;
 	
@@ -812,7 +816,9 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 	
 	-- for each era
 	local bFirstEra = true;
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Type FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID + sectionID;
 	
@@ -3915,7 +3921,21 @@ function SelectBuildingOrWonderArticle( buildingID )
 			Controls.ProductionLabel:SetText( table.concat(productionItems, ", ") );
 			Controls.ProductionFrame:SetHide( false );
 		end
-
+-- Vox Populi update the Tourism
+		local tourismItems = {}
+		local iTourism = GetBuildingYieldModifier(buildingID, "YIELD_TOURISM");
+		if(iTourism > 0) then
+			table.insert(tourismItems, "+" .. tostring(iTourism).."% [ICON_TOURISM]" );
+		end
+		iTourism = GetBuildingYieldChange(buildingID, "YIELD_TOURISM");
+		if(iTourism > 0) then
+			table.insert(tourismItems, "+" .. tostring(iTourism).." [ICON_TOURISM]" );
+		end
+		if(#tourismItems > 0) then
+			Controls.TourismLabel:SetText( table.concat(tourismItems, ", ") );
+			Controls.TourismFrame:SetHide( false );
+		end
+-- Vox Populi end
 		-- update the Great People
 		local iGPType = thisBuilding.SpecialistType;
 		if iGPType ~= nil then
@@ -4200,6 +4220,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		local sText = "[COLOR_CYAN]Features[ENDCOLOR] of this building:"; -- change to TXT_KEY_ later
 		-- Generic info from main table
 		local function AnalyzeBuilding(sField, sSuffix)
+			--print("AnalyzeBuilding", sField, sSuffix)
 			sText = sText .. AnalyzeObjectField(thisBuilding, sField, sSuffix);
 		end
 		--AnalyzeBuilding("CapitalOnly", "");
@@ -4320,7 +4341,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		--AnalyzeBuilding("ObsoleteTech");
 		if thisBuilding.ObsoleteTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Obsolete with [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Technologies[thisBuilding.ObsoleteTech].Description).."[ENDCOLOR]"; end
 		--AnalyzeBuilding("EnhancedYieldTech");
-		if thisBuilding.EnhancedYieldTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Additional yields with [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.BuildingClasses[thisBuilding.EnhancedYieldTech].Description).."[ENDCOLOR]"; end
+		if thisBuilding.EnhancedYieldTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Additional yields with [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.Technologies[thisBuilding.EnhancedYieldTech].Description).."[ENDCOLOR]"; end
 		AnalyzeBuilding("TechEnhancedTourism", "[ICON_TOURISM]");
 		--AnalyzeBuilding("FreeBuilding");
 		if thisBuilding.FreeBuilding ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Free [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.BuildingClasses[thisBuilding.FreeBuilding].Description).."[ENDCOLOR] in all Cities"; end
@@ -4442,11 +4463,20 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("NukeImmune");
 		AnalyzeBuilding("ConquestProb", "");
 		--AnalyzeBuilding("FreeStartEra");
-		if thisBuilding.FreeStartEra ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Free in [COLOR_POSITIVE_TEXT]"..Locale.Lookup(GameInfo.Eras[thisBuilding.FreeStartEra].Description).."[ENDCOLOR]"; end
+		if thisBuilding.FreeStartEra ~= nil then
+			local sDesc = ""
+			for era in DB.Query("SELECT Description FROM Eras WHERE Type = ?", thisBuilding.FreeStartEra) do sDesc = era.Description end
+			sText = sText.."[NEWLINE][ICON_BULLET]Free in [COLOR_POSITIVE_TEXT]"..Locale.Lookup(sDesc).."[ENDCOLOR]"
+		end
 		--AnalyzeBuilding("MaxStartEra");
-		if thisBuilding.MaxStartEra ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Only until [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Eras[thisBuilding.MaxStartEra].Description).."[ENDCOLOR]"; end
+		if thisBuilding.MaxStartEra ~= nil then
+			local sDesc = ""
+			for era in DB.Query("SELECT Description FROM Eras WHERE Type = ?", thisBuilding.MaxStartEra) do sDesc = era.Description end
+			sText = sText.."[NEWLINE][ICON_BULLET]Only until [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(sDesc).."[ENDCOLOR]"
+		end
 		-------------------
 		local function AnalyzeBuildingYields(sTable, sFieldName, sRefTable, sFlags, sInfo)
+			--print("AnalyzeBuildingYields", sTable, sFieldName, sRefTable, sFlags, sInfo)
 			local sLocText = "";
 			--"SELECT [sTable].Yield, [sRefTable].Description
 			--FROM [sTable]
@@ -4864,6 +4894,15 @@ CivilopediaCategory[CategoryPeople].SelectArticle =  function( rawPeopleID, shou
 				SELECT Buildings.Description, Yields.IconString, Building_SpecialistYieldChangesLocal.Yield
 				FROM Building_SpecialistYieldChangesLocal INNER JOIN Yields, Buildings ON Building_SpecialistYieldChangesLocal.YieldType = Yields.Type AND Building_SpecialistYieldChangesLocal.BuildingType = Buildings.Type
 				WHERE Building_SpecialistYieldChangesLocal.SpecialistType = ?]];
+			for row in DB.Query(sql, thisPerson.Type) do
+				sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description)..string.format(" %+d", row.Yield)..row.IconString;
+			end
+			sText = sText.."[NEWLINE][COLOR_CYAN]Technologies[ENDCOLOR] that increase yields:";
+			local sql = [[
+				SELECT Technologies.Description, Yields.IconString, Tech_SpecialistYieldChanges.Yield
+				FROM Tech_SpecialistYieldChanges INNER JOIN Yields, Technologies ON Tech_SpecialistYieldChanges.YieldType = Yields.Type AND Tech_SpecialistYieldChanges.TechType = Technologies.Type
+				WHERE Tech_SpecialistYieldChanges.SpecialistType = ?
+				ORDER BY Technologies.GridX]];
 			for row in DB.Query(sql, thisPerson.Type) do
 				sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description)..string.format(" %+d", row.Yield)..row.IconString;
 			end
@@ -6754,7 +6793,9 @@ CivilopediaCategory[CategoryTech].SelectHeading = function( selectedEraID, dummy
 		otherSortedList[tostring( thisTechInstance.ListItemButton )] = sortOrder;
 	end
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID;
 		-- add an era header
@@ -6857,7 +6898,9 @@ CivilopediaCategory[CategoryUnits].SelectHeading = function( selectedEraID, dumm
 		sectionID = sectionID + 1;
 	end
 
-	for era in GameInfo.Eras() do	
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		PopulateHeaderAndItems(sectionID, headingName);
@@ -7005,7 +7048,9 @@ CivilopediaCategory[CategoryBuildings].SelectHeading = function( selectedEraID, 
 	PopulateAndAdd(sectionID, "TXT_KEY_TOPIC_CORPORATION");
 	sectionID = sectionID + 1;
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		PopulateAndAdd(sectionID, headingName);
@@ -7777,7 +7822,9 @@ CivilopediaCategory[CategoryTech].DisplayList = function()
 		otherSortedList[tostring( thisTechInstance.ListItemButton )] = sortOrder;
 	end
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 	
 		local eraID = era.ID;
 		-- add an era header
@@ -7869,7 +7916,9 @@ CivilopediaCategory[CategoryUnits].DisplayList = function()
 		sectionID = sectionID + 1;
 	end
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		
@@ -7995,7 +8044,9 @@ CivilopediaCategory[CategoryBuildings].DisplayList = function()
 	PopulateAndAdd(sectionID, "TXT_KEY_TOPIC_CORPORATION");
 	sectionID = sectionID + 1;
 
-	for era in GameInfo.Eras() do
+	-- Infixo GameInfo.Eras is not updated after mods are loaded
+	--for era in GameInfo.Eras() do
+	for era in DB.Query("SELECT ID, Description FROM Eras ORDER BY ID") do
 		local eraID = era.ID;
 		local headingName = era.Description;
 		PopulateAndAdd(eraID + sectionID, headingName);
@@ -8582,6 +8633,7 @@ function ClearArticle()
 	Controls.GoldFrame:SetHide( true );
 	Controls.ScienceFrame:SetHide( true );
 	Controls.ProductionFrame:SetHide( true );
+	Controls.TourismFrame:SetHide( true ); -- Vox Populi Tourism
 	Controls.GreatPeopleFrame:SetHide( true );
 	Controls.CombatFrame:SetHide( true );
 	Controls.RangedCombatFrame:SetHide( true );

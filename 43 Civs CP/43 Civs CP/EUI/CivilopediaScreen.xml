@@ -848,6 +848,13 @@
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ProductionLabel"/>
 						</Grid>
 					</Grid>
+					<!-- Vox Populi Tourism -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TourismFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TOURISM_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TourismLabel"/>
+						</Grid>
+					</Grid>
 					<!-- Great People -->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="GreatPeopleFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">

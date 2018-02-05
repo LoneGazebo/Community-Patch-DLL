@@ -4177,7 +4177,7 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 
 	if (kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() > 0 && kOtherPlayer.GetJONSCultureEverGenerated() > 0)
 	{
-		if (iLHS > iRHS && kOtherPlayer.GetTotalJONSCulturePerTurn() < GetInfluencePerTurn(ePlayer))
+		if (iLHS > iRHS && m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) < m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer))
 		{
 			eRtnValue = INFLUENCE_TREND_RISING;
 		}
@@ -4188,6 +4188,23 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	}
 		
 	return eRtnValue;
+}
+
+int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer)
+{
+	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurn();
+	iBase += GET_PLAYER(eOtherPlayer).getInstantYieldValue(YIELD_CULTURE, 10);
+
+	return iBase;
+}
+
+
+int CvPlayerCulture::GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer)
+{
+	int iBase = GetInfluencePerTurn(ePlayer);
+	iBase += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, 10);
+
+	return iBase;
 }
 
 /// If influence is rising, how many turns until we get to Influential? (999 if not rising fast enough to make it there eventually)

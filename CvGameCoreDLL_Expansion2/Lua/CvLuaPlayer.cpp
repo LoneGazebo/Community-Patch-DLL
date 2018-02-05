@@ -555,6 +555,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetScienceRateFromLeagueAid);
 	Method(GetLeagueCultureCityModifier);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	Method(GetArtsyGreatPersonRateModifier);
+	Method(GetScienceyGreatPersonRateModifier);
+#endif
 
 	Method(GetPolicyGreatPeopleRateModifier);
 	Method(GetPolicyGreatWriterRateModifier);
@@ -1299,6 +1303,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	Method(GetYieldPerTurnFromMinors);
+	Method(SetYieldPerTurnFromMinors);
 	Method(GetScoreFromMinorAllies);
 	Method(GetScoreFromMilitarySize);
 #endif
@@ -7021,7 +7026,18 @@ int CvLuaPlayer::lGetLeagueCultureCityModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetLeagueCultureCityModifier);
 }
 #endif
-
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+//int GetArtsyGreatPersonRateModifier();
+int CvLuaPlayer::lGetArtsyGreatPersonRateModifier(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getArtsyGreatPersonRateModifier);
+}
+//int GetScienceyGreatPersonRateModifier();
+int CvLuaPlayer::lGetScienceyGreatPersonRateModifier(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getScienceyGreatPersonRateModifier);
+}
+#endif
 //------------------------------------------------------------------------------
 //int getGreatEngineerRateModifier();
 int CvLuaPlayer::lGetGreatEngineerRateModifier(lua_State* L)
@@ -12025,6 +12041,7 @@ int CvLuaPlayer::lGetPolicyBuildingClassYieldModifier(lua_State* L)
 	if(pkPlayer)
 	{
 		int modifier = pkPlayer->GetPlayerPolicies()->GetBuildingClassYieldModifier(eBuildingClass, eYieldType);
+		modifier += pkPlayer->GetBuildingClassYieldModifier(eBuildingClass, eYieldType);
 		lua_pushinteger(L, modifier);
 
 		return 1;
@@ -14265,13 +14282,19 @@ LUAAPIIMPL(Player, CountAllWorkedTerrain)
 //-------------------------------------------------------------------------
 int CvLuaPlayer::lGetYieldPerTurnFromMinors(lua_State* L)
 {
+CvPlayerAI* pkPlayer = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetYieldPerTurnFromMinors(eYield);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lSetYieldPerTurnFromMinors(lua_State* L)
+{
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
-	bool bIsCityLevel = pkCity != NULL;
-	bool bIsCapital = bIsCityLevel && pkCity->isCapital();
-	const int iResult = pkPlayer->GetYieldPerTurnFromMinors(eYield, bIsCityLevel, bIsCapital);
-	lua_pushinteger(L, iResult);
+	const int iValue = lua_tointeger(L, 3);
+	pkPlayer->SetYieldPerTurnFromMinors(eYield, iValue);
 	return 1;
 }
 //-------------------------------------------------------------------------

@@ -311,7 +311,7 @@
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Food for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
 			<Text>+1 [ICON_FOOD] Food on Jungle tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations.</Text>
@@ -433,7 +433,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points +4 [ICON_TOURISM] Tourism. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">

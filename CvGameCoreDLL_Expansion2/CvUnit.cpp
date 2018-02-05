@@ -16087,7 +16087,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 #endif
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (defense mod only)
-	if (pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	if (pInPlot != NULL && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 		{
@@ -16236,21 +16236,16 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 		if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
 			return 0;
 
-		//Not our territory?
-		if (plot()->getOwner() != getOwner())
+		if (plot()->getOwner() == pOtherUnit->getOwner())
 			return 0;
 
-		int iHandicap = 5;
-		if (GET_PLAYER(pOtherUnit->getOwner()).isHuman())
-		{
-			iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase();
-		}
-		//iResistance = (GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2);
-		iResistance = GET_PLAYER(getOwner()).GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(pOtherUnit->getOwner());
-		iResistance /= max(1, (15 - iHandicap));
+		int iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
+		//Not our territory?
+		if (plot()->getOwner() == NO_PLAYER)
+			iResistance /= 2;
 	}
 
-	return min(75, iResistance);
+	return iResistance;
 }
 #endif
 //	--------------------------------------------------------------------------------

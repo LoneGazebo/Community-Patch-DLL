@@ -618,7 +618,10 @@ protected:
 	LUAAPIEXTN(GetScienceRateFromLeagueAid, int);
 	LUAAPIEXTN(GetLeagueCultureCityModifier, int);
 #endif
-
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(GetArtsyGreatPersonRateModifier, int);
+	LUAAPIEXTN(GetScienceyGreatPersonRateModifier, int);
+#endif
 	static int lGetPolicyGreatPeopleRateModifier(lua_State* L);
 	static int lGetPolicyGreatWriterRateModifier(lua_State* L);
 	static int lGetPolicyGreatArtistRateModifier(lua_State* L);
@@ -1381,6 +1384,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetYieldPerTurnFromMinors, int);
+	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
 	LUAAPIEXTN(GetScoreFromMinorAllies, int);
 	LUAAPIEXTN(GetScoreFromMilitarySize, int);
 #endif

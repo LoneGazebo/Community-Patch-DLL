@@ -2387,7 +2387,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		while(pResults->Step())
 		{
 			const int iUnitClassID = pResults->GetInt(0);
-			CvAssert(iUnitCombatID > -1 && iUnitCombatID < iNumUnitClasses);
+//			CvAssert(iUnitCombatID > -1 && iUnitCombatID < iNumUnitClasses);
 
 			const int iMovesChange = pResults->GetInt(1);
 			m_piMovesChangeUnitClasses[iUnitClassID] = iMovesChange;
@@ -3206,7 +3206,19 @@ bool CvPlayerTraits::IsReligious()
 			return true;
 	}
 
-	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0)
+	if (GetYieldFromHistoricEvent(YIELD_FAITH) != 0 ||
+		GetYieldFromLevelUp(YIELD_FAITH) != 0 ||
+		GetYieldFromConquest(YIELD_FAITH) != 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
+		GetYieldFromCSAlly(YIELD_FAITH) != 0 ||
+		GetYieldFromCSFriend(YIELD_FAITH) != 0 ||
+		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
+		GetYieldFromTilePurchase(YIELD_FAITH) != 0 ||
+		GetYieldFromTileEarn(YIELD_FAITH) != 0 ||
+		GetYieldFromSettle(YIELD_FAITH) != 0)
+		return true;
+
+	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0 || GetFaithFromKills() != 0)
 		return true;
 	
 
@@ -4504,7 +4516,7 @@ int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, Yie
 }
 int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	CvAssertMsg(eImprovement < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
 
 	if(eTerrain == NO_TERRAIN)
@@ -4646,7 +4658,7 @@ int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, Y
 }
 int CvPlayerTraits::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
 {
-	CvAssertMsg(eSpecialist < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
+	CvAssertMsg(eGreatPerson < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
 
 	if(eGreatPerson == NO_GREATPERSON)
@@ -4871,9 +4883,9 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 						iNumResourceGiven++;
 						if(iNumResourceGiven >= iNumResourceTotal)
 						{
+							bResult = true;
 							break;
 						}
-						bResult = true;
 					}
 				}
 			}
@@ -5327,6 +5339,12 @@ bool CvPlayerTraits::IsEndOfMayaLongCount()
 	if(m_iBaktunPreviousTurn + 1 == m_iBaktun)
 	{
 		bRtnValue = true;
+#if defined(MOD_EVENTS_GOLDEN_AGE)
+		// Since m_iBaktunPreviousTurn will be overwritten in a moment, this is the only place to properly send an event for end of Maya long count
+		if(MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL)
+			// GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerEndOfMayaLongCount, m_pPlayer->GetID(), m_iBaktun, m_iBaktunPreviousTurn);
+#endif
 	}
 
 	m_iBaktunPreviousTurn = m_iBaktun;

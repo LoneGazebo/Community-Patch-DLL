@@ -4312,8 +4312,10 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+			bool bFounded = true;
 			if(eFoundedReligion == NO_RELIGION)
 			{
+				bFounded = false;
 				eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 			}
 			if(eFoundedReligion != NO_RELIGION)
@@ -4325,18 +4327,20 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 					CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 					if (pPlot)
 					{
-						pHolyCity = pPlot->getPlotCity();
+						pHolyCity = bFounded ? pPlot->getPlotCity() : GET_PLAYER(ePlayer).getCapitalCity();
 					}
-
-					int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);
-					if(iExtraVotes > 0)
+					if (pHolyCity != NULL)
 					{
-						int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
-						if((iNumMinor) > 0)
+						int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);
+						if (iExtraVotes > 0)
 						{
-							iReligionVotes = (iExtraVotes * iNumMinor);
+							int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+							if ((iNumMinor) > 0)
+							{
+								iReligionVotes = (iExtraVotes * iNumMinor);
+							}
+							iVotes += iReligionVotes;
 						}
-						iVotes += iReligionVotes;
 					}
 				}
 			}
@@ -11913,7 +11917,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #if defined(MOD_BALANCE_CORE)
 			if (bFoundedReligion)
 			{ 
-				iScore += 500;
+				iScore += 300;
 			}
 			else
 			{
@@ -12184,14 +12188,27 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
+#if defined(MOD_BALANCE_CORE)
+			if(GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
+			{
+				iScore += 50;
+				iScore += GetPlayer()->ScoreDifferencePercent(1)/2; // was 10..30, gonna be 0..50
+			}
+#else
 			if(GetPlayer()->AidRank() != NO_PLAYER)
 			{
 				iScore += 50;
 				iScore += GetPlayer()->ScoreDifference();
 			}
+#endif
 			else
 			{
+#if defined(MOD_BALANCE_CORE)
+				// be more against it the more we don't need it
+				iScore += (GetPlayer()->ScoreDifferencePercent(1) - 100);
+#else
 				iScore += -25;
+#endif
 			}
 		}
 #endif
@@ -12233,14 +12250,27 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
+#if defined(MOD_BALANCE_CORE)
+			if(GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
+			{
+				iScore += 50;
+				iScore += GetPlayer()->ScoreDifferencePercent(2)/2;  // was 10..30, gonna be 0..50
+			}
+#else
 			if(GetPlayer()->AidRank() != NO_PLAYER)
 			{
 				iScore += 50;
 				iScore += GetPlayer()->ScoreDifference();
 			}
+#endif
 			else
 			{
+#if defined(MOD_BALANCE_CORE)
+				// be more against it the more we don't need it
+				iScore += (GetPlayer()->ScoreDifferencePercent(2) - 100);
+#else
 				iScore += -25;
+#endif
 			}
 		}
 #endif
@@ -13004,7 +13034,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			for (LeagueHelpers::PlayerList::iterator it = vLikers.begin(); it != vLikers.end(); ++it)
 			{
 				CvAssert((*it) != NO_PLAYER);
-				CvAssert(CanEverVote(*it));
+				CvAssert(pLeague->CanEverVote(*it));
 				if(*it != NO_PLAYER)
 				{	
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);
@@ -13024,7 +13054,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			for (LeagueHelpers::PlayerList::iterator it = vDislikers.begin(); it != vDislikers.end(); ++it)
 			{
 				CvAssert((*it) != NO_PLAYER);
-				CvAssert(CanEverVote(*it));
+				CvAssert(pLeague->CanEverVote(*it));
 				if(*it != NO_PLAYER)
 				{	
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(*it);

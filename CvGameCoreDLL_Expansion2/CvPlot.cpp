@@ -4544,7 +4544,7 @@ int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = m_units.head();
 	int iCount = 0;
-	while(pUnitNode)
+	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = m_units.next(pUnitNode);

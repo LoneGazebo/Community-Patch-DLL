@@ -298,6 +298,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(RefreshTourism);
 	Method(GetNumGreatWorksFilled);
+	Method(GetNumAvailableGreatWorkSlots);
 #endif
 	Method(GetTourismMultiplier);
 	Method(GetTourismTooltip);
@@ -469,6 +470,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetBaseYieldRateFromProcess);
+	Method(GetBaseYieldRateFromTradeRoutes);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
@@ -589,6 +591,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingClassCultureChange);
 	Method(GetReligionYieldRateModifier);
 	Method(GetReligionBuildingYieldRateModifier);
+	Method(GetYieldPerTurnFromMinors);
+	Method(SetYieldPerTurnFromMinors);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetBaseYieldRateFromCSAlliance);
@@ -1796,26 +1800,30 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 					{
 						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 						{
-							if (pkeBuildingInfo->GetPrereqAndTech() != NO_TECH)
-							{
-								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
-								if (pkTechInfo)
-								{
-									// Loop through all eras and apply Building production mod based on how much time has passed
-									EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+							if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+								continue;
 
-									if (eBuildingUnlockedEra == GET_PLAYER(pkCity->getOwner()).GetCurrentEra())
-									{
-										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
-									}
-									else if ((GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra) == 1)
-									{
-										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
-									}
-									else if ((GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra) > 1)
-									{
-										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
-									}
+							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+							if (pkTechInfo)
+							{
+								// Loop through all eras and apply Building production mod based on how much time has passed
+								EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+								if (eBuildingUnlockedEra == NO_ERA)
+									continue;
+
+								int iEraDivisor = GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra;
+								switch (iEraDivisor)
+								{
+								case 0:
+									iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+									break;
+								case 1:
+									iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+									break;
+								case 2:
+									iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+									break;
 								}
 							}
 						}
@@ -2087,16 +2095,15 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 		pkCity->getProductionModifier(&toolTip);
 	}
 
-	if (eYield != YIELD_FOOD)
-	{
-		// Trade Yield Modifier
-		pkCity->GetTradeYieldModifier(eYield, &toolTip);
-	}
+	// Trade Yield Modifier
+	// This is actually added after all modifiers, except for Food (added after Consumption) and Culture (added to Base)
+	//pkCity->GetTradeYieldModifier(eYield, &toolTip);
 
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
+		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
 		pkCity->foodDifferenceTimes100(true, &toolTip);
 	}
 
@@ -3151,6 +3158,17 @@ int CvLuaCity::lGetNumGreatWorksFilled(lua_State* L)
 	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumFilledGreatWorkSlots(eGreatWorkSlot));
 	return 1;
 }
+
+int CvLuaCity::lGetNumAvailableGreatWorkSlots(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 2));
+
+	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumAvailableGreatWorkSlots(eGreatWorkSlot));
+	return 1;
+}
+
+
 #endif
 //------------------------------------------------------------------------------
 //int GetTourismMultiplier(PlayerTypes ePlayer);
@@ -4268,6 +4286,24 @@ int CvLuaCity::lGetBaseYieldRate(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//-------------------------------------------------------------------------
+int CvLuaCity::lGetYieldPerTurnFromMinors(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = pkCity->GetYieldFromMinors(eYield);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//-------------------------------------------------------------------------
+int CvLuaCity::lSetYieldPerTurnFromMinors(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+	pkCity->SetYieldFromMinors(eYield, iValue);
+	return 1;
+}
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetBaseYieldRateFromGreatWorks(lua_State* L)
@@ -4320,6 +4356,15 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 int CvLuaCity::lGetBaseYieldRateFromProcess(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromProcess);
+}
+//	Base yield rate from trade routes established with this city
+int CvLuaCity::lGetBaseYieldRateFromTradeRoutes(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	int iReturnValue = GET_PLAYER(pkCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(pkCity, eIndex);
+	lua_pushinteger(L, iReturnValue);
+	return 1;
 }
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)

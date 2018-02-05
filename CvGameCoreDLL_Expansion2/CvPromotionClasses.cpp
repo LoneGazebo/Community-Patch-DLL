@@ -784,7 +784,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromScouting[iYieldID] = iYield;
@@ -812,7 +812,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromKills[iYieldID] = iYield;
@@ -838,7 +838,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piGarrisonYield[iYieldID] = iYield;
@@ -865,7 +865,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		while(pResults->Step())
 		{
 			const int iYieldID = pResults->GetInt("YieldID");
-			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+			CvAssert(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromBarbarianKills[iYieldID] = iYield;

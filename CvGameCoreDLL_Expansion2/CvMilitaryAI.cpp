@@ -3509,13 +3509,13 @@ void CvMilitaryAI::ScanForBarbarians()
 				// Count it as 10 camps if sitting inside our territory, that is annoying!
 				if(pPlot->getOwner() == m_pPlayer->GetID())
 				{
-					m_iBarbarianCampCount += 9;
+					m_iBarbarianCampCount += 2;
 				}
 #if defined(MOD_BALANCE_CORE)
 				// Count it as -5 camps if sitting inside someone else's territory.
 				if(pPlot->getOwner() != m_pPlayer->GetID() && pPlot->getOwner() != NO_PLAYER)
 				{
-					m_iBarbarianCampCount -= 5;
+					m_iBarbarianCampCount -= 2;
 				}
 #endif
 
@@ -3532,7 +3532,7 @@ void CvMilitaryAI::ScanForBarbarians()
 							int iDist = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
 							if (iDist < iTolerableDistance)
 							{
-								m_iBarbarianCampCount += 4;
+								m_iBarbarianCampCount += 2;
 								break;
 							}
 						}
@@ -4701,6 +4701,9 @@ void CvMilitaryAI::DisbandObsoleteUnits(int iMaxUnits)
 
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;
+
+	if (m_pPlayer->isBarbarian())
+		return;
 
 	// Don't do this if at war
 #if defined(MOD_BALANCE_CORE)
@@ -6639,7 +6642,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(pPlayer->GetMilitaryAI()->GetArmyBeingBuilt() == ARMY_TYPE_LAND)
 	{
-		if (pPlayer->GetArmyDiversity() == (int)UNITAI_RANGED || pPlayer->GetArmyDiversity() == (int)UNITAI_CITY_BOMBARD)
+		if (pPlayer->GetDiversity(DOMAIN_LAND) == (int)UNITAI_RANGED || pPlayer->GetDiversity(DOMAIN_LAND) == (int)UNITAI_CITY_BOMBARD)
 		{
 			return true;
 		}

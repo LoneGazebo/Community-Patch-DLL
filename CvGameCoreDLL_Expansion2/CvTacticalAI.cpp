@@ -2958,14 +2958,14 @@ void CvTacticalAI::PlotHealMoves()
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(!pUnit)
+		if(pUnit == NULL)
 			continue;
 
 		//the really bad cases have already been added in CommandeerUnits
 		//now we need to take care of the units which are damaged and have nothing else to do
 
 		CvPlot* pUnitPlot = pUnit->plot();
-		if (!pUnitPlot)
+		if (pUnitPlot == NULL)
 			continue;
 		int iAcceptableDamage = 20;
 
@@ -8203,7 +8203,7 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 				continue;
 
 			//performance optimization
-			if (plotDistance(*pTarget,*pLoopUnit->plot())>(iNumTurnsAway+1)*3)
+			if (plotDistance(*pTarget, *pLoopUnit->plot())>(iNumTurnsAway + 1) * 3)
 				continue;
 
 			int iTurnsCalculated = -1;
@@ -9038,6 +9038,9 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 /// Find a multi-turn target for a land unit to wander towards
 CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType, bool bAllowDefensiveTargets)
 {
+	if (pUnit == NULL)
+		return NULL;
+
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = 0;
 	int iMaxTurns = iRange/2+3;

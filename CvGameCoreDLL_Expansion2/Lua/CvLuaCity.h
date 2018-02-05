@@ -288,6 +288,7 @@ protected:
 	static int lGetBaseTourism(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetNumGreatWorksFilled(lua_State* L);
+	static int lGetNumAvailableGreatWorkSlots(lua_State* L);
 	static int lRefreshTourism(lua_State* L);
 #endif
 	static int lGetTourismMultiplier(lua_State* L);
@@ -459,6 +460,7 @@ protected:
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	static int lGetBaseYieldRateFromProcess(lua_State* L);
+	static int lGetBaseYieldRateFromTradeRoutes(lua_State* L);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetBaseYieldRateFromLeague, int, iYield);
@@ -581,6 +583,8 @@ protected:
 	LUAAPIEXTN(GetBuildingClassCultureChange, int);
 	LUAAPIEXTN(GetReligionYieldRateModifier, int);
 	LUAAPIEXTN(GetReligionBuildingYieldRateModifier, int);
+	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
+	LUAAPIEXTN(GetYieldPerTurnFromMinors, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetBaseYieldRateFromCSAlliance, int);

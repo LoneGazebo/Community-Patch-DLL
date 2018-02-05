@@ -431,6 +431,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBonus += 100 * max(1, m_pCity->getPopulation());
 			}
+			else
+			{
+				iBonus += 50 * max(1, m_pCity->getPopulation());
+			}
 
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
@@ -744,7 +748,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Courthouse? Let's get it ASAP.
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
 	{
-		if(m_pCity->IsOccupied() || !m_pCity->IsNoOccupiedUnhappiness())
+		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			//Extend based on population.
 			iBonus += 5000 * m_pCity->getPopulation();
@@ -951,7 +955,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 			case YIELD_GOLD:
 				if (bSmall)
-					iYieldValue /= 3;
+					iYieldValue /= 2;
 				if (iGPT <= 10)
 				{
 					iYieldValue += (iGPT * -25);
@@ -967,7 +971,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				break;
 			case YIELD_SCIENCE:
 				if (bSmall)
-					iYieldValue /= 4;
+					iYieldValue /= 2;
 				if (iIlliteracy > 0)
 				{
 					iYieldValue += (iIlliteracy * 100);
@@ -975,8 +979,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				break;
 			case YIELD_FAITH:
-				if (bSmall)
-					iYieldValue /= 4;
+				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
+					iYieldValue /= 3;
 				if (iReligion > 0)
 				{
 					iYieldValue += (iReligion * 100);

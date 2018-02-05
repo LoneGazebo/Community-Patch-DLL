@@ -4,15 +4,15 @@
 		<!-- These are the values for the first team to meet a neutral CS, -->
 		<!-- multipliers for friendly and hostile city states are below -->
 		<!-- Irrational city states roll to see if they are friendly, neutral or hostile towards the meeting player -->
-		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP" Value="12"/>
-		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE" Value="8"/>
-		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FAITH" Value="8"/>
-		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_GOLD" Value="30"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FAITH" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_GOLD" Value="25"/>
 		<!-- Only the team leader gets these bonuses -->
-		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FOOD" Value="8"/>
-		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_UNIT" Value="25"/> <!-- This is a percentage -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FOOD" Value="10"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_UNIT" Value="10"/> <!-- This is a percentage -->
 		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_PER_ERA" Value="5"/>
-		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_RANDOM" Value="10"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_RANDOM" Value="5"/>
 
 		<!-- Multiplier and Divisor for the team leader (usually the player meeting the CS), we can only store ints so *2 is 2/1  -->
 		<Row Name="MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER" Value="2"/>

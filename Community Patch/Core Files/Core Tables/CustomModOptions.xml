@@ -65,7 +65,7 @@
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
     <!-- See also: "Global - City Forest Bonus" -->
     <Row Class="6" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
-    <Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="125"/> <!-- Percentage of "ring-1 chop" (v47) -->
+    <Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="50"/> <!-- Percentage of "ring-1 chop" (v47) -->
     <!-- Also GLOBAL_CITY_FOREST_BONUS_TECH in CustomModPostDefines -->
 
     <!-- Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space (v19) -->

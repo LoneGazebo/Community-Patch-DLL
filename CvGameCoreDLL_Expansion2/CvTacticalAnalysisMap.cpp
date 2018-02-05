@@ -447,14 +447,14 @@ void CvTacticalAnalysisMap::Refresh()
 		m_iTacticalRange = ((GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) * 3) / 5;  // Have this increase as game goes on
 		m_iUnitStrengthMultiplier = GC.getAI_TACTICAL_MAP_UNIT_STRENGTH_MULTIPLIER() * m_iTacticalRange;
 
-		AI_PERF_FORMAT("AI-perf.csv", ("Tactical Analysis Map, Turn %d, %s", GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription()) );
+		AI_PERF_FORMAT("AI-perf.csv", ("Tactical Analysis Map, Turn %d, %s", GC.getGame().getGameTurn(), GET_PLAYER(m_ePlayer).getCivilizationShortDescription()) );
 
 		m_DominanceZones.clear();
 		AddTemporaryZones();
 
 		for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 		{
-			CvAssertMsg((iI < m_iNumPlots), "Plot to be accessed exceeds allocation!");
+//			CvAssertMsg((iI < m_iNumPlots), "Plot to be accessed exceeds allocation!");
 
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 			if(pPlot == NULL)
