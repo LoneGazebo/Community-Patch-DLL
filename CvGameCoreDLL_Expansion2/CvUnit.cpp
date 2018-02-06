@@ -14710,16 +14710,30 @@ int CvUnit::visibilityRange() const
 {
 	VALIDATE_OBJECT
 
-	int iRtnValue;
+	//in general vision range needs to be at least one, otherwise there will be stacking issues
+	int iRtnValue  = 0;
 
 	if(isEmbarked())
 	{
-		iRtnValue = GC.getEMBARKED_VISIBILITY_RANGE() + m_iEmbarkExtraVisibility;
+		iRtnValue = max(1,GC.getEMBARKED_VISIBILITY_RANGE() + m_iEmbarkExtraVisibility);
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if (isTrade())
+	{
+		//special rules for trade units, default range is zero!
+		iRtnValue = GET_PLAYER(m_eOwner).GetTRVisionBoost();
 
+		CorporationTypes eCorporation = GET_PLAYER(m_eOwner).GetCorporations()->GetFoundedCorporation();
+		if (eCorporation != NO_CORPORATION)
+		{
+			CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+			iRtnValue += pkCorporation ? pkCorporation->GetTradeRouteVisionBoost() : 0;
+		}
+	}
+#endif
 	else
 	{
-		iRtnValue = m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange;
+		iRtnValue = max(1,m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
 	}
 
 	return iRtnValue;
@@ -19292,11 +19306,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		bShow = false;
 	}
 
-	int iMapLayer = m_iMapLayer;
-
-	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
-
 	//sanity check
+	CvPlot* pNewPlot = GC.getMap().plot(iX, iY);
 	if (pNewPlot)
 	{
 		if ( !pNewPlot->needsEmbarkation(this) && isEmbarked() && !isCargo() )
@@ -19503,32 +19514,28 @@ if (!bDoEvade)
 	{
 		pOldPlot->removeUnit(this, bUpdate);
 
-		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		// if leaving a city, reveal the unit
+		if (pOldPlot->isCity())
 		{
-			// if leaving a city, reveal the unit
-			if(pOldPlot->isCity())
-			{
-				// if pNewPlot is a valid pointer, we are leaving the city and need to visible
-				// if pNewPlot is NULL than we are "dead" (e.g. a settler) and need to blend out
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-				gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
-			}
+			// if pNewPlot is a valid pointer, we are leaving the city and need to visible
+			// if pNewPlot is NULL than we are "dead" (e.g. a settler) and need to blend out
+			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
+		}
 
-			if (canChangeVisibility())
+		if (canChangeVisibility())
+		{
 #if defined(MOD_API_EXTENSIONS)
-				pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+			pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
 #else
-				pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+			pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
 #endif
+		}
 
+		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		{
 			pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
-
-#if defined(MOD_BALANCE_CORE)
 			setLastMoveTurn(GC.getGame().getGameTurn());
-#else
-			setLastMoveTurn(GC.getGame().getTurnSlice());
-#endif
-
 			pOldCity = pOldPlot->getPlotCity();
 		}
 	}
@@ -19569,7 +19576,7 @@ if (!bDoEvade)
 		}
 
 		// if entering a city, hide the unit
-		if(pNewPlot->isCity() && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		if(pNewPlot->isCity())
 		{
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
@@ -19577,24 +19584,26 @@ if (!bDoEvade)
 
 		setFortifyTurns(0);
 
-		if (iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		if (canChangeVisibility())
 		{
-			if (canChangeVisibility())
 #if defined(MOD_BALANCE_CORE)
-				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this); // needs to be here so that the square is considered visible when we move into it...
+			pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this); // needs to be here so that the square is considered visible when we move into it...
 #else
-				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
+			pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
 #endif
+		}
 
+		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+		{
 			pNewPlot->addUnit(this, bUpdate);
-
 			pNewPlot->area()->changeUnitsPerPlayer(getOwner(), 1);
 			pNewCity = pNewPlot->getPlotCity();
 		}
 		else
 		{
-			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, iMapLayer);
+			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, m_iMapLayer);
 		}
+
 #if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
@@ -20068,7 +20077,7 @@ if (!bDoEvade)
 #endif
 	}
 
-	if(pNewPlot != NULL && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+	if(pNewPlot != NULL && m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
 	{
 		if(!bNoMove)
 		{
@@ -30669,7 +30678,7 @@ bool CvUnit::dispatchingNetMessage()
 //	Return true if the unit should change/update the map visibility.
 bool CvUnit::canChangeVisibility() const
 {
-	return m_iMapLayer == DEFAULT_UNIT_MAP_LAYER;
+	return m_iMapLayer == DEFAULT_UNIT_MAP_LAYER || m_iMapLayer == TRADE_UNIT_MAP_LAYER;
 }
 
 //	--------------------------------------------------------------------------------

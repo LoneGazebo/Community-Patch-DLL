@@ -1906,74 +1906,14 @@ bool CvGameTrade::StepUnit (int iIndex)
 			kTradeConnection.m_iCircuitsCompleted += 1;
 		}
 	}
+
 	// Move the visualization
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
-#if defined(MOD_BALANCE_CORE)
-	CorporationTypes eCorporation = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCorporations()->GetFoundedCorporation();
-	int iCorporationVisionBoost = 0;
-	if (eCorporation != NO_CORPORATION)
-	{
-		CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-		if (pkCorporation)
-		{
-			iCorporationVisionBoost = pkCorporation->GetTradeRouteVisionBoost();
-		}
-	}
-
-	if(pkUnit && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() > 0 || iCorporationVisionBoost > 0))
-	{
-		int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-		int iRange = (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() + iCorporationVisionBoost);
-		CvPlot* pLoopPlot;
-		for(int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for(int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				pLoopPlot = ::plotXYWithRangeCheck(pkUnit->getX(), pkUnit->getY(), iDX, iDY, iRange);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->changeAdjacentSight(pkUnit->getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-				}
-			}
-		}
-		if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
-		{
-			GC.getMap().updateDeferredFog();
-		}
-	}
-#endif
-
 	if (pkUnit)
 	{
 		pkUnit->setXY(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, true, false, true, true);
 		pkUnit->finishMoves();
 	}
-
-#if defined(MOD_BALANCE_CORE)
-	if(pkUnit && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() > 0 || iCorporationVisionBoost > 0))
-	{
-		int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-		int iRange = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() + iCorporationVisionBoost;
-		CvPlot* pLoopPlot;
-		for(int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for(int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				pLoopPlot = ::plotXYWithRangeCheck(pkUnit->getX(), pkUnit->getY(), iDX, iDY, iRange);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->changeAdjacentSight(pkUnit->getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-				}
-			}
-		}
-		if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
-		{
-			GC.getMap().updateDeferredFog();
-		}
-	}
-#endif
 
 	// auto-pillage when a trade unit moves under an enemy unit
 	CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY);
