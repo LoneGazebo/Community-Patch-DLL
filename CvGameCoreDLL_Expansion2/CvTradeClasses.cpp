@@ -477,6 +477,9 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	CopyPathIntoTradeConnection(path, &(m_aTradeConnections[iNewTradeRouteIndex]));
 
+	// try to make the trade units move faster on "faster" routes
+	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * path.length()) / path.iNormalizedDistance;
+
 	// reveal all plots to the player who created the trade route
 	TeamTypes eOriginTeam = GET_PLAYER(eOriginPlayer).getTeam();
 	for (uint ui = 0; ui < m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(); ui++)
@@ -486,40 +489,13 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTradeUnitLocationIndex = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitMovingForward = true;
-#if defined(MOD_BALANCE_CORE)
+
 	int iCircuitsToComplete = 0;
 	int iTurns = GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, &iCircuitsToComplete);
-#else
-
-	int iRouteSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
-	int iTurnsPerCircuit = 1;
-	if (iRouteSpeed != 0)
-	{
-		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - 1) * 2) / iRouteSpeed;
-	}
-	
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
-	int iEra = max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
-	iTargetTurns -= iEra;
-	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	iTargetTurns = max(iTargetTurns, 1);
-#else
-	int iTargetTurns = 30; // how many turns do we want the cycle to consume
-#endif
-	int iCircuitsToComplete = 1; // how many circuits do we want this trade route to run to reach the target turns
-	if (iTurnsPerCircuit != 0)
-	{
-		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
-	}
-#endif
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsCompleted = 0;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsToComplete = iCircuitsToComplete;
-#if defined(MOD_BALANCE_CORE)
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = iTurns + GC.getGame().getGameTurn();
-#else
-	m_aTradeConnections[iNewTradeRouteIndex].m_iTurnRouteComplete = (iTurnsPerCircuit * iCircuitsToComplete) + GC.getGame().getGameTurn();
-#endif
+
 #if defined(MOD_API_TRADEROUTES)
 	m_aTradeConnections[iNewTradeRouteIndex].m_bTradeUnitRecalled = false;
 #endif
@@ -1118,7 +1094,10 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 	int iDistance = path.length();
 
 	// calculate turns per circuit
-	int iRouteSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
+	int iRawSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
+	int iSpeedFactor = (100 * path.length() / path.iNormalizedDistance);
+	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
+
 	int iTurnsPerCircuit = 1; // real number of turns to complete a circuit
 	if (iRouteSpeed != 0)
 		iTurnsPerCircuit = ((iDistance - 1) * 2) / iRouteSpeed; // need to check why there is -1 and not simply distance * 2
@@ -1847,7 +1826,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 	}
 
 	TradeConnection &kTradeConnection = m_aTradeConnections[iIndex];
-	int iMoves = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTrade()->GetTradeRouteSpeed(kTradeConnection.m_eDomain);
+	int iMoves = kTradeConnection.GetMovementSpeed();
 	for (int i = 0; i < iMoves; i++)
 	{
 		if (kTradeConnection.m_iCircuitsCompleted >= kTradeConnection.m_iCircuitsToComplete)
@@ -2187,7 +2166,7 @@ FDataStream& operator>>(FDataStream& loadFrom, TradeConnection& writeTo)
 	loadFrom >> writeTo.m_bTradeUnitMovingForward;
 
 	loadFrom >> writeTo.m_unitID;
-
+	loadFrom >> writeTo.m_iSpeedFactor;
 	loadFrom >> writeTo.m_iCircuitsCompleted;
 	loadFrom >> writeTo.m_iCircuitsToComplete;
 	loadFrom >> writeTo.m_iTurnRouteComplete;
@@ -2315,6 +2294,7 @@ FDataStream& operator<<(FDataStream& saveTo, const TradeConnection& readFrom)
 	saveTo << readFrom.m_iTradeUnitLocationIndex;
 	saveTo << readFrom.m_bTradeUnitMovingForward;
 	saveTo << readFrom.m_unitID;
+	saveTo << readFrom.m_iSpeedFactor;
 	saveTo << readFrom.m_iCircuitsCompleted;
 	saveTo << readFrom.m_iCircuitsToComplete;
 	saveTo << readFrom.m_iTurnRouteComplete;
@@ -7268,4 +7248,15 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTradeAI& readFrom)
 	saveTo << readFrom.m_iRemovableValue;
 
 	return saveTo;
+}
+
+int TradeConnection::GetMovementSpeed()
+{
+	if (m_eOriginOwner == NO_PLAYER)
+		return 0;
+
+	int iRawSpeed = GET_PLAYER(m_eOriginOwner).GetTrade()->GetTradeRouteSpeed(m_eDomain);
+
+	//unfortunately have to round the result to integer, so often the speed factor won't matter
+	return int(0.5f + m_iSpeedFactor*iRawSpeed / 100.f);
 }
