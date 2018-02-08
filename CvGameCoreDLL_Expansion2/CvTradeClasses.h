@@ -12,9 +12,6 @@
 
 #include "CvAStar.h"
 
-// The map layer the trade units reside on
-#define TRADE_UNIT_MAP_LAYER	1
-
 struct TradeConnectionPlot
 {
 	int m_iX;

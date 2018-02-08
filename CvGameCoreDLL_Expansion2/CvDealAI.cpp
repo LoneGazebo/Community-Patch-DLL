@@ -406,6 +406,12 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(eMyPlayer).GetDiplomacyAI();
 	
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	MajorCivApproachTypes eApproach = pDiploAI->GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ true);
+	StrengthTypes eMilitaryStrength = pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eFromPlayer);
+	StrengthTypes eEconomicStrength = pDiploAI->GetPlayerEconomicStrengthComparedToUs(eFromPlayer);
+	AggressivePostureTypes eMilitaryPosture = pDiploAI->GetMilitaryAggressivePosture(eFromPlayer);
+	PlayerProximityTypes eProximity = GET_PLAYER(eMyPlayer).GetProximityToPlayer(eFromPlayer);
+
 	// If we're friends with the demanding player, it's actually a Request for Help. Let's evaluate in a separate function and come back here
 	if(MOD_DIPLOMACY_CIV4_FEATURES && pDiploAI->IsDoFAccepted(eFromPlayer))
 	{
@@ -414,111 +420,204 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	else
 	{
 #endif
-
 		// Too soon for another demand?
 		if(pDiploAI->IsDemandTooSoon(eFromPlayer))
 			eResponse = DEMAND_RESPONSE_REFUSE_TOO_SOON;
-
 		// Not too soon for a demand
 		else
 		{
-			MajorCivApproachTypes eApproach = pDiploAI->GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ true);
-			StrengthTypes eMilitaryStrength = pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eFromPlayer);
-			AggressivePostureTypes eMilitaryPosture = pDiploAI->GetMilitaryAggressivePosture(eFromPlayer);
-			PlayerProximityTypes eProximity = GET_PLAYER(eMyPlayer).GetProximityToPlayer(eFromPlayer);
+			bool bWeak = false;
+			bool bHostile = false;
+			// Initial odds of giving in to ANY demand are based on the player's boldness (which is also tied to the player's likelihood of going for world conquest)
+			int iOddsOfGivingIn = (10 - pDiploAI->GetBoldness()) * 10;
 
 			// Unforgivable: AI will never give in
-			if(pDiploAI->GetMajorCivOpinion(eFromPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
-				eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
-
-			// Hostile: AI will never give in
-			else if(eApproach == MAJOR_CIV_APPROACH_HOSTILE)
-				eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
-
-			// Our military is stronger: AI will never give in
-			else if(eMilitaryStrength < STRENGTH_AVERAGE)
-				eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
-
-			// They are very far away and have no units near us (from what we can tell): AI will never give in
-			else if(eProximity <= PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
-				eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
-
-			// Willing to give in to demand
-			else
+			if (pDiploAI->GetMajorCivOpinion(eFromPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
-				// Initial odds of giving in to ANY demand are based on the player's boldness (which is also tied to the player's likelihood of going for world conquest)
-				int iOddsOfGivingIn = (10 - pDiploAI->GetBoldness()) * 10;
+				bHostile = true;
+				iOddsOfGivingIn -= 25;
+			}
+			// Hostile: AI will never give in
+			if (eApproach == MAJOR_CIV_APPROACH_HOSTILE)
+			{
+				bHostile = true;
+				iOddsOfGivingIn -= 25;
+			}
+			// They are very far away and have no units near us (from what we can tell): AI will never give in
+			if (eProximity <= PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
+			{
+				bWeak = true;
+				iOddsOfGivingIn -= 25;
+			}
+			// Our military is stronger: AI will never give in
+			if (eMilitaryStrength < STRENGTH_AVERAGE && eEconomicStrength < STRENGTH_AVERAGE)
+			{
+				bWeak = true;
+				iOddsOfGivingIn -= 25;
+			}
 
-				iValueWillingToGiveUp = 0;
+			iValueWillingToGiveUp = 0;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				//Vassals give in to demands more often, and give more away.
-				if(MOD_DIPLOMACY_CIV4_FEATURES)
+			//Vassals give in to demands more often, and give more away.
+			if(MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
+				if(eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
 				{
-					TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
-					if(eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
-					{
-						iOddsOfGivingIn += 100;
-						iValueWillingToGiveUp += 500;
-					}
+					iOddsOfGivingIn += 100;
+					iValueWillingToGiveUp += 500;
 				}
-#endif
-				// If we're afraid we're more likely to give in
-				if(eApproach == MAJOR_CIV_APPROACH_AFRAID)
+			}
+			switch(pDiploAI->GetWarmongerThreat(eFromPlayer))
+			{
+				case THREAT_NONE:
+				{
+					iOddsOfGivingIn -= 10;
+					break;
+				}
+				case THREAT_MINOR:
+				{
+					iOddsOfGivingIn -= 5;
+					break;
+				}
+				case THREAT_MAJOR:
+				{
+					iOddsOfGivingIn += 10;
+					break;
+				}
+				case THREAT_CRITICAL:
+				{
+					iOddsOfGivingIn += 25;
+					break;
+				}
+			}
+
+			switch (pDiploAI->GetMilitaryAggressivePosture(eFromPlayer))
+			{
+				case AGGRESSIVE_POSTURE_NONE:
+				{
+					iOddsOfGivingIn -= 10;
+					break;
+				}
+				case AGGRESSIVE_POSTURE_LOW:
+				{
+					iOddsOfGivingIn -= 5;
+					break;
+				}
+				case AGGRESSIVE_POSTURE_MEDIUM:
+				{
+					iOddsOfGivingIn += 10;
+					break;
+				}
+				case AGGRESSIVE_POSTURE_HIGH:
+				{
+					iOddsOfGivingIn += 25;
+					break;
+				}
+				case AGGRESSIVE_POSTURE_INCREDIBLE:
 				{
 					iOddsOfGivingIn += 50;
-					iValueWillingToGiveUp += 200;
+					break;
 				}
-				// Not afraid
-				else
-				{
-					// How strong are they compared to us?
-					switch(eMilitaryStrength)
-					{
-					case STRENGTH_PATHETIC:
-						iOddsOfGivingIn += -100;
-						iValueWillingToGiveUp += 10;
-						break;
-					case STRENGTH_WEAK:
-						iOddsOfGivingIn += -100;
-						iValueWillingToGiveUp += 10;
-						break;
-					case STRENGTH_POOR:
-						iOddsOfGivingIn += -100;
-						iValueWillingToGiveUp += 20;
-						break;
-					case STRENGTH_AVERAGE:
-						iOddsOfGivingIn += -10;
-						iValueWillingToGiveUp += 50;
-						break;
-					case STRENGTH_STRONG:
-						iOddsOfGivingIn += 10;
-						iValueWillingToGiveUp += 120;
-						break;
-					case STRENGTH_POWERFUL:
-						iOddsOfGivingIn += 20;
-						iValueWillingToGiveUp += 200;
-						break;
-					case STRENGTH_IMMENSE:
-						iOddsOfGivingIn += 35;
-						iValueWillingToGiveUp += 200;
-						break;
-					default:
-						break;
-					}
-				}
-
-				// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
-				// made a demand, and if the deal went through. These are both sent over the network later in this function.
-
-				int iAsyncRand = GC.getGame().getAsyncRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
-
-				// Are they going to say no matter what?
-				if(iAsyncRand > iOddsOfGivingIn)
-					eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			}
 #endif
+			// If we're afraid we're more likely to give in
+			if(eApproach == MAJOR_CIV_APPROACH_AFRAID)
+			{
+				iOddsOfGivingIn += 50;
+				iValueWillingToGiveUp += 200;
+			}
+			// Not afraid
+			else
+			{
+				// How strong are they compared to us?
+				switch(eMilitaryStrength)
+				{
+				case STRENGTH_PATHETIC:
+					iOddsOfGivingIn += -50;
+					iValueWillingToGiveUp += 5;
+					break;
+				case STRENGTH_WEAK:
+					iOddsOfGivingIn += -50;
+					iValueWillingToGiveUp += 10;
+					break;
+				case STRENGTH_POOR:
+					iOddsOfGivingIn += -25;
+					iValueWillingToGiveUp += 20;
+					break;
+				case STRENGTH_AVERAGE:
+					iOddsOfGivingIn += 0;
+					iValueWillingToGiveUp += 40;
+					break;
+				case STRENGTH_STRONG:
+					iOddsOfGivingIn += 15;
+					iValueWillingToGiveUp += 60;
+					break;
+				case STRENGTH_POWERFUL:
+					iOddsOfGivingIn += 25;
+					iValueWillingToGiveUp += 80;
+					break;
+				case STRENGTH_IMMENSE:
+					iOddsOfGivingIn += 50;
+					iValueWillingToGiveUp += 100;
+					break;
+				default:
+					break;
+				}
+
+				switch (eEconomicStrength)
+				{
+				case STRENGTH_PATHETIC:
+					iOddsOfGivingIn += -50;
+					iValueWillingToGiveUp += 5;
+					break;
+				case STRENGTH_WEAK:
+					iOddsOfGivingIn += -50;
+					iValueWillingToGiveUp += 10;
+					break;
+				case STRENGTH_POOR:
+					iOddsOfGivingIn += -25;
+					iValueWillingToGiveUp += 25;
+					break;
+				case STRENGTH_AVERAGE:
+					iOddsOfGivingIn += 0;
+					iValueWillingToGiveUp += 40;
+					break;
+				case STRENGTH_STRONG:
+					iOddsOfGivingIn += 15;
+					iValueWillingToGiveUp += 60;
+					break;
+				case STRENGTH_POWERFUL:
+					iOddsOfGivingIn += 25;
+					iValueWillingToGiveUp += 80;
+					break;
+				case STRENGTH_IMMENSE:
+					iOddsOfGivingIn += 50;
+					iValueWillingToGiveUp += 100;
+					break;
+				default:
+					break;
+				}
+			}
+
+			// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
+			// made a demand, and if the deal went through. These are both sent over the network later in this function.
+
+			int iRand = GC.getGame().getSmallFakeRandNum(100, iValueWillingToGiveUp);
+
+			// Are they going to say no matter what?
+			if (iRand > iOddsOfGivingIn)
+			{
+				if (bHostile)
+					eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
+				else if (bWeak)
+					eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
+				else
+					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+			}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		}
+#endif
 	}
 
 	// Possibility exists that the AI will accept
@@ -544,7 +643,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				{
 					iTempGold = it->m_iData1;
 					if (iGPT > 0)
-						iModdedGoldValue = iTempGold * 10 / iGPT;
+						iModdedGoldValue = iTempGold * 5 / iGPT;
 					else
 						iModdedGoldValue = 0;
 
@@ -555,7 +654,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				// GPT
 				case TRADE_ITEM_GOLD_PER_TURN:
 				{
-					iValueDemanded += (it->m_iData1 * it->m_iDuration * 80 / 100);
+					iValueDemanded += (it->m_iData1 * it->m_iDuration * 50 / 100);
 					break;
 				}
 
@@ -566,9 +665,9 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 					ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 
 					if(eUsage == RESOURCEUSAGE_LUXURY)
-						iValueDemanded += 200;
+						iValueDemanded += 100;
 					else if(eUsage == RESOURCEUSAGE_STRATEGIC)
-						iValueDemanded += (40 * it->m_iData2);
+						iValueDemanded += (25 * it->m_iData2);
 
 					break;
 				}
@@ -576,19 +675,23 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				// Open Borders
 				case TRADE_ITEM_OPEN_BORDERS:
 				{
-					iValueDemanded += 50;
+					iValueDemanded += 25;
 					break;
 				}
 
 				case TRADE_ITEM_CITIES:
 				case TRADE_ITEM_DEFENSIVE_PACT:
 				case TRADE_ITEM_RESEARCH_AGREEMENT:
+				{
+					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+					break;
+				}
 				case TRADE_ITEM_PERMANENT_ALLIANCE:
 				case TRADE_ITEM_THIRD_PARTY_PEACE:
 				case TRADE_ITEM_THIRD_PARTY_WAR:
 				case TRADE_ITEM_THIRD_PARTY_EMBARGO:
 				default:
-					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+					iValueDemanded += 75;
 					break;
 				}
 			}

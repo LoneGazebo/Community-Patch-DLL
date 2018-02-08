@@ -425,6 +425,11 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'MAX_PLOTS_PER_EXPLORER', '20';
 
+-- Hardcode for desert resources
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT', '0';
+
 -- AI Military Strategies - no CSs
 
 UPDATE AIMilitaryStrategies

@@ -94,5 +94,7 @@ const GreatWorkArtifactClass getARTIFACT_SARCOPHAGUS();
 const GreatWorkSlotType getGREAT_WORK_SLOT_ART_ARTIFACT();
 const GreatWorkSlotType getGREAT_WORK_SLOT_LITERATURE();
 const GreatWorkSlotType getGREAT_WORK_SLOT_MUSIC();
+const GreatWorkSlotType getGREAT_WORK_SLOT_RELIC();
+const GreatWorkSlotType getGREAT_WORK_SLOT_FILM();
 
 }

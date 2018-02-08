@@ -1906,74 +1906,14 @@ bool CvGameTrade::StepUnit (int iIndex)
 			kTradeConnection.m_iCircuitsCompleted += 1;
 		}
 	}
+
 	// Move the visualization
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
-#if defined(MOD_BALANCE_CORE)
-	CorporationTypes eCorporation = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCorporations()->GetFoundedCorporation();
-	int iCorporationVisionBoost = 0;
-	if (eCorporation != NO_CORPORATION)
-	{
-		CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-		if (pkCorporation)
-		{
-			iCorporationVisionBoost = pkCorporation->GetTradeRouteVisionBoost();
-		}
-	}
-
-	if(pkUnit && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() > 0 || iCorporationVisionBoost > 0))
-	{
-		int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-		int iRange = (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() + iCorporationVisionBoost);
-		CvPlot* pLoopPlot;
-		for(int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for(int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				pLoopPlot = ::plotXYWithRangeCheck(pkUnit->getX(), pkUnit->getY(), iDX, iDY, iRange);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->changeAdjacentSight(pkUnit->getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-				}
-			}
-		}
-		if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
-		{
-			GC.getMap().updateDeferredFog();
-		}
-	}
-#endif
-
 	if (pkUnit)
 	{
 		pkUnit->setXY(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, true, false, true, true);
 		pkUnit->finishMoves();
 	}
-
-#if defined(MOD_BALANCE_CORE)
-	if(pkUnit && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() > 0 || iCorporationVisionBoost > 0))
-	{
-		int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
-		int iRange = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() + iCorporationVisionBoost;
-		CvPlot* pLoopPlot;
-		for(int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for(int iDY = -iRange; iDY <= iRange; iDY++)
-			{
-				pLoopPlot = ::plotXYWithRangeCheck(pkUnit->getX(), pkUnit->getY(), iDX, iDY, iRange);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->changeAdjacentSight(pkUnit->getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-				}
-			}
-		}
-		if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
-		{
-			GC.getMap().updateDeferredFog();
-		}
-	}
-#endif
 
 	// auto-pillage when a trade unit moves under an enemy unit
 	CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY);
@@ -3668,7 +3608,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(MOD_BALANCE_CORE)
 			case YIELD_PRODUCTION:
 				{
-					if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(kTradeConnection.m_eOriginOwner))
+					if(MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(kTradeConnection.m_eOriginOwner))
 					{
 						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, true);
@@ -3735,7 +3675,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				break;
 			case YIELD_FOOD:
 				{
-					if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(kTradeConnection.m_eOriginOwner))
+					if (MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(kTradeConnection.m_eOriginOwner))
 					{
 						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, true);
@@ -6372,7 +6312,7 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 #endif
 #if defined(MOD_BALANCE_CORE)
 	//Let's encourage TRs to feitorias.
-	if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
+	if (MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
 	{
 		iScore *= 10;
 	}

@@ -32,13 +32,13 @@ const int iSpyTurnsToRevive = 5;
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
 const int iRandomRollSpyAction = 300;
-const int iChancetoIdentifyCounterSpy = 250;
-const int iChancetoDetectCounterSpy = 150;
-const int iChancetoIdentifyNoCounterSpy = 250;
-const int iChancetoDetectNoCounterSpy = 150;
-const int iChancetoKillAA = 275;
-const int iChancetoIdentifyAA = 175;
-const int iSpyRankPower = 50;
+const int iChancetoIdentifyCounterSpy = 275;
+const int iChancetoDetectCounterSpy = 175;
+const int iChancetoIdentifyNoCounterSpy = 275;
+const int iChancetoDetectNoCounterSpy = 175;
+const int iChancetoKillAA = 250;
+const int iChancetoIdentifyAA = 150;
+const int iSpyRankPower = 75;
 PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 
 //=====================================
