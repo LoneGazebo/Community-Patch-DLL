@@ -718,6 +718,8 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int getPopNeededForLux() const;
+	void setPopNeededForLux();
+	void CheckPopLuxUpgradeThreshold();
 	int GetBonusHappinessFromLuxuries() const;
 	int GetBaseLuxuryHappiness() const;
 	void SetBaseLuxuryHappiness(int iValue);
@@ -1931,6 +1933,13 @@ public:
 	int getLitYieldBonus(YieldTypes eIndex) const;
 	void changeLitYieldBonus(YieldTypes eYield, int iChange);
 
+	int getFilmYieldBonus(YieldTypes eIndex) const;
+	void changeFilmYieldBonus(YieldTypes eYield, int iChange);
+	int getRelicYieldBonus(YieldTypes eIndex) const;
+	void changeRelicYieldBonus(YieldTypes eYield, int iChange);
+
+	
+
 	int getReligionYieldRateModifier(YieldTypes eIndex)	const;
 	void changeReligionYieldRateModifier(YieldTypes eIndex, int iChange);
 
@@ -2931,6 +2940,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
+	FAutoVariable<int, CvPlayer> m_iPopNeededForLuxUpgrade;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -3410,6 +3420,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiArtYieldBonus;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiMusicYieldBonus;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiLitYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiFilmYieldBonus;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiRelicYieldBonus;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromNonSpecialistCitizens;

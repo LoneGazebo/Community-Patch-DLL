@@ -1124,6 +1124,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piArtYieldChanges, "Policy_ArtYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piLitYieldChanges, "Policy_LitYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piMusicYieldChanges, "Policy_MusicYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piRelicYieldChanges, "Policy_RelicYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piFilmYieldChanges, "Policy_FilmYieldChanges", "PolicyType", szPolicyType);
 
 	kUtility.SetYields(m_piYieldFromNonSpecialistCitizens, "Policy_YieldFromNonSpecialistCitizens", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
@@ -3243,6 +3245,29 @@ int* CvPolicyEntry::GetMusicYieldChangesArray() const
 	return m_piMusicYieldChanges;
 }
 
+int CvPolicyEntry::GetRelicYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piRelicYieldChanges ? m_piRelicYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetRelicYieldChangesArray() const
+{
+	return m_piRelicYieldChanges;
+}
+
+int CvPolicyEntry::GetFilmYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFilmYieldChanges ? m_piFilmYieldChanges[i] : 0;
+}
+
+int* CvPolicyEntry::GetFilmYieldChangesArray() const
+{
+	return m_piFilmYieldChanges;
+}
 
 int CvPolicyEntry::GetYieldFromNonSpecialistCitizens(int i) const
 {

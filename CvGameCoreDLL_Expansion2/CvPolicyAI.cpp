@@ -4394,6 +4394,28 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetLitYieldChanges(eYield);
 			}
 		}
+		if (PolicyInfo->GetFilmYieldChanges(eYield) != 0)
+		{
+			if (pPlayerTraits->IsTourism())
+			{
+				yield[eYield] += PolicyInfo->GetFilmYieldChanges(eYield) * 2;
+			}
+			else
+			{
+				yield[eYield] += PolicyInfo->GetFilmYieldChanges(eYield);
+			}
+		}
+		if (PolicyInfo->GetRelicYieldChanges(eYield) != 0)
+		{
+			if (pPlayerTraits->IsTourism())
+			{
+				yield[eYield] += PolicyInfo->GetRelicYieldChanges(eYield) * 2;
+			}
+			else
+			{
+				yield[eYield] += PolicyInfo->GetRelicYieldChanges(eYield);
+			}
+		}
 		if (PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) != 0)
 		{
 			if (pPlayerTraits->IsExpansionist())

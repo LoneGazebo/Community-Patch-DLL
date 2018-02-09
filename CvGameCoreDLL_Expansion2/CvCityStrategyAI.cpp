@@ -6224,11 +6224,11 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 15);
 		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 15);
 	}
-	if(pkBuildingInfo->GetGreatWorkSlotType() == eWritingSlot)
+	else if(pkBuildingInfo->GetGreatWorkSlotType() == eWritingSlot)
 	{
 		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 15);
 	}
-	if(pkBuildingInfo->GetGreatWorkSlotType() == eMusicSlot)
+	else if(pkBuildingInfo->GetGreatWorkSlotType() == eMusicSlot)
 	{
 		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 15);
 	}

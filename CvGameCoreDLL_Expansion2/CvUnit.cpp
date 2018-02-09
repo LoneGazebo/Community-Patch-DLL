@@ -5766,7 +5766,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 	}
 
-	if (plot()->getOwner() != getOwner())
+	if (plot()->getOwner() != getOwner() && getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE && getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
 		return false;
 
 	if(!bTestVisible)

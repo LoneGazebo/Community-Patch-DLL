@@ -429,7 +429,14 @@
 		<Row Tag="TXT_KEY_EUI_BUILDING_EXTRALEAGUEVOTES">
 			<Text>Extra League Votes {1}</Text>
 		</Row>
-
+		<!-- Vox Populi -->
+		<Row Tag="TXT_KEY_EUI_BUILDING_SUPPLY_CAP_LOCAL">
+			<Text>Supply Cap Local:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUI_BUILDING_SUPPLY_CAP_GLOBAL">
+			<Text>Supply Cap Global:</Text>
+		</Row>
+		<!-- VP end -->
 <!-- MISC EUI tooltips -->
 		<Row Tag="TXT_KEY_CBE91AF606834326BC7758BB489E509F_DESCRIPTION">
 			<Text>Tablet Data 1</Text>
@@ -454,6 +461,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_EUI_UNKNOWN_CITY">
 			<Text>Unknown City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AIR_STRENGTH_DEFENSE">
+			<Text>Air Strike Defense:</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -9425,6 +9425,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	else
 	{
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
+		if (eYield == YIELD_PRODUCTION && GC.getMOD_BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT() > 0 && getTerrainType() == TERRAIN_DESERT && !isHills() && getFeatureType() == NO_FEATURE)
+		{
+			if (getResourceType(eTeam) != NO_RESOURCE && getImprovementType() != NO_IMPROVEMENT)
+				iYield += GC.getMOD_BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT();
+		}
 	}
 
 #if defined(MOD_API_PLOT_YIELDS)

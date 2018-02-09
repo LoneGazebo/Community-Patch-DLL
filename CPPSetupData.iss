@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "1.6.15
+#define MyAppVersion "3.2.7"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -30,12 +30,12 @@ DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
 SetupIconFile=C:\Users\Jeff\Documents\Community Patch Project Installer Files\installer.ico
 WizardImageBackColor=cl3DLight
 ShowComponentSizes=False
-VersionInfoVersion=1.6.15
+VersionInfoVersion=3.2.7
 VersionInfoCompany=Community Patch Project Team
 VersionInfoDescription=Vox Populi
-VersionInfoCopyright=2016
+VersionInfoCopyright=2018
 VersionInfoProductName=Vox Populi
-VersionInfoProductVersion=1.6.15
+VersionInfoProductVersion=3.2.7
 WizardImageStretch=False
 
 [Languages]
@@ -46,15 +46,22 @@ FinishedLabel=Setup has finished installing [name] on your computer. To launch t
 
 [Files]
 Source: "..\Documents\Community Patch Project Installer Files\(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "..\Documents\Community Patch Project Installer Files\(2) Community Balance Overhaul\*"; DestDir: "{app}\(2) Community Balance Overhaul"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic or FullEUI or FullNoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(3) CSD for CBP\*"; DestDir: "{app}\(3) CSD for CBP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(4) Civ IV Diplomatic Features\*"; DestDir: "{app}\(4) Civ IV Diplomatic Features"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI
-Source: "..\Documents\Community Patch Project Installer Files\(5) More Luxuries\*"; DestDir: "{app}\(5) More Luxuries"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(2) Community Balance Overhaul\*"; DestDir: "{app}\(2) Community Balance Overhaul"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic or FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(3) CSD for CBP\*"; DestDir: "{app}\(3) CSD for CBP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(4) Civ IV Diplomatic Features\*"; DestDir: "{app}\(4) Civ IV Diplomatic Features"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(5) More Luxuries\*"; DestDir: "{app}\(5) More Luxuries"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI or FullNoEUI Civ43EUI Civ43NoEUI
 Source: "..\Documents\Community Patch Project Installer Files\(6a) Community Balance Overhaul - Compatibility Files (EUI)\*"; DestDir: "{app}\(6a) Community Balance Overhaul - Compatibility Files (EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
 Source: "..\Documents\Community Patch Project Installer Files\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)\*"; DestDir: "{app}\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI
 Source: "..\Documents\Community Patch Project Installer Files\CP LUA\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core
 Source: "..\Documents\Community Patch Project Installer Files\CBO LUA\LUA\*"; DestDir: "{app}\(2) Community Balance Overhaul\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Basic
-Source: "..\Documents\Community Patch Project Installer Files\UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI
+Source: "..\Documents\Community Patch Project Installer Files\UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\*"; DestDir: "{app}\(6c) 43 Civs CP\CP Only"; Flags: ignoreversion; Components: Civ43CPOnly
+Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\No-EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\No-EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43NoEUI
+Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\EUI\*"; DestDir: "{app}\(6c) 43 Civs CP\EUI"; Flags: ignoreversion recursesubdirs; Components: Civ43EUI
+Source: "..\Documents\Community Patch Project Installer Files\(6c) 43 Civs CP\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\(6c) 43 Civs CP (v 1).modinfo"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "(6c) 43 Civs CP (v 1).modinfo"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI Civ43CPOnly
+Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\CP Only\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43CPOnly
+Source: "Community Patch Project Installer Files\(6c) 43 Civs CP\MoreLux\AssignStartingPlots.lua"; DestDir: "{app}\(6c) 43 Civs CP\"; DestName: "AssignStartingPlots.lua"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI
 
 [Icons]
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
@@ -64,15 +71,22 @@ Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclu
 Name: "FullNoEUI"; Description: "Full Version (No-EUI)"; Types: FullNoEUI; Flags: exclusive disablenouninstallwarning
 Name: "Core"; Description: "Core Version (CP Only)"; Types: Core; Flags: exclusive disablenouninstallwarning
 Name: "Basic"; Description: "Basic Version (CP and CBO Only)"; Types: Basic; Flags: exclusive disablenouninstallwarning
+Name: "Civ43CPOnly"; Description: "43-Civ Core Version (CP Only)"; Types: 43CivCPOnly; Flags: exclusive disablenouninstallwarning
+Name: "Civ43NoEUI"; Description: "43-Civ No-EUI Version"; Types: 43CivNoEUI; Flags: exclusive disablenouninstallwarning
+Name: "Civ43EUI"; Description: "43-Civ EUI Version"; Types: 43CivEUI; Flags: exclusive disablenouninstallwarning
 
 [Types]
 Name: "FullEUI"; Description: "Vox Populi (including EUI)"
 Name: "FullNoEUI"; Description: "Vox Populi (no EUI)"
 Name: "Core"; Description: "Community Patch only"
 Name: "Basic"; Description: "Community Patch and Community Balance Overhaul only"
+Name: "43CivCPOnly"; Description: "43-Civ Community Patch only"
+Name: "43CivNoEUI"; Description: "43-Civ Vox Populi (no-EUI)"
+Name: "43CivEUI"; Description: "43-Civ Vox Populi (EUI)"
 
 [InstallDelete]
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6c) 43 Civs CP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Community Balance Overhaul"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3) CSD for CBP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4) Civ IV Diplomatic Features"
@@ -81,7 +95,3 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"
 Type: filesandordirs; Name: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{pf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1"; Components: FullEUI FullNoEUI Basic
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
-
-[INI]
-Filename: "{userdocs}\My Games\Sid Meier's Civilization 5\config.ini"; Section: "Debugging"; Key: "ValidateGameDatabase"; String: "1"
-Filename: "{userdocs}\My Games\Sid Meier's Civilization 5\config.ini"; Section: "Debug"; Key: "LoggingEnabled"; String: "1"

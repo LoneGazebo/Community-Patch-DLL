@@ -804,6 +804,7 @@ public:
 	bool IsDemandTooSoon(PlayerTypes ePlayer) const;
 	short GetDemandTooSoonNumTurns(PlayerTypes ePlayer) const;
 
+	int GetNumDemandEverMade(PlayerTypes ePlayer) const;
 	bool IsDemandEverMade(PlayerTypes ePlayer) const;
 
 	short GetDemandCounter(PlayerTypes ePlayer) const;
@@ -1152,7 +1153,7 @@ public:
 	void SetEverMadeBorderPromise(PlayerTypes ePlayer, bool bValue);
 	void SetDoFEverAsked(PlayerTypes ePlayer, bool bValue);
 	void SetHelpRequestEverMade(PlayerTypes ePlayer, bool bValue);
-	void SetDemandEverMade(PlayerTypes ePlayer, bool bValue);
+	void SetNumDemandEverMade(PlayerTypes ePlayer, int iValue);
 	void SetPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer, bool bValue);
 	void SetPlayerStopSpyingRequestEverAsked(PlayerTypes ePlayer, bool bValue);
 #endif
@@ -1645,7 +1646,7 @@ private:
 		bool m_abPlayerEverMadeExpansionPromise[MAX_MAJOR_CIVS];
 		bool m_abDoFEverAsked[MAX_MAJOR_CIVS];
 		bool m_abHelpRequestEverMade[MAX_MAJOR_CIVS];
-		bool m_abDemandEverMade[MAX_MAJOR_CIVS];
+		int m_aiDemandEverMade[MAX_MAJOR_CIVS];
 		bool m_abPlayerNoSettleRequestEverAsked[MAX_MAJOR_CIVS];
 		bool m_abPlayerStopSpyingRequestEverAsked[MAX_MAJOR_CIVS];
 		short m_aiNumLandmarksBuiltForMeTurn[MAX_MAJOR_CIVS];
@@ -2022,7 +2023,7 @@ private:
 	bool* m_pabPlayerEverMadeExpansionPromise;
 	bool* m_pabDoFEverAsked;
 	bool* m_pabHelpRequestEverMade;
-	bool* m_pabDemandEverMade;
+	int*  m_paiDemandEverMade;
 	bool* m_pabPlayerNoSettleRequestEverAsked;
 	bool* m_pabPlayerStopSpyingRequestEverAsked;
 #endif

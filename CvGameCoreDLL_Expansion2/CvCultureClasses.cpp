@@ -225,21 +225,35 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
 		GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 		GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+		GreatWorkClass eFilmClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_FILM");
+		GreatWorkClass eRelicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_RELIC");
 		if(pWork->m_eClassType == eWritingClass)
 		{
 			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetLitYieldChanges(eYield);
+			iValue += GET_PLAYER(eOwner).getLitYieldBonus(eYield);
 		}
 		if(pWork->m_eClassType == eArtClass)
 		{
 			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtYieldChanges(eYield);
+			iValue += GET_PLAYER(eOwner).getArtYieldBonus(eYield);
 		}
 		if(pWork->m_eClassType == eArtifactsClass)
 		{
 			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetArtifactYieldChanges(eYield);
+			iValue += GET_PLAYER(eOwner).getArtifactYieldBonus(eYield);
 		}
 		if(pWork->m_eClassType == eMusicClass)
 		{
 			iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetMusicYieldChanges(eYield);
+			iValue += GET_PLAYER(eOwner).getMusicYieldBonus(eYield);
+		}
+		if (pWork->m_eClassType == eFilmClass)
+		{
+			iValue += GET_PLAYER(eOwner).getFilmYieldBonus(eYield);
+		}
+		if (pWork->m_eClassType == eRelicClass)
+		{
+			iValue += GET_PLAYER(eOwner).getRelicYieldBonus(eYield);
 		}
 #endif
 
