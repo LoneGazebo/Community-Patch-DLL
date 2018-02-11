@@ -11816,27 +11816,38 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 
 		if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 		{
-			// Someone is losing the bonus :(
-			if(eOldAlly != NO_PLAYER)
+			bool bNeedsUpdate = true;
+			if (eOldAlly == eNewAlly)
 			{
-				iResourceQuantity = GetPlayer()->getResourceExport(eResource);
-
-				if(iResourceQuantity > 0)
-				{
-					GET_PLAYER(eOldAlly).changeResourceFromMinors(eResource, -iResourceQuantity);
-					GetPlayer()->changeResourceExport(eResource, -iResourceQuantity);
-				}
+				int iResourceQuantityNew = GetPlayer()->getNumResourceTotal(eResource);
+				if (iResourceQuantityNew == 0)
+					bNeedsUpdate = false;
 			}
-
-			// Someone new is getting the bonus :D
-			if(eNewAlly != NO_PLAYER)
+			
+			if (bNeedsUpdate)
 			{
-				iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
-
-				if(iResourceQuantity > 0)
+				// Someone is losing the bonus :(
+				if (eOldAlly != NO_PLAYER)
 				{
-					GET_PLAYER(eNewAlly).changeResourceFromMinors(eResource, iResourceQuantity);
-					GetPlayer()->changeResourceExport(eResource, iResourceQuantity);
+					iResourceQuantity = GetPlayer()->getResourceExport(eResource);
+
+					if (iResourceQuantity > 0)
+					{
+						GET_PLAYER(eOldAlly).changeResourceFromMinors(eResource, -iResourceQuantity);
+						GetPlayer()->changeResourceExport(eResource, -iResourceQuantity);
+					}
+				}
+
+				// Someone new is getting the bonus :D
+				if (eNewAlly != NO_PLAYER)
+				{
+					iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
+
+					if (iResourceQuantity > 0)
+					{
+						GET_PLAYER(eNewAlly).changeResourceFromMinors(eResource, iResourceQuantity);
+						GetPlayer()->changeResourceExport(eResource, iResourceQuantity);
+					}
 				}
 			}
 		}

@@ -1385,8 +1385,8 @@ if civ5_mode then
 			-- Happiness/Population calculation.
 			local iPopulation = g_activePlayer:GetCurrentTotalPop()
 			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
-			local iGetLuxuryBonus = g_activePlayer:GetLuxuryBonusPlusOne(0);
-			local iGetLuxuryBonusPlusOne = (100 + g_activePlayer:GetLuxuryBonusPlusOne(1));
+			local iGetLuxuryBonus = (100 * g_activePlayer:GetLuxuryBonusPlusOne(0));
+			local iGetLuxuryBonusPlusOne = (100 * g_activePlayer:GetLuxuryBonusPlusOne(1));
 			if(iGetLuxuryBonusPlusOne > 0) then
 				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, Locale.ToNumber( ((iGetLuxuryBonusPlusOne - iGetLuxuryBonus) / 100), "#.##" )))
 				tips:insert("[NEWLINE][NEWLINE]")

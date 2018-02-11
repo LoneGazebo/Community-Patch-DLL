@@ -9410,6 +9410,9 @@ void CvCity::DoTestResourceDemanded()
 		// WLTKD over!
 		if(GetWeLoveTheKingDayCounter() == 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEndsWLTKD, getOwner(), getX(), getY(), 0);
+#endif
 			DoPickResourceDemanded();
 
 			if(getOwner() == GC.getGame().getActivePlayer())
@@ -17401,6 +17404,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	{
 		iCulturePerTurn += GetYieldFromHappiness(YIELD_CULTURE);
 		iCulturePerTurn += GetYieldFromHealth(YIELD_CULTURE);
+
 		iCulturePerTurn += GetYieldFromCrime(YIELD_CULTURE);
 		iCulturePerTurn += GetYieldFromDevelopment(YIELD_CULTURE);
 	}
@@ -21926,14 +21930,14 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_HEALTH", iTempMod);
 	}
-	if (GetYieldModifierFromCrime(eIndex) != 0)
+	if (GetYieldModifierFromCrime(eIndex) != 0 && eIndex != YIELD_JFD_CRIME)
 	{
 		iTempMod = GetYieldModifierFromCrime(eIndex);
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MODIFIER_CRIME", iTempMod);
 	}
-	if (GetYieldModifierFromDevelopment(eIndex) != 0)
+	if (GetYieldModifierFromDevelopment(eIndex) != 0 && eIndex != YIELD_JFD_CRIME)
 	{
 		iTempMod = GetYieldModifierFromDevelopment(eIndex);
 		iModifier += iTempMod;
@@ -22507,8 +22511,11 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	}
 	iValue += GetYieldFromHappiness(eIndex);
 	iValue += GetYieldFromHealth(eIndex);
-	iValue += GetYieldFromCrime(eIndex);
-	iValue += GetYieldFromDevelopment(eIndex);
+	if (eIndex != YIELD_JFD_CRIME)
+	{
+		iValue += GetYieldFromCrime(eIndex);
+		iValue += GetYieldFromDevelopment(eIndex);
+	}
 #endif
 
 	return iValue;
@@ -25381,6 +25388,11 @@ void CvCity::updateStrengthValue()
 	// Player-wide strength mod (Policies, etc.)
 	iStrengthMod += GET_PLAYER(getOwner()).GetCityStrengthMod();
 
+	int iCrime = GetYieldModifierFromCrime(YIELD_JFD_CRIME);
+	int iDevelopment = GetYieldModifierFromDevelopment(YIELD_JFD_CRIME);
+
+	iStrengthMod += (iCrime + iDevelopment);
+
 	// Apply Mod
 	iStrengthValue *= (100 + iStrengthMod);
 	iStrengthValue /= 100;
@@ -25424,10 +25436,6 @@ void CvCity::updateStrengthValue()
 #endif
 
 	m_iStrengthValue = iStrengthValue;
-
-	int iCrime = GetYieldModifierFromCrime(YIELD_JFD_CRIME);
-	int iDevelopment = GetYieldModifierFromDevelopment(YIELD_JFD_CRIME);
-	m_iStrengthValue += iCrime + iDevelopment;
 
 	// Terrain mod
 	if(plot()->isHills())
@@ -32759,9 +32767,6 @@ void CvCity::SetYieldModifierFromHealth(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromHealth(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
 	return m_aiYieldModifierFromHealth[eYield];
 }
 
@@ -32776,9 +32781,6 @@ void CvCity::SetYieldModifierFromCrime(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromCrime(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
 	return m_aiYieldModifierFromCrime[eYield];
 }
 
@@ -32793,9 +32795,6 @@ void CvCity::SetYieldModifierFromDevelopment(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromDevelopment(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
 	return m_aiYieldModifierFromDevelopment[eYield];
 }
 
@@ -32810,9 +32809,6 @@ void CvCity::SetYieldFromHappiness(YieldTypes eYield, int iValue)
 int CvCity::GetYieldFromHappiness(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
 	return m_aiYieldFromHappiness[eYield];
 }
 
@@ -32827,9 +32823,6 @@ void CvCity::SetYieldFromHealth(YieldTypes eYield, int iValue)
 int CvCity::GetYieldFromHealth(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
 	return m_aiYieldFromHealth[eYield];
 }
 void CvCity::SetYieldFromCrime(YieldTypes eYield, int iValue)

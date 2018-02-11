@@ -12,9 +12,6 @@
 
 #include "CvAStar.h"
 
-// The map layer the trade units reside on
-#define TRADE_UNIT_MAP_LAYER	1
-
 struct TradeConnectionPlot
 {
 	int m_iX;
@@ -41,6 +38,7 @@ struct TradeConnection
 		m_eConnectionType = NUM_TRADE_CONNECTION_TYPES;
 		m_iTradeUnitLocationIndex = -1;
 		m_bTradeUnitMovingForward = false;
+		m_iSpeedFactor = 100;
 		m_iCircuitsCompleted = 0;
 		m_iCircuitsToComplete = 0;
 		m_iTurnRouteComplete = 0;
@@ -67,6 +65,8 @@ struct TradeConnection
 		m_eDestOwner = pDestCity->getOwner();
 	}
 
+	int GetMovementSpeed();
+
 	int m_iID;
 	int m_iOriginID;
 	int m_iOriginX;
@@ -82,6 +82,7 @@ struct TradeConnection
 	bool m_bTradeUnitMovingForward;
 	TradeConnectionPlotList m_aPlotList;
 	int m_unitID;
+	int m_iSpeedFactor; //move faster on this route?
 	int m_iCircuitsCompleted;
 	int m_iCircuitsToComplete;
 	int m_iTurnRouteComplete;

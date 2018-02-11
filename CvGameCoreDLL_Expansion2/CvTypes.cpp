@@ -25,6 +25,8 @@ GreatWorkArtifactClass s_eARTIFACT_SARCOPHAGUS = NO_GREAT_WORK_ARTIFACT_CLASS;
 GreatWorkSlotType s_eGREAT_WORK_SLOT_ART_ARTIFACT = NO_GREAT_WORK_SLOT;
 GreatWorkSlotType s_eGREAT_WORK_SLOT_LITERATURE = NO_GREAT_WORK_SLOT;
 GreatWorkSlotType s_eGREAT_WORK_SLOT_MUSIC = NO_GREAT_WORK_SLOT;
+GreatWorkSlotType s_eGREAT_WORK_SLOT_RELIC = NO_GREAT_WORK_SLOT;
+GreatWorkSlotType s_eGREAT_WORK_SLOT_FILM = NO_GREAT_WORK_SLOT;
 
 //MissionTypes
 MissionTypes s_eMISSION_MOVE_TO = NO_MISSION;
@@ -157,6 +159,8 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_ART_ARTIFACT"), &s_eGREAT_WORK_SLOT_ART_ARTIFACT));
 		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_LITERATURE"), &s_eGREAT_WORK_SLOT_LITERATURE));
 		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_MUSIC"), &s_eGREAT_WORK_SLOT_MUSIC));
+		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_RELIC"), &s_eGREAT_WORK_SLOT_RELIC));
+		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_FILM"), &s_eGREAT_WORK_SLOT_FILM));
 
 		Database::Results kResults;
 		if(db.Execute(kResults, "SELECT Type, ID from GreatWorkSlots"))
@@ -345,6 +349,17 @@ const GreatWorkSlotType CvTypes::getGREAT_WORK_SLOT_LITERATURE()
 const GreatWorkSlotType CvTypes::getGREAT_WORK_SLOT_MUSIC()
 {
 	return s_eGREAT_WORK_SLOT_MUSIC;
+}
+
+//--------------------------------------------------------------------------
+const GreatWorkSlotType CvTypes::getGREAT_WORK_SLOT_RELIC()
+{
+	return s_eGREAT_WORK_SLOT_RELIC;
+}
+//--------------------------------------------------------------------------
+const GreatWorkSlotType CvTypes::getGREAT_WORK_SLOT_FILM()
+{
+	return s_eGREAT_WORK_SLOT_FILM;
 }
 //--------------------------------------------------------------------------
 

@@ -8955,7 +8955,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 		if (pEntry->GetYieldPerLux(iI) > 0)
 		{
-			int ModifierValue = 1;
+			int ModifierValue = 2;
 			
 			if (m_pPlayer->GetPlayerTraits()->GetLuxuryHappinessRetention() || m_pPlayer->GetPlayerTraits()->GetUniqueLuxuryQuantity() != 0 || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
 			{
@@ -8963,11 +8963,11 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			}
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
-				if (m_pPlayer->GetPlayerTraits()->GetYieldFromImport((YieldTypes)iJ))
+				if (m_pPlayer->GetPlayerTraits()->GetYieldFromImport((YieldTypes)iJ) != 0)
 				{
 					ModifierValue += 1;
 				}
-				if (m_pPlayer->GetPlayerTraits()->GetYieldFromExport((YieldTypes)iJ))
+				if (m_pPlayer->GetPlayerTraits()->GetYieldFromExport((YieldTypes)iJ) != 0)
 				{
 					ModifierValue += 1;
 				}

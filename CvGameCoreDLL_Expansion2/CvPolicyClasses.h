@@ -378,6 +378,11 @@ public:
 	int GetLitYieldChanges(int i) const;
 	int* GetLitYieldChangesArray() const;
 
+	int GetRelicYieldChanges(int i) const;
+	int* GetRelicYieldChangesArray() const;
+	int GetFilmYieldChanges(int i) const;
+	int* GetFilmYieldChangesArray() const;
+
 	bool IsOnlyTradeSameIdeology() const;
 
 	int GetYieldFromNonSpecialistCitizens(int i) const;
@@ -781,6 +786,8 @@ private:
 	int* m_piArtYieldChanges;
 	int* m_piLitYieldChanges;
 	int* m_piMusicYieldChanges;
+	int* m_piRelicYieldChanges;
+	int* m_piFilmYieldChanges;
 	int* m_piYieldFromNonSpecialistCitizens;
 	int* m_piYieldModifierFromGreatWorks;
 	int* m_piYieldModifierFromActiveSpies;

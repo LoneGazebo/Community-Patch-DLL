@@ -445,7 +445,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabPlayerEverMadeExpansionPromise(NULL),
 	m_pabDoFEverAsked(NULL),
 	m_pabHelpRequestEverMade(NULL),
-	m_pabDemandEverMade(NULL),
+	m_paiDemandEverMade(NULL),
 	m_pabPlayerNoSettleRequestEverAsked(NULL),
 	m_pabPlayerStopSpyingRequestEverAsked(NULL),
 	m_paiNumLandmarksBuiltForMeTurn(NULL),
@@ -685,7 +685,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_pabPlayerEverMadeExpansionPromise = &m_pDiploData->m_abPlayerEverMadeExpansionPromise[0];
 	m_pabDoFEverAsked = &m_pDiploData->m_abDoFEverAsked[0];
 	m_pabHelpRequestEverMade = &m_pDiploData->m_abHelpRequestEverMade[0];
-	m_pabDemandEverMade = &m_pDiploData->m_abDemandEverMade[0];
+	m_paiDemandEverMade = &m_pDiploData->m_aiDemandEverMade[0];
 	m_pabPlayerNoSettleRequestEverAsked = &m_pDiploData->m_abPlayerNoSettleRequestEverAsked[0];
 	m_pabPlayerStopSpyingRequestEverAsked = &m_pDiploData->m_abPlayerStopSpyingRequestEverAsked[0];
 	m_paiNumLandmarksBuiltForMeTurn = &m_pDiploData->m_aiNumLandmarksBuiltForMeTurn[0];
@@ -1005,7 +1005,7 @@ void CvDiplomacyAI::Uninit()
 	m_pabPlayerEverMadeExpansionPromise = NULL;
 	m_pabDoFEverAsked = NULL;
 	m_pabHelpRequestEverMade = NULL;
-	m_pabDemandEverMade = NULL;
+	m_paiDemandEverMade = NULL;
 	m_pabPlayerNoSettleRequestEverAsked = NULL;
 	m_pabPlayerStopSpyingRequestEverAsked = NULL;
 	m_paiNumLandmarksBuiltForMeTurn = NULL;
@@ -1216,7 +1216,7 @@ void CvDiplomacyAI::Reset()
 		m_pabPlayerEverMadeExpansionPromise[iI] = false;
 		m_pabDoFEverAsked[iI] = false;
 		m_pabHelpRequestEverMade[iI] = false;
-		m_pabDemandEverMade[iI] = false;
+		m_paiDemandEverMade[iI] = 0;
 		m_pabPlayerNoSettleRequestEverAsked[iI] = false;
 		m_pabPlayerStopSpyingRequestEverAsked[iI] = false;
 		m_paiNumLandmarksBuiltForMeTurn[iI] = 0;
@@ -1933,8 +1933,8 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<bool> wrapm_pabHelpRequestEverMade(MAX_MAJOR_CIVS, m_pabHelpRequestEverMade);
 	kStream >> wrapm_pabHelpRequestEverMade; 
 
-	ArrayWrapper<bool> wrapm_pabDemandEverMade(MAX_MAJOR_CIVS, m_pabDemandEverMade);
-	kStream >> wrapm_pabDemandEverMade; 
+	ArrayWrapper<int> wrapm_paiDemandEverMade(MAX_MAJOR_CIVS, m_paiDemandEverMade);
+	kStream >> wrapm_paiDemandEverMade; 
 
 	ArrayWrapper<bool> wrapm_pabPlayerNoSettleRequestEverAsked(MAX_MAJOR_CIVS, m_pabPlayerNoSettleRequestEverAsked);
 	kStream >> wrapm_pabPlayerNoSettleRequestEverAsked; 
@@ -2258,7 +2258,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerEverMadeExpansionPromise);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFEverAsked);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabHelpRequestEverMade);
-	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDemandEverMade);
+	kStream << ArrayWrapper<int>(MAX_MAJOR_CIVS, m_paiDemandEverMade);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerNoSettleRequestEverAsked);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerStopSpyingRequestEverAsked);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumLandmarksBuiltForMeTurn);
@@ -11720,7 +11720,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 			iNumCivs++;
 		}
 	}
-	iLoyalty = ((iLoyalty * iNumCivs) / 30);
+	iLoyalty = ((iLoyalty * iNumCivs) / 40);
 	if (iLoyalty <= 0)
 	{
 		iLoyalty = 1;
@@ -29561,7 +29561,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer)
 	// Reset counter
 	SetDemandCounter(ePlayer, 0);
 #if defined(MOD_BALANCE_CORE)
-	SetDemandEverMade(ePlayer, true);
+	SetNumDemandEverMade(ePlayer, 1);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeNumTimesDemandedWhileVassal(ePlayer, 1);
@@ -29599,12 +29599,19 @@ short CvDiplomacyAI::GetDemandTooSoonNumTurns(PlayerTypes ePlayer) const
 	return m_paiDemandTooSoonNumTurns[ePlayer];
 }
 
+int CvDiplomacyAI::GetNumDemandEverMade(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiDemandEverMade[ePlayer];
+}
+
 bool CvDiplomacyAI::IsDemandEverMade(PlayerTypes ePlayer) const
 {
 #if defined(MOD_BALANCE_CORE)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	return m_pabDemandEverMade[ePlayer];
+	return m_paiDemandEverMade[ePlayer] > 0;
 #else
 	if(GetDemandCounter(ePlayer) == -1)
 		return false;
@@ -29625,11 +29632,18 @@ void CvDiplomacyAI::SetDemandCounter(PlayerTypes ePlayer, int iValue)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	m_paiDemandCounter[ePlayer] = iValue;
+
 }
 
 void CvDiplomacyAI::ChangeDemandCounter(PlayerTypes ePlayer, int iChange)
 {
 	SetDemandCounter(ePlayer, GetDemandCounter(ePlayer) + iChange);
+	
+	if (m_paiDemandCounter[ePlayer] > -1 && m_paiDemandCounter[ePlayer] > GetDemandTooSoonNumTurns(ePlayer) * 3)
+	{
+		SetNumDemandEverMade(ePlayer, -1);
+		SetDemandCounter(ePlayer, -1);
+	}
 }
 
 
@@ -32101,12 +32115,14 @@ void CvDiplomacyAI::SetHelpRequestEverMade(PlayerTypes ePlayer, bool bValue)
 
 	m_pabHelpRequestEverMade[ePlayer] = bValue;
 }
-void CvDiplomacyAI::SetDemandEverMade(PlayerTypes ePlayer, bool bValue)
+void CvDiplomacyAI::SetNumDemandEverMade(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	m_pabDemandEverMade[ePlayer] = bValue;
+	m_paiDemandEverMade[ePlayer] += iValue;
+	if (m_paiDemandEverMade[ePlayer] <= 0)
+		m_paiDemandEverMade[ePlayer] = 0;
 }
 void CvDiplomacyAI::SetPlayerNoSettleRequestEverAsked(PlayerTypes ePlayer, bool bValue)
 {
@@ -33233,8 +33249,8 @@ int CvDiplomacyAI::GetStopSpyingRequestScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDemandEverMadeScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	if(IsDemandEverMade(ePlayer))
-		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US();
+	if(GetNumDemandEverMade(ePlayer) > 0)
+		iOpinionWeight += /*20*/ GC.getOPINION_WEIGHT_MADE_DEMAND_OF_US() / 2 * GetNumDemandEverMade(ePlayer);
 	return iOpinionWeight;
 }
 

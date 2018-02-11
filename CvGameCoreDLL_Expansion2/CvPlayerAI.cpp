@@ -711,6 +711,13 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 	}
 
+	//annex holy city for faith use
+	if (GetReligions()->GetCurrentReligion(false) != NO_RELIGION && pCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetCurrentReligion(false)))
+	{
+		pCity->DoAnnex();
+		return;
+	}
+
 	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
 	// find courthouse
 	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)

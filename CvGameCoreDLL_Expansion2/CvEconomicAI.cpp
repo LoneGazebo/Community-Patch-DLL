@@ -2607,6 +2607,9 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 		{
 			continue;
 		}
+		if (!pLoopUnit->canScrap())
+			continue;
+
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson())
 		{
 			if (bMayBeInOperation || pLoopUnit->getArmyID()!=-1)
@@ -2707,6 +2710,10 @@ CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 		{
 			continue;
 		}
+
+		if (!pLoopUnit->canScrap())
+			continue;
+
 		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKBOAT");
 		if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
@@ -3126,6 +3133,10 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 			{
 				continue;
 			}
+
+			if (!pLoopUnit->canScrap())
+				continue;
+
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 #else
@@ -3153,6 +3164,9 @@ CvUnit* CvEconomicAI::FindArchaeologistToScrap()
 		{
 			continue;
 		}
+
+		if (!pLoopUnit->canScrap())
+			continue;
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST");
 #else

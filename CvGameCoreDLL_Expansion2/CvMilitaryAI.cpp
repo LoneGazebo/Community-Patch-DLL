@@ -4904,6 +4904,9 @@ CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 
+		if (!pLoopUnit->canScrap())
+			continue;
+
 		//Failsafe to keep AI from deleting advanced start settlers
 		//Probably useless because of the combat unit check above
 		if (m_pPlayer->GetNumCitiesFounded() < 3)
