@@ -332,11 +332,8 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100)
 {
-	bool bMajorMinorConnection = false;
-	if(pTargetCity->getOwner() != pPlayerCapital->getOwner())
-	{
-		bMajorMinorConnection = true;
-	}
+	// for quests we might be targeting a city state ...
+	bool bSamePlayer = (pTargetCity->getOwner() == pPlayerCapital->getOwner());
 
 	// if we already have a connection, bail out
 	bool bIndustrialRoute = (GC.getGame().GetIndustrialRoute() == eRoute);
@@ -406,7 +403,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 	//see if the new route makes sense economically
 	short sValue = -1;
-	if(bMajorMinorConnection)
+	if(!bSamePlayer)
 	{
 		//this is for a quest ... normal considerations don't apply
 		sValue = min(GC.getMINOR_CIV_ROUTE_QUEST_WEIGHT() / max(1,iPlotsNeeded), MAX_SHORT);
@@ -479,12 +476,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		// add nodes that are not in territory to extra list
 		// minors should not build out of their borders when they are doing a major/minor connection, only when connecting their two cities
-		if(!(m_pPlayer->isMinorCiv() && bMajorMinorConnection))
+		if(m_pPlayer->isMajorCiv() || bSamePlayer)
 		{
-			if(pPlot->getOwner() == NO_PLAYER)
-			{
-				m_aiNonTerritoryPlots.push_back(GC.getMap().plotNum(pPlot->getX(), pPlot->getY()));
-			}
+			if (pPlot->getOwner() != m_pPlayer->GetID() && pPlot->IsFriendlyTerritory(m_pPlayer->GetID()))
+				m_aiNonTerritoryPlots.push_back(pPlot->GetPlotIndex());
+			else if (pPlot->getOwner() == NO_PLAYER)
+				m_aiNonTerritoryPlots.push_back(pPlot->GetPlotIndex());
 		}
 	}
 }
@@ -530,10 +527,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			pPlot->SetBuilderAIScratchPadRoute(eRoute);
 
 			// add nodes that are not in territory to extra list
-			if(pPlot->getOwner() != m_pPlayer->GetID())
-			{
-				m_aiNonTerritoryPlots.push_back(GC.getMap().plotNum(pPlot->getX(), pPlot->getY()));
-			}
+			if(pPlot->getOwner() != m_pPlayer->GetID() && pPlot->IsFriendlyTerritory(m_pPlayer->GetID()))
+				m_aiNonTerritoryPlots.push_back(pPlot->GetPlotIndex());
+			else if (pPlot->getOwner() == NO_PLAYER)
+				m_aiNonTerritoryPlots.push_back(pPlot->GetPlotIndex());
 		}
 	}
 }
@@ -592,10 +589,10 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		pPlot->SetBuilderAIScratchPadRoute(eRoute);
 
 		// add nodes that are not in territory to extra list
-		if(pPlot->getOwner() != m_pPlayer->GetID())
-		{
-			m_aiNonTerritoryPlots.push_back(GC.getMap().plotNum(pPlot->getX(), pPlot->getY()));
-		}
+		if (pPlot->getOwner() != m_pPlayer->GetID() && pPlot->IsFriendlyTerritory(m_pPlayer->GetID()))
+			m_aiNonTerritoryPlots.push_back(pPlot->GetPlotIndex());
+		else if (pPlot->getOwner() == NO_PLAYER)
+			m_aiNonTerritoryPlots.push_back(pPlot->GetPlotIndex());
 	}
 }
 
