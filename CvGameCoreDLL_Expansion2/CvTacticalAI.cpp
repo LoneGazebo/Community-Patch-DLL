@@ -2035,7 +2035,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			if (!pZone || (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity) && !pCity->isInDangerOfFalling()))
 			{
 				//try again with the water zone
-				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
+				pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
 
 				if (!pZone || (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity) && !pCity->isInDangerOfFalling()))
 				{
@@ -2116,7 +2116,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				if (pPlot->getOwner() == m_pPlayer->GetID())
 				{
 					DeleteTemporaryZone(pPlot);
-					pZone->SetNavalInvasion(false);
+					if (pZone) pZone->SetNavalInvasion(false); // just a precaution
 				}
 			}
 		}
@@ -2150,7 +2150,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			if (!pZone || (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity)))
 			{
 				//try again with the water zone
-				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
+				pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
 
 				if (!pZone || (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity)))
 				{

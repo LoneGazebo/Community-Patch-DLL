@@ -2041,8 +2041,6 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 /// Build Route path finder - check validity of a coordinate
 int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
-	CvPlot* pNewPlot;
-
 	if(parent == NULL || data.ePlayer == NO_PLAYER)
 		return TRUE;
 
@@ -2055,7 +2053,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if (eRoute > thisPlayer.getBestRoute())
 		return FALSE;
 
-	pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	if(!bThisPlayerIsMinor && !(pNewPlot->isRevealed(thisPlayer.getTeam())))
 		return FALSE;
 

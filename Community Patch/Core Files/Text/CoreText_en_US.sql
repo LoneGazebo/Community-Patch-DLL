@@ -554,3 +554,8 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
 UPDATE Language_en_US
 SET Text = 'Very well. Not that it will help either of us in the long run – we will all die soon enough.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
+
+
+UPDATE Language_en_US
+SET Text = '[COLOR_WARNING_TEXT]{1_Number} Interceptors![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_EUPANEL_VISIBLE_AA_UNITS';

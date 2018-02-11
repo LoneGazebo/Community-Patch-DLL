@@ -22,6 +22,7 @@
 #include "CvAStarNode.h"
 
 #define DEFAULT_UNIT_MAP_LAYER 0
+#define TRADE_UNIT_MAP_LAYER 1
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 

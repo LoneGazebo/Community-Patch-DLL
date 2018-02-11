@@ -1,8 +1,4 @@
 -- General Changes to the DLL's Global Values
--- Score
-UPDATE Defines SET Value = '1' WHERE Name = 'SCORE_POPULATION_MULTIPLIER';
-UPDATE Defines SET Value = '5' WHERE Name = 'SCORE_POLICY_MULTIPLIER';
-
 
 -- War
 UPDATE Defines SET Value = '100' WHERE Name = 'NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER';
@@ -145,6 +141,9 @@ UPDATE Defines SET Value = '33' WHERE Name = 'TEMPORARY_CULTURE_BOOST_MOD';
 UPDATE Defines SET Value = '50' WHERE Name = 'TEMPORARY_TOURISM_BOOST_MOD';
 
 UPDATE Resolutions SET TechPrereqAnyMember = 'TECH_TELECOM' WHERE Type = 'RESOLUTION_WORLD_IDEOLOGY';
+
+-- Other
+UPDATE Defines SET Value = '1' WHERE Name = 'BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT';
 
 -- Global Score
 UPDATE Defines SET Value = '10' WHERE Name = 'SCORE_CITY_MULTIPLIER'; -- def. 8

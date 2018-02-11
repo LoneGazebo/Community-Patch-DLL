@@ -5027,6 +5027,16 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
 		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getMusicYieldBonus(eYield) * iMusic);
 	}
+	int iFilm = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_FILM());
+	if (iFilm > 0)
+	{
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getFilmYieldBonus(eYield) * iFilm);
+	}
+	int iRelic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_RELIC());
+	if (iRelic > 0)
+	{
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getRelicYieldBonus(eYield) * iRelic);
+	}
 	
 	//Now grab the base yields.
 	int iBaseYield = GC.getBASE_CULTURE_PER_GREAT_WORK();
@@ -5134,6 +5144,9 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bAr
 int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 #endif
 {
+	if (eGreatWorkSlot == NO_GREAT_WORK_SLOT)
+		return 0;
+
 	int iRtnValue = 0;
 #if defined(MOD_BALANCE_CORE)
 	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");

@@ -1280,7 +1280,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTactical
 CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 {
 	if(iIndex < 0 || iIndex >= (int)m_DominanceZones.size())
-		return 0;
+		return NULL;
 	return &m_DominanceZones[iIndex];
 }
 
@@ -1288,7 +1288,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByIndex(int iIndex)
 CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(CvCity* pCity, bool bWater)
 {
 	if (!pCity)
-		return false;
+		return NULL;
 
 	//water zones have negative ids
 	return GetZoneByID(pCity->GetID()*(bWater ? -1 : +1));

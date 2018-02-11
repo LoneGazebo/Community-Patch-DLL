@@ -38,7 +38,7 @@
 -- 	Base Value of Test - Modifier to tech % cost. 1.5 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.5'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.55'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 125 is default. (Function is 'Need + ((CityPop x Value (134))/100)'. This value is added to City as a % modifier to needs.)

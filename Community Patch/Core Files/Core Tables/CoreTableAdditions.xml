@@ -566,6 +566,18 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_RelicYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- POLICY: Allows you to define a yield granted from a great work type -->
+	<Table name="Policy_FilmYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<!-- POLICY: Allows you to define a yield % granted for every GW in a city, up to 20%! -->
 	<Table name="Policy_YieldModifierFromGreatWorks">

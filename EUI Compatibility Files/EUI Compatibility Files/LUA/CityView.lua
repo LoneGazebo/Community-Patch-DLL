@@ -818,6 +818,14 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
 						+ cityOwner:GetExtraBuildingHappinessFromPolicies( buildingID )
 						+ (cityOwner:IsHalfSpecialistUnhappiness() and GameDefines.UNHAPPINESS_PER_POPULATION * numSpecialistsInBuilding * ((city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() or 0)+100) * (cityOwner:GetUnhappinessMod() + 100) * (cityOwner:GetTraitPopUnhappinessMod() + 100) / 2e6 or 0) -- missing getHandicapInfo().getPopulationUnhappinessMod()
+			-- Vox Populi fix for 3939			
+			if gk_mode then
+				happinessChange = happinessChange + cityOwner:GetPlayerBuildingClassHappiness( buildingClassID )
+			end
+			if city and civ5gk_mode and buildingClassID then
+				happinessChange = happinessChange + city:GetReligionBuildingClassHappiness(buildingClassID)
+			end
+			-- Vox Populi end
 			tips:insertIf( happinessChange ~=0 and happinessChange .. "[ICON_HAPPINESS_1]" )
 
 		else -- civBE_mode
