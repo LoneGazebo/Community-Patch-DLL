@@ -8190,8 +8190,15 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit && pLoopUnit->IsCombatUnit()) //ignore generals and the like!
 		{
-			if (bMustPillage && !pLoopUnit->canPillage(pTarget))
-				continue;
+			if (bMustPillage)
+			{
+				if (!pLoopUnit->canPillage(pTarget))
+					continue;
+
+				//these units are too fragile
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+					continue;
+			}
 
 			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
 				continue;
