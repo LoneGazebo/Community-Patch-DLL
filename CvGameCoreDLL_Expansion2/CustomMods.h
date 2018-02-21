@@ -630,7 +630,7 @@
 //   GameEvents.PlayerBoughtOut.Add(function(iPlayer, iCS) end)
 //   GameEvents.PlayerCanBullyGold.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerCanBullyUnit.Add(function(iPlayer, iCS) return true end)
-//   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end)
+//   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iValue, eUnitType, iPlotX, iPlotY, eYield) end)
 //   GameEvents.PlayerCanGiftGold.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end)
 //   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end)
@@ -1163,7 +1163,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerBoughtOut				"PlayerBoughtOut",				"ii"
 #define GAMEEVENT_PlayerBuilding				"PlayerBuilding",				"iiiiib"
 #define GAMEEVENT_PlayerBuilt					"PlayerBuilt",					"iiiii"
-#define GAMEEVENT_PlayerBullied					"PlayerBullied",				"iiiiii"
+#define GAMEEVENT_PlayerBullied					"PlayerBullied",				"iiiiiii"
 #define GAMEEVENT_PlayerCanAdoptIdeology		"PlayerCanAdoptIdeology",		"ii"
 #define GAMEEVENT_PlayerCanAdoptTenet			"PlayerCanAdoptTenet",			"ii"
 #define GAMEEVENT_PlayerCanBuild				"PlayerCanBuild",				"iiiii"

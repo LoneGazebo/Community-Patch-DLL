@@ -16471,7 +16471,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_GOLD);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -16867,7 +16867,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}	
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_SCIENCE);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -16901,7 +16906,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}			
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_CULTURE);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -16934,7 +16944,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_PRODUCTION);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -16967,7 +16982,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_FAITH);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -17000,7 +17020,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}		
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_FOOD);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -17034,6 +17059,11 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
 					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+					if (MOD_EVENTS_MINORS_INTERACTION) {
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
+					}
+#endif
 				}
 				else
 					pNewUnit->kill(false);	// Could not find a spot for the unit!
@@ -17069,7 +17099,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 			if (MOD_EVENTS_MINORS_INTERACTION) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY());
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
 			}
 #endif
 		}
