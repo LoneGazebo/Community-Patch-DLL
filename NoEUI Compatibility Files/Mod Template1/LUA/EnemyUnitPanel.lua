@@ -695,6 +695,17 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 			end
+
+-- CBP
+			-- PerAdjacentUnitCombatModifier
+			iModifier = pMyUnit:PerAdjacentUnitCombatModifier() + pMyUnit:PerAdjacentUnitCombatAttackMod();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				--local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+-- END
 			
 			-- Policy Attack bonus
 			local iTurns = pMyPlayer:GetAttackBonusTurns();
