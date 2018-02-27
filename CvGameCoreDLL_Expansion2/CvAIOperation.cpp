@@ -982,7 +982,7 @@ bool CvAIOperation::DeleteArmyAI(int iID)
 		}
 	}
 
-	if (m_viArmyIDs.empty())
+	if (m_viArmyIDs.empty() && m_eCurrentState!=AI_OPERATION_STATE_ABORTED && m_eCurrentState!=AI_OPERATION_STATE_SUCCESSFUL_FINISH)
 		SetToAbort(AI_ABORT_NO_UNITS);
 
 	return ret;

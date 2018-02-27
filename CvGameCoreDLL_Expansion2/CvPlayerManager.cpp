@@ -32,7 +32,7 @@ void CvPlayerManager::Refresh(bool bWarDeclaration)
 		kPlayer.UpdateMilitaryStats();
 		kPlayer.UpdateCurrentAndFutureWars();
 
-		//only after loading, force danger update (danger plots are not serialized!)
+		//only after loading, force danger update (only known enemy units are serialized)
 		if(!bWarDeclaration && kPlayer.m_pDangerPlots)
 			kPlayer.UpdateDangerPlots(true);
 	}

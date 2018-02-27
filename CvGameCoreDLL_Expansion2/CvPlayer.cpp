@@ -44147,11 +44147,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-#if defined(MOD_BALANCE_CORE)
-	SetDangerPlotsDirty();
-#else
 	m_pDangerPlots->Read(kStream);
-#endif
 	m_pTraits->Read(kStream);
 	kStream >> *m_pEspionage;
 	kStream >> *m_pEspionageAI;
@@ -44375,9 +44371,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pDealAI->Write(kStream);
 	m_pBuilderTaskingAI->Write(kStream);
 	m_pCityConnections->Write(kStream);
-#if !defined(MOD_BALANCE_CORE)
 	m_pDangerPlots->Write(kStream);
-#endif
 	m_pTraits->Write(kStream);
 	kStream << *m_pEspionage;
 	kStream << *m_pEspionageAI;

@@ -67,6 +67,7 @@ void CvDangerPlots::Uninit()
 	SAFE_DELETE_ARRAY(m_DangerPlots);
 	m_bArrayAllocated = false;
 	m_bDirty = false;
+	m_knownUnits.clear();
 }
 
 bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC)
@@ -149,7 +150,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 
 	// wipe out values
 	int iGridSize = GC.getMap().numPlots();
-//	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
+	//	CvAssertMsg(iGridSize == m_DangerPlots.size(), "iGridSize does not match number of DangerPlots");
 	for(int i = 0; i < iGridSize; i++)
 		m_DangerPlots[i].clear();
 
@@ -492,7 +493,7 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility)
 {
 	// ignore unseen cities
-	if(!pCity->isRevealed(GET_PLAYER(m_ePlayer).getTeam(), false)  && !bIgnoreVisibility)
+	if(!pCity || !pCity->isRevealed(GET_PLAYER(m_ePlayer).getTeam(), false)  && !bIgnoreVisibility)
 	{
 		return true;
 	}
@@ -504,7 +505,7 @@ bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility
 bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility)
 {
 	// ignore unseen cities
-	if(!pCitadelPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam())  && !bIgnoreVisibility)
+	if(!pCitadelPlot || !pCitadelPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam())  && !bIgnoreVisibility)
 	{
 		return true;
 	}
@@ -550,27 +551,15 @@ void CvDangerPlots::AssignCityDangerValue(const CvCity* pCity, CvPlot* pPlot)
 /// reads in danger plots info
 void CvDangerPlots::Read(FDataStream& kStream)
 {
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	kStream >> m_ePlayer;
-	kStream >> m_bArrayAllocated;
-
-	int iGridSize;
-	kStream >> iGridSize;
-
 	Uninit();
-	m_DangerPlots = FNEW(CvDangerPlotContents[iGridSize], c_eCiv5GameplayDLL, 0);
-	m_bArrayAllocated = true;
 
-	for (int i = 0; i < iGridSize; i++)
-	{
-		kStream >> m_DangerPlots[i];
-	}
+	PlayerTypes ePlayer;
+	kStream >> ePlayer;
 
-	m_knownUnits.clear();
+	Init(ePlayer, true);
+
 	int iCount;
 	kStream >> iCount;
 	for (int i=0; i<iCount; i++)
@@ -581,37 +570,22 @@ void CvDangerPlots::Read(FDataStream& kStream)
 		m_knownUnits.insert( std::make_pair((PlayerTypes)iTemp1,iTemp2) );
 	}
 
-	m_bDirty = false;
+	m_bDirty = true; //need to update, after all only the known units were serialized
 }
 
 /// writes out danger plots info
 void CvDangerPlots::Write(FDataStream& kStream) const
 {
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_ePlayer;
-	kStream << m_bArrayAllocated;
 
-	int iGridSize = GC.getMap().getGridWidth() * GC.getMap().getGridHeight();
-	kStream << iGridSize;
-	for(int i = 0; i < iGridSize; i++)
-	{
-		kStream << m_DangerPlots[i];
-	}
-
-
-#if defined(MOD_BALANCE_CORE)
 	kStream << m_knownUnits.size();
 	for (UnitSet::const_iterator it=m_knownUnits.begin(); it!=m_knownUnits.end(); ++it)
 	{
 		kStream << it->first;
 		kStream << it->second;
 	}
-#endif
-
 }
 
 //	-----------------------------------------------------------------------------------------------

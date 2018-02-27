@@ -26,7 +26,9 @@
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 //for easier debugging
-int g_currentUnitToTrack = 0;
+int gCurrentUnitToTrack = 0;
+bool gTacticalCombatDebugOutput = false;
+int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 3;
 #endif
 
 CvTacticalUnit::CvTacticalUnit() :
@@ -444,7 +446,7 @@ void CvTacticalAI::CommandeerUnits()
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// debugging hook
-		if (g_currentUnitToTrack == pLoopUnit->GetID())
+		if (gCurrentUnitToTrack == pLoopUnit->GetID())
 		{
 			pLoopUnit->DumpDangerInNeighborhood();
 		}
@@ -11013,11 +11015,11 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 		//not a nice design to use a global variable here, but it's easier than modifying the code in 30 places
 		pUnit->setTacticalMove( m_currentTacticalMove.m_eMoveType );
 
-		if (unit.GetID()==g_currentUnitToTrack)
+		if (unit.GetID()== gCurrentUnitToTrack)
 		{
 			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
 			OutputDebugString( CvString::format("turn %03d: using %s %s %d for tactical move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
-				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentUnitToTrack,
+				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), gCurrentUnitToTrack,
 				pUnit->isBarbarian() ? barbarianMoveNames[m_currentTacticalMove.m_eMoveType] : GC.getTacticalMoveInfo(m_currentTacticalMove.m_eMoveType)->GetType(), 
 				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), pUnit->GetDanger() ) );
 		}
@@ -11641,7 +11643,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 		//stay on target. hard cutoff!
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
-		if (iPlotDistance>3)
+		if (iPlotDistance>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			return result;
 
 		//don't do it if it's a death trap
@@ -12135,6 +12137,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 
 		if (move.iScore>0)
 			possibleMoves.push_back( move );
+
+		if (gTacticalCombatDebugOutput)
+		{
+			stringstream ss;
+			ss << "pos " << iID << " unit " << unit.iUnitID << " moveto " << it->iPlotIndex << " score " << move.iScore << "\n";
+			OutputDebugString(ss.str().c_str());
+		}
 	}
 
 	//ranged attacks
@@ -12682,6 +12691,30 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 	}
 }
 
+void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit, int iMoveFlags)
+{
+	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
+	CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots);
+
+	//try to save some memory here
+	ReachablePlots reachablePlotsPruned;
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		if (plotDistance(*pPlot, *pTargetPlot) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+			reachablePlotsPruned.insert(*it);
+		else if (pPlot==pUnit->plot())
+			reachablePlotsPruned.insert(*it);
+	}
+	reachablePlotLookup[unit.iUnitID] = reachablePlotsPruned;
+
+	//simply ignore visibility here, later there's a check if there is a valid tactical plot for the targets
+	set<int> rangeAttackPlots;
+	TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit, pStartPlot, rangeAttackPlots, true, true);
+	rangeAttackPlotLookup[unit.iUnitID] = rangeAttackPlots;
+}
+
 bool CvTacticalPosition::unitHasAssignmentOfType(int iUnit, STacticalAssignment::eAssignmentType move) const
 {
 	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
@@ -12832,27 +12865,12 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	{
 		for (vector<SUnitStats>::iterator itUnit2 = availableUnits.begin(); itUnit2 != availableUnits.end(); ++itUnit2)
 		{
-			CvUnit* pUnit2 = GET_PLAYER(ePlayer).getUnit(itUnit2->iUnitID);
-			CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(itUnit2->iPlotIndex);
-
-			ReachablePlots reachablePlots =  TacticalAIHelpers::GetAllPlotsInReach(pUnit2, pStartPlot, iFlags, 0, itUnit2->iMovesLeft, freedPlots);
-			reachablePlotLookup[itUnit2->iUnitID] = reachablePlots;
-
-			set<int> rangeAttackPlots;
-			TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit2,pStartPlot,rangeAttackPlots, true, true);
-			rangeAttackPlotLookup[itUnit2->iUnitID] = rangeAttackPlots;
+			updateMoveAndAttackPlotsForUnit(*itUnit2, iFlags);
 		}
 	}
 	else if (itUnit->iMovesLeft>0) //otherwise iterator is invalid
 	{
-		CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(itUnit->iUnitID);
-		CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(itUnit->iPlotIndex);
-		ReachablePlots reachablePlots =	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pStartPlot, iFlags, 0, itUnit->iMovesLeft, freedPlots);
-		reachablePlotLookup[itUnit->iUnitID] = reachablePlots;
-
-		set<int> rangeAttackPlots;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pStartPlot,rangeAttackPlots, true, true);
-		rangeAttackPlotLookup[itUnit->iUnitID] = rangeAttackPlots;
+		updateMoveAndAttackPlotsForUnit(*itUnit, iFlags);
 	}
 	else if (itUnit->iMovesLeft==0)
 	{
@@ -12985,14 +13003,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	assignedMoves.push_back( STacticalAssignment(pUnit->plot()->GetPlotIndex(),pUnit->plot()->GetPlotIndex(),
 								pUnit->GetID(),pUnit->getMoves(),pUnit->IsCombatUnit(),0,STacticalAssignment::A_INITIAL) );
 
-	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false /*no embarkation*/);
-	reachablePlotLookup[pUnit->GetID()] = reachablePlots; //store all of them, if there's no matching tactical plot they will be skipped later
-
-	//for ranged units
-	set<int> rangeAttackPlots;
-	TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pUnit->plot(),rangeAttackPlots,true,false); //use official visibility here
-	rangeAttackPlotLookup[pUnit->GetID()] = rangeAttackPlots;
-
+	updateMoveAndAttackPlotsForUnit(availableUnits.back(), CvUnit::MOVEFLAG_NO_EMBARK);
 	return true;
 }
 
@@ -13033,7 +13044,12 @@ ostream& operator << (ostream& out, const STacticalAssignment& arg)
 
 void CvTacticalPosition::dumpChildren(ofstream& out) const
 {
-	out << "n" << (void*)this << " [ label = \"id " << iID << "\nscore " << iTotalScore << ", " << availableUnits.size() << " units\" ];\n";
+	out << "n" << (void*)this << " [ label = \"id " << iID << ": score " << iTotalScore << ", " << availableUnits.size() << " units\" ";
+	if (isComplete())
+		out << " shape=box ";
+	if (!isOffensive())
+		out << " style=dotted ";
+	out << "];\n";
 
 	size_t nAssignments = assignedMoves.size();
 	for (size_t i = 0; i < childPositions.size(); i++)
@@ -13047,7 +13063,7 @@ void CvTacticalPosition::dumpChildren(ofstream& out) const
 			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(assignment.iUnitID);
 			out << pUnit->getName().c_str() << " " << assignment << "\\n";
 		}
-		out << "\" ];\n";
+		out << "\" color=blue ];\n";
 	}
 
 	for (size_t i = 0; i < childPositions.size(); i++)
@@ -13174,7 +13190,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 
 	//find out which plot is frontline, second line etc
 	initialPosition->updateTacticalPlotTypes();
-	if (0)
+	if (gTacticalCombatDebugOutput)
 		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
 
 	vector<CvTacticalPosition*> openPositionsHeap;
@@ -13243,7 +13259,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		sort(completedPositions.begin(), completedPositions.end(), PrPositionIsBetter());
 		result = completedPositions.front()->getAssignments();
 
-		if (0)
+		if (gTacticalCombatDebugOutput)
 			completedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
 	else if (!finishedPositions.empty())
@@ -13252,14 +13268,14 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		sort(finishedPositions.begin(), finishedPositions.end(), PrPositionIsBetter());
 		result = finishedPositions.front()->getAssignments();
 
-		if (0)
+		if (gTacticalCombatDebugOutput)
 			finishedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
 
 	//debugging
 	timer.EndPerfTest();
 	OutputDebugString(CvString::format("--> tested %d possible positions for %d units in %.2fms\n", initialPosition->countChildren(), ourUnits.size(), timer.GetDeltaInSeconds()*1000).c_str());
-	if (0) //if needed we can set the instruction pointer here
+	if (gTacticalCombatDebugOutput) //if needed we can set the instruction pointer here
 		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
 
 	stringstream buffer;
