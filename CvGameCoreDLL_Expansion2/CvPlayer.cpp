@@ -577,7 +577,7 @@ CvPlayer::CvPlayer() :
 	, m_iJFDConversionTurn("CvPlayer::m_iJFDConversionTurn", m_syncArchive)
 	, m_bJFDSecularized("CvPlayer::m_bJFDSecularized", m_syncArchive)
 	, m_abActiveContract("CvPlayer::m_abActiveContract", m_syncArchive)
-	, m_iUpgradeCSTerritory("CvPlayer::m_iUpgradeCSTerritory", m_syncArchive)
+	, m_iUpgradeCSVassalTerritory("CvPlayer::m_iUpgradeCSVassalTerritory", m_syncArchive)
 	, m_iArchaeologicalDigTourism("CvPlayer::m_iArchaeologicalDigTourism", m_syncArchive)
 	, m_iGoldenAgeTourism("CvPlayer::m_iGoldenAgeTourism", m_syncArchive)
 	, m_iExtraCultureandScienceTradeRoutes("CvPlayer::m_iExtraCultureandScienceTradeRoutes", m_syncArchive)
@@ -1581,7 +1581,7 @@ void CvPlayer::uninit()
 	m_iJFDPietyRate = 0;
 	m_iJFDConversionTurn = 0;
 	m_bJFDSecularized = false;
-	m_iUpgradeCSTerritory = 0;
+	m_iUpgradeCSVassalTerritory = 0;
 	m_iArchaeologicalDigTourism = 0;
 	m_iGoldenAgeTourism = 0;
 	m_iExtraCultureandScienceTradeRoutes = 0;
@@ -5131,93 +5131,7 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 		return;
 	}
 
-	PlayerTypes eCurrentOwner = pCity->getOwner();
-	CvPlot* pPlot = pCity->plot();
-
-	// Set that this team has been liberated
-	TeamTypes eLiberatedTeam = GET_PLAYER(ePlayer).getTeam();
-
-	// Who originally took out this team?
-	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
-
-	if (!GET_PLAYER(ePlayer).isAlive())
-	{
-		GET_PLAYER(ePlayer).setBeingResurrected(true);
-
-		// Put everyone at peace with this guy
-		for(int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_CIV_TEAMS; iOtherTeamLoop++)
-		{
-			if(eLiberatedTeam != iOtherTeamLoop)
-			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes) iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true, GetID());
-#else
-				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes) iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true);
-#endif
-			}
-		}
-	
-		if (!GET_PLAYER(ePlayer).isMinorCiv())
-		{
-			// add notification
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_REVOLUTION_CP");
-			strMessage << pCity->getNameKey(); // CITY NAME
-			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
-			strMessage << GET_PLAYER(ePlayer).getCivilizationDescriptionKey();// LIBERATED CIV NAME
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_REVOLUTION_SHORT_CP");
-			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
-			{
-				strSummary << GET_PLAYER(ePlayer).getNickName();
-			}
-			else
-			{
-				strSummary << GET_PLAYER(ePlayer).getNameKey();
-			}		
-
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
-			{
-				const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
-				CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
-				if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications())
-				{
-					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
-				}
-			}
-
-			CvString temp = strMessage.toUTF8();
-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_eID, temp);
-		}
-	}
-
-	// Give the city back to the liberated player
-	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-
-	// Now verify the player is alive
-	GET_PLAYER(ePlayer).verifyAlive();
-	GET_PLAYER(ePlayer).setBeingResurrected(false);
-
-
-	// Move Units from player that don't belong here
-	if(pPlot->getNumUnits() > 0)
-	{
-		// Get the current list of units because we will possibly be moving them out of the plot's list
-		IDInfoVector currentUnits;
-		if (pPlot->getUnits(&currentUnits) > 0)
-		{
-			for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
-			{
-				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
-
-				if(pLoopUnit && pLoopUnit->getOwner() == eCurrentOwner)
-				{
-					pLoopUnit->finishMoves();
-					if (!pLoopUnit->jumpToNearestValidPlot())
-						pLoopUnit->kill(false);
-				}
-			}
-		}
-	}
-	if(GC.getLogging() && GC.getAILogging() && pCity != NULL)
+	if (GC.getLogging() && GC.getAILogging() && pCity != NULL)
 	{
 		CvString playerName;
 		FILogFile* pLog;
@@ -5228,25 +5142,12 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", ";
-		strOutBuf.Format("Revolution! Civ Liberated and %s restored to %s", pCity->getNameKey(), GET_PLAYER(ePlayer).getName());
+		strOutBuf.Format("Revolution! Civ Liberated and %s restored to %s", pCity->getName().GetCString(), GET_PLAYER(ePlayer).getName());
 		strBaseString += strOutBuf;
 		pLog->Msg(strBaseString);
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	//Let's give the Embassies of the defeated player back to the liberated player
-	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
-	{
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			ePlayer = (PlayerTypes) iPlayerLoop;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
-			{
-				int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
-				GET_PLAYER(ePlayer).ChangeImprovementLeagueVotes(-iEmbassyVotes);
-			}
-		}
-	}
-#endif
+
+	DoLiberatePlayer(ePlayer, pCity->GetID(), true);
 }
 CvPlot* CvPlayer::GetCenterOfMassEmpire() const
 {
@@ -9560,7 +9461,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 #endif
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
-void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
+void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced)
 {
 	CvCity* pCity = getCity(iOldCityID);
 	CvAssert(pCity);
@@ -9591,7 +9492,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	if (!GET_PLAYER(ePlayer).isAlive())
 	{
 		GET_PLAYER(ePlayer).setBeingResurrected(true);
-		GET_TEAM(eLiberatedTeam).SetLiberatedByTeam(eTeam);
+		if (!bForced)
+		{
+			GET_TEAM(eLiberatedTeam).SetLiberatedByTeam(eTeam);
+		}
 
 		// Put everyone at peace with this guy
 		for (int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_CIV_TEAMS; iOtherTeamLoop++)
@@ -9648,10 +9552,13 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	}
 	else
 	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
+		if (!bForced)
+		{
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumCitiesLiberated(m_eID, 1);
 #if defined(MOD_BALANCE_CORE)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetLiberatedCitiesTurn(m_eID, GC.getGame().getGameTurn());
 #endif
+		}
 		if (!GET_PLAYER(ePlayer).isMinorCiv())
 		{
 			// add notification
@@ -9703,7 +9610,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 		{
 			CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 			PlayerTypes eMePlayer = GetID();
-			pDiploAI->SetResurrectedBy(eMePlayer, true);
+			if (!bForced)
+			{
+				pDiploAI->SetResurrectedBy(eMePlayer, true);
+			}
 			pDiploAI->SetLandDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetWonderDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
 			pDiploAI->SetMinorCivDisputeLevel(eMePlayer, DISPUTE_LEVEL_NONE);
@@ -9762,45 +9672,51 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	GET_PLAYER(ePlayer).verifyAlive();
 	GET_PLAYER(ePlayer).setBeingResurrected(false);
 
-	// Is this a Minor we have liberated?
+	if (!bForced)
+	{
+		// Is this a Minor we have liberated?
 #if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
+		if (GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 #else
-	if(GET_PLAYER(ePlayer).isMinorCiv())
+		if(GET_PLAYER(ePlayer).isMinorCiv())
 #endif
-	{
-		GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
-	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
-	{
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 		{
-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), - 1);
-			GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+		}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
+		{
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
+			{
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsIsVassal(-1);
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetNumTurnsSinceVassalEnded(getTeam(), -1);
+				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
+			}
 		}
 	}
 #endif
 
 	// slewis
 	// negate warmonger
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	if (!bForced)
 	{
-		PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
-		if(GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			// Have I met the player who conquered the city?
-			if(GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+			PlayerTypes eMajor = (PlayerTypes)iMajorLoop;
+			if (GetID() != eMajor && GET_PLAYER(eMajor).isAlive())
 			{
+				// Have I met the player who conquered the city?
+				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
+				{
 #if defined(MOD_CONFIG_AI_IN_XML)
-				int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital(), pNewCity, GetID(), true);
-				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital(), pNewCity, GetID(), true);
+					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
 #else
-				int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
-				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(iNumCities, GET_PLAYER(ePlayer).isMinorCiv());
-				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(GetID(), -iWarmongerOffset);
+					int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(iNumCities, GET_PLAYER(ePlayer).isMinorCiv());
+					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmount(GetID(), -iWarmongerOffset);
 #endif
+				}
 			}
 		}
 	}
@@ -13251,6 +13167,10 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iDX, iDY;
 	int iI;
 
+	int iEra = MOD_BALANCE_CORE_DIPLOMACY_ADVANCED ? GetCurrentEra() : 1;
+	if (iEra <= 0)
+		iEra = 1;
+
 	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
 
 	Database::SingleResult kResult;
@@ -13279,6 +13199,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 	if(iGold != 0)
 	{
+		iGold *= iEra;
 		GetTreasury()->ChangeGold(iGold);
 		changeInstantYieldValue(YIELD_GOLD, iGold);
 		strBuffer += " ";
@@ -13299,9 +13220,6 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		{
 			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 
-			if (pLoopCity->getGameTurnFounded() == GC.getGame().getGameTurn())
-				continue;
-
 			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
 			{
 				iBestCityDistance = iDistance;
@@ -13309,9 +13227,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			}
 		}
 
+		int iPop = kGoodyInfo.getPopulation() * iEra;
+
 		if(pBestCity != NULL)
 		{
-			pBestCity->changePopulation(kGoodyInfo.getPopulation());
+			pBestCity->changePopulation(iPop);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -13328,6 +13248,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			iProduction *= (100 + iGoodyModifier);
 			iProduction /= 100;
 		}
+
+		iProduction *= iEra;
 
 		int iDistance;
 		int iBestCityDistance = -1;
@@ -13369,6 +13291,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			iGoldenAge *= (100 + iGoodyModifier);
 			iGoldenAge /= 100;
 		}
+
+		iGoldenAge *= iEra;
 
 		ChangeGoldenAgeProgressMeter(iGoldenAge);
 
@@ -13439,6 +13363,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			iCulture *= max(1, (GetPlayerPolicies()->GetNumPoliciesOwned(true, true) / 2));
 		}
 #endif
+
+		iCulture *= iEra;
+
 		changeJONSCulture(iCulture);
 
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
@@ -13462,6 +13389,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			iFaith *= (100 + iGoodyModifier);
 			iFaith /= 100;
 		}
+
+		iFaith *= iEra;
 
 		ChangeFaith(iFaith);
 
@@ -13489,6 +13418,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			iFaith /= 100;
 		}
 
+		iFaith *= iEra;
+
 		ChangeFaith(iFaith);
 
 		changeInstantYieldValue(YIELD_FAITH, iFaith);
@@ -13510,7 +13441,10 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 #endif
 		int iDivisor = /*10*/ GC.getGOLD_PURCHASE_VISIBLE_DIVISOR();
 		iFaith /= iDivisor;
-		iFaith *= iDivisor;
+		iFaith *= (iDivisor / 2);
+
+		iFaith *= iEra;
+
 		ChangeFaith(iFaith);
 
 		changeInstantYieldValue(YIELD_FAITH, iFaith);
@@ -21012,7 +20946,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		if ((GC.getLogging() && GC.getAILogging()))
 		{
 			CvString strLogString;
-			strLogString.Format("CP - Countdown for City Revolt BEGINS - %s, will go to %s in %d turns.", pMostUnhappyCity->getNameKey(), GET_PLAYER(eRecipient).getName(), iTurns);
+			strLogString.Format("CP - Countdown for City Revolt BEGINS - %s, will go to %s in %d turns.", pMostUnhappyCity->getName().GetCString(), GET_PLAYER(eRecipient).getName(), iTurns);
 
 			CvString strTemp;
 
@@ -21050,7 +20984,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		if ((GC.getLogging() && GC.getAILogging()))
 		{
 			CvString strLogString;
-			strLogString.Format("CP - Countdown for City Revolt BEGINS - %s, will go to DEAD PLAYER %s in %d turns.", pMostUnhappyCity->getNameKey(), GET_PLAYER(eRecipient).getName(), iTurns);
+			strLogString.Format("CP - Countdown for City Revolt BEGINS - %s, will go to DEAD PLAYER %s in %d turns.", pMostUnhappyCity->getName().GetCString(), GET_PLAYER(eRecipient).getName(), iTurns);
 
 			CvString strTemp;
 
@@ -21082,9 +21016,12 @@ void CvPlayer::DoCityRevolt()
 {
 	CvCity *pMostUnhappyCity = GetMostUnhappyCity();
 	PlayerTypes eRecipient = GetMostUnhappyCityRecipient(pMostUnhappyCity);
-	if(pMostUnhappyCity && eRecipient != NO_PLAYER)
+	if(pMostUnhappyCity != NULL && eRecipient != NO_PLAYER)
 	{
-		if (pMostUnhappyCity && !GET_PLAYER(eRecipient).isAlive())
+#if defined(MOD_BALANCE_CORE)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityFlipped, pMostUnhappyCity, eRecipient, pMostUnhappyCity->getOwner());
+#endif
+		if (!GET_PLAYER(eRecipient).isAlive())
 		{
 			PlayerTypes eOldPlayer = pMostUnhappyCity->getOriginalOwner();
 			if (eOldPlayer != NO_PLAYER && !GET_PLAYER(eOldPlayer).isAlive())
@@ -21115,6 +21052,22 @@ void CvPlayer::DoCityRevolt()
 				}
 			}
 
+			if (GC.getLogging() && GC.getAILogging() && pMostUnhappyCity != NULL)
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "CityRevolutions.csv";
+				playerName = getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("Defection! %s ceded to %s", pMostUnhappyCity->getName().GetCString(), kRecipient.getName());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+
 			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
 
 			// Move Units from player that don't belong here
@@ -21137,22 +21090,6 @@ void CvPlayer::DoCityRevolt()
 						}
 					}
 				}
-			}
-
-			if (GC.getLogging() && GC.getAILogging() && pMostUnhappyCity != NULL)
-			{
-				CvString playerName;
-				FILogFile* pLog;
-				CvString strBaseString;
-				CvString strOutBuf;
-				CvString strFileName = "CityRevolutions.csv";
-				playerName = getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
-				strOutBuf.Format("Defection! %s ceded to %s", pMostUnhappyCity->getNameKey(), kRecipient.getName());
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
 			}
 		}
 	}
@@ -30112,9 +30049,9 @@ void CvPlayer::ChangeExtraCultureandScienceTradeRoutes(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::CanUpgradeCSTerritory() const
+bool CvPlayer::CanUpgradeCSVassalTerritory() const
 {
-	if (GetUpgradeCSTerritory() > 0)
+	if (GetUpgradeCSVassalTerritory() > 0)
 	{
 		return true;
 	}
@@ -30122,14 +30059,14 @@ bool CvPlayer::CanUpgradeCSTerritory() const
 	return false;
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetUpgradeCSTerritory() const
+int CvPlayer::GetUpgradeCSVassalTerritory() const
 {
-	return m_iUpgradeCSTerritory;
+	return m_iUpgradeCSVassalTerritory;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeUpgradeCSTerritory(int iChange)
+void CvPlayer::ChangeUpgradeCSVassalTerritory(int iChange)
 {
-	m_iUpgradeCSTerritory += iChange;
+	m_iUpgradeCSVassalTerritory += iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetRazingSpeedBonus() const
@@ -41910,9 +41847,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		GetCorporations()->ChangeAdditionalNumFranchisesMod(pPolicy->GetAdditionalNumFranchisesMod() * iChange);
 	}
-	if(pPolicy->IsUpgradeCSTerritory())
+	if(pPolicy->IsUpgradeCSVassalTerritory())
 	{
-		ChangeUpgradeCSTerritory(pPolicy->IsUpgradeCSTerritory() * iChange);
+		ChangeUpgradeCSVassalTerritory(pPolicy->IsUpgradeCSVassalTerritory() * iChange);
 	}
 	if(pPolicy->GetArchaeologicalDigTourism() != 0)
 	{
@@ -46054,7 +45991,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 10 + iTimeOffset;
+	int iEvalDistance = 5 + iTimeOffset;
 	if(IsCramped())
 		iEvalDistance += iTimeOffset;
 
@@ -46184,9 +46121,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 
 		//bonus if the plot is in a desirable (large) area
 		if (pPlot->getArea() == iBestArea)
-			iScale += 40;
+			iScale *= 4;
 		if (pPlot->getArea() == iSecondBestArea)
-			iScale += 20;
+			iScale *= 2;
 
 		if (iScale==0)
 		{
@@ -46404,9 +46341,13 @@ void CvPlayer::SetBestWonderCities()
 		if (!::isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) && !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 			continue;
 
-		//Can't construct?
-		if (!canConstruct(eBuilding))
-			continue;
+		//Already making it? We can ignore the construction test.
+		if (!getBuildingClassMaking((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
+		{
+			//Can't construct?
+			if (!canConstruct(eBuilding))
+				continue;
+		}
 
 		if (pkeBuildingInfo->IsReformation())
 		{
@@ -46424,6 +46365,10 @@ void CvPlayer::SetBestWonderCities()
 		// Look at all of our Cities to see which is the best.
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
+			//We've already started? We can bail out here, then.
+			if (pLoopCity->getProductionBuilding() == eBuilding)
+				return;
+
 			if (!pLoopCity->canConstruct(eBuilding))
 				continue;
 

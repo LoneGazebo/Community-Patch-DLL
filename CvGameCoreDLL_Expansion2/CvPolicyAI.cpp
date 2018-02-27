@@ -1790,7 +1790,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += PolicyInfo->GetAdditionalNumFranchisesMod() * 5;
 		}
 	}
-	if (PolicyInfo->IsUpgradeCSTerritory())
+	if (PolicyInfo->IsUpgradeCSVassalTerritory())
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{

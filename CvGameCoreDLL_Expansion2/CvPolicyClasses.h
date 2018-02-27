@@ -101,7 +101,7 @@ public:
 	bool IsCorporationFreeFranchiseAbovePopular() const;
 	bool IsCorporationRandomForeignFranchise() const;
 	int GetAdditionalNumFranchisesMod() const;
-	bool IsUpgradeCSTerritory() const;
+	bool IsUpgradeCSVassalTerritory() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
 	int GetExtraCultureandScienceTradeRoutes() const;
@@ -738,7 +738,7 @@ private:
 	bool m_bCorporationFreeFranchiseAbovePopular;
 	bool m_bCorporationRandomForeignFranchise;
 	int m_iAdditionalNumFranchisesMod;
-	bool m_bUpgradeCSTerritory;
+	bool m_bUpgradeCSVassalTerritory;
 	int m_iArchaeologicalDigTourism;
 	int m_iGoldenAgeTourism;
 	int m_iExtraCultureandScienceTradeRoutes;

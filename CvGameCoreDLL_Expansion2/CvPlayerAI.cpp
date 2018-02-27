@@ -444,48 +444,6 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
 }
 
-bool CvPlayerAI::AI_captureUnit(UnitTypes, CvPlot* pPlot)
-{
-	CvCity* pNearestCity;
-
-	CvAssert(!isHuman());
-
-	// Barbs always capture
-	if (isBarbarian())
-		return true;
-
-	// we own it
-	if (pPlot->getTeam() == getTeam())
-		return true;
-
-	// no man's land - may as well
-	if (pPlot->getTeam() == NO_TEAM)
-		return true;
-
-	// friendly, sure (okay, this is pretty much just means open borders)
-	if (pPlot->IsFriendlyTerritory(GetID()))
-		return true;
-
-	// not friendly, but "near" us
-	pNearestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), NO_PLAYER, getTeam());
-	if (pNearestCity != NULL)
-	{
-		if (plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= 7)
-			return true;
-	}
-
-	// very near someone we aren't friends with (and far from our nearest city)
-	pNearestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY());
-	if (pNearestCity != NULL)
-	{
-		if (plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= 4)
-			return false;
-	}
-
-	// I'd rather we grab it and run than destroy it
-	return true;
-}
-
 void CvPlayerAI::AI_chooseFreeGreatPerson()
 {
 	while(GetNumFreeGreatPeople() > 0)
@@ -1876,7 +1834,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	}
 	
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = (iFlavorDiplo - 1);
+	int iDesiredEmb = max(1, (iFlavorDiplo * 2 - 5));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if(iDesiredEmb > iNumMinors)
 	{
