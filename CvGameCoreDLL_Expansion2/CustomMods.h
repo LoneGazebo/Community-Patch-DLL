@@ -58,8 +58,12 @@
 #define MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN
 
 /// radical rewrite
-#define MOD_BALANCE_CORE_NEW_TACTICAL_AI
 #define MOD_CORE_NEW_DEPLOYMENT_LOGIC
+
+//this needs a reassignment of move priorities to work properly, especially concerning global moves
+//#define MOD_CORE_TACTICAL_MOVE_DELAY_SORT
+
+// for debugging only
 //#define MOD_UNIT_KILL_STATS
 
 /// visible tiles stay visible until the end of the turn

@@ -155,6 +155,17 @@ public:
 	int m_iPriority;
 };
 
+struct ZoneMoveWithPrio
+{
+	CvTacticalMove move;
+	class CvTacticalDominanceZone* pZone; //forward
+	int prio;
+
+	bool operator<(const ZoneMoveWithPrio& other) const {
+		return prio > other.prio; //> intended for descending sort
+	}
+};
+
 // Object stored in the list of current move units (m_CurrentMoveUnits)
 class CvTacticalUnit
 {
@@ -723,9 +734,6 @@ private:
 	CvTacticalMove m_currentTacticalMove;
 };
 
-#endif
-
-#ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 enum eAggressionLevel { AL_LOW, AL_MEDIUM, AL_HIGH };
 #endif
 
@@ -867,6 +875,7 @@ private:
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
+	bool ExecuteSpotterMove(CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
@@ -895,13 +904,12 @@ private:
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bImmediateStrike=true);
-	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage);
+	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage, bool bAllowMoveThroughEnemyLand);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 
 	int GetRecruitRange() const;
-	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bNoRanged, bool bRanged, bool bCombatExpected=true);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bEscortedUnits);
 
@@ -983,7 +991,7 @@ private:
 	double m_fFlavorDampening;
 
 	// Dominance zone info
-	int m_iCurrentZoneIndex;
+	int m_iCurrentZoneID;
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;

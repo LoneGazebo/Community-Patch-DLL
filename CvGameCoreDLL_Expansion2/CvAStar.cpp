@@ -1142,9 +1142,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
 		}
 	}
-	else if(pToPlot->getTeam() != eUnitTeam)
+	else if(pToPlot->isOwned() && pToPlot->getTeam() != eUnitTeam)
 	{
 		iCost += PATH_END_TURN_FOREIGN_TERRITORY;
+	}
+	else if (!pToPlot->isOwned())
+	{
+		iCost += PATH_END_TURN_FOREIGN_TERRITORY/2;
 	}
 
 	// If we are a land unit and we are ending the turn on water, make the cost a little higher 
