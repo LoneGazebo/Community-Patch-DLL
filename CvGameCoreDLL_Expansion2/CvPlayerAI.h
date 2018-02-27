@@ -47,7 +47,6 @@ public:
 #else
 	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner);
 #endif
-	bool AI_captureUnit(UnitTypes eUnit, CvPlot* pPlot);
 
 	void AI_chooseFreeGreatPerson();
 	void AI_chooseFreeTech();

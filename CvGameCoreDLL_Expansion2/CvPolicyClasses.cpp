@@ -91,7 +91,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bCorporationFreeFranchiseAbovePopular(false),
 	m_bCorporationRandomForeignFranchise(false),
 	m_iAdditionalNumFranchisesMod(0),
-	m_bUpgradeCSTerritory(false),
+	m_bUpgradeCSVassalTerritory(false),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
 	m_iExtraCultureandScienceTradeRoutes(0),
@@ -534,7 +534,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bCorporationFreeFranchiseAbovePopular = kResults.GetBool("CorporationFreeFranchiseAbovePopular");
 	m_bCorporationRandomForeignFranchise = kResults.GetBool("CorporationRandomForeignFranchise");
 	m_iAdditionalNumFranchisesMod = kResults.GetInt("AdditionalNumFranchisesMod");
-	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
+	m_bUpgradeCSVassalTerritory = kResults.GetBool("UpgradeCSVassalTerritory");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
 	m_iExtraCultureandScienceTradeRoutes = kResults.GetInt("ExtraCultureandScienceTradeRoutes");
@@ -1676,9 +1676,9 @@ int CvPolicyEntry::GetAdditionalNumFranchisesMod() const
 {
 	return m_iAdditionalNumFranchisesMod;
 }
-bool CvPolicyEntry::IsUpgradeCSTerritory() const
+bool CvPolicyEntry::IsUpgradeCSVassalTerritory() const
 {
-	return m_bUpgradeCSTerritory;
+	return m_bUpgradeCSVassalTerritory;
 }
 int CvPolicyEntry::GetArchaeologicalDigTourism() const
 {

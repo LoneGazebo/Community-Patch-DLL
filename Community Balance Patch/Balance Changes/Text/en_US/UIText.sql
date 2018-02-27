@@ -300,16 +300,16 @@ WHERE Tag = 'TXT_KEY_FEATURE_FALLOUT_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY 
 	
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILD_FARM_REC', 'It will boost your [ICON_FOOD] Food output on this tile. For every two Farms adjacent to this one, it will gain an additional +1 [ICON_FOOD] Food!'
+SELECT 'TXT_KEY_BUILD_FARM_REC', 'It will boost your [ICON_FOOD] Food output on this tile. Farms adjacent to two other Farms and/or to Fresh Water gain +1 [ICON_FOOD] Food. '
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Farms can be constructed on most any land to improve the output of food on the tile. For every two Farms adjacent to each other, Farms gain additional Food.[NEWLINE][NEWLINE]Farming is one of the earliest and most important of all human professions, as it allowed mankind to stop migrating and settle in one location without depleting the local resources.'
+SET Text = 'Farms can be constructed on most any land to improve the output of food on the tile. Farms gain +1 Food for every two adjacent Farms and/or if Fresh Water is available.[NEWLINE][NEWLINE]Farming is one of the earliest and most important of all human professions, as it allowed mankind to stop migrating and settle in one location without depleting the local resources.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FARM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILD_FARM_HELP', 'Gain an additional +1 [ICON_FOOD] Food for every 2 Farms adjacent to one another.'
+SELECT 'TXT_KEY_BUILD_FARM_HELP', '+1 [ICON_FOOD] Food for every 2 Farms adjacent to this Farm and/or from Fresh Water.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Trading Post - name change

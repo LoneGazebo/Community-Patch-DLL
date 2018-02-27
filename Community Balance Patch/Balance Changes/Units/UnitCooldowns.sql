@@ -6,7 +6,7 @@ UPDATE Units SET PurchaseCooldown =     1  WHERE Cost >  100 AND Cost <=  200 AN
 UPDATE Units SET PurchaseCooldown =     1  WHERE Cost >  200 AND Cost <=  300 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS_COOLDOWN' AND Value= 1 );
 UPDATE Units SET PurchaseCooldown =     1  WHERE Cost >  300 AND Cost <=  400 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS_COOLDOWN' AND Value= 1 );
 UPDATE Units SET PurchaseCooldown =     1  WHERE Cost >  400 AND Cost <=  500 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS_COOLDOWN' AND Value= 1 );
-UPDATE Units SET PurchaseCooldown =		2  WHERE Cost >=  500 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS_COOLDOWN' AND Value= 1 );
+UPDATE Units SET PurchaseCooldown =		1  WHERE Cost >=  500 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS_COOLDOWN' AND Value= 1 );
 
 UPDATE Units
 SET PurchaseCooldown = '0'
@@ -31,3 +31,11 @@ UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_ADMI
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_WRITER'; 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_MUSICIAN'; 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_VENETIAN_MERCHANT'; 
+
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_STASIS_CHAMBER'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_ENGINE'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_COCKPIT'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_BOOSTER'; 
+
+UPDATE Units SET GlobalFaithPurchaseCooldown =		10  WHERE Type = 'UNIT_ATOMIC_BOMB'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		10  WHERE Type = 'UNIT_NUCLEAR_MISSILE'; 

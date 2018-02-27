@@ -37,6 +37,7 @@ public:
 	void DoFoundCity();
 	void DoTurn();
 
+	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
 #if defined(MOD_BALANCE_CORE)
 	int GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag, int iExcessFoodTimes100);
 #else
@@ -58,11 +59,11 @@ public:
 
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
-	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
+	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false);
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
 #endif
-	int GetSpecialistValue(SpecialistTypes eSpecialist);
+	int GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessFoodTimes100);
 	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
 
 	// Citizen Assignment
@@ -71,7 +72,7 @@ public:
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
-	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache);
+	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache, bool bLogging = false);
 #if defined(MOD_BALANCE_CORE)
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
 #else
@@ -82,7 +83,7 @@ public:
 	bool IsBlockade();
 	void SetDirty(bool bValue);
 	bool IsDirty();
-	void DoReallocateCitizens(bool bForce = false);
+	void DoReallocateCitizens(bool bForce = false, bool bLogging = false);
 #else
 	void DoReallocateCitizens();
 #endif
@@ -90,7 +91,7 @@ public:
 	bool NeedReworkCitizens();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false);
+	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false, bool Logging = false);
 #else
 	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked);
 #endif
@@ -195,6 +196,8 @@ public:
 #else
 	void DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet);
 #endif
+
+	YieldTypes GetFocusTypeYield(CityAIFocusTypes eFocus);
 
 private:
 

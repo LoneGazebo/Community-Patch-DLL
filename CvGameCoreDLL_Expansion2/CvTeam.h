@@ -522,6 +522,8 @@ public:
 	int GetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer) const;
 	void SetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange);
+
+	int GetSSProjectCount();
 #endif
 
 	// Wrapper for giving Players on this Team a notification message
