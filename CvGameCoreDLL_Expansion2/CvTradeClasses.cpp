@@ -1098,10 +1098,10 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 	int iSpeedFactor = (100 * path.length() / path.iNormalizedDistance);
 	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
 
-	int iTurnsPerCircuit = 1; // real number of turns to complete a circuit
+	float fTurnsPerCircuit = 1;
 	if (iRouteSpeed != 0)
-		iTurnsPerCircuit = ((iDistance - 1) * 2) / iRouteSpeed; // need to check why there is -1 and not simply distance * 2
-	
+		fTurnsPerCircuit = (iDistance * 2.f - 2) / iRouteSpeed;
+
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	int iEra = max((int)GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra(), 1);
@@ -1114,12 +1114,13 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 
-	if (iTurnsPerCircuit != 0)
-		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
+	if (fTurnsPerCircuit != 0)
+		iCircuitsToComplete = max( int(iTargetTurns/fTurnsPerCircuit), 2);
 
 	// return values
-	if (piCircuitsToComplete != NULL) *piCircuitsToComplete = iCircuitsToComplete;
-	return iTurnsPerCircuit * iCircuitsToComplete;
+	if (piCircuitsToComplete != NULL) 
+		*piCircuitsToComplete = iCircuitsToComplete;
+	return int(fTurnsPerCircuit * iCircuitsToComplete);
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -1841,11 +1842,12 @@ bool CvGameTrade::MoveUnit (int iIndex)
 		}
 	}
 
-	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kTradeConnection.m_bTradeUnitMovingForward);
-
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
 	if (pkUnit)
 	{
+		//show the movement animation
+		pkUnit->finishMoves();
+
 #if defined(MOD_BALANCE_CORE)
 		//Free resources when your trade units move.
 		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -1871,6 +1873,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 #endif
 	}
 
+	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kTradeConnection.m_bTradeUnitMovingForward);
 	return true;
 }
 
@@ -1910,10 +1913,7 @@ bool CvGameTrade::StepUnit (int iIndex)
 	// Move the visualization
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
 	if (pkUnit)
-	{
 		pkUnit->setXY(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, true, false, true, true);
-		pkUnit->finishMoves();
-	}
 
 	// auto-pillage when a trade unit moves under an enemy unit
 	CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY);

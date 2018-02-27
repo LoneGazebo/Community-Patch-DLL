@@ -1565,9 +1565,10 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 	//do nothing if range is negative, this is invalid
 	if (iRange < 0)
 		return;
-	else if (iRange==0)
+
+	//range zero is dangerous, it can lead to unit stacking problems, should happen only with trade units
+	if (iRange==0)
 	{
-		//range zero is dangerous, it can lead to unit stacking problems, should happen only with trade units
 		//change the visibility of this plot only
 #if defined(MOD_API_EXTENSIONS)
 		changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, false, pUnit);

@@ -378,6 +378,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiTerrainYieldChange(NULL),
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppaiYieldPerXTerrain(NULL),
+	m_ppaiYieldPerXFeature(NULL),
 	m_ppaiPlotYieldChange(NULL),
 #endif
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -493,6 +494,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXTerrain);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
@@ -1060,6 +1062,28 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int yield = pResults->GetInt(2);
 
 			m_ppaiYieldPerXTerrain[TerrainID][YieldID] = yield;
+		}
+	}
+	//FeatureYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppaiYieldPerXFeature, "Features", "Yields");
+
+		std::string strKey("Building_YieldPerXFeatureTimes100");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Building_YieldPerXFeatureTimes100 inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiYieldPerXFeature[FeatureID][YieldID] = yield;
 		}
 	}
 #endif
@@ -3388,6 +3412,24 @@ int* CvBuildingEntry::GetYieldPerXTerrainArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiYieldPerXTerrain[i];
 }
+
+int CvBuildingEntry::GetYieldPerXFeature(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiYieldPerXFeature ? m_ppaiYieldPerXFeature[i][j] : -1;
+}
+
+/// Array of changes to Feature yield
+int* CvBuildingEntry::GetYieldPerXFeatureArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiYieldPerXFeature[i];
+}
+
 /// Change to Plot yield by type
 int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
 {

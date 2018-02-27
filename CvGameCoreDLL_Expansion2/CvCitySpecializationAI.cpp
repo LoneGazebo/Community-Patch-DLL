@@ -360,6 +360,23 @@ void CvCitySpecializationAI::DoTurn()
 		return;
 	}
 
+	int iNumCitiesUnderSiege = 0;
+	CvCity* pLoopCity = NULL;
+	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+	{
+		if (pLoopCity->isInDangerOfFalling())
+		{
+			SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
+			break;
+		}
+		if (pLoopCity->isUnderSiege())
+			iNumCitiesUnderSiege++;
+	}
+
+	int iSiegeTotal = iNumCitiesUnderSiege * 100 / max(1, m_pPlayer->getNumCities());
+	if (iSiegeTotal >= 20)
+		SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
+
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{
@@ -412,15 +429,6 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 	{
 		m_bSpecializationsDirty = true;
 		LogSpecializationUpdate(eUpdateType);
-#if defined(MOD_BALANCE_CORE)
-		//Set all city citizens dirty too, we want them to reasses after a new specialization is set.
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			pLoopCity->GetCityCitizens()->SetDirty(true);
-		}
-#endif
 
 		switch(eUpdateType)
 		{

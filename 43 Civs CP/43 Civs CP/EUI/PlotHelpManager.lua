@@ -262,7 +262,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 						or ( building.River and not owningCityPlot:IsRiver())
 						or ( building.FreshWater and not owningCityPlot:IsFreshWater() )
 -- CP
-						or ( building.IsNoWater and owningCityPlot:IsFreshWater() )
+						or ( (building.IsNoWater == 1) and owningCityPlot:IsFreshWater() )
 -- END
 						or ( building.Hill and not owningCityPlot:IsHills() )
 						or ( building.Flat and owningCityPlot:IsHills() )

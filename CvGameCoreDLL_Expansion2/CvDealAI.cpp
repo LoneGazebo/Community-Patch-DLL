@@ -364,7 +364,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			if (kDeal.GetDemandingPlayer() != eFromPlayer)
+			if (kDeal.GetDemandingPlayer() != eFromPlayer && iDealValueToMe > 0)
 				GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
 		}
 #if defined(MOD_BALANCE_CORE)

@@ -10857,4 +10857,22 @@ void CvTeam::SetTradeTech(TechTypes eTech, bool bValue)
 
 	m_pabTradeTech[eTech] = bValue;
 }
+
+int CvTeam::GetSSProjectCount()
+{
+	ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
+	ProjectTypes capsuleID = (ProjectTypes)GC.getSPACESHIP_CAPSULE();
+	ProjectTypes boosterID = (ProjectTypes)GC.getSPACESHIP_BOOSTER();
+	ProjectTypes stasisID = (ProjectTypes)GC.getSPACESHIP_STASIS();
+	ProjectTypes engineID = (ProjectTypes)GC.getSPACESHIP_ENGINE();
+
+	int iTotal = 0;
+	iTotal += getProjectCount((ProjectTypes)ApolloProgram) + getProjectMaking((ProjectTypes)ApolloProgram);
+	iTotal += getProjectCount((ProjectTypes)capsuleID) + getProjectMaking((ProjectTypes)capsuleID);
+	iTotal += getProjectCount((ProjectTypes)boosterID) + getProjectMaking((ProjectTypes)boosterID);
+	iTotal += getProjectCount((ProjectTypes)stasisID) + getProjectMaking((ProjectTypes)stasisID);
+	iTotal += getProjectCount((ProjectTypes)engineID) + getProjectMaking((ProjectTypes)engineID);
+
+	return iTotal;
+}
 #endif
