@@ -9996,7 +9996,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 		iScore -= m_pPlayer->GetPlotDanger(*pPlot)*10;
 
 		//try to avoid isolated plots
-		int nFreeNeighbors = 0;
+		int nBlockedNeighbors = 0;
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 		for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 		{
@@ -10004,11 +10004,10 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 				continue;
 
 			CvTacticalAnalysisCell* pAdjCell = GetTacticalAnalysisMap()->GetCell(aPlotsToCheck[iI]->GetPlotIndex());
-			if (pAdjCell && pAdjCell->CanUseForOperationGatheringCheckWater(pCell->IsWater()))
-				nFreeNeighbors++;
+			if (pAdjCell && !pAdjCell->CanUseForOperationGatheringCheckWater(pCell->IsWater()))
+				nBlockedNeighbors++;
 		}
-		//don't add too much else we'll never engage the enemy ... 
-		iScore += nFreeNeighbors * 40;
+		iScore -= nBlockedNeighbors * 40;
 
 		//see how far it is for the units
 		int iTurnsAway = INT_MAX;
@@ -10026,10 +10025,13 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 		
 		//visibility is everything
 		if(pPlot->isHills())
-			iScore += 60;
+			iScore += 50;
 		bool bHasLOS = pPlot->canSeePlot(pTarget, m_pPlayer->getTeam(), 3, NO_DIRECTION);
 		if (bHasLOS)
-			iScore += 60;
+			iScore += 50;
+		//mobility is also good (but not so important in enemy lands)
+		if (pPlot->isRoute() && !pPlot->IsRoutePillaged())
+			iScore += 20;
 
 		// Top priority is hexes to bombard from (within range but not adjacent)
 		bool bChoiceBombardSpot = false;
