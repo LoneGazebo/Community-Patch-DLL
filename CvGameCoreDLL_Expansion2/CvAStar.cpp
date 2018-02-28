@@ -3061,7 +3061,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 		pPathOut = &result;
 
 	*pPathOut = GC.GetStepFinder().GetPath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
-	return !!pPathOut;
+	return pPathOut->iTotalCost != -1;
 }
 
 //	---------------------------------------------------------------------------

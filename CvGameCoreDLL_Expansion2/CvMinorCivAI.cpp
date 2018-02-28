@@ -1698,6 +1698,18 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer)
 	}
 	else if(eType == MINOR_CIV_QUEST_CONTEST_FAITH)
 	{
+		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion();
+		if (eReligion == NO_RELIGION)
+			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+		if (MOD_BALANCE_CORE_QUEST_CHANGES)
+		{
+			if (eReligion != NO_RELIGION)
+			{
+				int iStartFollowers = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
+				int iEndFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+				iValue = iEndFollowers - iStartFollowers;
+			}
+		}
 		int iStartFaith = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
 		int iEndFaith = GET_PLAYER(ePlayer).GetFaithEverGenerated();
 		iValue = iEndFaith - iStartFaith;
@@ -2990,9 +3002,22 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	// Faith contest
 	else if(m_eType == MINOR_CIV_QUEST_CONTEST_FAITH)
 	{
-		int iStartingFaith = pAssignedPlayer->GetFaithEverGenerated();
-
-		m_iData1 = iStartingFaith;
+		ReligionTypes eReligion = pAssignedPlayer->GetReligions()->GetCurrentReligion();
+		if (eReligion == NO_RELIGION)
+			eReligion = pAssignedPlayer->GetReligions()->GetReligionInMostCities();
+		if (MOD_BALANCE_CORE_QUEST_CHANGES)
+		{
+			if (eReligion != NO_RELIGION)
+			{
+				int iStartFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+				m_iData1 = iStartFollowers;
+			}
+		}
+		else
+		{
+			int iStartingFaith = pAssignedPlayer->GetFaithEverGenerated();
+			m_iData1 = iStartingFaith;
+		}
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
 		int iTurnsDuration = GetEndTurn() - GetStartTurn();
@@ -7453,7 +7478,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		return false;
 
 	// BUILD A ROUTE
-	if(eQuest == MINOR_CIV_QUEST_ROUTE)
+	if (eQuest == MINOR_CIV_QUEST_ROUTE)
 	{
 		// This player must not have bullied us recently
 		if(IsRecentlyBulliedByMajor(ePlayer))
@@ -7472,7 +7497,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 
 		// Must have a city close to the minor in the same Area
-		const int iMaxRouteDistance = 8; //antonjs: todo: xml
+		const int iMaxRouteDistance = 12; //antonjs: todo: xml
 		CvPlot* pMinorsPlot = pMinorsCapital->plot();
 		if(pMinorsPlot == NULL)
 			return false;
@@ -7482,6 +7507,9 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		bool bInRange = false;
 		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
+			if (bInRange)
+				break;
+
 			if(pMinorsPlot->getArea() != pLoopCity->getArea())
 				continue;
 			int iDistance = plotDistance(pMinorsPlot->getX(), pMinorsPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
@@ -7666,8 +7694,17 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		EraTypes eCurrentEra= GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();	
 		EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
 
+		int NumReligions = GC.getGame().GetGameReligions()->GetNumReligionsFounded(true);
+
+		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion();
+		if (eReligion == NO_RELIGION)
+			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+
+		if (MOD_BALANCE_CORE_QUEST_CHANGES && eReligion == NO_RELIGION)
+			return false;
+
 		// Renaissance era or Later
-		if(eCurrentEra < eMedieval)
+		if (eCurrentEra < eMedieval || NumReligions <= 1)
 		{
 			return false;
 		}
@@ -8288,7 +8325,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	// ******************
 
 	// ROUTE
-	if(eQuest == MINOR_CIV_QUEST_ROUTE)
+	if (eQuest == MINOR_CIV_QUEST_ROUTE)
 	{
 		if(ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)		// Friendly
 		{
@@ -15736,7 +15773,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	int iScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	const int iFailScore = -5000;
+	const int iFailScore = -50000;
 #else
 	const int iFailScore = -300;
 #endif
@@ -16471,7 +16508,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_GOLD);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -16867,7 +16904,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}	
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_SCIENCE);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -16901,7 +16943,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}			
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_CULTURE);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -16934,7 +16981,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_PRODUCTION);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -16967,7 +17019,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_FAITH);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -17000,7 +17057,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					}
 				}		
 				DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				if(GC.getLogging() && GC.getAILogging())
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iValue, -1, -1, -1, YIELD_FOOD);
+				}
+#endif
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					// Logging
 					CvString strLogString;
@@ -17034,6 +17096,11 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
 					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+					if (MOD_EVENTS_MINORS_INTERACTION) {
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
+					}
+#endif
 				}
 				else
 					pNewUnit->kill(false);	// Could not find a spot for the unit!
@@ -17069,7 +17136,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 			if (MOD_EVENTS_MINORS_INTERACTION) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY());
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
 			}
 #endif
 		}

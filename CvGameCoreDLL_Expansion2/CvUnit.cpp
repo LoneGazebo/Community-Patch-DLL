@@ -5761,7 +5761,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 	}
 
-	if (plot()->getOwner() != getOwner() && getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE && getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
+	if (GetDanger() > 0)
 		return false;
 
 	if(!bTestVisible)
@@ -5893,6 +5893,9 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 	}
 
 	if (getDamage() > 0)
+		return false;
+
+	if (GetDanger() > 0)
 		return false;
 
 	// Minors
@@ -14156,12 +14159,13 @@ bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 		// Must be in territory owned by the player or by a friendly City State
 		if (kPlotOwner != getOwner()) 
 		{
-			if(MOD_GLOBAL_CS_UPGRADES && kPlotOwner != NO_PLAYER && GET_PLAYER(getOwner()).CanUpgradeCSTerritory()) 
+			if(MOD_GLOBAL_CS_UPGRADES && kPlotOwner != NO_PLAYER && GET_PLAYER(getOwner()).CanUpgradeCSVassalTerritory()) 
 			{
 				const CvPlayer& pPlotOwner = GET_PLAYER(kPlotOwner);
 				if (!pPlotOwner.isMinorCiv())
 				{
-					return false;
+					if (!GET_TEAM(GET_PLAYER(kPlotOwner).getTeam()).IsVassal(getTeam()))
+						return false;
 				}
 				else
 				{
@@ -14170,7 +14174,7 @@ bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 						return false;
 					}
 				}
-			} 
+			}
 			else 
 			{
 				return false;

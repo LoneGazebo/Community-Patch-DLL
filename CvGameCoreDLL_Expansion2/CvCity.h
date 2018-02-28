@@ -269,7 +269,11 @@ public:
 	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
+	int GetYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield) const;
+	void ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield, int iChange);
+
 	void SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	void SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 
 	void UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
@@ -654,6 +658,7 @@ public:
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const;
+	int GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const;
 #else
 	int GetFaithPerTurnFromTraits() const;
@@ -1939,9 +1944,11 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiPlotYieldChange;
 	int** m_ppaiYieldPerXTerrainFromBuildings;
+	int** m_ppaiYieldPerXFeatureFromBuildings;
 	int** m_ppaiYieldPerXTerrainFromReligion;
 	int** m_ppaiYieldPerXTerrain;
 	int** m_ppaiYieldPerXFeature;
+	int** m_ppaiYieldPerXFeatureFromReligion;
 	int** m_ppaiYieldPerXUnimprovedFeature;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)

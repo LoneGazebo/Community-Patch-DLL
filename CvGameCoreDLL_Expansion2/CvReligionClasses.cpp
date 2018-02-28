@@ -7913,6 +7913,27 @@ bool CvReligionAI::DoFaithPurchases()
 		}
 	}
 	iMaxMissionaries += iBonusValue;
+
+	if (MOD_BALANCE_CORE_QUEST_CHANGES)
+	{
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			if (eMinor != NO_PLAYER)
+			{
+				CvPlayer* pMinor = &GET_PLAYER(eMinor);
+				if (pMinor)
+				{
+					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+
+					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_CONTEST_FAITH))
+					{
+						iMaxMissionaries += 5;
+					}
+				}
+			}
+		}
+	}
 	bool bTooManyMissionaries = false;
 	if(eUnitClassMissionary != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary))
 	{
@@ -11051,9 +11072,15 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	{
 		ReligionTypes eCityReligion = pCity->GetCityReligions()->GetReligiousMajority();
 		//threatened cities and heretic cities, please.
-		if (eCityReligion > RELIGION_PANTHEON && (eCityReligion != eReligion || pCity->GetCityReligions()->IsForeignMissionaryNearby(eReligion)))
+		if (eCityReligion > RELIGION_PANTHEON)
 		{
-			iNumNeeded++;
+			if (eCityReligion != eReligion)
+				iNumNeeded++;
+			if (pCity->GetCityReligions()->IsForeignMissionaryNearby(eReligion))
+				iNumNeeded++;
+			int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
+			if ((iNumOtherFollowers * 100 / max(1, pCity->GetCityReligions()->GetNumFollowers(eReligion))) >= 35)
+				iNumNeeded++;
 		}
 	}
 

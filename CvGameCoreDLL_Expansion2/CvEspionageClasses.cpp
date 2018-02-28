@@ -4880,10 +4880,9 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	int iMyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(m_pPlayer->GetID());
 	int iDeltaInfluence = iAllyInfluence - iMyInfluence;
 #if defined(MOD_BALANCE_CORE)
-	iDeltaInfluence /= 2;
-	if(iDeltaInfluence >  7000)
+	if(iDeltaInfluence >  50000)
 	{
-		iDeltaInfluence = 7000;
+		iDeltaInfluence = 50000;
 	}
 #endif
 	//float fNobodyBonus = 0.5;

@@ -518,7 +518,8 @@ int CvGrandStrategyAI::GetConquestPriority()
 		//Reduce world average if we're rocking multiple capitals.
 		if (GetPlayer()->GetNumCapitalCities() > 0)
 		{
-			iWorldMilitaryStrength /= GetPlayer()->GetNumCapitalCities();
+			iWorldMilitaryStrength *= 100;
+			iWorldMilitaryStrength /= (100 + (GetPlayer()->GetNumCapitalCities() * 10));
 		}
 #endif
 		if (iWorldMilitaryStrength > 0)
@@ -544,66 +545,82 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iPriority += (iNum * 125);
 	}
-	//If we're lacking capitals and the game is getting close to over...let's move on.
-	else if (iEra > 5 && iNum <= 2)
-		iPriority += (-100 * iEra);
 #endif
 	// If our neighbors are cramping our style, consider less... scrupulous means of obtaining more land
-	if (GetPlayer()->IsCramped())
+	PlayerTypes ePlayer;
+	int iNumPlayersMet = 1;	// Include 1 for me!
+	int iTotalLandMe = 0;
+	int iTotalLandPlayersMet = 0;
+
+	bool bDesperate = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && !GetPlayer()->GetDiplomacyAI()->IsCloseToDominationVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory() && !GetPlayer()->GetDiplomacyAI()->IsCloseToSSVictory();
+	int iTotalNumDangerPlayers = 0;
+
+	// Count the number of Majors we know
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		PlayerTypes ePlayer;
-		int iNumPlayersMet = 1;	// Include 1 for me!
-		int iTotalLandMe = 0;
-		int iTotalLandPlayersMet = 0;
+		ePlayer = (PlayerTypes)iMajorLoop;
 
-		// Count the number of Majors we know
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		if (GET_PLAYER(ePlayer).isAlive() && iMajorLoop != GetPlayer()->GetID())
 		{
-			ePlayer = (PlayerTypes)iMajorLoop;
-
-			if (GET_PLAYER(ePlayer).isAlive() && iMajorLoop != GetPlayer()->GetID())
+			if (pTeam.isHasMet(GET_PLAYER(ePlayer).getTeam()))
 			{
-				if (pTeam.isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				iNumPlayersMet++;
+				if (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
 				{
-					iNumPlayersMet++;
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSSVictory())
+					{
+						//Close to nothing, and someone else is? Eek!
+						if (bDesperate)
+							iTotalNumDangerPlayers += 25;
+						//someone else is close, but we are too? Let's keep an eye on domination as an option.
+						else
+							iTotalNumDangerPlayers += 5;
+					}
+					//They have an ideology, and we don't? Uh-oh.
+					else if (bDesperate)
+						iTotalNumDangerPlayers += 5;
+				}
+			}
+		}
+	}
+
+	if (iNumPlayersMet > 0)
+	{
+		// Check every plot for ownership
+		for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+		{
+			if (GC.getMap().plotByIndexUnchecked(iPlotLoop)->isOwned())
+			{
+				ePlayer = GC.getMap().plotByIndexUnchecked(iPlotLoop)->getOwner();
+
+				if (ePlayer == GetPlayer()->GetID())
+				{
+					iTotalLandPlayersMet++;
+					iTotalLandMe++;
+				}
+				else if (!GET_PLAYER(ePlayer).isMinorCiv() && pTeam.isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				{
+					iTotalLandPlayersMet++;
 				}
 			}
 		}
 
-		if (iNumPlayersMet > 0)
+		iTotalLandPlayersMet /= iNumPlayersMet;
+
+		if (iTotalLandMe > 0)
 		{
-			// Check every plot for ownership
-			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-			{
-				if (GC.getMap().plotByIndexUnchecked(iPlotLoop)->isOwned())
-				{
-					ePlayer = GC.getMap().plotByIndexUnchecked(iPlotLoop)->getOwner();
-
-					if (ePlayer == GetPlayer()->GetID())
-					{
-						iTotalLandPlayersMet++;
-						iTotalLandMe++;
-					}
-					else if (!GET_PLAYER(ePlayer).isMinorCiv() && pTeam.isHasMet(GET_PLAYER(ePlayer).getTeam()))
-					{
-						iTotalLandPlayersMet++;
-					}
-				}
-			}
-
-			iTotalLandPlayersMet /= iNumPlayersMet;
-
-			if (iTotalLandMe > 0)
-			{
 #ifdef AUI_GS_CONQUEST_FIX_CRAMPED
-				if (iTotalLandPlayersMet / iTotalLandMe > 1)
+			if (iTotalLandPlayersMet / iTotalLandMe > 1)
 #else
-				if (iTotalLandPlayersMet / iTotalLandMe > 0)
+			if (iTotalLandPlayersMet / iTotalLandMe > 0)
 #endif // AUI_GS_CONQUEST_FIX_CRAMPED
-				{
-					iPriority += /*20*/ GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT();
-				}
+			{
+				iPriority += GetPlayer()->IsCramped() ? (/*20*/ GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT() * 5) : GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT();
 			}
+		}
+		if (iTotalNumDangerPlayers > 0)
+		{
+			iPriority += iTotalNumDangerPlayers * iEra;
 		}
 	}
 	// if we do not have nukes and we know someone else who does...
@@ -769,7 +786,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 			}
 		}
 	}
-	iPriorityBonus /= 10;
+	iPriorityBonus /= 8;
 
 	if (m_pPlayer->GetPlayerTraits()->IsWarmonger())
 	{
@@ -1231,7 +1248,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			}
 		}
 	}
-	iPriorityBonus /= 13;
+	iPriorityBonus /= 10;
 
 	if (m_pPlayer->GetPlayerTraits()->IsWarmonger())
 	{
@@ -1327,16 +1344,16 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 #if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
 	else if (iVotesControlled >= ((iVotesNeededToWin * 3) / 4))
 	{
-		iPriority *= 4;
+		iPriority *= 10;
 	}
 	else if (iVotesControlled >= ((iVotesNeededToWin * 2) / 4))
 	{
-		iPriority *= 2;
+		iPriority *= 5;
 	}
 	// We have the most votes
 	if (iVotesControlledDelta > 0)
 	{
-		iPriority += MAX(100, iVotesControlledDelta * 10);
+		iPriority += MAX(100, iVotesControlledDelta * 20);
 	}
 	// We are equal or behind in votes
 	else
