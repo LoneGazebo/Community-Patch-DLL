@@ -21068,10 +21068,12 @@ void CvPlayer::DoCityRevolt()
 				pLog->Msg(strBaseString);
 			}
 
-			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
-
-			// Move Units from player that don't belong here
+			// get the plot before transferring ownership
 			CvPlot *pPlot = pMostUnhappyCity->plot();
+			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
+			pMostUnhappyCity = NULL; //no longer valid
+
+			 // Move Units from player that don't belong here
 			if (pPlot->getNumUnits() > 0)
 			{
 				// Get the current list of units because we will possibly be moving them out of the plot's list

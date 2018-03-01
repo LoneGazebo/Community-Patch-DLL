@@ -201,6 +201,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 							CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
 							if (pPlot)
 								//note: we accept duplicate indices in m_fogDanger by design
+								//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
 								m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
 						}
 					}
@@ -654,6 +655,11 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 		if (pCity && pCity->getTeam() != GET_PLAYER(ePlayer).getTeam())
 			iPlotDamage += pCity->rangeCombatDamage(NULL, NULL, false, m_pPlot);
 	}
+
+	// Damage from fog (check visibility again, might have changed ...)
+	for (size_t i = 0; i<m_fogDanger.size(); i++)
+		if (!GC.getMap().plotByIndexUnchecked(m_fogDanger[i])->isVisible(GET_PLAYER(ePlayer).getTeam()))
+			iPlotDamage += FOG_DEFAULT_DANGER;
 
 	// Damage from features
 	iPlotDamage += GetDamageFromFeatures(ePlayer);

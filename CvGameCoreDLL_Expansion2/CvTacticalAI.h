@@ -806,8 +806,8 @@ private:
 	void AssignBarbarianMoves();
 
 	// Routines to manage identifying and implementing tactical moves
-	bool PlotCaptureCityMoves();
-	bool PlotDamageCityMoves();
+	void PlotCaptureCityMoves();
+	void PlotDamageCityMoves();
 	void PlotBarbarianCampMoves();
 	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
 	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
@@ -815,7 +815,6 @@ private:
 	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
-	void PlotCitadelMoves();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotPlunderTradePlotMoves(DomainTypes eDomain); // squat on trade plots to try to scoop up trade units
 	void PlotBlockadeMoves();
@@ -881,7 +880,6 @@ private:
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
-	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();
