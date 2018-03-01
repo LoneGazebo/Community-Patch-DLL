@@ -955,6 +955,8 @@
 #define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
 // Fixes some bugs/regressions that disable the effect of IsNoMinorCivs of some strategies
 #define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
+// Workaround for the first human turn after loading a MP game being skipped sometimes
+#define MOD_BUGFIX_SKIPPED_HUMAN_TURN_ON_MP_LOAD	(true)
 
 #endif // ACHIEVEMENT_HACKS
 
