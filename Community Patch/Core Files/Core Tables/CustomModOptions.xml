@@ -1049,7 +1049,8 @@
 	<Row Class="6" Name="BALANCE_CORE_SCALING_XP" Value="0"/>
 	<!-- Halved XP for units purchased with gold -->
 	<Row Class="6" Name="BALANCE_CORE_HALF_XP_PURCHASE" Value="0"/>
-
+	<!-- Halved XP for units purchased with gold -->
+    <Row Class="6" Name="BALANCE_CORE_QUEST_CHANGES" Value="0"/>
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

@@ -2884,9 +2884,9 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, c
 
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->getRouteType() == ROUTE_RAILROAD)
-		iRouteFactor = 7;
+		iRouteFactor = 6;
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->getRouteType() == ROUTE_ROAD)
-		iRouteFactor = 5;
+		iRouteFactor = 4;
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
@@ -3057,7 +3057,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 		pPathOut = &result;
 
 	*pPathOut = GC.GetStepFinder().GetPath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
-	return !!pPathOut;
+	return pPathOut->iTotalCost != -1;
 }
 
 //	---------------------------------------------------------------------------

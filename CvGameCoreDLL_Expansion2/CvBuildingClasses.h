@@ -533,6 +533,9 @@ public:
 	int GetYieldPerXTerrain(int i, int j) const;
 	int* GetYieldPerXTerrainArray(int i) const;
 
+	int GetYieldPerXFeature(int i, int j) const;
+	int* GetYieldPerXFeatureArray(int i) const;
+
 	int GetPlotYieldChange(int i, int j) const;
 	int* GetPlotYieldChangeArray(int i) const;
 #endif
@@ -926,6 +929,7 @@ private:
 	int** m_ppaiTerrainYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiYieldPerXTerrain;
+	int** m_ppaiYieldPerXFeature;
 	int** m_ppaiPlotYieldChange;
 #endif
 	int** m_ppiBuildingClassYieldChanges;

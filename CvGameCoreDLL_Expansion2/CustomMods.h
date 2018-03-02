@@ -400,6 +400,7 @@
 #define MOD_BALANCE_CORE_SCALING_TRADE_DISTANCE	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SCALING_TRADE_DISTANCE())
 #define MOD_BALANCE_CORE_SCALING_XP				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SCALING_XP())
 #define MOD_BALANCE_CORE_HALF_XP_PURCHASE				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_HALF_XP_PURCHASE())
+#define MOD_BALANCE_CORE_QUEST_CHANGES				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_QUEST_CHANGES())
 #endif
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -630,7 +631,7 @@
 //   GameEvents.PlayerBoughtOut.Add(function(iPlayer, iCS) end)
 //   GameEvents.PlayerCanBullyGold.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerCanBullyUnit.Add(function(iPlayer, iCS) return true end)
-//   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end)
+//   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iValue, eUnitType, iPlotX, iPlotY, eYield) end)
 //   GameEvents.PlayerCanGiftGold.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end)
 //   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end)
@@ -1163,7 +1164,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerBoughtOut				"PlayerBoughtOut",				"ii"
 #define GAMEEVENT_PlayerBuilding				"PlayerBuilding",				"iiiiib"
 #define GAMEEVENT_PlayerBuilt					"PlayerBuilt",					"iiiii"
-#define GAMEEVENT_PlayerBullied					"PlayerBullied",				"iiiiii"
+#define GAMEEVENT_PlayerBullied					"PlayerBullied",				"iiiiiii"
 #define GAMEEVENT_PlayerCanAdoptIdeology		"PlayerCanAdoptIdeology",		"ii"
 #define GAMEEVENT_PlayerCanAdoptTenet			"PlayerCanAdoptTenet",			"ii"
 #define GAMEEVENT_PlayerCanBuild				"PlayerCanBuild",				"iiiii"
@@ -1279,6 +1280,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_EventCanTake				"EventCanTake", "ii"
 #define GAMEEVENT_CityEventCanTake			"CityEventCanTake", "iii"
 #define GAMEEVENT_EventUnitCreated			"EventUnitCreated", "iii"
+#define GAMEEVENT_CityFlipped				"CityFlipped", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
@@ -1496,6 +1498,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_SCALING_TRADE_DISTANCE);
 	MOD_OPT_DECL(BALANCE_CORE_SCALING_XP);
 	MOD_OPT_DECL(BALANCE_CORE_HALF_XP_PURCHASE);
+	MOD_OPT_DECL(BALANCE_CORE_QUEST_CHANGES);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

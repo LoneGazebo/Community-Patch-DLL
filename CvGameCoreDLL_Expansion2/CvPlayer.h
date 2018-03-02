@@ -180,7 +180,7 @@ public:
 	bool IsEventFired(EventTypes eEvent) const;
 	void SetEventFired(EventTypes eEvent, bool bValue);
 #endif
-	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
+	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced = false);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
@@ -1542,9 +1542,9 @@ public:
 	void ChangeExtraCultureandScienceTradeRoutes(int iChange);
 	int GetExtraCultureandScienceTradeRoutes() const;
 
-	bool CanUpgradeCSTerritory() const;
-	void ChangeUpgradeCSTerritory(int iChange);
-	int GetUpgradeCSTerritory() const;
+	bool CanUpgradeCSVassalTerritory() const;
+	void ChangeUpgradeCSVassalTerritory(int iChange);
+	int GetUpgradeCSVassalTerritory() const;
 
 	void ChangeRazingSpeedBonus(int iChange);
 	int GetRazingSpeedBonus() const;
@@ -3251,7 +3251,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
 	FAutoVariable<int, CvPlayer> m_iExtraCultureandScienceTradeRoutes;
 	FAutoVariable<int, CvPlayer> m_iArchaeologicalDigTourism;
-	FAutoVariable<int, CvPlayer> m_iUpgradeCSTerritory;
+	FAutoVariable<int, CvPlayer> m_iUpgradeCSVassalTerritory;
 	FAutoVariable<int, CvPlayer> m_iRazingSpeedBonus;
 	FAutoVariable<int, CvPlayer> m_iNoPartisans;
 	FAutoVariable<int, CvPlayer> m_iSpawnCooldown;

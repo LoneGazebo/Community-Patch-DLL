@@ -393,7 +393,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	//don't build through the wilderness
-	if (iWildPlots>3)
+	if (iWildPlots>3 && bSamePlayer)
 		return;
 
 	//maybe a lighthouse is just as good?

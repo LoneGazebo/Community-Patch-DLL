@@ -2,7 +2,7 @@
 
 -- Goddess of the Hunt
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_CULTURE] Culture from Camps'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_CULTURE] Culture from Camps, +1 [ICON_FOOD] Food from Resources on Tundra'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Fertility Rites (Now Goddess of Fertility)
@@ -93,7 +93,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS_SHORT' AND EXISTS (SELECT * FR
 
 -- God of Festivals
 UPDATE Language_en_US
-SET Text = '+3 [ICON_GOLD] Gold, +1 [ICON_PEACE] Faith, and +1 [ICON_CULTURE] Culture for every unique Luxury Resource in owned lands'
+SET Text = '+3 [ICON_GOLD] Gold, +1 [ICON_PEACE] Faith, and +1 [ICON_CULTURE] Culture for every unique Luxury Resource owned or imported'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Oral Tradition (Now Goddess of Springtime)
@@ -154,7 +154,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 --  Tears of the Gods (Now God of Creation)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Monuments. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every two Pantheons ever founded'
+SET Text = '+1 [ICON_PEACE] Faith from Monuments. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every two Pantheons ever founded (caps at 8 Pantheons total)'
 WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

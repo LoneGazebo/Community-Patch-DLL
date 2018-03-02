@@ -3278,15 +3278,21 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 			continue;
 		}
 
+		if (pUnit->IsCivilianUnit())
+		{
+			MoveCivilianToSafety(pUnit, true, false);
+			continue;
+		}
+
 		CvPlot* pTarget = FindUnassignedTarget(pUnit);
 		if (pTarget)
 		{
-			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, DOMAIN_LAND, 42))
+			if (MoveToEmptySpaceNearTarget(pUnit, pTarget, NO_DOMAIN, 42))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("UnitID: %d moved to unassigned plot, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("UnitID: %d, Name: %s, moved to unassigned plot, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pUnit->getNameKey(), pTarget->getX(), pTarget->getY(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}

@@ -403,3 +403,20 @@
 	UPDATE Language_en_US
 	SET Text = 'Capable of firing 3 tiles away. Must set up prior to firing.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_ARTILLERY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Quests
+	
+	UPDATE Language_en_US
+	SET Text = 'The people of {3_MinorCivName:textkey} look to worldly affairs for religious guidance.  Whichever global religion can garner the most [ICON_PEACE] Followers in a period of {2_TurnsDuration} turns will gain [ICON_INFLUENCE] Influence with them.  [COLOR_POSITIVE_TEXT]{1_TurnsRemaining} turns remaining.[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_CONTEST_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+
+	UPDATE Language_en_US
+	SET Text = '{1_MinorCivName:textkey} calls for conversions!'
+	WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONTEST_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Another religion has impressed {1_MinorCivName:textkey} with its faith.  Your faith growth was not enough, and your [ICON_INFLUENCE] Influence remains the same as before.  Civilizations that succeeded (ties are allowed):[NEWLINE]'
+	WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	

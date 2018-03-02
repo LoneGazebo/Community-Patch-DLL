@@ -578,7 +578,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iPoverty *= -1;
 				bTested = true;
-				iBonus += (iUnhappyGold * iPoverty * 50);
+				iBonus += (iUnhappyGold * iPoverty * iPoverty/2);
 				bGoodforHappiness = true;
 				bGoodforGPT = true;
 			}
@@ -590,7 +590,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iCrime *= -1;
 				bTested = true;
-				iBonus += (iUnhappyDefense * iCrime * 50);
+				iBonus += (iUnhappyDefense * iCrime * iCrime/2);
 				bGoodforHappiness = true;
 			}
 		}
@@ -601,7 +601,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iReligion *= -1;
 				bTested = true;
-				iBonus += (iUnhappyReligion * iReligion * 50);
+				iBonus += (iUnhappyReligion * iReligion * iReligion/2);
 				bGoodforHappiness = true;
 			}
 		}
@@ -612,7 +612,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBoredom *= -1;
 				bTested = true;
-				iBonus += (iUnhappyCulture * iBoredom * 50);
+				iBonus += (iUnhappyCulture * iBoredom * iBoredom/2);
 				bGoodforHappiness = true;
 			}
 		}
@@ -623,7 +623,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iIlliteracy *= -1;
 				bTested = true;
-				iBonus += (iUnhappyScience * iIlliteracy * 50);
+				iBonus += (iUnhappyScience * iIlliteracy * iIlliteracy/2);
 				bGoodforHappiness = true;
 			}
 		}
@@ -641,21 +641,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 	{
-		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 4;
+		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 5;
 	}
 	if (pkBuildingInfo->GetDefenseModifier() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetDefenseModifier() / 4);
+		iDefense += (pkBuildingInfo->GetDefenseModifier() / 20);
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (pkBuildingInfo->GetBuildingDefenseModifier() > 0)
 	{
-		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 4;
+		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 5;
 	}
 #endif
 	if (pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
+		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 10);
 	}
 	if (m_pCity->isCoastal())
 	{
@@ -689,7 +689,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
 	int iDefenseMod = 0;
 	if (m_pCity->IsBastion()) iDefenseMod += 10;
-	if (iCrime > 0) iDefenseMod += iCrime/2;
+	if (iCrime > 0) iDefenseMod += iUnhappyDefense / 2;
 	if (iUnhappyDefense > 0) { iDefenseMod += iUnhappyDefense*2; if (!m_pCity->IsBastion()) iDefenseMod += iUnhappyDefense; }
 	if (iDefenseMod > 0) iDefense *= iDefenseMod;
 
@@ -1233,10 +1233,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	iValue *= (iBonus + 100);
 	iValue /= 100;
 
+	//Greatly reduce this if we're under siege somewhere.
 	if(bInterruptBuildings && !m_pCity->IsPuppet())
 	{
-		iValue /= 5;
+		iValue /= 100;
 	}
+	if (!bInterruptBuildings && m_pCity->getProductionBuilding() == eBuilding)
+		iValue *= 5;
 
 	return iValue;
 }
