@@ -249,7 +249,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 }
 
 #if defined(MOD_BALANCE_CORE)
-int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree)
+int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree, bool bInterruptBuildings)
 {
 	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
@@ -487,7 +487,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 							{
 								//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
-								if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 4)
+								if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 5)
 								{
 									return 0;
 								}
@@ -859,43 +859,40 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
 			if (eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
-				iBonus += 5000;
+				iBonus += 15000;
 			}
 			else
 			{
-				iBonus += 500;
+				iBonus += 5000;
 			}
 			if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 			{
-				iBonus += 5000;
+				iBonus += 15000;
 			}
 			else if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
-				iBonus += 500;
+				iBonus += 5000;
 			}
 			else if(kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
 			{
-				iBonus += 500;
+				iBonus += 5000;
 			}
 			else if(kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory())
 			{
-				iBonus += 500;
+				iBonus += 5000;
 			}
 
-			if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
+			if(m_pCity->getSpaceProductionModifier() > 0)
 			{
-				if(m_pCity->getSpaceProductionModifier() > 0)
-				{
-					iBonus += (m_pCity->getSpaceProductionModifier() * 10);
-				}
-				else
-				{
-					iBonus -= 500;
-				}
-				//Don't zero out because of this penalty.
-				if (iBonus <= 0)
-					iBonus = 1;
+				iBonus += (m_pCity->getSpaceProductionModifier() * 100);
 			}
+			else
+			{
+				iBonus -= 2500;
+			}
+			//Don't zero out because of this penalty.
+			if (iBonus <= 0)
+				iBonus = 1;
 		}
 
 		/////////
@@ -1709,6 +1706,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	iTempWeight *= (iBonus + 100);
 	iTempWeight /= 100;
+
+	if (m_pCity->getProductionUnit() == eUnit)
+		iTempWeight *= 5;
+
+	if (bInterruptBuildings && bCombat)
+		iTempWeight *= 5;
+	else if (bInterruptBuildings && !bCombat)
+		iTempWeight /= 5;
 
 	return iTempWeight;
 }

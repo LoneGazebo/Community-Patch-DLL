@@ -3046,7 +3046,7 @@ int CvLuaPlayer::lGetInfluencePerTurn(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetCulture()->GetInfluencePerTurn(ePlayer);
+	const int iResult = pkPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

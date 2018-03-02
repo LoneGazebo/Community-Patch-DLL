@@ -851,6 +851,17 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDING */, UnitTypes eIgnoreUnit/*  = NO_UNIT */)
 #endif
 {
+	//Let's make sure we're not getting into a weird loop.
+	if (bInterruptBuildings)
+	{
+		//Are we already building a military unit? If so, ignore this call to choose a new production.
+		UnitTypes eUnit = m_pCity->getProductionUnit();
+		if (eUnit != NO_UNIT)
+		{
+			if (GC.getUnitInfo(eUnit)->GetCombat() > 0 || GC.getUnitInfo(eUnit)->GetRangedCombat() > 0)
+				return;
+		}
+	}
 	int iBldgLoop, iUnitLoop, iProjectLoop, iProcessLoop, iTempWeight;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
@@ -1044,7 +1055,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 
 						if(pThisArmy)
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1052,7 +1063,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 						}
 						else
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1061,7 +1072,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 					else
 					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
 						if(iNewWeight > 0)
 						{
 							m_Buildables.push_back(selection, iNewWeight);
@@ -1072,7 +1083,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_UNIT_FOR_ARMY:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, 0, 0, false, false, bInterruptBuildings);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1082,7 +1093,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iGPT, iWaterRoutes, iLandRoutes, false, false, bInterruptBuildings);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -4354,7 +4365,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if (iTotalGPPChange >= 2000)
+	if (iTotalGPPChange >= 2500)
 #else
 	if (iTotalGPPChange >= 800)
 #endif
@@ -4814,13 +4825,20 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eFeature == NO_FEATURE)
 			continue;
 
+		if (pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) == 0 && pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield) == 0)
+			continue;
+
+		int iCount = pCity->CountFeature(eFeature);
+		if (iCount <= 0)
+			continue;
+		
 		if (pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) > 0)
+		{	
+			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
+		}
+		if (pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield) > 0)
 		{
-			int iCount = pCity->CountFeature(eFeature);
-			if (iCount > 0)
-			{
-				iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
-			}
+			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) * iCount / 100);
 		}
 	}
 	int iNumResourceInfos = GC.getNumResourceInfos();

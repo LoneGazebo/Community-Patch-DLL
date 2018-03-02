@@ -1842,11 +1842,12 @@ bool CvGameTrade::MoveUnit (int iIndex)
 		}
 	}
 
-	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kTradeConnection.m_bTradeUnitMovingForward);
-
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
 	if (pkUnit)
 	{
+		//show the movement animation
+		pkUnit->finishMoves();
+
 #if defined(MOD_BALANCE_CORE)
 		//Free resources when your trade units move.
 		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -1872,6 +1873,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 #endif
 	}
 
+	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kTradeConnection.m_bTradeUnitMovingForward);
 	return true;
 }
 
@@ -1911,10 +1913,7 @@ bool CvGameTrade::StepUnit (int iIndex)
 	// Move the visualization
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
 	if (pkUnit)
-	{
 		pkUnit->setXY(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, true, false, true, true);
-		pkUnit->finishMoves();
-	}
 
 	// auto-pillage when a trade unit moves under an enemy unit
 	CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY);

@@ -305,8 +305,8 @@ ALTER TABLE Buildings ADD COLUMN 'AllowsProductionTradeRoutesGlobal' BOOLEAN DEF
 -- Local city connection strong
 ALTER TABLE Buildings ADD COLUMN 'CityConnectionGoldModifier' INTEGER DEFAULT 0;
 
--- Adds abiility for units to upgrade in allied CS lands.
-ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
+-- Adds abiility for units to upgrade in allied CS or vassal lands.
+ALTER TABLE Policies ADD COLUMN 'UpgradeCSVassalTerritory' BOOLEAN DEFAULT 0;
 
 -- Adds event tourism from digging up sites.
 ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;

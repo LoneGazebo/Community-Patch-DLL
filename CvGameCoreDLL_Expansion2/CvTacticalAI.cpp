@@ -6288,9 +6288,9 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			{
 				//defensive only - don't send lonesome units into danger
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange*2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-				if (!pBestPlot)
+				if (pBestPlot != NULL)
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
-				if (!pBestPlot)
+				if (pBestPlot != NULL)
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 
 				if(pBestPlot)
@@ -6526,9 +6526,17 @@ void CvTacticalAI::ExecuteHeals()
 		if (pUnit->getArmyID() != -1)
 		{
 			CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
-			if (pArmy && pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+			if (pArmy)
 			{
-				pArmy->RemoveUnit(pUnit->GetID());
+				//Don't do this for civilan operations!
+				CvAIOperation* AIOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
+				if (AIOperation && AIOperation->IsCivilianOperation())
+					continue;
+
+				if (pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+				{
+					pArmy->RemoveUnit(pUnit->GetID());
+				}
 			}
 		}
 
@@ -8190,8 +8198,15 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit && pLoopUnit->IsCombatUnit()) //ignore generals and the like!
 		{
-			if (bMustPillage && !pLoopUnit->canPillage(pTarget))
-				continue;
+			if (bMustPillage)
+			{
+				if (!pLoopUnit->canPillage(pTarget))
+					continue;
+
+				//these units are too fragile
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+					continue;
+			}
 
 			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
 				continue;
