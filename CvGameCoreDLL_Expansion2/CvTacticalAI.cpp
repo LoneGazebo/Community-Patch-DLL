@@ -2037,7 +2037,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 void CvTacticalAI::PlotCaptureCityMoves()
 {
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY, AL_HIGH);
 	while(pTarget != NULL)
 	{
 		// See what units we have who can reach target this turn
@@ -2130,9 +2130,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 				}
 
 				if (ExecuteAttackWithUnits(pPlot, AL_HIGH))
-				{
-					//invalidate tactical target
-				}
+					pTarget->SetLastAggLvl(AL_HIGH);
 
 				// Did it work?  If so, don't need a temporary dominance zone if had one here
 				if (pPlot->getOwner() == m_pPlayer->GetID())
@@ -2143,7 +2141,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 			}
 		}
 
-		pTarget = GetNextZoneTarget();
+		pTarget = GetNextZoneTarget(AL_HIGH);
 	}
 }
 
@@ -2151,7 +2149,7 @@ void CvTacticalAI::PlotCaptureCityMoves()
 void CvTacticalAI::PlotDamageCityMoves()
 {
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY, AL_MEDIUM);
 	while(pTarget != NULL)
 	{
 		// See what units we have who can reach target this turn
@@ -2238,17 +2236,15 @@ void CvTacticalAI::PlotDamageCityMoves()
 
 				// Fire away!
 				if (ExecuteAttackWithUnits(pPlot, iMeleeCount < 3 ? AL_MEDIUM : AL_HIGH))
-				{
-					//invalidate tactical target
-				}
-				
+					pTarget->SetLastAggLvl(iMeleeCount < 3 ? AL_MEDIUM : AL_HIGH);
+
 				//do we have embarked units we need to put ashore
 				if (FindEmbarkedUnitsAroundTarget(pPlot, 4))
 					ExecuteLandingOperation(pPlot);
 			}
 		}
 
-		pTarget = GetNextZoneTarget();
+		pTarget = GetNextZoneTarget(AL_MEDIUM);
 	}
 }
 
@@ -2322,10 +2318,26 @@ void CvTacticalAI::PlotDamageCivilianMoves(AITacticalTargetType targetType)
 /// Assign a group of units to attack each unit we think we can destroy
 void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds)
 {
-	vector<SPlotWithTwoScoresTiebreak> targets;
+	struct STargetWithTwoScoresTiebreak
+	{
+		STargetWithTwoScoresTiebreak(CvTacticalTarget* pTarget_, CvPlot* pPlot_, int score1_, int score2_) : pTarget(pTarget_), pPlot(pPlot_), score1(score1_), score2(score2_) {}
+
+		bool operator<(const STargetWithTwoScoresTiebreak& other) const
+		{
+			return (score1<other.score1) || (score1 == other.score1 && score2<other.score2);
+		}
+
+		CvTacticalTarget* pTarget;
+		CvPlot* pPlot;
+		int score1, score2;
+	};
+
+	vector<STargetWithTwoScoresTiebreak> targets;
+
+	eAggressionLevel aggLvl = bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM;
 
 	// See how many moves of this type we can execute
-	CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(targetType, aggLvl);
 	while (pTarget != NULL)
 	{
 		bool bUnitCanAttack = false;
@@ -2348,11 +2360,11 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 				//when in doubt attack the unit with fewer neighboring enemies first (can happen especially in naval combat)
 				int iTiebreak = 6 - pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), NO_DOMAIN) - pPlot->getNumAdjacentNonvisible(m_pPlayer->getTeam());
 
-				targets.push_back( SPlotWithTwoScoresTiebreak(pPlot,iExpectedDamage-iRequiredDamage,iTiebreak) );
+				targets.push_back(STargetWithTwoScoresTiebreak(pTarget,pPlot,iExpectedDamage-iRequiredDamage,iTiebreak) );
 			}
 		}
 
-		pTarget = GetNextZoneTarget();
+		pTarget = GetNextZoneTarget(aggLvl);
 	}
 
 	//we want to attacks the one we can do most damage to first
@@ -2425,10 +2437,8 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 				LogTacticalMessage(strLogString);
 			}
 
-			if (ExecuteAttackWithUnits(targets[i].pPlot, bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM))
-			{
-				//invalidate tactical target
-			}
+			if (ExecuteAttackWithUnits(targets[i].pPlot, aggLvl))
+				targets[i].pTarget->SetLastAggLvl(aggLvl);
 		}
 		// Do we have enough firepower to destroy it?
 		else
@@ -2460,10 +2470,8 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 					LogTacticalMessage(strLogString);
 				}
 
-				if (ExecuteAttackWithUnits(targets[i].pPlot, bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM))
-				{
-					//invalidate tactical target
-				}
+				if (ExecuteAttackWithUnits(targets[i].pPlot, aggLvl))
+					targets[i].pTarget->SetLastAggLvl(aggLvl);
 			}
 		}
 	}
@@ -5715,16 +5723,19 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 }
 
 /// Find the first target of a requested type in current dominance zone (call after ExtractTargetsForZone())
-CvTacticalTarget* CvTacticalAI::GetFirstZoneTarget(AITacticalTargetType eType)
+CvTacticalTarget* CvTacticalAI::GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl)
 {
 	m_eCurrentTargetType = eType;
 	m_iCurrentTargetIndex = 0;
 
 	while(m_iCurrentTargetIndex < (int)m_ZoneTargets.size())
 	{
-		if(m_eCurrentTargetType == AI_TACTICAL_TARGET_NONE || m_ZoneTargets[m_iCurrentTargetIndex].GetTargetType() == m_eCurrentTargetType)
+		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLvl() <= eMaxLvl)
 		{
-			return &m_ZoneTargets[m_iCurrentTargetIndex];
+			if (m_eCurrentTargetType == AI_TACTICAL_TARGET_NONE || m_ZoneTargets[m_iCurrentTargetIndex].GetTargetType() == m_eCurrentTargetType)
+			{
+				return &m_ZoneTargets[m_iCurrentTargetIndex];
+			}
 		}
 		m_iCurrentTargetIndex++;
 	}
@@ -5733,15 +5744,18 @@ CvTacticalTarget* CvTacticalAI::GetFirstZoneTarget(AITacticalTargetType eType)
 }
 
 /// Find the next target of a requested type in current dominance zone (call after GetFirstZoneTarget())
-CvTacticalTarget* CvTacticalAI::GetNextZoneTarget()
+CvTacticalTarget* CvTacticalAI::GetNextZoneTarget(eAggressionLevel eMaxLvl)
 {
 	m_iCurrentTargetIndex++;
 
 	while(m_iCurrentTargetIndex < (int)m_ZoneTargets.size())
 	{
-		if(m_eCurrentTargetType == AI_TACTICAL_TARGET_NONE || m_ZoneTargets[m_iCurrentTargetIndex].GetTargetType() == m_eCurrentTargetType)
+		if (m_ZoneTargets[m_iCurrentTargetIndex].GetLastAggLvl() <= eMaxLvl)
 		{
-			return &m_ZoneTargets[m_iCurrentTargetIndex];
+			if (m_eCurrentTargetType == AI_TACTICAL_TARGET_NONE || m_ZoneTargets[m_iCurrentTargetIndex].GetTargetType() == m_eCurrentTargetType)
+			{
+				return &m_ZoneTargets[m_iCurrentTargetIndex];
+			}
 		}
 		m_iCurrentTargetIndex++;
 	}
@@ -7288,8 +7302,16 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 			return true;
 
 		// Make attacks - this includes melee attacks but only very safe ones
-		if(FindUnitsWithinStrikingDistance(pTargetPlot))
-			return ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
+		if (FindUnitsWithinStrikingDistance(pTargetPlot))
+		{
+			if (ExecuteAttackWithUnits(pTargetPlot, AL_LOW))
+			{
+				kTarget.SetLastAggLvl(AL_LOW);
+				return true;
+			}
+			else
+				return false;
+		}
 	}
 
 	return true;
@@ -7298,13 +7320,18 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 /// Take a multi-hex attack on an enemy unit this turn
 bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 {
-#ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 	// Make attacks
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-	if(pDefender && FindUnitsWithinStrikingDistance(pTargetPlot))
-		return ExecuteAttackWithUnits(pTargetPlot, AL_MEDIUM);
-#endif
+	if (pDefender && FindUnitsWithinStrikingDistance(pTargetPlot))
+	{
+		if (ExecuteAttackWithUnits(pTargetPlot, AL_MEDIUM))
+		{
+			kTarget.SetLastAggLvl(AL_MEDIUM);
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -10512,42 +10539,6 @@ CvString CvTacticalAI::GetLogFileName(CvString& playerName) const
 	return strLogName;
 }
 
-/// Build log filename
-CvString CvTacticalAI::GetTacticalMissionName(AITacticalMission eMission) const
-{
-	CvString strMissionName;
-
-	// Open the log file
-	switch(eMission)
-	{
-	case AI_TACTICAL_MISSION_NONE:
-		strMissionName = "No Tactic";
-		break;
-	case AI_TACTICAL_MISSION_ATTACK_STATIONARY_TARGET:
-		strMissionName = "Attack Stationary Target";
-		break;
-	case AI_TACTICAL_MISSION_PILLAGE_ENEMY_IMPROVEMENTS:
-		strMissionName = "Pillage Enemy Improvements";
-	}
-
-	return strMissionName;
-}
-
-FDataStream& operator<<(FDataStream& saveTo, const AITacticalMission& readFrom)
-{
-	int v = static_cast<int>(readFrom);
-	saveTo << v;
-	return saveTo;
-}
-
-FDataStream& operator>>(FDataStream& loadFrom, AITacticalMission& writeTo)
-{
-	int v;
-	loadFrom >> v;
-	writeTo = static_cast<AITacticalMission>(v);
-	return loadFrom;
-}
-
 // HELPER FUNCTIONS
 
 /// Sort CvBlockingUnit by a non-standard criteria
@@ -11466,6 +11457,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	int iHPbelowHalf = pUnit->GetMaxHitPoints()/2 - (pUnit->GetCurrHitPoints() - iDamageReceived);
 	switch (eAggLvl)
 	{
+	case AL_NONE:
+		result.iScore = -1;
+		return;
 	case AL_LOW:
 		fAggFactor = 0.5f;
 		if ( iHPbelowHalf>0 )

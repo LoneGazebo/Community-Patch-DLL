@@ -107,15 +107,8 @@ private:
 	std::vector<CvTacticalMoveXMLEntry*> m_paTacticalMoveEntries;
 };
 
-enum AITacticalMission
-{
-    AI_TACTICAL_MISSION_NONE = -1,
-    AI_TACTICAL_MISSION_ATTACK_STATIONARY_TARGET,
-    AI_TACTICAL_MISSION_PILLAGE_ENEMY_IMPROVEMENTS,
-    // Phasing this out so other types deleted (as unused)
-};
-FDataStream& operator<<(FDataStream&, const AITacticalMission&);
-FDataStream& operator>>(FDataStream&, AITacticalMission&);
+//for tactical combat
+enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH };
 
 // STL "find_if" predicate
 class UnitIDMatch
@@ -332,11 +325,12 @@ public:
 		m_iZoneID = -1;
 		m_pAuxData = NULL;
 		m_iAuxData = 0;
+		m_eAggLvl = AL_NONE;
 	};
 	inline bool operator<(const CvTacticalTarget& target) const
 	{
 		return (m_iAuxData > target.m_iAuxData);
-	};
+	}
 	inline AITacticalTargetType GetTargetType() const
 	{
 		return m_eTargetType;
@@ -382,6 +376,9 @@ public:
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
 	bool IsTargetValidInThisDomain(DomainTypes eDomain);
 
+	void SetLastAggLvl(eAggressionLevel lvl) { m_eAggLvl = lvl; }
+	eAggressionLevel GetLastAggLvl() const { return m_eAggLvl; }
+
 	// AuxData is used for a pointer to the actual target object (CvUnit, CvCity, etc.)
 	//    (for improvements & barbarian camps this is set to the plot).
 	inline void* GetAuxData()
@@ -414,6 +411,7 @@ private:
 	void* m_pAuxData;
 	int m_iAuxData;
 	int m_iZoneID;
+	eAggressionLevel m_eAggLvl;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -733,8 +731,6 @@ private:
 	CvPlayer* m_owner;
 	CvTacticalMove m_currentTacticalMove;
 };
-
-enum eAggressionLevel { AL_LOW, AL_MEDIUM, AL_HIGH };
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -861,8 +857,8 @@ private:
 	void UpdateTargetScores();
 	void DumpTacticalTargets(const char* hint);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
-	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType);
-	CvTacticalTarget* GetNextZoneTarget();
+	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_NONE);
+	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel eMaxLvl = AL_NONE);
 	CvTacticalTarget* GetFirstUnitTarget();
 	CvTacticalTarget* GetNextUnitTarget();
 
@@ -954,7 +950,6 @@ private:
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
-	CvString GetTacticalMissionName(AITacticalMission eMission) const;
 
 	// Class data - some of it only temporary, does not need to be persisted
 	CvPlayer* m_pPlayer;
