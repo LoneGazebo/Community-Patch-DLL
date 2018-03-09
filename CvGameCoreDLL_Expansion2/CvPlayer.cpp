@@ -21068,10 +21068,12 @@ void CvPlayer::DoCityRevolt()
 				pLog->Msg(strBaseString);
 			}
 
-			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
-
-			// Move Units from player that don't belong here
+			// get the plot before transferring ownership
 			CvPlot *pPlot = pMostUnhappyCity->plot();
+			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
+			pMostUnhappyCity = NULL; //no longer valid
+
+			 // Move Units from player that don't belong here
 			if (pPlot->getNumUnits() > 0)
 			{
 				// Get the current list of units because we will possibly be moving them out of the plot's list
@@ -44084,11 +44086,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-#if defined(MOD_BALANCE_CORE)
-	SetDangerPlotsDirty();
-#else
 	m_pDangerPlots->Read(kStream);
-#endif
 	m_pTraits->Read(kStream);
 	kStream >> *m_pEspionage;
 	kStream >> *m_pEspionageAI;
@@ -44312,9 +44310,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pDealAI->Write(kStream);
 	m_pBuilderTaskingAI->Write(kStream);
 	m_pCityConnections->Write(kStream);
-#if !defined(MOD_BALANCE_CORE)
 	m_pDangerPlots->Write(kStream);
-#endif
 	m_pTraits->Write(kStream);
 	kStream << *m_pEspionage;
 	kStream << *m_pEspionageAI;

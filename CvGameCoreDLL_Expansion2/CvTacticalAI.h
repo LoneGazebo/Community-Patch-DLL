@@ -107,15 +107,8 @@ private:
 	std::vector<CvTacticalMoveXMLEntry*> m_paTacticalMoveEntries;
 };
 
-enum AITacticalMission
-{
-    AI_TACTICAL_MISSION_NONE = -1,
-    AI_TACTICAL_MISSION_ATTACK_STATIONARY_TARGET,
-    AI_TACTICAL_MISSION_PILLAGE_ENEMY_IMPROVEMENTS,
-    // Phasing this out so other types deleted (as unused)
-};
-FDataStream& operator<<(FDataStream&, const AITacticalMission&);
-FDataStream& operator>>(FDataStream&, AITacticalMission&);
+//for tactical combat
+enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH };
 
 // STL "find_if" predicate
 class UnitIDMatch
@@ -153,6 +146,17 @@ public:
 	const char* m_name;
 	TacticalAIMoveTypes m_eMoveType;
 	int m_iPriority;
+};
+
+struct ZoneMoveWithPrio
+{
+	CvTacticalMove move;
+	class CvTacticalDominanceZone* pZone; //forward
+	int prio;
+
+	bool operator<(const ZoneMoveWithPrio& other) const {
+		return prio > other.prio; //> intended for descending sort
+	}
 };
 
 // Object stored in the list of current move units (m_CurrentMoveUnits)
@@ -321,11 +325,12 @@ public:
 		m_iZoneID = -1;
 		m_pAuxData = NULL;
 		m_iAuxData = 0;
+		m_eAggLvl = AL_NONE;
 	};
 	inline bool operator<(const CvTacticalTarget& target) const
 	{
 		return (m_iAuxData > target.m_iAuxData);
-	};
+	}
 	inline AITacticalTargetType GetTargetType() const
 	{
 		return m_eTargetType;
@@ -371,6 +376,9 @@ public:
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
 	bool IsTargetValidInThisDomain(DomainTypes eDomain);
 
+	void SetLastAggLvl(eAggressionLevel lvl) { m_eAggLvl = lvl; }
+	eAggressionLevel GetLastAggLvl() const { return m_eAggLvl; }
+
 	// AuxData is used for a pointer to the actual target object (CvUnit, CvCity, etc.)
 	//    (for improvements & barbarian camps this is set to the plot).
 	inline void* GetAuxData()
@@ -403,6 +411,7 @@ private:
 	void* m_pAuxData;
 	int m_iAuxData;
 	int m_iZoneID;
+	eAggressionLevel m_eAggLvl;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -722,11 +731,6 @@ private:
 	CvPlayer* m_owner;
 	CvTacticalMove m_currentTacticalMove;
 };
-
-#endif
-
-#ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-enum eAggressionLevel { AL_LOW, AL_MEDIUM, AL_HIGH };
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -798,8 +802,8 @@ private:
 	void AssignBarbarianMoves();
 
 	// Routines to manage identifying and implementing tactical moves
-	bool PlotCaptureCityMoves();
-	bool PlotDamageCityMoves();
+	void PlotCaptureCityMoves();
+	void PlotDamageCityMoves();
 	void PlotBarbarianCampMoves();
 	void PlotDamageCivilianMoves(AITacticalTargetType targetType);
 	void PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
@@ -807,7 +811,6 @@ private:
 	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
 	void PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediate);
-	void PlotCitadelMoves();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotPlunderTradePlotMoves(DomainTypes eDomain); // squat on trade plots to try to scoop up trade units
 	void PlotBlockadeMoves();
@@ -854,8 +857,8 @@ private:
 	void UpdateTargetScores();
 	void DumpTacticalTargets(const char* hint);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
-	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType);
-	CvTacticalTarget* GetNextZoneTarget();
+	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel eMaxLvl = AL_NONE);
+	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel eMaxLvl = AL_NONE);
 	CvTacticalTarget* GetFirstUnitTarget();
 	CvTacticalTarget* GetNextUnitTarget();
 
@@ -867,12 +870,12 @@ private:
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
+	bool ExecuteSpotterMove(CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
-	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot();
 	void ExecuteHeals();
@@ -895,13 +898,12 @@ private:
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bImmediateStrike=true);
-	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage);
+	bool FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustPillage, bool bAllowMoveThroughEnemyLand);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 
 	int GetRecruitRange() const;
-	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bNoRanged, bool bRanged, bool bCombatExpected=true);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bEscortedUnits);
 
@@ -948,7 +950,6 @@ private:
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
-	CvString GetTacticalMissionName(AITacticalMission eMission) const;
 
 	// Class data - some of it only temporary, does not need to be persisted
 	CvPlayer* m_pPlayer;
@@ -983,7 +984,7 @@ private:
 	double m_fFlavorDampening;
 
 	// Dominance zone info
-	int m_iCurrentZoneIndex;
+	int m_iCurrentZoneID;
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
@@ -1153,6 +1154,7 @@ protected:
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
+	void updateMoveAndAttackPlotsForUnit(SUnitStats unit, int iMoveFlags);
 
 	//finding a particular unit
 	struct PrMatchingUnit
