@@ -426,7 +426,7 @@ enum AITacticalPosture
 {
     AI_TACTICAL_POSTURE_NONE = -1,
     AI_TACTICAL_POSTURE_WITHDRAW,
-    AI_TACTICAL_POSTURE_SIT_AND_BOMBARD,
+    AI_TACTICAL_POSTURE_SIT_AND_BOMBARD, //not used anymore
     AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE,
     AI_TACTICAL_POSTURE_EXPLOIT_FLANKS,
     AI_TACTICAL_POSTURE_STEAMROLL,
@@ -826,7 +826,6 @@ private:
 	void PlotAncientRuinMoves(int iNumTurnsAway);
 	void PlotAirInterceptMoves();
 	void PlotAirSweepMoves();
-	void PlotSitAndBombardMoves();
 	void PlotAttritFromRangeMoves();
 	void PlotExploitFlanksMoves();
 	void PlotSteamrollMoves();
