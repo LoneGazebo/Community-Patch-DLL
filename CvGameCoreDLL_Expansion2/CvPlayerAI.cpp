@@ -1014,63 +1014,49 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 }
 
 
-OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int iTurns, CvCity* pCity)
+OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(CvCity* pCity)
 {
 	OperationSlot thisSlot;
-#if defined(MOD_BALANCE_CORE)
+	if (!pCity)
+		return thisSlot;
+
 	CvAIOperation* pBestOperation = NULL;
 	int iBestScore = -1;
-#endif
+
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation)
+		if (!pThisOperation || pThisOperation->GetMusterPlot() == NULL)
+			continue;
+
+		int iScore = 0;
+		int iMusterArea = pThisOperation->GetMusterPlot()->getArea();
+		int iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
+
+		//check if we're on the correct continent/ocean
+		if(!pCity->isAdjacentToArea(iMusterArea))
+			continue;
+
+		iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
+		iScore += range( 10-iDistance, 0, 10 );
+
+		if(pThisOperation->GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY)
 		{
-			if(iAreaID == -1)
-			{
-				iAreaID = pCity->getArea();
-			}
+			iScore *= 2;
+		}
 
-			int iScore = 0;
-			int iArea = -1;
-			int iDistance = 0;
-			if(pThisOperation->GetMusterPlot() != NULL)
-			{
-				iArea = pThisOperation->GetMusterPlot()->getArea();
-				iDistance = plotDistance(*pThisOperation->GetMusterPlot(),*pCity->plot());
-			}
-			else
-				continue;
-
-			//for naval ops, check if we're on the correct water body
-			if(pThisOperation->IsNavalOperation()) 
-			{
-				if(!pCity->isAdjacentToArea(iArea))
-				{
-					continue;
-				}
-			}
-
-			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
-			iScore += range( 10-iDistance, 0, 10 );
-
-			if(pThisOperation->GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY)
-			{
-				iScore *= 2;
-			}
-
-			if(iScore > iBestScore)
-			{
-				pBestOperation = pThisOperation;
-				iBestScore = iScore;
-			}
+		if(iScore > iBestScore)
+		{
+			pBestOperation = pThisOperation;
+			iBestScore = iScore;
 		}
 	}
+
 	if(pBestOperation != NULL)
 	{
-		thisSlot = pBestOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
+		thisSlot = pBestOperation->CommitToBuildNextUnit();
 		if(thisSlot.IsValid())
 		{
 			return thisSlot;

@@ -14,20 +14,22 @@
 
 class CvPlot;
 
-#define SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES 20
-
-#define ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT -1
-
-#define ARMYSLOT_NOT_INCLUDING_IN_OPERATION -2
-#define ARMYSLOT_NO_UNIT -1
-
 class CvArmyFormationSlot
 {
+	//magic numbers
+	enum eMarkers
+	{
+		ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT = -3,
+		ARMYSLOT_NOT_INCLUDING_IN_OPERATION = -2,
+		ARMYSLOT_NO_UNIT = -1,
+	};
+
 public:
 	CvArmyFormationSlot()
 	{
 		m_iUnitID = ARMYSLOT_NO_UNIT;
-		m_iEstimatedTurnAtCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
+		m_iEstimatedTurnsToCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
+		m_iPrevEstimatedTurnsToCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
 	};
 
 	int GetUnitID() const
@@ -38,17 +40,25 @@ public:
 	{
 		m_iUnitID = iValue;
 	};
-	int GetTurnAtCheckpoint() const
+	int GetTurnsToCheckpoint() const
 	{
-		return m_iEstimatedTurnAtCheckpoint;
+		return m_iEstimatedTurnsToCheckpoint;
 	};
-	void SetTurnAtCheckpoint(int iValue)
+	void SetTurnsToCheckpoint(int iValue)
 	{
-		m_iEstimatedTurnAtCheckpoint = iValue;
+		m_iPrevEstimatedTurnsToCheckpoint = m_iEstimatedTurnsToCheckpoint;
+		m_iEstimatedTurnsToCheckpoint = iValue;
 	};
 
+	bool IsMakingProgressTowardsCheckpoint(int iNextValue);
+
+	bool IsFree() const { return m_iUnitID == ARMYSLOT_NO_UNIT; }
+	bool IsUsed() const { return m_iUnitID > ARMYSLOT_NO_UNIT; }
+	void SetUnused() { m_iUnitID = ARMYSLOT_NOT_INCLUDING_IN_OPERATION; }
+
 	int m_iUnitID;
-	int m_iEstimatedTurnAtCheckpoint;
+	int m_iEstimatedTurnsToCheckpoint;
+	int m_iPrevEstimatedTurnsToCheckpoint;
 };
 
 enum ArmyAIState
@@ -79,7 +89,7 @@ public:
 	virtual ~CvArmyAI();
 
 	// Initialization/destruction routines
-	void Uninit();
+	void ReleaseUnits();
 	void Reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iOperationID = -1);
 	void Kill();
 
@@ -110,15 +120,10 @@ public:
 	void SetFormationIndex(int iFormationIndex);
 	int GetNumFormationEntries() const;
 	int GetNumSlotsFilled() const;
-	void SetEstimatedTurn(int iSlotID, int iTurns);
-	CvArmyFormationSlot* GetFormationSlot(int iSlotID)
-	{
-		return &m_FormationEntries[iSlotID];
-	};
+	CvArmyFormationSlot* GetFormationSlot(int iSlotID) { return &m_FormationEntries[iSlotID]; }
 
 	int GetTurnOfLastUnitAtNextCheckpoint() const;
-	void UpdateCheckpointTurns();
-	void RemoveStuckAndWeakUnits();
+	void UpdateCheckpointTurnsAndRemoveBadUnits();
 	int GetUnitsOfType(MultiunitPositionTypes ePosition) const;
 	bool IsAllOceanGoing();
 
@@ -150,11 +155,8 @@ public:
 	void AddUnit(int iUnitId, int iSlotNum);
 	bool RemoveUnit(int iUnitId);
 	bool CanTacticalAIInterruptUnit(int iUnitId) const;
-	int GetFirstUnitID();
-	int GetNextUnitID();
 	CvUnit* GetFirstUnit();
-	CvUnit* GetNextUnit();
-	CvUnit* GetFirstUnitInDomain(DomainTypes eDomain);
+	CvUnit* GetNextUnit(CvUnit* pCurUnit);
 
 	// Per turn processing
 	bool IsDelayedDeath();
@@ -173,8 +175,8 @@ protected:
 	int m_eDomainType; // DomainTypes
 	int m_iFormationIndex;
 	int m_eAIState; // ArmyAIState
-	FStaticVector<CvArmyFormationSlot, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_FormationEntries;
-	FStaticVector<CvArmyFormationSlot, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator m_CurUnitIter;
+	vector<CvArmyFormationSlot> m_FormationEntries;
+	vector<CvArmyFormationSlot>::iterator m_CurUnitIter;
 };
 
 FDataStream& operator<<(FDataStream&, const CvArmyAI&);

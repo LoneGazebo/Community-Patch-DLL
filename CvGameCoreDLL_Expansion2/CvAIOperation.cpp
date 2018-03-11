@@ -333,22 +333,14 @@ OperationSlot CvAIOperation::PeekAtNextUnitToBuild()
 }
 
 /// Called by a city when it decides to build a unit
-OperationSlot CvAIOperation::CommitToBuildNextUnit(int iAreaID, int iTurns, CvCity* pCity)
+OperationSlot CvAIOperation::CommitToBuildNextUnit()
 {
 	OperationSlot thisSlot;
-	if(iAreaID == -1 || (GetMusterPlot() && GetMusterPlot()->getArea()==iAreaID) && !m_viListOfUnitsWeStillNeedToBuild.empty())
+	if(!m_viListOfUnitsWeStillNeedToBuild.empty())
 	{
 		thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
 		m_viListOfUnitsWeStillNeedToBuild.pop_front();
 		m_viListOfUnitsCitiesHaveCommittedToBuild.push_back(thisSlot);
-
-		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(thisSlot.m_iArmyID);
-		if(pArmy)
-		{
-			int iTurnsFromCityToMusterGuess;
-			iTurnsFromCityToMusterGuess = plotDistance(pCity->getX(), pCity->getY(), pArmy->GetX(), pArmy->GetY()) / 2;
-			pArmy->SetEstimatedTurn(thisSlot.m_iSlotID, iTurns + iTurnsFromCityToMusterGuess);
-		}
 	}
 	return thisSlot;
 }
@@ -460,7 +452,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		{
 			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(it->m_iSlotID);
 			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(it->m_iSlotID);
-			if (pSlot && pSlot->GetUnitID() == ARMYSLOT_NO_UNIT)
+			if (pSlot && pSlot->IsFree())
 			{
 				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 				{
@@ -578,7 +570,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 					{
 						CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(it->m_iArmyID);
 						if (pArmy)
-							pArmy->GetFormationSlot(it->m_iSlotID)->SetUnitID(ARMYSLOT_NOT_INCLUDING_IN_OPERATION);
+							pArmy->GetFormationSlot(it->m_iSlotID)->SetUnused();
 					}
 				}
 			}
@@ -649,7 +641,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 				{
 					CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(it->m_iArmyID);
 					if (pArmy)
-						pArmy->GetFormationSlot(it->m_iSlotID)->SetUnitID(ARMYSLOT_NOT_INCLUDING_IN_OPERATION);
+						pArmy->GetFormationSlot(it->m_iSlotID)->SetUnused();
 				}
 			}
 		}
@@ -855,7 +847,7 @@ bool CvAIOperation::ShouldAbort()
 			while(pUnit)
 			{
 				pUnit->SetDeployFromOperationTurn(GC.getGame().getGameTurn());
-				pUnit = pArmy->GetNextUnit();
+				pUnit = pArmy->GetNextUnit(pUnit);
 			}
 		}
 	}
@@ -908,8 +900,7 @@ bool CvAIOperation::Move()
 		return false;
 	}
 
-	pThisArmy->UpdateCheckpointTurns();
-	pThisArmy->RemoveStuckAndWeakUnits();
+	pThisArmy->UpdateCheckpointTurnsAndRemoveBadUnits();
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );
@@ -934,13 +925,25 @@ bool CvAIOperation::Move()
 	}
 
 	//exclude rapid response ops etc
-	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState()==ARMYAISTATE_MOVING_TO_DESTINATION)
+	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
 		float fNewVarX,fNewVarY;
-		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false,&fNewVarX,&fNewVarY);
-		if (pNewCOM == pOldCOM && fNewVarX>=fOldVarX && fNewVarY>=fOldVarY)
+		//only care about the variance
+		pThisArmy->GetCenterOfMass(false,&fNewVarX,&fNewVarY);
+		if (fNewVarX>=max(3.f,fOldVarX) && fNewVarY>=max(3.f,fOldVarY))
 		{
-			OutputDebugString( CvString::format("Warning: Operation %d with army at (%d,%d) not making progress!\n",m_iID,pThisArmy->GetX(),pThisArmy->GetY()).c_str() );
+			OutputDebugString( CvString::format("Warning: Operation %d with army at (%d,%d) not making gathering progress!\n",m_iID,pThisArmy->GetX(),pThisArmy->GetY()).c_str() );
+		}
+	}
+
+	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
+	{
+		float fNewVarX, fNewVarY;
+		//center of mass should be moving
+		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false, &fNewVarX, &fNewVarY);
+		if (pNewCOM == pOldCOM && fNewVarX >= max(3.f, fOldVarX) && fNewVarY >= max(3.f, fOldVarY))
+		{
+			OutputDebugString(CvString::format("Warning: Operation %d with army at (%d,%d) not making movement progress!\n", m_iID, pThisArmy->GetX(), pThisArmy->GetY()).c_str());
 		}
 	}
 
@@ -1354,11 +1357,11 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 				for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 				{
 					CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-					if(pSlot->GetUnitID() == ARMYSLOT_NO_UNIT)
+					if(pSlot->IsFree())
 					{
 						szTemp2 = "Open, ";
 					}
-					else if(pSlot->GetUnitID() == ARMYSLOT_NOT_INCLUDING_IN_OPERATION)
+					else if(!pSlot->IsUsed())
 					{
 						szTemp2 = "Skipping, ";
 					}
@@ -1368,7 +1371,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 						if(pThisUnit)
 						{
 							szTemp2.Format("%s %d at (%d:%d) - ETA %d, ", 
-								pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY(), pSlot->GetTurnAtCheckpoint());
+								pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY(), pSlot->GetTurnsToCheckpoint());
 						}
 					}
 
@@ -1386,18 +1389,12 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 				pThisArmy->GetCenterOfMass(false,&varX,&varY);
 				szTemp2.Format("Gathering Forces, Army: %d, Gather (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), varX, varY);
 				strTemp += szTemp2;
-				int iUnitID;
-				iUnitID = pThisArmy->GetFirstUnitID();
-				while(iUnitID != ARMYSLOT_NO_UNIT)
+				CvUnit* pUnit = pThisArmy->GetFirstUnit();
+				while(pUnit)
 				{
-					// do something with each entry
-					CvUnit* pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-					if(pThisUnit)
-					{
-						szTemp2.Format("%s %d at (%d:%d),", pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY());
-						strTemp += szTemp2;
-					}
-					iUnitID = pThisArmy->GetNextUnitID();
+					szTemp2.Format("%s %d at (%d:%d),", pUnit->getName().GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					strTemp += szTemp2;
+					pUnit = pThisArmy->GetNextUnit(pUnit);
 				}
 			}
 			break;
@@ -1408,18 +1405,12 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 				szTemp2.Format("Moving To Target, Army: %d, At (%d:%d), To (%d:%d), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), m_iTargetX, m_iTargetY);
 				strTemp += szTemp2;
-				int iUnitID;
-				iUnitID = pThisArmy->GetFirstUnitID();
-				while(iUnitID != ARMYSLOT_NO_UNIT)
+				CvUnit* pUnit = pThisArmy->GetFirstUnit();
+				while(pUnit)
 				{
-					// do something with each entry
-					CvUnit* pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-					if(pThisUnit)
-					{
-						szTemp2.Format("%s %d at (%d:%d), ", pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY());
-						strTemp += szTemp2;
-					}
-					iUnitID = pThisArmy->GetNextUnitID();
+					szTemp2.Format("%s %d at (%d:%d), ", pUnit->getName().GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					strTemp += szTemp2;
+					pUnit = pThisArmy->GetNextUnit(pUnit);
 				}
 			}
 			break;
@@ -1661,7 +1652,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 		return false;
 
 	const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
-	if (pSlot->GetUnitID() > ARMYSLOT_NO_UNIT)
+	if (pSlot->IsUsed())
 	{
 		CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
 		if (pUnit)
@@ -1885,7 +1876,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				if (!bInPlace && (GetOperationType()==AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType()==AI_OPERATION_CITY_SNEAK_ATTACK) ) 
 				{
 					int nVisible = 0;
-					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit())
+					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit(pUnit))
 					{
 						if (pUnit->plot()->isVisible( GET_PLAYER(m_eEnemy).getTeam() ))
 							nVisible++;
@@ -2248,7 +2239,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		{
-			CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFirstUnitID());
+			CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 			if (pCivilian && pThisArmy->GetFurthestUnitDistance(pCivilian->plot())<GetGatherTolerance(pThisArmy,pCivilian->plot()))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
@@ -2260,7 +2251,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
-			CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFirstUnitID());
+			CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 			if(pCivilian && pCivilian->plot() == GetTargetPlot())
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
@@ -2279,7 +2270,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 		case ARMYAISTATE_AT_DESTINATION:
 		{
-			CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFirstUnitID());
+			CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 
 			if (pCivilian && PerformMission(pCivilian))
 			{
@@ -3602,7 +3593,7 @@ bool CvAIOperationCivilian::IsEscorted()
 		if (!pCivilian)
 			return false;
 		//the second unit would be the first escort
-		CvUnit* pEscort = pThisArmy->GetNextUnit();
+		CvUnit* pEscort = pThisArmy->GetNextUnit(pCivilian);
 
 		return pEscort != NULL;
 	}
@@ -3898,7 +3889,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 					return false;
 
 				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-				if (pSlot->GetUnitID() == ARMYSLOT_NO_UNIT)
+				if (pSlot->IsFree())
 				{
 					if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 					{

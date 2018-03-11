@@ -232,7 +232,7 @@ public:
 	size_t GetNumUnitsCommittedToBeBuilt()	{ return m_viListOfUnitsCitiesHaveCommittedToBuild.size(); }
 
 	virtual OperationSlot PeekAtNextUnitToBuild();
-	virtual OperationSlot CommitToBuildNextUnit(int iAreaID, int iTurns, CvCity* pCity);
+	virtual OperationSlot CommitToBuildNextUnit();
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 
