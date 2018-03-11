@@ -11384,14 +11384,12 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	CvCity* pCity = getPlotCity();
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 	ICvUserInterface2* pInterface =  GC.GetEngineUserInterface();
 
 	bool bVisbilityUpdated = false;
 	if(isRevealed(eTeam) != bNewValue)
 	{
-
 		m_bfRevealed.ToggleBit(eTeam);
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -11750,11 +11748,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 				bVisibilityChanged |= setRevealedOwner(eTeam, getOwner());
 				bImprovementVisibilityChanged |= setRevealedImprovementType(eTeam, getImprovementType());
 				bVisibilityChanged |= setRevealedRouteType(eTeam, getRouteType());
-
-				if(pCity != NULL)
-				{
-					bVisibilityChanged |= pCity->setRevealed(eTeam, true);
-				}
 			}
 			else
 			{
@@ -11772,14 +11765,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 				{
 					bVisibilityChanged |= setRevealedRouteType(eTeam, getRevealedRouteType(eFromTeam));
 				}
-
-				if(pCity != NULL)
-				{
-					if(pCity->isRevealed(eFromTeam, false))
-					{
-						bVisibilityChanged |= pCity->setRevealed(eTeam, true);
-					}
-				}
 			}
 		}
 		else
@@ -11787,11 +11772,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 			bVisibilityChanged |= setRevealedOwner(eTeam, NO_PLAYER);
 			bImprovementVisibilityChanged |= setRevealedImprovementType(eTeam, NO_IMPROVEMENT);
 			bVisibilityChanged |= setRevealedRouteType(eTeam, NO_ROUTE);
-
-			if(pCity != NULL)
-			{
-				bVisibilityChanged |= pCity->setRevealed(eTeam, false);
-			}
 		}
 
 		if (!bVisbilityUpdated && (bVisibilityChanged || bImprovementVisibilityChanged))

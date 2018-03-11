@@ -2056,7 +2056,6 @@ protected:
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
 
-	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;
 

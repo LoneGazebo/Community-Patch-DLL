@@ -172,6 +172,7 @@ public:
 
 protected:
 
+	void AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam);
 	void UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC);
 	bool UpdateDangerSingleUnit(const CvUnit* pUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC);
 

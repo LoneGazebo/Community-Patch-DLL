@@ -142,6 +142,31 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 		UpdateDangerInternal(bKeepKnownUnits, plotsWithOwnedUnitsLikelyToBeKilled);
 }
 
+void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
+{
+	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
+	TeamTypes thisTeam = thisPlayer.getTeam();
+
+	//if there are invisible plots next to this unit, other enemies might be hiding there
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pOrigin);
+	for (int i = 0; i < 6; i++)
+	{
+		CvPlot* pNeighbor = aNeighbors[i];
+		if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
+		{
+			//only ring 1 for now
+			for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
+			{
+				CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
+				if (pPlot)
+					//note: we accept duplicate indices in m_fogDanger by design
+					//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
+					m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
+			}
+		}
+	}
+}
+
 void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC)
 {
 	// danger plots have not been initialized yet, so no need to update
@@ -188,24 +213,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 				if (!GET_PLAYER(m_ePlayer).isHuman())
 					m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 
-				//if there are invisible plots next to this unit, other enemies might be hiding there
-				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopUnit->plot());
-				for (int i = 0; i < 6; i++)
-				{
-					CvPlot* pNeighbor = aNeighbors[i];
-					if (pNeighbor && !pNeighbor->isVisible(thisTeam) && !pNeighbor->isImpassable(eTeam))
-					{
-						//only ring 1 for now
-						for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
-						{
-							CvPlot* pPlot = iterateRingPlots(pNeighbor, j);
-							if (pPlot)
-								//note: we accept duplicate indices in m_fogDanger by design
-								//todo: split between low-danger fog and high-danger fog depending on distance to closest enemy city 
-								m_DangerPlots[pPlot->GetPlotIndex()].m_fogDanger.push_back(pNeighbor->GetPlotIndex());
-						}
-					}
-				}
+				AddFogDanger(pLoopUnit->plot(), eTeam);
 			}
 		}
 
@@ -238,6 +246,8 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 					AssignCityDangerValue(pLoopCity, pLoopPlot);
 				}
 			}
+
+			AddFogDanger(pLoopCity->plot(), eTeam);
 		}
 	}
 

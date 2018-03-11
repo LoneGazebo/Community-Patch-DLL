@@ -336,7 +336,6 @@ CvUnit::CvUnit() :
 	, m_extraDomainModifiers()
 	, m_YieldModifier()
 	, m_YieldChange()
-	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvUnit::m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility", m_syncArchive, "")
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
 	, m_iScenarioData("CvUnit::m_iScenarioData", m_syncArchive)
 	, m_terrainDoubleMoveCount("CvUnit::m_terrainDoubleMoveCount", m_syncArchive)
@@ -1575,7 +1574,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 	m_eGreatWork = NO_GREAT_WORK;
 	m_iTourismBlastStrength = 0;
-	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
 	m_strScriptData ="";
 	m_iScenarioData = 0;
 
