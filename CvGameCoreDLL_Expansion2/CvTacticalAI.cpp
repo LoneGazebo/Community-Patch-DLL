@@ -10985,14 +10985,21 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 				continue;
 		}
 
-		if (pUnit->GetDanger(pPlot) < pUnit->healRate(pPlot))
+		bool bPillage = (it->iMovesLeft > 0 && pUnit->canPillage(pPlot));
+		int iDanger = pUnit->GetDanger(pPlot);
+		if (bPillage)
+			iDanger = max(0, iDanger - GC.getPILLAGE_HEAL_AMOUNT());
+
+		if (iDanger < pUnit->healRate(pPlot))
 		{
 			int iScore = pUnit->healRate(pPlot) - pUnit->GetDanger(pPlot) / 5;
 			//higher distance = bad
 			iScore -= GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
 			//friendly combat unit nearby = good
-			if (pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit) > 0)
-				iScore++;
+			iScore += pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, pUnit);
+			//maybe we want to pillage later?
+			if (bPillage)
+				iScore += 10;
 
 			vCandidates.push_back(SPlotWithScore(pPlot, iScore));
 		}

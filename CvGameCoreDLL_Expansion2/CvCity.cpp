@@ -117,7 +117,6 @@ void ClearCityDeltas()
 // Public Functions...
 CvCity::CvCity() :
 	m_syncArchive(*this)
-	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvCity::m_strName", m_syncArchive, "")
 	, m_eOwner("CvCity::m_eOwner", m_syncArchive, NO_PLAYER)
 	, m_iX("CvCity::m_iX", m_syncArchive)
 	, m_iY("CvCity::m_iY", m_syncArchive)
@@ -253,7 +252,6 @@ CvCity::CvCity() :
 	, m_iBuildingClassHappinessFromReligion("CvCity::m_iBuildingClassHappinessFromReligion", m_syncArchive)
 #endif
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
-	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
 	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
 	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
@@ -1740,14 +1738,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #endif
 
-	m_abRevealed.resize(REALLY_MAX_TEAMS);
-	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
-	{
-		m_abRevealed.setAt(iI, false);
-	}
-
 	m_strName = "";
-	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
 	m_strScriptData = "";
 
 	m_bPopulationRankValid = false;
@@ -24930,37 +24921,19 @@ void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 bool CvCity::isRevealed(TeamTypes eIndex, bool bDebug) const
 {
-	VALIDATE_OBJECT
-	if(bDebug && GC.getGame().isDebugMode())
-	{
-		return true;
-	}
-	else
-	{
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-		CvAssertMsg(eIndex < MAX_TEAMS, "eIndex expected to be < MAX_TEAMS");
+	if (!plot())
+		return false;
 
-		return m_abRevealed[eIndex];
-	}
+	return plot()->isRevealed(eIndex, bDebug);
 }
 
-
-//	--------------------------------------------------------------------------------
 bool CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex expected to be < MAX_TEAMS");
+	if (!plot())
+		return false;
 
-	if(isRevealed(eIndex, false) != bNewValue)
-	{
-		m_abRevealed.setAt(eIndex, bNewValue);
-
-		return true;
-	}
-	return false;
+	return plot()->setRevealed(eIndex, bNewValue);
 }
-
 
 //	--------------------------------------------------------------------------------
 const char* CvCity::getNameKey() const
