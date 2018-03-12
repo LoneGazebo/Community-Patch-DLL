@@ -55,7 +55,7 @@
 			<Text>Ironsides</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP">
-			<Text>+20% Combat Bonus when defending.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength increases from taking damage.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN">
@@ -324,6 +324,22 @@
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_BONUS_HELP">
 			<Text>+33% [ICON_STRENGTH] Combat Bonus VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER">
+			<Text>Imperialism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER_HELP">
+			<Text>+1 Sight.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BETTER_LEADERSHIP">
+			<Text>Regimental Traditions</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BETTER_LEADERSHIP_HELP">
+			<Text>Leadership aura gains +1 Range, +10% [ICON_STRENGTH] Strength.</Text>
+		</Row>
+
+		
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
 			<Text>Eight Virtues of Bushido</Text>
@@ -604,6 +620,15 @@
 		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH_HELP">
 			<Text>Units heal for an additional +5 Hit Points.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SUPPLY_BOOST">
+			<Text>Military Tradition</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SUPPLY_BOOST_HELP">
+			<Text>Permanent +2 Military Cap boost when expended via an ability.</Text>
+		</Row>
+
+		
 
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH">
 			<Text>Splash Damage</Text>

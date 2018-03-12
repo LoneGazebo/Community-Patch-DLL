@@ -24,7 +24,7 @@ WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_BODY' AND EXISTS (SELECT * FROM CO
 -- Capture Popup
 
 UPDATE Language_en_US	
-SET Text = '[COLOR_POSITIVE_TEXT]Puppeting[ENDCOLOR] the City causes it to generate Gold, Science, Culture, etc. for you like a normal City, but you [COLOR_POSITIVE_TEXT]may not choose what it produces[ENDCOLOR] or customize the City.[NEWLINE][NEWLINE]It will contribute much less [ICON_HAPPINESS_4] than an Annexed City, and will not increase the cost of your Social Policies and Great People. If you choose this, you may later Annex the City at any point.'
+SET Text = '[COLOR_POSITIVE_TEXT]Puppeting[ENDCOLOR] the City causes it to generate just 75% of the Production and Food of a normal city, and just 25% of the Gold, Science, Culture, Tourism, and Faith. Furthermore, it no longer produces Great Person Points, and you [COLOR_POSITIVE_TEXT]cannot choose what it produces[ENDCOLOR] or spend Gold in the City.[NEWLINE][NEWLINE]It contributes no [ICON_HAPPINESS_3] Unhappiness to your empire, however, and does not increase the cost of your Social Policies and Great People. If you choose this, you may later Annex the City at any point.'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 UPDATE Language_en_US	

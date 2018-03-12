@@ -16,11 +16,11 @@ SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city. Inc
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_TOURISM] Tourism once you research Philosophy. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.'
+SET Text = '+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_BUILDING_ODEON_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Greek replacement for the Amphitheater. Build Acropoli to boost your city''s Defense, Culture, and Tourism, especially while at war for the latter two. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds. Produces +2 [ICON_TOURISM] Tourism once you research Philosophy.'
+SET Text = 'Unique Greek replacement for the Amphitheater. Build Acropoli to boost your city''s Defense, Culture, and Tourism, especially while at war for the latter two. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds.'
 WHERE Tag = 'TXT_KEY_BUILDING_ODEON_STRATEGY';
 
 UPDATE Language_en_US

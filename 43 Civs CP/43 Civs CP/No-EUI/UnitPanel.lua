@@ -708,6 +708,15 @@ function UpdateUnitStats(unit)
         local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_SPREAD_RELIGION_USES_TT" );
         Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
         Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
+	elseif (unit:GetChargesLeft() > 0) then
+        iRangedStrength = unit:GetChargesLeft() .. "      ";
+        Controls.UnitRangedAttackBox:SetHide(false);
+        local rangeStrengthStr = Locale.ConvertTextKey( "TXT_KEY_UPANEL_REPAIR_CHARGES" );
+        Controls.UnitStatNameRangedAttack:SetText(rangeStrengthStr);
+        Controls.UnitStatRangedAttack:SetText(iRangedStrength);    
+        local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_REPAIR_CHARGES_TT" );
+        Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
+        Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
     elseif (GameInfo.Units[unit:GetUnitType()].RemoveHeresy) then
         iRangedStrength = 1;
         Controls.UnitRangedAttackBox:SetHide(false);

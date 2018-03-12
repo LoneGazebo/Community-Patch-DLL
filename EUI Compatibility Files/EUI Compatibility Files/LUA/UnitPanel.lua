@@ -1317,6 +1317,9 @@ local function UpdateUnitStats(unit)
 --	elseif gk_mode and GameInfo_Units[unit:GetUnitType()].RemoveHeresy then
 --		Controls.UnitStatRangedAttack:LocalizeAndSetText( "TXT_KEY_UPANEL_REMOVE_HERESY_USES" )
 --		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_REMOVE_HERESY_USES_TT" )
+	elseif (unit:GetChargesLeft() > 0) then
+		Controls.UnitStatRangedAttack:SetText( "[ICON_GREAT_ADMIRAL]" ..unit:GetChargesLeft() )
+		Controls.UnitStatRangedAttack:SetToolTipString( L"TXT_KEY_UPANEL_REPAIR_CHARGES_TT" )
 	elseif bnw_mode and unit:CargoSpace() > 0 then
 		Controls.UnitStatRangedAttack:SetText( L"TXT_KEY_UPANEL_CARGO_CAPACITY" .. " " .. unit:CargoSpace() )
 		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName() )
