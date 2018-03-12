@@ -1,0 +1,3 @@
+LIBRARY CvGameCore_Expansion2
+EXPORTS
+	DllGetGameContext
