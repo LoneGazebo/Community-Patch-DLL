@@ -117,7 +117,6 @@ void ClearCityDeltas()
 // Public Functions...
 CvCity::CvCity() :
 	m_syncArchive(*this)
-	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvCity::m_strName", m_syncArchive, "")
 	, m_eOwner("CvCity::m_eOwner", m_syncArchive, NO_PLAYER)
 	, m_iX("CvCity::m_iX", m_syncArchive)
 	, m_iY("CvCity::m_iY", m_syncArchive)
@@ -253,7 +252,6 @@ CvCity::CvCity() :
 	, m_iBuildingClassHappinessFromReligion("CvCity::m_iBuildingClassHappinessFromReligion", m_syncArchive)
 #endif
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
-	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
 	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
 	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
@@ -1740,14 +1738,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #endif
 
-	m_abRevealed.resize(REALLY_MAX_TEAMS);
-	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
-	{
-		m_abRevealed.setAt(iI, false);
-	}
-
 	m_strName = "";
-	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
 	m_strScriptData = "";
 
 	m_bPopulationRankValid = false;
@@ -12124,6 +12115,35 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		}
 	}
 
+	if ((IsPuppet() || (IsOccupied()) && GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod() != 0))
+	{
+		iTempMod = GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod();
+		EraTypes eBuildingEra = (EraTypes)0;
+		TechTypes eTech = (TechTypes)thisBuildingEntry->GetPrereqAndTech();
+		if (eTech != NO_TECH)
+		{
+			CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+			if (pEntry)
+			{
+				eBuildingEra = (EraTypes)pEntry->GetEra();
+			}
+		}
+
+		if (eBuildingEra != NO_ERA)
+		{
+			int iEraDelta = GET_PLAYER(getOwner()).GetCurrentEra() - eBuildingEra;
+			if (iEraDelta > 0)
+			{
+				iTempMod += GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod() * iEraDelta;
+			}
+		}
+
+		if (toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS", iTempMod);
+		}
+	}
+
 	// Trait Bonus from Conquest
 	if (GET_PLAYER(getOwner()).GetProductionBonusTurnsConquest() > 0)
 	{
@@ -15746,7 +15766,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 #endif
 		if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
 		{
-			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER();
+			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iTotalMod += iTempMod;
 			if (iTempMod != 0)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PUPPET", iTempMod);
@@ -15785,7 +15805,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
 			if(iTempMod != 0)
 			{
-				iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
+				iTempMod += max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 				// this one is applied to the base yield, so showing a tooltip here is very confusing!
 				//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
@@ -16694,7 +16714,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 								CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
 								if(pkUnitEntry)
 								{
-									if(!canTrain(eLoopUnit))
+									if(!canTrain(eLoopUnit, false, true))
 									{
 										continue;
 									}
@@ -17695,7 +17715,7 @@ int CvCity::GetFaithPerTurn() const
 	// Puppet?
 	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
 	{
-		iModifier += GC.getPUPPET_FAITH_MODIFIER();
+		iModifier += GC.getPUPPET_FAITH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 	}
 
 	iFaith *= iModifier;
@@ -18410,10 +18430,25 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 		
 		iBaseYield = GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
 
-		if(iBaseYield > 0)
+		bool bTest = false;
+		if (iBaseYield <= 0)
+		{
+			ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
+			SetYieldPerXFeature(eFeature, eYield, 0);
+		}
+		else
+			bTest = true;
+		if (iBaseYieldReligion <= 0)
+		{
+			SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
+		}
+		else
+			bTest = true;
+
+		if (bTest)
 		{
 			iValidTiles = GetNumFeatureWorked(eFeature);
-			if(iValidTiles > 0)
+			if (iValidTiles > 0)
 			{
 				//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
 				iYieldBase = (iValidTiles * iBaseYield) / 100;
@@ -18432,12 +18467,6 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 				SetYieldPerXFeature(eFeature, eYield, 0);
 			}
 		}
-		else
-		{
-			ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
-			SetYieldPerXFeature(eFeature, eYield, 0);
-		}
-		SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
 	}
 	else
 	{
@@ -18450,7 +18479,6 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 			}
 			iYieldBase = 0;
 			iYieldReligion = 0;
-			
 			if (eReligionFounded != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
@@ -18462,7 +18490,22 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 
 			iBaseYield = GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
 
-			if (iBaseYield > 0)
+			bool bTest = false;
+			if (iBaseYield <= 0)
+			{
+				ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
+				SetYieldPerXFeature(eFeature, eYield, 0);
+			}
+			else
+				bTest = true;
+			if (iBaseYieldReligion <= 0)
+			{
+				SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
+			}
+			else
+				bTest = true;
+
+			if (bTest)
 			{
 				iValidTiles = GetNumFeatureWorked(eFeature);
 				if (iValidTiles > 0)
@@ -18470,11 +18513,20 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 					//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
 					iYieldBase = (iValidTiles * iBaseYield) / 100;
 					iYieldReligion = (iValidTiles * iBaseYieldReligion) / 100;
+
+					//iDifference determines +/- of difference of old value
+					int iDifference = iYieldBase - GetYieldPerXFeature(eFeature, eYield);
+
+					//Change base rate first
+					ChangeBaseYieldRateFromBuildings(eYield, iDifference);
+					SetYieldPerXFeature(eFeature, eYield, iYieldBase);
+				}
+				else
+				{
+					ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
+					SetYieldPerXFeature(eFeature, eYield, 0);
 				}
 			}
-
-			SetYieldPerXFeature(eFeature, eYield, iYieldBase);
-			SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
 		}
 	}
 }
@@ -19537,6 +19589,9 @@ bool CvCity::DoRazingTurn()
 		iPopulationDrop *= (100 + kPlayer.GetPlayerTraits()->GetRazeSpeedModifier());
 		iPopulationDrop /= 100;
 
+		iPopulationDrop *= (100 + kPlayer.GetRazingSpeedBonus());
+		iPopulationDrop /= 100;
+
 		ChangeRazingTurns(-1);
 
 		// Counter has reached 0, disband the City
@@ -19575,7 +19630,7 @@ bool CvCity::DoRazingTurn()
 		int iValue = iDefaultCityValue;
 
 		iValue += getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
-		iValue /= GetRazingTurns();
+		iValue /= max(1, (GetRazingTurns() / 2));
 
 		int iWarscoremod = GET_PLAYER(getOwner()).GetWarScoreModifier();
 		if (iWarscoremod != 0)
@@ -19933,6 +19988,9 @@ int CvCity::GetLocalHappiness() const
 {
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	int iLocalHappiness = GetBaseHappinessFromBuildings();
 
 	if (kPlayer.GetHappinessPerXGreatWorks() != 0)
@@ -20055,6 +20113,9 @@ int CvCity::GetLocalHappiness() const
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 void CvCity::UpdateComboHappiness()
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return;
+
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 	int iTotalHappiness = 0;
 	// Building Class Combo Mods
@@ -20139,6 +20200,12 @@ int CvCity::GetBuildingClassHappinessFromReligion() const
 }
 void CvCity::UpdateBuildingClassHappinessFromReligion()
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	{
+		SetBuildingClassHappinessFromReligion(0);
+		return;
+	}
+
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (eMajority != NO_RELIGION)
@@ -20167,6 +20234,11 @@ void CvCity::UpdateBuildingClassHappinessFromReligion()
 }
 int CvCity::getUnhappinessAggregated() const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	{
+		return 0;
+	}
+
 	int iNegativeHappiness = 0;
 	int iLimit = getPopulation();
 	int iContribution;
@@ -20282,6 +20354,11 @@ int CvCity::getHappinessDelta() const
 	if (GET_PLAYER(getOwner()).isMinorCiv())
 		return 0;
 
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	{
+		return 0;
+	}
+
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
 
 	int iPositiveHappiness = GetLocalHappiness();
@@ -20351,6 +20428,10 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 	if(GetWeLoveTheKingDayCounter() > 0)
 	{
 		iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGAUnhappinesNeedMod();
+	}
+	if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0)
+	{
+		iModifier += plot()->countNumAirUnits(getTeam(), true) * GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() * -1;
 	}
 	if(eYield == YIELD_CULTURE)
 	{
@@ -20531,6 +20612,9 @@ int CvCity::getUnhappinessFromCultureNeeded(int iMod) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromCultureRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -20615,6 +20699,9 @@ int CvCity::getUnhappinessFromScienceNeeded(int iMod) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromScienceRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -20696,6 +20783,9 @@ int CvCity::getUnhappinessFromDefenseNeeded(int iMod) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -20772,6 +20862,9 @@ int CvCity::getUnhappinessFromGoldNeeded(int iMod) const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromGoldRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -20818,6 +20911,9 @@ int CvCity::getUnhappinessFromGold() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -20919,6 +21015,9 @@ int CvCity::getUnhappinessFromConnection() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromPillagedRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -20967,6 +21066,9 @@ int CvCity::getUnhappinessFromPillaged() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromStarvingRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -21015,6 +21117,9 @@ int CvCity::getUnhappinessFromStarving() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromReligionRaw(int iLimit) const
 {
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+		return 0;
+
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		return 0;
@@ -22153,7 +22258,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
 		if (iTempMod != 0)
 		{
-			iTempMod *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
+			iTempMod += max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 			iModifier += iTempMod;
 			if(toolTipSink)
 			{
@@ -22218,7 +22323,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		switch(eIndex)
 		{
 		case YIELD_SCIENCE:
-			iTempMod = GC.getPUPPET_SCIENCE_MODIFIER();
+			iTempMod = GC.getPUPPET_SCIENCE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22226,7 +22331,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			break;
 #endif
 		case YIELD_GOLD:
-			iTempMod = GC.getPUPPET_GOLD_MODIFIER();
+			iTempMod = GC.getPUPPET_GOLD_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22234,7 +22339,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			break;
 #endif
 		case YIELD_PRODUCTION:
-			iTempMod = GC.getPUPPET_PRODUCTION_MODIFIER();
+			iTempMod = GC.getPUPPET_PRODUCTION_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
 			if (iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22243,7 +22348,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		case YIELD_TOURISM:
-			iTempMod = GC.getPUPPET_TOURISM_MODIFIER();
+			iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22251,7 +22356,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 		case YIELD_GOLDEN_AGE_POINTS:
-			iTempMod = GC.getPUPPET_GOLDEN_AGE_MODIFIER();
+			iTempMod = GC.getPUPPET_GOLDEN_AGE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22259,7 +22364,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
-			iTempMod = GC.getPUPPET_CULTURE_MODIFIER();
+			iTempMod = GC.getPUPPET_CULTURE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
@@ -24930,37 +25035,19 @@ void CvCity::setEverOwned(PlayerTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 bool CvCity::isRevealed(TeamTypes eIndex, bool bDebug) const
 {
-	VALIDATE_OBJECT
-	if(bDebug && GC.getGame().isDebugMode())
-	{
-		return true;
-	}
-	else
-	{
-		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-		CvAssertMsg(eIndex < MAX_TEAMS, "eIndex expected to be < MAX_TEAMS");
+	if (!plot())
+		return false;
 
-		return m_abRevealed[eIndex];
-	}
+	return plot()->isRevealed(eIndex, bDebug);
 }
 
-
-//	--------------------------------------------------------------------------------
 bool CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex expected to be < MAX_TEAMS");
+	if (!plot())
+		return false;
 
-	if(isRevealed(eIndex, false) != bNewValue)
-	{
-		m_abRevealed.setAt(eIndex, bNewValue);
-
-		return true;
-	}
-	return false;
+	return plot()->setRevealed(eIndex, bNewValue);
 }
-
 
 //	--------------------------------------------------------------------------------
 const char* CvCity::getNameKey() const
@@ -25502,7 +25589,14 @@ void CvCity::updateStrengthValue()
 			iStrengthValue += iPile;
 		}
 	}
+
+	if (GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() != 0)
+	{
+		iStrengthValue += plot()->countNumAirUnits(getTeam(), true) * GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() * 100;
+	}
 #endif
+
+	iStrengthValue += GetYieldModifierFromDevelopment(YIELD_JFD_CRIME);
 
 	int iStrengthMod = 0;
 
@@ -25510,9 +25604,8 @@ void CvCity::updateStrengthValue()
 	iStrengthMod += GET_PLAYER(getOwner()).GetCityStrengthMod();
 
 	int iCrime = GetYieldModifierFromCrime(YIELD_JFD_CRIME);
-	int iDevelopment = GetYieldModifierFromDevelopment(YIELD_JFD_CRIME);
 
-	iStrengthMod += (iCrime + iDevelopment);
+	iStrengthMod += iCrime;
 
 	// Apply Mod
 	iStrengthValue *= (100 + iStrengthMod);
@@ -30769,7 +30862,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
 		int iBaseValue = GetCityAirStrikeDefense();
-		iBaseValue += plot()->countNumAirUnits(getTeam());
+		iBaseValue += plot()->countNumAirUnits(getTeam(), true);
 		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
 
 		if (iBaseValue == 0)
@@ -30788,7 +30881,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	else
 	{
 		int iBaseValue = 15;
-		iBaseValue += plot()->countNumAirUnits(getTeam());
+		iBaseValue += plot()->countNumAirUnits(getTeam(), true);
 		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
 
 		if (bIncludeRand)

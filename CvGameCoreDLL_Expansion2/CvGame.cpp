@@ -8301,7 +8301,9 @@ void CvGame::doTurn()
 	LogGameState();
 
 	//autosave after doing a turn
-	if(isNetworkMultiPlayer())
+#ifndef VPDEBUG
+	if (isNetworkMultiPlayer())
+#endif // !VPDEBUG
 		gDLL->AutoSave(false, true);
 
 	gDLL->PublishNewGameTurn(getGameTurn());

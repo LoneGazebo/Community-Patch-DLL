@@ -417,6 +417,7 @@ protected:
 	LUAAPIEXTN(GetWarDamageLevel, int);
 	LUAAPIEXTN(IsWillingToMakePeaceWithHuman, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
+	LUAAPIEXTN(GetDominationResistance, int);
 	LUAAPIEXTN(GetMajorCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
 	//JFD

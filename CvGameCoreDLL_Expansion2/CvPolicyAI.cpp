@@ -1469,6 +1469,50 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_PRODUCTION] += PolicyInfo->GetBuildingProductionModifier() * 2;
 		}
 	}
+	if (PolicyInfo->GetConquestPerEraBuildingProductionMod() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 5 * max(1, pPlayer->GetNumPuppetCities());
+		}
+		else
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 2 * max(1, pPlayer->GetNumPuppetCities());
+		}
+	}
+	if (PolicyInfo->GetPuppetYieldPenaltyMod() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetPuppetYieldPenaltyMod() * 5 * pPlayer->GetNumPuppetCities();
+		}
+		else
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetPuppetYieldPenaltyMod() * 2 * pPlayer->GetNumPuppetCities();
+		}
+	}
+	if (PolicyInfo->GetFlatDefenseFromAirUnits() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetFlatDefenseFromAirUnits() * 10 * iNumCities;
+		}
+		else
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetFlatDefenseFromAirUnits() * 5 * iNumCities;
+		}
+	}
+	if (PolicyInfo->GetNeedsModifierFromAirUnits() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetNeedsModifierFromAirUnits() * 10 * iNumCities;
+		}
+		else
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetNeedsModifierFromAirUnits() * 5 * iNumCities;
+		}
+	}
 	if (PolicyInfo->GetGreatPeopleRateModifier() != 0)
 	{
 		if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
@@ -2718,11 +2762,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetMonopolyModPercent() * 2;
+			yield[YIELD_GOLD] += PolicyInfo->GetMonopolyModPercent() * 10;
 		}
 		else
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetMonopolyModPercent();
+			yield[YIELD_GOLD] += PolicyInfo->GetMonopolyModPercent() * 2;
+		}
+	}
+	if (PolicyInfo->GetAdmiralLuxuryBonus() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_GOLD] += PolicyInfo->GetAdmiralLuxuryBonus() * 50;
+		}
+		else
+		{
+			yield[YIELD_GOLD] += PolicyInfo->GetAdmiralLuxuryBonus() * 25;
 		}
 	}
 	if (PolicyInfo->GetCityStateCombatModifier() != 0)
@@ -4777,7 +4832,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 				int iPlayerEra = pPlayer->GetCurrentEra();
 				if (iPolicyEra < iPlayerEra && iPlayerEra > 0)
 				{
-					iWeight /= max(2, ((iPlayerEra * 2) - iPolicyEra));
+					iWeight /= max(2, ((iPlayerEra * 5) - iPolicyEra));
 				}
 			}
 		}

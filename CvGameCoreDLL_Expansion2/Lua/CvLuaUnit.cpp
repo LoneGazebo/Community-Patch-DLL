@@ -571,6 +571,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetReligion);
 	Method(GetConversionStrength);
 	Method(GetSpreadsLeft);
+	Method(GetChargesLeft);
 	Method(GetNumFollowersAfterSpread);
 	Method(GetMajorityReligionAfterSpread);
 #if defined(MOD_API_LUA_EXTENSIONS)
@@ -5482,6 +5483,15 @@ int CvLuaUnit::lGetSpreadsLeft(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	int iReligiousStrength = pkUnit->GetReligionData()->GetSpreadsLeft();
 	lua_pushinteger(L, iReligiousStrength);
+
+	return 1;
+}
+//int GetReligionSpreads();
+int CvLuaUnit::lGetChargesLeft(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	int iCharge = pkUnit->GetNumRepairCharges();
+	lua_pushinteger(L, iCharge);
 
 	return 1;
 }

@@ -402,6 +402,12 @@ public:
 	bool IsCSResourcesForMonopolies() const;
 	
 	int GetHappinessPerActiveTradeRoute() const;
+	int GetNeedsModifierFromAirUnits() const;
+	int GetFlatDefenseFromAirUnits() const;
+	int GetPuppetYieldPenaltyMod() const;
+	int GetConquestPerEraBuildingProductionMod() const;
+	int GetAdmiralLuxuryBonus() const;
+
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
@@ -795,6 +801,11 @@ private:
 	int m_iMissionInfluenceModifier;
 	int m_iHappinessPerActiveTradeRoute;
 	bool m_bCSResourcesForMonopolies;
+	int m_iNeedsModifierFromAirUnits;
+	int m_iFlatDefenseFromAirUnits;
+	int m_iPuppetYieldPenaltyMod;
+	int m_iConquestPerEraBuildingProductionMod;
+	int m_iAdmiralLuxuryBonus;
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;

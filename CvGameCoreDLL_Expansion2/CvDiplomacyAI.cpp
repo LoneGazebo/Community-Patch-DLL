@@ -16899,7 +16899,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam());
+						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
 						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 						LogWarDeclaration(ePlayer);
 						pDeal->ClearItems();
@@ -16924,7 +16924,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam());
+						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
 						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 						LogWarDeclaration(ePlayer);
 						pDeal->ClearItems();
@@ -16983,7 +16983,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam());
+						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
 						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 						LogWarDeclaration(ePlayer);
 						pDeal->ClearItems();
@@ -17008,7 +17008,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam());
+						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
 						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 						LogWarDeclaration(ePlayer);
 						pDeal->ClearItems();
@@ -17649,7 +17649,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #if defined(MOD_BALANCE_CORE)
 			if(bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 			{
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam());
+				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
 				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 				LogWarDeclaration(ePlayer);
 				pDeal->ClearItems();

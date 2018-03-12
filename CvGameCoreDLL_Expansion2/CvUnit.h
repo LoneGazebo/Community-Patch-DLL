@@ -1197,6 +1197,13 @@ public:
 	void ChangeAuraRangeChange(int iChange);
 	int GetAuraEffectChange() const;
 	void ChangeAuraEffectChange(int iChange);
+
+	int GetNumRepairCharges() const;
+	void ChangeNumRepairCharges(int iChange);
+
+	int GetMilitaryCapChange() const;
+	void ChangeMilitaryCapChange(int iChange);
+
 #endif
 
 	int getGreatGeneralModifier() const;
@@ -1960,6 +1967,8 @@ protected:
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	FAutoVariable<int, CvUnit> m_iAuraRangeChange;
 	FAutoVariable<int, CvUnit> m_iAuraEffectChange;
+	FAutoVariable<int, CvUnit> m_iNumRepairCharges;
+	FAutoVariable<int, CvUnit> m_iMilitaryCapChange;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;
@@ -2056,7 +2065,6 @@ protected:
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
 
-	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;
 

@@ -3006,7 +3006,9 @@ bool CvPlayerTraits::IsWarmonger()
 		GetLandUnitMaintenanceModifier() != 0 ||
 		GetNavalUnitMaintenanceModifier() != 0 ||
 		GetProductionBonusModifierConquest() != 0 ||
-		GetGoldenAgeFromVictory() != 0)
+		GetGoldenAgeFromVictory() != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0)
 		return true;
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3014,6 +3016,13 @@ bool CvPlayerTraits::IsWarmonger()
 		YieldTypes eYield = (YieldTypes)iYield;
 		if (GetYieldFromLevelUp(eYield) != 0 ||
 			GetYieldFromConquest(eYield) != 0)
+			return true;
+	}
+
+	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
+	{
+		DomainTypes eDomain = (DomainTypes)iDomain;
+		if (GetDomainFreeExperienceModifier(eDomain) > 0)
 			return true;
 	}
 
@@ -3032,7 +3041,8 @@ bool CvPlayerTraits::IsNerd()
 {
 	if (GetGreatScientistRateModifier() != 0 ||
 		GetInvestmentModifier() != 0 ||
-		GetFreePolicyPerXTechs() != 0)
+		GetFreePolicyPerXTechs() != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0)
 		return true;
 
 	if (IsAdoptionFreeTech() ||
@@ -3064,7 +3074,10 @@ bool CvPlayerTraits::IsTourism()
 		GetExtraConqueredCityTerritoryClaimRange() != 0 ||
 		GetExtraTenetsFirstAdoption() != 0 ||
 		GetFreeSocialPoliciesPerEra() != 0 ||
-		GetCultureBonusModifierConquest() != 0)
+		GetCultureBonusModifierConquest() != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"))) != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))) != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"))) != 0)
 		return true;
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3094,7 +3107,11 @@ bool CvPlayerTraits::IsDiplomat()
 		GetQuestYieldModifier() != 0 ||
 		GetLuxuryHappinessRetention() != 0 ||
 		GetTradeBuildingModifier() != 0 ||
-		GetVotePerXCSAlliance() != 0)
+		GetVotePerXCSAlliance() != 0 ||
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		(MOD_DIPLOMACY_CITYSTATES && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
+#endif
+		)
 		return true;
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3163,7 +3180,8 @@ bool CvPlayerTraits::IsExpansionist()
 		GetGrowthBoon() != 0 ||
 		GetGAUnhappinesNeedMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
-		GetExtraFoundedCityTerritoryClaimRange() != 0)
+		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
+		GetPolicyGEorGM() != 0)
 		return true;
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3215,7 +3233,8 @@ bool CvPlayerTraits::IsReligious()
 		GetYieldChangePerTradePartner(YIELD_FAITH) != 0 ||
 		GetYieldFromTilePurchase(YIELD_FAITH) != 0 ||
 		GetYieldFromTileEarn(YIELD_FAITH) != 0 ||
-		GetYieldFromSettle(YIELD_FAITH) != 0)
+		GetYieldFromSettle(YIELD_FAITH) != 0 ||
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0)
 		return true;
 
 	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0 || GetFaithFromKills() != 0)

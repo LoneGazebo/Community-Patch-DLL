@@ -436,6 +436,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarDamageLevel);
 	Method(IsWillingToMakePeaceWithHuman);
 	Method(GetTreatyWillingToOffer);
+	Method(GetDominationResistance);
 #endif
 	Method(GetCombatBonusVsHigherTech);
 	Method(GetCombatBonusVsLargerCiv);
@@ -6168,6 +6169,17 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+int CvLuaPlayer::lGetDominationResistance(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iResistancePower = pkPlayer->GetDominationResistance(ePlayer);
+	lua_pushinteger(L, iResistancePower);
+
+	return 1;
+}
+
 #endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCombatBonusVsHigherTech(lua_State* L)
