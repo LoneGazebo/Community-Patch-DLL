@@ -708,6 +708,11 @@ CvPlayer::CvPlayer() :
 	, m_iMissionInfluenceModifier("CvPlayer::m_iMissionInfluenceModifier", m_syncArchive)
 	, m_iHappinessPerActiveTradeRoute("CvPlayer::m_iHappinessPerActiveTradeRoute", m_syncArchive)
 	, m_iCSResourcesCountMonopolies("CvPlayer::m_iCSResourcesCountMonopolies", m_syncArchive)
+	, m_iConquestPerEraBuildingProductionMod("CvPlayer::m_iConquestPerEraBuildingProductionMod", m_syncArchive)
+	, m_iAdmiralLuxuryBonus("CvPlayer::m_iAdmiralLuxuryBonus", m_syncArchive)
+	, m_iPuppetYieldPenaltyMod("CvPlayer::m_iPuppetYieldPenaltyMod", m_syncArchive)
+	, m_iNeedsModifierFromAirUnits("CvPlayer::m_iNeedsModifierFromAirUnits", m_syncArchive)
+	, m_iFlatDefenseFromAirUnits("CvPlayer::m_iFlatDefenseFromAirUnits", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
@@ -728,6 +733,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldFromWLTKD(NULL)
 	, m_piCityFeatures(NULL)
 	, m_piNumBuildings(NULL)
+	, m_piNumBuildingsInPuppets(NULL)
 	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppiBuildingClassYieldChange", m_syncArchive)
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1669,6 +1675,11 @@ void CvPlayer::uninit()
 	m_iMissionInfluenceModifier = 0;
 	m_iHappinessPerActiveTradeRoute = 0;
 	m_iCSResourcesCountMonopolies = 0;
+	m_iConquestPerEraBuildingProductionMod = 0;
+	m_iAdmiralLuxuryBonus = 0;
+	m_iPuppetYieldPenaltyMod = 0;
+	m_iNeedsModifierFromAirUnits = 0;
+	m_iFlatDefenseFromAirUnits = 0;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -2293,6 +2304,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_piNumBuildings.clear();
 		m_piNumBuildings.resize(GC.getNumBuildingInfos(), 0);
+
+		m_piNumBuildingsInPuppets.clear();
+		m_piNumBuildingsInPuppets.resize(GC.getNumBuildingInfos(), 0);
 
 		m_ppiBuildingClassYieldChange.clear();
 		m_ppiBuildingClassYieldChange.resize(GC.getNumBuildingClassInfos());
@@ -12129,6 +12143,35 @@ int CvPlayer::countCityFeatures(FeatureTypes eFeature) const
 
 
 //	--------------------------------------------------------------------------------
+int CvPlayer::countNumBuildingsInPuppets(BuildingTypes eBuilding, bool bReset) const
+{
+	int iCount = 0;
+	if (bReset)
+	{
+		const CvCity* pLoopCity;
+
+		int iLoop;
+
+		iCount = 0;
+
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (!pLoopCity->IsPuppet())
+				continue;
+
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+			}
+		}
+		GET_PLAYER(GetID()).setNumBuildingsInPuppets(eBuilding, iCount);
+		return iCount;
+	}
+	else
+	{
+		return getNumBuildingsInPuppets(eBuilding);
+	}
+}
 #if defined(MOD_BALANCE_CORE)
 int CvPlayer::countNumBuildings(BuildingTypes eBuilding, bool bReset) const
 #else
@@ -12225,6 +12268,21 @@ int CvPlayer::getNumBuildings(BuildingTypes eBuilding) const
 	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	return m_piNumBuildings[eBuilding];
 }
+
+void CvPlayer::setNumBuildingsInPuppets(BuildingTypes eBuilding, int iValue)
+{
+	CvAssertMsg(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
+
+	m_piNumBuildingsInPuppets[eBuilding] = iValue;
+}
+int CvPlayer::getNumBuildingsInPuppets(BuildingTypes eBuilding) const
+{
+	CvAssertMsg(eBuilding >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	return m_piNumBuildingsInPuppets[eBuilding];
+}
+
 void CvPlayer::setCitiesFeatureSurrounded(int iValue)
 {
 	m_iCitiesFeatureSurrounded = iValue;
@@ -16876,6 +16934,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #if defined(MOD_BALANCE_CORE)
 	//Refresh cache data.
 	countNumBuildings(eBuilding, true);
+	countNumBuildingsInPuppets(eBuilding, true);
 	DoUpdateHappinessFromBuildings(); // fix for 3939, this function needs player's building count already updated!
 #endif
 }
@@ -19538,7 +19597,7 @@ void CvPlayer::DoWarVictoryBonuses()
 						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp *= max(1, GetMonopolyModPercent());
+							iTemp += max(1, GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -21068,10 +21127,12 @@ void CvPlayer::DoCityRevolt()
 				pLog->Msg(strBaseString);
 			}
 
-			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
-
-			// Move Units from player that don't belong here
+			// get the plot before transferring ownership
 			CvPlot *pPlot = pMostUnhappyCity->plot();
+			kRecipient.acquireCity(pMostUnhappyCity, false/*bConquest*/, true/*bGift*/);
+			pMostUnhappyCity = NULL; //no longer valid
+
+			 // Move Units from player that don't belong here
 			if (pPlot->getNumUnits() > 0)
 			{
 				// Get the current list of units because we will possibly be moving them out of the plot's list
@@ -21165,6 +21226,9 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 
 			if (pLoopCity->getOriginalOwner() == GetID())
 				iUnhappiness /= 4;
+
+			if (pLoopCity->IsPuppet())
+				iUnhappiness *= 2;
 
 			if (iUnhappiness > iHighestUnhappiness)
 			{
@@ -21305,6 +21369,9 @@ int CvPlayer::GetHappinessFromCities() const
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
+
 		iHappiness += pLoopCity->GetLocalHappiness();
 	}
 
@@ -21335,7 +21402,8 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 		}
 
 		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-		if(eBuilding != NO_BUILDING && countNumBuildings(eBuilding) > 0)
+		int iNumTotal = countNumBuildings(eBuilding) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0;
+		if (eBuilding != NO_BUILDING && iNumTotal > 0)
 		{
 			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
 			if(pkBuilding)
@@ -21349,7 +21417,9 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
 						if(eBuildingThatGivesHappiness != NO_BUILDING)
 						{
-							iSpecialBuildingHappiness += iHappinessPerBuilding * countNumBuildings(eBuildingThatGivesHappiness);
+							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0;
+
+							iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
 						}
 					}
 				}
@@ -21362,6 +21432,9 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			continue;
+
 		iHappiness += pLoopCity->GetHappinessFromBuildings();
 	}
 
@@ -21455,7 +21528,7 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 			if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
 				int iTemp = pInfo->getMonopolyHappiness();
-				iTemp *= max(1, GetMonopolyModFlat());
+				iTemp += max(1, GetMonopolyModFlat());
 				iTotalHappiness += iTemp;
 			}
 		}
@@ -22038,6 +22111,10 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	{
 		return 0;
 	}
+
+	if (pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+		return 0;
+
 #endif
 	int iNumCitiesUnhappinessTimes100 = 0;
 	int iPopulationUnhappinessTimes100 = 0;
@@ -22462,6 +22539,9 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 		else if(!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
 			bCityValid = true;
 
+		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+			bCityValid = false;
+
 		if(bCityValid)
 		{
 			iPopulation = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
@@ -22681,6 +22761,9 @@ int CvPlayer::getUnhappinessFromCitizenNeeds() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessAggregated();
 		}
 	}
@@ -22695,6 +22778,9 @@ int CvPlayer::getUnhappinessFromCityCulture() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromCulture();
 		}
 	}
@@ -22708,6 +22794,9 @@ int CvPlayer::getUnhappinessFromCityScience() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromScience();
 		}
 	}
@@ -22721,6 +22810,9 @@ int CvPlayer::getUnhappinessFromCityDefense() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromDefense();
 		}		
 	}
@@ -22734,6 +22826,9 @@ int CvPlayer::getUnhappinessFromCityGold() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromGold();
 		}
 	}
@@ -22747,6 +22842,9 @@ int CvPlayer::getUnhappinessFromCityConnection() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromConnection();
 		}
 	}
@@ -22760,6 +22858,9 @@ int CvPlayer::getUnhappinessFromCityPillaged() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromPillaged();
 		}
 	}
@@ -22773,6 +22874,9 @@ int CvPlayer::getUnhappinessFromCityStarving() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromStarving();
 		}
 	}
@@ -22786,6 +22890,9 @@ int CvPlayer::getUnhappinessFromCityMinority() const
 	{
 		if(pLoopCity != NULL)
 		{
+			if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+				continue;
+
 			iUnhappiness += pLoopCity->getUnhappinessFromReligion();
 		}
 	}
@@ -25141,7 +25248,7 @@ int CvPlayer::getGoldenAgeLength() const
 					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp *= max(1, GetMonopolyModPercent());
+						iTemp += max(1, GetMonopolyModPercent());
 						iLengthModifier += iTemp;
 					}
 				}
@@ -25188,7 +25295,7 @@ int CvPlayer::getGoldenAgeLengthModifier() const // JJ: A way to get the golden 
 					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp *= max(1, GetMonopolyModPercent());
+						iTemp += max(1, GetMonopolyModPercent());
 						iLengthModifier += iTemp;
 					}
 				}
@@ -29999,6 +30106,9 @@ int CvPlayer::GetDiversity(DomainTypes eDomain) const
 
 int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 {
+	if (ePlayer == NO_PLAYER)
+		return 0;
+
 	int iHandicap = 5;
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
@@ -30585,7 +30695,7 @@ void CvPlayer::SetMonopolyModFlat(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModFlat() const
 {
-	return m_iMonopolyModFlat+1;
+	return m_iMonopolyModFlat;
 }
 
 //	--------------------------------------------------------------------------------
@@ -30601,7 +30711,7 @@ void CvPlayer::SetMonopolyModPercent(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMonopolyModPercent() const
 {
-	return m_iMonopolyModPercent + 1;
+	return m_iMonopolyModPercent;
 }
 
 /// What are we willing to give/receive for peace with the active human player?
@@ -34843,6 +34953,71 @@ void CvPlayer::changeHappinessPerActiveTradeRoute(int iChange)
 {
 	m_iHappinessPerActiveTradeRoute += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNeedsModifierFromAirUnits() const
+{
+	return m_iNeedsModifierFromAirUnits;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeNeedsModifierFromAirUnits(int iChange)
+{
+	m_iNeedsModifierFromAirUnits += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetFlatDefenseFromAirUnits() const
+{
+	return m_iFlatDefenseFromAirUnits;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeFlatDefenseFromAirUnits(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iFlatDefenseFromAirUnits += iChange;
+
+		CvCity* pLoopCity;
+
+		int iLoop;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			pLoopCity->updateStrengthValue();
+		}
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetPuppetYieldPenaltyMod() const
+{
+	return m_iPuppetYieldPenaltyMod;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changePuppetYieldPenaltyMod(int iChange)
+{
+	m_iPuppetYieldPenaltyMod += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetConquestPerEraBuildingProductionMod() const
+{
+	return m_iConquestPerEraBuildingProductionMod;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeConquestPerEraBuildingProductionMod(int iChange)
+{
+	m_iConquestPerEraBuildingProductionMod += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetAdmiralLuxuryBonus() const
+{
+	return m_iAdmiralLuxuryBonus;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeAdmiralLuxuryBonus(int iChange)
+{
+	m_iAdmiralLuxuryBonus += iChange;
+}
+
+
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCSResourcesCountMonopolies() const
@@ -42123,7 +42298,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
 						if(pkUnitEntry)
 						{
-							if(!pLoopCity->canTrain(eLoopUnit))
+							if(!pLoopCity->canTrain(eLoopUnit, false, true))
 							{
 								continue;
 							}
@@ -42219,6 +42394,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeMissionInfluenceModifier(pPolicy->GetMissionInfluenceModifier() * iChange);
 	changeHappinessPerActiveTradeRoute(pPolicy->GetHappinessPerActiveTradeRoute() * iChange);
 	changeCSResourcesCountMonopolies(pPolicy->IsCSResourcesForMonopolies() ? iChange : 0);
+
+	changeNeedsModifierFromAirUnits(pPolicy->GetNeedsModifierFromAirUnits() * iChange);
+	changeFlatDefenseFromAirUnits(pPolicy->GetFlatDefenseFromAirUnits() * iChange);
+	changePuppetYieldPenaltyMod(pPolicy->GetPuppetYieldPenaltyMod() * iChange);
+	changeConquestPerEraBuildingProductionMod(pPolicy->GetConquestPerEraBuildingProductionMod() * iChange);
+	changeAdmiralLuxuryBonus(pPolicy->GetAdmiralLuxuryBonus() * iChange);
+
 #endif
 	if(pPolicy->IsOneShot())
 	{
@@ -42889,7 +43071,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp *= max(1, GetMonopolyModPercent());
+							iTemp += max(1, GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -44084,11 +44266,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-#if defined(MOD_BALANCE_CORE)
-	SetDangerPlotsDirty();
-#else
 	m_pDangerPlots->Read(kStream);
-#endif
 	m_pTraits->Read(kStream);
 	kStream >> *m_pEspionage;
 	kStream >> *m_pEspionageAI;
@@ -44243,6 +44421,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_ppiBuildingClassYieldChange;
 	kStream >> m_piCityFeatures;
 	kStream >> m_piNumBuildings;
+	kStream >> m_piNumBuildingsInPuppets;
 	kStream >> m_ppiApproachScratchValue;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -44312,9 +44491,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pDealAI->Write(kStream);
 	m_pBuilderTaskingAI->Write(kStream);
 	m_pCityConnections->Write(kStream);
-#if !defined(MOD_BALANCE_CORE)
 	m_pDangerPlots->Write(kStream);
-#endif
 	m_pTraits->Write(kStream);
 	kStream << *m_pEspionage;
 	kStream << *m_pEspionageAI;
@@ -44414,6 +44591,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_ppiBuildingClassYieldChange;
 	kStream << m_piCityFeatures;
 	kStream << m_piNumBuildings;
+	kStream << m_piNumBuildingsInPuppets;
 	kStream << m_ppiApproachScratchValue;
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)

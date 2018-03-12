@@ -82,6 +82,8 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	m_iAuraRangeChange(0),
 	m_iAuraEffectChange(0),
+	m_iNumRepairCharges(0),
+	m_iMilitaryCapChange(0),
 #endif
 	m_iGreatGeneralModifier(0),
 	m_bGreatGeneralReceivesMovement(false),
@@ -550,6 +552,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		m_iAuraRangeChange = kResults.GetInt("AuraRangeChange");
 		m_iAuraEffectChange = kResults.GetInt("AuraEffectChange");
 	}
+	m_iNumRepairCharges = kResults.GetInt("NumRepairCharges");
+	m_iMilitaryCapChange = kResults.GetInt("MilitaryCapChange");
 #endif
 	m_iGreatGeneralModifier = kResults.GetInt("GreatGeneralModifier");
 	m_bGreatGeneralReceivesMovement = kResults.GetBool("GreatGeneralReceivesMovement");
@@ -1518,6 +1522,16 @@ int CvPromotionEntry::GetAuraRangeChange() const
 int CvPromotionEntry::GetAuraEffectChange() const
 {
 	return m_iAuraEffectChange;
+}
+
+int CvPromotionEntry::GetNumRepairCharges() const
+{
+	return m_iNumRepairCharges;
+}
+
+int CvPromotionEntry::GetMilitaryCapChange() const
+{
+	return m_iMilitaryCapChange;
 }
 #endif
 

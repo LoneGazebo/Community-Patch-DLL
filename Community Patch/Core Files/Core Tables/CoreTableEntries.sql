@@ -329,12 +329,27 @@ ALTER TABLE Policies ADD COLUMN 'IsOnlyTradeSameIdeology' BOOLEAN DEFAULT 0;
 -- Half specialist food in just capital
 ALTER TABLE Policies ADD COLUMN 'HalfSpecialistFoodCapital' BOOLEAN DEFAULT 0;
 
-
 -- Increases influence from trade mission
 ALTER TABLE Policies ADD COLUMN 'MissionInfluenceModifier' INTEGER DEFAULT 0;
 
 -- Happiness per trade route active
 ALTER TABLE Policies ADD COLUMN 'HappinessPerActiveTradeRoute' INTEGER DEFAULT 0;
+
+-- air units reduce unhappiness from needs by x% per unit.
+ALTER TABLE Policies ADD COLUMN 'NeedsModifierFromAirUnits' INTEGER DEFAULT 0;
+
+-- air units increase defense by +x flat per unit
+ALTER TABLE Policies ADD COLUMN 'FlatDefenseFromAirUnits' INTEGER DEFAULT 0;
+
+-- puppet penalties reduced by positive amount
+ALTER TABLE Policies ADD COLUMN 'PuppetYieldPenaltyMod' INTEGER DEFAULT 0;
+
+-- Puppet/Occupied cities gain x+x*era difference for buildings.
+ALTER TABLE Policies ADD COLUMN 'ConquestPerEraBuildingProductionMod' INTEGER DEFAULT 0;
+
+-- Increased free luxuries created by freelux routine for units (used by admiral in VP).
+ALTER TABLE Policies ADD COLUMN 'AdmiralLuxuryBonus' INTEGER DEFAULT 0;
+
 
 -- CS resources count towards monopolies
 ALTER TABLE Policies ADD COLUMN 'CSResourcesCountForMonopolies' BOOLEAN DEFAULT 0;
@@ -801,6 +816,12 @@ ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
+
+-- Admirals can use their repair fleet action multiple times before expending.
+ALTER TABLE UnitPromotions ADD COLUMN 'NumRepairCharges' INTEGER DEFAULT 0;
+
+-- Allows for Unit to increase your supply cap when expended.
+ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryCapChange' INTEGER DEFAULT 0;
 
 -- Double Heal in Feature/Terrain
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;

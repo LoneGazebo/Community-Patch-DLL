@@ -58,8 +58,12 @@
 #define MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN
 
 /// radical rewrite
-#define MOD_BALANCE_CORE_NEW_TACTICAL_AI
 #define MOD_CORE_NEW_DEPLOYMENT_LOGIC
+
+//this needs a reassignment of move priorities to work properly, especially concerning global moves
+//#define MOD_CORE_TACTICAL_MOVE_DELAY_SORT
+
+// for debugging only
 //#define MOD_UNIT_KILL_STATS
 
 /// visible tiles stay visible until the end of the turn
@@ -401,6 +405,7 @@
 #define MOD_BALANCE_CORE_SCALING_XP				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SCALING_XP())
 #define MOD_BALANCE_CORE_HALF_XP_PURCHASE				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_HALF_XP_PURCHASE())
 #define MOD_BALANCE_CORE_QUEST_CHANGES				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_QUEST_CHANGES())
+#define MOD_BALANCE_CORE_PUPPET_CHANGES				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PUPPET_CHANGES())
 #endif
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -1499,6 +1504,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_SCALING_XP);
 	MOD_OPT_DECL(BALANCE_CORE_HALF_XP_PURCHASE);
 	MOD_OPT_DECL(BALANCE_CORE_QUEST_CHANGES);
+	MOD_OPT_DECL(BALANCE_CORE_PUPPET_CHANGES);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

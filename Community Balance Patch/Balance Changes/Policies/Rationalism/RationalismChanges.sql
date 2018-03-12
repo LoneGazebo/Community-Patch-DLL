@@ -137,7 +137,7 @@ INSERT INTO Policy_GoldenAgeYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_HUMANISM', 'YIELD_SCIENCE', 5),
-	('POLICY_HUMANISM', 'YIELD_FOOD', 10);
+	('POLICY_HUMANISM', 'YIELD_FOOD', 5);
 
 INSERT INTO Policy_ResourceYieldChanges
 	(PolicyType, ResourceType, YieldType, Yield)

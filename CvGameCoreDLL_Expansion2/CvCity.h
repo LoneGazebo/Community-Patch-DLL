@@ -1644,7 +1644,6 @@ public:
 protected:
 	FAutoArchiveClassContainer<CvCity> m_syncArchive;
 
-	FAutoVariable<CvString, CvCity> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<PlayerTypes, CvCity> m_eOwner;
 	FAutoVariable<int, CvCity> m_iX;
 	FAutoVariable<int, CvCity> m_iY;
@@ -1879,8 +1878,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourceWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumImprovementWorked;
 #endif
-	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
-
 	FAutoVariable<CvString, CvCity> m_strScriptData;
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)

@@ -916,7 +916,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			}
 		}
 
-		iBonus += m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
+		iBonus += m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature)+1);
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -930,7 +930,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			}
 		}
 
-		iBonus += m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield);
+		iBonus += m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1);
 	}
 
 	return iBonus;
@@ -969,11 +969,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iYield *= 10;
+				iYield *= 5;
 			}
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 			{
-				iYield *= 5;
+				iYield *= 2;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
 			if (eYield == YIELD_FOOD && !m_pCity->isFoodProduction())
@@ -1075,31 +1075,31 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				case YIELD_GOLD:
 					if (m_pCity->getUnhappinessFromGold() > 0)
 					{
-						iYield *= 5;
+						iYield *= 2;
 					}
 					break;
 				case YIELD_SCIENCE:
 					if (m_pCity->getUnhappinessFromScience() > 0)
 					{
-						iYield *= 5;
+						iYield *= 2;
 					}
 					break;
 				case YIELD_CULTURE:
 					if (m_pCity->getUnhappinessFromScience() > 0)
 					{
-						iYield *= 5;
+						iYield *= 2;
 					}
 					break;
 				case YIELD_FAITH:
 					if (m_pCity->getUnhappinessFromReligion() > 0)
 					{
-						iYield *= 5;
+						iYield *= 2;
 					}
 					break;
 				case YIELD_PRODUCTION:
 					if (m_pCity->getUnhappinessFromDefense() > 0)
 					{
-						iYield *= 5;
+						iYield *= 2;
 					}
 					break;
 				}
@@ -3446,6 +3446,9 @@ CvPlot* CvCityCitizens::GetCityPlotFromIndex(int iIndex) const
 ///////////////////////////////////////////////////
 int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 {
+	if (m_pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
+		return 0;
+
 	int iGPPChange = 0;
 	CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if (pkSpecialistInfo)

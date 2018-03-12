@@ -302,6 +302,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int countCityFeatures(FeatureTypes eFeature, bool bReset = false) const;
 	int countNumBuildings(BuildingTypes eBuilding, bool bReset = false) const;
+	int countNumBuildingsInPuppets(BuildingTypes eBuilding, bool bReset = false) const;
 	int countCitiesFeatureSurrounded(bool bReset = false) const;
 #else
 	int countCityFeatures(FeatureTypes eFeature) const;
@@ -314,6 +315,10 @@ public:
 	int getCityFeatures(FeatureTypes eFeature) const;
 	void setNumBuildings(BuildingTypes eBuilding, int iValue);
 	int getNumBuildings(BuildingTypes eBuilding) const;
+
+	void setNumBuildingsInPuppets(BuildingTypes eBuilding, int iValue);
+	int getNumBuildingsInPuppets(BuildingTypes eBuilding) const;
+
 	void setCitiesFeatureSurrounded(int iValue);
 	int getCitiesFeatureSurrounded() const;
 #endif
@@ -2066,6 +2071,21 @@ public:
 	int GetHappinessPerActiveTradeRoute() const;
 	void changeHappinessPerActiveTradeRoute(int iChange);
 
+	int GetNeedsModifierFromAirUnits() const;
+	void changeNeedsModifierFromAirUnits(int iChange);
+
+	int GetFlatDefenseFromAirUnits() const;
+	void changeFlatDefenseFromAirUnits(int iChange);
+
+	int GetPuppetYieldPenaltyMod() const;
+	void changePuppetYieldPenaltyMod(int iChange);
+
+	int GetConquestPerEraBuildingProductionMod() const;
+	void changeConquestPerEraBuildingProductionMod(int iChange);
+
+	int GetAdmiralLuxuryBonus() const;
+	void changeAdmiralLuxuryBonus(int iChange);
+
 	bool IsCSResourcesCountMonopolies() const;
 	void changeCSResourcesCountMonopolies(int iChange);
 
@@ -3155,6 +3175,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMissionInfluenceModifier;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerActiveTradeRoute;
 	FAutoVariable<int, CvPlayer> m_iCSResourcesCountMonopolies;
+	FAutoVariable<int, CvPlayer> m_iConquestPerEraBuildingProductionMod;
+	FAutoVariable<int, CvPlayer> m_iAdmiralLuxuryBonus;
+	FAutoVariable<int, CvPlayer> m_iPuppetYieldPenaltyMod;
+	FAutoVariable<int, CvPlayer> m_iNeedsModifierFromAirUnits;
+	FAutoVariable<int, CvPlayer> m_iFlatDefenseFromAirUnits;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;
@@ -3274,6 +3299,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCSFriends;
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
+	std::vector<int> m_piNumBuildingsInPuppets;
 	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiBestMilitaryCombatClassCity;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiBestMilitaryDomainCity;

@@ -1314,6 +1314,9 @@ local function UpdateUnitStats(unit)
 		local icon = (GameInfo.Religions[unitReligion] or {}).IconString
 		Controls.UnitStatRangedAttack:SetText( icon and (unit:GetSpreadsLeft()..icon) )
 		Controls.UnitStatRangedAttack:SetToolTipString( L(Game.GetReligionName(unitReligion))..": "..L"TXT_KEY_UPANEL_SPREAD_RELIGION_USES_TT" )
+	elseif (unit:GetChargesLeft() > 0) then
+		Controls.UnitStatRangedAttack:SetText( "[ICON_GREAT_ADMIRAL]" ..unit:GetChargesLeft() )
+		Controls.UnitStatRangedAttack:SetToolTipString( L"TXT_KEY_UPANEL_REPAIR_CHARGES_TT" )
 --	elseif gk_mode and GameInfo_Units[unit:GetUnitType()].RemoveHeresy then
 --		Controls.UnitStatRangedAttack:LocalizeAndSetText( "TXT_KEY_UPANEL_REMOVE_HERESY_USES" )
 --		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_REMOVE_HERESY_USES_TT" )

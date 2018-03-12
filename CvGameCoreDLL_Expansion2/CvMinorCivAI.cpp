@@ -1435,7 +1435,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		}
 		if(pkSmallAwardInfo->GetScience() > 0)
 		{
-			int iBonus = iEra * pkSmallAwardInfo->GetProduction();
+			int iBonus = iEra * pkSmallAwardInfo->GetScience();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");

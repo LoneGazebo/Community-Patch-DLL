@@ -216,7 +216,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE">
-			<Text>Your {1_UnitType} journeyed to a far-off land and discovered [COLOR_POSITIVE_TEXT]{2_ResourceNames}[ENDCOLOR]! Two copies of this Resource were given to you in honor of your patronage.</Text>
+			<Text>Your {1_UnitType} journeyed to a far-off land and discovered [COLOR_POSITIVE_TEXT]{2_ResourceNames}[ENDCOLOR]! [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] copies of this Resource were given to you in honor of your patronage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE_SUMMARY">
 			<Text>Voyage of your {1_UnitType} completed!</Text>
@@ -490,6 +490,13 @@
 			<Text>{1_Num}[ENDCOLOR] [ICON_GREAT_ADMIRAL] Great Admiral Points</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_UPANEL_REPAIR_CHARGES">
+			<Text>Fleet Repair Charges</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPANEL_REPAIR_CHARGES_TT">
+			<Text>The number of times you can use the Fleet Repair ability. At zero, the unit is consumed.</Text>
+		</Row>
+		
 		<!-- Assyria UA Text -->
 		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST">
 			<Text>Your soldiers found information worth {1_Num} [ICON_RESEARCH] Science during the conquest of {2_Name}!</Text>
@@ -1241,6 +1248,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_CSTATE_CAN_EMBASSY">
 			<Text>[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS">
+			<Text>[NEWLINE][ICON_BULLET]Modified by Civilizing Mission: {1_Num}%</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
