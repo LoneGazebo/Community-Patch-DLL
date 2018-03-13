@@ -12629,8 +12629,9 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 	}
 }
 
-void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit, int iMoveFlags)
+void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 {
+	int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_EMBARK;
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
 	CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
 	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots);
@@ -12803,12 +12804,12 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	{
 		for (vector<SUnitStats>::iterator itUnit2 = availableUnits.begin(); itUnit2 != availableUnits.end(); ++itUnit2)
 		{
-			updateMoveAndAttackPlotsForUnit(*itUnit2, iFlags);
+			updateMoveAndAttackPlotsForUnit(*itUnit2);
 		}
 	}
 	else if (itUnit->iMovesLeft>0) //otherwise iterator is invalid
 	{
-		updateMoveAndAttackPlotsForUnit(*itUnit, iFlags);
+		updateMoveAndAttackPlotsForUnit(*itUnit);
 	}
 	else if (itUnit->iMovesLeft==0)
 	{
@@ -12941,7 +12942,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	assignedMoves.push_back( STacticalAssignment(pUnit->plot()->GetPlotIndex(),pUnit->plot()->GetPlotIndex(),
 								pUnit->GetID(),pUnit->getMoves(),pUnit->IsCombatUnit(),0,STacticalAssignment::A_INITIAL) );
 
-	updateMoveAndAttackPlotsForUnit(availableUnits.back(), CvUnit::MOVEFLAG_NO_EMBARK);
+	updateMoveAndAttackPlotsForUnit(availableUnits.back());
 	return true;
 }
 
