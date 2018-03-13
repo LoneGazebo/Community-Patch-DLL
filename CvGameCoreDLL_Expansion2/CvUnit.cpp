@@ -278,6 +278,8 @@ CvUnit::CvUnit() :
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	, m_iAuraRangeChange("CvUnit::m_iAuraRangeChange", m_syncArchive)
 	, m_iAuraEffectChange("CvUnit::m_iAuraEffectChange", m_syncArchive)
+	, m_iNumRepairCharges("CvUnit::m_iNumRepairCharges", m_syncArchive)
+	, m_iMilitaryCapChange("CvUnit::m_iMilitaryCapChange", m_syncArchive)
 #endif
 	, m_iGreatGeneralModifier("CvUnit::m_iGreatGeneralModifier", m_syncArchive)
 	, m_iGreatGeneralReceivesMovementCount("CvUnit::m_iGreatGeneralReceivesMovementCount", m_syncArchive)
@@ -336,7 +338,6 @@ CvUnit::CvUnit() :
 	, m_extraDomainModifiers()
 	, m_YieldModifier()
 	, m_YieldChange()
-	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvUnit::m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility", m_syncArchive, "")
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
 	, m_iScenarioData("CvUnit::m_iScenarioData", m_syncArchive)
 	, m_terrainDoubleMoveCount("CvUnit::m_terrainDoubleMoveCount", m_syncArchive)
@@ -730,6 +731,22 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(pCity != NULL)
 		{
 			pCity->setFood(0);
+		}
+	}
+	if (plot() != NULL)
+	{
+		CvCity* pCity = plot()->getPlotCity();
+		if (pCity != NULL)
+		{
+			if (GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				pCity->updateStrengthValue();
+			}
+
+			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+			}
 		}
 	}
 #endif
@@ -1477,6 +1494,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	m_iAuraRangeChange = 0;
 	m_iAuraEffectChange = 0;
+	m_iNumRepairCharges = 0;
+	m_iMilitaryCapChange = 0;
 #endif
 	m_iGreatGeneralModifier = 0;
 	m_iGreatGeneralReceivesMovementCount = 0;
@@ -1575,7 +1594,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 	m_eGreatWork = NO_GREAT_WORK;
 	m_iTourismBlastStrength = 0;
-	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
 	m_strScriptData ="";
 	m_iScenarioData = 0;
 
@@ -2358,25 +2376,29 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				}
 			}
 		}
-		if (bSupply && getUnitInfo().GetSupplyCapBoost() != 0)
+		if (bSupply)
 		{
-			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+			int iSupply = getUnitInfo().GetSupplyCapBoost() + GetMilitaryCapChange();
+			if (iSupply > 0)
 			{
-				GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(getUnitInfo().GetSupplyCapBoost());
-				if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+				if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 				{
-					char text[256] = { 0 };
-					float fDelay = 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", getUnitInfo().GetSupplyCapBoost());
-					DLLUI->AddPopupText(getX(), getY(), text, fDelay);
-					CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-					if (pNotification)
+					GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(getUnitInfo().GetSupplyCapBoost());
+					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 					{
-						CvString strMessage;
-						CvString strSummary;
-						strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), getUnitInfo().GetSupplyCapBoost());
-						strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
-						pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, getX(), getY(), getOwner());
+						char text[256] = { 0 };
+						float fDelay = 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
+						if (pNotification)
+						{
+							CvString strMessage;
+							CvString strSummary;
+							strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), iSupply);
+							strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
+							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, getX(), getY(), getOwner());
+						}
 					}
 				}
 			}
@@ -2525,6 +2547,23 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
 		pPlot->removeUnit(this, false);
+
+	if (pPlot)
+	{
+		CvCity* pCity = pPlot->getPlotCity();
+		if (pCity != NULL)
+		{
+			if (GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				pCity->updateStrengthValue();
+			}
+			
+			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+			}
+		}
+	}
 
 	// Remove Resource Quantity from Used
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -9408,7 +9447,7 @@ bool CvUnit::canGetFreeLuxury() const
 }
 bool CvUnit::createFreeLuxury()
 {
-	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux();
+	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux() + GET_PLAYER(getOwner()).GetAdmiralLuxuryBonus();
 	bool bResult = false;
 	if(iNumLuxuries > 0)
 	{
@@ -9489,7 +9528,7 @@ bool CvUnit::createFreeLuxury()
 					if (pInfo)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE");
-						strText <<  getNameKey() << pInfo->GetTextKey();
+						strText << getNameKey() << pInfo->GetTextKey() << iNumLuxuries;
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_FREE_RESOURCE_SUMMARY");
 						strSummary << getNameKey();
 						pNotifications->Add(NOTIFICATION_DISCOVERED_LUXURY_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceToGive);
@@ -9963,10 +10002,44 @@ bool CvUnit::rebase(int iX, int iY)
 
 	CvPlot* oldPlot = plot();
 
+	if (oldPlot->isCity())
+	{
+		CvCity* pCity = oldPlot->getPlotCity();
+		if (pCity != NULL)
+		{
+			if (GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				pCity->updateStrengthValue();
+			}
+
+			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+			}
+		}
+	}
+
 	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
 	CvAssert(pTargetPlot != NULL);
 	if(pTargetPlot == NULL)
 		return false;
+
+	if (pTargetPlot->isCity())
+	{
+		CvCity* pCity = pTargetPlot->getPlotCity();
+		if (pCity != NULL)
+		{
+			if (GET_PLAYER(getOwner()).GetFlatDefenseFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				pCity->updateStrengthValue();
+			}
+
+			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
+			{
+				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+			}
+		}
+	}
 
 	finishMoves();
 
@@ -12307,17 +12380,25 @@ bool CvUnit::repairFleet()
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
-	if(IsGreatPerson())
+	ChangeNumRepairCharges(-1);
+	if (GetNumRepairCharges() <= 0)
 	{
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		if (IsGreatPerson())
+		{
+			CvPlayer& kPlayer = GET_PLAYER(getOwner());
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-		kPlayer.DoGreatPersonExpended(getUnitType(), this);
+			kPlayer.DoGreatPersonExpended(getUnitType(), this);
 #else
-		kPlayer.DoGreatPersonExpended(getUnitType());
+			kPlayer.DoGreatPersonExpended(getUnitType());
 #endif
-	}
+		}
 
-	kill(true);
+		kill(true);
+	}
+	else
+	{
+		finishMoves();
+	}
 
 	return true;
 }
@@ -12685,7 +12766,7 @@ bool CvUnit::goldenAge()
 						if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp *= max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
+							iTemp += max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
 							iLengthModifier += iTemp;
 						}
 					}
@@ -12761,7 +12842,7 @@ int CvUnit::GetGoldenAgeTurns() const
 					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp *= max(1, kPlayer.GetMonopolyModPercent());
+						iTemp += max(1, kPlayer.GetMonopolyModPercent());
 						iLengthModifier += iTemp;
 					}
 				}
@@ -13288,9 +13369,14 @@ bool CvUnit::build(BuildTypes eBuild)
 		NewBuild = true;
 
 #if defined(MOD_BALANCE_CORE)
-		if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && pkBuildInfo && pkBuildInfo->GetID() == 29)
+		if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER)
 		{
-			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(getOwner(), 5);
+			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+			if (pPlot->getResourceType(pPlot->getTeam()) == eArtifactResourceType || (pPlot->getResourceType(pPlot->getTeam()) == eHiddenArtifactResourceType))
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(getOwner(), 5);
+			}
 		}
 #endif
 
@@ -16252,7 +16338,7 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 		if (plot()->getOwner() == pOtherUnit->getOwner())
 			return 0;
 
-		int iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
+		iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
 		//Not our territory?
 		if (plot()->getOwner() == NO_PLAYER)
 			iResistance /= 2;
@@ -23850,6 +23936,34 @@ void CvUnit::ChangeAuraEffectChange(int iChange)
 	VALIDATE_OBJECT
 	m_iAuraEffectChange += iChange;
 }
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetNumRepairCharges() const
+{
+	VALIDATE_OBJECT
+		return m_iNumRepairCharges;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeNumRepairCharges(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iNumRepairCharges += iChange;
+}
+
+int CvUnit::GetMilitaryCapChange() const
+{
+	VALIDATE_OBJECT
+		return m_iMilitaryCapChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeMilitaryCapChange(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iMilitaryCapChange += iChange;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -26520,6 +26634,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 		ChangeAuraRangeChange(thisPromotion.GetAuraRangeChange() * iChange);
 		ChangeAuraEffectChange(thisPromotion.GetAuraEffectChange() * iChange);
+		ChangeNumRepairCharges(thisPromotion.GetNumRepairCharges() * iChange);
+		ChangeMilitaryCapChange(thisPromotion.GetMilitaryCapChange() * iChange);
 #endif
 		changeGreatGeneralModifier(thisPromotion.GetGreatGeneralModifier() * iChange);
 		ChangeGreatGeneralReceivesMovementCount(thisPromotion.IsGreatGeneralReceivesMovement() ? iChange: 0);

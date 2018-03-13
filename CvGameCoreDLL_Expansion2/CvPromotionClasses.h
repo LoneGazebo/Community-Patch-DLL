@@ -106,6 +106,8 @@ public:
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int GetAuraRangeChange() const;
 	int GetAuraEffectChange() const;
+	int GetNumRepairCharges() const;
+	int GetMilitaryCapChange() const;
 #endif
 	int  GetGreatGeneralModifier() const;
 	bool IsGreatGeneralReceivesMovement() const;
@@ -396,6 +398,8 @@ protected:
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int m_iAuraRangeChange;
 	int m_iAuraEffectChange;
+	int m_iNumRepairCharges;
+	int m_iMilitaryCapChange;
 #endif
 	int m_iGreatGeneralModifier;
 	bool m_bGreatGeneralReceivesMovement;

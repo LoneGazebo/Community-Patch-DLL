@@ -518,7 +518,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>+15% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Allows for a Merchant specialist in your Capital. Can only be constructed via the Majesty Policy.</Text>
+			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Allows for a Merchant specialist in your Capital. Can only be constructed via the Majesty Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>

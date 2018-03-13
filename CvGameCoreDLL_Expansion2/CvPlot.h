@@ -670,7 +670,7 @@ public:
 
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
 
-	int countNumAirUnits(TeamTypes eTeam) const;
+	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
 	int countNumAntiAirUnits(TeamTypes eTeam) const;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -1167,19 +1167,6 @@ struct SPlotWithTwoScoresL2
 	CvPlot* pPlot;
 	int score1,score2;
 };
-struct SPlotWithTwoScoresTiebreak
-{
-	SPlotWithTwoScoresTiebreak(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
-
-	bool operator<(const SPlotWithTwoScoresTiebreak& other) const
-	{
-		return (score1<other.score1) || (score1==other.score1 && score2<other.score2);
-	}
-
-	CvPlot* pPlot;
-	int score1, score2;
-};
-
 #endif
 
 #endif

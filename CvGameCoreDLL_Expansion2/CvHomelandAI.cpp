@@ -8364,6 +8364,16 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 		CvCity* pCity = pBasePlot->getPlotCity();
 		if(pCity->isInDangerOfFalling() || (pCity->IsRazing() && pCity->getPopulation()<3) )
 			return -1;
+
+		if (GET_PLAYER(ePlayer).GetFlatDefenseFromAirUnits() != 0 && pCity->isUnderSiege())
+		{
+			iBaseScore += 2 * GET_PLAYER(ePlayer).GetFlatDefenseFromAirUnits();
+		}
+
+		if (GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() != 0)
+		{
+			iBaseScore += GET_PLAYER(ePlayer).GetNeedsModifierFromAirUnits() * pCity->getUnhappinessAggregated() / 5;
+		}
 	}
 
 	//check current targets

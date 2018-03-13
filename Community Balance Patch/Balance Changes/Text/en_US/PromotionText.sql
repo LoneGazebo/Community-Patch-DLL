@@ -393,5 +393,5 @@
 	
 	-- Naval Leadership
 	UPDATE Language_en_US
-	SET Text = 'Improves combat effectiveness of nearby naval units. +1 [ICON_MOVES] movement for this Unit.'
+	SET Text = '+1 [ICON_MOVES] Movement. Improves combat effectiveness of nearby naval units. May use the [COLOR_POSITIVE_TEXT]Repair Fleet[ENDCOLOR] Ability twice before being expended.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_ADMIRAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

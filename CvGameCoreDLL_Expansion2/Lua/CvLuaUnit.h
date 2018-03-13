@@ -581,6 +581,7 @@ protected:
 	static int lGetReligion(lua_State* L);
 	static int lGetConversionStrength(lua_State* L);
 	static int lGetSpreadsLeft(lua_State* L);
+	static int lGetChargesLeft(lua_State* L);
 	static int lGetNumFollowersAfterSpread(lua_State* L);
 	static int lGetMajorityReligionAfterSpread(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS)

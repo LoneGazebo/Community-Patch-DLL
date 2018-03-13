@@ -3054,14 +3054,22 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
 
 		// ... unless this is a city state we want to influence to help with diplo victory
-		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+		if (pPlot->getOwner() != NO_PLAYER)
 		{
-			if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 			{
-				if (m_pPlayer->GetDiplomacyAI()->GetMinorCivApproach(pPlot->getOwner()) != MINOR_CIV_APPROACH_CONQUEST)
+				if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
 				{
-					eRtnValue = ARCHAEOLOGY_LANDMARK;
+					if (m_pPlayer->GetDiplomacyAI()->GetMinorCivApproach(pPlot->getOwner()) != MINOR_CIV_APPROACH_CONQUEST)
+					{
+						eRtnValue = ARCHAEOLOGY_LANDMARK;
+					}
 				}
+			}
+			else
+			{
+				if (m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pPlot->getOwner()) >= MAJOR_CIV_OPINION_FRIEND)
+					eRtnValue = ARCHAEOLOGY_LANDMARK;
 			}
 		}
 	}
@@ -7403,7 +7411,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 	if (m_pCity->IsPuppet() && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
 	{
-		int iTempMod = GC.getPUPPET_TOURISM_MODIFIER();
+		int iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod();
 		szRtnValue += "[NEWLINE][NEWLINE]";
 		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_PUPPET", iTempMod);
 	}

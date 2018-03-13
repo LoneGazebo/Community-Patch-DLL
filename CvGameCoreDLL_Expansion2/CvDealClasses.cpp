@@ -999,6 +999,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						if(iFromWarScore < 75)
 							return false;
 					}
+					else
+					{
+						//Can't force third party peace with a loser. Has to be a sizeable difference
+						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
+
+						if(iFromWarScore < 75)
+							return false;
+					}
 				}
 			}
 		}
@@ -3440,7 +3448,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 										if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 										{
 											int iTemp = pInfo->getMonopolyGALength();
-											iTemp *= max(1, GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent());
+											iTemp += max(1, GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent());
 											iLengthModifier += iTemp;
 										}
 									}
@@ -3515,7 +3523,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 										if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 										{
 											int iTemp = pInfo->getMonopolyGALength();
-											iTemp *= max(1, GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent());
+											iTemp += max(1, GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent());
 											iLengthModifier += iTemp;
 										}
 									}

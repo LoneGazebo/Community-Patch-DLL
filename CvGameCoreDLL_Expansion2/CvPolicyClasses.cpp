@@ -356,6 +356,11 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
 	m_bCSResourcesForMonopolies(false),
+	m_iNeedsModifierFromAirUnits(0),
+	m_iFlatDefenseFromAirUnits(0),
+	m_iPuppetYieldPenaltyMod(0),
+	m_iConquestPerEraBuildingProductionMod(0),
+	m_iAdmiralLuxuryBonus(0),
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
@@ -722,6 +727,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMissionInfluenceModifier = kResults.GetInt("MissionInfluenceModifier");
 	m_iHappinessPerActiveTradeRoute = kResults.GetInt("HappinessPerActiveTradeRoute");
 	m_bCSResourcesForMonopolies = kResults.GetBool("CSResourcesCountForMonopolies");
+	m_iNeedsModifierFromAirUnits = kResults.GetInt("NeedsModifierFromAirUnits");
+	m_iFlatDefenseFromAirUnits = kResults.GetInt("FlatDefenseFromAirUnits");
+	m_iPuppetYieldPenaltyMod = kResults.GetInt("PuppetYieldPenaltyMod");
+	m_iConquestPerEraBuildingProductionMod = kResults.GetInt("ConquestPerEraBuildingProductionMod");
+	m_iAdmiralLuxuryBonus = kResults.GetInt("AdmiralLuxuryBonus");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
@@ -3324,6 +3334,27 @@ int CvPolicyEntry::GetMissionInfluenceModifier() const
 int CvPolicyEntry::GetHappinessPerActiveTradeRoute() const
 {
 	return m_iHappinessPerActiveTradeRoute;
+}
+
+int CvPolicyEntry::GetNeedsModifierFromAirUnits() const
+{
+	return m_iNeedsModifierFromAirUnits;
+}
+int CvPolicyEntry::GetFlatDefenseFromAirUnits() const
+{
+	return m_iFlatDefenseFromAirUnits;
+}
+int CvPolicyEntry::GetPuppetYieldPenaltyMod() const
+{
+	return m_iPuppetYieldPenaltyMod;
+}
+int CvPolicyEntry::GetConquestPerEraBuildingProductionMod() const
+{
+	return m_iConquestPerEraBuildingProductionMod;
+}
+int CvPolicyEntry::GetAdmiralLuxuryBonus() const
+{
+	return m_iAdmiralLuxuryBonus;
 }
 
 bool CvPolicyEntry::IsCSResourcesForMonopolies() const
