@@ -4406,6 +4406,11 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	{
 		for (size_t i = 0; i < vUnits.size(); i++)
 		{
+			//if we are gathering units, don't get distracted by enemies not posing immediate danger
+			if (pArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP &&
+				(*it)->plot()->getOwner() != pArmy->GetOwner())
+				continue;
+
 			int iDistance = plotDistance( *vUnits[i]->plot(), *(*it)->plot() );
 			if (iDistance < iMinDist)
 			{
