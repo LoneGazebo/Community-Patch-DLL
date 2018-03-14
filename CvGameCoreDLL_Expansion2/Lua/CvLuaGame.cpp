@@ -165,6 +165,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetInitTech);
 	Method(GetInitWonders);
 	Method(GetNumWorldWonders);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsWorldWonderClass);
+#endif
 
 	Method(GetAIAutoPlay);
 	Method(SetAIAutoPlay);
@@ -1221,6 +1224,18 @@ int CvLuaGame::lGetNumWorldWonders(lua_State* L)
 	lua_pushinteger(L, iWonderCount);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool isWorldWonderClass(const CvBuildingClassInfo& kBuildingClass);
+int CvLuaGame::lIsWorldWonderClass(lua_State* L)
+{
+	const BuildingClassTypes eBuildingClass = (BuildingClassTypes) lua_tointeger(L, 1);
+	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+	const bool bResult = ::isWorldWonderClass(*pkBuildingClassInfo);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getAIAutoPlay();
 int CvLuaGame::lGetAIAutoPlay(lua_State* L)

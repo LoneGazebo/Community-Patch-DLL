@@ -1388,7 +1388,22 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		if(pLoopUnit->getUnitInfo().IsFoundReligion())
 		{
 			pLoopUnit->GetReligionData()->SetReligion(eReligion);
+#if defined(MOD_BUGFIX_MINOR)
+			if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
+			{
+				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads());
+			}
+			else if (kPlayer.getCapitalCity())
+			{
+				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+			}
+			else
+			{
+				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+			}
+#else
 			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+#endif
 			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
 		}
 	}

@@ -949,6 +949,9 @@ ALTER TABLE Traits ADD COLUMN 'CityConquestGWAM' INTEGER DEFAULT 0;
 -- Shared religion tourism modifier, same as the one for policies
 ALTER TABLE Traits ADD COLUMN 'SharedReligionTourismModifier' INTEGER DEFAULT 0;
 
+-- Same as ExtraMissionarySpreads for Buildings, applies to all Missionaries and Great Prophets when they are created (does not affect captured ones)
+ALTER TABLE Traits ADD COLUMN 'ExtraMissionarySpreads' INTEGER DEFAULT 0;
+
 -- Limits the amount that can be built of a Unit class per city
 ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
 

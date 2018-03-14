@@ -11868,8 +11868,9 @@ int CvLuaPlayer::lGetExtraYieldWorldWonder(lua_State* L)
 		{
 			if(::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 			{
-				
-
+#if defined(MOD_API_UNIFIED_YIELDS)
+				iExtraYield += pkPlayer->GetPlayerTraits()->GetYieldChangeWorldWonder(eYieldType);
+#endif
 				for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 				{
 					const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);

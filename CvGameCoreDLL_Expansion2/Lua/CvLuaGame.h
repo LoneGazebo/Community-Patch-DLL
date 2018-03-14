@@ -150,6 +150,9 @@ protected:
 	static int lGetInitTech(lua_State* L);
 	static int lGetInitWonders(lua_State* L);
 	static int lGetNumWorldWonders(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	static int lIsWorldWonderClass(lua_State* L);
+#endif
 
 	static int lGetAIAutoPlay(lua_State* L);
 	static int lSetAIAutoPlay(lua_State* L);
