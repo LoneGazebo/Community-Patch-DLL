@@ -1153,7 +1153,7 @@ protected:
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
-	void updateMoveAndAttackPlotsForUnit(SUnitStats unit, int iMoveFlags);
+	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
 
 	//finding a particular unit
 	struct PrMatchingUnit
