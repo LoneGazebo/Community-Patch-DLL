@@ -210,6 +210,7 @@ public:
 	UnitTypes GetConvertUnit() const;
 	bool IsConvertOnFullHP() const;
 	bool IsWarOnly() const;
+	bool IsCapitalOnly() const;
 	bool IsConvertEnemyUnitToBarbarian() const;
 	bool IsWLTKDFromBirth() const;
 	bool IsGoldenAgeFromBirth() const;
@@ -397,6 +398,7 @@ private:
 	UnitTypes m_eConvertUnit;
 	bool m_bIsConvertOnFullHP;
 	bool m_bWarOnly;
+	bool m_bCapitalOnly;
 	bool m_bConvertEnemyUnitToBarbarian;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;

@@ -1290,7 +1290,29 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
+
 	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+
+#if defined(MOD_BALANCE_CORE)
+	// Capital only check
+	if (pGameUnit && pGameUnit->IsCapitalOnly())
+	{
+		if (!(pkCity->isCapital()))
+		{
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_NO_ACTION_UNIT_REQUIRES_CAPITAL");
+
+			const char* const localized = localizedText.toUTF8();
+			if (localized)
+			{
+				if (!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
+	}
+#endif
+
 	if(MOD_BALANCE_CORE && pGameUnit && GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown() > 0 && pGameUnit->GetGlobalFaithCooldown() > 0)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH");
