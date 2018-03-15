@@ -450,7 +450,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 			else
 			{
 				//be generous with the flags here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
-				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 
 				//if we're already moving to target, the current army plot is moving, so we cannot check progress against ...
@@ -458,7 +458,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 					GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint))
 				{
 					CvString strMsg;
-					strMsg.Format("Removing unit %d from army %d because no path to checkpoint", m_FormationEntries[iI].GetUnitID(), GetID());
+					strMsg.Format("Removing unit %d from army %d because no path to checkpoint. ETA %d, previously %d", m_FormationEntries[iI].GetUnitID(), GetID(), iTurnsToReachCheckpoint, m_FormationEntries[iI].m_iPrevEstimatedTurnsToCheckpoint);
 					pOperation->LogOperationSpecialMessage(strMsg);
 					RemoveUnit(m_FormationEntries[iI].GetUnitID());
 				}
@@ -654,7 +654,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 
 	// remove this unit from an army if it is already in one
 	thisPlayer.removeFromArmy(pThisUnit->getArmyID(), GetID());
-
+	m_FormationEntries[iSlotNum] = CvArmyFormationSlot(); //reset
 	m_FormationEntries[iSlotNum].SetUnitID(iUnitID);
 	pThisUnit->setArmyID(GetID());
 
@@ -667,7 +667,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 		if(iTurnsToReachCheckpoint < MAX_INT)
 		{
