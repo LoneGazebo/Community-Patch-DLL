@@ -11515,7 +11515,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
 		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer());
 
-	//this is only for melee attacks - ranged attacks are handled separately
+	//this is only for melee attacks - ranged units can't move into enemy plots - ranged attacks are handled separately
 	if (currentPlot.isEnemy())
 	{
 		//don't attack cities if the real target is something else
@@ -11747,7 +11747,16 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		result.iScore++;
 
 	//the danger value reflects any defensive terrain bonuses
-	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot,assumedPosition.getKilledEnemies()) : 0;
+	int iDanger = 0;
+	if (bEndTurn)
+	{
+		if (result.eType == STacticalAssignment::A_MELEEATTACK) 
+			//we stay where we were before
+			pUnit->GetDanger(pAssumedUnitPlot, assumedPosition.getKilledEnemies());
+		else 
+			//we move to the new plot
+			pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
+	}
 
 	//can happen with garrisons
 	if (iDanger==INT_MAX)
@@ -12169,7 +12178,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	return possibleMoves;
 }
 
-bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch)
+bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignmentsPerBranch*/)
 {
 	/*
 	abstract:
@@ -12255,11 +12264,13 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmen
 		else
 			movesToAdd.push_back(*itMove);
 
+		/*
 		//try to add some more moves
 		//	note that this is a performance / memory optimization to keep the tree smaller
 		//	however in many cases the assignments are not independent in the sense that they influence each others' score
 		//	so it would be better to do the moves one by one
 		findCompatibleMoves(movesToAdd,overAllChoices,iMaxAssignmentsPerBranch);
+		*/
 
 		if (!movesToAdd.empty())
 		{
@@ -12512,10 +12523,10 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 	return STacticalAssignment();
 }
 
-//are there units left or all enemies gone?
+//did we capture the primary target plot?
 bool CvTacticalPosition::isComplete() const
 { 
-	return killedEnemies.size()==nTotalEnemies;
+	return getTactPlot(pTargetPlot->GetPlotIndex()).getType() != CvTacticalPlot::TP_ENEMY;
 }
 
 //check that we're not just shuffling around units
@@ -12563,7 +12574,7 @@ void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
 }
 
 CvTacticalPosition::CvTacticalPosition(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget) : 
-	ePlayer(player), dummyPlot(NULL,NO_PLAYER), pTargetPlot(pTarget), eAggression(eAggLvl), iTotalScore(0), nTotalEnemies(0), parentPosition(NULL), iID(g_siTacticalPositionCount++)
+	ePlayer(player), dummyPlot(NULL,NO_PLAYER), pTargetPlot(pTarget), eAggression(eAggLvl), iTotalScore(0), parentPosition(NULL), iID(g_siTacticalPositionCount++)
 {
 }
 
@@ -12575,7 +12586,6 @@ CvTacticalPosition::CvTacticalPosition(const CvTacticalPosition& parent) : dummy
 	pTargetPlot = parent.pTargetPlot;
 	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
-	nTotalEnemies = parent.nTotalEnemies;
 	parentPosition = &parent;
 	iID = g_siTacticalPositionCount++;
 
@@ -12804,7 +12814,6 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		}
 	}
 
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_IGNORE_DANGER;
 	if (bRecomputeAllMoves)
 	{
 		for (vector<SUnitStats>::iterator itUnit2 = availableUnits.begin(); itUnit2 != availableUnits.end(); ++itUnit2)
@@ -12877,9 +12886,6 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot)
 	{
 		tacticalPlotLookup[pPlot->GetPlotIndex()] = (int)tactPlots.size();
 		tactPlots.push_back( CvTacticalPlot(pPlot,ePlayer) );
-
-		if (tactPlots.back().isEnemy())
-			nTotalEnemies++;
 	}
 	else
 	{
@@ -12967,6 +12973,11 @@ float CvTacticalPosition::getUnitNumberRatio() const
 
 void CvTacticalPosition::updateUnitNumberRatio()
 {
+	size_t nTotalEnemies = 0;
+	for (size_t i = 0; i < tactPlots.size(); i++)
+		if (tactPlots[i].getType() == CvTacticalPlot::TP_ENEMY)
+			nTotalEnemies++;
+
 	fUnitNumberRatio = sqrt( availableUnits.size() / float(max(1u,nTotalEnemies)) );
 	fUnitNumberRatio = max( 0.9f, fUnitNumberRatio ); //<1 indicates we're fewer but don't stop attacking because of that
 }
@@ -13124,10 +13135,6 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 				initialPosition->addTacticalPlot(pPlot);
 		}
 	}
-
-	//are there enemies?
-	if (initialPosition->isComplete())
-		return true;
 
 	//this influences how daring we'll be
 	initialPosition->updateUnitNumberRatio();
