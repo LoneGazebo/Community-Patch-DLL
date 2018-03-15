@@ -62,7 +62,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iDamageThreshold(0),
 	m_bIsConvertOnFullHP(0),
 	m_bWarOnly(0),
-	m_bCapitalOnly(0),
 	m_bConvertEnemyUnitToBarbarian(false),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
@@ -430,7 +429,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_eConvertUnit = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
 	m_bIsConvertOnFullHP = kResults.GetBool("ConvertOnFullHP");
 	m_bWarOnly = kResults.GetBool("WarOnly");
-	m_bCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bConvertEnemyUnitToBarbarian = kResults.GetBool("ConvertEnemyUnitToBarbarian");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
@@ -1396,12 +1394,6 @@ bool CvUnitEntry::IsWarOnly() const
 {
 	return m_bWarOnly;
 }
-#if defined(MOD_BALANCE_CORE)
-bool CvUnitEntry::IsCapitalOnly() const
-{
-	return m_bCapitalOnly;
-}
-#endif
 bool CvUnitEntry::IsConvertEnemyUnitToBarbarian() const
 {
 	return m_bConvertEnemyUnitToBarbarian;

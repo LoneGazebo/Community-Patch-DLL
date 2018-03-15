@@ -5676,11 +5676,6 @@
 			<Text>[NEWLINE]Only {1_Num} allowed per player city.</Text>
 		</Row>
 
-		<!-- Capital only unit -->
-		<Row Tag="TXT_KEY_NO_ACTION_UNIT_REQUIRES_CAPITAL">
-			<Text>[NEWLINE]This Unit can only be trained in the [ICON_CAPITAL] Capital.</Text>
-		</Row>
-
 		<!-- Ocean Embarkation Stuff -->
 		<Row Tag="TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION">
 			<Text>Ocean Embarkation</Text>

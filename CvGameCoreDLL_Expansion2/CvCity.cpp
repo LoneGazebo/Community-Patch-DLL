@@ -7794,18 +7794,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 					return false;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		// Capital check
-		if (thisUnitInfo.IsCapitalOnly())
-		{
-			if (!isCapital())
-			{
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_REQUIRES_CAPITAL");
-				if (toolTipSink == NULL)
-					return false;
-			}
-		}
-#endif
+
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 		const CvCivilizationInfo& thisCivilization = getCivilizationInfo();

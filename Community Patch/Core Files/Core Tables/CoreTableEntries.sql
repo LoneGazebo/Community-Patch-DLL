@@ -1134,9 +1134,6 @@ ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Typ
 -- Can this unit only be trained during War?
 ALTER TABLE Units ADD WarOnly BOOLEAN DEFAULT 0;
 
--- Unit can only be built in capital
-ALTER TABLE Units ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;
-
 -- Can this unit convert an enemy unit into a barbarian? Must set as well DamageThreshold to a value you want enemy to convert.
 ALTER TABLE Units ADD ConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
 
