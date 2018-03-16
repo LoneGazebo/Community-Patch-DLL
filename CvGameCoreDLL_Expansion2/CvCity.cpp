@@ -15436,7 +15436,7 @@ void CvCity::CheckForOperationUnits()
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(!bAppend)
 							{
-								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
+								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(this);
 								m_unitBeingBuiltForOperation = thisOperationSlot2;
 							}
 							//Log it

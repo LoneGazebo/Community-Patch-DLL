@@ -3906,14 +3906,14 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 	//the unit to be escorted is always the first one
 	CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 	//the second unit would be the first escort
-	CvUnit* pEscort = pThisArmy->GetNextUnit();
+	CvUnit* pEscort = pThisArmy->GetNextUnit(pCivilian);
 	//additional escorts
 	std::vector<CvUnit*> vExtraEscorts;
-	CvUnit* pExtraEscort = pThisArmy->GetNextUnit();
+	CvUnit* pExtraEscort = pThisArmy->GetNextUnit(pEscort);
 	while (pExtraEscort)
 	{
 		vExtraEscorts.push_back(pExtraEscort);
-		pExtraEscort = pThisArmy->GetNextUnit(); 
+		pExtraEscort = pThisArmy->GetNextUnit(pExtraEscort); 
 	}
 
 	// No civilian? that's a problem
@@ -4396,7 +4396,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		allEnemies.insert(vAttackers.begin(), vAttackers.end());
 
 		vUnits.push_back(pUnit);
-		pUnit = pArmy->GetNextUnit();
+		pUnit = pArmy->GetNextUnit(pUnit);
 	}
 
 	//find the closest pair of units
