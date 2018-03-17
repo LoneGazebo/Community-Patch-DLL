@@ -1660,8 +1660,6 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	
 	// Make a list of all combat units that can do this.
 	MoveUnitsArray PossibleSettlerUnits;
-	int iTurnDistance = INT_MAX;
-
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
@@ -1671,7 +1669,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 			ReachablePlots turnsFromMuster;
 			turnsFromMuster.insert( SMovePlot(pUnit->plot()->GetPlotIndex()) );
 
-			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pUnit->plot(),turnsFromMuster,pUnit->plot(),false,false,iTurnDistance))
+			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pUnit->plot(),turnsFromMuster,pUnit->plot(),false,false))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());

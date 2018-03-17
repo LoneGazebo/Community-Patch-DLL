@@ -6089,11 +6089,13 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
 		vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
 
+	int iPositionsToCheck = GC.getGame().getHandicapType() < 2 ? 12 : 23;
+
 	int iCount = 0;
 	bool bSuccess = false;
 	do
 	{
-		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, eAggLvl, 3, 23, vAssignments);
+		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, eAggLvl, 3, iPositionsToCheck, vAssignments);
 		if (vAssignments.empty())
 			break;
 		
@@ -13170,7 +13172,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	};
 
 	int iMaxAssignmentsPerBranch = max(ourUnits.size() / 3, 1u);
-	while (!openPositionsHeap.empty() && (int)finishedPositions.size()<iMaxFinishedPositions)
+	while (!openPositionsHeap.empty() && int(completedPositions.size()+finishedPositions.size())<iMaxFinishedPositions)
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();

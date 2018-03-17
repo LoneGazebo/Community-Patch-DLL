@@ -450,15 +450,17 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 			else
 			{
 				//be generous with the flags here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
-				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, pOperation->GetMaximumRecruitTurns());
 
 				//if we're already moving to target, the current army plot is moving, so we cannot check progress against ...
 				if (iTurnsToReachCheckpoint==INT_MAX ||
 					GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint))
 				{
 					CvString strMsg;
-					strMsg.Format("Removing unit %d from army %d because no path to checkpoint. ETA %d, previously %d", m_FormationEntries[iI].GetUnitID(), GetID(), iTurnsToReachCheckpoint, m_FormationEntries[iI].m_iPrevEstimatedTurnsToCheckpoint);
+					strMsg.Format("Removing unit %d from army %d because no path to checkpoint (%d:%d). ETA %d, previously %d.", 
+						m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
+						iTurnsToReachCheckpoint, m_FormationEntries[iI].m_iPrevEstimatedTurnsToCheckpoint);
 					pOperation->LogOperationSpecialMessage(strMsg);
 					RemoveUnit(m_FormationEntries[iI].GetUnitID());
 				}
@@ -667,11 +669,20 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
 		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 		if(iTurnsToReachCheckpoint < MAX_INT)
 		{
 			m_FormationEntries[iSlotNum].SetTurnsToCheckpoint(iTurnsToReachCheckpoint);
+		}
+
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+			CvString strMsg;
+			strMsg.Format("Added %s %d to slot %d in army %d. ETA at (%d:%d) is %d ", pThisUnit->getName().c_str(),
+				m_FormationEntries[iSlotNum].GetUnitID(), iSlotNum, GetID(), pMusterPlot->getX(), pMusterPlot->getY(), iTurnsToReachCheckpoint);
+			pOperation->LogOperationSpecialMessage(strMsg);
 		}
 	}
 }
