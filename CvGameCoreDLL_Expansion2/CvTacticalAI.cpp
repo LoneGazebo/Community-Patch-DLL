@@ -11784,6 +11784,12 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker 
 	//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
 	result.iScore = result.iScore*10 - iDangerScore + 20;
+
+	//often there are multiple identical units which could move into a plot
+	//in that case we want to prefer the one which has more movement points left
+	if (result.eType == STacticalAssignment::A_MOVE)
+		result.iScore += result.iRemainingMoves / 30;
+
 	return result;
 }
 
@@ -12173,14 +12179,14 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	if (possibleMoves.size()>(size_t)nMaxCount)
 		possibleMoves.erase( possibleMoves.begin()+nMaxCount, possibleMoves.end() );
 	
-	//don't return moves which are known to be suboptimal
-	while (!possibleMoves.empty() && possibleMoves.back().iScore < possibleMoves.front().iScore/4)
+	//if we have many moves, don't return those which are known to be suboptimal
+	while (possibleMoves.size()>4 && possibleMoves.back().iScore < possibleMoves.front().iScore/4)
 		possibleMoves.pop_back();
 
 	return possibleMoves;
 }
 
-bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignmentsPerBranch*/)
+bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit)
 {
 	/*
 	abstract:
@@ -12194,7 +12200,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignm
 
 	vector<STacticalAssignment> overAllChoices;
 	map<int,vector<STacticalAssignment>> choicePerUnit;
-	map<int,vector<STacticalAssignment>> newAssignments;
 	
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
@@ -12205,13 +12210,13 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignm
 		if (itUnit->eStrategy==SUnitStats::MS_SUPPORT)
 		{
 			currentPlot.changeNeighboringUnitCount(*this, false, -1);
-			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit,8);
+			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit, iMaxChoicesPerUnit);
 			currentPlot.changeNeighboringUnitCount(*this, false, +1);
 		}
 		else
 		{
 			currentPlot.changeNeighboringUnitCount(*this, true, -1);
-			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit, 8);
+			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit, iMaxChoicesPerUnit);
 			currentPlot.changeNeighboringUnitCount(*this, true, +1);
 		}
 
@@ -12255,6 +12260,9 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignm
 					//add the move to make space, then add the original move
 					movesToAdd.push_back(*itMove2);
 					movesToAdd.push_back(*itMove);
+
+					//mark that this is a forced move so we're allowed to move back later
+					movesToAdd.front().eType = STacticalAssignment::A_MOVE_FORCED;
 					break;
 				}
 			}
@@ -12266,29 +12274,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignm
 		else
 			movesToAdd.push_back(*itMove);
 
-		/*
-		//try to add some more moves
-		//	note that this is a performance / memory optimization to keep the tree smaller
-		//	however in many cases the assignments are not independent in the sense that they influence each others' score
-		//	so it would be better to do the moves one by one
-		findCompatibleMoves(movesToAdd,overAllChoices,iMaxAssignmentsPerBranch);
-		*/
-
 		if (!movesToAdd.empty())
 		{
-			//check if we already did something equivalent
-			bool bHaveEquivalent = false;
-			for (map<int,vector<STacticalAssignment>>::iterator itPrevMoves = newAssignments.begin(); itPrevMoves != newAssignments.end(); ++itPrevMoves)
-				//not a perfect check but good enough
-				if (movesAreEquivalent(movesToAdd,itPrevMoves->second))
-				{
-					bHaveEquivalent = true;
-					break;
-				}
-
-			if (bHaveEquivalent)
-				continue;
-
 			CvTacticalPosition* pNewChild = addChild();
 			if (!pNewChild)
 				continue;
@@ -12304,176 +12291,11 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int /*iMaxAssignm
 			}
 
 			if (pNewChild)
-			{
-				//check some candidates for redundancy
-				bool bRedundant = false;
-				if (parentPosition)
-				{
-					const vector<CvTacticalPosition*>& siblings = parentPosition->getChildren();
-					for (vector<CvTacticalPosition*>::const_iterator itSibling = siblings.begin(); itSibling != siblings.end(); ++itSibling)
-					{
-						if (*itSibling == this)
-							continue;
-
-						const vector<CvTacticalPosition*>& nephews = (*itSibling)->getChildren();
-						for (vector<CvTacticalPosition*>::const_iterator itNephew = nephews.begin(); itNephew != nephews.end(); ++itNephew)
-						{
-							//not a perfect check but good enough
-							if (movesAreEquivalent(pNewChild->getAssignments(),(*itNephew)->getAssignments()))
-							{
-								bRedundant = true;
-								break;
-							}
-						}
-
-						if (bRedundant)
-						{
-							removeChild(pNewChild);
-							pNewChild = NULL;
-							break;
-						}
-					}
-				}
-			}
-
-			if (pNewChild)
-			{
-				//remember for later
-				newAssignments[iNewBranches] = movesToAdd;
 				iNewBranches++;
-			}
 		}
 	}
 	
 	return (iNewBranches>0);
-}
-
-//assumption is that A is executed before B
-bool CvTacticalPosition::movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const
-{
-	bool AisPlotChange = A.eType == STacticalAssignment::A_MOVE || A.eType == STacticalAssignment::A_MELEEKILL || A.eType == STacticalAssignment::A_CAPTURE;
-	bool BisPlotChange = B.eType == STacticalAssignment::A_MOVE || B.eType == STacticalAssignment::A_MELEEKILL || B.eType == STacticalAssignment::A_CAPTURE;
-
-	bool AisAttack = A.eType == STacticalAssignment::A_MELEEATTACK || A.eType == STacticalAssignment::A_RANGEATTACK;
-	bool BisAttack = B.eType == STacticalAssignment::A_MELEEATTACK || B.eType == STacticalAssignment::A_RANGEATTACK;
-
-	bool AisKill = A.eType == STacticalAssignment::A_MELEEKILL || A.eType == STacticalAssignment::A_RANGEKILL;
-	bool BisKill = B.eType == STacticalAssignment::A_MELEEKILL || B.eType == STacticalAssignment::A_RANGEKILL;
-
-	if (A.iUnitID == B.iUnitID)
-		return false;
-
-	//don't combine kills with anything, they change ZOC
-	if (AisKill || BisKill)
-		return false;
-
-	//don't combine attacks, even different targets. otherwise we might miss a kill
-	//the algorithm is greedy otherwise and doesn't get to check sequential attacks on the same target if it can spend the attacks right away
-	if (AisAttack && BisAttack)
-		return false;
-
-	//do not combine voluntary end turns with anything except other endturns
-	if ( (A.eType == STacticalAssignment::A_FINISH || B.eType == STacticalAssignment::A_FINISH) && (A.eType != B.eType))
-		return false;
-
-	if (A.bIsCombat && B.bIsCombat)
-	{
-		if (AisPlotChange && BisPlotChange)
-			//do moves sequentially if we have only a few units. otherwise the adjacency bonus stuff doesn't work.
-			//if we have many units, the runtime gets too long, and we can probably afford a suboptimal solution.
-			if (availableUnits.size()<8 || A.iToPlotIndex == B.iToPlotIndex)
-				return false;
-
-		if (AisPlotChange && !BisPlotChange)
-			if (A.iToPlotIndex == B.iFromPlotIndex)
-				return false;
-
-		if (!AisPlotChange && BisPlotChange)
-			if (A.iFromPlotIndex == B.iToPlotIndex)
-				return false;
-	}
-
-	//note that some combinations are guaranteed not to occur (hopefully)
-	//- move out from the same plot (for combat units)
-	//- move into plot before attack / kill
-	//- ...
-
-	return true;
-}
-
-bool CvTacticalPosition::movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const
-{
-	if (seqA.size()!=seqB.size())
-		return false;
-
-	struct PrAssignmentSortById
-	{
-		//sort by unit id and movetype as tiebreaker
-		bool operator()(const STacticalAssignment& lhs, const STacticalAssignment& rhs) const 
-			{ return (lhs.iUnitID < rhs.iUnitID) || (lhs.iUnitID == rhs.iUnitID && lhs.eType < rhs.eType); } 
-	};
-	struct PrAssignmentIsEqual
-	{
-		bool operator()(const STacticalAssignment& lhs, const STacticalAssignment& rhs) const 
-			{ return (lhs.iUnitID == rhs.iUnitID) && (lhs.iFromPlotIndex == rhs.iFromPlotIndex) && (lhs.iToPlotIndex == rhs.iToPlotIndex) && (lhs.eType == rhs.eType); } 
-	};
-
-	//make local copies for sorting
-	vector<STacticalAssignment> A = seqA;
-	vector<STacticalAssignment> B = seqB;
-	sort(A.begin(), A.end(), PrAssignmentSortById());
-	sort(B.begin(), B.end(), PrAssignmentSortById());
-
-	return equal(A.begin(), A.end(), B.begin(), PrAssignmentIsEqual());
-}
-
-void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const
-{
-	if (chosen.empty())
-		return;
-
-	for (vector<STacticalAssignment>::const_iterator itChoice = choice.begin(); itChoice != choice.end(); ++itChoice)
-	{
-		//don't combine good moves with crap moves
-		if (itChoice->iScore < chosen.front().iScore / 3)
-			break; //choice is sorted!
-
-		if (isMoveBlockedByOtherUnit(*itChoice))
-		{
-			int iBlockingUnitID = findBlockingUnitAtPlot(itChoice->iToPlotIndex).iUnitID;
-			if (iBlockingUnitID==0 || iBlockingUnitID==itChoice->iUnitID)
-				continue; //shouldn't happen
-
-			//check if one of the already chosen assignments solves the block
-			bool bSolved = false;
-			for (vector<STacticalAssignment>::const_iterator itChosen = chosen.begin(); itChosen != chosen.end(); ++itChosen)
-				if (itChosen->eType == STacticalAssignment::A_MOVE && itChosen->iFromPlotIndex == itChoice->iToPlotIndex && itChosen->iUnitID == iBlockingUnitID)
-				{
-					bSolved = true;
-					break;
-				}
-
-			if (!bSolved)
-				continue;
-		}
-
-		bool bAllCompatible = true;
-		for (vector<STacticalAssignment>::const_iterator itChosen = chosen.begin(); itChosen != chosen.end(); ++itChosen)
-		{
-			if (!movesAreCompatible(*itChosen,*itChoice))
-			{
-				bAllCompatible = false;
-				break;
-			}
-		}
-
-		if (bAllCompatible)
-		{
-			chosen.push_back(*itChoice);
-			if (chosen.size()==nMaxCombinedMoves)
-				return;
-		}
-	}
 }
 
 bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& move) const
@@ -12503,6 +12325,7 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 		if (assignedMoves[i].iFromPlotIndex == iPlotIndex)
 		{
 			if (assignedMoves[i].eType == STacticalAssignment::A_MOVE ||
+				assignedMoves[i].eType == STacticalAssignment::A_MOVE_FORCED ||
 				assignedMoves[i].eType == STacticalAssignment::A_MELEEKILL)
 			{
 				return STacticalAssignment();
@@ -12515,6 +12338,7 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 			if (assignedMoves[i].eType == STacticalAssignment::A_INITIAL ||
 				assignedMoves[i].eType == STacticalAssignment::A_FINISH ||
 				assignedMoves[i].eType == STacticalAssignment::A_MOVE ||
+				assignedMoves[i].eType == STacticalAssignment::A_MOVE_FORCED ||
 				assignedMoves[i].eType == STacticalAssignment::A_MELEEKILL)
 			{
 				return assignedMoves[i];
@@ -12711,6 +12535,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	switch (newAssignment.eType)
 	{
 	case STacticalAssignment::A_MOVE:
+	case STacticalAssignment::A_MOVE_FORCED:
 	case STacticalAssignment::A_CAPTURE:
 		{
 			int iUnitID;
@@ -12838,7 +12663,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 
 	//intermediate moves don't affect the final score, but only this generation's score
 	iScoreOverParent += newAssignment.iScore;
-	if (newAssignment.eType != STacticalAssignment::A_MOVE)
+	if (newAssignment.eType != STacticalAssignment::A_MOVE && newAssignment.eType != STacticalAssignment::A_MOVE_FORCED)
 		iTotalScore += newAssignment.iScore;
 
 	//increasing our visibility is good
@@ -13171,7 +12996,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		}
 	};
 
-	int iMaxAssignmentsPerBranch = max(ourUnits.size() / 3, 1u);
+	int iMaxChoicesPerUnit = 8;
 	while (!openPositionsHeap.empty() && int(completedPositions.size()+finishedPositions.size())<iMaxFinishedPositions)
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
@@ -13183,7 +13008,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 			completedPositions.push_back(current);
 		}
 		//here the magic happens
-		else if (current->makeNextAssignments(iMaxBranches,iMaxAssignmentsPerBranch))
+		else if (current->makeNextAssignments(iMaxBranches,iMaxChoicesPerUnit))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -13277,6 +13102,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			continue; //skip this!
 			break;
 		case STacticalAssignment::A_MOVE:
+		case STacticalAssignment::A_MOVE_FORCED:
 		case STacticalAssignment::A_CAPTURE:
 			pUnit->ClearPathCache(); //make sure there's no stale path which coincides with our target
 			bPrecondition = (pUnit->plot() == pFromPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //no enemy
