@@ -2808,7 +2808,7 @@ public:
 	virtual void AI_chooseResearch() = 0;
 	virtual void AI_launch(VictoryTypes eVictory) = 0;
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster) = 0;
-	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(int iAreaID, int iTurns, CvCity* pCity) = 0;
+	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(CvCity* pCity) = 0;
 	virtual void CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot) = 0;
 	virtual void CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit) = 0;
 	virtual int GetNumUnitsNeededToBeBuilt() = 0;

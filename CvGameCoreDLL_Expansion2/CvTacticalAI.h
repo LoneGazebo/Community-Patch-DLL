@@ -1129,7 +1129,6 @@ protected:
 	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
 	set<int> freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	set<int> killedEnemies; //enemy units which were killed, to be ignored for danger 
-	size_t nTotalEnemies; //termination condition
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -1153,7 +1152,7 @@ protected:
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
-	void updateMoveAndAttackPlotsForUnit(SUnitStats unit, int iMoveFlags);
+	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
 
 	//finding a particular unit
 	struct PrMatchingUnit

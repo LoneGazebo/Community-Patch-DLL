@@ -1292,7 +1292,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam && !kToNodeCacheData.bCanEnterTerrainPermanent)
 			return -1; //forbidden
 		// check stacking (if visible)
-		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
+		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached && iTurns==0)
 			return -1; //forbidden
 		// can't stay in other players' cities
 		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
