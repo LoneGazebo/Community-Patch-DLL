@@ -15436,7 +15436,7 @@ void CvCity::CheckForOperationUnits()
 							pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
 							if(!bAppend)
 							{
-								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
+								OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(this);
 								m_unitBeingBuiltForOperation = thisOperationSlot2;
 							}
 							//Log it
@@ -18455,16 +18455,20 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 				iYieldReligion = (iValidTiles * iBaseYieldReligion) / 100;
 
 				//iDifference determines +/- of difference of old value
-				int iDifference = iYieldBase - GetYieldPerXFeature(eFeature, eYield);
+				int iBaseDifference = iYieldBase - GetYieldPerXFeature(eFeature, eYield);
 
 				//Change base rate first
-				ChangeBaseYieldRateFromBuildings(eYield, iDifference);
+				ChangeBaseYieldRateFromBuildings(eYield, iBaseDifference);
 				SetYieldPerXFeature(eFeature, eYield, iYieldBase);
+
+				SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
 			}
 			else
 			{
 				ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
 				SetYieldPerXFeature(eFeature, eYield, 0);
+
+				SetYieldPerXFeatureFromReligion(eFeature, eYield, 0);
 			}
 		}
 	}
@@ -18520,11 +18524,15 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 					//Change base rate first
 					ChangeBaseYieldRateFromBuildings(eYield, iDifference);
 					SetYieldPerXFeature(eFeature, eYield, iYieldBase);
+
+					SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
 				}
 				else
 				{
 					ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
 					SetYieldPerXFeature(eFeature, eYield, 0);
+
+					SetYieldPerXFeatureFromReligion(eFeature, eYield, 0);
 				}
 			}
 		}
