@@ -135,7 +135,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bImportsCountTowardsMonopolies(false),
 	m_bCanPurchaseNavalUnitsFaith(false),
 	m_bIgnorePuppetPenalties(false),
-	m_iSharedReligionTourismModifier
+	m_iSharedReligionTourismModifier(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
