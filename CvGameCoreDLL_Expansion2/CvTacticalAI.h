@@ -1129,7 +1129,6 @@ protected:
 	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
 	set<int> freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	set<int> killedEnemies; //enemy units which were killed, to be ignored for danger 
-	size_t nTotalEnemies; //termination condition
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;

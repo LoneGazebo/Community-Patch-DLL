@@ -171,6 +171,7 @@ public:
 	virtual AITacticalTargetType GetTargetType() const = 0;
 
 	//virtual methods with a sane default
+	virtual int GetMaximumRecruitTurnsBase() const;
 	virtual int GetMaximumRecruitTurns() const;
 	virtual bool CanTacticalAIInterruptOperation() const { return false; }
 	virtual bool IsOffensive() const { return false; }
@@ -232,7 +233,7 @@ public:
 	size_t GetNumUnitsCommittedToBeBuilt()	{ return m_viListOfUnitsCitiesHaveCommittedToBuild.size(); }
 
 	virtual OperationSlot PeekAtNextUnitToBuild();
-	virtual OperationSlot CommitToBuildNextUnit(int iAreaID, int iTurns, CvCity* pCity);
+	virtual OperationSlot CommitToBuildNextUnit();
 	virtual bool UncommitToBuild(OperationSlot thisOperationSlot);
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 
@@ -345,7 +346,7 @@ public:
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
 	virtual AITacticalTargetType GetTargetType() const { return AI_TACTICAL_TARGET_CITY; }
 
-	virtual int GetMaximumRecruitTurns() const;
+	virtual int GetMaximumRecruitTurnsBase() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool IsOffensive() const { return true; }
 
@@ -465,9 +466,13 @@ public:
 	{ 
 		return true; 
 	}
-	virtual int GetMaximumRecruitTurns() const
+	virtual int GetMaximumRecruitTurnsBase() const
 	{
 		return 4; //we don't have many units at the beginning. if there aren't enough, don't keep the available ones waiting 
+	}
+	virtual int GetMaximumRecruitTurns() const
+	{
+		return GetMaximumRecruitTurnsBase(); //don't extend this
 	}
 
 	virtual int GetDeployRange() const;
@@ -1103,7 +1108,7 @@ namespace OperationalAIHelpers
 	CvPlot* FindEnemiesNearPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
 	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, 
-				bool bMustNaval, bool bMustBeDeepWaterNaval, int& iTurnDistance, CvMultiUnitFormationInfo* thisFormation = NULL, CvArmyAI* pThisArmy = NULL);
+				bool bMustNaval, bool bMustBeDeepWaterNaval, CvMultiUnitFormationInfo* thisFormation = NULL, CvArmyAI* pThisArmy = NULL);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, CvPlot* pRefPlot);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, PlayerTypes eEnemy);
 	CvCity* GetNearestCoastalCityEnemy(PlayerTypes ePlayer, PlayerTypes eEnemy);
