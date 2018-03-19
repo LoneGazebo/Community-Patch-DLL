@@ -938,15 +938,6 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
-	//special for approximate pathfinding - don't hang around on dangerous plots
-	if (finder->DestinationReached(node->m_iX,node->m_iY) && !bIsDestination && !bIsInitialNode)
-	{
-		int iPlotDanger = pCacheData->isAIControl() && pCacheData->doDanger() ? pUnit->GetDanger(pPlot) : 0;
-	
-		if (iPlotDanger>pUnit->GetCurrHitPoints()*2) //always include some headroom!
-			kToNodeCacheData.bCanEnterTerrainPermanent = false;
-	}
-
 	//done!
 	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
 }
@@ -1198,8 +1189,9 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		}
 		else //civilian
 		{
-			//danger usually means capture (INT_MAX), unless embarked
-			if (iPlotDanger > pUnit->GetCurrHitPoints())
+			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2)
+				return -1; //don't ever do this
+			else if (iPlotDanger > pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
 			else if (iPlotDanger > 0)
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
@@ -1300,7 +1292,13 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 		//extra cost for ending the turn on various types of undesirable plots (unless explicitly requested)
 		if (!bIsPathDest)
-			iCost += PathEndTurnCost(pToPlot,kToNodeCacheData,pUnitDataCache,node->m_iTurns);
+		{
+			int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns);
+			if (iEndTurnCost < 0)
+				return -1;
+
+			iCost += iEndTurnCost;
+		}
 	}
 
 	if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))

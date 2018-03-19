@@ -454,12 +454,12 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, pOperation->GetMaximumRecruitTurns());
 
 				//if we're already moving to target, the current army plot is moving, so we cannot check progress against ...
-				if (iTurnsToReachCheckpoint==INT_MAX ||
-					GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint))
+				if ( iTurnsToReachCheckpoint==INT_MAX ||
+					 (GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint)) )
 				{
 					CvString strMsg;
-					strMsg.Format("Removing unit %d from army %d because no path to checkpoint (%d:%d). ETA %d, previously %d.", 
-						m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
+					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d, previously %d.", 
+						pUnit->getName().c_str(), m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
 						iTurnsToReachCheckpoint, m_FormationEntries[iI].m_iPrevEstimatedTurnsToCheckpoint);
 					pOperation->LogOperationSpecialMessage(strMsg);
 					RemoveUnit(m_FormationEntries[iI].GetUnitID());
