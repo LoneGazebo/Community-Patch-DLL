@@ -12105,7 +12105,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	}
 
 	//ranged attacks
-	if (unit.iAttacksLeft>0 && unit.iMovesLeft>0)
+	if (unit.isCombatUnit() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
@@ -12126,44 +12126,38 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		{
 			STacticalAssignment move(unit.iPlotIndex,*it,unit.iUnitID,unit.iMovesLeft,unit.isCombatUnit(),-1,STacticalAssignment::A_FINISH);
 
-			if (unit.isCombatUnit())
+			//the plot we're checking right now
+			const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
+			const CvTacticalPlot& currentPlot = getTactPlot(*it);
+			
+			//note: all valid plots are visible by definition
+			if (currentPlot.isValid() && currentPlot.isEnemy() && assumedUnitPlot.isValid()) //still alive?
 			{
-				//the plot we're checking right now
-				const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
-				const CvTacticalPlot& currentPlot = getTactPlot(*it);
-
-				//don't attack cities if the real target is something else
-				if (currentPlot.isEnemyCity() && getTarget()->GetPlotIndex() != currentPlot.getPlotIndex())
+				//received damage is zero here but still use the correct unit number ratio so as not to distort scores
+				ScoreAttack(currentPlot, pUnit, assumedUnitPlot, getAggressionLevel(), getUnitNumberRatio(), move);
+				if (move.iScore<0)
 					continue;
 
-				if (currentPlot.isValid() && currentPlot.isEnemy() && assumedUnitPlot.isValid()) //still alive?
-				{
-					//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-					ScoreAttack(currentPlot, pUnit, assumedUnitPlot, getAggressionLevel(), getUnitNumberRatio(), move);
-					if (move.iScore<0)
-						continue;
+				//what happens next?
+				if (AttackEndsTurn(pUnit,unit.iAttacksLeft-1))
+					move.iRemainingMoves = 0;
+				else
+					move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
-					//what happens next?
-					if (AttackEndsTurn(pUnit,unit.iAttacksLeft-1))
-						move.iRemainingMoves = 0;
-					else
-						move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+				//if we would need to stay here but it's a bad idea, then don't do the attack
+				if (move.iRemainingMoves == 0 && endTurnMoveScore < 0)
+					continue;
 
-					//if we would need to stay here but it's a bad idea, then don't do the attack
-					if (move.iRemainingMoves == 0 && endTurnMoveScore < 0)
-						continue;
+				if ( *it==getTarget()->GetPlotIndex() )
+					move.iScore += 3; //a slight boost for attacking the "real" target
 
-					if ( *it==getTarget()->GetPlotIndex() )
-						move.iScore += 3; //a slight boost for attacking the "real" target
-
-					//times 10 to match with ScorePlotForCombatUnit() and always better than ending the turn!
-					move.iScore = move.iScore*10 + endTurnMoveScore;
-				}
-
-				//generate a move for each possible attack. if we have multiple attacks, we will call this function again
-				if (move.iScore>0)
-					possibleMoves.push_back( move );
+				//times 10 to match with ScorePlotForCombatUnit() and always better than ending the turn!
+				move.iScore = move.iScore*10 + endTurnMoveScore;
 			}
+
+			//generate a move for each possible attack. if we have multiple attacks, we will call this function again
+			if (move.iScore>0)
+				possibleMoves.push_back( move );
 		}
 
 		//optimization: if we added a range attack then the end turn move will be generated automatically and the explicit end turn move is not needed
@@ -12953,6 +12947,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		CvPlot* pPlot = iterateRingPlots(pTarget,i);
 
 		//for the inital setup we use the official visibility. skip plots with neutral combat units!
+		//note: revealed but non-visible cities cannot be attack targets for simplicity. should be an edge case.
 		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ) && !pPlot->isNeutralUnit(ePlayer,true,true))
 		{
 			//another twist. there may be "unrelated" friendly units standing around and blocking tiles
