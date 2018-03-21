@@ -2866,11 +2866,19 @@ int CvLuaGame::lGetReligionName(lua_State* L)
 		return 1;
 	}
 	
-	CvReligionEntry* pkEntry = GC.getReligionInfo(eReligion);
-	if(pkEntry != NULL)
+	if (eReligion == NO_RELIGION)
 	{
-		lua_pushstring(L, pkEntry->GetDescriptionKey());
+		lua_pushstring(L, "No Religion");
 		return 1;
+	}
+	else
+	{
+		CvReligionEntry* pkEntry = GC.getReligionInfo(eReligion);
+		if (pkEntry != NULL)
+		{
+			lua_pushstring(L, pkEntry->GetDescriptionKey());
+			return 1;
+		}
 	}
 
 	return 0;

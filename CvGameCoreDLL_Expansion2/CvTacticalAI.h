@@ -1009,7 +1009,7 @@ private:
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 struct STacticalAssignment
 {
-	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE };
+	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED };
 
 	eAssignmentType eType;
 	int iUnitID;
@@ -1109,20 +1109,21 @@ protected:
 class CvTacticalPosition
 {
 protected:
-	//moves already assigned to get into this position (complete, mostly redundant with parent)
-	vector<STacticalAssignment> assignedMoves;
-	//which units do still need an assignment
-	vector<SUnitStats> availableUnits;
-
 	//for final sorting (does not include intermediate moves)
 	int iTotalScore;
 	//for heap sorting (included all moves made in the last generation)
 	int iScoreOverParent;
-	
-	//so we can look up stuff we haven't cached locally
-	const CvTacticalPosition* parentPosition;
+
+	//moves already assigned to get into this position (complete, mostly redundant with parent)
+	vector<STacticalAssignment> assignedMoves;
+
+	//the positions we can reach by adding more moves
 	vector<CvTacticalPosition*> childPositions;
 
+	//so we can look up stuff we haven't cached locally
+	const CvTacticalPosition* parentPosition;
+
+	vector<SUnitStats> availableUnits; //which units do still need an assignment
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
 	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
@@ -1148,9 +1149,6 @@ protected:
 	bool removeChild(CvTacticalPosition* pChild);
 	bool addAssignment(STacticalAssignment newAssignment);
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
-	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const;
-	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
-	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
 
@@ -1170,7 +1168,7 @@ public:
 	bool isComplete() const;
 	bool isOffensive() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
-	bool makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch);
+	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot);
 	bool addAvailableUnit(const CvUnit* pUnit);
