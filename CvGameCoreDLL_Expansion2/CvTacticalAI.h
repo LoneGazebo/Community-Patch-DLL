@@ -489,9 +489,7 @@ public:
 	{
 		m_iX = 0;
 		m_iY = 0;
-		m_eTargetType = AI_TACTICAL_TARGET_NONE;
 		m_iLastTurn = 0;
-		m_bIsNavalInvasion = false;
 	};
 
 	int GetX() const
@@ -510,14 +508,6 @@ public:
 	{
 		m_iY = iY;
 	};
-	AITacticalTargetType GetTargetType() const
-	{
-		return m_eTargetType;
-	};
-	void SetTargetType(AITacticalTargetType eType)
-	{
-		m_eTargetType = eType;
-	};
 	int GetLastTurn() const
 	{
 		return m_iLastTurn;
@@ -526,21 +516,11 @@ public:
 	{
 		m_iLastTurn = iTurn;
 	};
-	bool IsNavalInvasion() const
-	{
-		return m_bIsNavalInvasion;
-	};
-	void SetNavalInvasion(bool bIsNavalInvasion)
-	{
-		m_bIsNavalInvasion = bIsNavalInvasion;
-	};
 
 private:
 	int m_iX;
 	int m_iY;
-	AITacticalTargetType m_eTargetType;
 	int m_iLastTurn;
-	bool m_bIsNavalInvasion;
 };
 
 FDataStream& operator<<(FDataStream&, const CvTemporaryZone&);
@@ -760,9 +740,7 @@ public:
 	void Update();
 
 	// Temporary dominance zones
-	CvTemporaryZone* GetFirstTemporaryZone();
-	CvTemporaryZone* GetNextTemporaryZone();
-	void AddTemporaryZone(CvTemporaryZone zone);
+	void AddTemporaryZone(CvPlot* pPlot, int iDuration);
 	void DeleteTemporaryZone(CvPlot* pPlot);
 	void DropObsoleteZones();
 	bool IsTemporaryZoneCity(CvCity* pCity);

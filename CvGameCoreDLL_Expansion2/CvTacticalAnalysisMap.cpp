@@ -410,7 +410,6 @@ void CvTacticalAnalysisMap::Refresh()
 		AI_PERF_FORMAT("AI-perf.csv", ("Tactical Analysis Map, Turn %d, %s", GC.getGame().getGameTurn(), GET_PLAYER(m_ePlayer).getCivilizationShortDescription()) );
 
 		m_DominanceZones.clear();
-		AddTemporaryZones();
 
 		for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 		{
@@ -631,41 +630,6 @@ void CvTacticalAnalysisMap::ClearDynamicFlags()
 }
 
 // PRIVATE FUNCTIONS
-
-/// Add in any temporary dominance zones from tactical AI
-void CvTacticalAnalysisMap::AddTemporaryZones()
-{
-	CvTacticalAI* pTacticalAI = GET_PLAYER(m_ePlayer).GetTacticalAI();
-	if(pTacticalAI)
-	{
-		pTacticalAI->DropObsoleteZones();
-
-		CvTemporaryZone* pZone = pTacticalAI->GetFirstTemporaryZone();
-		while(pZone)
-		{
-			// Can't be a city zone (which is just used to boost priority but not establish a new zone)
-			if(pZone->GetTargetType() != AI_TACTICAL_TARGET_CITY && pZone->GetTargetType() != AI_TACTICAL_TARGET_CITY_TO_DEFEND)
-			{
-				CvPlot* pPlot = GC.getMap().plot(pZone->GetX(), pZone->GetY());
-				if(pPlot)
-				{
-					CvTacticalDominanceZone newZone;
-					newZone.SetTerritoryType(TACTICAL_TERRITORY_TEMP_ZONE);
-					newZone.SetOwner(NO_PLAYER);
-					newZone.SetAreaID(pPlot->getArea());
-					newZone.SetWater(pPlot->isWater());
-					newZone.Extend(pPlot);
-					newZone.SetNavalInvasion(pZone->IsNavalInvasion());
-
-					newZone.SetZoneID(m_DominanceZones.size());
-					AddNewDominanceZone(newZone);
-				}
-			}
-
-			pZone = pTacticalAI->GetNextTemporaryZone();
-		}
-	}
-}
 
 /// Update data for a cell: returns whether or not to add to dominance zones
 bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)

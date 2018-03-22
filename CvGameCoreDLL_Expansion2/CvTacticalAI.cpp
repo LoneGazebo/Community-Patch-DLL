@@ -233,11 +233,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTemporaryZone& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
-	saveTo << (int)readFrom.GetTargetType();
 	saveTo << readFrom.GetLastTurn();
 	saveTo << readFrom.GetX();
 	saveTo << readFrom.GetY();
-	saveTo << (int)readFrom.IsNavalInvasion();
 	return saveTo;
 }
 
@@ -249,15 +247,11 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTemporaryZone& writeTo)
 
 	int iTemp;
 	loadFrom >> iTemp;
-	writeTo.SetTargetType((AITacticalTargetType)iTemp);
-	loadFrom >> iTemp;
 	writeTo.SetLastTurn(iTemp);
 	loadFrom >> iTemp;
 	writeTo.SetX(iTemp);
 	loadFrom >> iTemp;
 	writeTo.SetY(iTemp);
-	loadFrom >> iTemp;
-	writeTo.SetNavalInvasion(iTemp != 0);
 	return loadFrom;
 }
 
@@ -647,37 +641,17 @@ CvCity* CvTacticalAI::GetNearestTargetCity(CvPlot* pPlot)
 
 // TEMPORARY DOMINANCE ZONES
 
-/// Retrieve first temporary dominance zone (follow with calls to GetNextTemporaryZone())
-CvTemporaryZone* CvTacticalAI::GetFirstTemporaryZone()
-{
-	CvTemporaryZone* pRtnValue = NULL;
-
-	m_iCurrentTempZoneIndex = 0;
-	if((int)m_TempZones.size() > m_iCurrentTempZoneIndex)
-	{
-		pRtnValue = &m_TempZones[m_iCurrentTempZoneIndex];
-	}
-
-	return pRtnValue;
-}
-
-/// Retrieve next temporary dominance zone, NULL if no more (should follow a call to GetFirstTemporaryZone())
-CvTemporaryZone* CvTacticalAI::GetNextTemporaryZone()
-{
-	CvTemporaryZone* pRtnValue = NULL;
-
-	m_iCurrentTempZoneIndex++;
-	if((int)m_TempZones.size() > m_iCurrentTempZoneIndex)
-	{
-		pRtnValue = &m_TempZones[m_iCurrentTempZoneIndex];
-	}
-
-	return pRtnValue;
-}
-
 /// Add a temporary dominance zone around a short-term target
-void CvTacticalAI::AddTemporaryZone(CvTemporaryZone zone)
+void CvTacticalAI::AddTemporaryZone(CvPlot* pPlot, int iDuration)
 {
+	if (!pPlot)
+		return;
+
+	CvTemporaryZone zone;
+	zone.SetX(pPlot->getX());
+	zone.SetY(pPlot->getY());
+	zone.SetLastTurn( GC.getGame().getGameTurn() + iDuration );
+
 	m_TempZones.push_back(zone);
 }
 
@@ -726,14 +700,9 @@ void CvTacticalAI::DropObsoleteZones()
 bool CvTacticalAI::IsTemporaryZoneCity(CvCity* pCity)
 {
 	for(unsigned int iI = 0; iI < m_TempZones.size(); iI++)
-	{
-		if(m_TempZones[iI].GetX() == pCity->getX() &&
-		        m_TempZones[iI].GetY() == pCity->getY() &&
-		        ( m_TempZones[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY || m_TempZones[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND) )
-		{
+		if(m_TempZones[iI].GetX() == pCity->getX() && m_TempZones[iI].GetY() == pCity->getY() )
 			return true;
-		}
-	}
+
 	return false;
 }
 

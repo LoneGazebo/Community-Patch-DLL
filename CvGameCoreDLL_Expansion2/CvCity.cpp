@@ -19628,15 +19628,10 @@ bool CvCity::DoRazingTurn()
 				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(eFormerOwner, this, iNumRebels, true, false, false, true);
 				if(bNotification)
 				{
+					//the former owner hates the razing and wants it back
 					if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
-					{
-						CvTemporaryZone zone;
-						zone.SetX(getX());
-						zone.SetY(getY());
-						zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-						GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone(zone);
-					}
+						GET_PLAYER(eFormerOwner).GetTacticalAI()->AddTemporaryZone( plot(), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 					if(pNotifications)
 					{

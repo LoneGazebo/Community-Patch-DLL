@@ -605,7 +605,6 @@ public:
 #endif
 
 protected:
-	void AddTemporaryZones();
 	bool PopulateCell(int iIndex, CvPlot* pPlot);
 	void AddToDominanceZones(int iIndex, CvTacticalAnalysisCell* pCell);
 	void CalculateMilitaryStrengths();
