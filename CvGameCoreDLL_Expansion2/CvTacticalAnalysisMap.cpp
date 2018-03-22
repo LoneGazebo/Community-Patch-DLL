@@ -267,46 +267,6 @@ void CvTacticalDominanceZone::SetRangeClosestEnemyUnit(int iRange)
 	m_iRangeClosestEnemyUnit = iRange;
 }
 
-/// Mix ownership of zone and who is dominant to get a unique classification for the zone
-TacticalMoveZoneType CvTacticalDominanceZone::GetZoneType() const
-{
-	if(m_eTerritoryType == TACTICAL_TERRITORY_FRIENDLY)
-	{
-		if(m_eOverallDominanceFlag == TACTICAL_DOMINANCE_FRIENDLY)
-		{
-			return AI_TACTICAL_MOVE_ZONE_FRIENDLY_WINNING;
-		}
-		else if(m_eOverallDominanceFlag == TACTICAL_DOMINANCE_EVEN)
-		{
-			return AI_TACTICAL_MOVE_ZONE_FRIENDLY_EVEN;
-		}
-		else
-		{
-			return AI_TACTICAL_MOVE_ZONE_FRIENDLY_LOSING;
-		}
-	}
-
-	else if(m_eTerritoryType == TACTICAL_TERRITORY_ENEMY)
-	{
-		if(m_eOverallDominanceFlag == TACTICAL_DOMINANCE_FRIENDLY)
-		{
-			return AI_TACTICAL_MOVE_ZONE_ENEMY_WINNING;
-		}
-		else if(m_eOverallDominanceFlag == TACTICAL_DOMINANCE_EVEN)
-		{
-			return AI_TACTICAL_MOVE_ZONE_ENEMY_EVEN;
-		}
-		else
-		{
-			return AI_TACTICAL_MOVE_ZONE_ENEMY_LOSING;
-		}
-	}
-
-	else
-	{
-		return AI_TACTICAL_MOVE_ZONE_UNOWNED;
-	}
-}
 //=====================================
 // CvTacticalAnalysisMap
 //=====================================
@@ -684,7 +644,7 @@ void CvTacticalAnalysisMap::AddTemporaryZones()
 		while(pZone)
 		{
 			// Can't be a city zone (which is just used to boost priority but not establish a new zone)
-			if(pZone->GetTargetType() != AI_TACTICAL_TARGET_CITY)
+			if(pZone->GetTargetType() != AI_TACTICAL_TARGET_CITY && pZone->GetTargetType() != AI_TACTICAL_TARGET_CITY_TO_DEFEND)
 			{
 				CvPlot* pPlot = GC.getMap().plot(pZone->GetX(), pZone->GetY());
 				if(pPlot)

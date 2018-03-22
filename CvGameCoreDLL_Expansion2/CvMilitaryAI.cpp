@@ -2744,10 +2744,10 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 			iThreatValue += (iNeutral * 5);
 			iThreatValue += (iBad * 10);
 			iThreatValue += (iSuperBad * 25);
-
-			//scale it a bit with city value (use pop as proxy)
-			fScale = 100 * sqrt((float)pLoopCity->getPopulation());
 		}
+
+		//note: we don't consider a cities size or economic importance here
+		//after all, small border cities are especially vulnerable
 
 		//tolerate some danger
 		if(iThreatValue <= GC.getCITY_HEAL_RATE())

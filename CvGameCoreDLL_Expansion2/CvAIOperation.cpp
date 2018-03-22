@@ -2382,7 +2382,7 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 		zone.SetX(pCityPlot->getX());
 		zone.SetY(pCityPlot->getY());
 		zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-		zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
+		zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 6));
 		GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
 
 		return true;

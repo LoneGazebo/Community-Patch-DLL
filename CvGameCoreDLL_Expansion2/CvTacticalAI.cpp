@@ -729,7 +729,7 @@ bool CvTacticalAI::IsTemporaryZoneCity(CvCity* pCity)
 	{
 		if(m_TempZones[iI].GetX() == pCity->getX() &&
 		        m_TempZones[iI].GetY() == pCity->getY() &&
-		        m_TempZones[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
+		        ( m_TempZones[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY || m_TempZones[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND) )
 		{
 			return true;
 		}
@@ -11463,6 +11463,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
+	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
 	if (fAggFactor>0 && iDamageReceived<pUnit->GetCurrHitPoints())
 	{
 		result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
