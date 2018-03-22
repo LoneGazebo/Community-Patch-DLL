@@ -48568,7 +48568,7 @@ void CvPlayer::updatePlotFoundValues()
 	}
 
 	//assuming a normal distribution ...
-	int iAvg = (iSum / iValidPlots) * 1000;
+	int iAvg = (iSum / (iValidPlots+1)) * 1000;
 	m_iReferenceFoundValue = iAvg - iAvg / 4;
 	//what is the worst plot we would settle?
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
