@@ -176,6 +176,7 @@ public:
 	virtual bool IsOffensive() const { return false; }
 	virtual bool IsAllowedDuringPeace() const { return false; }
 	virtual bool IsDefensive() const { return false; }
+	virtual void OnSuccess() const {}
 
 	//accessors
 	AIOperationState GetOperationState()
@@ -373,6 +374,8 @@ public:
 		return "AI_OPERATION_CITY_BASIC_ATTACK";
 	}
 	virtual MultiunitFormationTypes GetFormation() const;
+
+	virtual void OnSuccess() const;
 
 protected:
 };
@@ -866,6 +869,7 @@ public:
 		return true; 
 	}
 
+	virtual void OnSuccess() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -986,6 +990,8 @@ public:
 		return "AI_OPERATION_NAVAL_INVASION";
 	}
 	virtual MultiunitFormationTypes GetFormation() const;
+
+	virtual void OnSuccess() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
