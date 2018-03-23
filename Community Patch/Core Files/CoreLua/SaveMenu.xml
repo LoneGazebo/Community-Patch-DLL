@@ -47,6 +47,10 @@
         <GridButton Anchor="R,B" ID="SaveButton"     Offset="38,54"     Size="260,45"    Style="BaseButton" String="TXT_KEY_MENU_SAVE" />
 
         <CheckBox Offset="20,44" Anchor="R,T"  String="TXT_KEY_STEAMCLOUD" TextAnchor="L,C"  IsChecked="0" ID="CloudCheck" />
+        
+        <!-- Couldn't figure out how to add text keys to an existing modpack, so for now...  -->
+        <CheckBox Offset="20,109" Anchor="R,B"  String="TXT_KEY_FORCE_MP_SAVE" TextAnchor="L,C"  IsChecked="0" ID="ForceFreshMPSave" ToolTip="TXT_KEY_FORCE_MP_SAVE_TOOLTIP"/>
+        
 
       <!-- Side treatments -->
 			<Box Style="MenuLeftSideTreatment"/>

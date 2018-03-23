@@ -7,6 +7,7 @@ include( "MapUtilities" );
 local g_IsSingle = true;
 local g_IsAuto   = false;
 local g_IsDeletingFile = true;
+local g_ShowForceCheck = false;
 
 -- Global Constants
 g_InstanceManager = InstanceManager:new( "LoadButton", "Button", Controls.LoadFileButtonStack );
@@ -19,7 +20,7 @@ g_SelectedEntry = nil;		-- The currently selected entry.
 ----------------------------------------------------------------        
 ----------------------------------------------------------------
 function DoSaveToFile()
-	if (PreGame.IsMultiplayerGame() and PreGame.GameStarted()) then
+	if (PreGame.IsMultiplayerGame() and PreGame.GameStarted() and not Controls.ForceFreshMPSave:IsChecked()) then
 		UI.CopyLastAutoSave( Controls.NameBox:GetText() );
 	else
 		UI.SaveGame( Controls.NameBox:GetText() );
@@ -28,7 +29,7 @@ end
 ----------------------------------------------------------------        
 ----------------------------------------------------------------
 function DoSaveToSteamCloud(i)
-	if (PreGame.IsMultiplayerGame() and PreGame.GameStarted()) then
+	if (PreGame.IsMultiplayerGame() and PreGame.GameStarted() and not Controls.ForceFreshMPSave:IsChecked()) then
 		Steam.CopyLastAutoSaveToSteamCloud( i );
 	else
 		Steam.SaveGameToCloud( i );
@@ -636,10 +637,13 @@ ContextPtr:SetInputHandler( InputHandler );
 ----------------------------------------------------------------        
 ----------------------------------------------------------------
 function ShowHideHandler( isHide )
+		
     if( not isHide ) then
-
+		-- don't want to encourage potentially corrupting operations!
+		Controls.ForceFreshMPSave:SetCheck(false);
     	if (PreGame.GameStarted()) then    	
-	    	-- If the lock mods option is on then disable the save map button    	
+    		Controls.ForceFreshMPSave:SetHide(not g_ShowForceCheck or not PreGame.IsMultiplayerGame());
+	    	-- If the lock mods option is on then disable the save map button    		    		    	
     		if( PreGame.IsMultiplayerGame() or
     			Modding.AnyActivatedModsContainPropertyValue( "DisableSaveMapOption", "1" ) or
         		PreGame.GetGameOption( GameOptionTypes.GAMEOPTION_LOCK_MODS ) ~= 0 or
