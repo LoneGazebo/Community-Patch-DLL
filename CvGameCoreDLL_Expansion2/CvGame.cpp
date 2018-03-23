@@ -831,10 +831,6 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
-
-			// To have an orientation which plots are relatively good or bad
-			if (GET_PLAYER(ePlayer).isMajorCiv())
-				GET_PLAYER(ePlayer).setAveragePlotFoundValue();
 		}
 	}
 

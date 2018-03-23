@@ -233,11 +233,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTemporaryZone& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
-	saveTo << (int)readFrom.GetTargetType();
 	saveTo << readFrom.GetLastTurn();
 	saveTo << readFrom.GetX();
 	saveTo << readFrom.GetY();
-	saveTo << (int)readFrom.IsNavalInvasion();
 	return saveTo;
 }
 
@@ -249,15 +247,11 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTemporaryZone& writeTo)
 
 	int iTemp;
 	loadFrom >> iTemp;
-	writeTo.SetTargetType((AITacticalTargetType)iTemp);
-	loadFrom >> iTemp;
 	writeTo.SetLastTurn(iTemp);
 	loadFrom >> iTemp;
 	writeTo.SetX(iTemp);
 	loadFrom >> iTemp;
 	writeTo.SetY(iTemp);
-	loadFrom >> iTemp;
-	writeTo.SetNavalInvasion(iTemp != 0);
 	return loadFrom;
 }
 
@@ -647,37 +641,17 @@ CvCity* CvTacticalAI::GetNearestTargetCity(CvPlot* pPlot)
 
 // TEMPORARY DOMINANCE ZONES
 
-/// Retrieve first temporary dominance zone (follow with calls to GetNextTemporaryZone())
-CvTemporaryZone* CvTacticalAI::GetFirstTemporaryZone()
-{
-	CvTemporaryZone* pRtnValue = NULL;
-
-	m_iCurrentTempZoneIndex = 0;
-	if((int)m_TempZones.size() > m_iCurrentTempZoneIndex)
-	{
-		pRtnValue = &m_TempZones[m_iCurrentTempZoneIndex];
-	}
-
-	return pRtnValue;
-}
-
-/// Retrieve next temporary dominance zone, NULL if no more (should follow a call to GetFirstTemporaryZone())
-CvTemporaryZone* CvTacticalAI::GetNextTemporaryZone()
-{
-	CvTemporaryZone* pRtnValue = NULL;
-
-	m_iCurrentTempZoneIndex++;
-	if((int)m_TempZones.size() > m_iCurrentTempZoneIndex)
-	{
-		pRtnValue = &m_TempZones[m_iCurrentTempZoneIndex];
-	}
-
-	return pRtnValue;
-}
-
 /// Add a temporary dominance zone around a short-term target
-void CvTacticalAI::AddTemporaryZone(CvTemporaryZone zone)
+void CvTacticalAI::AddTemporaryZone(CvPlot* pPlot, int iDuration)
 {
+	if (!pPlot)
+		return;
+
+	CvTemporaryZone zone;
+	zone.SetX(pPlot->getX());
+	zone.SetY(pPlot->getY());
+	zone.SetLastTurn( GC.getGame().getGameTurn() + iDuration );
+
 	m_TempZones.push_back(zone);
 }
 
@@ -726,14 +700,9 @@ void CvTacticalAI::DropObsoleteZones()
 bool CvTacticalAI::IsTemporaryZoneCity(CvCity* pCity)
 {
 	for(unsigned int iI = 0; iI < m_TempZones.size(); iI++)
-	{
-		if(m_TempZones[iI].GetX() == pCity->getX() &&
-		        m_TempZones[iI].GetY() == pCity->getY() &&
-		        m_TempZones[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY)
-		{
+		if(m_TempZones[iI].GetX() == pCity->getX() && m_TempZones[iI].GetY() == pCity->getY() )
 			return true;
-		}
-	}
+
 	return false;
 }
 
@@ -11463,6 +11432,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 	//if the score is negative we don't do it. add previous damage again and again to make concentrated fire attractive
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
+	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
 	if (fAggFactor>0 && iDamageReceived<pUnit->GetCurrHitPoints())
 	{
 		result.iScore = int(iDamageDealt*fUnitNumberRatio*fAggFactor+0.5) - iDamageReceived + iExtraDamage; 
@@ -12105,7 +12075,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	}
 
 	//ranged attacks
-	if (unit.iAttacksLeft>0 && unit.iMovesLeft>0)
+	if (unit.isCombatUnit() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
@@ -12126,44 +12096,38 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		{
 			STacticalAssignment move(unit.iPlotIndex,*it,unit.iUnitID,unit.iMovesLeft,unit.isCombatUnit(),-1,STacticalAssignment::A_FINISH);
 
-			if (unit.isCombatUnit())
+			//the plot we're checking right now
+			const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
+			const CvTacticalPlot& currentPlot = getTactPlot(*it);
+			
+			//note: all valid plots are visible by definition
+			if (currentPlot.isValid() && currentPlot.isEnemy() && assumedUnitPlot.isValid()) //still alive?
 			{
-				//the plot we're checking right now
-				const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
-				const CvTacticalPlot& currentPlot = getTactPlot(*it);
-
-				//don't attack cities if the real target is something else
-				if (currentPlot.isEnemyCity() && getTarget()->GetPlotIndex() != currentPlot.getPlotIndex())
+				//received damage is zero here but still use the correct unit number ratio so as not to distort scores
+				ScoreAttack(currentPlot, pUnit, assumedUnitPlot, getAggressionLevel(), getUnitNumberRatio(), move);
+				if (move.iScore<0)
 					continue;
 
-				if (currentPlot.isValid() && currentPlot.isEnemy() && assumedUnitPlot.isValid()) //still alive?
-				{
-					//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-					ScoreAttack(currentPlot, pUnit, assumedUnitPlot, getAggressionLevel(), getUnitNumberRatio(), move);
-					if (move.iScore<0)
-						continue;
+				//what happens next?
+				if (AttackEndsTurn(pUnit,unit.iAttacksLeft-1))
+					move.iRemainingMoves = 0;
+				else
+					move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 
-					//what happens next?
-					if (AttackEndsTurn(pUnit,unit.iAttacksLeft-1))
-						move.iRemainingMoves = 0;
-					else
-						move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+				//if we would need to stay here but it's a bad idea, then don't do the attack
+				if (move.iRemainingMoves == 0 && endTurnMoveScore < 0)
+					continue;
 
-					//if we would need to stay here but it's a bad idea, then don't do the attack
-					if (move.iRemainingMoves == 0 && endTurnMoveScore < 0)
-						continue;
+				if ( *it==getTarget()->GetPlotIndex() )
+					move.iScore += 3; //a slight boost for attacking the "real" target
 
-					if ( *it==getTarget()->GetPlotIndex() )
-						move.iScore += 3; //a slight boost for attacking the "real" target
-
-					//times 10 to match with ScorePlotForCombatUnit() and always better than ending the turn!
-					move.iScore = move.iScore*10 + endTurnMoveScore;
-				}
-
-				//generate a move for each possible attack. if we have multiple attacks, we will call this function again
-				if (move.iScore>0)
-					possibleMoves.push_back( move );
+				//times 10 to match with ScorePlotForCombatUnit() and always better than ending the turn!
+				move.iScore = move.iScore*10 + endTurnMoveScore;
 			}
+
+			//generate a move for each possible attack. if we have multiple attacks, we will call this function again
+			if (move.iScore>0)
+				possibleMoves.push_back( move );
 		}
 
 		//optimization: if we added a range attack then the end turn move will be generated automatically and the explicit end turn move is not needed
@@ -12953,6 +12917,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		CvPlot* pPlot = iterateRingPlots(pTarget,i);
 
 		//for the inital setup we use the official visibility. skip plots with neutral combat units!
+		//note: revealed but non-visible cities cannot be attack targets for simplicity. should be an edge case.
 		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ) && !pPlot->isNeutralUnit(ePlayer,true,true))
 		{
 			//another twist. there may be "unrelated" friendly units standing around and blocking tiles
