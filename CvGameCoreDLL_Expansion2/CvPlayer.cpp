@@ -48583,7 +48583,6 @@ void CvPlayer::updatePlotFoundValues()
 	int iGoodEnoughToBeWorthOurTime = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
 	// first pass: precalculate found values
-	unsigned int iSum = 0, iValidPlots = 0;
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{

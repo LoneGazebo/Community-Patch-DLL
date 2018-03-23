@@ -2699,10 +2699,8 @@ vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats, bo
 		}
 
 		// Is this a temporary zone city? If so, we need to support it ASAP.
-		if(m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pLoopCity))
-		{
-			iThreatValue *= GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL() / 50;
-		}
+		if (m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pLoopCity))
+			iThreatValue += GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL();
 
 		float fScale = 1.f;
 		if (bIncludeFutureThreats)

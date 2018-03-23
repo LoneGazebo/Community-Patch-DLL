@@ -1913,6 +1913,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
 					LogOperationSpecialMessage("Transition to finished stage");
 
+					OnSuccess();
 					bStateChanged = true;
 				}
 			}
@@ -3141,6 +3142,49 @@ CvAIOperationNavalInvasionSneaky::CvAIOperationNavalInvasionSneaky()
 CvAIOperationNavalInvasionSneaky::~CvAIOperationNavalInvasionSneaky()
 {
 }
+
+void CvAIOperationCityBasicAttack::OnSuccess() const
+{
+	CvPlot* pPlot = GetTargetPlot();
+	if (!pPlot->isCity())
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		if (pCity)
+			pPlot = pCity->plot();
+	}
+
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone( pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+}
+
+void CvAIOperationNavalOnlyCityAttack::OnSuccess() const
+{
+	CvPlot* pPlot = GetTargetPlot();
+	if (!pPlot->isCity())
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		if (pCity)
+			pPlot = pCity->plot();
+	}
+
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+}
+
+void CvAIOperationNavalInvasion::OnSuccess() const
+{
+	CvPlot* pPlot = GetTargetPlot();
+	if (!pPlot->isCity())
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		if (pCity)
+			pPlot = pCity->plot();
+	}
+
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationNukeAttack
+////////////////////////////////////////////////////////////////////////////////
 
 CvAIOperationNukeAttack::CvAIOperationNukeAttack()
 {
