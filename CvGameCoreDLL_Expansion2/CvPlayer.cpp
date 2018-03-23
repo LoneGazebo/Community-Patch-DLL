@@ -45994,7 +45994,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 			if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
 				ignorePlots[iI] = 1;
-			else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+			else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
 				ignorePlots[iI] = 1;
 		}
 	}
@@ -48506,6 +48506,33 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
+void CvPlayer::computeAveragePlotFoundValue()
+{
+	// important preparation
+	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+
+	unsigned int iSum = 0, iValidPlots = 0;
+
+	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iValue = pCalc->PlotFoundValue(pPlot, this, vector<int>());
+
+		if (iValue > 0)
+		{
+			iSum += iValue / 1000;
+			iValidPlots++;
+		}
+	}
+
+	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
+	OutputDebugString(CvString::format("Average city site value for player %d is %d\n", m_eID.get(), iAvg).c_str());
+
+	//assuming a normal distribution, this should allow all but the worst plots
+	m_iReferenceFoundValue = iAvg - iAvg / 4;
+}
+
 void CvPlayer::updatePlotFoundValues()
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
@@ -48544,9 +48571,16 @@ void CvPlayer::updatePlotFoundValues()
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
 			ignorePlots[iI] = 1;
-		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
 			ignorePlots[iI] = 1;
 	}
+
+	//what is the worst plot we would settle?
+	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
+	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
+	//todo: take into account previously settled cities?
+	int iGoodEnoughToBeWorthOurTime = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
 	// first pass: precalculate found values
 	unsigned int iSum = 0, iValidPlots = 0;
@@ -48558,26 +48592,10 @@ void CvPlayer::updatePlotFoundValues()
 			continue;
 
 		int iValue = pCalc->PlotFoundValue(pPlot, this, ignorePlots);
-
-		if (iValue > 0)
-		{
+		if (iValue > iGoodEnoughToBeWorthOurTime)
 			m_viPlotFoundValues[iI] = iValue;
-			iSum += iValue / 1000;
-			iValidPlots++;
-		}
 	}
 
-	//assuming a normal distribution ...
-	int iAvg = (iSum / (iValidPlots+1)) * 1000;
-	m_iReferenceFoundValue = iAvg - iAvg / 4;
-	//what is the worst plot we would settle?
-	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
-	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
-	//todo: take into account previously settled cities?
-	int iGoodEnoughToBeWorthOurTime = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
-
-	OutputDebugString(CvString::format("Average city site value for player %d is %d, setting limit to %d\n", m_eID.get(), iAvg, iGoodEnoughToBeWorthOurTime).c_str());
 	std::map<int,int> minDistancePerArea;
 	std::map<int,int> countPerArea;
 
@@ -48588,10 +48606,7 @@ void CvPlayer::updatePlotFoundValues()
 		int iRefValue = m_viPlotFoundValues[iI];
 
 		if (iRefValue < iGoodEnoughToBeWorthOurTime)
-		{
-			m_viPlotFoundValues[iI] = -1;
 			continue;
-		}
 
 		for (int iCount = RING0_PLOTS; iCount<RING3_PLOTS; iCount++)
 		{
