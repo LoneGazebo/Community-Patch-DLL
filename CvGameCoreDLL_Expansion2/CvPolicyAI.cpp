@@ -3268,15 +3268,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_TOURISM] += PolicyInfo->GetTourismCostXCitiesMod() * 2;
 		}
 	}
-	if (PolicyInfo->GetCitadelBoost() != 0)
+	if (PolicyInfo->GetCultureBombBoost() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetCitadelBoost() * 250;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetCultureBombBoost() * 250;
 		}
 		else
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetCitadelBoost() * 50;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetCultureBombBoost() * 50;
 		}
 	}
 	if (PolicyInfo->GetPuppetProdMod() != 0)

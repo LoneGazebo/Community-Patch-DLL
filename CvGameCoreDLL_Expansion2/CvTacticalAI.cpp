@@ -4346,6 +4346,13 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	}
 }
 
+//workaround to make units from disbanded armies accessible to tactical AI in the same turn
+void CvTacticalAI::AddCurrentTurnUnit(CvUnit * pUnit)
+{
+	if (pUnit)
+		m_CurrentTurnUnits.push_back( pUnit->GetID() );
+}
+
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 {
@@ -10856,6 +10863,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		//don't stay here, try to get away even if it means temporarily moving to a higher danger plot
 		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
 			iDanger+=20;
+
+		//heal rate is higher here
+		if (bIsInTerritory)
+			iDanger -= 5;
 
 		//use city distance as tiebreaker
 		int iScore = iDanger * 10 + iCityDistance;

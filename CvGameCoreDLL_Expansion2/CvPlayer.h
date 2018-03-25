@@ -1983,9 +1983,9 @@ public:
 	int GetIncreasedQuestInfluence() const;
 	void ChangeIncreasedQuestInfluence(int iChange);
 
-	bool IsCitadelBoost() const;
-	int GetCitadelBoost() const;
-	void changeCitadelBoost(int iChange);
+	bool IsCultureBombBoost() const;
+	int GetCultureBombBoost() const;
+	void changeCultureBombBoost(int iChange);
 
 	bool IsPuppetProdMod() const;
 	int GetPuppetProdMod() const;
@@ -3126,7 +3126,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNoUnhappyIsolation;
 	FAutoVariable<int, CvPlayer> m_iDoubleBorderGA;
 	FAutoVariable<int, CvPlayer> m_iIncreasedQuestInfluence;
-	FAutoVariable<int, CvPlayer> m_iCitadelBoost;
+	FAutoVariable<int, CvPlayer> m_iCultureBombBoost;
 	FAutoVariable<int, CvPlayer> m_iPuppetProdMod;
 	FAutoVariable<int, CvPlayer> m_iOccupiedProdMod;
 	FAutoVariable<int, CvPlayer> m_iGoldInternalTrade;

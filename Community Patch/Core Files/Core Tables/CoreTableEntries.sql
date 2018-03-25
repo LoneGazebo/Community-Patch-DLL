@@ -542,7 +542,7 @@ ALTER TABLE Policies ADD COLUMN 'FreeSpy' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'InternalTradeGold' INTEGER DEFAULT 0;
 
 -- Boost Culture Bomb from Citadel
-ALTER TABLE Policies ADD COLUMN 'CitadelBoost' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CultureBombBoost' INTEGER DEFAULT 0;
 
 -- Unlock Era for Policy (Unlocks later eras earlier than normal)
 ALTER TABLE Policies ADD COLUMN 'UnlocksPolicyBranchEra' TEXT DEFAULT NULL;

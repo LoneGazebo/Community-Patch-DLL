@@ -21,10 +21,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return iMoveDenominator;
 	}
-	else if (pToPlot->isCity())
-	{
-		return iMoveDenominator;
-	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
@@ -186,6 +182,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	else if (pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit() && pToPlot->isCoastalLand(1) && pFromPlot->isWater())
 	{
 		return INT_MAX;
+	}
+	else if (pToPlot->isCity()) //this applies only if fromPlot has no route
+	{
+		return iMoveDenominator;
 	}
 #if defined(MOD_CARGO_SHIPS)
 	else if (pUnit->isCargo() && pUnit->getDomainType() == DOMAIN_LAND &&

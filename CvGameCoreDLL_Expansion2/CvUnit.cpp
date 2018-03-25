@@ -12565,7 +12565,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			if(GET_PLAYER(getOwner()).IsCitadelBoost())
+			if(GET_PLAYER(getOwner()).IsCultureBombBoost())
 			{
 				CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
 				if(pCapitalCity != NULL)
@@ -13323,7 +13323,7 @@ bool CvUnit::build(BuildTypes eBuild)
 					{
 #if defined(MOD_BALANCE_CORE_POLICIES)
 						int iCultureBomb = pkImprovementInfo->GetCultureBombRadius();
-						iCultureBomb += GET_PLAYER(getOwner()).GetCitadelBoost();
+						iCultureBomb += GET_PLAYER(getOwner()).GetCultureBombBoost();
 
 						PerformCultureBomb(iCultureBomb);
 #else
@@ -30969,8 +30969,8 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 	if(pTarget == plot())
 		return 0;
 
-	//normal handling: use the path cache of the unit, so we can possibly re-use the path later
-	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )
+	//don't cache the result here
+	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue, false) )
 		return INT_MAX;
 
 	return rtnValue;
