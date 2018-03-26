@@ -168,7 +168,6 @@ public:
 	virtual const char* GetOperationName() const = 0;
 	virtual bool CheckTransitionToNextStage() = 0;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy) = 0;
-	virtual AITacticalTargetType GetTargetType() const = 0;
 
 	//virtual methods with a sane default
 	virtual int GetMaximumRecruitTurnsBase() const;
@@ -177,6 +176,7 @@ public:
 	virtual bool IsOffensive() const { return false; }
 	virtual bool IsAllowedDuringPeace() const { return false; }
 	virtual bool IsDefensive() const { return false; }
+	virtual void OnSuccess() const {}
 
 	//accessors
 	AIOperationState GetOperationState()
@@ -328,7 +328,6 @@ public:
 	CvAIOperationDefensive() {}
 	virtual ~CvAIOperationDefensive() {}
 
-	virtual AITacticalTargetType GetTargetType() const { return AI_TACTICAL_TARGET_CITY_TO_DEFEND; }
 	virtual bool IsDefensive() const { return true; }
 
 };
@@ -344,7 +343,6 @@ public:
 	virtual ~CvAIOperationOffensive() {}
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
-	virtual AITacticalTargetType GetTargetType() const { return AI_TACTICAL_TARGET_CITY; }
 
 	virtual int GetMaximumRecruitTurnsBase() const;
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
@@ -376,6 +374,8 @@ public:
 		return "AI_OPERATION_CITY_BASIC_ATTACK";
 	}
 	virtual MultiunitFormationTypes GetFormation() const;
+
+	virtual void OnSuccess() const;
 
 protected:
 };
@@ -458,10 +458,6 @@ public:
 	{
 		return MUFORMATION_ANTI_BARBARIAN_TEAM;
 	}
-	virtual AITacticalTargetType GetTargetType() const
-	{
-		return AI_TACTICAL_TARGET_BARBARIAN_CAMP;
-	}
 	virtual bool IsAllowedDuringPeace() const
 	{ 
 		return true; 
@@ -509,11 +505,6 @@ public:
 		return MUFORMATION_FAST_PILLAGERS;
 	}
 	virtual int GetDeployRange() const;
-	virtual AITacticalTargetType GetTargetType() const
-	{
-		//this should attract the pillagers!
-		return AI_TACTICAL_TARGET_CITADEL;
-	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{
 		return true;
@@ -542,7 +533,6 @@ public:
 	virtual int GetDeployRange() const { return 1; }
 	virtual bool IsCivilianOperation() const { return true; }
 	virtual bool IsNavalOperation() const { return false; }
-	virtual AITacticalTargetType GetTargetType() const { return AI_TACTICAL_TARGET_NONE; }
 	virtual bool CheckTransitionToNextStage();
 	virtual UnitAITypes GetCivilianType() const = 0;
 
@@ -805,10 +795,6 @@ public:
 	{
 		return "AI_OPERATION_NAVAL_BOMBARDMENT";
 	}
-	virtual AITacticalTargetType GetTargetType() const 
-	{ 
-		return AI_TACTICAL_TARGET_BOMBARDMENT_ZONE;
-	}
 
 	virtual bool IsDefensive() const { return false; }
 	virtual bool IsOffensive() const { return true; }
@@ -843,10 +829,6 @@ public:
 	virtual MultiunitFormationTypes GetFormation() const
 	{
 		return MUFORMATION_NAVAL_SQUADRON;
-	}
-	virtual AITacticalTargetType GetTargetType() const 
-	{ 
-		return AI_TACTICAL_TARGET_BOMBARDMENT_ZONE;
 	}
 	virtual bool IsDefensive() const { return true; }
 	virtual bool IsOffensive() const { return false; }
@@ -887,6 +869,7 @@ public:
 		return true; 
 	}
 
+	virtual void OnSuccess() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1007,6 +990,8 @@ public:
 		return "AI_OPERATION_NAVAL_INVASION";
 	}
 	virtual MultiunitFormationTypes GetFormation() const;
+
+	virtual void OnSuccess() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1084,10 +1069,6 @@ public:
 	virtual int GetDeployRange() const
 	{
 		return 12;
-	}
-	virtual AITacticalTargetType GetTargetType() const
-	{ 
-		return AI_TACTICAL_TARGET_NONE;
 	}
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 

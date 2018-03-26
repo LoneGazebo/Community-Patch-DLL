@@ -69,11 +69,7 @@ void CvCitySiteEvaluator::Init()
 }
 
 /// Is it valid for this player to found a city here?
-#if defined(MOD_BALANCE_CORE)
 bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit) const
-#else
-bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
-#endif
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -237,7 +233,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 }
 
 /// Setup flavor multipliers - call once per player before PlotFoundValue() or PlotFertilityValue()
-void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
+void CvCitySiteEvaluator::ComputeFlavorMultipliers(const CvPlayer* pPlayer)
 {
 	// Set all to 0
 	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
@@ -337,7 +333,7 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 }
 
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
-int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield, bool /*bCoastOnly*/, CvString* pDebug)
+int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool /*bCoastOnly*/, CvString* pDebug)
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -432,6 +428,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (!pLoopPlot)
 			continue;
 
+		//ignore some plots (typically enemy or close to enemy)
+		if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
+			continue;
+
 		int iDistance = plotDistance(*pPlot,*pLoopPlot);
 		int iRingModifier = m_iRingModifier[iDistance];
 
@@ -449,30 +449,17 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iPlotValue = iDefaultPlotValue;
 		if (iRingModifier>0)
 		{
-			int iFoodValue = 0;
-			int iHappinessValue = 0;
-			int iProductionValue = 0;
-			int iGoldValue = 0;
-			int iScienceValue = 0;
-			int iFaithValue = 0;
+
+			int iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
+			int iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
+			int	iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
+			int iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
+			int	iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
+			//this is about strategic placement, not resources
+			int iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();
+
 			int iResourceValue = 0;
-			int iStrategicValue = 0;
-
-			if (eYield == NO_YIELD || eYield == YIELD_FOOD)
-				iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
-
-			if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
-				iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
-
-			if (eYield == NO_YIELD || eYield == YIELD_GOLD)
-				iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
-
-			if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
-				iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
-
-			if (eYield == NO_YIELD || eYield == YIELD_FAITH)
-				iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
-
+			int iHappinessValue = 0;
 			if (pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
 			{
 				iHappinessValue = ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
@@ -485,9 +472,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					iResourceValue /= 2;
 				}
 			}
-
-			//this is about strategic placement, not resources
-			iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER(); 
 
 			iTotalFoodValue += iFoodValue;
 			iTotalHappinessValue += iHappinessValue;
@@ -613,9 +597,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (iGoodPlotsInRing1 < 1)
+	if (iGoodPlotsInRing1 < 2)
 		return 0;
-	if (iGoodPlotsInRing2 < 2)
+	if (iGoodPlotsInRing2 < 3)
 		return 0;
 
 	//civ-specific bonuses
@@ -1327,8 +1311,7 @@ CvSiteEvaluatorForSettler::~CvSiteEvaluatorForSettler(void)
 }
 
 /// Value of this site for a settler
-#if defined(MOD_BALANCE_CORE_SETTLER)
-int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield, bool bCoastOnly, CvString* pDebug)
+int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly, CvString* pDebug)
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -1340,7 +1323,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	//
 	// First must be on coast if settling a new continent
 	CvArea* pArea = pPlot->area();
-	if(pArea && pPlayer) 
+	if(pArea && pPlayer)
 	{
 		bool bIsCoastal = pPlot->isCoastalLand();
 		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
@@ -1354,55 +1337,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
 	if (pPlayer && pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
 	{
-		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug) * 2;
+		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, ignorePlots, bCoastOnly, pDebug) * 2;
 	}
 	else
 	{
-		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug);
+		return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, ignorePlots, bCoastOnly, pDebug);
 	}
 }
-#else
-int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield, bool bCoastOnly)
-{
-	CvAssert(pPlot);
-	if(!pPlot) return 0;
-
-	if(!CanFound(pPlot, pPlayer, true))
-	{
-		return 0;
-	}
-
-	// Is there any reason this site doesn't work for a settler?
-	//
-	// First must be on coast if settling a new continent
-	bool bIsCoastal = pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN());
-	CvArea* pArea = pPlot->area();
-	CvAssert(pArea);
-	if(!pArea) return 0;
-	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
-	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
-	{
-		return 0;
-	}
-
-	// Seems okay for a settler, use base class to determine exact value
-	else
-	{
-		// if the civ gets a benefit from settling on a new continent (ie: Indonesia)
-		// double the fertility of that plot
-		int iLuxuryModifier = 0;
-		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
-		{
-			iLuxuryModifier = CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield) * 2;
-			return iLuxuryModifier;
-		}
-		else
-		{
-			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield);
-		}
-	}
-}
-#endif
 
 //=====================================
 // CvSiteEvaluatorForStart
@@ -1418,7 +1359,7 @@ CvSiteEvaluatorForStart::~CvSiteEvaluatorForStart(void)
 }
 
 /// Overridden - ignore flavors for initial site selection
-void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(CvPlayer*)
+void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(const CvPlayer*)
 {
 	// Set all to 1; we assign start position without considering flavors yet
 	for(int iI = 0; iI < NUM_SITE_EVALUATION_FACTORS; iI++)
@@ -1432,7 +1373,7 @@ void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(CvPlayer*)
 // ***** This method gets called pre-game if using a WB map (.civ5map), in which case pPlayer is NULL
 // *****
 /// Value of this site for a civ starting location
-int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes, bool)
+int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, const std::vector<int>&, bool)
 {
 	int rtnValue = 0;
 

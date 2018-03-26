@@ -33,19 +33,10 @@ public:
 	~CvCitySiteEvaluator(void);
 
 	virtual void Init();
-	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
-#if defined(MOD_BALANCE_CORE)
+	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
 	virtual bool CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, const CvUnit* pUnit = NULL) const;
-#else
-	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const;
-#endif
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
+	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=false, CvString* pDebug=NULL);
 	virtual int PlotFertilityValue(CvPlot* pPlot, bool bAllPlots=false);
-#else
-	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false);
-	virtual int PlotFertilityValue(CvPlot* pPlot);
-#endif
 
 protected:
 	// Each of these routines computes a number from 0 (no value) to 100 (best possible value)
@@ -89,11 +80,7 @@ public:
 	CvSiteEvaluatorForSettler(void);
 	~CvSiteEvaluatorForSettler(void);
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
-#else
-	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
-#endif
+	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=false, CvString* pDebug=NULL);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -110,8 +97,8 @@ public:
 	CvSiteEvaluatorForStart(void);
 	~CvSiteEvaluatorForStart(void);
 
-	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
-	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
+	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
+	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=true);
 };
 
 #endif //CIV5_SITE_EVALUATION_CLASSES_H
