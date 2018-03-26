@@ -910,6 +910,7 @@ bool CvAIOperation::Move()
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );
+		pThisArmy->ReleaseUnits(true);
 		return false;
 	}
 
@@ -2515,7 +2516,9 @@ CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* p
 	if(!pUnit)
 		return NULL;
 
-	return GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlot(pUnit);
+	return GET_PLAYER(pUnit->getOwner()).GreatMerchantWantsCash() ?
+		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForCash(pUnit) :
+		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForPuppet(pUnit);
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)

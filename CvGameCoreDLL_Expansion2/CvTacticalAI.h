@@ -762,6 +762,7 @@ public:
 	// Operational AI support functions
 	void PlotArmyMovesEscort(CvArmyAI* pThisArmy);
 	void PlotArmyMovesCombat(CvArmyAI* pThisArmy);
+	void AddCurrentTurnUnit(CvUnit* pUnit);
 
 	void UnitProcessed(int iID, bool bMarkTacticalMap=true);
 private:

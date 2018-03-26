@@ -428,25 +428,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			bAdvance = true;
 		}
 
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
-		if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
-		{
-			// If the attacker is in a city, fort or citadel, don't advance
-			static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-			static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
-			static ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-			CvPlot* attackPlot = kAttacker.plot();
-
-			if (attackPlot->isCity() || 
-				(attackPlot->getImprovementType() == eImprovementFort && !attackPlot->IsImprovementPillaged()) || 
-				(attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()) ||
-				(attackPlot->getImprovementType() == eImprovementCamp && kAttacker.isBarbarian()) )
-			{
-				//CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
-				bAdvance = false;
-			}
-		}
-#endif
+		if (!AttackerAdvances(kAttacker))
+			bAdvance = false;
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
 		pkCombatInfo->setDefenderRetaliates(true);
@@ -2922,6 +2905,29 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	return uiOpposingDamageCount;
 }
 
+bool CvUnitCombat::AttackerAdvances(CvUnit & kAttacker)
+{
+#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	{
+		// If the attacker is in a city, fort or citadel, don't advance
+		static ImprovementTypes eImprovementFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+		static ImprovementTypes eImprovementCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+		static ImprovementTypes eImprovementCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+		CvPlot* attackPlot = kAttacker.plot();
+
+		if (attackPlot->isCity() ||
+			(attackPlot->getImprovementType() == eImprovementFort && !attackPlot->IsImprovementPillaged()) ||
+			(attackPlot->getImprovementType() == eImprovementCitadel && !attackPlot->IsImprovementPillaged()) ||
+			(attackPlot->getImprovementType() == eImprovementCamp && kAttacker.isBarbarian()))
+		{
+			return false;
+		}
+	}
+#endif
+	return true;
+}
+
 //	-------------------------------------------------------------------------------------
 //	Generate nuclear explosion damage for all the units and cities in the radius of the specified plot.
 //	The attacker is optional, this is also called for a meltdown
@@ -3651,12 +3657,17 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		eFireSupportResult = AttackRanged(kAttacker, pDefender->getX(), pDefender->getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
 		if (pDefender->isDelayedDeath())
 		{
-			// Killed him, move to the plot if we can.
-			if(targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
+			if (AttackerAdvances(kAttacker))
 			{
-				if (kAttacker.UnitMove(&targetPlot, true, &kAttacker, true))
-					kAttacker.finishMoves();	// Burn all the moves we have
+				// Killed him, move to the plot if we can.
+				if (targetPlot.getNumVisibleEnemyDefenders(&kAttacker) == 0)
+				{
+					if (kAttacker.UnitMove(&targetPlot, true, &kAttacker, true))
+						if (!kAttacker.canMoveAfterAttacking())
+							kAttacker.finishMoves();
+				}
 			}
+
 			return eFireSupportResult;
 		}
 	}

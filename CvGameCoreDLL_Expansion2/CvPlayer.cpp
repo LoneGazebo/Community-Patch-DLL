@@ -679,7 +679,7 @@ CvPlayer::CvPlayer() :
 	, m_iNoUnhappyIsolation("CvPlayer::m_iNoUnhappyIsolation", m_syncArchive)
 	, m_iDoubleBorderGA("CvPlayer::m_iDoubleBorderGA", m_syncArchive)
 	, m_iIncreasedQuestInfluence("CvPlayer::m_iIncreasedQuestInfluence", m_syncArchive)
-	, m_iCitadelBoost("CvPlayer::m_iCitadelBoost", m_syncArchive)
+	, m_iCultureBombBoost("CvPlayer::m_iCultureBombBoost", m_syncArchive)
 	, m_iPuppetProdMod("CvPlayer::m_iPuppetProdMod", m_syncArchive)
 	, m_iOccupiedProdMod("CvPlayer::m_iOccupiedProdMod", m_syncArchive)
 	, m_iGoldInternalTrade("CvPlayer::m_iGoldInternalTrade", m_syncArchive)
@@ -1644,7 +1644,7 @@ void CvPlayer::uninit()
 	m_iNoUnhappyIsolation = 0;
 	m_iDoubleBorderGA = 0;
 	m_iIncreasedQuestInfluence = 0;
-	m_iCitadelBoost = 0;
+	m_iCultureBombBoost = 0;
 	m_iPuppetProdMod = 0;
 	m_iOccupiedProdMod = 0;
 	m_iGoldInternalTrade = 0;
@@ -34582,23 +34582,23 @@ void CvPlayer::ChangeIncreasedQuestInfluence(int iChange)
 }
 //Citadel Boost
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsCitadelBoost() const
+bool CvPlayer::IsCultureBombBoost() const
 {
-	return GetCitadelBoost() > 0;
+	return GetCultureBombBoost() > 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetCitadelBoost() const
+int CvPlayer::GetCultureBombBoost() const
 {
-	return m_iCitadelBoost;
+	return m_iCultureBombBoost;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeCitadelBoost(int iChange)
+void CvPlayer::changeCultureBombBoost(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iCitadelBoost += iChange;
+		m_iCultureBombBoost += iChange;
 	}
 }
 
@@ -42221,7 +42221,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				}
 			}
 		}
-		changeCitadelBoost(pPolicy->GetCitadelBoost() * iChange);
+		changeCultureBombBoost(pPolicy->GetCultureBombBoost() * iChange);
 		changePuppetProdMod(pPolicy->GetPuppetProdMod() * iChange);
 		changeOccupiedProdMod(pPolicy->GetOccupiedProdMod() * iChange);
 		changeGoldInternalTrade(pPolicy->GetInternalTradeGold() * iChange);

@@ -4844,12 +4844,24 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			// handled by economic AI
 			break;
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-			if (!ExecuteWorkerMove(pUnit))
+		{
+			std::vector<CvPlot*> vDummy;
+			BuildTypes eColonia = (BuildTypes)GC.getInfoTypeForString("BUILD_CUSTOMS_HOUSE_VENICE");
+			//stupid distinction between Player and PlayerAI classes
+			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true);
+			if (pTargetPlot)
+			{
+				ExecuteMoveToTarget(pUnit, pTargetPlot, 0, 0);
+				if (pUnit->atPlot(*pTargetPlot) && pUnit->canMove())
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eColonia);
+			}
+			else
 			{
 				MoveCivilianToSafety(pUnit);
 				UnitProcessed(pUnit->GetID());
 			}
 			break;
+		}
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
@@ -5072,6 +5084,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 	}
 #endif
 
+	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
 	std::vector<CvPlot*> vPlotsToAvoid;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -5082,9 +5095,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
-			int iValue = 0;
-
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestGreatGeneralTargetPlot(pUnit, vPlotsToAvoid, iValue);
+			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eCitadel, vPlotsToAvoid, false);
 			if(pTargetPlot)
 			{
 				if(pUnit->plot() == pTargetPlot)

@@ -292,7 +292,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTechCostXCitiesMod(0),
 	m_iTourismCostXCitiesMod(0),
 	m_iInternalTradeGold(0),
-	m_iCitadelBoost(0),
+	m_iCultureBombBoost(0),
 	m_iPuppetProdMod(0),
 	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
@@ -715,7 +715,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTechCostXCitiesMod = kResults.GetInt("TechCostXCitiesMod");
 	m_iTourismCostXCitiesMod = kResults.GetInt("TourismCostXCitiesMod");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
-	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
+	m_iCultureBombBoost = kResults.GetInt("CultureBombBoost");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
 	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
@@ -2843,9 +2843,9 @@ int CvPolicyEntry::GetTourismCostXCitiesMod() const
 	return m_iTourismCostXCitiesMod;
 }
 /// Citadel Boost?
-int CvPolicyEntry::GetCitadelBoost() const
+int CvPolicyEntry::GetCultureBombBoost() const
 {
-	return m_iCitadelBoost;
+	return m_iCultureBombBoost;
 }
 /// Puppet Production Boost?
 int CvPolicyEntry::GetPuppetProdMod() const
