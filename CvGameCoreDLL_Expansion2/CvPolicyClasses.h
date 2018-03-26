@@ -303,7 +303,7 @@ public:
 	int GetGreatEngineerHurryModifier() const;
 	int GetTechCostXCitiesMod() const;
 	int GetTourismCostXCitiesMod() const;
-	int GetCitadelBoost() const;
+	int GetCultureBombBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
 	int GetInternalTradeGold() const;
@@ -717,7 +717,7 @@ private:
 	int m_iIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;
-	int m_iCitadelBoost;
+	int m_iCultureBombBoost;
 	int m_iInternalTradeGold;
 	int m_iFreeWCVotes;
 	int m_iInfluenceGPExpend;

@@ -40,7 +40,7 @@ CvArmyAI::~CvArmyAI()
 }
 
 /// Deallocate memory
-void CvArmyAI::ReleaseUnits()
+void CvArmyAI::ReleaseUnits(bool bAddUnitsToTacticalAI)
 {
 	for (size_t i = 0; i<m_FormationEntries.size(); i++)
 	{
@@ -52,6 +52,8 @@ void CvArmyAI::ReleaseUnits()
 		{
 			pThisUnit->setArmyID(-1);
 			pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
+			if (bAddUnitsToTacticalAI) //for stupid reasons we first recruit units and then disband armies ...
+				GET_PLAYER(GetOwner()).GetTacticalAI()->AddCurrentTurnUnit(pThisUnit);
 		}
 	}
 
@@ -454,12 +456,12 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, pOperation->GetMaximumRecruitTurns());
 
 				//if we're already moving to target, the current army plot is moving, so we cannot check progress against ...
-				if (iTurnsToReachCheckpoint==INT_MAX ||
-					GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint))
+				if ( iTurnsToReachCheckpoint==INT_MAX ||
+					 (GetArmyAIState()==ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && !m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(iTurnsToReachCheckpoint)) )
 				{
 					CvString strMsg;
-					strMsg.Format("Removing unit %d from army %d because no path to checkpoint (%d:%d). ETA %d, previously %d.", 
-						m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
+					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d, previously %d.", 
+						pUnit->getName().c_str(), m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
 						iTurnsToReachCheckpoint, m_FormationEntries[iI].m_iPrevEstimatedTurnsToCheckpoint);
 					pOperation->LogOperationSpecialMessage(strMsg);
 					RemoveUnit(m_FormationEntries[iI].GetUnitID());

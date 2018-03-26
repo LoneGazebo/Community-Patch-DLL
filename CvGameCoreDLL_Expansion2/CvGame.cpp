@@ -834,7 +834,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// To have an orientation which plots are relatively good or bad
 			if (GET_PLAYER(ePlayer).isMajorCiv())
-				GET_PLAYER(ePlayer).setAveragePlotFoundValue();
+				GET_PLAYER(ePlayer).computeAveragePlotFoundValue();
 		}
 	}
 

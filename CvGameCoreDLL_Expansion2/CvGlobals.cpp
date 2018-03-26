@@ -4586,7 +4586,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 	{
 		if(!pkPlot->isWater())
 		{
-			const int iValue = GC.getGame().GetStartSiteEvaluator()->PlotFoundValue(pkPlot, NULL);
+			const int iValue = GC.getGame().GetStartSiteEvaluator()->PlotFoundValue(pkPlot, NULL, vector<int>());
 			sprintf_s(szBuffer, uiBufferLength, "%d", iValue);
 		}
 	}
@@ -4595,7 +4595,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 		if(!pkPlot->isWater() && ePlayer != NO_PLAYER)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pkPlot, &kPlayer);
+			const int iValue = kPlayer.getPlotFoundValue(pkPlot->getX(), pkPlot->getY());
 			sprintf_s(szBuffer, uiBufferLength, "%d", iValue);
 		}
 	}

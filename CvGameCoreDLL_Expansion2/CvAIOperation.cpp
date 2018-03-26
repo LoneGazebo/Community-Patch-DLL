@@ -910,6 +910,7 @@ bool CvAIOperation::Move()
 	if (ShouldAbort())
 	{
 		LogOperationSpecialMessage( "operation aborted before move" );
+		pThisArmy->ReleaseUnits(true);
 		return false;
 	}
 
@@ -1906,39 +1907,14 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				{
 					// Notify Diplo AI we're in place for attack
 					if(!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
-					{
 						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetMusteringForAttack(m_eEnemy, true);
-					}
-
-					// Notify tactical AI to focus on this area
-					if (GetTargetType()!=AI_TACTICAL_TARGET_NONE)
-					{
-						CvTemporaryZone zone;
-						if(pTarget->getWorkingCity() != NULL && pTarget->getWorkingCity()->getOwner() == m_eEnemy)
-						{
-							zone.SetX(pTarget->getWorkingCity()->getX());
-							zone.SetY(pTarget->getWorkingCity()->getY());
-						}
-						else
-						{
-							zone.SetX(pTarget->getX());
-							zone.SetY(pTarget->getY());
-						}
-
-						zone.SetTargetType( GetTargetType() );
-						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-						if (IsNavalOperation() && !IsCivilianOperation())
-						{
-							zone.SetNavalInvasion(true);
-						}
-						GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-					}
 
 					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
 					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 					pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
 					LogOperationSpecialMessage("Transition to finished stage");
 
+					OnSuccess();
 					bStateChanged = true;
 				}
 			}
@@ -2361,6 +2337,9 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 	CvPlot* pCityPlot = GetTargetPlot();
 	if(pSettler && pSettler->canFound(pCityPlot) && pSettler->plot() == pCityPlot && pSettler->canMove())
 	{
+		//check this before building the new city ...
+		bool bIsFrontier = (GC.getGame().GetClosestCityDistanceInTurns(pCityPlot) < GET_PLAYER(m_eOwner).GetCityDistanceInEstimatedTurns(pCityPlot));
+
 		pSettler->PushMission(CvTypes::getMISSION_FOUND());
 
 		if(GC.getLogging() && GC.getAILogging())
@@ -2378,12 +2357,8 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 		}
 
 		// Notify tactical AI to focus on this area
-		CvTemporaryZone zone;
-		zone.SetX(pCityPlot->getX());
-		zone.SetY(pCityPlot->getY());
-		zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-		zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
-		GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+		if (bIsFrontier)
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone( pCityPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 6 );
 
 		return true;
 	}
@@ -2541,7 +2516,9 @@ CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* p
 	if(!pUnit)
 		return NULL;
 
-	return GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlot(pUnit);
+	return GET_PLAYER(pUnit->getOwner()).GreatMerchantWantsCash() ?
+		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForCash(pUnit) :
+		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForPuppet(pUnit);
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -3168,6 +3145,49 @@ CvAIOperationNavalInvasionSneaky::CvAIOperationNavalInvasionSneaky()
 CvAIOperationNavalInvasionSneaky::~CvAIOperationNavalInvasionSneaky()
 {
 }
+
+void CvAIOperationCityBasicAttack::OnSuccess() const
+{
+	CvPlot* pPlot = GetTargetPlot();
+	if (!pPlot->isCity())
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		if (pCity)
+			pPlot = pCity->plot();
+	}
+
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone( pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
+}
+
+void CvAIOperationNavalOnlyCityAttack::OnSuccess() const
+{
+	CvPlot* pPlot = GetTargetPlot();
+	if (!pPlot->isCity())
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		if (pCity)
+			pPlot = pCity->plot();
+	}
+
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+}
+
+void CvAIOperationNavalInvasion::OnSuccess() const
+{
+	CvPlot* pPlot = GetTargetPlot();
+	if (!pPlot->isCity())
+	{
+		CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
+		if (pCity)
+			pPlot = pCity->plot();
+	}
+
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(pPlot, GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationNukeAttack
+////////////////////////////////////////////////////////////////////////////////
 
 CvAIOperationNukeAttack::CvAIOperationNukeAttack()
 {
