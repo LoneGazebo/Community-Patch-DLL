@@ -12018,13 +12018,7 @@ int CvLuaPlayer::lAddTemporaryDominanceZone(lua_State* L)
 	const int iY = lua_tointeger(L, 3);
 
 	// Notify tactical AI to focus on this area
-	CvTemporaryZone zone;
-	zone.SetX(iX);
-	zone.SetY(iY);
-	zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-	zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-	pkPlayer->GetTacticalAI()->AddTemporaryZone(zone);
-
+	pkPlayer->GetTacticalAI()->AddTemporaryZone( GC.getMap().plot(iX,iY), GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() );
 	return 1;
 }
 //------------------------------------------------------------------------------

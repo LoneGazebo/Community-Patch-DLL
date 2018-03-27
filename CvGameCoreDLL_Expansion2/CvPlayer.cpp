@@ -679,7 +679,7 @@ CvPlayer::CvPlayer() :
 	, m_iNoUnhappyIsolation("CvPlayer::m_iNoUnhappyIsolation", m_syncArchive)
 	, m_iDoubleBorderGA("CvPlayer::m_iDoubleBorderGA", m_syncArchive)
 	, m_iIncreasedQuestInfluence("CvPlayer::m_iIncreasedQuestInfluence", m_syncArchive)
-	, m_iCitadelBoost("CvPlayer::m_iCitadelBoost", m_syncArchive)
+	, m_iCultureBombBoost("CvPlayer::m_iCultureBombBoost", m_syncArchive)
 	, m_iPuppetProdMod("CvPlayer::m_iPuppetProdMod", m_syncArchive)
 	, m_iOccupiedProdMod("CvPlayer::m_iOccupiedProdMod", m_syncArchive)
 	, m_iGoldInternalTrade("CvPlayer::m_iGoldInternalTrade", m_syncArchive)
@@ -1644,7 +1644,7 @@ void CvPlayer::uninit()
 	m_iNoUnhappyIsolation = 0;
 	m_iDoubleBorderGA = 0;
 	m_iIncreasedQuestInfluence = 0;
-	m_iCitadelBoost = 0;
+	m_iCultureBombBoost = 0;
 	m_iPuppetProdMod = 0;
 	m_iOccupiedProdMod = 0;
 	m_iGoldInternalTrade = 0;
@@ -5257,6 +5257,7 @@ void CvPlayer::SetCenterOfMassEmpire()
 	m_iCenterOfMassX = iAvgX;
 	m_iCenterOfMassY = iAvgY;
 }
+
 void CvPlayer::UpdateCityThreatCriteria()
 {
 	//What are you doing here? Get out!
@@ -5275,11 +5276,11 @@ void CvPlayer::UpdateCityThreatCriteria()
 	}
 
 	//
-	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(false);
+	vector<CvCity*> threatenedCities = GetMilitaryAI()->GetThreatenedCities(true);
 	for(int i = 0; i < (int)threatenedCities.size(); i++)
 		threatenedCities[i]->SetThreatRank(i);
 
-	vector<CvCity*> threatenedCoastalCities = GetMilitaryAI()->GetThreatenedCities(false, true);
+	vector<CvCity*> threatenedCoastalCities = GetMilitaryAI()->GetThreatenedCities(true, true);
 	for (int i = 0; i < (int)threatenedCoastalCities.size(); i++)
 		threatenedCoastalCities[i]->SetCoastalThreatRank(i);
 }
@@ -34596,23 +34597,23 @@ void CvPlayer::ChangeIncreasedQuestInfluence(int iChange)
 }
 //Citadel Boost
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsCitadelBoost() const
+bool CvPlayer::IsCultureBombBoost() const
 {
-	return GetCitadelBoost() > 0;
+	return GetCultureBombBoost() > 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetCitadelBoost() const
+int CvPlayer::GetCultureBombBoost() const
 {
-	return m_iCitadelBoost;
+	return m_iCultureBombBoost;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeCitadelBoost(int iChange)
+void CvPlayer::changeCultureBombBoost(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iCitadelBoost += iChange;
+		m_iCultureBombBoost += iChange;
 	}
 }
 
@@ -42235,7 +42236,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				}
 			}
 		}
-		changeCitadelBoost(pPolicy->GetCitadelBoost() * iChange);
+		changeCultureBombBoost(pPolicy->GetCultureBombBoost() * iChange);
 		changePuppetProdMod(pPolicy->GetPuppetProdMod() * iChange);
 		changeOccupiedProdMod(pPolicy->GetOccupiedProdMod() * iChange);
 		changeGoldInternalTrade(pPolicy->GetInternalTradeGold() * iChange);
@@ -46195,6 +46196,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		return NULL;
 	}
 
+	//in case we're not getting the cached data, we need to prepare some things
+	vector<int> ignorePlots(GC.getMap().numPlots(), 0);
+	if (bLogging)
+	{
+		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+			if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
+				ignorePlots[iI] = 1;
+			else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
+				ignorePlots[iI] = 1;
+		}
+	}
+
 	//prefer settling close in the beginning
 	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
@@ -46347,7 +46363,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bLogging) 
 		{
 			CvString strDebug;
-			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, bNewContinent, &strDebug);
+			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, ignorePlots, bNewContinent, &strDebug);
 			//--------------
 			dump << pPlot << ",1," << iDanger << "," << iFertility << "," << iScale << "," << iValue << "," << strDebug.c_str() << std::endl;
 			//--------------
@@ -48702,18 +48718,18 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
-void CvPlayer::setAveragePlotFoundValue()
+void CvPlayer::computeAveragePlotFoundValue()
 {
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 
-	unsigned int iSum=0, iValidPlots=0;
+	unsigned int iSum = 0, iValidPlots = 0;
 
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iValue = pCalc->PlotFoundValue(pPlot, this);
+		int iValue = pCalc->PlotFoundValue(pPlot, this, vector<int>());
 
 		if (iValue > 0)
 		{
@@ -48722,11 +48738,11 @@ void CvPlayer::setAveragePlotFoundValue()
 		}
 	}
 
-	int iAvg = (iSum / iValidPlots) * 1000;
-	OutputDebugString( CvString::format("Average city site value for player %d is %d\n",m_eID.get(),iAvg).c_str() );
+	int iAvg = (iSum / max(1u,iValidPlots)) * 1000;
+	OutputDebugString(CvString::format("Average city site value for player %d is %d\n", m_eID.get(), iAvg).c_str());
 
 	//assuming a normal distribution, this should allow all but the worst plots
-	m_iReferenceFoundValue = iAvg - iAvg/4;
+	m_iReferenceFoundValue = iAvg - iAvg / 4;
 }
 
 void CvPlayer::updatePlotFoundValues()
@@ -48740,9 +48756,7 @@ void CvPlayer::updatePlotFoundValues()
 	// Set all area fertilities to 0
 	int iLoop = 0;
 	for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-	{
 		pLoopArea->setTotalFoundValue(0);
-	}
 
 	//don't need to update if never going to settle
 	if (isBarbarian())
@@ -48761,15 +48775,24 @@ void CvPlayer::updatePlotFoundValues()
 			return;
 	}
 
+	// important preparation
+	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+	vector<int> ignorePlots(GC.getMap().numPlots(), 0);
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
+			ignorePlots[iI] = 1;
+		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
+			ignorePlots[iI] = 1;
+	}
+
 	//what is the worst plot we would settle?
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 	//clamp it to a sensible range - alternatively use GetIndividualFlavor() but that has an even more undefined range
-	iFlavorExpansion = min(max(0,iFlavorExpansion),12);
+	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
 	//todo: take into account previously settled cities?
-	int iGoodEnoughToBeWorthOurTime = ( m_iReferenceFoundValue * (100 - 2*iFlavorExpansion) ) / 100;
-
-	// important preparation
-	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+	int iGoodEnoughToBeWorthOurTime = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
 	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
@@ -48779,11 +48802,9 @@ void CvPlayer::updatePlotFoundValues()
 		if (!pPlot->isRevealed(getTeam()))
 			continue;
 
-		int iValue = pCalc->PlotFoundValue(pPlot, this);
-		if (iValue < iGoodEnoughToBeWorthOurTime)
-			continue;
-
-		m_viPlotFoundValues[iI] = iValue;
+		int iValue = pCalc->PlotFoundValue(pPlot, this, ignorePlots);
+		if (iValue > iGoodEnoughToBeWorthOurTime)
+			m_viPlotFoundValues[iI] = iValue;
 	}
 
 	std::map<int,int> minDistancePerArea;

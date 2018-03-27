@@ -957,91 +957,83 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	// we need to evaluate the tiles adjacent to our territory 
 	if(m_bEvaluateAdjacent)
 	{
-		//Let's grab our territory.
-		for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+		std::set<int> plotsToCheck;
+		if (bOnlyEvaluateWorkersPlot && pUnit->plot()->isAdjacentPlayer(m_pPlayer->GetID()))
+			plotsToCheck.insert(pUnit->plot()->GetPlotIndex());
+		else
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+			for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+				if (!pPlot)
+					continue;
 
-			CvAssertMsg(pPlot != NULL, "Plot should not be NULL");
-			if(!pPlot)
+				//Let's look at non-owned plots next to owned plots.
+				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
+
+					if (pAdjacentPlot && pAdjacentPlot->getOwner() != m_pPlayer->GetID())
+						plotsToCheck.insert(pAdjacentPlot->GetPlotIndex());
+				}
+			}
+		}
+
+		for (set<int>::iterator it = plotsToCheck.begin(); it != plotsToCheck.end(); ++it)
+		{
+			CvPlot* pAdjacentPlot = GC.getMap().plotByIndex(*it);
+			if (!pAdjacentPlot)
 				continue;
 
-			if(bOnlyEvaluateWorkersPlot)
-			{
-				if(pPlot != pUnit->plot())
-				{
-					continue;
-				}
-			}
+			if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot))
+				continue;
 
-			//Let's look at non-owned plots next to owned plots.
-			std::set<int> checkedPlots;
-			CvPlot* pAdjacentPlot;
-			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-			{
-				pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
-
-				if(pAdjacentPlot != NULL)
-				{
-					if(pAdjacentPlot->getOwner() != m_pPlayer->GetID())
-					{
-						if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot) || checkedPlots.find(pAdjacentPlot->GetPlotIndex())!=checkedPlots.end())
-						{
-							continue;
-						}
-
-						//don't check the same plot multiple times
-						checkedPlots.insert(pAdjacentPlot->GetPlotIndex());
-
-						// distance weight
-						// find how many turns the plot is away
+			// distance weight
+			// find how many turns the plot is away
 #if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
-						int iMoveTurnsAway = FindTurnsAway(pUnit, pAdjacentPlot, bLimit);
+			int iMoveTurnsAway = FindTurnsAway(pUnit, pAdjacentPlot, bLimit);
 #else
-						int iMoveTurnsAway = FindTurnsAway(pUnit, pPlot);
+			int iMoveTurnsAway = FindTurnsAway(pUnit, pAdjacentPlot);
 #endif
-						if(iMoveTurnsAway < 0)
-						{
-							if(m_bLogging)
-							{
-								CvString strLog;
-								strLog.Format("unitx: %d unity: %d, plotx: %d ploty: %d, Evaluating out of territory plot, can't find path", pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-								LogInfo(strLog, m_pPlayer);
-							}
-
-							continue;
-						}
-
-						CvUnit* pAltWorker = pPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(), pUnit->AI_getUnitAIType());
-						if (pAltWorker && pAltWorker != pUnit)
-						{
-							continue;
-						}
-
-						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-						if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
-						{
-							continue;
-						}
-
-						//if the other unit is much closer
-						if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
-						{
-							//pretent we would have to move much further, which will reduce the score of the directives for this plot
-							iMoveTurnsAway *= 2;
-						}
-
-						if(m_bLogging)
-						{
-							CvString strLog;
-							strLog.Format("x: %d y: %d, Evaluating out of territory plot for improvement", pPlot->getX(), pPlot->getY());
-							LogInfo(strLog, m_pPlayer);
-						}
-
-						AddImprovingPlotsDirectives(pUnit, pAdjacentPlot, iMoveTurnsAway);
-					}
+			if(iMoveTurnsAway < 0)
+			{
+				if(m_bLogging)
+				{
+					CvString strLog;
+					strLog.Format("unitx: %d unity: %d, plotx: %d ploty: %d, Evaluating out of territory plot, can't find path", pUnit->getX(), pUnit->getY(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+					LogInfo(strLog, m_pPlayer);
 				}
+
+				continue;
 			}
+
+			CvUnit* pAltWorker = pAdjacentPlot->getFirstUnitOfAITypeSameTeam(pUnit->getTeam(), pUnit->AI_getUnitAIType());
+			if (pAltWorker && pAltWorker != pUnit)
+			{
+				continue;
+			}
+
+			int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers, pAdjacentPlot);
+			if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+			{
+				continue;
+			}
+
+			//if the other unit is much closer
+			if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
+			{
+				//pretent we would have to move much further, which will reduce the score of the directives for this plot
+				iMoveTurnsAway *= 2;
+			}
+
+			if(m_bLogging)
+			{
+				CvString strLog;
+				strLog.Format("x: %d y: %d, Evaluating out of territory plot for improvement", pAdjacentPlot->getX(), pAdjacentPlot->getY());
+				LogInfo(strLog, m_pPlayer);
+			}
+
+			AddImprovingPlotsDirectives(pUnit, pAdjacentPlot, iMoveTurnsAway);
 		}
 	}
 #endif
@@ -1298,30 +1290,15 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 	// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
 	if(eExistingImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement() && !pPlot->IsImprovementPillaged())
-	{
 		return;
-	}
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && !m_bEvaluateAdjacent)
-	{
-#endif
-	// if it's not within a city radius
-	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
-	{
+
+	if(!m_bEvaluateAdjacent && !pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
 		return;
-	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
+
 	// check to see if a non-bonus resource is here. if so, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
-	if(eResource != NO_RESOURCE)
-	{
-		if(GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
-		{
-			return;
-		}
-	}
+	if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_BONUS)
+		return;
 
 	// celtic rule: if this is a forest tile next to a city, do not improve this tile with a normal improvement
 	if (m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest() && eExistingImprovement == NO_IMPROVEMENT)
@@ -1339,18 +1316,15 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 	if (pPlot->IsImprovementPillaged())
 		return;
 
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && !m_bEvaluateAdjacent)
+	if (!m_bEvaluateAdjacent)
 	{
-#endif
-	CvCity* pCity = GetWorkingCity(pPlot);
-	if(!pCity)
-	{
-		return;
+		CvCity* pCity = GetWorkingCity(pPlot);
+		if(!pCity)
+		{
+			return;
+		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
+
 	// loop through the build types to find one that we can use
 	BuildTypes eBuild;
 	BuildTypes eOriginalBuildType;
@@ -2062,8 +2036,12 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 #if defined(MOD_BALANCE_CORE)
 
 	//don't consider non-workable plots for GPs!
-	if (pUnit->IsGreatPerson() && pPlot->getWorkingCity() == NULL)
-		return false;
+	if (pUnit->IsGreatPerson())
+	{
+		CvCity* pClosestCity = m_pPlayer->GetClosestCityByPlots(pPlot);
+		if (pClosestCity && pClosestCity->getWorkPlotDistance() < m_pPlayer->GetCityDistanceInPlots(pPlot))
+			return false;
+	}
 
 	if (pUnit->IsGreatPerson() && pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() != pUnit->getOwner())
 		return false;

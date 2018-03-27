@@ -40,7 +40,7 @@ CvArmyAI::~CvArmyAI()
 }
 
 /// Deallocate memory
-void CvArmyAI::ReleaseUnits()
+void CvArmyAI::ReleaseUnits(bool bAddUnitsToTacticalAI)
 {
 	for (size_t i = 0; i<m_FormationEntries.size(); i++)
 	{
@@ -52,6 +52,8 @@ void CvArmyAI::ReleaseUnits()
 		{
 			pThisUnit->setArmyID(-1);
 			pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
+			if (bAddUnitsToTacticalAI) //for stupid reasons we first recruit units and then disband armies ...
+				GET_PLAYER(GetOwner()).GetTacticalAI()->AddCurrentTurnUnit(pThisUnit);
 		}
 	}
 
