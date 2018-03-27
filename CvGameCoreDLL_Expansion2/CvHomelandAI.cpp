@@ -4846,14 +4846,19 @@ void CvHomelandAI::ExecuteMerchantMoves()
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
 		{
 			std::vector<CvPlot*> vDummy;
+			bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
 			BuildTypes eColonia = (BuildTypes)GC.getInfoTypeForString("BUILD_CUSTOMS_HOUSE_VENICE");
 			//stupid distinction between Player and PlayerAI classes
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true);
-			if (pTargetPlot)
+			CvPlot* pTargetPlot = bIsVenice ? GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true) : NULL;
+			if (pTargetPlot) //venetian merchant
 			{
 				ExecuteMoveToTarget(pUnit, pTargetPlot, 0, 0);
 				if (pUnit->atPlot(*pTargetPlot) && pUnit->canMove())
 					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eColonia);
+			}
+			else if (ExecuteWorkerMove(pUnit)) //regular merchant
+			{
+				UnitProcessed(pUnit->GetID());
 			}
 			else
 			{

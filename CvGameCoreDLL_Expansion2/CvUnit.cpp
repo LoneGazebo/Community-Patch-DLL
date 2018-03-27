@@ -5439,9 +5439,11 @@ bool CvUnit::jumpToNearestValidPlot()
 				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
 				if(pNearestCity != NULL)
-				{
 					iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
-				}
+
+				//avoid putting ships on lakes etc
+				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+					iValue += 12;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 				{
@@ -5510,10 +5512,13 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 			{
 				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
+				//avoid putting ships on lakes etc
+				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+					iValue += 12;
+
+				//try to stay within the same area
 				if(pLoopPlot->area() != area())
-				{
-					iValue *= 3;
-				}
+					iValue += 5;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 				{
