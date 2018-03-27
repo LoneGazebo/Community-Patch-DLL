@@ -4671,10 +4671,17 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		int iReligiousStrength = newUnit->getUnitInfo().GetReligiousStrength();
 		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
-#if defined(MOD_BUGFIX_MINOR)
-			if (GetCity())
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
 			{
-				newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+				if (GetCity())
+				{
+					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+				}
+				else
+				{
+					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+				}
 			}
 			else
 			{

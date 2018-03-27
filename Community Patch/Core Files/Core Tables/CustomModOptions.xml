@@ -910,6 +910,8 @@
 	 
 	<!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->
 	<Row Class="1" Name="BUGFIX_MINOR_CIV_STRATEGIES" Value="1"/>
+	<!-- * Fixes the ExtraMissionarySpreads column to affect naturally born Prophets -->
+	<Row Class="1" Name="BUGFIX_EXTRA_MISSIONARY_SPREADS" Value="1"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>

@@ -1385,17 +1385,24 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	CvUnit* pLoopUnit;
 	for(pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
-		if(pLoopUnit->getUnitInfo().IsFoundReligion())
+		if (pLoopUnit->getUnitInfo().IsFoundReligion())
 		{
 			pLoopUnit->GetReligionData()->SetReligion(eReligion);
-#if defined(MOD_BUGFIX_MINOR)
-			if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
 			{
-				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads());
-			}
-			else if (kPlayer.getCapitalCity())
-			{
-				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+				if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
+				{
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads());
+				}
+				else if (kPlayer.getCapitalCity())
+				{
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+				}
+				else
+				{
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+				}
 			}
 			else
 			{

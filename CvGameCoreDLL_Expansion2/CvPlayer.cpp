@@ -2909,14 +2909,21 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 			{
-#if defined(MOD_BUGFIX_MINOR)
-				if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+				if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
 				{
-					pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
-				}
-				else if (getCapitalCity())
-				{
-					pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+					if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+					{
+						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+					}
+					else if (getCapitalCity())
+					{
+						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+					}
+					else
+					{
+						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+					}
 				}
 				else
 				{
@@ -43309,14 +43316,21 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
 										if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 										{
-#if defined(MOD_BUGFIX_MINOR)
-											if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+											if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
 											{
-												pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
-											}
-											else if (getCapitalCity())
-											{
-												pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+												if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+												{
+													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+												}
+												else if (getCapitalCity())
+												{
+													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+												}
+												else
+												{
+													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+												}
 											}
 											else
 											{
