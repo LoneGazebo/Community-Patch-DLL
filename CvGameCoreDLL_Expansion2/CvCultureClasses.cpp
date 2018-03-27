@@ -6982,6 +6982,15 @@ void CvCityCulture::CalculateBaseTourism()
 		}
 	}
 
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// City level yield modifiers (eg from buildings, policies, etc)
+	int iCityBaseTourismYieldRateMod = m_pCity->getBaseYieldRateModifier(YIELD_TOURISM) - 100;
+	if (MOD_API_UNIFIED_YIELDS_TOURISM && iCityBaseTourismYieldRateMod != 0)
+	{
+		iModifier += iCityBaseTourismYieldRateMod;
+	}
+#endif
+
 	if (iModifier != 0)
 	{
 		iBase *= (100 + iModifier);
@@ -7193,6 +7202,15 @@ int CvCityCulture::GetBaseTourism()
 			}
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// City level yield modifiers (eg from buildings, policies, etc)
+	int iCityBaseTourismYieldRateMod = m_pCity->getBaseYieldRateModifier(YIELD_TOURISM) - 100;
+	if (MOD_API_UNIFIED_YIELDS_TOURISM && iCityBaseTourismYieldRateMod != 0)
+	{
+		iModifier += iCityBaseTourismYieldRateMod;
+	}
+#endif
 
 	if (iModifier != 0)
 	{
@@ -7832,6 +7850,20 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += szTemp;
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// City level yield modifiers (eg from buildings, policies, etc)
+	int iCityBaseTourismYieldRateMod = m_pCity->getBaseYieldRateModifier(YIELD_TOURISM) - 100;
+	if (MOD_API_UNIFIED_YIELDS_TOURISM && iCityBaseTourismYieldRateMod != 0)
+	{
+		if (szRtnValue.length() > 0)
+		{
+			szRtnValue += "[NEWLINE][NEWLINE]";
+		}
+		szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CITY_BONUS", iCityBaseTourismYieldRateMod);
+		szRtnValue += szTemp;
+	}
+#endif
 
 	return szRtnValue;
 }
