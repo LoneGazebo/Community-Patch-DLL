@@ -4366,7 +4366,10 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	while (pUnit)
 	{
 		if (pUnit->isDelayedDeath())
+		{
+			pUnit = pArmy->GetNextUnit(pUnit);
 			continue;
+		}
 
 		vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
 		allEnemies.insert(vAttackers.begin(), vAttackers.end());
