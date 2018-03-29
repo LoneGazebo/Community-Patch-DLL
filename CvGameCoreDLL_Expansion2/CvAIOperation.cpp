@@ -3924,8 +3924,8 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		}
 	}
 
-	//check if the unit is engaged with the enemy outside of our lands...
-	if (pLoopUnit->plot()->getOwner() != pLoopUnit->getOwner() && pLoopUnit->IsEnemyInMovementRange())
+	//check if the unit is engaged with the enemy
+	if (pLoopUnit->IsEnemyInMovementRange())
 		return false;
 
 	//don't pull out units from zones we need to defend

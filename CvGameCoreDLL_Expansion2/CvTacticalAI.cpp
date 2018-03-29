@@ -4403,11 +4403,13 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	if (iMinDist>3 || pClosestEnemy==NULL)
 		return;
 	
+	int iPositionsToCheck = GC.getGame().getHandicapType() < 2 ? 12 : 23;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
 	vector<STacticalAssignment> vAssignments;
 	int iCount = 0;
 	do
 	{
-		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pClosestEnemy->plot(), AL_HIGH, 3, 23, vAssignments);
+		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pClosestEnemy->plot(), AL_HIGH, iMaxBranches, iPositionsToCheck, vAssignments);
 		iCount++;
 	}
 	while (!vAssignments.empty() && !TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
@@ -6006,7 +6008,7 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 {
-	if (!pTargetPlot->isVisible(m_pPlayer->getTeam()) && pTargetPlot->getNumAdjacentNonvisible(m_pPlayer->getTeam()) > 3)
+	if (!pTargetPlot->isVisible(m_pPlayer->getTeam()))
 	{
 		//first pass: try to find a suitable unit
 		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
@@ -6017,7 +6019,7 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 				 pUnit->TurnsToReachTarget(pTargetPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING2,1)==0 )
 			{
 				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
-				return true;
+				return pTargetPlot->isVisible(m_pPlayer->getTeam());
 			}
 		}
 
@@ -6030,18 +6032,21 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 				pUnit->TurnsToReachTarget(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2, 1) < 2)
 			{
 				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
-				return true;
+				return pTargetPlot->isVisible(m_pPlayer->getTeam());
 			}
 		}
+
+		return false;
 	}
 
-	return false;
+	return true;
 }
 
 bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
 {
 	//try to improve visibility
-	ExecuteSpotterMove(pTargetPlot);
+	if (!ExecuteSpotterMove(pTargetPlot))
+		return false;
 
 	//first handle air units
 	ExecuteAirSweep(pTargetPlot);
@@ -6069,12 +6074,13 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 		vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
 
 	int iPositionsToCheck = GC.getGame().getHandicapType() < 2 ? 12 : 23;
+	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
 
 	int iCount = 0;
 	bool bSuccess = false;
 	do
 	{
-		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, eAggLvl, 3, iPositionsToCheck, vAssignments);
+		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, eAggLvl, iMaxBranches, iPositionsToCheck, vAssignments);
 		if (vAssignments.empty())
 			break;
 		
@@ -10730,7 +10736,9 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 
 		//no loop needed, there is only one unit anyway
 		vector<STacticalAssignment> vAssignments;
-		TacticalAIHelpers::FindBestAssignmentsForUnits(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, 4, 23, vAssignments);
+		int iPositionsToCheck = GC.getGame().getHandicapType() < 2 ? 12 : 23;
+		int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
+		TacticalAIHelpers::FindBestAssignmentsForUnits(vector<CvUnit*>(1, pUnit), pBestTarget, AL_LOW, iMaxBranches, iPositionsToCheck, vAssignments);
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
 	}
 	else
@@ -11983,7 +11991,7 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 				if (tactPlot.bBlockedByEnemyCombatUnit)
 					nEnemyCombatUnitsAdjacent++;
 				if (tactPlot.bBlockedByEnemyCity)
-					bEnemyCityAdjacent=true;
+					bEnemyCityAdjacent = true;
 
 				if (tactPlot.getType() == TP_FRONTLINE)
 					iFL++;
@@ -11996,6 +12004,9 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 				if (tactPlot.getType() == TP_FRONTLINE && tactPlot.bBlockedByFriendlyCombatUnit)
 					nFriendlyFirstlineUnitsAdjacent++;
 			}
+			//if the tactical plot is invalid, it's out of range or invisible. don't ignore enemy cities there.
+			else if (pNeighbor->isCity() && GET_PLAYER(currentPosition.getPlayer()).IsAtWarWith(pNeighbor->getOwner()))
+				bEnemyCityAdjacent = true;
 		}
 	}
 
@@ -12953,7 +12964,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	vector<CvTacticalPosition*> openPositionsHeap;
 	vector<CvTacticalPosition*> completedPositions;
 	vector<CvTacticalPosition*> finishedPositions;
-	vector<CvTacticalPosition*> discardedPositions;
+	int discardedPositions = 0;
 
 	//don't need to call make_heap for a single element
 	openPositionsHeap.push_back(initialPosition);
@@ -12999,9 +13010,9 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		else if (current->isOffensive())
 			finishedPositions.push_back(current);
 		else
-			discardedPositions.push_back(current);
+			discardedPositions++;
 
-		if (openPositionsHeap.size()>5000 || discardedPositions.size()>5000)
+		if (openPositionsHeap.size()>5000 || discardedPositions>5000)
 		{
 			OutputDebugString( "warning: terminating because of endless loop!\n" );
 			break;
@@ -13044,7 +13055,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	delete initialPosition;
 
 	//if we had to bail because of memory issues
-	if (result.empty() && vUnits.size()>10 && (openPositionsHeap.size()>5000 || discardedPositions.size()>5000))
+	if (result.empty() && vUnits.size()>4 && openPositionsHeap.size()>5000)
 	{
 		OutputDebugString("retry with fewer units ...\n");
 		vector<CvUnit*> vUnits2( vUnits.begin(), vUnits.begin()+vUnits.size()/2 );
