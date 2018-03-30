@@ -1200,8 +1200,7 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
-	bool IsCaptureTargetAdjacent(CvUnit* pUnit);
-	CvPlot* GetFirstEnemyUnitInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false);
+	CvPlot* GetFirstTargetInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 	bool FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, int iMaxBranches, int iMaxFinishedPositions, vector<STacticalAssignment>& result);
