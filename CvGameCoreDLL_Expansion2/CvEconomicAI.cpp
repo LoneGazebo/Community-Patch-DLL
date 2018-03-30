@@ -2315,7 +2315,7 @@ void CvEconomicAI::DoReconState()
 				 (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
 				//note that new units are created only afterwards, so here we pick up the units without an important assignment from last turn
-				if(pLoopUnit->getArmyID() == -1 && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL &&
+				if(pLoopUnit->getArmyID() == -1 && TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)==NULL &&
 					(pLoopUnit->getHomelandMove()==AI_HOMELAND_MOVE_MOBILE_RESERVE || pLoopUnit->getHomelandMove()==AI_HOMELAND_MOVE_UNASSIGNED))
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
@@ -2409,7 +2409,7 @@ void CvEconomicAI::DoReconState()
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
 					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA))
 				{
-					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstEnemyUnitInRange(pLoopUnit)==NULL)
+					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI() && TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)==NULL)
 					{
 						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 

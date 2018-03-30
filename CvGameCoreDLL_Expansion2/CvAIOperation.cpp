@@ -694,6 +694,18 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	if (!path)
 		return NULL;
 
+	// check if there are obstacles on the way (maybe someone founded a new city?)
+	// do not check the final steps, because that's our actual target city!
+	for (int i = 0; i < path.length()-3; i++)
+	{
+		if (GC.getGame().GetClosestCityDistanceInPlots(path.get(i)) < 3)
+		{
+			CvCity* pCity = GC.getGame().GetClosestCityByPlots(path.get(i));
+			if (pCity && GET_PLAYER(m_eOwner).IsAtWarWith(pCity->getOwner()))
+				return NULL; //this will abort the operation
+		}
+	}
+
 	int iNodeIndex;
 	if (bForward)
 		iNodeIndex = std::min( path.length()-1, iStep );
@@ -3925,7 +3937,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	}
 
 	//check if the unit is engaged with the enemy
-	if (pLoopUnit->IsEnemyInMovementRange())
+	if (TacticalAIHelpers::GetFirstTargetInRange(pLoopUnit)!=NULL)
 		return false;
 
 	//don't pull out units from zones we need to defend

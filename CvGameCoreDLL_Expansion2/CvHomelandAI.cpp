@@ -7675,7 +7675,7 @@ CvPlot* CvHomelandAI::FindUnassignedTarget(CvUnit *pUnit)
 {
 	CvPlot *pBestTarget = NULL;
 	int iMaxDist = 25;
-	int iBestPlot = 0;
+	int iBestPlot = -INT_MAX;
 
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
 	std::vector<CvHomelandTarget>::iterator it;
