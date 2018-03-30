@@ -47,8 +47,7 @@ void CvDistanceMap::Reset()
 /// Updates the lookup table
 void CvDistanceMapTurns::Update()
 {
-	//performance optimization, reduce pathfinding range
-	int iMaxTurns = GC.getGame().getElapsedGameTurns() == 0 ? 8 : 12;
+	int iMaxTurns = 12;
 	int iVeryFar = iMaxTurns * 6;
 
 	const CvMap& map = GC.getMap();

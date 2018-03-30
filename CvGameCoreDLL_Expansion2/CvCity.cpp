@@ -2611,7 +2611,7 @@ void CvCity::PreKill()
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
+void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner)
 {
 	VALIDATE_OBJECT
 
@@ -2638,7 +2638,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 		}
 	}
 
-	GC.getMap().updateWorkingCity(pPlot,getWorkPlotDistance()*2);
+	GC.getMap().updateWorkingCity(pPlot,iWorkPlotDistance*2);
 	if(bCapital)
 	{
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
@@ -2737,11 +2737,15 @@ void CvCity::kill()
 		pkGameTrade->ClearAllCityTradeRoutes(plot());
 #endif
 	}
+
+	//save this before deleting the city
+	int iWorkPlotDistance = getWorkPlotDistance();
+
 	GET_PLAYER(getOwner()).deleteCity(m_iID);
 	GET_PLAYER(eOwner).GetCityConnections()->Update();
 
 	// clean up
-	PostKill(bCapital, pPlot, eOwner);
+	PostKill(bCapital, pPlot, iWorkPlotDistance, eOwner);
 }
 
 //	--------------------------------------------------------------------------------
