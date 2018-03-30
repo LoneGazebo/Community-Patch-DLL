@@ -48,7 +48,7 @@ void CvDistanceMap::Reset()
 void CvDistanceMapTurns::Update()
 {
 	//performance optimization, reduce pathfinding range
-	int iMaxTurns = GC.getGame().getElapsedGameTurns() == 0 ? 7 : 12;
+	int iMaxTurns = GC.getGame().getElapsedGameTurns() == 0 ? 8 : 12;
 	int iVeryFar = iMaxTurns * 6;
 
 	const CvMap& map = GC.getMap();
@@ -69,9 +69,9 @@ void CvDistanceMapTurns::Update()
 		int iCityIndex = 0;
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
-			//slow update only for plots close to the city
 			ReachablePlots turnsFromCity;
-			SPathFinderUserData data(m_ePlayer, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
+			//do not set a player - that way we can traverse unrevealed plots and foreign territory
+			SPathFinderUserData data(NO_PLAYER, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
 			turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
