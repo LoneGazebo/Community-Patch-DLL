@@ -1802,8 +1802,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns, true);
 			if (iPathTurns < INT_MAX)
 			{
-				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / max(1,iPathTurns*iPathTurns);
-
+				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / (1+iPathTurns*iPathTurns);
 				if (iScore > iBestScore)
 				{
 					iBestScore = iScore;

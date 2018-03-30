@@ -62,7 +62,7 @@ public:
 	void kill();
 	void PreKill();
 #endif
-	void PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner);
+	void PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner);
 
 #if defined(MOD_BALANCE_CORE)
 	CvPlayer* GetPlayer() const;
