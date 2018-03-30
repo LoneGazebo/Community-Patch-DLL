@@ -1532,12 +1532,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	std::vector<CvPlot*> vDummy;
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
-	CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
 	//keep at least one general around
-	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1))
+	if(iGreatGeneralCount > 1 && pGreatGeneral->getArmyID() == -1)
 	{
+		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
 		//build a citadel
-		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		if (pTargetPlot)
+			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
@@ -1789,7 +1790,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 		int iLoop = 0;
 		for (CvCity* pCity=kPlayer.firstCity(&iLoop); pCity; pCity=kPlayer.nextCity(&iLoop))
 		{
-			if (!pCity->plot()->isRevealed(getTeam()))
+			if (!pCity->plot()->isAdjacentRevealed(getTeam()))
 				continue;
 
 			//should not be too far out
@@ -2746,6 +2747,18 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			if(pAdjacentPlot->isCity())
 				continue;
 
+			//don't count the plot if we already own it
+			if (pAdjacentPlot->getOwner() == GetID())
+				continue;
+
+			//danger is bad - check even adjacent plots!
+			int iDanger = pUnit->GetDanger(pAdjacentPlot);
+			if (iDanger > 0)
+			{
+				iScore = 0;
+				break;
+			}
+
 			// don't build next to existing bombs
 			if (iRange == 1)
 			{
@@ -2823,14 +2836,6 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			for(int iYield = 0; iYield <= YIELD_TOURISM; iYield++)
 			{
 				iScore += (pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor);
-			}
-
-			//danger is bad - check even adjacent plots!
-			int iDanger = pUnit->GetDanger(pAdjacentPlot);
-			if (iDanger > 0)
-			{
-				iScore = 0;
-				break;
 			}
 		}
 
