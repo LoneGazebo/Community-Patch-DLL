@@ -2909,7 +2909,29 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 			{
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+				if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+				{
+					if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+					{
+						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+					}
+					else if (getCapitalCity())
+					{
+						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+					}
+					else
+					{
+						pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+					}
+				}
+				else
+				{
+					pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+				}
+#else
 				pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+#endif
 				pNewUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 				pNewUnit->GetReligionData()->SetReligion(eReligion);
 			}
@@ -43325,7 +43347,29 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
 										if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 										{
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+											if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+											{
+												if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
+												{
+													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetHolyCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+												}
+												else if (getCapitalCity())
+												{
+													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+												}
+												else
+												{
+													pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+												}
+											}
+											else
+											{
+												pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+											}
+#else
 											pNewUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+#endif
 											pNewUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 											pNewUnit->GetReligionData()->SetReligion(eReligion);
 										}

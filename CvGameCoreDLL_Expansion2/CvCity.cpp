@@ -330,6 +330,8 @@ CvCity::CvCity() :
 	, m_iCoastalThreatRank("CvCity::m_iCoastalThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iUnitPurchaseCooldownCivilian("CvCity::m_iUnitPurchaseCooldownCivilian", m_syncArchive)
+	, m_iUnitFaithPurchaseCooldown("CvCity::m_iUnitFaithPurchaseCooldown", m_syncArchive)
+	, m_iUnitFaithPurchaseCooldownCivilian("CvCity::m_iUnitFaithPurchaseCooldownCivilian", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
 	, m_iCityAirStrikeDefense("CvCity::m_iCityAirStrikeDefense", m_syncArchive)
@@ -1541,6 +1543,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCoastalThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iUnitPurchaseCooldownCivilian = 0;
+	m_iUnitFaithPurchaseCooldown = 0;
+	m_iUnitFaithPurchaseCooldownCivilian = 0;
 	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
 	m_iCityAirStrikeDefense = 5;
@@ -2887,6 +2891,14 @@ void CvCity::doTurn()
 	if (GetUnitPurchaseCooldown(true) > 0)
 	{
 		ChangeUnitPurchaseCooldown(true, -1);
+	}
+	if (GetUnitFaithPurchaseCooldown() > 0)
+	{
+		ChangeUnitFaithPurchaseCooldown(false, -1);
+	}
+	if (GetUnitFaithPurchaseCooldown(true) > 0)
+	{
+		ChangeUnitFaithPurchaseCooldown(true, -1);
 	}
 	if(GetBuildingPurchaseCooldown() > 0)
 	{
@@ -15245,6 +15257,35 @@ void CvCity::ChangeUnitPurchaseCooldown(bool bCivilian, int iValue)
 
 		m_iUnitPurchaseCooldown += iValue;
 	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetUnitFaithPurchaseCooldown(bool bCivilian) const
+{
+	VALIDATE_OBJECT
+		if (bCivilian)
+			return m_iUnitFaithPurchaseCooldownCivilian;
+
+	return m_iUnitFaithPurchaseCooldown;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
+{
+	VALIDATE_OBJECT
+		if (bCivilian)
+			m_iUnitFaithPurchaseCooldownCivilian = iValue;
+	m_iUnitFaithPurchaseCooldown = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
+{
+	VALIDATE_OBJECT
+		if (iValue != 0)
+		{
+			if (bCivilian)
+				m_iUnitFaithPurchaseCooldownCivilian += iValue;
+
+			m_iUnitFaithPurchaseCooldown += iValue;
+		}
 }
 //	--------------------------------------------------------------------------------
 int CvCity::GetBuildingPurchaseCooldown() const
@@ -28635,6 +28676,15 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					{
 						return false;
 					}
+					// Faith counterpart to PurchaseCooldown
+					if ((GC.getUnitInfo(eUnitType)->GetCombat() <= 0 && GC.getUnitInfo(eUnitType)->GetRangedCombat() <= 0) && GC.getUnitInfo(eUnitType)->GetLocalFaithCooldown() > 0 && GetUnitFaithPurchaseCooldown(true) > 0)
+					{
+						return false;
+					}
+					else if ((GC.getUnitInfo(eUnitType)->GetCombat() > 0 || GC.getUnitInfo(eUnitType)->GetRangedCombat() > 0) && GC.getUnitInfo(eUnitType)->GetLocalFaithCooldown() > 0 && GetUnitFaithPurchaseCooldown() > 0)
+					{
+						return false;
+					}
 				}
 #endif
 				// Trying to buy something when you don't have enough faith!!
@@ -28947,6 +28997,14 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iCooldown /= 100;
 				kPlayer.ChangeFaithPurchaseCooldown(iCooldown);
+			}
+			if (pUnit && pUnit->getUnitInfo().GetLocalFaithCooldown() > 0)
+			{
+				bool bCivilian = (pUnit->getUnitInfo().GetCombat() <= 0 && pUnit->getUnitInfo().GetRangedCombat() <= 0);
+				int iCooldown = pUnit->getUnitInfo().GetLocalFaithCooldown();
+				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iCooldown /= 100;
+				ChangeUnitFaithPurchaseCooldown(bCivilian, iCooldown);
 			}
 #endif
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
