@@ -5796,7 +5796,7 @@
 			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_WAR">
-			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War (Warscore of 25 or more), your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GP">
 			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
@@ -7136,6 +7136,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_TYPE_CONQUEST">
 			<Text>An age of eternal war has fallen upon humanity. Bitter rivalries, unsolved through diplomacy, look to the battlefield for resolution.To be second place in this contest is to be condemnded to the ash heap of history. Harness the weapons of war and bring glory to your empire![NEWLINE][COLOR_POSITIVE_TEXT]Conquer or be conquered via a Domination Victory![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_REPLAY_VIEWER_GRAPHBY_TOURISM">
+			<Text>Tourism [ICON_TOURISM] Per Turn</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

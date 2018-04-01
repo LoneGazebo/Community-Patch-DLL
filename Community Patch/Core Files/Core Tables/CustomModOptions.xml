@@ -299,7 +299,7 @@
     <!-- Permits variable great general and admiral aura ranges (v83) -->
 	<!-- See also: "Promotions - Colonels" -->
 	<!-- See also: "Global - Commander Influence Borders" -->
-    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="1" DbUpdates="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
 	<!-- See also: "Global - Commander Points From Barbarians" -->
     <Row Class="2" Name="PROMOTIONS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>

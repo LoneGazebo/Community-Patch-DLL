@@ -415,7 +415,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
 #endif
 		{
-			int iCaptureRoll = GC.getGame().getJonRandNum(100, "Capture Enemy Roll");
+			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -1205,7 +1205,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath())
 						{
-							int iRand = GC.getGame().getJonRandNum(100, "Retreat Rand");
+							int iRand = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBackFromRanged(*pkAttacker);
@@ -1649,10 +1649,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
 		// Does the attacker evade?
-		if(GC.getGame().getJonRandNum(100, "Evasion Rand") >= kAttacker.evasionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, 10) * 10 >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if(GC.getGame().getJonRandNum(100, "Intercept Rand (Air)") < pInterceptor->currInterceptionProbability())
+			if (GC.getGame().getSmallFakeRandNum(10, 10) * 10 < pInterceptor->currInterceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
 			}
@@ -2808,7 +2808,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
 							if(pkFeatureInfo && !pkFeatureInfo->isNukeImmune())
 							{
-								if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+								if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, 10) * 10 < GC.getNUKE_FALLOUT_PROB())
 								{
 									if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
@@ -2820,7 +2820,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 						else
 						{
-							if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+							if(pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, 10) * 10 < GC.getNUKE_FALLOUT_PROB())
 							{
 								if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -2831,7 +2831,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 #if defined(MOD_GLOBAL_NUKES_MELT_ICE)
 					} else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE) {
-						if (pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB()) {
+						if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, 10) * 10 < GC.getNUKE_FALLOUT_PROB()) {
 							pLoopPlot->setFeatureType(NO_FEATURE);
 						}
 #endif
@@ -2877,14 +2877,14 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if(iDamageLevel == 1)
 					{
 						iBaseDamage = /*30*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getJonRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), "Population Nuked 1");
-						iRandDamage2 = GC.getGame().getJonRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), "Population Nuked 2");
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1());
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2());
 					}
 					else
 					{
 						iBaseDamage = /*60*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getJonRandNum(/*10*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), "Population Nuked 1");
-						iRandDamage2 = GC.getGame().getJonRandNum(/*10*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), "Population Nuked 2");
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1());
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2());
 					}
 
 					int iNukedPopulation = pkCity->getPopulation() * (iBaseDamage + iRandDamage1 + iRandDamage2) / 100;
@@ -2987,7 +2987,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								// How much destruction is unleashed on nearby Units?
 								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
-									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getJonRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), "Nuke Damage 1") + /*4*/ GC.getGame().getJonRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), "Nuke Damage 2"));
+									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), GC.getNUKE_UNIT_DAMAGE_RAND_1()) + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), GC.getNUKE_UNIT_DAMAGE_RAND_2()));
 								}
 								// Wipe everything out
 								else
@@ -3192,7 +3192,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot) {
 		int iInterceptionDamage = 0;
 
 		// Is the interception successful?
-		if(GC.getGame().getJonRandNum(100, "Intercept Rand (Paradrop)") < pInterceptor->currInterceptionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, 10) * 10 < pInterceptor->currInterceptionProbability())
 		{
 			iInterceptionDamage = pInterceptor->GetParadropInterceptionDamage(&pParaUnit);
 		}

@@ -3194,7 +3194,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getJonRandNum(iNumChoices, "Random Promotion Pick");
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, iNumChoices);
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 

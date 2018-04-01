@@ -47,6 +47,7 @@ struct CvUnitCaptureDefinition
 	UnitTypes	eOldType;			// Previous type of the unit, the type can change when capturing
 	PlayerTypes eCapturingPlayer;
 	UnitTypes	eCaptureUnitType;
+	int iUnitID;
 	int iX;
 	int iY;
 	bool bEmbarked;
@@ -64,6 +65,7 @@ struct CvUnitCaptureDefinition
 		, eOldType(NO_UNIT)
 		, eCapturingPlayer(NO_PLAYER)
 		, eCaptureUnitType(NO_UNIT)
+		, iUnitID(-1)
 		, iX(-1)
 		, iY(-1)
 		, bEmbarked(false)

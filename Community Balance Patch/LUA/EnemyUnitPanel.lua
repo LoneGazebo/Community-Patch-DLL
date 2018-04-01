@@ -615,7 +615,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
-				iModifier = pMyPlayer:GetGreatGeneralCombatBonus();
+				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
 				iModifier = iModifier + pMyPlayer:GetTraitGreatGeneralExtraBonus();
 				controlTable = g_MyCombatDataIM:GetInstance();
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
@@ -695,6 +695,17 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 			end
+
+-- CBP
+			-- PerAdjacentUnitCombatModifier
+			iModifier = pMyUnit:PerAdjacentUnitCombatModifier() + pMyUnit:PerAdjacentUnitCombatAttackMod();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				--local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+-- END
 			
 			-- Policy Attack bonus
 			local iTurns = pMyPlayer:GetAttackBonusTurns();
@@ -981,7 +992,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
-				iModifier = pMyPlayer:GetGreatGeneralCombatBonus();
+				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
 				iModifier = iModifier + pMyPlayer:GetTraitGreatGeneralExtraBonus();
 				controlTable = g_MyCombatDataIM:GetInstance();
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
@@ -1311,6 +1322,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+-- CBP
+			-- PerAdjacentUnitCombatModifier
+			iModifier = pMyUnit:PerAdjacentUnitCombatModifier() + pMyUnit:PerAdjacentUnitCombatAttackMod();
+			if (iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				--local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+-- END
+	
 			-- DomainModifier
 			iModifier = pMyUnit:DomainModifier(pTheirUnit:GetDomainType());
 			if (iModifier ~= 0) then
@@ -1634,7 +1656,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Great General bonus
 				if (pTheirUnit:IsNearGreatGeneral()) then
-					iModifier = pTheirPlayer:GetGreatGeneralCombatBonus();
+					iModifier = pTheirPlayer:GetGreatGeneralCombatBonus() + pTheirUnit:GetGreatGeneralAuraBonus();
 					iModifier = iModifier + pTheirPlayer:GetTraitGreatGeneralExtraBonus();
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					if (pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
@@ -1806,6 +1828,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitCombatClassInfo(pMyUnit:getUnitCombatType()).GetTextKey()));
 					--end
 				--end
+
+-- CBP
+				-- PerAdjacentUnitCombatModifier
+				iModifier = pTheirUnit:PerAdjacentUnitCombatModifier() + pTheirUnit:PerAdjacentUnitCombatDefenseMod();
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					--local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+-- END
 
 				-- DomainModifier
 				iModifier = pTheirUnit:DomainModifier(pMyUnit:GetDomainType());
@@ -2119,6 +2152,16 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			end
 		end
+
+-- CBP
+		-- PerAdjacentUnitCombatModifier
+		iModifier = theirUnit:PerAdjacentUnitCombatModifier() + theirUnit:PerAdjacentUnitCombatDefenseMod();
+		if (iModifier ~= 0) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_PER_ADJACENT_UNIT_COMBAT" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
+-- END
 		
 		-- Plot Defense
 		iModifier = theirPlot:DefenseModifier(theirUnit:GetTeam(), false, false);
@@ -2141,7 +2184,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- Great General bonus
 		if (theirUnit:IsNearGreatGeneral()) then
-			iModifier = theirPlayer:GetGreatGeneralCombatBonus();
+			iModifier = theirPlayer:GetGreatGeneralCombatBonus() + theirUnit:GetGreatGeneralAuraBonus();
 			iModifier = iModifier + theirPlayer:GetTraitGreatGeneralExtraBonus();
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			if (theirUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then

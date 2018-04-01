@@ -1134,7 +1134,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 		
 		// Pick a random one if required
 		if (MOD_RELIGION_RANDOMISE) {
-			index = GC.getGame().getJonRandNum(availableReligions.size(), "Random Religion To Found");
+			index = GC.getGame().getSmallFakeRandNum(availableReligions.size(), availableReligions.size());
 		}
 		
 		// CUSTOMLOG("GetReligionToFound: Using random %i", availableReligions[index]);
@@ -3669,7 +3669,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
+	int iRand = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
 	if(iRand >= iChance)
 	{
 		return false;
@@ -3782,7 +3782,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getJonRandNum(15, "Faith rand weight.");
+				iTempWeight += theGame.getSmallFakeRandNum(15, 15);
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -7870,7 +7870,21 @@ bool CvReligionAI::DoFaithPurchases()
 	UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
 	
 	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
-	int iNumMissionaries =  m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY);
+	
+	int iNumMissionaries = 0;
+
+	CvUnit* pLoopUnit;
+	int iLoop;
+
+	// Current Units
+	for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+	{
+		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0 && pLoopUnit->GetReligionData()->GetReligion() == eReligion)
+		{
+			iNumMissionaries++;
+		}
+	}
+
 	int iMaxMissionaries = GC.getRELIGION_MAX_MISSIONARIES();
 	
 	//Do we have any useful beliefs to consider?
@@ -8594,7 +8608,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iRand = 0;
 	if (iRtnValue > 0)
 	{
-		iRand = GC.getGame().getJonRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), "Faith rand weight.");
+		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()));
 		iRtnValue += iRand;
 	}
 
@@ -11162,10 +11176,10 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 					}
 				}
 			}
-			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), choices.size())];
 		}
 		else
-			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), choices.size())];
 	}
 	else if (choices.size()==1)
 		return choices[0];

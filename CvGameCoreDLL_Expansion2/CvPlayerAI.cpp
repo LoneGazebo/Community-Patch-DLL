@@ -1335,14 +1335,14 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician);
 
 	// If closing in on a Culture win, go for the Concert Tour
-	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
+	if (GetDiplomacyAI()->IsGoingForCultureVictory() || (GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2)))
 	{
 		if(pTarget)
 		{
 #if defined(MOD_BALANCE_CORE)
 			if(pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
 			{
-				if(GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
+				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR && GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
 				{
 #endif
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;

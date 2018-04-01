@@ -8077,7 +8077,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 void CvLeague::UpdateName()
 {
 	// Roll for a new name type
-	int iRoll = GC.getGame().getJonRandNum(GC.getNumLeagueNameInfos(), "Rolling for league name variation");
+	int iRoll = GC.getGame().getSmallFakeRandNum(GC.getNumLeagueNameInfos(), GC.getNumLeagueNameInfos());
 	CvLeagueNameEntry* pInfo = GC.getLeagueNameInfo((LeagueNameTypes)iRoll);
 	if (pInfo)
 	{
@@ -11401,6 +11401,16 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if (GetPlayer()->GetPlayerTraits()->GetNumTradeRoutesModifier() > 0)
 			{
 				iScore += -50;
+			}
+
+			if (GetPlayer()->GetDiplomacyAI()->GetBiggestCompetitor() == eTargetPlayer)
+			{
+				iScore += 500;
+			}
+
+			if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToCultureVictory() || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToSSVictory() || GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToDominationVictory())
+			{
+				iScore += 1000;
 			}
 		}
 	}

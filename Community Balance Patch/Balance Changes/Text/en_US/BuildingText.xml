@@ -284,7 +284,7 @@
 			<Text>The Council generates Science every time city grows, and is availble very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to a river.</Text>
+			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
 			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle and Forest tiles as well as Plantations. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
@@ -317,7 +317,7 @@
 			<Text>+1 [ICON_FOOD] Food for every 2 Jungle tiles or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations and Camps.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to a River.</Text>
+			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to fresh water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE] Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
@@ -502,7 +502,7 @@
 			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. +20% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. +1 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom and [ICON_HAPPINESS_3] Religious Unrest. +1 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_THRONE_ROOM">

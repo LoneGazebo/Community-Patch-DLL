@@ -508,6 +508,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetLeaderUnitType);
 	Method(SetLeaderUnitType);
 	Method(IsNearGreatGeneral);
+	Method(GetGreatGeneralAuraBonus);
 	Method(IsStackedGreatGeneral);
 	Method(IsIgnoreGreatGeneralBenefit);
 	Method(GetReverseGreatGeneralModifier);
@@ -5032,6 +5033,23 @@ int CvLuaUnit::lIsNearGreatGeneral(lua_State* L)
 	lua_pushboolean(L, bResult);
 	lua_pushinteger(L, iAuraEffectChange);
 	return 2;
+#else
+	const bool bResult = pkUnit->IsNearGreatGeneral();
+	lua_pushboolean(L, bResult);
+	return 1;
+#endif
+}
+//------------------------------------------------------------------------------
+//bool IsNearGreatGeneral();
+int CvLuaUnit::lGetGreatGeneralAuraBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int iAuraEffectChange = 0;
+	pkUnit->IsNearGreatGeneral(iAuraEffectChange);
+	lua_pushinteger(L, iAuraEffectChange);
+	return 1;
 #else
 	const bool bResult = pkUnit->IsNearGreatGeneral();
 	lua_pushboolean(L, bResult);

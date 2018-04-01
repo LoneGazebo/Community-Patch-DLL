@@ -1732,7 +1732,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			bool bBad = false;
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
-				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 0)
+				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 1)
 				{
 					bBad = true;
 					return 0;

@@ -4796,9 +4796,23 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 							if(loopUnit->getCaptureUnitType(GET_PLAYER(loopUnit->getOwner()).getCivilizationType()) != NO_UNIT)
 							{
 								CvUnitCaptureDefinition kCaptureDef;
-								if(loopUnit->getCaptureDefinition(&kCaptureDef, ePlayer))
-								kCaptureUnitList.push_back(kCaptureDef);
-								loopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
+								if (loopUnit->getCaptureDefinition(&kCaptureDef, ePlayer))
+								{
+									bool bAlreadyCaptured = false;
+									for (uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
+									{
+										if (kCaptureUnitList[uiCaptureIndex].iUnitID == kCaptureDef.iUnitID)
+										{
+											bAlreadyCaptured = true;
+											break;
+										}
+									}
+									if (!bAlreadyCaptured)
+									{
+										kCaptureUnitList.push_back(kCaptureDef);
+									}
+									loopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
+								}
 							}
 
 							//be careful here, it's possible we're about to kill a civilian which is right now executing a mission causing this war state change
@@ -7088,7 +7102,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									int iTotal = GetNumVassals() * 2;
 									for (int iK = 0; iK < iTotal; iK++)
 									{
-										int iUnit = GC.getGame().getJonRandNum(aExtraUnits.size(), "Random vassal levy");
+										int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), aExtraUnits.size());
 										CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
 										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 										if (bJumpSuccess)

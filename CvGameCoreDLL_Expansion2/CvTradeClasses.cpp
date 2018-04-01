@@ -1372,6 +1372,9 @@ void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
 		{
 			continue;
 		}
+		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsRecalledUnit(ui))
+			continue;
+
 
 		TeamTypes eOriginTeam = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam();
 		TeamTypes eDestTeam = GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam();
@@ -1428,6 +1431,12 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				// if the destination is not the civ I'm going to war with
 				if (GET_PLAYER(m_aTradeConnections[uiTradeRoute].m_eDestOwner).getTeam() != ePlunderTeam)
 				{
+					continue;
+				}
+
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				{
+					RecallUnit(uiTradeRoute, true);
 					continue;
 				}
 
@@ -6018,7 +6027,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
 				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
-					iGoldAmount += pFromCity->GetLandTourismBonus() * 25;
+					if (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetCivLowestInfluence(false) == kTradeConnection.m_eDestOwner)
+					{
+						iGoldAmount += pFromCity->GetLandTourismBonus() * 100;
+					}
+					else if (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTrend(kTradeConnection.m_eDestOwner) >= INFLUENCE_TREND_RISING)
+					{
+						iGoldAmount += pFromCity->GetLandTourismBonus() * 500;
+					}
+					else
+					{
+						iGoldAmount += pFromCity->GetLandTourismBonus() * 250;
+					}
 				}
 			}
 		}
@@ -6031,7 +6051,18 @@ std::vector<int> CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeCo
 				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
 				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
-					iGoldAmount += pFromCity->GetSeaTourismBonus() * 25;
+					if (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetCivLowestInfluence(false) == kTradeConnection.m_eDestOwner)
+					{
+						iGoldAmount += pFromCity->GetSeaTourismBonus() * 1000;
+					}
+					else if (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTrend(kTradeConnection.m_eDestOwner) >= INFLUENCE_TREND_RISING)
+					{
+						iGoldAmount += pFromCity->GetSeaTourismBonus() * 500;
+					}
+					else
+					{
+						iGoldAmount += pFromCity->GetSeaTourismBonus() * 250;
+					}
 				}
 			}
 		}

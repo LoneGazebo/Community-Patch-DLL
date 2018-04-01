@@ -5261,9 +5261,16 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
 			{
+				if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
+					continue;
+
 				int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(kPlayer.GetID());
 
 				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
+				iWarTurns -= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
+
+				if (iWarTurns <= 0)
+					continue;
 
 				if(iWarTurns > iMostWarTurns)
 				{
@@ -7192,6 +7199,12 @@ int CvCityCulture::GetBaseTourism()
 				}
 			}
 		}
+	}
+
+	if (m_pCity->IsPuppet() && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	{
+		int iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod();
+		iModifier += iTempMod;
 	}
 
 	if (iModifier != 0)

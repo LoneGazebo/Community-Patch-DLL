@@ -354,6 +354,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	}
 #endif
 
+	if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
+		{
+			return false;
+		}
+	}
+
+
 	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
 
 	// Some items require gold be spent (e.g. Research and Trade Agreements)
@@ -3418,7 +3428,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE)
 			{
-				if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
+				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 				{
 					int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
 					if(iTurns > 0)
@@ -3493,7 +3503,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					}
 					bDone = true;
 				}
-				else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
+				else if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 				{
 					int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
 					if(iTurns > 0)
