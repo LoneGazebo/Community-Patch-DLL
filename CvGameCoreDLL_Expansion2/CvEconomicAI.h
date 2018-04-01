@@ -197,6 +197,7 @@ public:
 
 	void LogMonitor();
 	void LogCityMonitor();
+	void LogPossibleHurries(CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables);
 
 	ReconState GetReconState() const
 	{

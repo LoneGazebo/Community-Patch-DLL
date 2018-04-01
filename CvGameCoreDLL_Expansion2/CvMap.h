@@ -359,6 +359,7 @@ protected:
 	char*  m_pRevealedOwner;
 #if defined(MOD_BALANCE_CORE)
 	bool*  m_pIsImpassable;
+	bool* m_pIsStrategic;
 #endif
 	bool* m_pRevealed;
 	char* m_pRevealedImprovementType;

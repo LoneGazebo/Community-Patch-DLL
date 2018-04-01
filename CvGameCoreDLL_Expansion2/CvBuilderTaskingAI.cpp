@@ -55,6 +55,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 #if defined(MOD_BALANCE_CORE)
 	// special case to evaluate plots adjacent to friendly
 	m_bEvaluateAdjacent = false;
+	m_bNoPermanentsAdjacentCity = false;
 #endif
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
@@ -89,6 +90,10 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 				else if (pkImprovementInfo->GetFeatureMakesValid(FEATURE_JUNGLE))
 				{
 					m_bKeepJungle = true;
+				}
+				if (pkImprovementInfo->IsAdjacentCity())
+				{
+					m_bNoPermanentsAdjacentCity = true;
 				}
 			}
 		}
@@ -174,6 +179,7 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 	kStream >> m_bKeepMarshes;
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_bEvaluateAdjacent;
+	kStream >> m_bNoPermanentsAdjacentCity;
 #endif
 	if (uiVersion >= 2)
 	{
@@ -207,6 +213,7 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 	kStream << m_bKeepMarshes;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bEvaluateAdjacent;
+	kStream << m_bNoPermanentsAdjacentCity;
 #endif
 	kStream << m_bKeepJungle;
 }
@@ -596,6 +603,76 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 	}
 }
 
+void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, RouteTypes eRoute, int iNetGoldTimes100)
+{
+	// don't connect cities from different owners
+	if (pOriginCity->getOwner() != pTargetPlot->getOwner())
+	{
+		return;
+	}
+
+	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
+	if (!pRouteInfo)
+	{
+		return;
+	}
+
+	// build a path between the two cities
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_BUILD_ROUTE, eRoute);
+	SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
+
+	//  if no path, then bail!
+	if (!path)
+	{
+		return;
+	}
+
+	CvPlot* pPlot = NULL;
+	int iGameTurn = GC.getGame().getGameTurn();
+
+	int iCost = pRouteInfo->GetGoldMaintenance()*(100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+	iCost *= path.length();
+	bool bTooExpensive = false;
+	if (iNetGoldTimes100 - iCost <= 6)
+		bTooExpensive = true;
+
+	for (int i = 0; i<path.length(); i++)
+	{
+		pPlot = path.get(i);
+
+		if (!pPlot)
+		{
+			break;
+		}
+
+		if (pPlot->getOwner() != m_pPlayer->GetID())
+			break;
+
+		//we set this to keep the route alive.
+		pPlot->SetStrategicRoute(m_pPlayer->getTeam(), true);
+
+		//and this to see if we actually build it
+		if (bTooExpensive)
+			continue;
+
+		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
+		{
+			continue;
+		}
+
+		// if we already know about this plot, continue on
+		if (pPlot->GetBuilderAIScratchPadTurn() == iGameTurn && pPlot->GetBuilderAIScratchPadPlayer() == m_pPlayer->GetID())
+		{
+			continue;
+		}
+
+		// mark nodes and reset values
+		pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
+		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
+		pPlot->SetBuilderAIScratchPadValue(1000);
+		pPlot->SetBuilderAIScratchPadRoute(eRoute);
+	}
+}
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
 void CvBuilderTaskingAI::UpdateRoutePlots(void)
 {
@@ -613,6 +690,14 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	if(eBestRoute == NO_ROUTE)
 	{
 		return;
+	}
+
+	//reset this each turn, as our improvements may change
+	m_aiPlots = m_pPlayer->GetPlots();
+	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		pPlot->SetStrategicRoute(m_pPlayer->getTeam(), false);
 	}
 
 	// find a builder, if I don't have a builder, bail!
@@ -695,6 +780,11 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 				if(!pFirstCity || !pSecondCity)
 				{
+					if (GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex])->isCity() && !GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex])->isCity())
+						ConnectPointsForStrategy(GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex])->getPlotCity(), GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex]), eBestRoute, iNetGoldTimes100);
+					else if (GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex])->isCity() && !GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex])->isCity())
+						ConnectPointsForStrategy(GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex])->getPlotCity(), GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex]), eBestRoute, iNetGoldTimes100);
+
 					continue;
 				}
 
@@ -1555,45 +1645,48 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 	}
 
+	if (pPlot->IsStrategicRoute(m_pPlayer->getTeam()))
+		return;
+
 	if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 		return;
 
-	// find the route build
-	BuildTypes eRouteBuild = NO_BUILD;
+	// find the remove route build
+	BuildTypes eRemoveRouteBuild = NO_BUILD;
 
-	RouteTypes eRoute = pPlot->GetBuilderAIScratchPadRoute();
 	for (int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
 		BuildTypes eBuild = (BuildTypes)i;
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-		if (pkBuild && pkBuild->getRoute() == eRoute)
+		if (pkBuild && pkBuild->IsRemoveRoute())
 		{
-			eRouteBuild = eBuild;
+			eRemoveRouteBuild = eBuild;
 			break;
 		}
 	}
 
-	if (eRouteBuild == NO_BUILD)
+	if (eRemoveRouteBuild == NO_BUILD)
 	{
 		return;
 	}
 
 	CvUnitEntry& kUnitInfo = pUnit->getUnitInfo();
-	if (!kUnitInfo.GetBuilds(eRouteBuild))
+	if (!kUnitInfo.GetBuilds(eRemoveRouteBuild))
 	{
 		return;
 	}
 
-	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES();
+	//we want to be aggressive with this because of the cost.
+	int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_ROUTES() * 5;
 	BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::REMOVE_ROAD;
 
-	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
-	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false);
+	iWeight = GetBuildCostWeight(iWeight, pPlot, eRemoveRouteBuild);
+	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRemoveRouteBuild, false);
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 
 	BuilderDirective directive;
 	directive.m_eDirective = eDirectiveType;
-	directive.m_eBuild = NO_BUILD;
+	directive.m_eBuild = eRemoveRouteBuild;
 	directive.m_eResource = NO_RESOURCE;
 	directive.m_sX = pPlot->getX();
 	directive.m_sY = pPlot->getY();
@@ -1630,7 +1723,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 
 	// the plot was not flagged this turn, so ignore
 	bool bShouldRoadThisTile = (pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn()) && (pPlot->GetBuilderAIScratchPadPlayer() == pUnit->getOwner());
-	if(!bShouldRoadThisTile)
+	if (!bShouldRoadThisTile)
 	{
 		return;
 	}
@@ -2020,6 +2113,15 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 /// Evaluates all the circumstances to determine if the builder can and should evaluate the given plot
 bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 {
+	if (pPlot->IsStrategicRoute(m_pPlayer->getTeam()))
+	{
+		if (m_bLogging)
+		{
+			CvString strLog;
+			strLog.Format("x: %d y: %d,,strategic tile. keep!", pPlot->getX(), pPlot->getY());
+			LogInfo(strLog, m_pPlayer);
+		}
+	}
 	// if plot is impassable, bail!
 	if(! pPlot->isValidMovePlot(m_pPlayer->GetID()))
 	{
@@ -2472,7 +2574,8 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 		const ImprovementTypes eOldImprovement = pPlot->getImprovementType();
 		if(eOldImprovement == NO_IMPROVEMENT)
 		{
-			return true;
+			if (!m_bNoPermanentsAdjacentCity || pPlot->GetAdjacentCity() == NULL)
+				return true;
 		}
 		else
 		{
@@ -2487,7 +2590,8 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 			}
 			if (pkOldImprovementInfo && !bResourceAlreadyLinked && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
 			{
-				return true;
+				if (!m_bNoPermanentsAdjacentCity || pPlot->GetAdjacentCity() == NULL)
+					return true;
 			}
 		}
 	}
@@ -2805,7 +2909,10 @@ int CvBuilderTaskingAI::ScorePlot()
 			{
 				if (m_pTargetPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
 				{
-					iScore *= 5;
+					if (!m_bNoPermanentsAdjacentCity || m_pTargetPlot->GetAdjacentCity() == NULL)
+						iScore *= 5;
+					else
+						iScore /= 2;
 				}
 				else
 				{

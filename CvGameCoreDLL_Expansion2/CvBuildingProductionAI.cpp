@@ -977,6 +977,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldValue += (iIlliteracy * 100);
 					bGoodforHappiness = true;
 				}
+				iYieldValue *= ((kPlayer.GetCurrentEra() / 2) + 1);
 				break;
 			case YIELD_FAITH:
 				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
@@ -995,6 +996,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldValue += (iBoredom * 100);
 					bGoodforHappiness = true;
 				}
+				iYieldValue *= ((kPlayer.GetCurrentEra() / 2) + 1);
 				break;
 			case YIELD_PRODUCTION:
 				if (bSmall)

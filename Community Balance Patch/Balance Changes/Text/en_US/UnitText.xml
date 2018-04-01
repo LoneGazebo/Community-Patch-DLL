@@ -55,7 +55,7 @@
 			<Text>Ironsides</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP">
-			<Text>[ICON_STRENGTH] Combat Strength increases from taking damage.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength increases from taking damage (Tenacity).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN">
@@ -352,49 +352,49 @@
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
 			<Text>Courage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [COLOR_POSITIVE_TEXT]Attack[ENDCOLOR] bonus. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +15% [COLOR_POSITIVE_TEXT]Attack[ENDCOLOR] bonus. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
 			<Text>Benevolence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. Units in adjacent tiles receive +5 HP when healing. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). Units in adjacent tiles receive +5 HP when healing. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT">
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] Units. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +15% [ICON_STRENGTH] Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder[ENDCOLOR] Units. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +50% Experience gained from combat. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +50% Experience gained from combat. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR">
 			<Text>Honor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength outside of friendly lands. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +15% [ICON_STRENGTH] Strength outside of friendly lands. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY">
 			<Text>Loyalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength inside friendly lands. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +15% [ICON_STRENGTH] Strength inside friendly lands. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 
@@ -402,7 +402,7 @@
 			<Text>Self Control</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage. +15% [ICON_STRENGTH] Strength when defending. +10 HP if you destroy an enemy unit.</Text>
+			<Text>Increased [ICON_STRENGTH] Combat Strength based on unit damage (Tenacity). +15% [ICON_STRENGTH] Strength when defending. +10 HP if you destroy an enemy unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
@@ -490,7 +490,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_BUSHIDO">
-			<Text>Bushido</Text>
+			<Text>Tenacity</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_PIONEER">

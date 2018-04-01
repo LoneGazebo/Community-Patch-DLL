@@ -35,10 +35,10 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 1.65 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 1.90 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.65'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.90'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 145 is default. (Function is 'Need + ((CityPop x Value (134))/100)'. This value is added to City as a % modifier to needs.)
@@ -69,13 +69,13 @@
 -- Value by which yield/threshold difference is divded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '-15'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '-25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is divded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY', '-15'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY', '20'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
@@ -87,13 +87,13 @@
 -- Unhappiness point per starving citizen.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.5'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '1.0'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pillaged plot owned by city.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.34'
+	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pop if unconnected or blockaded.

@@ -247,7 +247,7 @@ public:
 		}
 
 		// Random roll up to total weight
-		if (GC.getGame().isNetworkMultiPlayer())
+		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
 		{
 			elem = m_pItems[0];
 			return elem.m_Element;

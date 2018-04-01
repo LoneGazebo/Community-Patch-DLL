@@ -83,7 +83,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Religious Settlements (Now God of the Expanse)
 UPDATE Language_en_US
-SET Text = '+20% faster border growth, and gain 15 [ICON_PEACE] Faith and 6 [ICON_PRODUCTION] Production every time a city expands its borders, scaling with Gamespeed'
+SET Text = '+20% faster border growth, and gain 15 [ICON_PEACE] Faith and 6 [ICON_PRODUCTION] Production every time a city expands its borders naturally, scaling with Gamespeed'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Settlements 
@@ -253,7 +253,7 @@ SET Text = 'Can only be built in cities following a religion with the Cathedrals
 WHERE Tag = 'TXT_KEY_BUILDING_CATHEDRAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Boredom and generates yields based on the number of Religions present in the City.'
+SET Text = 'Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Boredom and [ICON_HAPPINESS_3] Religious Unrest, and generates yields based on the number of Religions present in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_PAGODA_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

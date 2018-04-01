@@ -10,6 +10,14 @@ UPDATE Projects
 Set FreePolicyIfFirst = 'POLICY_FIRST_ON_MOON'
 WHERE Type = 'PROJECT_APOLLO_PROGRAM';
 
+UPDATE Projects
+Set Cost = '1500'
+WHERE Type = 'PROJECT_APOLLO_PROGRAM';
+
+UPDATE Projects
+Set Cost = '1500'
+WHERE Type = 'PROJECT_MANHATTAN_PROJECT';
+
 INSERT INTO Policies
 	(Type, Description, IncludesOneShotFreeUnits, GoldenAgeTurns, IsDummy)
 VALUES

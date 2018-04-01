@@ -21,7 +21,6 @@ UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_P
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_ELIZABETH';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_MARIA_I';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_CASIMIR';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_KAMEHAMEHA';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_WILLIAM';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    WHERE Type = 'LEADER_ISABELLA';
@@ -206,8 +205,8 @@ UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_
 UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_CASIMIR'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_CASIMIR'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_CASIMIR'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
-UPDATE Leader_MajorCivApproachBiases SET Bias =    1 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
-UPDATE Leader_MajorCivApproachBiases SET Bias =    1 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
+UPDATE Leader_MajorCivApproachBiases SET Bias =    3 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
+UPDATE Leader_MajorCivApproachBiases SET Bias =    3 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_DECEPTIVE';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    8 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_GUARDED';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_ENRICO_DANDOLO'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
@@ -389,7 +388,6 @@ UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHE
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHERE  LeaderType = 'LEADER_ASKIA';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHERE  LeaderType = 'LEADER_SHAKA';
 
-UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_PACAL';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_SEJONG';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_PACHACUTI';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_ELIZABETH';
@@ -400,7 +398,9 @@ UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_WASHINGTON';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'	WHERE  LeaderType = 'LEADER_NAPOLEON';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_ALEXANDER';
+UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'     WHERE  LeaderType = 'LEADER_ENRICO_DANDOLO';
 
+UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'    WHERE  LeaderType = 'LEADER_PACAL';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_WILLIAM';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_THEODORA';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_MARIA';
@@ -410,7 +410,6 @@ UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_RAMKHAMHAENG';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_KAMEHAMEHA';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_MARIA_I';
-UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_DIPLOMAT'     WHERE  LeaderType = 'LEADER_ENRICO_DANDOLO';
 
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_EXPANSIONIST' WHERE  LeaderType = 'LEADER_HIAWATHA';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_EXPANSIONIST' WHERE  LeaderType = 'LEADER_POCATELLO';

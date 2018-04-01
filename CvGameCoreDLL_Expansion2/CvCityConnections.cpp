@@ -177,6 +177,57 @@ void CvCityConnections::UpdateCityPlotIDs(void)
 				CvAssertMsg(pLoopCity->plot(), "pLoopCity does not have a plot. What??");
 				int iPlotIndex = pLoopCity->plot()->GetPlotIndex();
 				m_cityPlotIDs.push_back(iPlotIndex);
+
+				for (int iCityPlotLoop = 0; iCityPlotLoop < pLoopCity->GetNumWorkablePlots(); iCityPlotLoop++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iCityPlotLoop);
+
+					// Invalid plot or not owned by this player
+					if (pLoopPlot == NULL || pLoopPlot->getOwner() != m_pPlayer->GetID())
+					{
+						continue;
+					}
+						
+					if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						continue;
+
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() < 50)
+						continue;
+
+					if (pLoopPlot->getWorkingCity() != pLoopCity)
+						continue;
+
+					//only want border tiles
+					bool bNotBorder = true;
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+						if (eLoopPlayer != NO_PLAYER && eLoopPlayer != pLoopCity->getOwner() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
+						{
+							if (pLoopPlot->IsHomeFrontForPlayer(eLoopPlayer))
+							{
+								bNotBorder = false;
+								break;
+							}
+						}
+					}
+					if (bNotBorder)
+						continue;
+					
+					bool bAlreadyIncluded = false;
+					for (PlotIndexStore::iterator it = m_cityPlotIDs.begin(); it != m_cityPlotIDs.end(); ++it)
+					{
+						CvPlot* pInPlot = GC.getMap().plotByIndexUnchecked(*it);
+						if (pInPlot->GetPlotIndex() == pLoopPlot->GetPlotIndex())
+						{
+							bAlreadyIncluded = true;
+							break;
+						}
+					}
+					if (!bAlreadyIncluded)
+						m_cityPlotIDs.push_back(pLoopPlot->GetPlotIndex());
+				}
 			}
 		}
 		else if(ShouldConnectToOtherPlayer(ePlayer))
@@ -249,6 +300,10 @@ void CvCityConnections::UpdateRouteInfo(void)
 	for (PlotIndexStore::iterator it = m_cityPlotIDs.begin(); it != m_cityPlotIDs.end(); ++it)
 	{
 		CvCity* pStartCity = GC.getMap().plotByIndexUnchecked( *it )->getPlotCity();
+		
+		//special code for noncity connections
+		if (pStartCity == NULL)
+			continue;
 
 		//we assume no city is connected to the capital
 		if (pStartCity->getOwner()==m_pPlayer->GetID())
@@ -515,13 +570,7 @@ bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
 			return false;
 		}
 
-		// If the major is a human, don't decide a connection to a minor is desirable on their behalf
-		if(m_pPlayer->isHuman())
-		{
-			return false;
-		}
-
-		if(!m_pPlayer->GetDiplomacyAI()->IsWantToRouteConnectToMinor(pMinorPlayer->GetID()))
+		if (!m_pPlayer->isHuman()&& !m_pPlayer->GetDiplomacyAI()->IsWantToRouteConnectToMinor(pMinorPlayer->GetID()))
 		{
 			return false;
 		}

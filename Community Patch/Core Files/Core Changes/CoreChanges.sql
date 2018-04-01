@@ -1322,6 +1322,19 @@ UPDATE Buildings
 SET ExtraLeagueVotes = '0'
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- TR fix for religion spread
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '40' WHERE Type = 'GAMESPEED_MARATHON';
+
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '80' WHERE Type = 'GAMESPEED_EPIC';
+
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '120' WHERE Type = 'GAMESPEED_STANDARD';
+
+UPDATE Gamespeeds
+SET ReligiousPressureAdjacentCity = '180' WHERE Type = 'GAMESPEED_QUICK';
+
 -- Spies
 UPDATE Defines SET Value =  '200' WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
 

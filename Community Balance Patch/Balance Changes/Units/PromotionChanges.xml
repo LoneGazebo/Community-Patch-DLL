@@ -2188,7 +2188,7 @@
 			<Help>TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<NearbyEnemyCombatMod>-10</NearbyEnemyCombatMod>
+			<NearbyEnemyCombatMod>-15</NearbyEnemyCombatMod>
 			<NearbyEnemyCombatRange>1</NearbyEnemyCombatRange>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>

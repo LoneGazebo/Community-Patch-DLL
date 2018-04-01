@@ -1644,7 +1644,7 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
 	const bool bOptional = luaL_optbool(L, 5, false);
 #if defined(MOD_BUGFIX_LUA_API)
-	RouteTypes eRoute = (RouteTypes)luaL_optint(L, 5, NUM_ROUTE_TYPES);
+	RouteTypes eRoute = (RouteTypes)luaL_optint(L, 6, NUM_ROUTE_TYPES);
 	if (lua_gettop(L) == 6)
 		eRoute = (RouteTypes)lua_tointeger(L, 6);
 #else

@@ -130,6 +130,7 @@ protected:
 	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100);
 	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
 	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
+	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, RouteTypes eRoute, int iNetGoldTimes100);
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
@@ -151,6 +152,7 @@ protected:
 	bool m_bKeepJungle;
 #if defined(MOD_BALANCE_CORE)
 	bool m_bEvaluateAdjacent;
+	bool m_bNoPermanentsAdjacentCity;
 #endif
 };
 
