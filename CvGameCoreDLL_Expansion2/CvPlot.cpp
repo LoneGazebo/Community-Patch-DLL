@@ -14379,6 +14379,14 @@ void CvPlot::ClearArchaeologicalRecord()
 	m_kArchaeologyData.m_ePlayer1 = NO_PLAYER;
 	m_kArchaeologyData.m_ePlayer2 = NO_PLAYER;
 	m_kArchaeologyData.m_eEra = NO_ERA;
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+	if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+	{
+		setResourceType(NO_RESOURCE, 0);
+	}
+#endif
 }
 
 //	---------------------------------------------------------------------------
