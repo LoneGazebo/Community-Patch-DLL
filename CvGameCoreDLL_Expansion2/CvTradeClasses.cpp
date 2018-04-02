@@ -1928,6 +1928,43 @@ bool CvGameTrade::StepUnit (int iIndex)
 	CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY);
 	if (pPlot)
 	{
+#if defined(MOD_CIV6_ROADS)
+		if (MOD_CIV6_ROADS)
+		{
+			//build land routes
+			RouteTypes autoBuildRoadType = ROUTE_ROAD;
+			// check if the rairoad is unlocked (by tech and by era).
+			EraTypes eModern = (EraTypes)GC.getInfoTypeForString("ERA_MODERN", true);
+			TechTypes iRequiredTech = (TechTypes)GC.getInfoTypeForString("TECH_RAILROAD", true);
+			if ((GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() >= eModern) && (GET_TEAM(GET_PLAYER(kTradeConnection.m_eOriginOwner).getTeam()).GetTeamTechs()->HasTech(iRequiredTech)))
+			{
+				autoBuildRoadType = ROUTE_RAILROAD;
+			}
+
+			//don't build roads on sea
+			if (!pPlot->IsPlotOcean())
+			{
+				//don't build a road if route is already a Railroad
+				if (pPlot->getRouteType() != ROUTE_RAILROAD)
+				{
+					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(autoBuildRoadType);
+					if (pkRouteInfo)
+					{
+						pPlot->setRouteType(autoBuildRoadType);
+						// Unowned plot, someone has to foot the bill
+						if (pPlot->getOwner() == NO_PLAYER)
+						{
+							if (pPlot->MustPayMaintenanceHere(kTradeConnection.m_eOriginOwner))
+							{
+								GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
+							}
+							pPlot->SetPlayerResponsibleForRoute(kTradeConnection.m_eOriginOwner);
+						}
+					}
+				}
+			}
+		}
+#endif
 		CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(kTradeConnection.m_eOriginOwner);
 		if (pEnemyUnit)
 		{
@@ -2543,57 +2580,6 @@ void CvPlayerTrade::MoveUnits (void)
 							}
 						}
 					}
-
-
-#if defined(MOD_CIV6_ROADS)
-					if (MOD_CIV6_ROADS)
-					{
-						//build land routes
-
-						// i didn't go by plot->changeBuildProgress to not fire unwanted things, like "BuildFinished".
-						// so it's mostly a copy-paste from the road section of this method
-						RouteTypes autoBuildRoadType = ROUTE_ROAD;
-						// check if the rairoad is unlocked (by tech and by era).
-						int minEra = GD_INT_GET(TRADE_ROUTE_CREATE_RAILROADS_ERA);
-						int iTech = GD_INT_GET(TRADE_ROUTE_CREATE_RAILROADS_TECH_ID);
-						if ((GET_PLAYER(pTradeConnection->m_eOriginOwner).GetCurrentEra() >= minEra)
-							&& (iTech >= 0 && iTech < GC.getNumTechInfos() && GET_TEAM(GET_PLAYER(pTradeConnection->m_eOriginOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)iTech)))
-						{
-							autoBuildRoadType = ROUTE_RAILROAD;
-						}
-
-						//iterate on plots
-						uint nbPLotsInTradeRoute = (uint)pTradeConnection->m_aPlotList.size();
-						for (uint ui = 0; ui < nbPLotsInTradeRoute; ui++){
-							CvPlot* pRoadToBuildPlot = GC.getMap().plot(pTradeConnection->m_aPlotList[ui].m_iX, pTradeConnection->m_aPlotList[ui].m_iY);
-
-							//don't build roads on sea
-							if (!pRoadToBuildPlot->IsPlotOcean())
-							{
-								
-								//don't build road / change nationality (for the moment) of roads if already built.
-								if (pRoadToBuildPlot->getRouteType() != autoBuildRoadType)
-								{
-									CvRouteInfo* pkRouteInfo = GC.getRouteInfo(autoBuildRoadType);
-									if (pkRouteInfo)
-									{
-										pRoadToBuildPlot->setRouteType(autoBuildRoadType);
-
-										// Unowned plot, someone has to foot the bill
-										if (pRoadToBuildPlot->getOwner() == NO_PLAYER)
-										{
-											if (pRoadToBuildPlot->MustPayMaintenanceHere(pTradeConnection->m_eOriginOwner))
-											{
-												GET_PLAYER(pTradeConnection->m_eOriginOwner).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
-											}
-											pRoadToBuildPlot->SetPlayerResponsibleForRoute(pTradeConnection->m_eOriginOwner);
-										}
-									}
-								}
-							}
-						}
-					}
-#endif
 
 				}	
 #endif

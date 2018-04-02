@@ -1250,21 +1250,25 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		eUnitForOperation = m_pCity->GetUnitForOperation();
 		if (eUnitForOperation != NO_UNIT)
 		{
-			int iPaidUnits = (GC.getUnitInfo(eUnitForOperation)->IsMilitarySupport() && !GC.getUnitInfo(eUnitForOperation)->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
-			if (iPaidUnits <= 0)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
+			if (pUnitEntry)
 			{
-				buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
-				buildable.m_iIndex = (int)eUnitForOperation;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
-				iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
-				int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
-				iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
-				iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
-				if (iTempWeight > 0)
+				int iPaidUnits = (pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
+				if (iPaidUnits <= 0)
 				{
-					buildable.m_iValue = iTempWeight;
-					m_BuildablesPrecheck.push_back(buildable, iTempWeight);
-					kPlayer.GetMilitaryAI()->BumpNumberOfTimesOpsBuildSkippedOver();
+					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
+					buildable.m_iIndex = (int)eUnitForOperation;
+					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
+					iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
+					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
+					iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+					iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
+					if (iTempWeight > 0)
+					{
+						buildable.m_iValue = iTempWeight;
+						m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+						kPlayer.GetMilitaryAI()->BumpNumberOfTimesOpsBuildSkippedOver();
+					}
 				}
 			}
 		}
@@ -1272,19 +1276,23 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
 		if (eUnitForArmy != NO_UNIT)
 		{
-			int iPaidUnits = (GC.getUnitInfo(eUnitForArmy)->IsMilitarySupport() && !GC.getUnitInfo(eUnitForArmy)->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
-			if (iPaidUnits <= 0)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
+			if(pUnitEntry)
 			{
-				buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
-				buildable.m_iIndex = (int)eUnitForArmy;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
-				iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
-				int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-				iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
-				if (iTempWeight > 0)
+				int iPaidUnits = (pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
+				if (iPaidUnits <= 0)
 				{
-					buildable.m_iValue = iTempWeight;
-					m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
+					buildable.m_iIndex = (int)eUnitForArmy;
+					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
+					iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
+					int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+					iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+					if (iTempWeight > 0)
+					{
+						buildable.m_iValue = iTempWeight;
+						m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+					}
 				}
 			}
 		}
@@ -1293,9 +1301,9 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	// Loop through adding the available units
 	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
+		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 		if (bFaithPurchase)
 		{
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 			if (pUnitEntry)
 			{
 				if (pUnitEntry->IsSpreadReligion() || pUnitEntry->IsRemoveHeresy())
@@ -1305,22 +1313,25 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					continue;
 			}
 		}
-		int iPaidUnits = (GC.getUnitInfo((UnitTypes)iUnitLoop)->IsMilitarySupport() && !GC.getUnitInfo((UnitTypes)iUnitLoop)->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
-		if (iPaidUnits <= 0)
+		if (pUnitEntry)
 		{
-			// Make sure this unit can be built now
-			if (m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, ePurchaseYield))
-			{		
-				buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
-				buildable.m_iIndex = iUnitLoop;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
-
-				iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
-
-				if (iTempWeight > 0)
+			int iPaidUnits = (pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
+			if (iPaidUnits <= 0)
+			{
+				// Make sure this unit can be built now
+				if (m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, ePurchaseYield))
 				{
-					buildable.m_iValue = iTempWeight;
-					m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
+					buildable.m_iIndex = iUnitLoop;
+					buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
+
+					iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
+
+					if (iTempWeight > 0)
+					{
+						buildable.m_iValue = iTempWeight;
+						m_BuildablesPrecheck.push_back(buildable, iTempWeight);
+					}
 				}
 			}
 		}

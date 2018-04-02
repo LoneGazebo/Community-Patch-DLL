@@ -4819,18 +4819,21 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	UnitTypes eFreeUnitConquest = GetPlayerTraits()->GetFreeUnitOnConquest();
 	if(eFreeUnitConquest != NO_UNIT)
 	{
-		if(pNewCity->GetNumTimesOwned(GetID()) <= 1 && canTrain(eFreeUnitConquest))
+		if(pNewCity != NULL)
 		{
-			CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
-			CvCity* pCapital = getCapitalCity();
-			bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
-			if (bJumpSuccess && pCapital != NULL)
+			if(pNewCity->GetNumTimesOwned(GetID()) <= 1 && canTrain(eFreeUnitConquest))
 			{
-				pCapital->addProductionExperience(pkUnit);
-			}
-			else
-			{
-				pkUnit->kill(false);
+				CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
+				CvCity* pCapital = getCapitalCity();
+				bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+				if (bJumpSuccess && pCapital != NULL)
+				{
+					pCapital->addProductionExperience(pkUnit);
+				}
+				else
+				{
+					pkUnit->kill(false);
+				}
 			}
 		}
 	}
@@ -42341,6 +42344,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				{
 					continue;
 				}
+				if (GetNumUnitsOutOfSupply() > 0)
+				{
+					continue;
+				}
 				UnitTypes eBestUnit = NO_UNIT;
 				int iStrengthBest = 0;
 				// Loop through adding the available units
@@ -44743,6 +44750,18 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 					}
 				}
 			}
+		}
+	}
+	if(pGreatPeopleUnit->getUnitInfo().IsFoundReligion())
+	{
+		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+		int iReligionSpreads = pGreatPeopleUnit->getUnitInfo().GetReligionSpreads();
+		int iReligiousStrength = pGreatPeopleUnit->getUnitInfo().GetReligiousStrength();
+		if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
+		{
+			pGreatPeopleUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+			pGreatPeopleUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
+			pGreatPeopleUnit->GetReligionData()->SetReligion(eReligion);
 		}
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())

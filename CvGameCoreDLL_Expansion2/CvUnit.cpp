@@ -13452,6 +13452,14 @@ bool CvUnit::build(BuildTypes eBuild)
 									{
 										continue;
 									}
+									if (pUnitEntry->GetCombat() == 0)
+									{
+										continue;
+									}
+									if (kPlayer.GetNumUnitsOutOfSupply() > 0)
+									{
+										continue;
+									}
 									if(!pUnitEntry->GetRangedCombat())
 									{
 										bool bBad = false;
@@ -13488,6 +13496,14 @@ bool CvUnit::build(BuildTypes eBuild)
 										continue;
 									}
 									if(pUnitEntry->GetRangedCombat() > 0)
+									{
+										continue;
+									}
+									if (pUnitEntry->GetCombat() == 0)
+									{
+										continue;
+									}
+									if (kPlayer.GetNumUnitsOutOfSupply() > 0)
 									{
 										continue;
 									}
@@ -20045,8 +20061,11 @@ if (!bDoEvade)
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		DoLocationPromotions(false, pOldPlot, pNewPlot);
-		DoConvertEnemyUnitToBarbarian(pNewPlot);
+		if (pOldPlot != NULL)
+		{
+			DoLocationPromotions(false, pOldPlot, pNewPlot);
+			DoConvertEnemyUnitToBarbarian(pNewPlot);
+		}
 #endif
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
@@ -23660,7 +23679,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 					CvUnit* pConvertUnit = NULL;
 					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
 					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
-					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian())
+					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian() && !pAdjacentPlot->isEnemyCity(*this))
 					{
 						int iExistingDamage = pAdjacentUnit->getDamage();
 						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
@@ -23686,7 +23705,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 					}
 				}
 				// Is this unit running into a unit that might convert it into a barbarian??
-				else if(IsCombatUnit() && !isBarbarian())
+				else if(IsCombatUnit() && !isBarbarian() && !pPlot->isFriendlyCity(*this, true))
 				{
 					CvUnit* pConvertUnit = NULL;
 					int iExistingDamage = getDamage();
