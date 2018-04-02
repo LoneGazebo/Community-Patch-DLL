@@ -5000,7 +5000,15 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 				{
 					continue;
 				}
-				if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+				if (pUnitEntry->GetCombat() == 0)
+				{
+					continue;
+				}
+				if (m_pPlayer->GetNumUnitsOutOfSupply() > 0)
+				{
+					continue;
+				}
+				if(pUnitEntry->GetDomainType() == DOMAIN_LAND && m_pPlayer->GetNumUnitsToSupply() > m_pPlayer->GetNumUnitsSupplied())
 				{
 					bool bBad = false;
 					ResourceTypes eResource;
@@ -5039,6 +5047,10 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 	{
 		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 		{
+			if (m_pPlayer->GetNumUnitsOutOfSupply() > 0)
+			{
+				continue;
+			}
 			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 			if(pLoopPlot != NULL)
 			{
