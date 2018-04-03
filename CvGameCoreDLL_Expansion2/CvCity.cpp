@@ -623,13 +623,17 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// wipe out dig sites
+#if !defined(MOD_BALANCE_CORE)
 	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
 	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
 	if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
 	{
 		pPlot->setResourceType(NO_RESOURCE, 0);
+#endif
 		pPlot->ClearArchaeologicalRecord();
+#if !defined(MOD_BALANCE_CORE)
 	}
+#endif
 
 	setupGraphical();
 
