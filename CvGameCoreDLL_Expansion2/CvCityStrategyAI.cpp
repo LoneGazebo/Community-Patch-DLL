@@ -6305,6 +6305,14 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 		iBonus += (kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 15);
 	}
 
+	if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+	{
+		if (kPlayer.GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) > 0)
+		{
+			iBonus += (kPlayer.GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * 15);
+		}
+	}
+
 	if(kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) > 0 && pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
 		iBonus += (kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) * 15);

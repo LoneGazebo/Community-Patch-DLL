@@ -1128,6 +1128,12 @@ void CvPlayerAI::ProcessGreatPeople(void)
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_USE_POWER);
 			continue;
 		}
+		// Pseudo Great People (units with missions from GP, but are not SPECIALUNIT_PEOPLE)
+		else if (pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson && pLoopUnit->getUnitInfo().IsGreatWorkUnit() && pLoopUnit->getUnitInfo().GetGoldenAgeTurns() > 0)
+		{
+			pLoopUnit->SetGreatPeopleDirective(GetDirectiveArtist(pLoopUnit));
+			continue;
+		}
 		else
 #endif
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson || pLoopUnit->getArmyID()!=-1)
