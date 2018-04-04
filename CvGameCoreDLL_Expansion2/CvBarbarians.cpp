@@ -608,7 +608,7 @@ void CvBarbarians::DoCamps()
 
 				std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vCoastalPlots : vAllPlots;
 
-				int iPlotIndex = kGame.getSmallFakeRandNum( vRelevantPlots.size(), vRelevantPlots.size() / max(5, GC.getGame().getGameTurn()));
+				int iPlotIndex = kGame.getSmallFakeRandNum( vRelevantPlots.size(), vRelevantPlots.size() );
 #else
 				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 				int iPlotIndex = kGame.getJonRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");

@@ -5004,7 +5004,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
 		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-		int iRandom = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
+		int iRandom = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
 		if(iRandom <= 33)
 		{
 			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
@@ -5594,7 +5594,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 		int iLoop;
 		int iValue = iPolicyGEorGM * (m_pPlayer->GetCurrentEra() + 1);
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-		int iRandom = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
+		int iRandom = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
 		if(iRandom <= 33)
 		{
 			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");

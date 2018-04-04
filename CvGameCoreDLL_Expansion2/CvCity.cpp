@@ -9372,7 +9372,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), veValidLuxuryResources.size());
+		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex()+getPopulation());
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -9528,7 +9528,7 @@ void CvCity::DoSeedResourceDemandedCountdown()
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, getPopulation());
+	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, plot()->GetPlotIndex() + getPopulation());
 #else
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
 #endif
@@ -13624,7 +13624,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 							if (pkResource != NULL && pkResource->GetRequiredCivilization() == owningPlayer.getCivilizationType())
 							{
-								int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
+								int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+getPopulation()) * 10;
 								//If we've already got this resource, divide the value by the amount.
 								if(owningPlayer.getNumResourceTotal(eResource, false) > 0)
 								{
@@ -16775,7 +16775,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 										continue;
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
-										int iChance = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
+										int iChance = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 10;
 										if(iChance < 50)
 										{
 											continue;
@@ -16803,7 +16803,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									{
 										continue;
 									}
-									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetCombat(), pkUnitEntry->GetCombat()));
+									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetCombat(), plot()->GetPlotIndex() + getPopulation()));
 									if(iCombatStrength > iStrengthBest)
 									{
 										iStrengthBest = iCombatStrength;
@@ -19730,7 +19730,7 @@ bool CvCity::DoRazingTurn()
 			// In hundreds
 			int iNumRebels = (getPopulation() * 5); //Based on city size.
 			int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll, iExtraRoll) * 3 * getPopulation();
+			iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll, plot()->GetPlotIndex() + getPopulation()) * 3 * getPopulation();
 			iNumRebels /= 100;		
 	
 			if(iNumRebels <= 0)
@@ -24308,7 +24308,7 @@ void CvCity::DoBarbIncursion()
 			return;
 
 		int iCityStrength = getStrengthValue(true);
-		iCityStrength += (GC.getGame().getSmallFakeRandNum(10, getOwner()) * 10);
+		iCityStrength += (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 10);
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -24322,14 +24322,14 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, *plot()) * 18;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, *plot());
+							int iYield = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -30870,14 +30870,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		if (isBarbarian())
-		{
-			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 120;
-		}
-		else
-		{
-			iAttackerRoll = GC.getGame().getSmallFakeRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100) * 100;
-		}
+		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
 	}
 	else
 	{
@@ -30937,36 +30930,19 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	pAttacker; //unused
 
 	//base value
+	int iBaseValue = 15;
+
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-	{
-		int iBaseValue = GetCityAirStrikeDefense();
-		iBaseValue += plot()->countNumAirUnits(getTeam(), true);
-		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+		iBaseValue = GetCityAirStrikeDefense();
 
-		if (iBaseValue == 0)
-			if (bIncludeRand)
-				return GC.getGame().getSmallFakeRandNum(10, 10);
-			else
-				return 15;
-		else
-		{
-			if (bIncludeRand)
-				return iBaseValue + GC.getGame().getSmallFakeRandNum(10, 10);
-			else
-				return iBaseValue;
-		}
-	}
+	iBaseValue += plot()->countNumAirUnits(getTeam(), true);
+	iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+
+	if (bIncludeRand)
+		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());
 	else
-	{
-		int iBaseValue = 15;
-		iBaseValue += plot()->countNumAirUnits(getTeam(), true);
-		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+		return iBaseValue;
 
-		if (bIncludeRand)
-			return iBaseValue + GC.getGame().getSmallFakeRandNum(10, 10);
-		else
-			return iBaseValue;
-	}
 #else
 	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, false);
 	int iDefenderStrength = getStrengthValue(false);

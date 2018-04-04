@@ -39,7 +39,7 @@ public:
 	static void GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, CvCombatInfo* pkCombatInfo);
 	
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
-	static bool ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot);
+	static bool ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot);
 #endif
 
 	static void ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID = 0);
