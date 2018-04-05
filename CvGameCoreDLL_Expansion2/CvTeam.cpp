@@ -7102,7 +7102,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									int iTotal = GetNumVassals() * 2;
 									for (int iK = 0; iK < iTotal; iK++)
 									{
-										int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), aExtraUnits.size());
+										int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), *pMasterCity->plot());
 										CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
 										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 										if (bJumpSuccess)

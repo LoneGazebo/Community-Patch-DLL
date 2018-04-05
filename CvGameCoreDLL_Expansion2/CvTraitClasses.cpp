@@ -4885,7 +4885,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
 			{
-				int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
+				int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
 				//If we've already got this resource, divide the value by the amount.
 				if(m_pPlayer->getNumResourceTotal(eResource, false) > 0)
 				{
@@ -6864,7 +6864,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 	}
 
 	// Roll die to see if it converts
-	if (GC.getGame().getSmallFakeRandNum(10, 10) * 10 < m_iLandBarbarianConversionPercent)
+	if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < m_iLandBarbarianConversionPercent)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
@@ -6955,7 +6955,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().getSmallFakeRandNum(10, 10) * 100 < m_iSeaBarbarianConversionPercent)
+	if(GC.getGame().getSmallFakeRandNum(10, *pUnit->plot()) * 100 < m_iSeaBarbarianConversionPercent)
 	{
 		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);

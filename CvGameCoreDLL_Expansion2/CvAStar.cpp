@@ -899,6 +899,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 
 	//ignore this unit when counting!
 	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
+	//for civilians we don't actually need to subtract one here, but it doesn't hurt
 	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
 	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 

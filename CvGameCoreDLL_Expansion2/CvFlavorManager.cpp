@@ -498,7 +498,7 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 	}
 #endif
 
-	iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iPlusMinus * 2 + 1));
+	iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), iOriginalValue);
 	iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
 	//for stupid settings, try to make it so that we don't cluster at the extreme values

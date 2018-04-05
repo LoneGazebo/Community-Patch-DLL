@@ -789,7 +789,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 	initFreeUnits(kInitialItemOverrides);
 
-	m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getSmallFakeRandNum(GC.getAI_TACTICAL_BARBARIAN_RELEASE_VARIATION(), GC.getAI_TACTICAL_BARBARIAN_RELEASE_VARIATION()) + 1;
+	m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(GC.getAI_TACTICAL_BARBARIAN_RELEASE_VARIATION(), "barb release");
 
 	// What route type forms an industrial connection
 	DoUpdateIndustrialRoute();
@@ -8429,7 +8429,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, 10)) * 100;
+			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, GC.getGame().getGameTurn())) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -8702,7 +8702,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		if(pPlot->getNumUnits() > 0)
 			continue;
 
-		int iTempWeight = getSmallFakeRandNum(10, 10);
+		int iTempWeight = getSmallFakeRandNum(10, *pPlot);
 
 		// Add weight if there's an improvement here!
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -10065,7 +10065,7 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isConquest())
 			continue;
 
-		int iScore = getSmallFakeRandNum(10, 10) * 10;
+		int iScore = getSmallFakeRandNum(10, GC.getGame().GetGameCulture()->GetNumGreatWorks()) * 10;
 		
 		if (pkVictoryInfo->isDiploVote())
 		{
@@ -10224,9 +10224,6 @@ CvRandom& CvGame::getJonRand()
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
 #if defined(MOD_BUGFIX_RANDOM)
-	if (BARBARIAN_PLAYER != NO_PLAYER && GET_TEAM(BARBARIAN_TEAM).isTurnActive())
-		return getSmallFakeRandNum(iNum, ((iNum/2)+(iNum*2)));
-
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
@@ -10282,18 +10279,20 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	int iFake = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + getGameTurn();
+	int iFake = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + m_iGlobalAssetCounter;
 	
 	//watch out, iFake^2 may turn negative because of overflow!
-	if (iNum>0)
-		return abs(iFake*iFake) % iNum; 
-	else
+	if (iNum > 0)
+		return abs(iFake*iFake) % iNum;
+	else if (iNum < 0)
 		return (-1) * (abs(iFake*iFake) % (-iNum));
+	else
+		return 0;
 }
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	int iFake = max(5, getGameTurn()) + abs(iExtraSeed);
+	int iFake = getGameTurn() + m_iGlobalAssetCounter + abs(iExtraSeed);
 	
 	if (iNum == 0)
 		iNum = -1;
@@ -12897,7 +12896,7 @@ int CalculateDigSiteWeight(int iIndex, FFastVector<CvArchaeologyData, true, c_eC
 		if (iBaseWeight > 0)
 		{
 			// add a small random factor
-			iBaseWeight += 10 + GC.getGame().getSmallFakeRandNum(10, 10);
+			iBaseWeight += 10 + GC.getGame().getSmallFakeRandNum(10, iBaseWeight);
 
 			// increase the value if unowned
 			iBaseWeight *= (pPlot->getOwner() == NO_PLAYER) ? 9 : 8;
@@ -13164,7 +13163,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	const int iNumMajorCivs = countMajorCivsEverAlive();
 	const int iMinDigSites = GC.getMIN_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
 	const int iMaxDigSites = GC.getMAX_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
-	const int iIdealNumDigSites = iMinDigSites + getSmallFakeRandNum((iMaxDigSites - iMinDigSites) / 2, (iMaxDigSites - iMinDigSites) / 2) + getSmallFakeRandNum((iMaxDigSites - iMinDigSites) / 2, (iMaxDigSites - iMinDigSites) / 2);
+	const int iIdealNumDigSites = iMinDigSites + getJonRandNum(iMaxDigSites - iMinDigSites, "dig sites");
 
 	// find the highest era any player has gotten to
 	EraTypes eHighestEra = NO_ERA;
@@ -13240,7 +13239,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 					eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
 
 					// pick a type of artifact
-					GreatWorkArtifactClass eArtifact = aRandomArtifacts[getSmallFakeRandNum(aRandomArtifactsCount, aRandomArtifactsCount)];
+					GreatWorkArtifactClass eArtifact = aRandomArtifacts[getSmallFakeRandNum(aRandomArtifactsCount, *pPlot)];
 
 					PopulateDigSite(*pPlot, eEra, eArtifact);
 
@@ -13308,7 +13307,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
 
 		// Hidden site?
-		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(10, 10) * 10 < GC.getPERCENT_SITES_HIDDEN();
+		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < GC.getPERCENT_SITES_HIDDEN();
 		if (bHiddenSite)
 		{
 			pPlot->setResourceType(eHiddenArtifactResourceType, 1);
@@ -13328,7 +13327,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 			// pick a type of artifact
 			GreatWorkArtifactClass eArtifact;
-			eArtifact = aRandomArtifacts[getSmallFakeRandNum(aRandomArtifactsCount, aRandomArtifactsCount)];
+			eArtifact = aRandomArtifacts[getSmallFakeRandNum(aRandomArtifactsCount, *pPlot)];
 
 			PopulateDigSite(*pPlot, eEra, eArtifact);
 		}
@@ -13340,7 +13339,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			pPlot->SetArtifactType(CvTypes::getARTIFACT_WRITING());
 
 			// Then get a writing and set it
-			int iIndex = getSmallFakeRandNum(aWorksWriting.size(), aWorksWriting.size());
+			int iIndex = getSmallFakeRandNum(aWorksWriting.size(), aWorksWriting.size()+pPlot->GetPlotIndex());
 			GreatWorkType eWrittenGreatWork = aWorksWriting[iIndex];
 			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
 

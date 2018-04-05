@@ -1134,7 +1134,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 		
 		// Pick a random one if required
 		if (MOD_RELIGION_RANDOMISE) {
-			index = GC.getGame().getSmallFakeRandNum(availableReligions.size(), availableReligions.size());
+			index = GC.getGame().getSmallFakeRandNum(availableReligions.size(), ePlayer);
 		}
 		
 		// CUSTOMLOG("GetReligionToFound: Using random %i", availableReligions[index]);
@@ -3698,7 +3698,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getSmallFakeRandNum(10, 10) * 10;
+	int iRand = GC.getGame().getSmallFakeRandNum(10, kPlayer.GetEconomicMight()) * 10;
 	if(iRand >= iChance)
 	{
 		return false;
@@ -3811,7 +3811,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getSmallFakeRandNum(15, 15);
+				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight());
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -8637,7 +8637,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iRand = 0;
 	if (iRtnValue > 0)
 	{
-		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()));
+		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), m_pPlayer->GetEconomicMight());
 		iRtnValue += iRand;
 	}
 
@@ -11205,10 +11205,10 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 					}
 				}
 			}
-			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), choices.size())];
+			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
 		}
 		else
-			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), choices.size())];
+			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
 	}
 	else if (choices.size()==1)
 		return choices[0];
