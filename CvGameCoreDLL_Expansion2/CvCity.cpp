@@ -6661,7 +6661,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
 				if(eReligion != NO_RELIGION && eReligion > RELIGION_PANTHEON)
 				{
-					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerReligion());
+					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion());
 				}
 			}
 			if(pkEventChoiceInfo->getResistanceTurns() != 0)
@@ -29080,7 +29080,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			int iReligionSpreads = pUnit->getUnitInfo().GetReligionSpreads();
 			int iReligiousStrength = pUnit->getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetExtraMissionaryStrength());
+#else
 			iReligiousStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
+#endif
 			iReligiousStrength /= 100;
 
 			// Missionary strength

@@ -1227,6 +1227,9 @@ ALTER TABLE Improvements ADD COLUMN 'NewOwner' BOOLEAN DEFAULT 0;
 -- Improvement grants promotion if plot is owned by the player.
 ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 
+-- Missionaries gain % more strength
+ALTER TABLE Traits ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 

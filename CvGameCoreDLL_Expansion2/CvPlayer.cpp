@@ -2907,6 +2907,10 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 			int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
 			int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+			iReligiousStrength *= (100 + GetMissionaryExtraStrength() + GetPlayerTraits()->GetExtraMissionaryStrength());
+			iReligiousStrength /= 100;
+#endif
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 			{
 #if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
@@ -43352,6 +43356,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										}
 										int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
 										int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+										iReligiousStrength *= (100 + GetMissionaryExtraStrength() + GetPlayerTraits()->GetExtraMissionaryStrength());
+										iReligiousStrength /= 100;
+#endif
 										if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 										{
 #if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
@@ -44757,6 +44765,8 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 		int iReligionSpreads = pGreatPeopleUnit->getUnitInfo().GetReligionSpreads();
 		int iReligiousStrength = pGreatPeopleUnit->getUnitInfo().GetReligiousStrength();
+		iReligiousStrength *= (100 + GetMissionaryExtraStrength() + GetPlayerTraits()->GetExtraMissionaryStrength());
+		iReligiousStrength /= 100;
 		if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
 			pGreatPeopleUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);

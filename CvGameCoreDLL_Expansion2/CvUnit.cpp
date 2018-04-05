@@ -1005,7 +1005,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				GetReligionData()->SetReligion(eReligion);
 				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
 				int iStrength = getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+				iStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetExtraMissionaryStrength());
+#else
 				iStrength *= (100 + GET_PLAYER(getOwner()).GetMissionaryExtraStrength());
+#endif
 				iStrength /= 100;
 				GetReligionData()->SetReligiousStrength(iStrength);
 			}

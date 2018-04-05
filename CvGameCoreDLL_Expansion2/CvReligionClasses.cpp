@@ -1411,7 +1411,14 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 #else
 			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
 #endif
+#if defined(MOD_BALANCE_CORE)
+			int iReligiousStrength = pLoopUnit->getUnitInfo().GetReligiousStrength();
+			iReligiousStrength *= (100 + kPlayer.GetMissionaryExtraStrength() + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
+			iReligiousStrength /= 100;
+			pLoopUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
+#else
 			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
+#endif
 		}
 	}
 
