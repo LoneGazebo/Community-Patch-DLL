@@ -3194,7 +3194,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, GET_PLAYER(m_pUnit->getOwner()).GetEconomicMight());
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, m_pUnit->plot()->GetPlotIndex() + GET_PLAYER(m_pUnit->getOwner()).GetEconomicMight());
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 
