@@ -44765,7 +44765,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 		int iReligionSpreads = pGreatPeopleUnit->getUnitInfo().GetReligionSpreads();
 		int iReligiousStrength = pGreatPeopleUnit->getUnitInfo().GetReligiousStrength();
-		iReligiousStrength *= (100 + + GetPlayerTraits()->GetExtraMissionaryStrength());
+		iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
 		iReligiousStrength /= 100;
 		if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
