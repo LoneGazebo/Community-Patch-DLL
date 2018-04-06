@@ -1129,7 +1129,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 			continue;
 		}
 		// Pseudo Great People (units with missions from GP, but are not SPECIALUNIT_PEOPLE)
-		else if (pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson && pLoopUnit->AI_getUnitAIType() == UNITAI_ARTIST && pLoopUnit->getUnitInfo().GetGoldenAgeTurns() > 0 && pLoopUnit->getUnitInfo().IsGreatWorkUnit())
+		else if (pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ARTIST) && pLoopUnit->getUnitInfo().GetGoldenAgeTurns() > 0 && pLoopUnit->getUnitInfo().IsGreatWorkUnit())
 		{
 			pLoopUnit->SetGreatPeopleDirective(GetDirectiveArtist(pLoopUnit));
 			continue;
