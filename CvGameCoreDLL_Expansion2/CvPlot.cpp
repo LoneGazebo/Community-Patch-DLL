@@ -419,6 +419,19 @@ void CvPlot::doTurn()
 		changeImprovementDuration(1);
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
+	{
+		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+
+		if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+		{
+			setResourceType(NO_RESOURCE, 0);
+		}
+	}
+#endif
+
 	verifyUnitValidPlot();
 
 	// Clear world anchor
@@ -7886,8 +7899,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
 #if defined(MOD_BALANCE_CORE)
+			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
 			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
 			{
+				if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+				{
+					setResourceType(NO_RESOURCE, 0);
+				}
 				ClearArchaeologicalRecord();
 			}
 #endif
@@ -14343,6 +14362,12 @@ void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 {
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
+	{
+		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+			return;
+	}
 	// Make sure the new record is more significant
 	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
 	{
@@ -14359,6 +14384,13 @@ void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes e
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 {
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
+	{
+		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+			return;
+	}
+
 	// Make sure the new record is more significant
 	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
 	{

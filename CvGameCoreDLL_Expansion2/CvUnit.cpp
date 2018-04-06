@@ -391,6 +391,7 @@ CvUnit::CvUnit() :
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
+	, m_iAdjacentCityDefenseMod("CvUnit::m_iAdjacentCityDefenseMod", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -1459,6 +1460,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
+	m_iAdjacentCityDefenseMod = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -24332,7 +24334,17 @@ void CvUnit::ChangeReligiousPressureModifier(int iChange)
 	m_iReligiousPressureModifier += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetAdjacentCityDefenseMod() const
+{
+	return m_iAdjacentCityDefenseMod;
+}
 
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeAdjacentCityDefenseMod(int iChange)
+{
+	m_iAdjacentCityDefenseMod += iChange;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -26566,9 +26578,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				SetNegatorPromotion(-1);
 			}
 		}
-		ChangeIsStrongerDamaged((thisPromotion.IsStrongerDamaged()) ? iChange : 0);
-		ChangeGoodyHutYieldBonus((thisPromotion.GetGoodyHutYieldBonus()) * iChange);
-		ChangeReligiousPressureModifier((thisPromotion.GetReligiousPressureModifier()) * iChange);
+		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
+		ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
+		ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
+		ChangeAdjacentCityDefenseMod(thisPromotion.GetAdjacentCityDefenseMod() * iChange);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 

@@ -158,6 +158,13 @@ public:
 		int iCutoff;
 		WeightedElement elem;
 
+		// Random roll up to total weight
+		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
+		{
+			elem = m_pItems[0];
+			return elem.m_Element;
+		}
+
 		// Compute cutoff for the requested percentage
 		iCutoff = GetTotalWeight() * iPercent / 100;
 
@@ -190,6 +197,13 @@ public:
 	/// Return a random entry (ignoring weight)
 	T ChooseAtRandom(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
+		// Random roll up to total weight
+		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
+		{
+			WeightedElement elem = m_pItems[0];
+			return elem.m_Element;
+		}
+
 		int iChoice;
 
 		// Based on the number of elements we have, pick one at random
@@ -207,6 +221,13 @@ public:
 
 		// Random roll up to total weight
 		iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
+
+		// Random roll up to total weight
+		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
+		{
+			elem = m_pItems[0];
+			return elem.m_Element;
+		}
 
 		// Loop through until we find the item that is in the range for this roll
 		for (unsigned int i = 0; i < m_pItems.size(); i++)

@@ -1259,6 +1259,9 @@ public:
 	int GetReligiousPressureModifier() const;
 	void ChangeReligiousPressureModifier(int iChange);
 
+	void ChangeAdjacentCityDefenseMod(int iChange);
+	int GetAdjacentCityDefenseMod() const;
+
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
@@ -2030,6 +2033,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
+	FAutoVariable<int, CvUnit> m_iAdjacentCityDefenseMod;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;

@@ -20624,8 +20624,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 		{
 			iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessGlobal();
 		}
-		int iDamage = getDamage() / 10;
-		iModifier += iDamage;
 	}
 	return iModifier;
 }
@@ -25546,42 +25544,25 @@ void CvCity::updateStrengthValue()
 	int iStrengthValue = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
 
 	// Population mod
-	iStrengthValue += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
+	if (!MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+		iStrengthValue += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
 
 	// Building Defense
 	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
 #if defined(MOD_BALANCE_CORE)
-	CvPlot* pCityPlot = plot();
 	CvPlot* pAdjacentPlot = NULL;
-	int iNumAdjUnits = 0;
 	int iAdjUnitDefense = 0;
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(pCityPlot->getX(), pCityPlot->getY(), ((DirectionTypes)iI));
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			for(int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
+			for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 			{
-				for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+				const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+				if (adjUnit != NULL && adjUnit->getTeam() == getTeam())
 				{
-					const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-					if(pkPromotionInfo != NULL)
-					{
-						if(pkPromotionInfo->GetAdjacentCityDefenseMod() > 0)
-						{
-							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-							if(adjUnit != NULL && adjUnit->isHasPromotion(eLoopPromotion))
-							{
-								CvPlayer &adjUnitPlayer = GET_PLAYER(adjUnit->getOwner());
-								if(GET_TEAM(adjUnitPlayer.getTeam()).GetID() == getTeam())
-								{
-									iNumAdjUnits++;
-								}
-							}
-							iAdjUnitDefense = (pkPromotionInfo->GetAdjacentCityDefenseMod() * iNumAdjUnits);
-						}
-					}
+					iAdjUnitDefense += adjUnit->GetAdjacentCityDefenseMod();
 				}
 			}
 		}
@@ -31671,13 +31652,18 @@ uint CvCity::GetCityBombardEffectTagHash() const
 //	---------------------------------------------------------------------------
 int CvCity::GetMaxHitPoints() const
 {
-	return GC.getMAX_CITY_HIT_POINTS() + m_iExtraHitPoints;
+	return GC.getMAX_CITY_HIT_POINTS() + GetExtraHitPoints();
 }
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetExtraHitPoints() const
 {
-	return m_iExtraHitPoints;
+	// Population mod
+	int iPopBonus = 0;
+	if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+		iPopBonus = getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
+
+	return m_iExtraHitPoints + iPopBonus;
 }
 
 //	--------------------------------------------------------------------------------

@@ -1623,6 +1623,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
+	
+	//minors stay out
+	if (m_pPlayer->isMinorCiv())
+		return;
 
 	// if the player can't build a route, bail out!
 	if (eBestRouteType == NO_ROUTE)
