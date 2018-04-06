@@ -4048,7 +4048,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 									pCommonPlot = pAltPlot;
 								else
 								{
-									pAltPlot = pCivilian->GetPathNodeArray().GetFirstPlot();
+									pAltPlot = pCivilian->GetPathFirstPlot();
 									if (pEscort->canMoveInto(*pAltPlot, CvUnit::MOVEFLAG_DESTINATION))
 										pCommonPlot = pAltPlot;
 								}
