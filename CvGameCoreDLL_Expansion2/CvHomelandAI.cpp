@@ -6028,6 +6028,8 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 // Get a inquisitor to the best city
 void CvHomelandAI::ExecuteInquisitorMoves()
 {
+	vector<int> vBurnedTargets;
+
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -6038,9 +6040,11 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		}
 
 		int iTargetTurns;
-		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, &iTargetTurns);
+		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
+			vBurnedTargets.push_back(pTarget->plot()->GetPlotIndex());
+
 			if (pUnit->CanRemoveHeresy(pTarget->plot()))
 			{
 				if (iTargetTurns == 0)

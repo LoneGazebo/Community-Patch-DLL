@@ -2386,12 +2386,16 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 	// Subtract distance (XML value important here!)
 	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+	max(1, iDistance /= max(1, pUnit->baseMoves()));
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
 	{
 		iDistance *= 3;
 	}
+
+	if (eMinor.getCapitalCity() != NULL && eMinor.getCapitalCity()->isUnderSiege())
+		iDistance *= 3;
 
 	//Let's downplay minors we can't walk to if we don't have embarkation.
 	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())

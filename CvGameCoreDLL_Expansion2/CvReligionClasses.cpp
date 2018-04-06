@@ -7390,7 +7390,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -7405,6 +7405,10 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns)
 	{
 		if(pLoopCity && pUnit->GetDanger(pLoopCity->plot())==0)
 		{
+			//we often have multiple inquisitors active at the same time, don't all go to the same target
+			if (std::find(vIgnoreTargets.begin(), vIgnoreTargets.end(), pLoopCity->plot()->GetPlotIndex()) != vIgnoreTargets.end())
+				continue;
+
 			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
 			if (iScore>0)
 				vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
