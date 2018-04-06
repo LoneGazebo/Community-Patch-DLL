@@ -525,6 +525,13 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DeleteCSV);
 	Method(WriteCSV);
 #endif
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsPitbossHost);
+	Method(IsHost);
+	Method(GetTimeStringForYear);
+#endif
+
 }
 //------------------------------------------------------------------------------
 
@@ -4067,6 +4074,33 @@ int CvLuaGame::lWriteCSV(lua_State * L)
 
 	CvLoggerCSV::WriteCSVLog(szCSVFilename, szCSVLine);
 
+	return 1;
+}
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+int CvLuaGame::lIsPitbossHost(lua_State* L)
+{
+	lua_pushboolean(L, gDLL->IsPitbossHost());
+	return 1;
+}
+
+int CvLuaGame::lIsHost(lua_State* L)
+{
+	lua_pushboolean(L, gDLL->IsHost());
+	return 1;
+}
+
+int CvLuaGame::lGetTimeStringForYear(lua_State* L)
+{
+	int year = lua_tointeger(L, 1);
+
+	CvString timeString;
+
+	CvGame& kGame = GC.getGame();
+	CvGameTextMgr::setDateStr(timeString, year, true, kGame.getCalendar(), kGame.getStartYear(), kGame.getGameSpeedType());
+
+	lua_pushstring(L, timeString.GetCString());
 	return 1;
 }
 #endif
