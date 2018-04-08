@@ -116,12 +116,16 @@ struct CvCityBuildable
 		m_eBuildableType(NOT_A_CITY_BUILDABLE)
 		, m_iIndex(0)
 		, m_iTurnsToConstruct(0)
+		, m_iValue(0)
+		, m_iCityID(-1)
 	{
 	}
 
 	CityBuildableType m_eBuildableType;
 	int m_iIndex;							// index in building or unit array
 	int m_iTurnsToConstruct;
+	int m_iValue;
+	int m_iCityID;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -105,7 +105,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 			// Add a random bit so that the same Unit isn't ALWAYS picked
 			if (bUseRandom)
 			{
-				iWeight += GC.getGame().getJonRandNum(iWeight / 10, "Minor Civ Quest: Gift Unit - Adding random weight to Unit Chosen");
+				iWeight += GC.getGame().getSmallFakeRandNum(iWeight / 10, iWeight);
 			}
 
 			UnitClassesVector.push_back(i, iWeight);

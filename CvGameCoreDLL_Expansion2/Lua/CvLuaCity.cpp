@@ -1305,6 +1305,41 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Local faith purchase cooldown for combat units
+	if (GC.getUnitInfo(eUnit)->GetCombat() > 0 || GC.getUnitInfo(eUnit)->GetRangedCombat() > 0)
+	{
+		if (pkCity->GetUnitFaithPurchaseCooldown() > 0)
+		{
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH_LOCAL");
+			localizedText << pkCity->GetUnitFaithPurchaseCooldown();
+
+			const char* const localized = localizedText.toUTF8();
+			if (localized)
+			{
+				if (!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
+	}
+	// Local faith purchase cooldown for civilian units
+	else if (pkCity->GetUnitFaithPurchaseCooldown(true) > 0)
+	{
+		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH_LOCAL");
+		localizedText << pkCity->GetUnitFaithPurchaseCooldown(true);
+
+		const char* const localized = localizedText.toUTF8();
+		if (localized)
+		{
+			if (!toolTip.IsEmpty())
+				toolTip += "[NEWLINE]";
+
+			toolTip += localized;
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
 	{

@@ -1134,7 +1134,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 		
 		// Pick a random one if required
 		if (MOD_RELIGION_RANDOMISE) {
-			index = GC.getGame().getJonRandNum(availableReligions.size(), "Random Religion To Found");
+			index = GC.getGame().getSmallFakeRandNum(availableReligions.size(), ePlayer);
 		}
 		
 		// CUSTOMLOG("GetReligionToFound: Using random %i", availableReligions[index]);
@@ -1385,10 +1385,32 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	CvUnit* pLoopUnit;
 	for(pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
-		if(pLoopUnit->getUnitInfo().IsFoundReligion())
+		if (pLoopUnit->getUnitInfo().IsFoundReligion())
 		{
 			pLoopUnit->GetReligionData()->SetReligion(eReligion);
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+			{
+				if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
+				{
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads());
+				}
+				else if (kPlayer.getCapitalCity())
+				{
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+				}
+				else
+				{
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+				}
+			}
+			else
+			{
+				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+			}
+#else
 			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
+#endif
 			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
 		}
 	}
@@ -3669,7 +3691,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
+	int iRand = GC.getGame().getSmallFakeRandNum(10, kPlayer.GetEconomicMight()) * 10;
 	if(iRand >= iChance)
 	{
 		return false;
@@ -3782,7 +3804,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getJonRandNum(15, "Faith rand weight.");
+				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight());
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -7361,7 +7383,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -7376,6 +7398,10 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns)
 	{
 		if(pLoopCity && pUnit->GetDanger(pLoopCity->plot())==0)
 		{
+			//we often have multiple inquisitors active at the same time, don't all go to the same target
+			if (std::find(vIgnoreTargets.begin(), vIgnoreTargets.end(), pLoopCity->plot()->GetPlotIndex()) != vIgnoreTargets.end())
+				continue;
+
 			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
 			if (iScore>0)
 				vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
@@ -7870,7 +7896,21 @@ bool CvReligionAI::DoFaithPurchases()
 	UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
 	
 	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
-	int iNumMissionaries =  m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY);
+	
+	int iNumMissionaries = 0;
+
+	CvUnit* pLoopUnit;
+	int iLoop;
+
+	// Current Units
+	for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+	{
+		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft() > 0 && pLoopUnit->GetReligionData()->GetReligion() == eReligion)
+		{
+			iNumMissionaries++;
+		}
+	}
+
 	int iMaxMissionaries = GC.getRELIGION_MAX_MISSIONARIES();
 	
 	//Do we have any useful beliefs to consider?
@@ -8594,7 +8634,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus)
 	int iRand = 0;
 	if (iRtnValue > 0)
 	{
-		iRand = GC.getGame().getJonRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), "Faith rand weight.");
+		iRand = GC.getGame().getSmallFakeRandNum(iRtnValue / max(1, GC.getGame().getHandicapInfo().GetID()), m_pPlayer->GetEconomicMight());
 		iRtnValue += iRand;
 	}
 
@@ -11162,10 +11202,10 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 					}
 				}
 			}
-			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
 		}
 		else
-			return choices[GC.getGame().getJonRandNum(choices.size(), "Faith Building Class")];
+			return choices[GC.getGame().getSmallFakeRandNum(choices.size(), *pCity->plot())];
 	}
 	else if (choices.size()==1)
 		return choices[0];

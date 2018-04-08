@@ -168,6 +168,20 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED" );
 			end
 		end
+
+		local iTheirWarWeariness = Players[g_iAIPlayer]:GetWarWeariness();
+		if(iTheirWarWeariness <= 0)then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_NONE" );
+		elseif( iTheirWarWeariness <= 25 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MINOR" );
+		elseif( iTheirWarWeariness <= 50 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_MAJOR" );
+		elseif( iTheirWarWeariness <= 75 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_SERIOUS" );
+		elseif( iTheirWarWeariness > 75 ) then
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
+		end
+
 		Controls.WarScore:SetToolTipString(strWarInfo);
 	else
 		Controls.WarScore:SetHide(true);

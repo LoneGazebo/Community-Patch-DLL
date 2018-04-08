@@ -550,7 +550,7 @@ SET Text = 'Exploitation'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_NAVY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exploitation[ENDCOLOR][NEWLINE]Farms, Camps, and Plantations gain +2 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food. All Ocean, Coast, and Lake tiles gain +2 [ICON_RESEARCH] Science and +1 [ICON_PRODUCTION] Production. Military Units can be upgraded in territory owned by Vassals and friendly [ICON_CITY_STATE] City-States.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exploitation[ENDCOLOR][NEWLINE]Farms, Camps, and Plantations gain +2 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production. All Ocean, Coast, and Lake tiles gain +2 [ICON_RESEARCH] Science and +1 [ICON_PRODUCTION] Production. Military Units can be upgraded in territory owned by Vassals and friendly [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_NAVY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -573,7 +573,7 @@ WHERE Tag = 'TXT_KEY_POLICY_NAVIGATION_SCHOOL_TEXT' AND EXISTS (SELECT * FROM CO
 -- Navigation School -- Exploration -- +25% to Great Admiral and Great General Production -- Barracks, Armories and Military Academies provide +1 Science.
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE]+10% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from Global Monopolies; +4 to Yields and [ICON_HAPPINESS_1] Happiness from Global Monopolies. Barracks, Armories, Military Academies, Forts, and Citadels provide +5 [ICON_RESEARCH] Science and +2 [ICON_CULTURE] Culture.'
+SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE]+10% to sum of Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from Global Monopolies; +4 to sum of Yields and [ICON_HAPPINESS_1] Happiness from Global Monopolies. Barracks, Armories, Military Academies, Forts, and Citadels provide +5 [ICON_RESEARCH] Science and +2 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -590,7 +590,7 @@ WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_GUNBOAT_DIPLOMACY' AND EXISTS (SELE
 
 -- Treasure Fleets -- Now called Civilizing Mission -- Receive a free Military Base, and a lump sum of Gold, when you conquer a city. Reduced maintenance.
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civilizing Mission[ENDCOLOR][NEWLINE]Receive a large sum of [ICON_GOLD] Gold when you conquer a city. [ICON_PUPPET] Puppeted cities, and [ICON_OCCUPIED] Occupied cities with a Courthouse, gain +10% [ICON_PRODUCTION] Production towards buildings, with an additional +10% [ICON_PRODUCTION] Production per Era difference between your current Era and the building''s Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Civilizing Mission[ENDCOLOR][NEWLINE]Receive a large sum of [ICON_GOLD] Gold when you conquer a city. [ICON_PUPPET] Puppeted cities and cities with a Courthouse gain +10% [ICON_PRODUCTION] Production towards buildings, with an additional +10% [ICON_PRODUCTION] Production per Era difference between your current Era and the building''s Era.'
 WHERE Tag = 'TXT_KEY_POLICY_TREASURE_FLEETS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -953,11 +953,11 @@ WHERE Tag = 'TXT_KEY_POLICY_FREERELIGION_TEXT' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Monastery
 UPDATE Language_en_US
-SET Text = '+3 [ICON_FOOD] Food, +3 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith, and 1 Scientist slot.'
+SET Text = '+3 [ICON_FOOD] Food, +3 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Monasteries increase [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output, especially if you can afford to use the Scientist specialist. Can only be built if you have unlocked the Monasticism Policy in the Fealty branch. Construct this building by purchasing it with [ICON_PEACE] Faith.'
+SET Text = 'Monasteries increase [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output. Can only be built if you have unlocked the Monasticism Policy in the Fealty branch. Construct this building by purchasing it with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --------------------

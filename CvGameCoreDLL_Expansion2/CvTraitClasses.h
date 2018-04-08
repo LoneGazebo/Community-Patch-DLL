@@ -161,6 +161,7 @@ public:
 	bool IsImportsCountTowardsMonopolies() const;
 	bool IsCanPurchaseNavalUnitsFaith() const;
 	bool IsIgnorePuppetPenalties() const;
+	int GetSharedReligionTourismModifier() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -489,6 +490,7 @@ protected:
 	bool m_bImportsCountTowardsMonopolies;
 	bool m_bCanPurchaseNavalUnitsFaith;
 	bool m_bIgnorePuppetPenalties;
+	int m_iSharedReligionTourismModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1167,6 +1169,10 @@ public:
 	bool IsWarsawPact() const
 	{
 		return m_bWarsawPact;
+	};
+	int GetSharedReligionTourismModifier() const
+	{
+		return m_iSharedReligionTourismModifier;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1895,6 +1901,7 @@ private:
 	bool m_bImportsCountTowardsMonopolies;
 	bool m_bCanPurchaseNavalUnitsFaith;
 	bool m_bIgnorePuppetPenalties;
+	int m_iSharedReligionTourismModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

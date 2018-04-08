@@ -615,7 +615,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
-				iModifier = pMyPlayer:GetGreatGeneralCombatBonus();
+				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
 				iModifier = iModifier + pMyPlayer:GetTraitGreatGeneralExtraBonus();
 				controlTable = g_MyCombatDataIM:GetInstance();
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
@@ -992,7 +992,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
-				iModifier = pMyPlayer:GetGreatGeneralCombatBonus();
+				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
 				iModifier = iModifier + pMyPlayer:GetTraitGreatGeneralExtraBonus();
 				controlTable = g_MyCombatDataIM:GetInstance();
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
@@ -1656,7 +1656,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Great General bonus
 				if (pTheirUnit:IsNearGreatGeneral()) then
-					iModifier = pTheirPlayer:GetGreatGeneralCombatBonus();
+					iModifier = pTheirPlayer:GetGreatGeneralCombatBonus() + pTheirUnit:GetGreatGeneralAuraBonus();
 					iModifier = iModifier + pTheirPlayer:GetTraitGreatGeneralExtraBonus();
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					if (pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then
@@ -2184,7 +2184,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		-- Great General bonus
 		if (theirUnit:IsNearGreatGeneral()) then
-			iModifier = theirPlayer:GetGreatGeneralCombatBonus();
+			iModifier = theirPlayer:GetGreatGeneralCombatBonus() + theirUnit:GetGreatGeneralAuraBonus();
 			iModifier = iModifier + theirPlayer:GetTraitGreatGeneralExtraBonus();
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			if (theirUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) then

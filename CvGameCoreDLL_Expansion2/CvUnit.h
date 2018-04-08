@@ -47,6 +47,7 @@ struct CvUnitCaptureDefinition
 	UnitTypes	eOldType;			// Previous type of the unit, the type can change when capturing
 	PlayerTypes eCapturingPlayer;
 	UnitTypes	eCaptureUnitType;
+	int iUnitID;
 	int iX;
 	int iY;
 	bool bEmbarked;
@@ -64,6 +65,7 @@ struct CvUnitCaptureDefinition
 		, eOldType(NO_UNIT)
 		, eCapturingPlayer(NO_PLAYER)
 		, eCaptureUnitType(NO_UNIT)
+		, iUnitID(-1)
 		, iX(-1)
 		, iY(-1)
 		, bEmbarked(false)
@@ -1257,6 +1259,9 @@ public:
 	int GetReligiousPressureModifier() const;
 	void ChangeReligiousPressureModifier(int iChange);
 
+	void ChangeAdjacentCityDefenseMod(int iChange);
+	int GetAdjacentCityDefenseMod() const;
+
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
@@ -1652,7 +1657,8 @@ public:
 	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL, bool bCacheResult = false);
 
 	// you must call GeneratePath with caching before using these methods!
-	const CvPathNodeArray& GetPathNodeArray() const;
+	CvPlot* GetPathFirstPlot() const;
+	CvPlot* GetPathLastPlot() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
 
 	bool isBusyMoving() const;
@@ -1779,8 +1785,8 @@ protected:
 	const MissionData* HeadMissionData() const;
 	MissionData* HeadMissionData();
 
-	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
-	bool IsCachedPathValid();
+	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const;
+	bool IsCachedPathValid() const;
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
 	//return -1 if impossible, turns to target otherwise (zero is valid!)
 	int ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool bCacheResult);
@@ -2028,6 +2034,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
+	FAutoVariable<int, CvUnit> m_iAdjacentCityDefenseMod;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;

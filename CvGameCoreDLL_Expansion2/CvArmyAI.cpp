@@ -766,7 +766,7 @@ CvUnit* CvArmyAI::GetNextUnit(CvUnit* pCurUnit)
 		
 		if (!bFoundEntryPoint)
 			bFoundEntryPoint = (pThisUnit == pCurUnit);
-		else
+		else if (pThisUnit != pCurUnit) //protect against the same unit being present in multiple slots (actual bug)
 			return pThisUnit;
 	}
 

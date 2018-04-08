@@ -550,10 +550,19 @@ UPDATE Language_en_US
 SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness (or because our public opinion is not Content), a city will revolt in {1_Turns} turns. Based on current Unhappiness levels and Cultural/Ideological pressure, the city most likely to revolt is {2_CityName} and it will join {3_CivName}. Try to get your empire''s Happiness level out of this range as soon as possible!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT';
 
+-- Rebels!
+UPDATE Language_en_US
+SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, the city of {1_CityName} has revolted and joined {2_CivName}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
 
 UPDATE Language_en_US
 SET Text = 'Very well. Not that it will help either of us in the long run – we will all die soon enough.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
+
+UPDATE Language_en_US
+SET Text = 'It honors my people, helping those in need.'
+WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_TRIBUTE_YES_NEUTRAL';
 
 
 UPDATE Language_en_US

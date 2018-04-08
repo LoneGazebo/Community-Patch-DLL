@@ -299,7 +299,7 @@
     <!-- Permits variable great general and admiral aura ranges (v83) -->
 	<!-- See also: "Promotions - Colonels" -->
 	<!-- See also: "Global - Commander Influence Borders" -->
-    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="1" DbUpdates="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
 	<!-- See also: "Global - Commander Points From Barbarians" -->
     <Row Class="2" Name="PROMOTIONS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
@@ -910,6 +910,8 @@
 	 
 	<!-- * Fixes a bug in the pathfinder code for hovering units at the seaside! (v19) -->
 	<Row Class="1" Name="BUGFIX_MINOR_CIV_STRATEGIES" Value="1"/>
+	<!-- * Fixes the ExtraMissionarySpreads column to affect naturally born Prophets -->
+	<Row Class="1" Name="BUGFIX_EXTRA_MISSIONARY_SPREADS" Value="1"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>
@@ -1053,6 +1055,8 @@
     <Row Class="6" Name="BALANCE_CORE_QUEST_CHANGES" Value="0"/>
 	<!-- Puppets ignored for happiness/unhappiness, no longer make GPP points -->
 	<Row Class="6" Name="BALANCE_CORE_PUPPET_CHANGES" Value="0"/>
+	<!-- City pop now affects HP, not defense -->
+	<Row Class="6" Name="BALANCE_CORE_CITY_DEFENSE_SWITCH" Value="0"/>
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

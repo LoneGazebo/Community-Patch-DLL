@@ -406,6 +406,7 @@
 #define MOD_BALANCE_CORE_HALF_XP_PURCHASE				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_HALF_XP_PURCHASE())
 #define MOD_BALANCE_CORE_QUEST_CHANGES				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_QUEST_CHANGES())
 #define MOD_BALANCE_CORE_PUPPET_CHANGES				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PUPPET_CHANGES())
+#define MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_CITY_DEFENSE_SWITCH())
 #endif
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
@@ -960,6 +961,8 @@
 #define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
 // Fixes some bugs/regressions that disable the effect of IsNoMinorCivs of some strategies
 #define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
+// Fixes the ExtraMissionarySpreads column to affect naturally born Prophets
+#define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1286,6 +1289,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityEventCanTake			"CityEventCanTake", "iii"
 #define GAMEEVENT_EventUnitCreated			"EventUnitCreated", "iii"
 #define GAMEEVENT_CityFlipped				"CityFlipped", "iii"
+#define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
+#define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
@@ -1505,6 +1510,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_HALF_XP_PURCHASE);
 	MOD_OPT_DECL(BALANCE_CORE_QUEST_CHANGES);
 	MOD_OPT_DECL(BALANCE_CORE_PUPPET_CHANGES);
+	MOD_OPT_DECL(BALANCE_CORE_CITY_DEFENSE_SWITCH);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);
@@ -1686,6 +1692,7 @@ public:
 	MOD_OPT_DECL(BUGFIX_HOVERING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
+	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
 
 protected:
 	bool m_bInit;

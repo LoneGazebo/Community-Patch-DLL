@@ -305,6 +305,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iCulture = iCulture + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_CULTURE);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iCulture = iCulture + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_CULTURE)
+		end
 -- END
 		-- Events
 		iCulture = iCulture + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
@@ -323,6 +327,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
 		iFaith = iFaith + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FAITH);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iFaith = iFaith + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FAITH)
+		end
 -- END
 		-- Events
 		iFaith = iFaith + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FAITH);
@@ -366,6 +374,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
 		iFood = iFood + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_FOOD);
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iFood = iFood + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_FOOD)
+		end
 -- END
 		-- Events
 		iFood = iFood + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
@@ -391,6 +403,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iGold = iGold + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_GOLD);
 		iGold = iGold + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
 		iGold = iGold + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_GOLD);
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iGold = iGold + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_GOLD)
+		end
 -- END
 		-- Events
 		iGold = iGold + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
@@ -419,6 +434,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (pCity ~= nil) then
 		iScienceChange = iScienceChange + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		iScienceChange = iScienceChange + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
+-- Start Vox Populi
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iScienceChange = iScienceChange + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_SCIENCE)
+		end
+-- End Vox Populi
 		-- Events
 		iScienceChange = iScienceChange + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		-- End 
@@ -442,6 +463,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iProd = iProd + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		iProd = iProd + pCity:GetLocalBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		iProd = iProd + pCity:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+-- Start Vox Populi
+		-- Yield bonuses to World Wonders
+		if Game.IsWorldWonderClass(buildingClassID) then
+			iProd = iProd + pActivePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_PRODUCTION)
+		end
+-- End Vox Populi
 	end
 -- END	
 	if (pCity ~= nil) then

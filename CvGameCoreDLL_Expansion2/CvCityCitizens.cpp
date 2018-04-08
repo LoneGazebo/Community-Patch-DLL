@@ -916,7 +916,10 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			}
 		}
 
-		iBonus += m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature)+1);
+		int iTempBonus = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
+		int iTempBonusPlusOne = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
+		if (iTempBonus != iTempBonusPlusOne)
+			iBonus += iTempBonusPlusOne * 100;
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -930,7 +933,10 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 			}
 		}
 
-		iBonus += m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1);
+		int iTempBonus = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
+		int iTempBonusPlusOne = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
+		if (iTempBonus != iTempBonusPlusOne)
+			iBonus += iTempBonusPlusOne * 100;
 	}
 
 	return iBonus;
@@ -969,7 +975,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		{
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iYield *= 5;
+				iYield *= 2;
 			}
 			else if (m_pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 			{
@@ -995,7 +1001,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 					int iPopulation = m_pCity->getPopulation();
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
-					iFoodEmphasisModifier = iFoodTurnsRemaining * 100 / max(1, iPopulation);
+					iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * 100 / max(1, iPopulation);
 				}
 				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
 				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
@@ -4671,7 +4677,25 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		int iReligiousStrength = newUnit->getUnitInfo().GetReligiousStrength();
 		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
+#if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+			if (MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
+			{
+				if (GetCity())
+				{
+					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads + GetCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+				}
+				else
+				{
+					newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+				}
+			}
+			else
+			{
+				newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+			}
+#else
 			newUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
+#endif
 			newUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
 			newUnit->GetReligionData()->SetReligion(eReligion);
 		}

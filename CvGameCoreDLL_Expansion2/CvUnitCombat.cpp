@@ -415,7 +415,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
 #endif
 		{
-			int iCaptureRoll = GC.getGame().getJonRandNum(100, "Capture Enemy Roll");
+			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(10, plot) * 10;
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -1205,7 +1205,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath())
 						{
-							int iRand = GC.getGame().getJonRandNum(100, "Retreat Rand");
+							int iRand = GC.getGame().getSmallFakeRandNum(10, pkDefender->GetID()) * 10;
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBackFromRanged(*pkAttacker);
@@ -1649,10 +1649,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
 		// Does the attacker evade?
-		if(GC.getGame().getJonRandNum(100, "Evasion Rand") >= kAttacker.evasionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, plot) * 10 >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if(GC.getGame().getJonRandNum(100, "Intercept Rand (Air)") < pInterceptor->currInterceptionProbability())
+			if (GC.getGame().getSmallFakeRandNum(10, pInterceptor->GetID()) * 10 < pInterceptor->currInterceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
 			}
@@ -2808,7 +2808,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
 							if(pkFeatureInfo && !pkFeatureInfo->isNukeImmune())
 							{
-								if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+								if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < GC.getNUKE_FALLOUT_PROB())
 								{
 									if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
@@ -2820,7 +2820,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 						else
 						{
-							if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+							if(pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < GC.getNUKE_FALLOUT_PROB())
 							{
 								if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -2831,7 +2831,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 #if defined(MOD_GLOBAL_NUKES_MELT_ICE)
 					} else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE) {
-						if (pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB()) {
+						if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < GC.getNUKE_FALLOUT_PROB()) {
 							pLoopPlot->setFeatureType(NO_FEATURE);
 						}
 #endif
@@ -2877,14 +2877,14 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if(iDamageLevel == 1)
 					{
 						iBaseDamage = /*30*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getJonRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), "Population Nuked 1");
-						iRandDamage2 = GC.getGame().getJonRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), "Population Nuked 2");
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), pkCity->getPopulation());
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), pkCity->GetPower());
 					}
 					else
 					{
 						iBaseDamage = /*60*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getJonRandNum(/*10*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), "Population Nuked 1");
-						iRandDamage2 = GC.getGame().getJonRandNum(/*10*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), "Population Nuked 2");
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), pkCity->getPopulation());
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), pkCity->GetPower());
 					}
 
 					int iNukedPopulation = pkCity->getPopulation() * (iBaseDamage + iRandDamage1 + iRandDamage2) / 100;
@@ -2987,7 +2987,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								// How much destruction is unleashed on nearby Units?
 								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
-									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getJonRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), "Nuke Damage 1") + /*4*/ GC.getGame().getJonRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), "Nuke Damage 2"));
+									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), *pLoopPlot) + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), pLoopUnit->GetID()));
 								}
 								// Wipe everything out
 								else
@@ -3181,27 +3181,27 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 //	---------------------------------------------------------------------------
-bool CvUnitCombat::ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot) {
-	CvAssertMsg(!pParaUnit.isDelayedDeath(), "Trying to paradrop and the unit is already dead!");
-	CvAssert(pParaUnit.getCombatTimer() == 0);
+bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
+	CvAssertMsg(!paraUnit.isDelayedDeath(), "Trying to paradrop and the unit is already dead!");
+	CvAssert(paraUnit.getCombatTimer() == 0);
 
 	// Any interception to be done?
-	CvUnit* pInterceptor = pParaUnit.GetBestInterceptor(pDropPlot, NULL);
+	CvUnit* pInterceptor = paraUnit.GetBestInterceptor(dropPlot, NULL);
 	if (pInterceptor) {
 		uint uiParentEventID = 0;
 		int iInterceptionDamage = 0;
 
 		// Is the interception successful?
-		if(GC.getGame().getJonRandNum(100, "Intercept Rand (Paradrop)") < pInterceptor->currInterceptionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, dropPlot) * 10 < pInterceptor->currInterceptionProbability())
 		{
-			iInterceptionDamage = pInterceptor->GetParadropInterceptionDamage(&pParaUnit);
+			iInterceptionDamage = pInterceptor->GetParadropInterceptionDamage(&paraUnit);
 		}
 	
 		if (iInterceptionDamage > 0) {
 #if defined(MOD_EVENTS_BATTLES)
 			if (MOD_EVENTS_BATTLES) {
-				BATTLE_STARTED(BATTLE_TYPE_PARADROP, pDropPlot);
-				BATTLE_JOINED(&pParaUnit, BATTLE_UNIT_ATTACKER, false);
+				BATTLE_STARTED(BATTLE_TYPE_PARADROP, dropPlot);
+				BATTLE_JOINED(&paraUnit, BATTLE_UNIT_ATTACKER, false);
 				BATTLE_JOINED(pInterceptor, BATTLE_UNIT_INTERCEPTOR, false);
 
 				if (MOD_EVENTS_BATTLES_DAMAGE) {
@@ -3215,8 +3215,8 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot) {
 								}
 							} else {
 								// Increasing the amount of damage, in which case we can't exceed unit's hit points
-								if (iInterceptionDamage + iValue > pParaUnit.GetCurrHitPoints()) {
-									iValue = pParaUnit.GetCurrHitPoints() - iInterceptionDamage;
+								if (iInterceptionDamage + iValue > paraUnit.GetCurrHitPoints()) {
+									iValue = paraUnit.GetCurrHitPoints() - iInterceptionDamage;
 								}
 							}
 				
@@ -3246,24 +3246,24 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& pParaUnit, CvPlot& pDropPlot) {
 			pInterceptor->setCombatUnit(NULL);
 
 			// Killing the unit during the drop is a really bad idea, the game crashes at random after the drop
-			int iHealth = pParaUnit.GetMaxHitPoints() - pParaUnit.GetCurrHitPoints();
-			pParaUnit.changeDamage(std::min(iHealth-1, iInterceptionDamage), pInterceptor->getOwner());
+			int iHealth = paraUnit.GetMaxHitPoints() - paraUnit.GetCurrHitPoints();
+			paraUnit.changeDamage(std::min(iHealth-1, iInterceptionDamage), pInterceptor->getOwner());
 
-			if (GC.getGame().getActivePlayer() == pParaUnit.getOwner()) {
+			if (GC.getGame().getActivePlayer() == paraUnit.getOwner()) {
 				CvString strBuffer;
-				if (pParaUnit.IsDead()) {
-					strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_KILLED", pParaUnit.getNameKey(), pInterceptor->getNameKey());
+				if (paraUnit.IsDead()) {
+					strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_KILLED", paraUnit.getNameKey(), pInterceptor->getNameKey());
 				} else {
-					strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_DAMAGED", pParaUnit.getNameKey(), pInterceptor->getNameKey(), iInterceptionDamage);
+					strBuffer = GetLocalizedText("TXT_KEY_PARADROP_AA_DAMAGED", paraUnit.getNameKey(), pInterceptor->getNameKey(), iInterceptionDamage);
 				}
-				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pParaUnit.getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, paraUnit.getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
 			
 			BATTLE_FINISHED();
 		}
 	}
 	
-	return pParaUnit.IsDead();
+	return paraUnit.IsDead();
 }
 #endif
 

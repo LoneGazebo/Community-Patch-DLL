@@ -395,3 +395,8 @@
 	UPDATE Language_en_US
 	SET Text = '+1 [ICON_MOVES] Movement. Improves combat effectiveness of nearby naval units. May use the [COLOR_POSITIVE_TEXT]Repair Fleet[ENDCOLOR] Ability twice before being expended.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_ADMIRAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Haka
+	UPDATE Language_en_US
+	SET Text = 'Enemy units receive -15% [ICON_STRENGTH] Combat Strength when adjacent to any unit with this promotion.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

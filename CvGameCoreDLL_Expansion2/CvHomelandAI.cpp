@@ -4846,14 +4846,19 @@ void CvHomelandAI::ExecuteMerchantMoves()
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
 		{
 			std::vector<CvPlot*> vDummy;
+			bool bIsVenice = m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
 			BuildTypes eColonia = (BuildTypes)GC.getInfoTypeForString("BUILD_CUSTOMS_HOUSE_VENICE");
 			//stupid distinction between Player and PlayerAI classes
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true);
-			if (pTargetPlot)
+			CvPlot* pTargetPlot = bIsVenice ? GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eColonia, vDummy, true) : NULL;
+			if (pTargetPlot) //venetian merchant
 			{
 				ExecuteMoveToTarget(pUnit, pTargetPlot, 0, 0);
 				if (pUnit->atPlot(*pTargetPlot) && pUnit->canMove())
 					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eColonia);
+			}
+			else if (ExecuteWorkerMove(pUnit)) //regular merchant
+			{
+				UnitProcessed(pUnit->GetID());
 			}
 			else
 			{
@@ -6023,6 +6028,8 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 // Get a inquisitor to the best city
 void CvHomelandAI::ExecuteInquisitorMoves()
 {
+	vector<int> vBurnedTargets;
+
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -6033,9 +6040,11 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		}
 
 		int iTargetTurns;
-		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, &iTargetTurns);
+		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
+			vBurnedTargets.push_back(pTarget->plot()->GetPlotIndex());
+
 			if (pUnit->CanRemoveHeresy(pTarget->plot()))
 			{
 				if (iTargetTurns == 0)
@@ -7670,7 +7679,7 @@ CvPlot* CvHomelandAI::FindUnassignedTarget(CvUnit *pUnit)
 {
 	CvPlot *pBestTarget = NULL;
 	int iMaxDist = 25;
-	int iBestPlot = 0;
+	int iBestPlot = -INT_MAX;
 
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
 	std::vector<CvHomelandTarget>::iterator it;

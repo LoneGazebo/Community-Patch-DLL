@@ -1314,12 +1314,12 @@ local function UpdateUnitStats(unit)
 		local icon = (GameInfo.Religions[unitReligion] or {}).IconString
 		Controls.UnitStatRangedAttack:SetText( icon and (unit:GetSpreadsLeft()..icon) )
 		Controls.UnitStatRangedAttack:SetToolTipString( L(Game.GetReligionName(unitReligion))..": "..L"TXT_KEY_UPANEL_SPREAD_RELIGION_USES_TT" )
---	elseif gk_mode and GameInfo_Units[unit:GetUnitType()].RemoveHeresy then
---		Controls.UnitStatRangedAttack:LocalizeAndSetText( "TXT_KEY_UPANEL_REMOVE_HERESY_USES" )
---		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_REMOVE_HERESY_USES_TT" )
 	elseif (unit:GetChargesLeft() > 0) then
 		Controls.UnitStatRangedAttack:SetText( "[ICON_GREAT_ADMIRAL]" ..unit:GetChargesLeft() )
 		Controls.UnitStatRangedAttack:SetToolTipString( L"TXT_KEY_UPANEL_REPAIR_CHARGES_TT" )
+--	elseif gk_mode and GameInfo_Units[unit:GetUnitType()].RemoveHeresy then
+--		Controls.UnitStatRangedAttack:LocalizeAndSetText( "TXT_KEY_UPANEL_REMOVE_HERESY_USES" )
+--		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_REMOVE_HERESY_USES_TT" )
 	elseif bnw_mode and unit:CargoSpace() > 0 then
 		Controls.UnitStatRangedAttack:SetText( L"TXT_KEY_UPANEL_CARGO_CAPACITY" .. " " .. unit:CargoSpace() )
 		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName() )
@@ -1860,7 +1860,7 @@ function()-- control )
 			-- Yield from this improvement
 			local toolTip = table()
 			for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-				local yieldChange = plot:CalculateImprovementYieldChange( improvementID, yieldID, plot:GetOwner() )
+				local yieldChange = plot:CalculateImprovementYieldChange( improvementID, yieldID, plot:GetOwner(), false )
 				--plot:CalculateYield( yieldID ) - plot:CalculateNatureYield( yieldID, g_activeTeamID )
 
 				if yieldChange > 0 then

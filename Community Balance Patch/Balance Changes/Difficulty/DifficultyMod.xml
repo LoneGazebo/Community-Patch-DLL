@@ -38,7 +38,7 @@
 			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>14</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIDeclareWarProb>60</AIDeclareWarProb>
+			<AIDeclareWarProb>50</AIDeclareWarProb>
 			<AIWorkRateModifier>0</AIWorkRateModifier>
 			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>110</AIGrowthPercent>
@@ -98,7 +98,7 @@
 			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>16</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIDeclareWarProb>90</AIDeclareWarProb>
+			<AIDeclareWarProb>75</AIDeclareWarProb>
 			<AIWorkRateModifier>10</AIWorkRateModifier>
 			<AIUnhappinessPercent>100</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
@@ -220,7 +220,7 @@
 			<BarbarianLandTargetRange>8</BarbarianLandTargetRange>
 			<BarbarianSeaTargetRange>20</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIDeclareWarProb>100</AIDeclareWarProb>
+			<AIDeclareWarProb>125</AIDeclareWarProb>
 			<AIWorkRateModifier>30</AIWorkRateModifier>
 			<AIUnhappinessPercent>90</AIUnhappinessPercent>
 			<AIGrowthPercent>90</AIGrowthPercent>
@@ -282,7 +282,7 @@
 			<BarbarianSeaTargetRange>22</BarbarianSeaTargetRange>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
-			<AIDeclareWarProb>105</AIDeclareWarProb>
+			<AIDeclareWarProb>150</AIDeclareWarProb>
 			<AIWorkRateModifier>40</AIWorkRateModifier>
 			<AIUnhappinessPercent>85</AIUnhappinessPercent>
 			<AIGrowthPercent>90</AIGrowthPercent>
@@ -345,7 +345,7 @@
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
-			<AIDeclareWarProb>110</AIDeclareWarProb>
+			<AIDeclareWarProb>175</AIDeclareWarProb>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
 			<AIUnhappinessPercent>80</AIUnhappinessPercent>
 			<AIGrowthPercent>80</AIGrowthPercent>
@@ -408,7 +408,7 @@
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
-			<AIDeclareWarProb>115</AIDeclareWarProb>
+			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
 			<AIUnhappinessPercent>75</AIUnhappinessPercent>
 			<AIGrowthPercent>80</AIGrowthPercent>
@@ -471,7 +471,7 @@
 			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
 			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
 			<AIStartingExploreUnits>1</AIStartingExploreUnits>
-			<AIDeclareWarProb>125</AIDeclareWarProb>
+			<AIDeclareWarProb>225</AIDeclareWarProb>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIUnhappinessPercent>65</AIUnhappinessPercent>
 			<AIGrowthPercent>70</AIGrowthPercent>

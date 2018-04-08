@@ -5076,7 +5076,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 /// Tourism modifier (base plus policy boost) - shared religion
 int CvPlayerCulture::GetTourismModifierSharedReligion() const
 {
-	return GC.getTOURISM_MODIFIER_SHARED_RELIGION() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER);
+	return GC.getTOURISM_MODIFIER_SHARED_RELIGION() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER) + m_pPlayer->GetPlayerTraits()->GetSharedReligionTourismModifier();
 }
 
 /// Tourism modifier (base plus policy boost) - trade route
@@ -5261,9 +5261,16 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
 			{
+				if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
+					continue;
+
 				int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(kPlayer.GetID());
 
 				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
+				iWarTurns -= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
+
+				if (iWarTurns <= 0)
+					continue;
 
 				if(iWarTurns > iMostWarTurns)
 				{
@@ -5300,7 +5307,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	if (iLeastPeaceTurns>1)
 	{
 		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = max(3, GC.getGame().getSmallFakeRandNum(max(6, (iLeastPeaceTurns / 3)), iLeastPeaceTurns));
+		int iReduction = max(3, GC.getGame().getSmallFakeRandNum( max(6, iLeastPeaceTurns/3), iHighestWarDamage));
 		iFallingWarWeariness = max(m_iRawWarWeariness-iReduction, 0);
 	}
 
@@ -6982,6 +6989,15 @@ void CvCityCulture::CalculateBaseTourism()
 		}
 	}
 
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// City level yield modifiers (eg from buildings, policies, etc)
+	int iCityBaseTourismYieldRateMod = m_pCity->getBaseYieldRateModifier(YIELD_TOURISM) - 100;
+	if (MOD_API_UNIFIED_YIELDS_TOURISM && iCityBaseTourismYieldRateMod != 0)
+	{
+		iModifier += iCityBaseTourismYieldRateMod;
+	}
+#endif
+
 	if (iModifier != 0)
 	{
 		iBase *= (100 + iModifier);
@@ -7193,6 +7209,15 @@ int CvCityCulture::GetBaseTourism()
 			}
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// City level yield modifiers (eg from buildings, policies, etc)
+	int iCityBaseTourismYieldRateMod = m_pCity->getBaseYieldRateModifier(YIELD_TOURISM) - 100;
+	if (MOD_API_UNIFIED_YIELDS_TOURISM && iCityBaseTourismYieldRateMod != 0)
+	{
+		iModifier += iCityBaseTourismYieldRateMod;
+	}
+#endif
 
 	if (iModifier != 0)
 	{
@@ -7408,12 +7433,6 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		szRtnValue += "[NEWLINE][NEWLINE]";
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRAIT_BONUSES", iTraitBonuses);
-	}
-	if (m_pCity->IsPuppet() && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
-	{
-		int iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod();
-		szRtnValue += "[NEWLINE][NEWLINE]";
-		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_PUPPET", iTempMod);
 	}
 #endif
 
@@ -7832,6 +7851,424 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += szTemp;
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// City level yield modifiers (eg from buildings, policies, etc)
+	bool bHasCityModTooltip = false;
+	int iTempMod;
+	iTempMod = m_pCity->getYieldRateModifier(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD", iTempMod);
+	}
+
+	CvPlot* pCityPlot = m_pCity->plot();
+	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	{
+		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldModifier(YIELD_TOURISM);
+		if (iTempMod != 0)
+		{
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_UNITPROMOTION", iTempMod);
+		}
+	}
+
+	iTempMod = m_pCity->getResourceYieldRateModifier(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_RESOURCES", iTempMod);
+	}
+
+	iTempMod = m_pCity->getHappinessModifier(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_HAPPINESS", iTempMod);
+	}
+
+	CvArea* pArea = GC.getMap().getArea(m_pCity->getArea());
+	if (pArea != NULL)
+	{
+		iTempMod = pArea->getYieldRateModifier(m_pCity->getOwner(), YIELD_TOURISM);
+		if (iTempMod != 0)
+		{
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_AREA", iTempMod);
+		}
+	}
+
+	iTempMod = GET_PLAYER(m_pCity->getOwner()).getYieldRateModifier(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_PLAYER", iTempMod);
+	}
+
+	if (m_pCity->isCapital())
+	{
+		iTempMod = GET_PLAYER(m_pCity->getOwner()).getCapitalYieldRateModifier(YIELD_TOURISM);
+		if (iTempMod != 0)
+		{
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_CAPITAL", iTempMod);
+		}
+	}
+
+#if defined(MOD_BALANCE_CORE)
+	iTempMod = (m_pCity->GetTradeRouteCityMod(YIELD_TOURISM));
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_CORPORATION", iTempMod);
+	}
+
+	iTempMod = m_pCity->GetYieldModifierFromHappiness(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_YIELD_MODIFIER_HAPPINESS", iTempMod);
+	}
+
+	iTempMod = m_pCity->GetYieldModifierFromHealth(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_YIELD_MODIFIER_HEALTH", iTempMod);
+	}
+
+	iTempMod = m_pCity->GetYieldModifierFromDevelopment(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_YIELD_MODIFIER_CRIME", iTempMod);
+	}
+
+	iTempMod = m_pCity->GetYieldModifierFromDevelopment(YIELD_TOURISM);
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_YIELD_MODIFIER_DEVELOPMENT", iTempMod);
+	}
+
+	iTempMod = min(20, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromGreatWorks(YIELD_TOURISM) * m_pCity->GetCityBuildings()->GetNumGreatWorks()));
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_GREAT_WORKS", iTempMod);
+	}
+
+	iTempMod = min(30, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromActiveSpies(YIELD_TOURISM) * GET_PLAYER(m_pCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
+	if (iTempMod != 0)
+	{
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_SPIES", iTempMod);
+	}
+#endif
+
+	// Golden Age Yield Modifier
+	if (GET_PLAYER(m_pCity->getOwner()).isGoldenAge())
+	{
+		CvYieldInfo* pYield = GC.getYieldInfo(YIELD_TOURISM);
+		if (pYield)
+		{
+			iTempMod = pYield->getGoldenAgeYieldMod();
+			if (iTempMod != 0)
+			{
+				if (bHasCityModTooltip == false)
+				{
+					if (szRtnValue.length() > 0)
+					{
+						szRtnValue += "[NEWLINE]";
+					}
+					bHasCityModTooltip = true;
+				}
+				szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
+			}
+		}
+#if defined(MOD_BALANCE_CORE)
+		iTempMod = m_pCity->GetGoldenAgeYieldMod(YIELD_TOURISM);
+		if (iTempMod != 0)
+		{
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
+		}
+
+		iTempMod = GET_PLAYER(m_pCity->getOwner()).getGoldenAgeYieldMod(YIELD_TOURISM);
+		if (iTempMod != 0)
+		{
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES", iTempMod);
+		}
+#endif
+	}
+
+	// Religion Yield Rate Modifier
+	if (pReligion)
+	{
+		int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
+		if (iReligionYieldMaxFollowers > 0)
+		{
+			int iFollowers = m_pCity->GetCityReligions()->GetNumFollowers(eMajority);
+			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+			if (iTempMod != 0)
+			{
+				if (bHasCityModTooltip == false)
+				{
+					if (szRtnValue.length() > 0)
+					{
+						szRtnValue += "[NEWLINE]";
+					}
+					bHasCityModTooltip = true;
+				}
+				szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
+			}
+		}
+
+		int iReligionYieldMaxFollowersHalved = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerHalved(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
+		if (iReligionYieldMaxFollowersHalved > 0)
+		{
+			int iFollowers = m_pCity->GetCityReligions()->GetNumFollowers(eMajority);
+			iFollowers /= 2;
+
+			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+			if (iTempMod != 0)
+			{
+				if (bHasCityModTooltip == false)
+				{
+					if (szRtnValue.length() > 0)
+					{
+						szRtnValue += "[NEWLINE]";
+					}
+					bHasCityModTooltip = true;
+				}
+				szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
+			}
+		}
+	}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		// Do we get increased yields from a resource monopoly?
+		int iTempMod = GET_PLAYER(m_pCity->getOwner()).getCityYieldModFromMonopoly(YIELD_TOURISM);
+		if (iTempMod != 0)
+		{
+			iTempMod += max(1, GET_PLAYER(m_pCity->getOwner()).GetMonopolyModPercent());
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
+		}
+	}
+#endif
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	ReligionTypes eReligionFounded = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pCity->getOwner());
+	if (eReligionFounded == NO_RELIGION)
+	{
+		eReligionFounded = GET_PLAYER(m_pCity->getOwner()).GetReligions()->GetReligionInMostCities();
+	}
+	if (MOD_BALANCE_CORE_BELIEFS && eReligionFounded != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, m_pCity->getOwner());
+		if (pReligion)
+		{
+			int iGoldenAge = pReligion->m_Beliefs.GetYieldBonusGoldenAge(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()), true);
+			if (iGoldenAge > 0)
+			{
+				if (GET_PLAYER(m_pCity->getOwner()).getGoldenAgeTurns() > 0)
+				{
+					iTempMod = iGoldenAge;
+					if (iTempMod != 0)
+					{
+						if (bHasCityModTooltip == false)
+						{
+							if (szRtnValue.length() > 0)
+							{
+								szRtnValue += "[NEWLINE]";
+							}
+							bHasCityModTooltip = true;
+						}
+						szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION", iTempMod);
+					}
+				}
+			}
+			int iWLTKD = pReligion->m_Beliefs.GetYieldFromWLTKD(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
+			if (iWLTKD != 0)
+			{
+				if (m_pCity->GetWeLoveTheKingDayCounter() > 0)
+				{
+					iTempMod = iWLTKD;
+					if (iTempMod != 0)
+					{
+						if (bHasCityModTooltip == false)
+						{
+							if (szRtnValue.length() > 0)
+							{
+								szRtnValue += "[NEWLINE]";
+							}
+							bHasCityModTooltip = true;
+						}
+						szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_WLTKD_RELIGION", iTempMod);
+					}
+				}
+			}
+		}
+	}
+	if (m_pCity->GetWeLoveTheKingDayCounter() > 0)
+	{
+		iTempMod = (m_pCity->GetYieldFromWLTKD(YIELD_TOURISM) + GET_PLAYER(m_pCity->getOwner()).GetYieldFromWLTKD(YIELD_TOURISM));
+		if (iTempMod != 0)
+		{
+			if (bHasCityModTooltip == false)
+			{
+				if (szRtnValue.length() > 0)
+				{
+					szRtnValue += "[NEWLINE]";
+				}
+				bHasCityModTooltip = true;
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_WLTKD", iTempMod);
+		}
+	}
+#endif
+
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	if (m_pCity->IsPuppet() && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	{
+		iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod();
+		if (bHasCityModTooltip == false)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE]";
+			}
+			bHasCityModTooltip = true;
+		}
+		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_PUPPET", iTempMod);
+	}
+#endif
 
 	return szRtnValue;
 }

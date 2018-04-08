@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" >
+
+	<!-- GameInstance -->
+	<Instance Name="ReplayMessageInstance" >
+
+		<Box Anchor="L,C"  Size="890,63" Color="0,0,0,0"  Offset="0,0" StateOffsetIncrement="0,0" ID="Base" >
+
+			<Label Anchor="L,T" Offset="0,5" ColorSet="Gray_Chat" Font="TwCenMT18" FontStyle="Base" WrapWidth="890" String="" ID="MessageText" >
+				<Label Anchor="L,T" Color0="White,120" Color1="Black"  Offset="0,0 " Font="TwCenMT18" FontStyle="Base" WrapWidth="890" String="" ID="MessageText2" />
+			</Label>
+
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,1" ID="LineLeft" />
+			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,1" ID="LineRight"/>
+
+		</Box>
+	</Instance>
+
+	<Instance Name="GraphLineInstance">
+		<Line ID="LineSegment" Anchor="L,T" Color="255,255,200,255" Start="1,1" End="100,100" Width="1" />
+	</Instance>
+
+	<Instance Name="GraphLegendInstance" >
+		<Box Anchor="L,T" Size="150,30" Color="0,0,0,0" ID="GraphLegend">
+			<Grid	ULSize="60,1"  ULTexStart="0,0"
+					UCSize="60,1"   UCTexStart="60,0"
+					URSize="60,1"  URTexStart="240,0"
+					LSize="60,1"  LTexStart="0,0"
+					CSize="60,1" CTexStart="60,0"
+					RSize="60,1"  RTexStart="240,0"
+					LLSize="60,1"  LLTexStart="0,0"
+					LCSize="60,1"   LCTexStart="60,0"
+					LRSize="60,1"  LRTexStart="240,0"
+					NoStateChange="1" UL="0" UC="" Texture="bar300x2.dds" Size="150,1" Anchor="C,B" />
+
+			<Image Anchor="L,C" Offset="0,0" Size="32,32"   Texture="Assets/UI/Art/Icons/CivSymbolsColor256.dds"  ID="LegendIcon"/>
+			<Line Color="0,255,255,120" Start="40,8" End="110,8" Width="2" ID="LegendLine"/>
+			<Label Offset="36,14" String="America" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="LegendName" />
+			<CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox.dds" Anchor="R,C" Offset="5,0" TextOffset="40,0" IsChecked="1" ID="ShowHide" ConsumeMouse="1"  />
+
+
+		</Box>
+	</Instance>
+
+	<Grid ID="FrontEndReplayViewer" Size="960,628" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140">
+		<!--Screen Title-->
+		<Label Style="MenuTitleCaption" String="TXT_KEY_REPLAY_TITLE" />
+
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+    
+		<Image Anchor="C,T" Offset="0,-33" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/topframe.dds" Size="512,128" />
+		<Image Anchor="C,B" Offset="0,-99" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/bottomframe_Thinner.dds" Size="512,128" />
+
+		<Box Anchor="C,B" AnchorSide="I.I" Offset="0,42"   Size="910,53" Color="0,0,0,0" >
+			<!--Back Button-->
+			<GridButton Anchor="L,C"  Style="SmallButton" Size="150,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="BackButton"  >
+				<Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_BACK_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+			</GridButton>
+		</Box>
+	</Grid>
+
+	<Box ID="MainPanel" Anchor="C,C" Color="0,0,0,0" Size="920,440">
+		<PullDown  Anchor="R,T" Style="GenericPullDown" ScrollThreshold="110" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,0" ID="ReplayInfoPulldown" />
+
+		<Image Anchor="C,T" Offset="0,30" Texture="HorizontalTrim.dds" Size="920,5" />
+
+		<Box ID="MessagesPanel" Offset="0,35" Color="0,0,0,0" Size="920,405" Hidden="1">
+			<ScrollPanel Offset="0,0" Anchor="L,T" AutoScrollBar="0" Size="920,405" Vertical="1" ID="ReplayMessageScrollPanel" >
+
+				<ScrollBar Style="VertSlider" Length="369" Offset="0,18" Anchor="R,T" AnchorSide="I,I" />
+				<UpButton  Offset="0,0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="I,I" />
+				<DownButton Offset="0,385" Style="ScrollBarDown"  Anchor="R,T" AnchorSide="I,I" />
+
+				<Stack Anchor="L,T"  Offset="10,0" Size="260,216" StackGrowth="Bottom" Padding="1" ID="ReplayMessageStack" />
+			</ScrollPanel>
+		</Box>
+
+		<Box ID="GraphsPanel" Offset="0,35" Color="0,0,0,0" Size="920,405" Hidden="1" >
+
+			<ScrollPanel Offset="0,0" Anchor="L,T" AutoScrollBar="1" Size="160,380" Vertical="1" ID="GraphLegendScrollPanel" >
+
+				<ScrollBar Style="VertSlider" Length="344" Offset="0,18" Anchor="R,T" AnchorSide="I,I" />
+				<UpButton  Offset="0,0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="I,I" />
+				<DownButton Offset="0,360" Style="ScrollBarDown"  Anchor="R,T" AnchorSide="I,I" />
+
+				<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="2" ID="GraphLegendStack" />
+			</ScrollPanel>
+
+			<Box ID="GraphDisplay" Offset="160,20" Color="0,0,0,0" Size="720,360">
+				<Box ID="GraphCanvas" Anchor="L,T" Offset="0,0" Color="0,0,0,200" Size="720,360" />
+
+				<Line Color="255,255,200,255" Start="0,360" End="720,360" Width="1" />
+				<Line Color="255,255,200,255" Start="720,0" End="720,360" Width="1" />
+
+				<!-- Horizontal Markers -->
+				<Line Color="255,255,200,255" Start="0,360" End="0,370" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="0,375">
+					<Label Anchor="C,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HorizontalLabel1" String="4000 BC" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="18,360" End="18,365" Width="1" />
+				<Line Color="255,255,200,255" Start="36,360" End="36,365" Width="1" />
+				<Line Color="255,255,200,255" Start="54,360" End="54,365" Width="1" />
+				<Line Color="255,255,200,255" Start="72,360" End="72,365" Width="1" />
+				<Line Color="255,255,200,255" Start="90,360" End="90,370" Width="1" />
+				<Line Color="255,255,200,255" Start="108,360" End="108,365" Width="1" />
+				<Line Color="255,255,200,255" Start="126,360" End="126,365" Width="1" />
+				<Line Color="255,255,200,255" Start="144,360" End="144,365" Width="1" />
+				<Line Color="255,255,200,255" Start="162,360" End="162,365" Width="1" />
+
+				<Line Color="255,255,200,255" Start="180,360" End="180,370" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="180,375">
+					<Label Anchor="C,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HorizontalLabel2" String="0" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="198,360" End="198,365" Width="1" />
+				<Line Color="255,255,200,255" Start="216,360" End="216,365" Width="1" />
+				<Line Color="255,255,200,255" Start="234,360" End="234,365" Width="1" />
+				<Line Color="255,255,200,255" Start="252,360" End="252,365" Width="1" />
+				<Line Color="255,255,200,255" Start="270,360" End="270,370" Width="1" />
+				<Line Color="255,255,200,255" Start="288,360" End="288,365" Width="1" />
+				<Line Color="255,255,200,255" Start="306,360" End="306,365" Width="1" />
+				<Line Color="255,255,200,255" Start="324,360" End="324,365" Width="1" />
+				<Line Color="255,255,200,255" Start="342,360" End="342,365" Width="1" />
+
+				<Line Color="255,255,200,255" Start="360,360" End="360,370" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="360,375">
+					<Label Anchor="C,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HorizontalLabel3" String="500 AD" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="378,360" End="378,365" Width="1" />
+				<Line Color="255,255,200,255" Start="396,360" End="396,365" Width="1" />
+				<Line Color="255,255,200,255" Start="414,360" End="414,365" Width="1" />
+				<Line Color="255,255,200,255" Start="432,360" End="432,365" Width="1" />
+				<Line Color="255,255,200,255" Start="450,360" End="450,370" Width="1" />
+				<Line Color="255,255,200,255" Start="468,360" End="468,365" Width="1" />
+				<Line Color="255,255,200,255" Start="486,360" End="486,365" Width="1" />
+				<Line Color="255,255,200,255" Start="504,360" End="504,365" Width="1" />
+				<Line Color="255,255,200,255" Start="522,360" End="522,365" Width="1" />
+
+				<Line Color="255,255,200,255" Start="540,360" End="540,370" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="540,375">
+					<Label Anchor="C,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HorizontalLabel4" String="1000 AD" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="558,360" End="558,365" Width="1" />
+				<Line Color="255,255,200,255" Start="576,360" End="576,365" Width="1" />
+				<Line Color="255,255,200,255" Start="594,360" End="594,365" Width="1" />
+				<Line Color="255,255,200,255" Start="612,360" End="612,365" Width="1" />
+				<Line Color="255,255,200,255" Start="630,360" End="630,370" Width="1" />
+				<Line Color="255,255,200,255" Start="648,360" End="648,365" Width="1" />
+				<Line Color="255,255,200,255" Start="666,360" End="666,365" Width="1" />
+				<Line Color="255,255,200,255" Start="684,360" End="684,365" Width="1" />
+				<Line Color="255,255,200,255" Start="702,360" End="702,365" Width="1" />
+
+				<Line Color="255,255,200,255" Start="720,360" End="720,370" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="720,375">
+					<Label Anchor="C,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HorizontalLabel5" String="2050 AD" />
+				</Box>
+
+				<!-- Vertical Markers -->
+				<Line Color="255,255,200,255" Start="720,0" End="725,0" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="730,-6">
+					<Label Anchor="L,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="VerticalLabel5" String="500" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="720,18" End="725,18" Width="1" />
+				<Line Color="255,255,200,255" Start="720,36" End="725,36" Width="1" />
+				<Line Color="255,255,200,255" Start="720,54" End="725,54" Width="1" />
+				<Line Color="255,255,200,255" Start="720,72" End="725,72" Width="1" />
+
+				<Line Color="255,255,200,255" Start="720,90" End="725,90" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="730,84">
+					<Label Anchor="L,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="VerticalLabel4" String="300" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="720,108" End="725,108" Width="1" />
+				<Line Color="255,255,200,255" Start="720,126" End="725,126" Width="1" />
+				<Line Color="255,255,200,255" Start="720,144" End="725,144" Width="1" />
+				<Line Color="255,255,200,255" Start="720,162" End="725,162" Width="1" />
+
+				<Line Color="255,255,200,255" Start="720,180" End="725,180" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="730,174">
+					<Label Anchor="L,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="VerticalLabel3" String="200" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="720,198" End="725,198" Width="1" />
+				<Line Color="255,255,200,255" Start="720,216" End="725,216" Width="1" />
+				<Line Color="255,255,200,255" Start="720,234" End="725,234" Width="1" />
+				<Line Color="255,255,200,255" Start="720,252" End="725,252" Width="1" />
+
+				<Line Color="255,255,200,255" Start="720,270" End="725,270" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,1" Offset="730,264">
+					<Label Anchor="L,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="VerticalLabel2" String="100" />
+				</Box>
+
+				<Line Color="255,255,200,255" Start="720,288" End="725,288" Width="1" />
+				<Line Color="255,255,200,255" Start="720,306" End="725,306" Width="1" />
+				<Line Color="255,255,200,255" Start="720,324" End="725,324" Width="1" />
+				<Line Color="255,255,200,255" Start="720,342" End="725,342" Width="1" />
+
+				<Line Color="255,255,200,255" Start="720,360" End="725,360" Width="1" />
+				<Box Color="0,0,0,0" Anchor="L,T" Size="1,24" Offset="730,354">
+					<Label Anchor="L,T" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="VerticalLabel1" String="0" />
+				</Box>
+
+				<Line Color="90,90,90,90" Start="0,360" End="0,360" Width="1" ID="VerticalMouseCrosshair" />
+				<Line Color="90,90,90,90" Start="0,360" End="0,360" Width="1" ID="HorizontalMouseCrosshair" />
+				<Line Color="255,0,0,255" Start="0,360" End="0,360" Width="1" ID="VerticalMouseGuide" />
+				<Line Color="255,0,0,255" Start="0,360" End="0,360" Width="1" ID="HorizontalMouseGuide" />
+
+				<Label Anchor="C,C" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NoGraphData" String="TXT_KEY_REPLAY_NOGRAPHDATA" Hidden="1"/>
+			</Box>
+
+			<PullDown  Anchor="L,T" Style="GenericPullDown" ScrollThreshold="110" Size="400,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="0,-35" ID="GraphDataSetPulldown" />
+
+		</Box>
+
+		<Box ID="MapPanel" Offset="0,35" Color="0,0,0,255" Size="920,405" Hidden="1" >
+			<ReplayMap ID="ReplayMap" Anchor="L,T" Offset="0,0" Size="920,360" />
+			<Label ID="TurnLabel" Anchor="L,B" Offset="10,10" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Turn: 500 BC" />
+			<Slider ID="TurnSlider" Anchor="C,B" Offset="0,0" Length="500" Style="Slider" WheelSteps="10" />
+
+			<GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="10,0" StateOffsetIncrement="0,0" ID="PlayPauseButton"  >
+				<Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_REPLAY_PLAYPAUSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+			</GridButton>
+		</Box>
+
+		<Image Anchor="C,T" Offset="0,450" Texture="HorizontalTrim.dds" Size="920,5" />
+
+	</Box>
+
+
+</Context>

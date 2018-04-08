@@ -47,6 +47,10 @@ void CvCitySiteEvaluator::Init()
 	m_iRingModifier[5] = /*1*/ GC.getCITY_RING_5_MULTIPLIER();
 	m_iRingModifier[6] = 0;
 	m_iRingModifier[7] = 0;
+	m_iRingModifier[8] = 0;
+	m_iRingModifier[9] = 0;
+	m_iRingModifier[10] = 0;
+	m_iRingModifier[11] = 0;
 
 	m_iGrowthIndex = GC.getInfoTypeForString("FLAVOR_GROWTH");
 	m_iExpansionIndex = GC.getInfoTypeForString("FLAVOR_EXPANSION");

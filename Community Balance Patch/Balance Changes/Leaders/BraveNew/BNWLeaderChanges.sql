@@ -287,6 +287,10 @@ UPDATE Improvements
 SET ImprovementResourceQuantity = '1'
 WHERE Type = 'IMPROVEMENT_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Improvements
+SET AdjacentLuxury = '1'
+WHERE Type = 'IMPROVEMENT_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)
 VALUES
@@ -322,7 +326,7 @@ WHERE Type = 'BUILDING_IKANDA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 INSERT INTO Trait_MaintenanceModifierUnitCombats
 	(TraitType, UnitCombatType, MaintenanceModifier)
 VALUES
-	('TRAIT_BUFFALO_HORNS', 'UNITCOMBAT_GUN', -50);
+	('TRAIT_BUFFALO_HORNS', 'UNITCOMBAT_GUN', -25);
 
 UPDATE Traits
 SET CSBullyMilitaryStrengthModifier = '50'
@@ -413,8 +417,8 @@ VALUES
 INSERT INTO Trait_GAPToYield
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 50),
-	('TRAIT_CARNIVAL', 'YIELD_GOLD', 50);
+	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 40),
+	('TRAIT_CARNIVAL', 'YIELD_GOLD', 40);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)

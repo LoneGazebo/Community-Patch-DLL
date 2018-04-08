@@ -709,6 +709,12 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				if gk_mode then
 					yieldChange = yieldChange + activePlayer:GetPlayerBuildingClassYieldChange( buildingClassID, yieldID )
 								+ activePlayer:GetPolicyBuildingClassYieldChange( buildingClassID, yieldID )
+-- Start Vox Populi
+					-- Player yield bonuses to World Wonders
+					if Game.IsWorldWonderClass(buildingClassID) then
+						yieldChange = yieldChange + activePlayer:GetExtraYieldWorldWonder(buildingID, yieldID)
+					end
+-- End Vox Populi
 				end
 				yieldModifier = yieldModifier + activePlayer:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )
 				for i=1, #activePerkTypes do

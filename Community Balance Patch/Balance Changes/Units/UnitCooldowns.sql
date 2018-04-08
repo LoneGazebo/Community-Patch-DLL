@@ -37,5 +37,10 @@ UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_ENGINE'
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_COCKPIT'; 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_SS_BOOSTER'; 
 
+UPDATE Units SET HurryCostModifier =		25  WHERE Type = 'UNIT_SS_STASIS_CHAMBER'; 
+UPDATE Units SET HurryCostModifier =		25  WHERE Type = 'UNIT_SS_ENGINE'; 
+UPDATE Units SET HurryCostModifier =		25  WHERE Type = 'UNIT_SS_COCKPIT'; 
+UPDATE Units SET HurryCostModifier =		25  WHERE Type = 'UNIT_SS_BOOSTER'; 
+
 UPDATE Units SET GlobalFaithPurchaseCooldown =		10  WHERE Type = 'UNIT_ATOMIC_BOMB'; 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		10  WHERE Type = 'UNIT_NUCLEAR_MISSILE'; 

@@ -941,11 +941,8 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				// City can not contain our franchise already
 				if (!pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 				{
-					int iScore = GC.getGame().getJonRandNum(100, "Random Corp Spread");
-					if (m_pPlayer->GetTrade()->IsConnectedToPlayer(pLoopCity->getOwner()))
-					{
-						iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
-					}
+					int iScore = GC.getGame().getSmallFakeRandNum(10, *pLoopCity->plot()) * (m_pPlayer->GetTrade()->IsConnectedToPlayer(pLoopCity->getOwner()) ? 20 : 10);
+
 					int iLoop2;
 					for (CvCity* pLoopCity2 = m_pPlayer->firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iLoop2))
 					{
@@ -970,7 +967,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	}
 	if (pBestCity != NULL && iBestScore != 0)
 	{
-		int iSpreadChance = GC.getGame().getJonRandNum((1500 + (GetNumFranchises() * 10)), "Random Corp Spread");
+		int iSpreadChance = GC.getGame().getSmallFakeRandNum(GetNumFranchises(), *pBestCity->plot()) * 2000;
 		if (iSpreadChance <= iBestScore)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);

@@ -1335,14 +1335,14 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician);
 
 	// If closing in on a Culture win, go for the Concert Tour
-	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
+	if (GetDiplomacyAI()->IsGoingForCultureVictory() || (GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2)))
 	{
 		if(pTarget)
 		{
 #if defined(MOD_BALANCE_CORE)
 			if(pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
 			{
-				if(GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
+				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR && GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
 				{
 #endif
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
@@ -1802,13 +1802,12 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns, true);
 			if (iPathTurns < INT_MAX)
 			{
-				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / iPathTurns;
-
+				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / (1+iPathTurns*iPathTurns);
 				if (iScore > iBestScore)
 				{
 					iBestScore = iScore;
-					//unfortunately, we can't use the city plot itself as target ...
-					pBestTargetPlot = GC.getMap().plot( pMerchant->GetPathNodeArray().back().m_iX, pMerchant->GetPathNodeArray().back().m_iY );
+					//we can't use the city plot itself as target ... so with the approximate path flag this is our target
+					pBestTargetPlot = pMerchant->GetPathLastPlot();
 				}
 			}
 		}
@@ -2381,12 +2380,16 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 	// Subtract distance (XML value important here!)
 	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+	max(1, iDistance /= max(1, pUnit->baseMoves()));
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
 	{
 		iDistance *= 3;
 	}
+
+	if (eMinor.getCapitalCity() != NULL && eMinor.getCapitalCity()->isUnderSiege())
+		iDistance *= 3;
 
 	//Let's downplay minors we can't walk to if we don't have embarkation.
 	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())

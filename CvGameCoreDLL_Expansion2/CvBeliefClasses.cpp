@@ -3489,18 +3489,19 @@ bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerType
 /// Is there a belief that allows faith buying of specific units?
 BeliefTypes CvReligionBeliefs::GetSpecificFaithBuyingEnabledBelief(UnitTypes eUnit) const
 {
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	CvBeliefXMLEntries* pAllBeliefs = GC.GetGameBeliefs();
 
-	for (int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (pBeliefs->GetEntry(i) == NULL)
+		CvBeliefEntry* pBelief = pAllBeliefs->GetEntry(*it);
+
+		if (pBelief == NULL)
 			continue;
 
-		if (pBeliefs->GetEntry(i)->IsFaithUnitPurchaseSpecific((int)eUnit))
-		{
-			return GetBelief(i);
-		}
+		if (pBelief->IsFaithUnitPurchaseSpecific((int)eUnit))
+			return (BeliefTypes)(*it);
 	}
+
 	return NO_BELIEF;
 }
 #endif

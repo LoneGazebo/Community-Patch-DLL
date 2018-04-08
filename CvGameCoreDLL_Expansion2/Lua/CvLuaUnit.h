@@ -518,6 +518,7 @@ protected:
 	static int lGetLeaderUnitType(lua_State* L);
 	static int lSetLeaderUnitType(lua_State* L);
 	static int lIsNearGreatGeneral(lua_State* L);
+	static int lGetGreatGeneralAuraBonus(lua_State* L);
 	static int lIsStackedGreatGeneral(lua_State* L);
 	static int lIsIgnoreGreatGeneralBenefit(lua_State* L);
 	static int lGetReverseGreatGeneralModifier(lua_State* L);
