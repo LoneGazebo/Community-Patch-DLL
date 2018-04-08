@@ -62,7 +62,7 @@ public:
 	void kill();
 	void PreKill();
 #endif
-	void PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner);
+	void PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner);
 
 #if defined(MOD_BALANCE_CORE)
 	CvPlayer* GetPlayer() const;
@@ -479,6 +479,9 @@ public:
 	int GetUnitPurchaseCooldown(bool bCivilian = false) const;
 	void SetUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
 	void ChangeUnitPurchaseCooldown(bool bCivilian = false, int iValue = 0);
+	int GetUnitFaithPurchaseCooldown(bool bCivilian = false) const;
+	void SetUnitFaithPurchaseCooldown(bool bCivilian = false, int iValue = 0);
+	void ChangeUnitFaithPurchaseCooldown(bool bCivilian = false, int iValue = 0);
 	int GetBuildingPurchaseCooldown() const;
 	void SetBuildingPurchaseCooldown(int iValue);
 	void ChangeBuildingPurchaseCooldown(int iValue);
@@ -1811,6 +1814,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iDummy;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldownCivilian;
+	FAutoVariable<int, CvCity> m_iUnitFaithPurchaseCooldown;
+	FAutoVariable<int, CvCity> m_iUnitFaithPurchaseCooldownCivilian;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
 	FAutoVariable<int, CvCity> m_iCityAirStrikeDefense;

@@ -807,9 +807,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					PromotionTypes ePromotion = (PromotionTypes) iI;
 
-					if(GC.getPromotionInfo(ePromotion)->GetTradeMissionInfluenceModifier() > 0)
+					if(GC.getPromotionInfo(ePromotion)->GetTradeMissionInfluenceModifier() != 0)
 					{
-						iInfluence = GC.getPromotionInfo(ePromotion)->GetTradeMissionInfluenceModifier() * 15;
+						iInfluence = GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION() * (100 + GC.getPromotionInfo(ePromotion)->GetTradeMissionInfluenceModifier()) / 100;
 						break;
 					}
 				}
@@ -1663,6 +1663,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	if (bCombat)
 	{
+		if (m_pCity->IsPuppet())
+		{
+			iBonus *= 10;
+		}
 		//making a combat unit?
 		if (m_pCity->getProductionUnit() != NO_UNIT)
 		{

@@ -314,6 +314,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 			m_aeRevealedRouteType[iI] = NO_ROUTE;
 #if defined(MOD_BALANCE_CORE)
 			m_abIsImpassable[iI] = false;
+			m_abStrategicRoute[iI] = false;
 #endif
 		}
 	}
@@ -418,6 +419,19 @@ void CvPlot::doTurn()
 		changeImprovementDuration(1);
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
+	{
+		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+
+		if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+		{
+			setResourceType(NO_RESOURCE, 0);
+		}
+	}
+#endif
+
 	verifyUnitValidPlot();
 
 	// Clear world anchor
@@ -478,7 +492,7 @@ void CvPlot::doImprovement()
 					{
 						if(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI) > 0)
 						{
-							if(GC.getGame().getJonRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), "Resource Discovery") == 0)
+							if (GC.getGame().getSmallFakeRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), iI) == 0)
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
@@ -7885,8 +7899,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
 #if defined(MOD_BALANCE_CORE)
-			if (newImprovementEntry.IsPermanent())
+			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
 			{
+				if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+				{
+					setResourceType(NO_RESOURCE, 0);
+				}
 				ClearArchaeologicalRecord();
 			}
 #endif
@@ -12135,7 +12155,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 					if(getResourceType() == NO_RESOURCE)
 					{
 						int iSpeed = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent() / 67;
-						if((GC.getGame().getJonRandNum(100, "Chance for resource") / iSpeed) < 10)
+						if ((GC.getGame().getSmallFakeRandNum(10, ePlayer) * 10 / iSpeed) < 10)
 						{
 							int iResourceNum = 0;
 							for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
@@ -12145,7 +12165,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 								{
 									if(thisResourceInfo->isFeature(newImprovementEntry.GetCreatedFeature()) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
 									{
-										if(GC.getGame().getJonRandNum(20, "Grabbing a random resource for this Feature") == 10)
+										if(GC.getGame().getSmallFakeRandNum(10, eBuild) == 5)
 										{
 											// Good we passed. Now let's add a resource.
 											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
@@ -13026,6 +13046,7 @@ void CvPlot::read(FDataStream& kStream)
 		kStream >> m_aeRevealedRouteType[i];
 #if defined(MOD_BALANCE_CORE)
 		kStream >> m_abIsImpassable[i];
+		kStream >> m_abStrategicRoute[i];
 #endif
 	}
 
@@ -13181,6 +13202,7 @@ void CvPlot::write(FDataStream& kStream) const
 		kStream << m_aeRevealedRouteType[i];
 #if defined(MOD_BALANCE_CORE)
 		kStream << m_abIsImpassable[i];
+		kStream << m_abStrategicRoute[i];
 #endif
 	}
 
@@ -14149,6 +14171,20 @@ void CvPlot::SetBuilderAIScratchPadValue(short sNewValue)
 	m_sBuilderAIScratchPadValue = sNewValue;
 }
 
+void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	if (m_abStrategicRoute[eTeam] != bValue)
+		m_abStrategicRoute[eTeam] = bValue;
+}
+bool CvPlot::IsStrategicRoute(TeamTypes eTeam)
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	return m_abStrategicRoute[eTeam];
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlot::GetPlotIndex() const
 {
@@ -14326,6 +14362,12 @@ void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 {
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
+	{
+		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+			return;
+	}
 	// Make sure the new record is more significant
 	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
 	{
@@ -14342,6 +14384,13 @@ void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes e
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 {
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
+	{
+		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+			return;
+	}
+
 	// Make sure the new record is more significant
 	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
 	{
@@ -14362,6 +14411,14 @@ void CvPlot::ClearArchaeologicalRecord()
 	m_kArchaeologyData.m_ePlayer1 = NO_PLAYER;
 	m_kArchaeologyData.m_ePlayer2 = NO_PLAYER;
 	m_kArchaeologyData.m_eEra = NO_ERA;
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+	if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+	{
+		setResourceType(NO_RESOURCE, 0);
+	}
+#endif
 }
 
 //	---------------------------------------------------------------------------

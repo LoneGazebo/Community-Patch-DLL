@@ -1860,7 +1860,7 @@ function()-- control )
 			-- Yield from this improvement
 			local toolTip = table()
 			for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-				local yieldChange = plot:CalculateImprovementYieldChange( improvementID, yieldID, plot:GetOwner() )
+				local yieldChange = plot:CalculateImprovementYieldChange( improvementID, yieldID, plot:GetOwner(), false )
 				--plot:CalculateYield( yieldID ) - plot:CalculateNatureYield( yieldID, g_activeTeamID )
 
 				if yieldChange > 0 then

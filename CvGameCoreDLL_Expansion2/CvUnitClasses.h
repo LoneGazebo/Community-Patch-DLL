@@ -201,6 +201,7 @@ public:
 	bool IsInvalidMinorCivGift() const;
 	int GetCooldown() const;
 	int GetGlobalFaithCooldown() const;
+	int GetLocalFaithCooldown() const;
 	bool IsMounted() const;
 	bool IsCultureFromExperienceDisbandUpgrade() const;
 	bool IsConvertUnit() const;
@@ -388,6 +389,7 @@ private:
 	bool m_bIsMounted;
 	int m_iCooldown;
 	int m_iGlobalFaithCooldown;
+	int m_iLocalFaithCooldown;
 	int m_iBeliefUnlock;
 	bool m_bCultureFromExperienceOnDisband;
 	bool m_bIsConvertUnit;

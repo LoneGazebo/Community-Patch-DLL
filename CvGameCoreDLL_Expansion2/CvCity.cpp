@@ -330,6 +330,8 @@ CvCity::CvCity() :
 	, m_iCoastalThreatRank("CvCity::m_iCoastalThreatRank", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iUnitPurchaseCooldownCivilian("CvCity::m_iUnitPurchaseCooldownCivilian", m_syncArchive)
+	, m_iUnitFaithPurchaseCooldown("CvCity::m_iUnitFaithPurchaseCooldown", m_syncArchive)
+	, m_iUnitFaithPurchaseCooldownCivilian("CvCity::m_iUnitFaithPurchaseCooldownCivilian", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
 	, m_iCityAirStrikeDefense("CvCity::m_iCityAirStrikeDefense", m_syncArchive)
@@ -621,13 +623,17 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// wipe out dig sites
+#if !defined(MOD_BALANCE_CORE)
 	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
 	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
 	if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
 	{
 		pPlot->setResourceType(NO_RESOURCE, 0);
+#endif
 		pPlot->ClearArchaeologicalRecord();
+#if !defined(MOD_BALANCE_CORE)
 	}
+#endif
 
 	setupGraphical();
 
@@ -1541,6 +1547,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCoastalThreatRank = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iUnitPurchaseCooldownCivilian = 0;
+	m_iUnitFaithPurchaseCooldown = 0;
+	m_iUnitFaithPurchaseCooldownCivilian = 0;
 	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
 	m_iCityAirStrikeDefense = 5;
@@ -2611,7 +2619,7 @@ void CvCity::PreKill()
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
+void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner)
 {
 	VALIDATE_OBJECT
 
@@ -2638,7 +2646,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 		}
 	}
 
-	GC.getMap().updateWorkingCity(pPlot,getWorkPlotDistance()*2);
+	GC.getMap().updateWorkingCity(pPlot,iWorkPlotDistance*2);
 	if(bCapital)
 	{
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
@@ -2737,11 +2745,15 @@ void CvCity::kill()
 		pkGameTrade->ClearAllCityTradeRoutes(plot());
 #endif
 	}
+
+	//save this before deleting the city
+	int iWorkPlotDistance = getWorkPlotDistance();
+
 	GET_PLAYER(getOwner()).deleteCity(m_iID);
 	GET_PLAYER(eOwner).GetCityConnections()->Update();
 
 	// clean up
-	PostKill(bCapital, pPlot, eOwner);
+	PostKill(bCapital, pPlot, iWorkPlotDistance, eOwner);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2883,6 +2895,14 @@ void CvCity::doTurn()
 	if (GetUnitPurchaseCooldown(true) > 0)
 	{
 		ChangeUnitPurchaseCooldown(true, -1);
+	}
+	if (GetUnitFaithPurchaseCooldown() > 0)
+	{
+		ChangeUnitFaithPurchaseCooldown(false, -1);
+	}
+	if (GetUnitFaithPurchaseCooldown(true) > 0)
+	{
+		ChangeUnitFaithPurchaseCooldown(true, -1);
 	}
 	if(GetBuildingPurchaseCooldown() > 0)
 	{
@@ -9352,7 +9372,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getJonRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
+		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex()+getPopulation());
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -9508,7 +9528,7 @@ void CvCity::DoSeedResourceDemandedCountdown()
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, getPopulation());
+	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, plot()->GetPlotIndex() + getPopulation());
 #else
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
 #endif
@@ -12115,7 +12135,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		}
 	}
 
-	if ((IsPuppet() || (IsOccupied()) && GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod() != 0))
+	if ((IsPuppet() || (IsOccupied() || IsNoOccupiedUnhappiness()) && GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod() != 0))
 	{
 		iTempMod = GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod();
 		EraTypes eBuildingEra = (EraTypes)0;
@@ -13604,7 +13624,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 							if (pkResource != NULL && pkResource->GetRequiredCivilization() == owningPlayer.getCivilizationType())
 							{
-								int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+								int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+getPopulation()) * 10;
 								//If we've already got this resource, divide the value by the amount.
 								if(owningPlayer.getNumResourceTotal(eResource, false) > 0)
 								{
@@ -15243,6 +15263,35 @@ void CvCity::ChangeUnitPurchaseCooldown(bool bCivilian, int iValue)
 	}
 }
 //	--------------------------------------------------------------------------------
+int CvCity::GetUnitFaithPurchaseCooldown(bool bCivilian) const
+{
+	VALIDATE_OBJECT
+		if (bCivilian)
+			return m_iUnitFaithPurchaseCooldownCivilian;
+
+	return m_iUnitFaithPurchaseCooldown;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
+{
+	VALIDATE_OBJECT
+		if (bCivilian)
+			m_iUnitFaithPurchaseCooldownCivilian = iValue;
+	m_iUnitFaithPurchaseCooldown = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeUnitFaithPurchaseCooldown(bool bCivilian, int iValue)
+{
+	VALIDATE_OBJECT
+		if (iValue != 0)
+		{
+			if (bCivilian)
+				m_iUnitFaithPurchaseCooldownCivilian += iValue;
+
+			m_iUnitFaithPurchaseCooldown += iValue;
+		}
+}
+//	--------------------------------------------------------------------------------
 int CvCity::GetBuildingPurchaseCooldown() const
 {
 	VALIDATE_OBJECT
@@ -15326,7 +15375,7 @@ void CvCity::CheckForOperationUnits()
 	VALIDATE_OBJECT
 	UnitTypes eBestUnit;
 	UnitAITypes eUnitAI;
-	if(IsPuppet() || IsRazing() || this == NULL)
+	if((IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing()) || IsRazing() || this == NULL)
 	{
 		return;
 	}
@@ -16726,7 +16775,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 										continue;
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
-										int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
+										int iChance = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 10;
 										if(iChance < 50)
 										{
 											continue;
@@ -16754,7 +16803,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									{
 										continue;
 									}
-									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getJonRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
+									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetCombat(), plot()->GetPlotIndex() + getPopulation()));
 									if(iCombatStrength > iStrengthBest)
 									{
 										iStrengthBest = iCombatStrength;
@@ -19679,9 +19728,9 @@ bool CvCity::DoRazingTurn()
 			}
 
 			// In hundreds
-			int iNumRebels = (getPopulation() * 9); //Based on city size.
-			int iExtraRoll = (GC.getGame().getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
+			int iNumRebels = (getPopulation() * 5); //Based on city size.
+			int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible partisan spawns as game continues and cities grow.
+			iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll, plot()->GetPlotIndex() + getPopulation()) * 3 * getPopulation();
 			iNumRebels /= 100;		
 	
 			if(iNumRebels <= 0)
@@ -20359,6 +20408,10 @@ int CvCity::getHappinessDelta() const
 
 	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
 	{
+		if (IsRazing() || IsResistance())
+		{
+			return (getPopulation() / 2) * -1;
+		}
 		return 0;
 	}
 
@@ -20571,8 +20624,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 		{
 			iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessGlobal();
 		}
-		int iDamage = getDamage() / 10;
-		iModifier += iDamage;
 	}
 	return iModifier;
 }
@@ -22369,6 +22420,11 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
 			iTempMod = GC.getPUPPET_CULTURE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+		case YIELD_FAITH: // taken from getJONSCulturePerTurn
+			iTempMod = GC.getPUPPET_FAITH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
 		}
@@ -24250,7 +24306,7 @@ void CvCity::DoBarbIncursion()
 			return;
 
 		int iCityStrength = getStrengthValue(true);
-		iCityStrength += (GC.getGame().getSmallFakeRandNum(10, getOwner()) * 10);
+		iCityStrength += (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 10);
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -24264,14 +24320,14 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, *plot()) * 18;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, *plot());
+							int iYield = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -25488,42 +25544,25 @@ void CvCity::updateStrengthValue()
 	int iStrengthValue = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
 
 	// Population mod
-	iStrengthValue += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
+	if (!MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+		iStrengthValue += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
 
 	// Building Defense
 	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
 #if defined(MOD_BALANCE_CORE)
-	CvPlot* pCityPlot = plot();
 	CvPlot* pAdjacentPlot = NULL;
-	int iNumAdjUnits = 0;
 	int iAdjUnitDefense = 0;
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(pCityPlot->getX(), pCityPlot->getY(), ((DirectionTypes)iI));
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			for(int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
+			for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 			{
-				for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+				const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+				if (adjUnit != NULL && adjUnit->getTeam() == getTeam())
 				{
-					const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-					if(pkPromotionInfo != NULL)
-					{
-						if(pkPromotionInfo->GetAdjacentCityDefenseMod() > 0)
-						{
-							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-							if(adjUnit != NULL && adjUnit->isHasPromotion(eLoopPromotion))
-							{
-								CvPlayer &adjUnitPlayer = GET_PLAYER(adjUnit->getOwner());
-								if(GET_TEAM(adjUnitPlayer.getTeam()).GetID() == getTeam())
-								{
-									iNumAdjUnits++;
-								}
-							}
-							iAdjUnitDefense = (pkPromotionInfo->GetAdjacentCityDefenseMod() * iNumAdjUnits);
-						}
-					}
+					iAdjUnitDefense += adjUnit->GetAdjacentCityDefenseMod();
 				}
 			}
 		}
@@ -28622,6 +28661,15 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					{
 						return false;
 					}
+					// Faith counterpart to PurchaseCooldown
+					if ((GC.getUnitInfo(eUnitType)->GetCombat() <= 0 && GC.getUnitInfo(eUnitType)->GetRangedCombat() <= 0) && GC.getUnitInfo(eUnitType)->GetLocalFaithCooldown() > 0 && GetUnitFaithPurchaseCooldown(true) > 0)
+					{
+						return false;
+					}
+					else if ((GC.getUnitInfo(eUnitType)->GetCombat() > 0 || GC.getUnitInfo(eUnitType)->GetRangedCombat() > 0) && GC.getUnitInfo(eUnitType)->GetLocalFaithCooldown() > 0 && GetUnitFaithPurchaseCooldown() > 0)
+					{
+						return false;
+					}
 				}
 #endif
 				// Trying to buy something when you don't have enough faith!!
@@ -28935,6 +28983,14 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				iCooldown /= 100;
 				kPlayer.ChangeFaithPurchaseCooldown(iCooldown);
 			}
+			if (pUnit && pUnit->getUnitInfo().GetLocalFaithCooldown() > 0)
+			{
+				bool bCivilian = (pUnit->getUnitInfo().GetCombat() <= 0 && pUnit->getUnitInfo().GetRangedCombat() <= 0);
+				int iCooldown = pUnit->getUnitInfo().GetLocalFaithCooldown();
+				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iCooldown /= 100;
+				ChangeUnitFaithPurchaseCooldown(bCivilian, iCooldown);
+			}
 #endif
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 			if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -29244,7 +29300,7 @@ void CvCity::doGrowth()
 	setFoodKept(range(getFoodKept(), 0, ((growthThreshold() * getMaxFoodKeptPercent()) / 100)));
 
 	//can't grow while starving
-	if(getFood() >= growthThreshold() && iFoodPerTurn100 > 0)
+	if(getFood() >= growthThreshold())
 	{
 		if(GetCityCitizens()->IsForcedAvoidGrowth())  // don't grow a city if we are at avoid growth
 		{
@@ -30795,14 +30851,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		if (isBarbarian())
-		{
-			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 120;
-		}
-		else
-		{
-			iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
-		}
+		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
 	}
 	else
 	{
@@ -30862,36 +30911,19 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	pAttacker; //unused
 
 	//base value
+	int iBaseValue = 15;
+
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-	{
-		int iBaseValue = GetCityAirStrikeDefense();
-		iBaseValue += plot()->countNumAirUnits(getTeam(), true);
-		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+		iBaseValue = GetCityAirStrikeDefense();
 
-		if (iBaseValue == 0)
-			if (bIncludeRand)
-				return GC.getGame().getJonRandNum(10, "air attack attrition");
-			else
-				return 15;
-		else
-		{
-			if (bIncludeRand)
-				return iBaseValue + GC.getGame().getJonRandNum(10, "air attack attrition");
-			else
-				return iBaseValue;
-		}
-	}
+	iBaseValue += plot()->countNumAirUnits(getTeam(), true);
+	iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+
+	if (bIncludeRand)
+		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());
 	else
-	{
-		int iBaseValue = 15;
-		iBaseValue += plot()->countNumAirUnits(getTeam(), true);
-		iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
+		return iBaseValue;
 
-		if (bIncludeRand)
-			return iBaseValue + GC.getGame().getJonRandNum(10, "air attack attrition");
-		else
-			return iBaseValue;
-	}
 #else
 	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, false);
 	int iDefenderStrength = getStrengthValue(false);
@@ -31620,13 +31652,18 @@ uint CvCity::GetCityBombardEffectTagHash() const
 //	---------------------------------------------------------------------------
 int CvCity::GetMaxHitPoints() const
 {
-	return GC.getMAX_CITY_HIT_POINTS() + m_iExtraHitPoints;
+	return GC.getMAX_CITY_HIT_POINTS() + GetExtraHitPoints();
 }
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetExtraHitPoints() const
 {
-	return m_iExtraHitPoints;
+	// Population mod
+	int iPopBonus = 0;
+	if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+		iPopBonus = getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
+
+	return m_iExtraHitPoints + iPopBonus;
 }
 
 //	--------------------------------------------------------------------------------

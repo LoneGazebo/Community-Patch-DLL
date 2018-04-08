@@ -258,14 +258,6 @@ SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes
 WHERE Tag = 'TXT_KEY_DIPLO_VOTE_TRADE_REPEAL_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +3 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
-WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_ARTIFACT_RESULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Ancient writing will be placed in nearest Great Work of Writing slot. Writing provides +1 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
-WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_WRITTEN_ARTIFACT_RESULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
-
-UPDATE Language_en_US
 SET Text = 'Barbarian Encampment'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
@@ -466,11 +458,6 @@ UPDATE Language_en_US
 Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from your [ICON_GOLDEN_AGE] Golden Age.'
 WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
--- Rebels!
-UPDATE Language_en_US
-SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, an uprising has occurred in our territory!'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
-
 -- Update Text for Very Unhappy and Super Unhappy
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
@@ -623,3 +610,13 @@ WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_RANGE';
 UPDATE Language_en_US
 SET Text = 'Resource Diversity Modifier: {1_Num}%[NEWLINE][ICON_BULLET]   Our Local Luxuries/Strategics: {2_Num}[NEWLINE][ICON_BULLET]   Their Local Luxuries/Strategics: {3_Num}[NEWLINE] Routes to Cities with fewer Resources earn more [ICON_GOLD] Gold, and Monopoly Resources count double.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT';
+
+
+UPDATE Language_en_US
+SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +3 [ICON_CULTURE] Culture and +3 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_ARTIFACT_RESULT';
+
+UPDATE Language_en_US
+SET Text = 'Ancient writing will be placed in nearest Great Work of Writing slot. Writing provides +3 [ICON_CULTURE] Culture and +3 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_WRITTEN_ARTIFACT_RESULT';
+

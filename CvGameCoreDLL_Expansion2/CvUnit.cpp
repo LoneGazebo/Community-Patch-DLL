@@ -391,6 +391,7 @@ CvUnit::CvUnit() :
 	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 	, m_iGoodyHutYieldBonus("CvUnit::m_iGoodyHutYieldBonus", m_syncArchive)
 	, m_iReligiousPressureModifier("CvUnit::m_iReligiousPressureModifier", m_syncArchive)
+	, m_iAdjacentCityDefenseMod("CvUnit::m_iAdjacentCityDefenseMod", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -590,7 +591,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		if(iNameOffset == -1)
 		{
-			iNameOffset = GC.getGame().getJonRandNum(iNumNames, "Unit name selection");
+			iNameOffset = GC.getGame().getSmallFakeRandNum(iNumNames, *plot());
 		}
 #if defined(MOD_BALANCE_CORE)
 		CvString strName = NULL;
@@ -609,7 +610,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 		if(vfPossibleUnits.size() > 0)
 		{
-			int iRoll = GC.getGame().getJonRandNum(vfPossibleUnits.size(), "Rolling for era-specific unit");
+			int iRoll = GC.getGame().getSmallFakeRandNum(vfPossibleUnits.size(), iID);
 			strName = getUnitInfo().GetUnitNames(vfPossibleUnits[iRoll]);
 			setName(strName);
 			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
@@ -639,7 +640,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 			if(vfPossibleUnits.size() > 0)
 			{
-				int iRoll = GC.getGame().getJonRandNum(vfPossibleUnits.size(), "Rolling for era-specific unit");
+				int iRoll = GC.getGame().getSmallFakeRandNum(vfPossibleUnits.size(), iID);
 				strName = getUnitInfo().GetUnitNames(vfPossibleUnits[iRoll]);
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
@@ -1022,7 +1023,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getJonRandNum(totalFollowers, "Religious Settlers: Picking a random religion for the settler") + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, pPlotCity->getPopulation()) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1053,7 +1054,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getJonRandNum(totalFollowers, "Religious Settlers: Picking a random religion for the settler") + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, pPlotCity->getPopulation()) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1459,6 +1460,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStrongerDamaged = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
+	m_iAdjacentCityDefenseMod = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -2383,7 +2385,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			{
 				if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 				{
-					GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(getUnitInfo().GetSupplyCapBoost());
+					GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(iSupply);
 					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = { 0 };
@@ -2606,6 +2608,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	kCaptureDef.eCapturingPlayer = (eCapturingPlayer != NO_PLAYER) ? eCapturingPlayer : getCapturingPlayer();
 	kCaptureDef.bEmbarked = m_bEmbarked;
 	kCaptureDef.eCaptureUnitType = NO_UNIT;
+	kCaptureDef.iUnitID = GetID();
 #if defined(MOD_API_EXTENSIONS)
 	kCaptureDef.iScenarioData = m_iScenarioData;
 #endif
@@ -5322,14 +5325,8 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		if (isBarbarian())
-		{
-			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, *plot()) * 120);
-		}
-		else
-		{
-			iRoll = /*1200*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
-		}
+		iRoll = /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
+
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iRoll /= GetMaxHitPoints();
@@ -5480,9 +5477,11 @@ bool CvUnit::jumpToNearestValidPlot()
 				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
 				if(pNearestCity != NULL)
-				{
 					iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
-				}
+
+				//avoid putting ships on lakes etc
+				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+					iValue += 12;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 				{
@@ -5551,10 +5550,13 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 			{
 				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
+				//avoid putting ships on lakes etc
+				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
+					iValue += 12;
+
+				//try to stay within the same area
 				if(pLoopPlot->area() != area())
-				{
-					iValue *= 3;
-				}
+					iValue += 5;
 
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 				{
@@ -7953,7 +7955,7 @@ void CvUnit::DoAttrition()
 	{
 		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
-			if(GC.getGame().getJonRandNum(100, "Enemy Territory Damage Chance") < getEnemyDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -7962,7 +7964,7 @@ void CvUnit::DoAttrition()
 #if defined(MOD_BALANCE_CORE)
 		else if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
 		{
-			if(GC.getGame().getJonRandNum(100, "Enemy Territory Heal Chance") <= getEnemyDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 <= getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -7971,7 +7973,7 @@ void CvUnit::DoAttrition()
 #endif
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if(GC.getGame().getJonRandNum(100, "Neutral Territory Damage Chance") < getNeutralDamageChance())
+			if(GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -9462,7 +9464,7 @@ bool CvUnit::createFreeLuxury()
 			{
 				if(GC.getMap().getNumResources(eResource) <= 0)
 				{
-					int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9484,7 +9486,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9506,7 +9508,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
 					if(iRandomFlavor > iBestFlavor)
 					{
 						eResourceToGive = eResource;
@@ -10342,8 +10344,7 @@ bool CvUnit::pillage()
 					}
 				}
 #endif
-				iPillageGold = GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 1");
-				iPillageGold += GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 2");
+				iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot()) * 10;
 				iPillageGold += (getPillageChange() * iPillageGold) / 100;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 				if (pPlot->getOwner() != NO_PLAYER)
@@ -11352,6 +11353,9 @@ bool CvUnit::CanRemoveHeresy(const CvPlot* pPlot) const
 		return false;
 	}
 
+	if (pCity->GetCityReligions()->GetFollowersOtherReligions(GetReligionData()->GetReligion()) <= 0)
+		return false;
+
 	if(isDelayedDeath())
 	{
 		return false;
@@ -11977,20 +11981,6 @@ int CvUnit::getTradeGold(const CvPlot* /*pPlot*/) const
 	// Amount of Gold also increases with how far into the game we are
 	iGold += (m_pUnitInfo->GetNumGoldPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
 
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	//Let's make the GM a little more flexible.
-	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		ImprovementTypes eTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
-		if (eTown != NO_IMPROVEMENT)
-		{
-			int iTowns = GET_PLAYER(getOwner()).CountAllImprovement(eTown);
-			iGold *= ((iTowns * 10) + 100);
-			iGold /= 100;
-		}
-	}
-#endif
-
 	iGold *= GC.getGame().getGameSpeedInfo().getUnitTradePercent();
 	iGold /= 100;
 
@@ -12135,6 +12125,18 @@ bool CvUnit::trade()
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
 			int iCap = 10;
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+			//Let's make the GM a little more flexible.
+			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+			{
+				ImprovementTypes eTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
+				if (eTown != NO_IMPROVEMENT)
+				{
+					int iTowns = GET_PLAYER(getOwner()).CountAllImprovement(eTown);
+					iCap += iTowns;
+				}
+			}
+#endif
 			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iCap /= 100;
 			CvCity* pLoopCity;
@@ -13451,6 +13453,14 @@ bool CvUnit::build(BuildTypes eBuild)
 									{
 										continue;
 									}
+									if (pUnitEntry->GetCombat() == 0)
+									{
+										continue;
+									}
+									if (kPlayer.GetNumUnitsOutOfSupply() > 0)
+									{
+										continue;
+									}
 									if(!pUnitEntry->GetRangedCombat())
 									{
 										bool bBad = false;
@@ -13487,6 +13497,14 @@ bool CvUnit::build(BuildTypes eBuild)
 										continue;
 									}
 									if(pUnitEntry->GetRangedCombat() > 0)
+									{
+										continue;
+									}
+									if (pUnitEntry->GetCombat() == 0)
+									{
+										continue;
+									}
+									if (kPlayer.GetNumUnitsOutOfSupply() > 0)
 									{
 										continue;
 									}
@@ -17056,14 +17074,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		if (isBarbarian())
-		{
-			iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(10, *plot()) * 120;
-		}
-		else
-		{
-			iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
-		}
+		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE()/ 100, *plot()) * 100;
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -17147,7 +17158,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		int iBaseValue = getUnitInfo().GetBaseLandAirDefense();
 		if (iBaseValue == 0)
 			if (bIncludeRand && !IsCivilianUnit())
-				return GC.getGame().getJonRandNum(3, "air attack attrition");
+				return GC.getGame().getSmallFakeRandNum(3, *plot());
 			else
 				return 0;
 		else
@@ -17155,7 +17166,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 			iBaseValue += getLandAirDefenseValue();
 
 			if (bIncludeRand)
-				return iBaseValue + GC.getGame().getJonRandNum(5, "air attack attrition");
+				return iBaseValue + GC.getGame().getSmallFakeRandNum(5, *plot());
 			else
 				return iBaseValue;
 		}
@@ -17163,7 +17174,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	else
 	{
 		if (bIncludeRand)
-			return 8 + GC.getGame().getJonRandNum(5, "air attack attrition");
+			return 8 + GC.getGame().getSmallFakeRandNum(5, *plot());
 		else
 			return 10;
 	}	
@@ -17377,7 +17388,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
-		iInterceptorRoll = /*300*/ GC.getGame().getJonRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
+		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
 		iInterceptorRoll *= iInterceptorDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iInterceptorRoll /= GetMaxHitPoints();
@@ -17476,7 +17487,7 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
-		iInterceptorRoll = /*300*/ GC.getGame().getJonRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
+		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot()) * 100;
 		iInterceptorRoll *= iInterceptorDamageRatio;
 		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -20044,8 +20055,11 @@ if (!bDoEvade)
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		DoLocationPromotions(false, pOldPlot, pNewPlot);
-		DoConvertEnemyUnitToBarbarian(pNewPlot);
+		if (pOldPlot != NULL)
+		{
+			DoLocationPromotions(false, pOldPlot, pNewPlot);
+			DoConvertEnemyUnitToBarbarian(pNewPlot);
+		}
 #endif
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
@@ -23659,7 +23673,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 					CvUnit* pConvertUnit = NULL;
 					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
 					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
-					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian())
+					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian() && !pAdjacentPlot->isEnemyCity(*this))
 					{
 						int iExistingDamage = pAdjacentUnit->getDamage();
 						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
@@ -23685,7 +23699,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 					}
 				}
 				// Is this unit running into a unit that might convert it into a barbarian??
-				else if(IsCombatUnit() && !isBarbarian())
+				else if(IsCombatUnit() && !isBarbarian() && !pPlot->isFriendlyCity(*this, true))
 				{
 					CvUnit* pConvertUnit = NULL;
 					int iExistingDamage = getDamage();
@@ -23745,7 +23759,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 				{
 					if(pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID() && getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 					{
-						if(GC.getGame().getJonRandNum(100, "Chance for conversion") <= kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits())
+						if (GC.getGame().getSmallFakeRandNum(10, *plot()) * 10 <= kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits())
 						{
 							UnitTypes eBestLandUnit = NO_UNIT;
 							int iStrengthBestLandCombat = 0;
@@ -24320,7 +24334,17 @@ void CvUnit::ChangeReligiousPressureModifier(int iChange)
 	m_iReligiousPressureModifier += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetAdjacentCityDefenseMod() const
+{
+	return m_iAdjacentCityDefenseMod;
+}
 
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeAdjacentCityDefenseMod(int iChange)
+{
+	m_iAdjacentCityDefenseMod += iChange;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -26554,9 +26578,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				SetNegatorPromotion(-1);
 			}
 		}
-		ChangeIsStrongerDamaged((thisPromotion.IsStrongerDamaged()) ? iChange : 0);
-		ChangeGoodyHutYieldBonus((thisPromotion.GetGoodyHutYieldBonus()) * iChange);
-		ChangeReligiousPressureModifier((thisPromotion.GetReligiousPressureModifier()) * iChange);
+		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
+		ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
+		ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
+		ChangeAdjacentCityDefenseMod(thisPromotion.GetAdjacentCityDefenseMod() * iChange);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
@@ -29405,12 +29430,12 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 }
 
 // PATH-FINDING ROUTINES
-bool CvUnit::IsCachedPathValid()
+bool CvUnit::IsCachedPathValid() const
 {
 	return m_uiLastPathLength != 0xFFFFFFFF;
 }
 
-bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags)
+bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 {
 	return (
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
@@ -29466,14 +29491,6 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 }
 
 //	--------------------------------------------------------------------------------
-/// Returns the last path generated by the unit
-const CvPathNodeArray& CvUnit::GetPathNodeArray() const
-{
-	VALIDATE_OBJECT
-	return m_kLastPath;
-}
-
-//	--------------------------------------------------------------------------------
 /// Clear the pathing cache.  Please use with caution.
 void CvUnit::ClearPathCache()
 {
@@ -29497,7 +29514,29 @@ void CvUnit::ClearReachablePlots()
 /// Where do we end this next move?
 CvPlot* CvUnit::GetPathEndFirstTurnPlot() const
 {
-	return m_kLastPath.GetTurnDestinationPlot(0);
+	if (IsCachedPathValid())
+		return m_kLastPath.GetTurnDestinationPlot(0);
+
+	return NULL;
+}
+
+CvPlot* CvUnit::GetPathFirstPlot() const
+{
+	if (IsCachedPathValid())
+		return m_kLastPath.GetFirstPlot();
+
+	return NULL;
+}
+
+CvPlot* CvUnit::GetPathLastPlot() const
+{
+	if (!IsCachedPathValid())
+		return NULL;
+
+	if (m_kLastPath.empty()) //with approximate pathfinding this is a valid case
+		return plot();
+	else
+		return m_kLastPath.GetFinalPlot();
 }
 
 // PRIVATE METHODS
@@ -29550,7 +29589,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 	int iPlagueChance = getPlagueChance();
 
-	int iRoll = GC.getGame().getJonRandNum(100, "Plague Transfer from Melee attempt");
+	int iRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 10;
 
 	if(iRoll > iPlagueChance)
 	{
@@ -29662,7 +29701,7 @@ bool CvUnit::CanFallBackFromMelee(CvUnit& attacker, bool bCheckChances)
 		}
 		iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
 
-		int iRoll = GC.getGame().getJonRandNum(100, "Withdraw from Melee attempt");
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 10;
 		return iRoll < iWithdrawChance;
 	}
 	else
@@ -29677,7 +29716,7 @@ bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
-	int iRightOrLeftBias = (GC.getGame().getJonRandNum(100, "right or left bias") < 50) ? 1 : -1;
+	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, *plot()) < 5) ? 1 : -1;
 	int iBiases[5] = {0,-1,1,-2,2};
 	int x = plot()->getX();
 	int y = plot()->getY();
@@ -29737,7 +29776,7 @@ bool CvUnit::DoFallBackFromRanged(CvUnit& attacker)
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
-	int iRightOrLeftBias = (GC.getGame().getJonRandNum(100, "right or left bias") < 50) ? 1 : -1;
+	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, *plot()) < 5) ? 1 : -1;
 	int iBiases[5] = {0,-1,1,-2,2};
 	int x = plot()->getX();
 	int y = plot()->getY();
@@ -30678,7 +30717,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iValue > 0)
 	{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		iValue += GC.getGame().getSmallFakeRandNum(100, iValue);
+		iValue += GC.getGame().getSmallFakeRandNum(10, iValue) * 10;
 #else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
 #endif

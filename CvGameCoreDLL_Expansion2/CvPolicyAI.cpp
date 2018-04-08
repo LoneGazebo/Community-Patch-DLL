@@ -748,7 +748,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
 		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-		int iRandom = GC.getGame().getJonRandNum(100, "Random GE or GM value");
+		int iRandom = GC.getGame().getSmallFakeRandNum(10, pPlayer->GetEconomicMight()) * 10;
 		if(iRandom <= 33)
 		{
 			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");

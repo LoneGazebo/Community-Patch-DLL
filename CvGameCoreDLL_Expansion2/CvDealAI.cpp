@@ -1732,7 +1732,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			bool bBad = false;
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
-				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 0)
+				if (pkResourceInfo->getYieldChangeFromMonopoly((YieldTypes)iJ) > 0 && iNumResourceOwned <= 0 && iNumResourceImported > 1)
 				{
 					bBad = true;
 					return 0;
@@ -7367,7 +7367,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
 			int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
-			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), eResource);
+			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), iCurrentNetGoldOfReceivingPlayer);
 			iRand /= 2;
 			if(iRand <= 0)
 			{

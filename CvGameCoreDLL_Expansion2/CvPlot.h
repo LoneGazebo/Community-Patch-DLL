@@ -830,6 +830,9 @@ public:
 	short GetBuilderAIScratchPadValue() const;
 	void SetBuilderAIScratchPadValue(short sNewValue);
 
+	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
+	bool IsStrategicRoute(TeamTypes eTeam);
+
 	int GetPlotIndex() const;
 
 	char GetContinentType() const;
@@ -1024,6 +1027,7 @@ protected:
 	char *m_aeRevealedRouteType;
 	bool* m_abResourceForceReveal;
 #if defined(MOD_BALANCE_CORE)
+	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
 
