@@ -110,6 +110,7 @@ CvGame::CvGame() :
 	, m_bFOW(true)
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
+	, m_processPlayerAutoMoves(false)
 {
 	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
 	m_aiRankPlayer = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by rank...
@@ -1093,6 +1094,7 @@ void CvGame::uninit()
 	m_bForceEndingTurn = false;
 
 	m_lastTurnAICivsProcessed = -1;
+	m_processPlayerAutoMoves = false;
 	m_iEndTurnMessagesSent = 0;
 	m_iElapsedGameTurns = 0;
 	m_iStartTurn = 0;
@@ -9085,8 +9087,6 @@ void CvGame::updateMoves()
 	int iLoop;
 	int iI;
 
-	static bool processPlayerAutoMoves = false;
-
 	// Process all AI first, then process players.
 	// Processing of the AI 'first' only occurs when the AI are activated first
 	// in doTurn, when MPSIMULTANEOUS_TURNS is set.  If the turns are sequential,
@@ -9099,7 +9099,7 @@ void CvGame::updateMoves()
 		if(player.isAlive() && player.isTurnActive() && !player.isHuman())
 		{
 			playersToProcess.push_back(static_cast<PlayerTypes>(iI));
-			processPlayerAutoMoves = false;
+			m_processPlayerAutoMoves = false;
 			// Notice the break.  Even if there is more than one AI with an active turn, we do them sequentially.
 			break;
 		}
@@ -9129,7 +9129,7 @@ void CvGame::updateMoves()
 #endif
 			}
 
-			if(!processPlayerAutoMoves)
+			if(!m_processPlayerAutoMoves)
 			{
 				if(!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 				{//fully simultaneous turns.
@@ -9141,10 +9141,10 @@ void CvGame::updateMoves()
 						if(player.isHuman() && !player.isObserver() && !player.isAutoMoves())
 							readyForAutoMoves = false;
 					}
-					processPlayerAutoMoves = readyForAutoMoves;
+					m_processPlayerAutoMoves = readyForAutoMoves;
 				}
 				else
-					processPlayerAutoMoves = true;
+					m_processPlayerAutoMoves = true;
 			}
 
 			for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -9230,7 +9230,7 @@ void CvGame::updateMoves()
 					}
 				}
 
-				if(player.isAutoMoves() && (!player.isHuman() || processPlayerAutoMoves))
+				if(player.isAutoMoves() && (!player.isHuman() || m_processPlayerAutoMoves))
 				{
 					bool bRepeatAutomoves = false;
 					int iRepeatPassCount = 2;	// Prevent getting stuck in a loop
@@ -11179,6 +11179,9 @@ void CvGame::Read(FDataStream& kStream)
 	//when loading from file, we need to reset m_lastTurnAICivsProcessed 
 	//so that updateMoves() can turn active players after loading an autosave in simultaneous turns multiplayer.
 	m_lastTurnAICivsProcessed = -1;
+
+	// used to be a static in updateMoves but made a member due to it not being re-inited and maybe causing issues when loading after an exit-to-menu. Not serialized - I wasn't willing to think about the implications.
+	m_processPlayerAutoMoves = false;
 }
 
 //	---------------------------------------------------------------------------
