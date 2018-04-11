@@ -269,14 +269,8 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 					continue;
 				}
 
-				bool bBad = pDeal->AreAllTradeItemsValid();
-				if (!bBad && !CvPreGame::isHuman(iter->m_eFromPlayer))
-				{
-					int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
-					bool bCantMatchOffer;
-					bBad = GET_PLAYER(iter->m_eFromPlayer).GetDealAI()->IsDealWithHumanAcceptable(pDeal, m_ePlayer, /*Passed by reference*/ iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, false);
-				}
-				if (bBad)
+				bool bGood = pDeal->AreAllTradeItemsValid();
+				if (!bGood)
 				{
 					GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, false);
 

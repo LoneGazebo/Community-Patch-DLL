@@ -517,6 +517,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetContractUnits);
 	Method(GetInactiveContractUnitList);
 	Method(GetActiveContractUnitList);
+
+	Method(DoSpawnFreeCity);
 #endif
 
 #if defined(MOD_BATTLE_ROYALE)
@@ -4038,6 +4040,13 @@ int CvLuaGame::lGetActiveContractUnitList(lua_State* L)
 		}	
 	}
 	return 1;
+}
+
+int CvLuaGame::lDoSpawnFreeCity(lua_State* L)
+{
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
+	GC.getGame().CreateFreeCityPlayer(pkCity);
+	return 0;
 }
 #endif
 

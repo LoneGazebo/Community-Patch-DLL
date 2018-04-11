@@ -2751,6 +2751,12 @@
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE">
 			<Text>Deal Value for Them: Impossible!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO">
+			<Text>SANCTIONED BY WORLD CONGRESS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO_TT">
+			<Text>You cannot make deals during peacetime with this Civilization until the Sanction is lifted.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE">
 			<Text>Deal Value for Them: Acceptable</Text>
 		</Row>
@@ -5195,9 +5201,6 @@
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH">
 			<Text>[NEWLINE]You recently purchased a [ICON_GREAT_PEOPLE] Great Person with [ICON_PEACE] Faith, and must wait for {1_Num} more turn(s) to do so again.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH_LOCAL">
-			<Text>[NEWLINE]You recently made a [ICON_PEACE] Faith purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
-		</Row>
 
 		<!-- Tooltips for CBP Austria Ability -->
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE">
@@ -5278,6 +5281,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_SHORT_CP">
 			<Text>{1_PlayerName} restored!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
+			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will become an independent City-State. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
+			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
 		</Row>
 
 		<!-- Denounce Statements -->

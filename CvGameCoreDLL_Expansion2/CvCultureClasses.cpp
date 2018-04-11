@@ -139,6 +139,8 @@ int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, P
 	newGreatWork.m_eType = eType;
 	newGreatWork.m_eClassType = eClass;
 	newGreatWork.m_eEra = eEra;
+	if (ePlayer == NO_PLAYER)
+		ePlayer = BARBARIAN_PLAYER;
 	newGreatWork.m_ePlayer = ePlayer;
 	newGreatWork.m_iTurnFounded = GC.getGame().getGameTurn();
 	newGreatWork.m_szGreatPersonName = szCreator;
@@ -3132,303 +3134,323 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	CvCity *pHousingCity;
 	CvPlot *pPlot;
 	CvUnit *pUnit = GetNextDigCompleteArchaeologist(&pPlot);
-	if (pUnit)
+	
+	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+	GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
+	GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(pPlot);
+	GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+
+	switch (eChoice)
 	{
-		GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
-		GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
-		GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(pPlot);
-		GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-
-		switch (eChoice)
+	case ARCHAEOLOGY_DO_NOTHING:
+		break;
+	case ARCHAEOLOGY_LANDMARK:
+	{
+		ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+		if (eLandmarkImprovement != NO_IMPROVEMENT)
 		{
-		case ARCHAEOLOGY_DO_NOTHING:
-			break;
-		case ARCHAEOLOGY_LANDMARK:
-			{
-				ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-				if (eLandmarkImprovement != NO_IMPROVEMENT)
-				{
-					pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
+			pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
 #if defined(MOD_BUGFIX_MINOR)
-					// Clear the pillage state just in case something weird happened on this plot before the dig site was revealed
+			// Clear the pillage state just in case something weird happened on this plot before the dig site was revealed
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-					pPlot->SetImprovementPillaged(false, false);
+			pPlot->SetImprovementPillaged(false, false);
 #else
-					pPlot->SetImprovementPillaged(false);
+			pPlot->SetImprovementPillaged(false);
 #endif
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-					pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
-					pUnit->kill(true);
-
-					if (pPlot->getOwner() != NO_PLAYER)
-					{
-						CvPlayer &kOwner = GET_PLAYER(pPlot->getOwner());
-
-						// City-state owned territory?
-						if (kOwner.isMinorCiv())
-						{
-							int iFriendship = GC.getLANDMARK_MINOR_FRIENDSHIP_CHANGE();
-							kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iFriendship);
-						}
-
-						// AI major civ owned territory?
-						else if (!kOwner.isHuman())
-						{
-							kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
-#if defined(MOD_BALANCE_CORE)
-							kOwner.GetDiplomacyAI()->SetLandmarksBuiltForMeTurn(m_pPlayer->GetID(), GC.getGame().getGameTurn());
-#endif
-						}
-					}
-				}
-			}
-			break;
-		case ARCHAEOLOGY_ARTIFACT_PLAYER1:
-			{
-				if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
-				}
-				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
-				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
-#if defined(MOD_BALANCE_CORE)
-				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
-				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
-					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iWLTKD /= 100;
-
-					if (iWLTKD > 0)
-					{
-						CvCity* pLoopCity;
-						int iCityLoop;
-
-						// Loop through owner's cities.
-						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-						{
-							if (pLoopCity != NULL)
-							{
-								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-							}
-						}
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-							strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
-							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
-						}
-					}
-				}
-#endif
-				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
-				pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
-#if defined(MOD_BALANCE_CORE)
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
-
-					pHousingCity->UpdateCityYields(eYield);
-				}
-				pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
+			if (pUnit)
 				pUnit->kill(true);
-			}
-			break;
-		case ARCHAEOLOGY_ARTIFACT_PLAYER2:
+
+			if (pPlot->getOwner() != NO_PLAYER)
 			{
-				if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+				CvPlayer &kOwner = GET_PLAYER(pPlot->getOwner());
+
+				// City-state owned territory?
+				if (kOwner.isMinorCiv())
 				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+					int iFriendship = GC.getLANDMARK_MINOR_FRIENDSHIP_CHANGE();
+					kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iFriendship);
 				}
-				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
-				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer2, pPlot->GetArchaeologicalRecord().m_eEra, "");
-				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
-				pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
+				// AI major civ owned territory?
+				else if (!kOwner.isHuman())
+				{
+					kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
 #if defined(MOD_BALANCE_CORE)
-				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
-				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
-					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iWLTKD /= 100;
-
-					if (iWLTKD > 0)
-					{
-						CvCity* pLoopCity;
-						int iCityLoop;
-
-						// Loop through owner's cities.
-						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-						{
-							if (pLoopCity != NULL)
-							{
-								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-							}
-						}
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-							strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
-							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
-						}
-					}
-				}
+					kOwner.GetDiplomacyAI()->SetLandmarksBuiltForMeTurn(m_pPlayer->GetID(), GC.getGame().getGameTurn());
 #endif
-#if defined(MOD_BALANCE_CORE)
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
-
-					pHousingCity->UpdateCityYields(eYield);
-				}
-				pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
-				pUnit->kill(true);
-			}
-			break;
-
-		case ARCHAEOLOGY_ARTIFACT_WRITING:
-			{
-				if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
-				}
-				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
-				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
-				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
-				pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
-#if defined(MOD_BALANCE_CORE)
-				if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
-				{
-					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
-
-					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iWLTKD /= 100;
-
-					if (iWLTKD > 0)
-					{
-						CvCity* pLoopCity;
-						int iCityLoop;
-
-						// Loop through owner's cities.
-						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
-						{
-							if (pLoopCity != NULL)
-							{
-								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-							}
-						}
-						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-							strText << iWLTKD;
-							strText << m_pPlayer->GetPlayerTraits()->GetWLTKDGPImprovementModifier();
-							strText << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
-							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
-						}
-					}
-				}
-#endif
-#if defined(MOD_BALANCE_CORE)
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
-
-					pHousingCity->UpdateCityYields(eYield);
-				}
-				pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pHousingCity->GetCityCulture()->CalculateBaseTourism();
-#endif
-				pUnit->kill(true);
-			}
-			break;
-
-		case ARCHAEOLOGY_CULTURE_BOOST:
-			{
-				if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
-				{
-					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
-				}
-
-				// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
-				int iValue = m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), 8 /*iPreviousTurnsToCount */);
-
-				// Modify based on game speed
-				iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-				iValue /= 100;
-
-				m_pPlayer->changeJONSCulture(iValue);
-#if defined(MOD_BALANCE_CORE)
-				if(pPlot->getWorkingCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
-				{
-					pPlot->getWorkingCity()->ChangeJONSCultureStored(iValue);
-				}
-#endif
-				pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
-				pUnit->kill(true);
-			}
-			break;
-		}
-
-		m_pPlayer->SetNumArchaeologyChoices(m_pPlayer->GetNumArchaeologyChoices() - 1);
-		m_pPlayer->GetCulture()->RemoveDigCompletePlot(pPlot);
-#if defined(MOD_BALANCE_CORE)
-		if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
-		{
-			int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
-			m_pPlayer->ChangeNumHistoricEvents(HISTORIC_EVENT_DIG, 1);
-			m_pPlayer->GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-			if(iTourism > 0)
-			{
-				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					float fDelay = 0.5f;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-					DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
-					CvNotifications* pNotification = m_pPlayer->GetNotifications();
-					if(pNotification)
-					{
-						CvString strMessage;
-						CvString strSummary;
-						strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY", iTourism);
-						strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-						pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pPlot->getX(), pPlot->getY(), m_pPlayer->GetID());
-					}
 				}
 			}
 		}
-#endif
 	}
+	break;
+	case ARCHAEOLOGY_ARTIFACT_PLAYER1:
+	{
+		if (pUnit)
+		{
+			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+			}
+		}
+		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
+		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
+#if defined(MOD_BALANCE_CORE)
+		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+		{
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
+
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+
+			if (iWLTKD > 0)
+			{
+				CvCity* pLoopCity;
+				int iCityLoop;
+
+				// Loop through owner's cities.
+				for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
+					}
+				}
+				CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+					strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+				}
+			}
+		}
+#endif
+		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
+		if (pUnit)
+			pPlot->setImprovementType(NO_IMPROVEMENT);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+#endif
+#if defined(MOD_BALANCE_CORE)
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (eYield == NO_YIELD)
+				continue;
+
+			pHousingCity->UpdateCityYields(eYield);
+		}
+		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pHousingCity->GetCityCulture()->CalculateBaseTourism();
+#endif
+		if (pUnit)
+			pUnit->kill(true);
+	}
+	break;
+	case ARCHAEOLOGY_ARTIFACT_PLAYER2:
+	{
+		if (pUnit)
+		{
+			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+			}
+		}
+		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
+		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer2, pPlot->GetArchaeologicalRecord().m_eEra, "");
+		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
+		if (pUnit)
+			pPlot->setImprovementType(NO_IMPROVEMENT);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+		{
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
+
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+
+			if (iWLTKD > 0)
+			{
+				CvCity* pLoopCity;
+				int iCityLoop;
+
+				// Loop through owner's cities.
+				for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
+					}
+				}
+				CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+					strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+				}
+			}
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (eYield == NO_YIELD)
+				continue;
+
+			pHousingCity->UpdateCityYields(eYield);
+		}
+		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pHousingCity->GetCityCulture()->CalculateBaseTourism();
+#endif
+		if (pUnit)
+			pUnit->kill(true);
+	}
+	break;
+
+	case ARCHAEOLOGY_ARTIFACT_WRITING:
+	{
+		if (pUnit)
+		{
+			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+			}
+		}
+		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
+		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
+		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
+		if (pUnit)
+			pPlot->setImprovementType(NO_IMPROVEMENT);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
+		{
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
+
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+
+			if (iWLTKD > 0)
+			{
+				CvCity* pLoopCity;
+				int iCityLoop;
+
+				// Loop through owner's cities.
+				for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
+					}
+				}
+				CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
+					strText << iWLTKD;
+					strText << m_pPlayer->GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+					strText << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
+				}
+			}
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (eYield == NO_YIELD)
+				continue;
+
+			pHousingCity->UpdateCityYields(eYield);
+		}
+		pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pHousingCity->GetCityCulture()->CalculateBaseTourism();
+#endif
+		if (pUnit)
+			pUnit->kill(true);
+	}
+	break;
+
+	case ARCHAEOLOGY_CULTURE_BOOST:
+	{
+		if (pUnit)
+		{
+			if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+			{
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+			}
+		}
+
+		// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
+		int iValue = m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), 8 /*iPreviousTurnsToCount */);
+
+		// Modify based on game speed
+		iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+		iValue /= 100;
+
+		m_pPlayer->changeJONSCulture(iValue);
+#if defined(MOD_BALANCE_CORE)
+		if (pPlot->getWorkingCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
+		{
+			pPlot->getWorkingCity()->ChangeJONSCultureStored(iValue);
+		}
+#endif
+		if (pUnit)
+			pPlot->setImprovementType(NO_IMPROVEMENT);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
+#endif
+		if (pUnit)
+			pUnit->kill(true);
+	}
+	break;
+	}
+
+	m_pPlayer->SetNumArchaeologyChoices(m_pPlayer->GetNumArchaeologyChoices() - 1);
+	m_pPlayer->GetCulture()->RemoveDigCompletePlot(pPlot);
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
+	{
+		int iTourism = m_pPlayer->GetHistoricEventTourism(HISTORIC_EVENT_DIG);
+		m_pPlayer->ChangeNumHistoricEvents(HISTORIC_EVENT_DIG, 1);
+		m_pPlayer->GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+		if(iTourism > 0)
+		{
+			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+				DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+				CvNotifications* pNotification = m_pPlayer->GetNotifications();
+				if(pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY", iTourism);
+					strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+					pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pPlot->getX(), pPlot->getY(), m_pPlayer->GetID());
+				}
+			}
+		}
+	}
+	pPlot->setResourceType(NO_RESOURCE, 0);
+#endif
 }
 
 // CULTURAL INFLUENCE
@@ -4194,19 +4216,17 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	// PctTurn2 = InfluenceT2 / LifetimeCultureT2
 	
 	// So if looking at is PctT2 > PctT1, can see if  (InfluenceT2 * LifetimeCultureT1) > (InfluenceT1 * LifetimeCultureT2)
-	int iLHS = GetInfluenceOn(ePlayer) * kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
-	int iRHS = GetLastTurnInfluenceOn(ePlayer) * kOtherPlayer.GetJONSCultureEverGenerated();
 
-	if (kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() > 0 && kOtherPlayer.GetJONSCultureEverGenerated() > 0)
+	int iLHS = (GetInfluenceOn(ePlayer) * m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer)) * kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
+	int iRHS = GetLastTurnInfluenceOn(ePlayer) * (kOtherPlayer.GetJONSCultureEverGenerated() * m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer));
+
+	if (iLHS > iRHS)
 	{
-		if (iLHS > iRHS && m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) < m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer))
-		{
-			eRtnValue = INFLUENCE_TREND_RISING;
-		}
-		else if (iLHS < iRHS)
-		{
-			eRtnValue = INFLUENCE_TREND_FALLING;
-		}
+		eRtnValue = INFLUENCE_TREND_RISING;
+	}
+	else if (iLHS < iRHS)
+	{
+		eRtnValue = INFLUENCE_TREND_FALLING;
 	}
 		
 	return eRtnValue;
@@ -8167,7 +8187,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		int iTempMod = GET_PLAYER(m_pCity->getOwner()).getCityYieldModFromMonopoly(YIELD_TOURISM);
 		if (iTempMod != 0)
 		{
-			iTempMod += max(1, GET_PLAYER(m_pCity->getOwner()).GetMonopolyModPercent());
+			iTempMod += GET_PLAYER(m_pCity->getOwner()).GetMonopolyModPercent();
 			if (bHasCityModTooltip == false)
 			{
 				if (szRtnValue.length() > 0)
@@ -8693,6 +8713,13 @@ void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
 GreatWorkType CultureHelpers::GetArtifact(CvPlot *pPlot)
 {
 	CvArchaeologyData archData = pPlot->GetArchaeologicalRecord();
+
+	//somehow got a bad artifact pull? Quickly generate one.
+	if (archData.m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
+	{
+		pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GC.getGame().getActivePlayer(), NO_PLAYER);
+		archData = pPlot->GetArchaeologicalRecord();
+	}
 
 	// Writing?  If so we already know which one it is
 	if (archData.m_eArtifactType == CvTypes::getARTIFACT_WRITING())
