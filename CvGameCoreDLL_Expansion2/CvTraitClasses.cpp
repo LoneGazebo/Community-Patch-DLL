@@ -136,6 +136,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCanPurchaseNavalUnitsFaith(false),
 	m_bIgnorePuppetPenalties(false),
 	m_iSharedReligionTourismModifier(0),
+	m_iExtraMissionaryStrength(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -841,6 +842,11 @@ bool CvTraitEntry::IsIgnorePuppetPenalties() const
 int CvTraitEntry::GetSharedReligionTourismModifier() const
 {
 	return m_iSharedReligionTourismModifier;
+}
+/// Missionaries gain % more strength
+int CvTraitEntry::GetExtraMissionaryStrength() const
+{
+	return m_iExtraMissionaryStrength;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2055,6 +2061,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bCanPurchaseNavalUnitsFaith			= kResults.GetBool("CanPurchaseNavalUnitsFaith");
 	m_bIgnorePuppetPenalties				= kResults.GetBool("IgnorePuppetPenalties");
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
+	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -3245,7 +3252,8 @@ bool CvPlayerTraits::IsReligious()
 		GetYieldFromSettle(YIELD_FAITH) != 0 ||
 		GetYieldChangeWorldWonder(YIELD_FAITH) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0 ||
-		GetSharedReligionTourismModifier() > 0)
+		GetSharedReligionTourismModifier() > 0 ||
+		GetExtraMissionaryStrength() > 0)
 		return true;
 
 	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0 || GetFaithFromKills() != 0)
@@ -3468,6 +3476,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iGGGARateFromDenunciationsAndWars += trait->GetGGGARateFromDenunciationsAndWars();
 			m_iConquestOfTheWorldCityAttack += trait->GetConquestOfTheWorldCityAttack();
 			m_iSharedReligionTourismModifier += trait->GetSharedReligionTourismModifier();
+			m_iExtraMissionaryStrength += trait->GetExtraMissionaryStrength();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -4084,6 +4093,7 @@ void CvPlayerTraits::Reset()
 	m_bCanPurchaseNavalUnitsFaith = false;
 	m_bIgnorePuppetPenalties = false;
 	m_iSharedReligionTourismModifier = 0;
+	m_iExtraMissionaryStrength = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -6027,6 +6037,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bCanPurchaseNavalUnitsFaith, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bIgnorePuppetPenalties, false);
 	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6608,6 +6619,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bCanPurchaseNavalUnitsFaith);
 	MOD_SERIALIZE_WRITE(kStream, m_bIgnorePuppetPenalties);
 	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
