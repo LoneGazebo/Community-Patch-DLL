@@ -10344,7 +10344,7 @@ bool CvUnit::pillage()
 					}
 				}
 #endif
-				iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot()) * 10;
+				iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
 				iPillageGold += (getPillageChange() * iPillageGold) / 100;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 				if (pPlot->getOwner() != NO_PLAYER)
@@ -11151,40 +11151,47 @@ bool CvUnit::DoSpreadReligion()
 #endif
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eReligion = GetReligionData()->GetReligion();
-			if(eReligion > RELIGION_PANTHEON)
+			if (eReligion <= RELIGION_PANTHEON)
+				return false;
+
+			const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
+			if(pReligion)
 			{
-				const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
-				if(pReligion)
-				{
 #if defined(MOD_API_UNIFIED_YIELDS)
-					iPreSpreadFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
+				iPreSpreadFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
 #else
-					iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
-					if(iScienceBonus > 0)
+				iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
+				if(iScienceBonus > 0)
+				{
+					// Requires majority for this city to be another religion
+					ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
+					if (eCurrentReligion != NO_RELIGION && eCurrentReligion != eReligion)
 					{
-						// Requires majority for this city to be another religion
-						ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
-						if (eCurrentReligion != NO_RELIGION && eCurrentReligion != eReligion)
-						{
-							iScienceBonus *= pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
-						}
-						else
-						{
-							iScienceBonus = 0;
-						}
+						iScienceBonus *= pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
 					}
+					else
+					{
+						iScienceBonus = 0;
+					}
+				}
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-					CvCity* pHolyCity = NULL;
-					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-					if (pHolyCityPlot)
-					{
-						pHolyCity = pHolyCityPlot->getPlotCity();
-					}
-
-					iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner(), pHolyCity) * iEra);
-#endif
+				CvCity* pHolyCity = NULL;
+				CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+				if (pHolyCityPlot)
+				{
+					pHolyCity = pHolyCityPlot->getPlotCity();
 				}
+
+				iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner(), pHolyCity) * iEra);
+#endif
+			}
+
+			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+			if (pCity->getOwner() != m_eOwner)
+			{
+				int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
 			}
 
 			if(IsGreatPerson())
@@ -11195,16 +11202,12 @@ bool CvUnit::DoSpreadReligion()
 			{
 				pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_MISSIONARY, eReligion, iConversionStrength, getOwner());
 			}
+
 			GetReligionData()->SetSpreadsLeft(GetReligionData()->GetSpreadsLeft() - 1);
 
 			int iPostFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
-			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+			
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iPostFollowers - iPreSpreadFollowers, false, pCity->getOwner(), plot());
-			if (pCity->getOwner() != m_eOwner)
-			{
-				int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
-				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, false, pCity->getOwner(), plot());
-			}
 
 			if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
@@ -12768,7 +12771,7 @@ bool CvUnit::goldenAge()
 						if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 						{
 							int iTemp = pInfo->getMonopolyGALength();
-							iTemp += max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
+							iTemp += GET_PLAYER(getOwner()).GetMonopolyModPercent();
 							iLengthModifier += iTemp;
 						}
 					}
@@ -12844,7 +12847,7 @@ int CvUnit::GetGoldenAgeTurns() const
 					if(kPlayer.HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						int iTemp = pInfo->getMonopolyGALength();
-						iTemp += max(1, kPlayer.GetMonopolyModPercent());
+						iTemp += kPlayer.GetMonopolyModPercent();
 						iLengthModifier += iTemp;
 					}
 				}

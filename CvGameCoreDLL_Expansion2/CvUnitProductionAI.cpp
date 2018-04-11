@@ -1376,11 +1376,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.isMinorCiv())
 				{
-					iBonus += 300;
+					iBonus += 500;
 				}
 				else
 				{
-					iBonus += 500;
+					iBonus += 750;
 				}
 			}
 		}
@@ -1405,17 +1405,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			AICityStrategyTypes eWantWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 			if (eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 			{
-				iBonus += (400 * iCurrentNumCities);
+				iBonus += (750 * iCurrentNumCities);
 			}
 			AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 			if (eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 			{
-				iBonus += (600 * iCurrentNumCities);
+				iBonus += (1000 * iCurrentNumCities);
 			}
 
 			if (m_pCity->getUnhappinessFromPillaged() > 0)
 			{
-				iBonus += (500 * m_pCity->getUnhappinessFromPillaged());
+				iBonus += (1000 * m_pCity->getUnhappinessFromPillaged());
 			}
 		}
 	}
