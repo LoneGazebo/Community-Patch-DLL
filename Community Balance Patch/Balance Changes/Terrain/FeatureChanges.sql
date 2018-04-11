@@ -81,6 +81,11 @@ UPDATE BuildFeatures SET Time = 300 WHERE  BuildType   = 'BUILD_REMOVE_FOREST';
 UPDATE BuildFeatures SET Production = 30 WHERE FeatureType = 'FEATURE_FOREST' AND Remove = 1;
 UPDATE BuildFeatures SET Production = 20 WHERE FeatureType = 'FEATURE_JUNGLE' AND Remove = 1;
 
+-- GitHub #4097 fix
+UPDATE BuildFeatures SET Time = 300 WHERE FeatureType = 'FEATURE_FOREST' AND Time > 0 AND Remove = 1;
+UPDATE BuildFeatures SET Time = 400 WHERE FeatureType = 'FEATURE_JUNGLE' AND Time > 0 AND Remove = 1;
+UPDATE BuildFeatures SET Time = 600 WHERE FeatureType = 'FEATURE_MARSH'  AND Time > 0 AND Remove = 1;
+
 -- Additive Nature of Features
 UPDATE Features
 SET YieldNotAdditive = '0'
