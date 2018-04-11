@@ -15467,7 +15467,6 @@ void CvCity::CheckForOperationUnits()
 									pUnit->setMoves(0);
 								}
 								CleanUpQueue();
-								kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
 								return;
 							}
 						}
@@ -15854,7 +15853,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
 			if(iTempMod != 0)
 			{
-				iTempMod += max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
+				iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
 				// this one is applied to the base yield, so showing a tooltip here is very confusing!
 				//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 			}
@@ -22312,7 +22311,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(eIndex);
 		if (iTempMod != 0)
 		{
-			iTempMod += max(1, GET_PLAYER(getOwner()).GetMonopolyModPercent());
+			iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
 			iModifier += iTempMod;
 			if(toolTipSink)
 			{
@@ -28778,7 +28777,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			else
 			{
 #endif
-			int iResult = CreateUnit(eUnitType, NO_UNITAI, true, true);
+			int iResult = CreateUnit(eUnitType, NO_UNITAI, false, true);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult != -1)
 			{
@@ -31584,7 +31583,7 @@ UnitTypes CvCity::GetUnitForOperation()
 	{
 		CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
 
-		if(pThisArmy)
+		if (pThisArmy)
 		{
 #if defined(MOD_BALANCE_CORE)
 			if(pThisArmy->GetDomainType() == DOMAIN_SEA && pThisArmy->GetArea() != NULL)

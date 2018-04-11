@@ -982,10 +982,15 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
+			bCitySameAsMuster = false;
+
 			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
 
 			if (!pMusterPlot)
 				continue;
+
+			if (pCity == pMusterPlot->getWorkingCity())
+				bCitySameAsMuster = true;
 
 			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
 			{
@@ -993,18 +998,18 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			}				
 #endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
-			
-			if (thisSlot.m_iOperationID == -1)
+
+			if (!thisSlot.IsValid())
 				continue;
 
-			if (thisSlot.IsValid() && OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
+			CvArmyAI* pThisArmy = GET_PLAYER(pCity->getOwner()).getArmyAI(thisSlot.m_iArmyID);
+
+			if (!pThisArmy || !pThisArmy->GetFormationSlot(thisSlot.m_iSlotID)->IsFree())
+				continue;
+
+			if (OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
 			{
 				bestSlot = thisSlot;
-			}
-
-			if (pCity == pMusterPlot->getWorkingCity() && bestSlot == thisSlot)
-			{
-				bCitySameAsMuster = true;
 				break;
 			}
 		}

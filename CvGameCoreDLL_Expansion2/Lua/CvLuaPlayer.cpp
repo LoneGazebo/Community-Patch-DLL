@@ -8913,7 +8913,18 @@ int CvLuaPlayer::lIsAlive(lua_State* L)
 //bool isEverAlive();
 int CvLuaPlayer::lIsEverAlive(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::isEverAlive);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	bool bCheckPotential = luaL_optbool(L, 2, false);
+	if (bCheckPotential && pkPlayer->GetID() >= MAX_MAJOR_CIVS)
+	{
+		const bool bResult = pkPlayer->isEverAlive();
+		//|| pkPlayer->isPotentiallyAlive()
+
+		lua_pushboolean(L, bResult);
+		return 1;
+	}
+	else
+		return BasicLuaMethod(L, &CvPlayerAI::isEverAlive);
 }
 //------------------------------------------------------------------------------
 //bool isExtendedGame();
@@ -13461,6 +13472,13 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
 	int iValueImOffering, iValueTheyreOffering;
 	int iResult = 0;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), GC.getGame().getActivePlayer()))
+	{
+		iResult = -2;
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
 	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
 	if(iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{

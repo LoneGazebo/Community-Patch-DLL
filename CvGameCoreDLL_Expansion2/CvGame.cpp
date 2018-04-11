@@ -748,6 +748,21 @@ void CvGame::InitPlayers()
 					CvPreGame::setMinorCiv(eMinorPlayer, true);
 				}
 			}
+			else
+			{
+				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(GetAvailableMinorCivType());
+				if (pMinorCivInfo)
+				{
+					CvPreGame::setSlotStatus(eMinorPlayer, SS_CLOSED);
+					CvPreGame::setNetID(eMinorPlayer, -1);
+					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
+					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
+					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
+					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
+					CvPreGame::setMinorCiv(eMinorPlayer, true);
+					CvPreGame::setMinorCivType(eMinorPlayer, (MinorCivTypes)pMinorCivInfo->GetID());
+				}
+			}
 		}
 	}
 
@@ -4502,7 +4517,7 @@ EraTypes CvGame::getCurrentEra() const
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
-		if(GET_TEAM((TeamTypes)iI).isAlive())
+		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
 			iEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
 			iCount++;
@@ -13029,48 +13044,60 @@ int CvGame::GetNumHiddenArchaeologySites() const
 }
 
 //	--------------------------------------------------------------------------------
-PlayerTypes GetRandomMajorPlayer(int iTestValue)
+PlayerTypes GetRandomMajorPlayer(CvPlot* pPlot)
 {
-	PlayerTypes eBestPlayer = NO_PLAYER;
-	int iBestValue = 0;
+	std::vector<PlayerTypes>tempPlayers;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
+
+		if (ePlayer == NO_PLAYER)
+			continue;
+
 		if (!GET_PLAYER(ePlayer).isEverAlive())
 			continue;
 
-		int iValue = GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, iTestValue) + GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, i);
-		if (iValue > iBestValue)
-		{
-			iBestValue = iValue;
-			eBestPlayer = ePlayer;
-		}
-
+		tempPlayers.push_back(ePlayer);
 	}
-	return eBestPlayer == NULL ? BARBARIAN_PLAYER : eBestPlayer;
+
+
+	int iValue = GC.getGame().getSmallFakeRandNum(tempPlayers.size(), *pPlot);
+
+	PlayerTypes ePlayer = (PlayerTypes)tempPlayers[iValue];
+
+	if (ePlayer == NO_PLAYER)
+		return BARBARIAN_PLAYER;
+
+	return ePlayer;
 }
 
 
 //	--------------------------------------------------------------------------------
-PlayerTypes GetRandomPlayer(int iTestValue)
+PlayerTypes GetRandomPlayer(CvPlot* pPlot)
 {
-	PlayerTypes eBestPlayer = NO_PLAYER;
-	int iBestValue = 0;
+	std::vector<PlayerTypes>tempPlayers;
 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
+
+		if (ePlayer == NO_PLAYER)
+			continue;
+
 		if (!GET_PLAYER(ePlayer).isEverAlive())
 			continue;
 
-		int iValue = GC.getGame().getSmallFakeRandNum(MAX_CIV_PLAYERS, iTestValue) + GC.getGame().getSmallFakeRandNum(MAX_CIV_PLAYERS, i);
-		if (iValue > iBestValue)
-		{
-			iBestValue = iValue;
-			eBestPlayer = ePlayer;
-		}
-
+		tempPlayers.push_back(ePlayer);
 	}
-	return eBestPlayer == NULL ? BARBARIAN_PLAYER : eBestPlayer;
+
+
+	int iValue = GC.getGame().getSmallFakeRandNum(tempPlayers.size(), *pPlot);
+
+	PlayerTypes ePlayer = (PlayerTypes)tempPlayers[iValue];
+
+	if (ePlayer == NO_PLAYER)
+		return BARBARIAN_PLAYER;
+
+	return ePlayer;
 }
 
 
@@ -13111,13 +13138,7 @@ void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClas
 			}
 			else // just make something up
 			{
-				PlayerTypes ePlayer2 = NO_PLAYER;
-				int iTestValue = 0;
-				while (ePlayer2 == NO_PLAYER && iTestValue < 100)
-				{
-					iTestValue++;
-					ePlayer2 = GetRandomMajorPlayer(iTestValue);
-				}
+				PlayerTypes ePlayer2 = GetRandomMajorPlayer(&kPlot);
 				digSite.m_ePlayer1 = ePlayer2 == NO_PLAYER ? BARBARIAN_PLAYER : ePlayer2;
 			}
 		}
@@ -13125,13 +13146,7 @@ void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClas
 
 	if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE() || eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED() || eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
 	{
-		PlayerTypes ePlayer2 = NO_PLAYER;
-		int iTestValue = 0;
-		while (ePlayer2 != digSite.m_ePlayer1 && ePlayer2 != NO_PLAYER && iTestValue < 100)
-		{
-			iTestValue++;
-			ePlayer2 = GetRandomPlayer(iTestValue);
-		}
+		PlayerTypes ePlayer2 = GetRandomPlayer(&kPlot);
 		digSite.m_ePlayer2 = ePlayer2 == NULL ? BARBARIAN_PLAYER : ePlayer2;
 	}
 
@@ -13958,6 +13973,177 @@ int CvGame::GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) cons
 		return 0;
 
 	return GET_PLAYER(eGreatestPlayer).GetMonopolyPercent(eResource);
+}
+
+PlayerTypes CvGame::GetPotentialFreeCityPlayer(CvCity* pCity)
+{
+	if (pCity != NULL)
+	{
+		for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)i;
+
+			if (GET_PLAYER(ePlayer).isAlive())
+				continue;
+
+			if (pCity->GetNumTimesOwned(ePlayer) <= 0)
+				continue;
+
+				return ePlayer;
+		}
+	}
+
+	for(int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+
+		if (GET_PLAYER(ePlayer).isEverAlive() || GET_PLAYER(ePlayer).isObserver())
+			continue;
+
+		return ePlayer;
+	}
+
+	return NO_PLAYER;
+}
+
+TeamTypes CvGame::GetPotentialFreeCityTeam(CvCity* pCity)
+{
+	if (pCity != NULL)
+	{
+		for (int i = 0; i < MAX_TEAMS; i++)
+		{
+			TeamTypes eTeam = (TeamTypes)i;
+
+			if (GET_TEAM(eTeam).isAlive())
+				continue;
+
+			const std::vector<PlayerTypes>& teammates = GET_TEAM(eTeam).getPlayers();
+			for (size_t i = 0; i < teammates.size(); ++i)
+			{
+				CvPlayer& player = GET_PLAYER(teammates[i]);
+				if (pCity->GetNumTimesOwned(player.GetID()) <= 0)
+					continue;
+
+				return eTeam;
+			}
+		}
+	}
+	for (int i = 0; i < MAX_TEAMS; i++)
+	{
+		TeamTypes eTeam = (TeamTypes)i;
+
+		if (GET_TEAM(eTeam).isEverAlive() || GET_TEAM(eTeam).isObserver())
+			continue;
+
+		return eTeam;
+	}
+	return NO_TEAM;
+}
+
+MinorCivTypes CvGame::GetAvailableMinorCivType()
+{
+	for (int i = 0; i < GC.getNumMinorCivInfos(); i++)
+	{
+		CvMinorCivInfo* pkCivilization = GC.getMinorCivInfo((MinorCivTypes)i);
+		if (pkCivilization == NULL)
+			continue;
+
+		bool bad = false;
+		for(int j = MAX_MAJOR_CIVS; j < MAX_CIV_PLAYERS; j++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)j;
+			if (CvPreGame::minorCivType(eMinor) == (MinorCivTypes)i)
+			{
+				bad = true;
+				break;
+			}
+		}
+		if (bad)
+			continue;
+
+		return (MinorCivTypes)i;
+	}
+	return NO_MINORCIV;
+}
+
+bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
+{
+	return false;
+
+	if (pStartingCity == NULL)
+		return false;
+
+	PlayerTypes eNewPlayer = GetPotentialFreeCityPlayer(pStartingCity);
+	TeamTypes eNewTeam = GetPotentialFreeCityTeam(pStartingCity);
+	if (eNewPlayer == NO_PLAYER || eNewTeam == NO_TEAM)
+		return false;
+
+	const TeamTypes eTeam(static_cast<TeamTypes>(eNewTeam));
+	CvTeam& kTeam = GET_TEAM(eTeam);
+
+	MinorCivTypes eNewType = CvPreGame::minorCivType(eNewPlayer);
+
+	if (eNewType == NO_MINORCIV)
+		return false;
+
+	CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(eNewType);
+
+	if (!pMinorCivInfo)
+		return false;
+
+	if (bJustChecking)
+		return true;
+
+	CvPreGame::setSlotStatus(eNewPlayer, SS_COMPUTER);
+
+	CvPlayerAI& kPlayer = GET_PLAYER(eNewPlayer);
+
+	kTeam.init(eTeam);
+	kPlayer.init(eNewPlayer);
+	kPlayer.gameStartInit();
+	kPlayer.setAlive(true, false);
+	kTeam.updateTeamStatus();
+	initDiplomacy();
+
+	kPlayer.GetMinorCivAI()->DoPickInitialItems();
+	
+	kPlayer.setCapitalCity(pStartingCity);
+	// get the plot before transferring ownership
+	CvPlot *pPlot = pStartingCity->plot();
+	kPlayer.acquireCity(pStartingCity, false/*bConquest*/, true/*bGift*/);
+	kPlayer.setFoundedFirstCity(true);
+
+	pStartingCity = NULL; //no longer valid
+	//we have to set this here!
+	kPlayer.setStartingPlot(pPlot);
+	kPlayer.getCapitalCity()->ChangeNumTimesOwned(eNewPlayer, 1);
+	kPlayer.getCapitalCity()->setName(kPlayer.getName());
+	kPlayer.getCapitalCity()->SetOccupied(false);
+	kPlayer.getCapitalCity()->ChangeNoOccupiedUnhappinessCount(1);
+
+	DoSpawnUnitsAroundTargetCity(eNewPlayer, kPlayer.getCapitalCity(), GC.getGame().getCurrentEra()+2, false, true, false, false);
+
+	// Move Units from player that don't belong here
+	if (pPlot->getNumUnits() > 0)
+	{
+		// Get the current list of units because we will possibly be moving them out of the plot's list
+		IDInfoVector currentUnits;
+		if (pPlot->getUnits(&currentUnits) > 0)
+		{
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			{
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if (pLoopUnit && pLoopUnit->getOwner() != kPlayer.GetID())
+				{
+					pLoopUnit->finishMoves();
+					if (!pLoopUnit->jumpToNearestValidPlot())
+						pLoopUnit->kill(false);
+				}
+			}
+		}
+	}
+	return true;
 }
 #endif
 #endif
