@@ -1461,8 +1461,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	if(pTarget)
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
-	//failsafe
-	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	//failsafe (wait until embarkation for barbarian-besieged venice)
+	if(GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated() > GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && GET_TEAM(getTeam()).canEmbark())
 		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;

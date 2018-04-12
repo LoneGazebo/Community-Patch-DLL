@@ -293,6 +293,27 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 	}
 
+	//don't build land/sea units if there's no place to put them
+	if (bCombat && m_pCity->HasGarrison())
+	{
+		int iFreePlots = 0;
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_pCity->plot());
+		for (int i = 0; i < 6; i++)
+		{
+			CvPlot* pNeighbor = aNeighbors[i];
+			if (pNeighbor && pNeighbor->isValidMovePlot(m_pCity->getOwner()) && pNeighbor->GetNumCombatUnits() == 0)
+			{
+				if (pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+					iFreePlots++;
+
+				if (!pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+					iFreePlots++;
+			}
+
+			if (iFreePlots == 0)
+				return 0;
+		}
+	}
 
 	//% Value that will modify the base value.
 	int iBonus = 0;
