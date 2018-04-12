@@ -969,8 +969,8 @@
 #define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
 // Fixes the ExtraMissionarySpreads column to affect naturally born Prophets
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
-// Workaround for the first human turn after loading a MP game being skipped sometimes
-#define MOD_BUGFIX_SKIPPED_HUMAN_TURN_ON_MP_LOAD	(true)
+// Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
+#define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
 
 #endif // ACHIEVEMENT_HACKS
 
