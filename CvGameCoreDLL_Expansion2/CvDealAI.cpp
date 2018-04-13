@@ -139,9 +139,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 	const char* szText = "";
 	LeaderheadAnimationTypes eAnimation = NO_LEADERHEAD_ANIM;
 
-	PlayerTypes eFromPlayer = pDeal->GetFromPlayer();
-	if (eFromPlayer != GC.getGame().getActivePlayer())
-		NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDealAI::GetDealPercentLeewayWithHuman(): " << eFromPlayer << " != " << GC.getGame().getActivePlayer() << " -> " << pDeal->GetToPlayer());
+	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID()); // Playing it safe, should be OK to use pDeal->GetFromPlayer() but code was using GetActivePlayer so maybe the From field wasn't always the human (although in my testing it was fine!)
 
 	bool bFromIsActivePlayer = eFromPlayer == GC.getGame().getActivePlayer();
 
@@ -400,9 +398,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 {
 	DemandResponseTypes eResponse = NO_DEMAND_RESPONSE_TYPE;
 
-	PlayerTypes eFromPlayer = pDeal->GetFromPlayer();
-	if (eFromPlayer != GC.getGame().getActivePlayer())
-		NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDealAI::DoHumanDemand(): " << eFromPlayer << " != " << GC.getGame().getActivePlayer() << " -> " << pDeal->GetToPlayer());
+	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID()); // Playing it safe, should be OK to use pDeal->GetFromPlayer() but code was using GetActivePlayer so maybe the From field wasn't always the human (although in my testing it was fine!)
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
 	int iValueWillingToGiveUp = 0;
@@ -947,18 +943,11 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 	}
 	else
 	{
-		if (eOtherPlayer != GC.getGame().getActivePlayer())
-		{
-			NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDealAI::DoEqualizeDealWithHuman: active player bugfix in effect - " << eOtherPlayer << " != " << GC.getGame().getActivePlayer());
-			NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDealAI::DoEqualizeDealWithHuman: deal players " << pDeal->GetFromPlayer() << " -> " << pDeal->GetToPlayer());		
-		}
 		int iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
 #if defined(MOD_BALANCE_CORE)
-		//bMakeOffer = IsDealWithHumanAcceptable(pDeal, GC.getGame().getActivePlayer(), /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, true);
 		bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, true);
 		
 #else
-		//bMakeOffer = IsDealWithHumanAcceptable(pDeal, GC.getGame().getActivePlayer(), /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 		bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 #endif
 
@@ -1049,10 +1038,6 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			if(pDeal->m_TradedItems.size() > 0)
 			{
 #if defined(MOD_BALANCE_CORE)
-				// WHY ACTIVE PLAYER???
-				if (eOtherPlayer != GC.getGame().getActivePlayer())
-					NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDealAI::DoEqualizeDealWithHuman: active player bugfix in effect - " << eOtherPlayer << " != " << GC.getGame().getActivePlayer());
-				//bMakeOffer = IsDealWithHumanAcceptable(pDeal, GC.getGame().getActivePlayer(), /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, /*passed by reference*/&bCantMatchOffer, false);
 				bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, /*passed by reference*/&bCantMatchOffer, false);
 				if (bCantMatchOffer)
 				{
@@ -8186,9 +8171,7 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 // Is the human's request for help acceptable?
 DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 {
-	PlayerTypes eFromPlayer = pDeal->GetFromPlayer();
-	if (eFromPlayer != GC.getGame().getActivePlayer())
-		NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDealAI::GetRequestForHelpResponse(): " << eFromPlayer << " != " << GC.getGame().getActivePlayer() << " -> " << pDeal->GetToPlayer());
+	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID()); // Playing it safe, should be OK to use pDeal->GetFromPlayer() but code was using GetActivePlayer so maybe the From field wasn't always the human (although in my testing it was fine!)
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	
 	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
