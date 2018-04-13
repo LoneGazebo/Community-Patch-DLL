@@ -33111,11 +33111,24 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 {
 	if(isTurnActive() != bNewValue)
 	{
-		m_bTurnActive = bNewValue;
-		DLLUI->PublishEndTurnDirty();
-
 		CvGame& kGame = GC.getGame();
 		CvMap& theMap = GC.getMap();
+		m_bTurnActive = bNewValue; // R: this is causing the AI playing twice in one turn bug
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+		// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
+		// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
+		// A hacky solution to this is to tell Civ to cancel the player turn complete state.
+		// Otherwise they get their turn ended in the next call to updateMoves after the condition (!player.isEndTurn() && gDLL->HasReceivedTurnComplete(player.GetID()) && player.isHuman())
+		// R: the function CancelActivePlayerEndTurn() does not help with this issue, because player.isEndTurn() == False, only gDLL->HasReceivedTurnComplete(player.GetID()) seems to catch this issue, was there a wrong gDLL->sendTurnComplete() somewhere?
+		// in addition, this bug does not advance the turn count
+		// also, the players do not really miss their turns, what actually happens is that the AI plays twice in one turn
+		if(bNewValue)
+			if(kGame.isFirstActivationOfPlayersAfterLoad())
+				if(isHuman() && isAlive() && isSimultaneousTurns() && isLocalPlayer())
+					if(gDLL->HasReceivedTurnComplete(GetID()))
+						gDLL->sendTurnUnready();
+#endif
+		DLLUI->PublishEndTurnDirty();
 
 		/////////////////////////////////////////////
 		// TURN IS BEGINNING
@@ -33229,19 +33242,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			{
 				DLLUI->PublishRemotePlayerTurnStart();
 			}
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
-			// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
-			// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
-			// A hacky solution to this is to tell Civ to cancel the player turn complete state.
-			// Otherwise they get their turn ended in the next call to updateMoves after the condition (!player.isEndTurn() && gDLL->HasReceivedTurnComplete(player.GetID()) && player.isHuman())
-			// R: the function CancelActivePlayerEndTurn() does not help with this issue, because player.isEndTurn() == False, only gDLL->HasReceivedTurnComplete(player.GetID()) seems to catch this issue, was there a wrong gDLL->sendTurnComplete() somewhere?
-			// in addition, this bug does not advance the turn count
-			// also, the players do not really miss their turns, what actually happens is that the AI plays twice in one turn
-			if(kGame.isFirstActivationOfPlayersAfterLoad())
-				if(isHuman() && isAlive() && isSimultaneousTurns() && isLocalPlayer())
-					if(gDLL->HasReceivedTurnComplete(GetID()))
-						gDLL->sendTurnUnready();
-#endif
 		}
 
 		/////////////////////////////////////////////
