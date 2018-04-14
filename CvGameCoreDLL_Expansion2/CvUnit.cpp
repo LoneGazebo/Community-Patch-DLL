@@ -15598,7 +15598,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += iNearbyImprovementModifier;
 	}
 	// UnitClass grants a combat bonus if nearby
-	int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
+	int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass(pBattlePlot);
 	if(iNearbyUnitClassModifier != 0)
 	{
 		iModifier += iNearbyUnitClassModifier;
@@ -23300,15 +23300,12 @@ int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClass
 			for(int iY = -iUnitClassRange; iY <= iUnitClassRange; iY++)
 			{
 				pLoopPlot = plotXYWithRangeCheck(pAtPlot->getX(), pAtPlot->getY(), iX, iY, iUnitClassRange);
-				if(pLoopPlot != NULL)
+				if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
 				{
-					// Is the right Unitclass here?
-					IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-					if (pUnitNode != NULL)
+					for (int iK = 0; iK < pLoopPlot->getNumUnits(); iK++)
 					{
-						CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-						if(pLoopUnit)
+						CvUnit*	pLoopUnit = pLoopPlot->getUnitByIndex(iK);
+						if (pLoopUnit != NULL)
 						{
 							if (pLoopUnit->getUnitClassType() == eUnitClass)
 							{

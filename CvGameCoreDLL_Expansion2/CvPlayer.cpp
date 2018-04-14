@@ -43158,39 +43158,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
 		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), true);
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pPolicy->GetNewCityFreeBuilding());
-		if (pkBuildingClassInfo)
-		{
-			const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-			if (NO_BUILDING != eBuilding)
-			{
-				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if (pkBuildingInfo)
-				{
-					int iLoopTwo;
-					for (pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
-					{
-						if (pLoopCity->isValidBuildingLocation(eBuilding))
-						{
-							if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
-							{
-								pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-							}
-
-							pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-
-							if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-							{
-								pLoopCity->clearOrderQueue();
-								pLoopCity->chooseProduction();
-								// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 #endif
 
