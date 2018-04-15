@@ -296,7 +296,24 @@ const CvWorldInfo&                         worldInfo();
 WorldSizeTypes                             worldSize();
 void                                       write(FDataStream& saveTo);
 int										 getActiveSlotCount();
-int										 readActiveSlotCountFromSaveGame(FDataStream& loadFrom, bool bReadVersion);
+
+int readActiveSlotCountFromSaveGame(FDataStream& loadFrom, bool bReadVersion);
+
+#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
+
+#if MAX_MAJOR_CIVS <= 32
+typedef unsigned long KnownPlayersBitArray;
+#elif MAX_MAJOR_CIVS <= 64
+typedef unsigned long long KnownPlayersBitArray;
+#else
+// In the highly unlikely event...
+#error need different storage for CvPreGame::s_metCivs now that MAX_MAJOR_CIVS is > 64
+#endif
+
+void SetKnownPlayersTable(const std::vector<KnownPlayersBitArray>& aiKnownPlayersTable);
+const std::vector<KnownPlayersBitArray>& GetKnownPlayersTable();
+
+#endif
 
 extern const std::vector<TeamTypes>& sr_TeamTypes;
 
@@ -313,5 +330,8 @@ inline TeamTypes getTeam(PlayerTypes ePlayerID)
 {
 	return CvPreGame::teamType(ePlayerID);
 }
+
+
+
 
 #endif//_CvPreGame_H
