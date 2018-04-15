@@ -115,7 +115,7 @@ public:
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
-	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true);
 	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice);
 

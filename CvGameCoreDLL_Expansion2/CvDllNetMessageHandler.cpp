@@ -12,6 +12,8 @@
 #include "CvDiplomacyAI.h"
 #include "CvTypes.h"
 #include "CvGameCoreUtils.h"
+#include "CvDllNetMessageExt.h"
+
 
 CvDllNetMessageHandler::CvDllNetMessageHandler()
 {
@@ -237,6 +239,9 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2)
 {
+	// hijacks message for MP events since it has a few args and is sent to everyone
+	if (NetMessageExt::Process::FromDiplomacyFromUI(ePlayer, eOtherPlayer, eEvent, iArg1, iArg2))
+		return;
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoFromUIDiploEvent(ePlayer, eEvent, iArg1, iArg2);
 }
 //------------------------------------------------------------------------------
