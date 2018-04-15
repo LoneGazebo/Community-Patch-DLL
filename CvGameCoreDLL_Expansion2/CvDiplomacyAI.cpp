@@ -27501,27 +27501,27 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetShareOpinionCounter(eMyPlayer, 0);
 					bAcceptable = IsShareOpinionAcceptable(eFromPlayer);
 				}
-
-				if(bActivePlayer)
+				
+				// We've accepted
+				if(bAcceptable)
 				{
-					// We've accepted
-					if(bAcceptable)
+					PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
+					MajorCivApproachTypes eOurApproachWithOtherCiv;
+
+					eOurApproachWithOtherCiv = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ true);
+
+					// True friends will tell us some more information
+					if(GetMajorCivOpinion(eFromPlayer) == MAJOR_CIV_OPINION_ALLY &&
+						GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
 					{
-						PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
-						MajorCivApproachTypes eOurApproachWithOtherCiv;
+						eOurApproachWithOtherCiv = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
+					}
 
-						eOurApproachWithOtherCiv = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ true);
+					SetShareOpinionAccepted(eFromPlayer, true);
+					GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetShareOpinionAccepted(eMyPlayer, true);
 
-						// True friends will tell us some more information
-						if(GetMajorCivOpinion(eFromPlayer) == MAJOR_CIV_OPINION_ALLY &&
-							GetMajorCivApproach(eFromPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
-						{
-							eOurApproachWithOtherCiv = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
-						}
-
-						SetShareOpinionAccepted(eFromPlayer, true);
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetShareOpinionAccepted(eMyPlayer, true);
-
+					if(bActivePlayer)
+					{
 						if(IsAtWar(eTargetPlayer))
 						{
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
@@ -27530,36 +27530,38 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						{
 							switch(eOurApproachWithOtherCiv)
 							{
-								case MAJOR_CIV_APPROACH_FRIENDLY:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_FRIENDLY, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
-								case MAJOR_CIV_APPROACH_NEUTRAL:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_NEUTRAL, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
-								case MAJOR_CIV_APPROACH_GUARDED:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_GUARDED, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
-								case MAJOR_CIV_APPROACH_HOSTILE:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_HOSTILE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
-								case MAJOR_CIV_APPROACH_AFRAID:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_AFRAID, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
-								case MAJOR_CIV_APPROACH_WAR:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_PLANNING_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
-								case MAJOR_CIV_APPROACH_DECEPTIVE:
-									strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_DECEPTIVE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
-									break;
+							case MAJOR_CIV_APPROACH_FRIENDLY:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_FRIENDLY, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
+							case MAJOR_CIV_APPROACH_NEUTRAL:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_NEUTRAL, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
+							case MAJOR_CIV_APPROACH_GUARDED:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_GUARDED, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
+							case MAJOR_CIV_APPROACH_HOSTILE:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_HOSTILE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
+							case MAJOR_CIV_APPROACH_AFRAID:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_AFRAID, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
+							case MAJOR_CIV_APPROACH_WAR:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_PLANNING_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
+							case MAJOR_CIV_APPROACH_DECEPTIVE:
+								strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_DECEPTIVE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+								break;
 							}
 						}
 						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
 					}
-					// We've declined, tell them no.
-					else
+				}
+				// We've declined, tell them no.
+				else
+				{
+					SetShareOpinionAccepted(eFromPlayer, false);
+					if(bActivePlayer)
 					{
-						SetShareOpinionAccepted(eFromPlayer, false);
-				
 						if(IsActHostileTowardsHuman(eFromPlayer))
 						{
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_HOSTILE_SHARE_OPINION_NO);
