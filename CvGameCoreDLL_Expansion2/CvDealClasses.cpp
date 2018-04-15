@@ -5294,7 +5294,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 		}
 		else
 		{
-			strLogName = "DiplomacyAI_TradeAgremeents_Log.csv";
+			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 		}
 
 		FILogFile* pLog;
