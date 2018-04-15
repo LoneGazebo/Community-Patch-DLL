@@ -289,7 +289,7 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 
 					strSummary = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN");
 					strMessage = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN_BY_THEM");
-					strMessage << kFromPlayer.getNickName();
+					strMessage << kFromPlayer.getName();
 					GET_PLAYER(m_ePlayer).GetNotifications()->Add(NOTIFICATION_PLAYER_DEAL_RESOLVED, strMessage.toUTF8(), strSummary.toUTF8(), iter->m_eFromPlayer, -1, -1);
 
 					iter = m_aRequests.erase(iter);
