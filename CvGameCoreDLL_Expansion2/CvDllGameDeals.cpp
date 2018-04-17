@@ -90,7 +90,8 @@ void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	// was getting errors in the diplomacy log for human-human deals, bypassing seems ok.
+	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)	
 	{
 		return m_pGameDeals->FinalizeMPDealLatest(eFromPlayer, eToPlayer, bAccepted, true);
 	}
