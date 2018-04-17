@@ -150,6 +150,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 CvPlot::CvPlot() :
 	m_syncArchive(*this)
 	, m_eFeatureType("CvPlot::m_eFeatureType", m_syncArchive, true)
+	, m_iUnitPlotExperience("CvPlot::m_iUnitPlotExperience", m_syncArchive)
+	, m_iUnitPlotGAExperience("CvPlot::m_iUnitPlotGAExperience", m_syncArchive)
+	, m_iPlotChangeMoves("CvPlot::m_iPlotChangeMoves", m_syncArchive)
 {
 	FSerialization::plotsToCheck.insert(m_iPlotIndex);
 	m_paiBuildProgress = NULL;
@@ -271,6 +274,11 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_ePlayerResponsibleForImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForRoute = NO_PLAYER;
 	m_ePlayerThatClearedBarbCampHere = NO_PLAYER;
+#if defined(MOD_BALANCE_CORE)
+	m_iUnitPlotExperience = 0;
+	m_iUnitPlotGAExperience = 0;
+	m_iPlotChangeMoves = 0;
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 #endif
@@ -7783,7 +7791,19 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();		
 					changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-				}	
+				}
+				if (oldImprovementEntry.GetUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotExperience(0);
+				}
+				if (oldImprovementEntry.GetGAUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotGAExperience(0);
+				}
+				if (oldImprovementEntry.GetMovesChange() > 0)
+				{
+					ChangePlotMovesChange(0);
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
@@ -8067,7 +8087,19 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-				}	
+				}
+				if (newImprovementEntry.GetUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotExperience(newImprovementEntry.GetUnitPlotExperience());
+				}
+				if (newImprovementEntry.GetGAUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotGAExperience(newImprovementEntry.GetGAUnitPlotExperience());
+				}
+				if (newImprovementEntry.GetMovesChange() > 0 && getOwner() == eBuilder)
+				{
+					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
@@ -8664,6 +8696,15 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 			{
 				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+			}
+			int iMoves = GC.getImprovementInfo(getImprovementType())->GetMovesChange();
+			if (bPillaged && GetPlotMovesChange() > 0)
+			{
+				ChangePlotMovesChange(0);
+			}
+			else if (!bPillaged && iMoves > 0 && getOwner() == GET_PLAYER(getOwner()).GetID())
+			{
+				ChangePlotMovesChange(iMoves);
 			}
 		}
 #endif
@@ -12625,7 +12666,46 @@ int CvPlot::getNumUnits() const
 {
 	return m_units.getLength();
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvPlot::GetUnitPlotExperience() const
+{
+	VALIDATE_OBJECT
+	return m_iUnitPlotExperience;
+}
+void CvPlot::ChangeUnitPlotExperience(int iExperience)
+{
+	VALIDATE_OBJECT
+	m_iUnitPlotExperience = iExperience;
+}
+int CvPlot::GetUnitPlotGAExperience() const
+{
+	VALIDATE_OBJECT
+	return m_iUnitPlotGAExperience;
+}
+void CvPlot::ChangeUnitPlotGAExperience(int iExperience)
+{
+	VALIDATE_OBJECT
+	m_iUnitPlotGAExperience = iExperience;
+}
+bool CvPlot::IsUnitPlotExperience() const
+{
+	if (GetUnitPlotExperience() > 0 || GetUnitPlotGAExperience() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+int CvPlot::GetPlotMovesChange() const
+{
+	VALIDATE_OBJECT
+	return m_iPlotChangeMoves;
+}
+void CvPlot::ChangePlotMovesChange(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iPlotChangeMoves = iValue;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {

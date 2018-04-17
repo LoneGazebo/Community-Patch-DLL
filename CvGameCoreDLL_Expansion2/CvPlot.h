@@ -38,7 +38,12 @@ typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
 typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
 
 // please don't change this
+#if defined(MOD_GLOBAL_EXTRA_INVISIBLE_TYPE)
+// we'll change it if we wish
+#define NUM_INVISIBLE_TYPES 2
+#else
 #define NUM_INVISIBLE_TYPES 1
+#endif
 
 typedef FFastVector<IDInfo, true, c_eCiv5GameplayDLL, 0> IDInfoVector;
 
@@ -779,6 +784,15 @@ public:
 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);
 
 	int getNumUnits() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetUnitPlotExperience() const;
+	void ChangeUnitPlotExperience(int iExperience);
+	int GetUnitPlotGAExperience() const;
+	void ChangeUnitPlotGAExperience(int iExperience);
+	bool IsUnitPlotExperience() const;
+	int GetPlotMovesChange() const;
+	void ChangePlotMovesChange(int iValue);
+#endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
 	int getUnitIndex(CvUnit* pUnit) const;
@@ -1075,6 +1089,11 @@ protected:
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iUnitPlotExperience;
+	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iUnitPlotGAExperience;
+	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iPlotChangeMoves;
+#endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
 	char /*ImprovementTypes*/ m_eImprovementTypeUnderConstruction;

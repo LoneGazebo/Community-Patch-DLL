@@ -365,6 +365,7 @@ public:
 
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
+	bool IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const;
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
@@ -689,6 +690,7 @@ protected:
 	std::multimap<int, int> m_FreePromotionUnitClass;
 	std::multimap<int, int> m_BuildsUnitClasses;
 	std::vector<bool> m_abTerrainClaimBoost;
+	std::multimap<int, int> m_piUpgradeUnitClass;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1715,6 +1717,7 @@ public:
 
 	bool HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
+	bool HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const;
 	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
 #endif

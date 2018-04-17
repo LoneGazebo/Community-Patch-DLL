@@ -87,8 +87,8 @@ public:
 	int GetUnitFreePromotion() const;
 	int GetWonderProductionModifier() const;
 	int GetUnitPlotExperience() const;
+	int GetMovesChange() const;
 	int GetGAUnitPlotExperience() const;
-	bool IsExperience() const;
 	FeatureTypes GetCreatedFeature() const;
 	bool IsNewOwner() const;
 	bool IsOwnerOnly() const;
@@ -261,10 +261,10 @@ protected:
 	int m_iWonderProductionModifier;
 	int m_iUnitPlotExperience;
 	int m_iGAUnitPlotExperience;
-	bool m_bIsExperience;
 	FeatureTypes m_eCreatesFeature;
 	bool m_bNewOwner;
 	bool m_bOwnerOnly;
+	int m_iMovesChange;
 #endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;

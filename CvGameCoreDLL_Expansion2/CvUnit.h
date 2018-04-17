@@ -669,6 +669,30 @@ public:
 	void SetNearbyUnitClassBonusRange(int iBonusRange);
 	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
 	void SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass);
+	void ChangeAddedFromNearbyUnitPromotion(PromotionTypes ePromotion, int iChange);
+	int GetAddedFromNearbyUnitPromotion(PromotionTypes eIndex);
+	void ChangeNearbyPromotion(bool bValue);
+	bool IsNearbyPromotion() const;
+	int GetNearbyUnitPromotionsRange() const;
+	void ChangeNearbyUnitPromotionRange(int iBonusRange);
+	void ChangeNearbyCityPromotion(bool bValue);
+	bool IsNearbyCityPromotion() const;
+	void ChangeNearbyFriendlyCityPromotion(bool bValue);
+	bool IsNearbyFriendlyCityPromotion() const;
+	void ChangeNearbyEnemyCityPromotion(bool bValue);
+	bool IsNearbyEnemyCityPromotion() const;
+	void ChangeIsFriendlyLands(bool bValue);
+	bool IsFriendlyLands() const;
+	void ChangeIsEnemyLands(bool bValue);
+	bool IsEnemyLands() const;
+	void ChangeAdjacentSameType(PromotionTypes ePromotion, int iChange);
+	int GetAdjacentSameType(PromotionTypes eIndex);
+	int GetPillageBonusStrengthPercent() const;
+	void ChangePillageBonusStrengthPercent(int iBonus);
+	int GetStackedGreatGeneralExperience() const;
+	void ChangeStackedGreatGeneralExperience(int iExperience);
+	void ChangeIsHighSeaRaider(bool bValue);
+	bool IsHighSeaRaider() const;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1949,6 +1973,18 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonus;
 	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonusRange;
 	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
+	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_iAddedFromNearbyUnitPromotion;
+	FAutoVariable<int, CvUnit> m_bNearbyPromotion;
+	FAutoVariable<int, CvUnit> m_iNearbyUnitPromotionRange;
+	FAutoVariable<int, CvUnit> m_bNearbyCityPromotion;
+	FAutoVariable<int, CvUnit> m_bNearbyFriendlyCityPromotion;
+	FAutoVariable<int, CvUnit> m_bNearbyEnemyCityPromotion;
+	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
+	FAutoVariable<int, CvUnit> m_bIsEnemyLands;
+	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_iAdjacentSameType;
+	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
+	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
+	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

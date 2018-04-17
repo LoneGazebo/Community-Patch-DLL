@@ -232,8 +232,8 @@ ALTER TABLE Improvements ADD COLUMN 'UnitPlotExperience' INTEGER DEFAULT 0;
 -- Grants Free Experience when Unit is On Improvement plot during Golden Ages (must be owned) on Do Turn.
 ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 
--- Activates the above two, UnitPlotExperience and GAUnitPlotExperience.
-ALTER TABLE Improvements ADD COLUMN 'IsExperience' BOOLEAN DEFAULT 0;
+-- Improvement grants extra moves when unit is on this plot
+ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;

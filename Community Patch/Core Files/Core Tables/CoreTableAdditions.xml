@@ -659,7 +659,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-
+	<!-- TRAIT: Units need special type of upgrades?-->
+	<Table name="Trait_UnitClassUpgrade">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained every turn based on the number of luxury resources you export.-->
 	<Table name="Trait_YieldFromExport">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>

@@ -7645,6 +7645,27 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 					}
 				}
 			}
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, eUnit))
+			{
+				const UnitTypes eLoopUnit = (UnitTypes)thisCiv.getCivilizationUnits(eUnitClass);
+
+				if (eLoopUnit != NO_UNIT)
+				{
+					bUpgradeFound = true;
+
+					const UnitTypes eTempUnit = allUpgradesAvailable(eLoopUnit, (iUpgradeCount + 1));
+
+					if (eTempUnit != NO_UNIT)
+					{
+						eUpgradeUnit = eTempUnit;
+						bUpgradeAvailable = true;
+					}
+					else
+					{
+						bUpgradeUnavailable = true;
+					}
+				}
+			}
 		}
 	}
 
