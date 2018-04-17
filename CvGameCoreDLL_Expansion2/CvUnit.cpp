@@ -14354,6 +14354,19 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 			}
 		}
 	}
+	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+		if (pkUnitClassInfo)
+		{
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, getUnitType()))
+			{
+				eUpgradeUnitType = (UnitTypes)kCiv.getCivilizationUnits(eUnitClass);
+				break;
+			}
+		}
+	}
 
 	return eUpgradeUnitType;
 }
@@ -19066,7 +19079,7 @@ void CvUnit::SetYieldChange(YieldTypes eYield, int iValue)
 SpecialUnitTypes CvUnit::specialUnitCargoLoad() const
 {
 	VALIDATE_OBJECT
-		return((SpecialUnitTypes)(m_pUnitInfo->GetSpecialUnitCargoLoad()));
+	return((SpecialUnitTypes)(m_pUnitInfo->GetSpecialUnitCargoLoad()));
 }
 #endif
 
@@ -22134,7 +22147,6 @@ void CvUnit::changeExtraMoves(int iChange)
 	VALIDATE_OBJECT
 	m_iExtraMoves += iChange;
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraNavalMoves() const

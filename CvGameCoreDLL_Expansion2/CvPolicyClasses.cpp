@@ -4990,11 +4990,11 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	CvCity* pCapital = m_pPlayer->getCapitalCity(); // JJ: Define capital
 	int iPolicyGEorGM = m_pPlayer->GetPlayerTraits()->GetPolicyGEorGM();
-	if(iPolicyGEorGM > 0)
+	if(iPolicyGEorGM > 0 && pCapital != NULL)
 	{
 		CvCity* pLoopCity;
-		CvCity* pCapital = m_pPlayer->getCapitalCity(); // JJ: Define capital
 		int iLoop;
 			int iEra = m_pPlayer->GetCurrentEra(); // JJ: Changed era scaling to match rest of VP
 			if(iEra < 1)
