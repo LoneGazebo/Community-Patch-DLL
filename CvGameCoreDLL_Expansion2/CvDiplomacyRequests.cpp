@@ -282,9 +282,7 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 
 					if (iter->m_iLookupIndex >= 0)
 						GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iter->m_iLookupIndex, false);
-
-					iter = m_aRequests.erase(iter);
-
+					
 					CvPlayerAI& kFromPlayer = GET_PLAYER(iter->m_eFromPlayer);
 					Localization::String strMessage;
 					Localization::String strSummary;
@@ -293,6 +291,9 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 					strMessage = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN_BY_THEM");
 					strMessage << kFromPlayer.getNickName();
 					GET_PLAYER(m_ePlayer).GetNotifications()->Add(NOTIFICATION_PLAYER_DEAL_RESOLVED, strMessage.toUTF8(), strSummary.toUTF8(), iter->m_eFromPlayer, -1, -1);
+
+					iter = m_aRequests.erase(iter);
+					continue;
 				}
 			}
 			++iter;
