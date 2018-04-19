@@ -23623,7 +23623,11 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 										{
 											if (GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(pUnit->getOwner()).getTeam())
 											{
-												if (::IsPromotionValidForUnitCombatType(eLoopPromotion, pLoopUnit->getUnitType()) && !pLoopUnit->isHasPromotion(pkPromotionInfo->AddedFromNearbyPromotion()))
+												if (pLoopUnit->IsNearbyPromotion() && pLoopUnit->isHasPromotion(eLoopPromotion))
+												{
+													pLoopUnit->setHasPromotion(eLoopPromotion, false);
+												}
+												if (::IsPromotionValidForUnitCombatType(eLoopPromotion, pLoopUnit->getUnitType()) && !pLoopUnit->IsNearbyPromotion())
 												{
 													pLoopUnit->setHasPromotion(eLoopPromotion, true);
 												}
