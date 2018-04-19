@@ -29965,6 +29965,18 @@ void CvDiplomacyAI::ChangePlayerStopSpyingRequestCounter(PlayerTypes ePlayer, in
 {
 	SetPlayerStopSpyingRequestCounter(ePlayer, GetPlayerStopSpyingRequestCounter(ePlayer) + iChange);
 }
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPlayerMadeNoSpyingPromise(PlayerTypes ePlayer)
+{
+	// Did this player ask us to stop spying on them?
+	if (!IsPlayerStopSpyingRequestAccepted(ePlayer))
+	{
+		return -1;
+	}
+	// this promise doesn't scale with game speed!
+	return std::max(/*50*/GC.getSTOP_SPYING_MEMORY_TURN_EXPIRATION() - GetPlayerStopSpyingRequestCounter(ePlayer), 0);
+}
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 short CvDiplomacyAI::GetPlayerBackstabCounter(PlayerTypes ePlayer) const
@@ -31672,7 +31684,7 @@ void CvDiplomacyAI::DoTestPromises()
 				ChangePlayerMilitaryPromiseCounter(eLoopPlayer, 1);
 
 				// Expired?
-				if(GetPlayerMilitaryPromiseCounter(eLoopPlayer) > 20)
+				if (GetPlayerMilitaryPromiseCounter(eLoopPlayer) > /*20*/GC.getMOVE_TROOPS_MEMORY_TURN_EXPIRATION())
 				{
 					SetPlayerMadeMilitaryPromise(eLoopPlayer, false);
 					SetPlayerMilitaryPromiseCounter(eLoopPlayer, -1);
@@ -31751,6 +31763,19 @@ void CvDiplomacyAI::DoTestPromises()
 		}
 	}
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
+{
+	// Agreed to move?
+	if (!IsPlayerMadeMilitaryPromise(ePlayer))
+	{
+		return -1;
+	}
+	// this promise does not scale with gamespeed!
+	return std::max(/*20*/GC.getMOVE_TROOPS_MEMORY_TURN_EXPIRATION() - GetPlayerMilitaryPromiseCounter(ePlayer), 0);
+}
+#endif
 
 bool CvDiplomacyAI::IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
 {

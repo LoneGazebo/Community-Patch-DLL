@@ -2659,11 +2659,17 @@
 		</Row>
 
 		<!-- Promises LUA -->
-		<Row Tag="TXT_KEY_DIPLO_PROMISE_EXPANSION">
-			<Text>[[COLOR_POSITIVE_TEXT]]You promised not to settle near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
+			<Text>You promised to keep your military forces away from their borders for {1_Num} more turn(s).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PROMISE_BORDER">
-			<Text>[[COLOR_POSITIVE_TEXT]]You promised not to buy land near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
+			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
+			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS">
+			<Text>You promised not to spy on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">

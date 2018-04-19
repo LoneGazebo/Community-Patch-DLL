@@ -1048,6 +1048,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsHasDefensivePact);
 	Method(IsHasDefensivePactWithPlayer);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) 
+	Method(GetNumTurnsMilitaryPromise);
+	Method(GetNumTurnsExpansionPromise);
+	Method(GetNumTurnsBorderPromise);
+	Method(GetNumTurnsNoSpyingPromise);
+#endif
 
 	Method(GetNumNotifications);
 	Method(GetNotificationStr);
@@ -10834,6 +10840,40 @@ int CvLuaPlayer::lIsHasDefensivePactWithPlayer(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+int CvLuaPlayer::lGetNumTurnsMilitaryPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeMilitaryPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumTurnsExpansionPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeExpansionPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumTurnsBorderPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeBorderPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumTurnsNoSpyingPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeNoSpyingPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //void AddNotification()
 int CvLuaPlayer::lAddNotification(lua_State* L)
@@ -12462,20 +12502,36 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if(MOD_BALANCE_CORE_DEALS)
 	{
 		//Promises
+		iValue = pDiploAI->GetPlayerMadeMilitaryPromise(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
 		iValue = pDiploAI->GetPlayerMadeExpansionPromise(eWithPlayer);
 		if(iValue > 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_PROMISE_EXPANSION", iValue);
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
 		iValue = pDiploAI->GetPlayerMadeBorderPromise(eWithPlayer);
 		if(iValue > 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_PROMISE_BORDER", iValue);
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiploAI->GetPlayerMadeNoSpyingPromise(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
 
