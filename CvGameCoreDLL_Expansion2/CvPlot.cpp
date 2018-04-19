@@ -153,6 +153,7 @@ CvPlot::CvPlot() :
 	, m_iUnitPlotExperience("CvPlot::m_iUnitPlotExperience", m_syncArchive)
 	, m_iUnitPlotGAExperience("CvPlot::m_iUnitPlotGAExperience", m_syncArchive)
 	, m_iPlotChangeMoves("CvPlot::m_iPlotChangeMoves", m_syncArchive)
+	, m_iPlotWonderProductionModifier("CvPlot::m_iPlotWonderProductionModifier", m_syncArchive)
 {
 	FSerialization::plotsToCheck.insert(m_iPlotIndex);
 	m_paiBuildProgress = NULL;
@@ -278,6 +279,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iUnitPlotExperience = 0;
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
+	m_iPlotWonderProductionModifier = 0;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
@@ -7804,6 +7806,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangePlotMovesChange(0);
 				}
+				if (oldImprovementEntry.GetWonderProductionModifier() > 0)
+				{
+					ChangeWonderProductionModifier(0);
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
@@ -8099,6 +8105,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (newImprovementEntry.GetMovesChange() > 0 && getOwner() == eBuilder)
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
+				}
+				if (newImprovementEntry.GetWonderProductionModifier() > 0 && getOwner() == eBuilder)
+				{
+					ChangeWonderProductionModifier(newImprovementEntry.GetWonderProductionModifier());
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -10806,24 +10816,10 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			if(pCity->HasGarrison())
 			{
 				CvUnit* pUnit = pCity->GetGarrisonedUnit();
-				if(pUnit != NULL)
+				if(pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
 				{
-					for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-					{
-						const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-						if(pkPromotionInfo)
-						{
-							if(pkPromotionInfo->GetGarrisonYield(eYield))
-							{
-								if(pUnit->isHasPromotion(eLoopPromotion))
-								{
-									int igarrisonstrength = pUnit->GetBaseCombatStrength();
-									iYield += ((pkPromotionInfo->GetGarrisonYield(eYield) * igarrisonstrength) / 8);
-								}
-							}
-						}
-					}
+					int igarrisonstrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * igarrisonstrength) / 8);
 				}
 			}
 		}
@@ -12704,6 +12700,16 @@ void CvPlot::ChangePlotMovesChange(int iValue)
 {
 	VALIDATE_OBJECT
 	m_iPlotChangeMoves = iValue;
+}
+int CvPlot::GetWonderProductionModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iPlotWonderProductionModifier;
+}
+void CvPlot::ChangeWonderProductionModifier(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iPlotWonderProductionModifier = iValue;
 }
 #endif
 //	--------------------------------------------------------------------------------

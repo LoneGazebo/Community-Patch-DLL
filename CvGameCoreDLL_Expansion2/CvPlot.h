@@ -792,6 +792,8 @@ public:
 	bool IsUnitPlotExperience() const;
 	int GetPlotMovesChange() const;
 	void ChangePlotMovesChange(int iValue);
+	int GetWonderProductionModifier() const;
+	void ChangeWonderProductionModifier(int iValue);
 #endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
@@ -1093,6 +1095,7 @@ protected:
 	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iUnitPlotExperience;
 	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iUnitPlotGAExperience;
 	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iPlotChangeMoves;
+	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iPlotWonderProductionModifier;
 #endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;

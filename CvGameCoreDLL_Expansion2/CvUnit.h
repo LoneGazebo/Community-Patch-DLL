@@ -693,6 +693,8 @@ public:
 	void ChangeStackedGreatGeneralExperience(int iExperience);
 	void ChangeIsHighSeaRaider(bool bValue);
 	bool IsHighSeaRaider() const;
+	int GetWonderProductionModifier() const;
+	void ChangeWonderProductionModifier(int iValue);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -863,6 +865,9 @@ public:
 
 	int GetYieldChange(YieldTypes eYield) const;
 	void SetYieldChange(YieldTypes eYield, int iValue);
+
+	int GetGarrisonYieldChange(YieldTypes eYield) const;
+	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
 	bool IsHasNoValidMove() const;
 
@@ -1985,6 +1990,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
+	FAutoVariable<int, CvUnit> m_iWonderProductionModifier;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2107,6 +2113,7 @@ protected:
 	std::vector<int> m_extraDomainModifiers;
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
+	std::vector<int> m_iGarrisonYieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;
