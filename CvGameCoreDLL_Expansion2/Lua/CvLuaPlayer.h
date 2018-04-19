@@ -1112,6 +1112,12 @@ protected:
 	LUAAPIEXTN(IsHasDefensivePact, bool);
 	LUAAPIEXTN(IsHasDefensivePactWithPlayer, bool);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumTurnsMilitaryPromise, int);
+	LUAAPIEXTN(GetNumTurnsExpansionPromise, int);
+	LUAAPIEXTN(GetNumTurnsBorderPromise, int);
+	LUAAPIEXTN(GetNumTurnsNoSpyingPromise, int);
+#endif
 	// END Diplomacy Stuff
 
 	static int lGetNumNotifications(lua_State* L);
