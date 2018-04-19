@@ -150,10 +150,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 CvPlot::CvPlot() :
 	m_syncArchive(*this)
 	, m_eFeatureType("CvPlot::m_eFeatureType", m_syncArchive, true)
-	, m_iUnitPlotExperience("CvPlot::m_iUnitPlotExperience", m_syncArchive)
-	, m_iUnitPlotGAExperience("CvPlot::m_iUnitPlotGAExperience", m_syncArchive)
-	, m_iPlotChangeMoves("CvPlot::m_iPlotChangeMoves", m_syncArchive)
-	, m_iPlotWonderProductionModifier("CvPlot::m_iPlotWonderProductionModifier", m_syncArchive)
 {
 	FSerialization::plotsToCheck.insert(m_iPlotIndex);
 	m_paiBuildProgress = NULL;
@@ -279,7 +275,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_iUnitPlotExperience = 0;
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
-	m_iPlotWonderProductionModifier = 0;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
@@ -6225,6 +6220,18 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
 						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 					}
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience() * -1);
+					}
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
+					}
+					if (pImprovementInfo->GetMovesChange() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
+					}
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 					// Embassy extra vote in WC mod
@@ -6466,6 +6473,18 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
 						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					}
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					{
+						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience());
+					}
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					{
+						ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
+					}
+					if (pImprovementInfo->GetMovesChange() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
 					}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -7796,19 +7815,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if (oldImprovementEntry.GetUnitPlotExperience() > 0)
 				{
-					ChangeUnitPlotExperience(0);
+					ChangeUnitPlotExperience(-1 * oldImprovementEntry.GetUnitPlotExperience());
 				}
 				if (oldImprovementEntry.GetGAUnitPlotExperience() > 0)
 				{
-					ChangeUnitPlotGAExperience(0);
+					ChangeUnitPlotGAExperience(-1 * oldImprovementEntry.GetGAUnitPlotExperience());
 				}
 				if (oldImprovementEntry.GetMovesChange() > 0)
 				{
-					ChangePlotMovesChange(0);
-				}
-				if (oldImprovementEntry.GetWonderProductionModifier() > 0)
-				{
-					ChangeWonderProductionModifier(0);
+					ChangePlotMovesChange(-1 * oldImprovementEntry.GetMovesChange());
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -8105,10 +8120,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (newImprovementEntry.GetMovesChange() > 0 && getOwner() == eBuilder)
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
-				}
-				if (newImprovementEntry.GetWonderProductionModifier() > 0 && getOwner() == eBuilder)
-				{
-					ChangeWonderProductionModifier(newImprovementEntry.GetWonderProductionModifier());
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -8710,7 +8721,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			int iMoves = GC.getImprovementInfo(getImprovementType())->GetMovesChange();
 			if (bPillaged && GetPlotMovesChange() > 0)
 			{
-				ChangePlotMovesChange(0);
+				ChangePlotMovesChange(iMoves * -1);
 			}
 			else if (!bPillaged && iMoves > 0 && getOwner() == GET_PLAYER(getOwner()).GetID())
 			{
@@ -12671,7 +12682,7 @@ int CvPlot::GetUnitPlotExperience() const
 void CvPlot::ChangeUnitPlotExperience(int iExperience)
 {
 	VALIDATE_OBJECT
-	m_iUnitPlotExperience = iExperience;
+	m_iUnitPlotExperience += iExperience;
 }
 int CvPlot::GetUnitPlotGAExperience() const
 {
@@ -12681,7 +12692,7 @@ int CvPlot::GetUnitPlotGAExperience() const
 void CvPlot::ChangeUnitPlotGAExperience(int iExperience)
 {
 	VALIDATE_OBJECT
-	m_iUnitPlotGAExperience = iExperience;
+	m_iUnitPlotGAExperience += iExperience;
 }
 bool CvPlot::IsUnitPlotExperience() const
 {
@@ -12699,17 +12710,7 @@ int CvPlot::GetPlotMovesChange() const
 void CvPlot::ChangePlotMovesChange(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iPlotChangeMoves = iValue;
-}
-int CvPlot::GetWonderProductionModifier() const
-{
-	VALIDATE_OBJECT
-	return m_iPlotWonderProductionModifier;
-}
-void CvPlot::ChangeWonderProductionModifier(int iValue)
-{
-	VALIDATE_OBJECT
-	m_iPlotWonderProductionModifier = iValue;
+	m_iPlotChangeMoves += iValue;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -13109,6 +13110,12 @@ void CvPlot::read(FDataStream& kStream)
 	m_bIsImpassable = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bIsFreshwater = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_iUnitPlotExperience = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_iUnitPlotGAExperience = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_iPlotChangeMoves = bitPackWorkaround;
 #endif
 
 	kStream >> m_eOwner;
@@ -13302,6 +13309,9 @@ void CvPlot::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bIsImpassable;
 	kStream << m_bIsFreshwater;
+	kStream << m_iUnitPlotExperience;
+	kStream << m_iUnitPlotGAExperience;
+	kStream << m_iPlotChangeMoves;
 #endif
 	// m_bPlotLayoutDirty not saved
 	// m_bLayoutStateWorked not saved

@@ -792,8 +792,6 @@ public:
 	bool IsUnitPlotExperience() const;
 	int GetPlotMovesChange() const;
 	void ChangePlotMovesChange(int iValue);
-	int GetWonderProductionModifier() const;
-	void ChangeWonderProductionModifier(int iValue);
 #endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
@@ -1092,10 +1090,9 @@ protected:
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class
 	FAutoVariable<char, CvPlot> /*FeatureTypes*/ m_eFeatureType;
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iUnitPlotExperience;
-	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iUnitPlotGAExperience;
-	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iPlotChangeMoves;
-	FAutoVariable<int, CvPlot> /*ImprovementTypes*/ m_iPlotWonderProductionModifier;
+	char m_iUnitPlotExperience;
+	char m_iUnitPlotGAExperience;
+	char m_iPlotChangeMoves;
 #endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
