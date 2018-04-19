@@ -14104,7 +14104,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			int iNumResourcePlotsGiven = 0;
 			int iNumResourceTotalPlots = pBuildingInfo->GetNumResourcesToPlace(iResourceLoop);
-			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0)
+			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0 && (iChange > 0) && bFirst)
 			{
 				//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
 				CvPlot* pLoopPlot;
