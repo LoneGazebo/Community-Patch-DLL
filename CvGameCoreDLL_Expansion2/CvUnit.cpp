@@ -15004,7 +15004,7 @@ int CvUnit::maxMoves() const
 	}
 	else
 	{
-		return ((baseMoves() + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR());	// WARNING: Uses the current embark state of the unit!
+		return (plot()->getOwner() == getOwner() ? ((baseMoves() + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR()) : (baseMoves() * GC.getMOVE_DENOMINATOR()));	// WARNING: Uses the current embark state of the unit!
 	}
 }
 
@@ -18030,15 +18030,20 @@ int CvUnit::GetAddedFromNearbyUnitPromotion(PromotionTypes eIndex)
 	else
 		return 0;
 }
-void CvUnit::ChangeNearbyPromotion(bool bValue)
+void CvUnit::ChangeNearbyPromotion(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyPromotion = bValue;
+	m_bNearbyPromotion += iValue;
+}
+int CvUnit::GetNearbyPromotion() const
+{
+	VALIDATE_OBJECT
+	return	m_bNearbyPromotion;
 }
 bool CvUnit::IsNearbyPromotion() const
 {
 	VALIDATE_OBJECT
-	return m_bNearbyPromotion;
+	return GetNearbyPromotion() > 0;
 }
 int CvUnit::GetNearbyUnitPromotionsRange() const
 {
@@ -18048,57 +18053,82 @@ int CvUnit::GetNearbyUnitPromotionsRange() const
 void CvUnit::ChangeNearbyUnitPromotionRange(int iBonusRange)
 {
 	VALIDATE_OBJECT
-	m_iNearbyUnitPromotionRange = iBonusRange;
+	m_iNearbyUnitPromotionRange += iBonusRange;
 }
-void CvUnit::ChangeNearbyCityPromotion(bool bValue)
+void CvUnit::ChangeNearbyCityPromotion(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyCityPromotion = bValue;
+	m_bNearbyCityPromotion += iValue;
+}
+int CvUnit::GetNearbyCityPromotion() const
+{
+	VALIDATE_OBJECT
+	return	m_bNearbyCityPromotion;
 }
 bool CvUnit::IsNearbyCityPromotion() const
 {
 	VALIDATE_OBJECT
-	return m_bNearbyCityPromotion;
+	return GetNearbyCityPromotion() > 0;
 }
-void CvUnit::ChangeNearbyFriendlyCityPromotion(bool bValue)
+void CvUnit::ChangeNearbyFriendlyCityPromotion(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyFriendlyCityPromotion = bValue;
+	m_bNearbyFriendlyCityPromotion += iValue;
+}
+int CvUnit::GetNearbyFriendlyCityPromotion() const
+{
+	VALIDATE_OBJECT
+	return	m_bNearbyFriendlyCityPromotion;
 }
 bool CvUnit::IsNearbyFriendlyCityPromotion() const
 {
 	VALIDATE_OBJECT
-	return m_bNearbyFriendlyCityPromotion;
+	return GetNearbyFriendlyCityPromotion() > 0;
 }
-void CvUnit::ChangeNearbyEnemyCityPromotion(bool bValue)
+void CvUnit::ChangeNearbyEnemyCityPromotion(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyEnemyCityPromotion = bValue;
+	m_bNearbyEnemyCityPromotion += iValue;
+}
+int CvUnit::GetNearbyEnemyCityPromotion() const
+{
+	VALIDATE_OBJECT
+	return	m_bNearbyEnemyCityPromotion;
 }
 bool CvUnit::IsNearbyEnemyCityPromotion() const
 {
 	VALIDATE_OBJECT
-	return m_bNearbyEnemyCityPromotion;
+	return GetNearbyEnemyCityPromotion() > 0;
 }
-void CvUnit::ChangeIsFriendlyLands(bool bValue)
+void CvUnit::ChangeIsFriendlyLands(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bIsFriendlyLands = bValue;
+	m_bIsFriendlyLands += iValue;
+}
+int CvUnit::GetIsFriendlyLands() const
+{
+	VALIDATE_OBJECT
+	return	m_bIsFriendlyLands;
 }
 bool CvUnit::IsFriendlyLands() const
 {
 	VALIDATE_OBJECT
-	return m_bIsFriendlyLands;
+	return GetIsFriendlyLands() > 0;
 }
-void CvUnit::ChangeIsEnemyLands(bool bValue)
+void CvUnit::ChangeIsEnemyLands(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bIsEnemyLands = bValue;
+	m_bIsEnemyLands += iValue;
+}
+int CvUnit::GetIsEnemyLands() const
+{
+	VALIDATE_OBJECT
+	return	m_bIsEnemyLands;
 }
 bool CvUnit::IsEnemyLands() const
 {
 	VALIDATE_OBJECT
-	return m_bIsEnemyLands;
+	return GetIsEnemyLands() > 0;
 }
 void CvUnit::ChangeAdjacentSameType(PromotionTypes ePromotion, int iChange)
 {
@@ -18129,7 +18159,7 @@ int CvUnit::GetPillageBonusStrengthPercent() const
 void CvUnit::ChangePillageBonusStrengthPercent(int iBonus)
 {
 	VALIDATE_OBJECT
-	m_iPillageBonusStrengthPercent = iBonus;
+	m_iPillageBonusStrengthPercent += iBonus;
 }
 int CvUnit::GetStackedGreatGeneralExperience() const
 {
@@ -18139,17 +18169,22 @@ int CvUnit::GetStackedGreatGeneralExperience() const
 void CvUnit::ChangeStackedGreatGeneralExperience(int iExperience)
 {
 	VALIDATE_OBJECT
-	m_iStackedGreatGeneralExperience = iExperience;
+	m_iStackedGreatGeneralExperience += iExperience;
 }
-void CvUnit::ChangeIsHighSeaRaider(bool bValue)
+void CvUnit::ChangeIsHighSeaRaider(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bIsHighSeaRaider = bValue;
+	m_bIsHighSeaRaider += iValue;
+}
+int CvUnit::GetIsHighSeaRaider() const
+{
+	VALIDATE_OBJECT
+	return	m_bIsHighSeaRaider;
 }
 bool CvUnit::IsHighSeaRaider() const
 {
 	VALIDATE_OBJECT
-	return m_bIsHighSeaRaider;
+	return GetIsHighSeaRaider() > 0;
 }
 int CvUnit::GetWonderProductionModifier() const
 {
@@ -18159,7 +18194,7 @@ int CvUnit::GetWonderProductionModifier() const
 void CvUnit::ChangeWonderProductionModifier(int iValue)
 {
 	VALIDATE_OBJECT
-	m_iWonderProductionModifier = iValue;
+	m_iWonderProductionModifier += iValue;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -18268,13 +18303,13 @@ int CvUnit::GetNumTilesRevealedThisTurn()
 void CvUnit::SetSpottedEnemy(bool bValue)
 {
 	VALIDATE_OBJECT
-		m_bSpottedEnemy = bValue;
+	m_bSpottedEnemy = bValue;
 }
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsSpottedEnemy()
 {
 	VALIDATE_OBJECT
-		return m_bSpottedEnemy;
+	return m_bSpottedEnemy;
 }
 
 //	--------------------------------------------------------------------------------

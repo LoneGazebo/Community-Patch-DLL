@@ -11955,10 +11955,9 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iUnitWonderProductionModifier = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
-			if(iUnitWonderProductionModifier > 0)
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
+			if (iTempMod != 0)
 			{
-				iTempMod = iUnitWonderProductionModifier;
 				iMultiplier += iTempMod;
 				if(toolTipSink && iTempMod)
 				{
@@ -11973,11 +11972,15 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				if(pLoopPlot->GetWonderProductionModifier() > 0 && !pLoopPlot->IsImprovementPillaged())
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged()) 
 				{
-					iTempMod = pLoopPlot->GetWonderProductionModifier();
-					iMultiplier += iTempMod;
-					iNumberOfImprovements++;
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if(pImprovementInfo->GetWonderProductionModifier() > 0)
+					{
+						iTempMod = pImprovementInfo->GetWonderProductionModifier(); 
+						iMultiplier += iTempMod;
+						iNumberOfImprovements++;
+					}
 				}
 			}
 		}
@@ -12094,10 +12097,9 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iUnitWonderProductionModifier = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
-			if(iUnitWonderProductionModifier > 0)
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
+			if (iTempMod != 0)
 			{
-				iTempMod = (iUnitWonderProductionModifier * iMod) / 100;
 				iMultiplier += iTempMod;
 				if(toolTipSink && iTempMod)
 				{
@@ -12112,11 +12114,15 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				if (pLoopPlot->GetWonderProductionModifier() > 0 && !pLoopPlot->IsImprovementPillaged())
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged()) 
 				{
-					iTempMod = (pLoopPlot->GetWonderProductionModifier() * iMod) / 100;
-					iMultiplier += iTempMod;
-					iNumberOfImprovements++;
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if(pImprovementInfo->GetWonderProductionModifier() > 0)
+					{
+						iTempMod = pImprovementInfo->GetWonderProductionModifier(); 
+						iMultiplier += iTempMod;
+						iNumberOfImprovements++;
+					}
 				}
 			}
 		}
