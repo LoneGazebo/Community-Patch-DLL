@@ -338,6 +338,7 @@ CvUnit::CvUnit() :
 	, m_extraDomainModifiers()
 	, m_YieldModifier()
 	, m_YieldChange()
+	, m_iGarrisonYieldChange()
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
 	, m_iScenarioData("CvUnit::m_iScenarioData", m_syncArchive)
 	, m_terrainDoubleMoveCount("CvUnit::m_terrainDoubleMoveCount", m_syncArchive)
@@ -426,6 +427,7 @@ CvUnit::CvUnit() :
 	, m_iPillageBonusStrengthPercent("CvUnit::m_iPillageBonusStrengthPercent", m_syncArchive)
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
+	, m_iWonderProductionModifier("CvUnit::m_iWonderProductionModifier", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -1462,6 +1464,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
 	m_bIsHighSeaRaider = false;
+	m_iWonderProductionModifier = 0;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_iCanCrossMountainsCount = 0;
@@ -1607,10 +1610,12 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_YieldModifier.clear();
 	m_YieldChange.clear();
+	m_iGarrisonYieldChange.clear();
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_YieldModifier.push_back(0);
 		m_YieldChange.push_back(0);
+		m_iGarrisonYieldChange.push_back(0);
 	}
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -18146,6 +18151,16 @@ bool CvUnit::IsHighSeaRaider() const
 	VALIDATE_OBJECT
 	return m_bIsHighSeaRaider;
 }
+int CvUnit::GetWonderProductionModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iWonderProductionModifier;
+}
+void CvUnit::ChangeWonderProductionModifier(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iWonderProductionModifier = iValue;
+}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 //	--------------------------------------------------------------------------------
@@ -19251,6 +19266,23 @@ void CvUnit::SetYieldChange(YieldTypes eYield, int iValue)
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_YieldChange[eYield] = (m_YieldChange[eYield] + iValue);
 }
+// Similar to above code but is only for combat units and scales per the units combat strength : yield is placed on the plot itself
+int CvUnit::GetGarrisonYieldChange(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	return m_iGarrisonYieldChange[eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetGarrisonYieldChange(YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	m_iGarrisonYieldChange[eYield] = (m_iGarrisonYieldChange[eYield] + iValue);
+}
+
 //	--------------------------------------------------------------------------------
 #if defined(MOD_CARGO_SHIPS)
 SpecialUnitTypes CvUnit::specialUnitCargoLoad() const
@@ -26653,6 +26685,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
 		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
 		ChangeIsHighSeaRaider((thisPromotion.IsHighSeaRaider()) ? iChange : 0);
+		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
@@ -26957,6 +26990,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
+			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
 		}
 
 		if(IsSelected())
@@ -27183,6 +27217,7 @@ void CvUnit::read(FDataStream& kStream)
 #if defined(MOD_UNITS_MAX_HP)
 	kStream >> m_YieldModifier;
 	kStream >> m_YieldChange;
+	kStream >> m_iGarrisonYieldChange;
 	MOD_SERIALIZE_READ(78, kStream, m_iMaxHitPointsBase, m_pUnitInfo->GetMaxHitPoints());
 #endif
 
@@ -27264,6 +27299,7 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_extraDomainModifiers;
 	kStream << m_YieldModifier;
 	kStream << m_YieldChange;
+	kStream << m_iGarrisonYieldChange;
 #if defined(MOD_UNITS_MAX_HP)
 	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
 #endif

@@ -11955,25 +11955,14 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iI;
-			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			int iUnitWonderProductionModifier = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
+			if(iUnitWonderProductionModifier > 0)
 			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo != NULL)
+				iTempMod = iUnitWonderProductionModifier;
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
 				{
-					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
-					{
-						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-						{
-							iTempMod = pkPromotionInfo->GetWonderProductionModifier();
-							iMultiplier += iTempMod;
-							if(toolTipSink && iTempMod)
-							{
-								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
-							}
-						}
-					}
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
 				}
 			}
 		}
@@ -11984,15 +11973,11 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				if(pLoopPlot->GetWonderProductionModifier() > 0 && !pLoopPlot->IsImprovementPillaged())
 				{
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-					if(pImprovementInfo->GetWonderProductionModifier() > 0)
-					{
-						iTempMod = pImprovementInfo->GetWonderProductionModifier();
-						iMultiplier += iTempMod;
-						iNumberOfImprovements++;
-					}
+					iTempMod = pLoopPlot->GetWonderProductionModifier();
+					iMultiplier += iTempMod;
+					iNumberOfImprovements++;
 				}
 			}
 		}
@@ -12109,25 +12094,14 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iI;
-			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			int iUnitWonderProductionModifier = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
+			if(iUnitWonderProductionModifier > 0)
 			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo != NULL)
+				iTempMod = (iUnitWonderProductionModifier * iMod) / 100;
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
 				{
-					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
-					{
-						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-						{
-							iTempMod = (pkPromotionInfo->GetWonderProductionModifier() * iMod) / 100;
-							iMultiplier += iTempMod;
-							if(toolTipSink && iTempMod)
-							{
-								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
-							}
-						}
-					}
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
 				}
 			}
 		}
@@ -12138,15 +12112,11 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				if (pLoopPlot->GetWonderProductionModifier() > 0 && !pLoopPlot->IsImprovementPillaged())
 				{
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-					if(pImprovementInfo->GetWonderProductionModifier() > 0)
-					{
-						iTempMod = (pImprovementInfo->GetWonderProductionModifier() * iMod) / 100;
-						iMultiplier += iTempMod;
-						iNumberOfImprovements++;						
-					}
+					iTempMod = (pLoopPlot->GetWonderProductionModifier() * iMod) / 100;
+					iMultiplier += iTempMod;
+					iNumberOfImprovements++;
 				}
 			}
 		}
@@ -14134,7 +14104,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			int iNumResourcePlotsGiven = 0;
 			int iNumResourceTotalPlots = pBuildingInfo->GetNumResourcesToPlace(iResourceLoop);
-			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0)
+			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0 && (iChange > 0) && bFirst)
 			{
 				//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
 				CvPlot* pLoopPlot;
