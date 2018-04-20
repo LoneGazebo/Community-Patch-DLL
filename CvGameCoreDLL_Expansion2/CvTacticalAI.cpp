@@ -1087,7 +1087,9 @@ void CvTacticalAI::FindTacticalTargets()
 	// Clear out target list since we rebuild it each turn
 	m_AllTargets.clear();
 
-	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn();
+	int iTurn = GC.getGame().GetBarbarianReleaseTurn() * GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iTurn /= 100;
+	bool bBarbsAllowedYet = GC.getGame().getGameTurn() >= iTurn;
 
 	// Look at every tile on map
 	for (iI = 0; iI < GC.getMap().numPlots(); iI++)

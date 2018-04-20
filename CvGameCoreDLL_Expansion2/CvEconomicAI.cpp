@@ -1850,7 +1850,7 @@ void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable, (SAFE_ES
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", " + cityName + ", PRE: ";
+		strBaseString += playerName + ", " + cityName + ", BUY: ";
 
 		// Dump out the weight of each buildable item
 		for (int iI = 0; iI < m_Buildables.size(); iI++)
@@ -1948,6 +1948,9 @@ void CvEconomicAI::DoHurry()
 		if(ePurchase == NO_PURCHASE_TYPE)
 			continue;
 
+		if (ePurchase == PURCHASE_TYPE_BUILDING || ePurchase == PURCHASE_TYPE_UNIT)
+			continue;
+
 		if(IsSavingForThisPurchase(ePurchase))
 		{
 			iPurchaseBuffer += GetPurchaseSaveAmout(ePurchase);
@@ -1971,20 +1974,17 @@ void CvEconomicAI::DoHurry()
 	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;
 
 	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
-	m_Buildables.clear();
 
 	// Look at each of our cities
 	int maxLoops = 0;
 	while (pTreasury->GetGold() > iTreasuryBuffer && maxLoops < m_pPlayer->getNumCities())
 	{
+		m_Buildables.clear();
 		maxLoops++;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
 			if (pLoopCity == pMostThreatenedCity && !pLoopCity->isCapital())
-				continue;
-
-			if (!m_pPlayer->GetPlayerTraits()->IsNoAnnexing() && pLoopCity->IsPuppet())
 				continue;
 
 			CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
@@ -2014,17 +2014,6 @@ void CvEconomicAI::DoHurry()
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 			if (pkUnitInfo)
 			{
-				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pSelectedCity->getProductionUnit());
-				CvUnitEntry* pkCurrentUnitInfo = NULL;
-				if (pSelectedCity->isProductionUnit())
-				{
-					pkCurrentUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
-				}
-				if (pkCurrentUnitInfo != NULL && pkUnitEntry->GetUnitClassType() == pkCurrentUnitInfo->GetUnitClassType())
-				{
-					if (pSelectedCity->getProductionTurnsLeft() <= 3)
-						continue;
-				}
 				int iGoldCost = pSelectedCity->GetPurchaseCost(eUnitType);
 				if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
 				{
@@ -2088,53 +2077,46 @@ void CvEconomicAI::DoHurry()
 		case CITY_BUILDABLE_BUILDING:
 		{
 			BuildingTypes eBuildingType = (BuildingTypes)selection.m_iIndex;
-			if (pSelectedCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, YIELD_GOLD))
+			CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
+			if (pkBuildingInfo)
 			{
-				CvBuildingEntry* pkCurrentBuildingEntry = NULL;
-				if (pSelectedCity->isProductionBuilding())
+				if (pSelectedCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, YIELD_GOLD))
 				{
-					pkCurrentBuildingEntry = GC.getBuildingInfo(pSelectedCity->getProductionBuilding());
-				}
-				CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
-				if (pkCurrentBuildingEntry != NULL && pkCurrentBuildingEntry->GetBuildingClassType() == pkBuildingInfo->GetBuildingClassType())
-				{
-					if (pSelectedCity->getProductionTurnsLeft() <= 5)
-						continue;
-				}
-				int iGoldCost = pSelectedCity->GetPurchaseCost(eBuildingType);
-				if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
-				{
-					//Log it
-					if (GC.getLogging() && GC.getAILogging())
+					int iGoldCost = pSelectedCity->GetPurchaseCost(eBuildingType);
+					if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
 					{
-						CvString strLogString;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-						strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
-#else
-						strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
-#endif
-							pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-
-					//take the money...
-					m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
-					//and build it!
-					if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-					{
-						const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-						pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
-					}
-					else
-					{
-						pSelectedCity->CreateBuilding(eBuildingType);
-						pSelectedCity->SetBuildingPurchaseCooldown(pkBuildingInfo->GetCooldown());
-						if (MOD_EVENTS_CITY)
+						//Log it
+						if (GC.getLogging() && GC.getAILogging())
 						{
-							GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pSelectedCity->getOwner(), pSelectedCity->GetID(), eBuildingType, true, false);
+							CvString strLogString;
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+							strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+#else
+							strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+#endif
+								pkBuildingInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
-						pSelectedCity->CleanUpQueue();
+
+						//take the money...
+						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+
+						//and build it!
+						if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+						{
+							const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+							pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
+						}
+						else
+						{
+							pSelectedCity->CreateBuilding(eBuildingType);
+							pSelectedCity->SetBuildingPurchaseCooldown(pkBuildingInfo->GetCooldown());
+							if (MOD_EVENTS_CITY)
+							{
+								GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pSelectedCity->getOwner(), pSelectedCity->GetID(), eBuildingType, true, false);
+							}
+							pSelectedCity->CleanUpQueue();
+						}
 					}
 				}
 			}
@@ -2240,7 +2222,7 @@ void CvEconomicAI::DoPlotPurchases()
 				{
 					CvString strLogString;
 					strLogString.Format("Buying plot, X: %d, Y: %d, Cost: %d, Balance (before buy): %d, Priority: %d", iBestX, iBestY,
-						                iBestCost, m_pPlayer->GetTreasury()->GetGold(), iBestScore);
+						iBestCost, iBalance, iBestScore);
 					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 #else

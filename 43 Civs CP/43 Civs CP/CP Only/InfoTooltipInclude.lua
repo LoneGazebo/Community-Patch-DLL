@@ -724,12 +724,12 @@ function GetCultureTooltip(pCity)
 		end
 		
 		-- Puppet modifier
-		if (pCity:IsPuppet() and not Players[pCity:GetOwner()]:IsIgnorePuppetPenalties()) then
-			iAmount = GameDefines.PUPPET_CULTURE_MODIFIER;
+		if (pCity:IsPuppet()) then
+			local puppetMod = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_CULTURE);
 			
-			if (iAmount ~= 0) then
+			if (puppetMod ~= 0) then
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-				strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount);
+				strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", puppetMod);
 			end
 		end
 	end
@@ -810,11 +810,11 @@ function GetFaithTooltip(pCity)
 		-- END 
 		
 		-- Puppet modifier
-		if (pCity:IsPuppet() and not Players[pCity:GetOwner()]:IsIgnorePuppetPenalties()) then
-			iAmount = GameDefines.PUPPET_FAITH_MODIFIER;
+		if (pCity:IsPuppet()) then
+			local puppetMod = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_FAITH);
 		
-			if (iAmount ~= 0) then
-				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount));
+			if (puppetMod ~= 0) then
+				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", puppetMod));
 			end
 		end
 	

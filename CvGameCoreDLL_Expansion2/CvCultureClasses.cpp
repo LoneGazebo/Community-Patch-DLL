@@ -980,6 +980,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	ResetDigCompletePlots();
 
 	m_iLastTurnLifetimeCulture = 0;
+	m_iLastTurnCPT;
 	m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iRawWarWeariness = 0;
@@ -991,6 +992,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	{
 		m_aiCulturalInfluence[iI] = 0;
 		m_aiLastTurnCulturalInfluence[iI] = 0;
+		m_aiLastTurnCulturalIPT[iI] = 0;
 	}
 
 	m_bReportedTwoCivsAway = false;
@@ -3474,6 +3476,9 @@ void CvPlayerCulture::DoTurn()
 		{
 			m_aiCulturalInfluence[iLoopPlayer] += GetInfluencePerTurn((PlayerTypes)iLoopPlayer);
 		}
+
+		//and store off our delta
+		m_aiLastTurnCulturalIPT[iLoopPlayer] = m_aiCulturalInfluence[iLoopPlayer] - m_aiLastTurnCulturalInfluence[iLoopPlayer];
 	}
 	
 	DoPublicOpinion();
@@ -3978,6 +3983,18 @@ void CvPlayerCulture::SetLastTurnLifetimeCulture(int iValue)
 	m_iLastTurnLifetimeCulture = iValue;
 }
 
+/// What was our total culture generated throughout the game last turn?
+int CvPlayerCulture::GetLastTurnCPT() const
+{
+	return m_iLastTurnCPT;
+}
+
+/// Set our total culture generated throughout the game  - last turn's number
+void CvPlayerCulture::SetLastTurnCPT(int iValue)
+{
+	m_iLastTurnCPT = iValue;
+}
+
 /// What is our cultural influence now?
 int CvPlayerCulture::GetInfluenceOn(PlayerTypes ePlayer) const
 {
@@ -4039,6 +4056,17 @@ int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
 	return m_aiLastTurnCulturalInfluence[iIndex];
+}
+
+/// What was our cultural influence last turn?
+int CvPlayerCulture::GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "Invalid player index");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+
+	int iIndex = (int)ePlayer;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
+	return m_aiLastTurnCulturalIPT[iIndex];
 }
 
 /// Influence being applied each turn
@@ -4212,19 +4240,23 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 
-	// PctTurn1 = InfluenceT1 / LifetimeCultureT1
-	// PctTurn2 = InfluenceT2 / LifetimeCultureT2
-	
-	// So if looking at is PctT2 > PctT1, can see if  (InfluenceT2 * LifetimeCultureT1) > (InfluenceT1 * LifetimeCultureT2)
+	float iTheirCultureThisTurn = (float)m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) + (float)kOtherPlayer.GetJONSCultureEverGenerated();
+	float iTheirCultureLastTurn = (float)kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() + kOtherPlayer.GetCulture()->GetLastTurnCPT();
 
-	int iLHS = (GetInfluenceOn(ePlayer) * m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer)) * kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
-	int iRHS = GetLastTurnInfluenceOn(ePlayer) * (kOtherPlayer.GetJONSCultureEverGenerated() * m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer));
+	float iOurTourismThisTurn = (float)GetInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
+	float iOurTourismLastTurn = (float)GetLastTurnInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetLastTurnInfluenceIPT(ePlayer);
 
-	if (iLHS > iRHS)
+	float base = iOurTourismThisTurn - iOurTourismLastTurn;
+	if (base <= 0)
+		base = 1;
+
+	float slope = (iTheirCultureThisTurn - iTheirCultureLastTurn) / base;
+
+	if (slope < .9f)
 	{
 		eRtnValue = INFLUENCE_TREND_RISING;
 	}
-	else if (iLHS < iRHS)
+	else if (slope > 1.1f)
 	{
 		eRtnValue = INFLUENCE_TREND_FALLING;
 	}
@@ -4235,7 +4267,7 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer)
 {
 	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurn();
-	iBase += GET_PLAYER(eOtherPlayer).getInstantYieldValue(YIELD_CULTURE, 10);
+	iBase += GET_PLAYER(eOtherPlayer).getInstantYieldValue(YIELD_CULTURE, 10) / 10;
 
 	return iBase;
 }
@@ -4244,13 +4276,13 @@ int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eO
 int CvPlayerCulture::GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer)
 {
 	int iBase = GetInfluencePerTurn(ePlayer);
-	iBase += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, 10);
+	iBase += m_pPlayer->getInstantYieldValue(YIELD_TOURISM, 10) / 10;
 
 	return iBase;
 }
 
 /// If influence is rising, how many turns until we get to Influential? (999 if not rising fast enough to make it there eventually)
-int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
+int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 {
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 	int iRtnValue = 999;
@@ -4262,26 +4294,23 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
 	else if (GetInfluenceTrend(ePlayer) == INFLUENCE_TREND_RISING)
 	{
 		int iInfluence = GetInfluenceOn(ePlayer);
-		int iInflPerTurn = GetInfluencePerTurn(ePlayer);
+		int iInflPerTurn = GetTourismPerTurnIncludingInstant(ePlayer);
 		int iCulture = kOtherPlayer.GetJONSCultureEverGenerated();
-		int iCultPerTurn = kOtherPlayer.GetTotalJONSCulturePerTurn();
+		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer);
 
 		int iNumerator = (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCulture / 100) -  iInfluence;
 		int iDivisor = iInflPerTurn - (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCultPerTurn / 100);
 
-		if (iDivisor != 0)
+		iRtnValue = iNumerator / max(1, iDivisor);
+
+		// Round up
+		if (iNumerator % max(1, iDivisor) != 0)
 		{
-			iRtnValue = iNumerator / iDivisor;
-
-			// Round up
-			if (iNumerator % iDivisor != 0)
-			{
-				iRtnValue++;
-			}
-
-			if (iRtnValue <= 0)
-				return 0;
+			iRtnValue++;
 		}
+
+		if (iRtnValue <= 0)
+			return 999;
 	}
 
 	return iRtnValue;
@@ -6574,11 +6603,13 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 	}
 
 	loadFrom >> writeTo.m_iLastTurnLifetimeCulture;
+	loadFrom >> writeTo.m_iLastTurnCPT;
 	loadFrom >> iEntriesToRead;
 	for(int iI = 0; iI < iEntriesToRead; iI++)
 	{
 		loadFrom >> writeTo.m_aiCulturalInfluence[iI];
 		loadFrom >> writeTo.m_aiLastTurnCulturalInfluence[iI];
+		loadFrom >> writeTo.m_aiLastTurnCulturalIPT[iI];
 	}
 
 	if (uiVersion >= 2)
@@ -6674,11 +6705,13 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 	}
 
 	saveTo << readFrom.m_iLastTurnLifetimeCulture;
+	saveTo << readFrom.m_iLastTurnCPT;
 	saveTo << MAX_MAJOR_CIVS;
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		saveTo << readFrom.m_aiCulturalInfluence[iI];
 		saveTo << readFrom.m_aiLastTurnCulturalInfluence[iI];
+		saveTo << readFrom.m_aiLastTurnCulturalIPT[iI];
 	}
 
 	saveTo << readFrom.m_bReportedTwoCivsAway;
@@ -6831,7 +6864,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	// Ignore those Great Works in storage (ie not generating a yield)
-	int iBase = GetNumGreatWorks(false) * (GC.getBASE_TOURISM_PER_GREAT_WORK() + GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_TOURISM));
+	int iBase = GetNumGreatWorks(false) * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
@@ -7037,7 +7070,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	// Ignore those Great Works in storage (ie not generating a yield)
-	int iBase = GetNumGreatWorks(false) * (GC.getBASE_TOURISM_PER_GREAT_WORK() + GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(YIELD_TOURISM));
+	int iBase = GetNumGreatWorks(false) * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #else
 	int iBase = GetNumGreatWorks() * GC.getBASE_TOURISM_PER_GREAT_WORK();
 #endif
@@ -8275,9 +8308,11 @@ CvString CvCityCulture::GetTourismTooltip()
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if (m_pCity->IsPuppet() && !GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	if (m_pCity->IsPuppet())
 	{
-		iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod();
+		iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+		if (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
+			iTempMod = 0;
 		if (bHasCityModTooltip == false)
 		{
 			if (szRtnValue.length() > 0)

@@ -479,6 +479,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<Table name="Building_GreatWorkYieldChangesLocal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 
 	<!-- BUILDING: Allows you to define a flat yield that is gained from a CS friendship. -->
 	<Table name="Building_YieldPerFriend">
@@ -659,7 +664,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-
+	<!-- TRAIT: Units need special type of upgrades?-->
+	<Table name="Trait_UnitClassUpgrade">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained every turn based on the number of luxury resources you export.-->
 	<Table name="Trait_YieldFromExport">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -854,6 +864,13 @@
 	<Table name="Unit_ResourceQuantityExpended">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Amount" type="integer" default="1"/>
+	</Table>
+
+	<!-- This relates to GP bonuses from hurries (Great Engineers), WLTKD (great merchants), and bulbing (Scientists -->
+	<Table name="Unit_ScalingFromOwnedImprovements">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="Amount" type="integer" default="1"/>
 	</Table>
 	

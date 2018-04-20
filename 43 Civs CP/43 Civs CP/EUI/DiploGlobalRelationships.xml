@@ -7,6 +7,12 @@
 	<Instance Name="LTextEntry" >
 		<Label WrapWidth="200" Font="TwCenMT18" Anchor="L,T" ID="Text" />
 	</Instance>
+	<Instance Name="TextEntryShort" >
+		<Label WrapWidth="150" Font="TwCenMT18" Anchor="L,T" ID="Text" />
+	</Instance>
+	<Instance Name="TextEntryLong" >
+		<Label WrapWidth="250" Font="TwCenMT18" Anchor="L,T" ID="Text" />
+	</Instance>
 
 	<Instance Name="MajorInstance" >
 
@@ -47,16 +53,16 @@
 			<!-- Wonders -->
 			<Stack ID="WondersStack" Offset="470,0" StackGrowth="B" Anchor="L,T" Padding="5" />
 
-			<Stack Anchor="R,B" Offset="50,12" StackGrowth="Bottom" Padding="6" ID="OuterStack" >
+			<Stack Anchor="L,B" Offset="620,12" StackGrowth="Bottom" Padding="6" ID="OuterStack" >
 				<!-- <Label Anchor="R,C" String="TXT_KEY_NO_DIPLO_ACTIONS" ID="NothingLabel" /> -->
-				<Label Anchor="R,C" String="TXT_KEY_DO_AT_WAR" ID="WarLabel" Font="TwCenMT22" />
-				<Label Anchor="R,C" String="x" ID="DenounceLabel" Font="TwCenMT22" />
-				<Label Anchor="R,C" String="x" ID="VassalLabel" Font="TwCenMT22" />
-				<Stack Anchor="R,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="PactStack" >
+				<Label Anchor="L,C" String="TXT_KEY_DO_AT_WAR" ID="WarLabel" Font="TwCenMT22" />
+				<Label Anchor="L,C" String="x" ID="DenounceLabel" Font="TwCenMT22" />
+				<Label Anchor="L,C" String="x" ID="VassalLabel" Font="TwCenMT22" />
+				<Stack Anchor="L,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="PactStack" >
 				</Stack>
-				<Stack Anchor="R,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="WarStack" >
+				<Stack Anchor="L,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="WarStack" >
 				</Stack>
-				<Stack Anchor="R,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="MinorStack" >
+				<Stack Anchor="L,C" Offset="0,0" StackGrowth="Bottom" Padding="6" ID="MinorStack" >
 				</Stack>
 			</Stack>
 			<Image Anchor="C,B" Offset="0,3" Texture="bar900x2.dds" Size="900.1" />

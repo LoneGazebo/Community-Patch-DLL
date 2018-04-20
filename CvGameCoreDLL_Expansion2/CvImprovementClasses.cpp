@@ -97,7 +97,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iWonderProductionModifier(0),
 	m_iUnitPlotExperience(0),
 	m_iGAUnitPlotExperience(0),
-	m_bIsExperience(false),
 	m_eCreatesFeature(NO_FEATURE),
 	m_bNewOwner(false),
 	m_bOwnerOnly(true),
@@ -148,6 +147,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAdjacentLake(false),
 	m_bAdjacentCity(false),
 	m_iGrantsVision(0),
+	m_iMovesChange(0),
 #endif
 	m_bNoTwoAdjacent(false),
 	m_bAdjacentLuxury(false),
@@ -338,11 +338,11 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iGrantsVision = kResults.GetInt("GrantsVisionXTiles");
 	m_iUnitPlotExperience = kResults.GetInt("UnitPlotExperience");
 	m_iGAUnitPlotExperience = kResults.GetInt("GAUnitPlotExperience");
-	m_bIsExperience = kResults.GetBool("IsExperience");
 	const char* szFeatureType = kResults.GetText("CreatesFeature");
 	m_eCreatesFeature = (FeatureTypes)GC.getInfoTypeForString(szFeatureType, true);
 	m_bNewOwner = kResults.GetBool("NewOwner");
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
+	m_iMovesChange = kResults.GetInt("MovesChange");
 #endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
@@ -934,13 +934,13 @@ int CvImprovementEntry::GetUnitPlotExperience() const
 {
 	return m_iUnitPlotExperience;
 }
+int CvImprovementEntry::GetMovesChange() const
+{
+	return m_iMovesChange;
+}
 int CvImprovementEntry::GetGAUnitPlotExperience() const
 {
 	return m_iGAUnitPlotExperience;
-}
-bool CvImprovementEntry::IsExperience() const
-{
-	return m_bIsExperience;
 }
 FeatureTypes CvImprovementEntry::GetCreatedFeature() const
 {

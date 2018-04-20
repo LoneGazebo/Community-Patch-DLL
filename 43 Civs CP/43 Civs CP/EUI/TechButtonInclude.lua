@@ -525,6 +525,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 
+	for row in GameInfo.Build_TechTimeChanges(thisTechType) do
+		if not addSmallGenericButton( "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100 ) then
+			break
+		end
+	end
+
 
 	local playerID = Game.GetActivePlayer();	
 	local player = Players[playerID];

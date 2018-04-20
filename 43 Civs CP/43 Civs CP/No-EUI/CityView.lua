@@ -894,17 +894,19 @@ function OnCityViewUpdate()
 		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
 		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
 		local iResistanceUnhappiness = 0;
+		local iOccupationUnhappiness = 0;
+		local iPuppetUnhappiness = 0;
 		if(pCity:IsRazing()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		elseif(pCity:IsResistance()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		end
-		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness() and not pCity:IsResistance() and not pCity:IsRazing()) then
+		elseif(pCity:IsPuppet()) then
+			iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+		elseif(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness() and not pCity:IsResistance() and not pCity:IsRazing()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 			
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
 
 		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
 		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
@@ -933,6 +935,12 @@ function OnCityViewUpdate()
 		if (iOccupationUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
 		end
+
+		-- Puppet tooltip
+		if (iPuppetUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
+		end
+
 		-- Resistance tooltip
 		if (iResistanceUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
@@ -1355,7 +1363,12 @@ function OnCityViewUpdate()
 						
 						local iMod = iPlayerMod + iPolicyMod + iWorldCongressMod + iCityMod + iGoldenAgeMod;
 						iGPPChange = (iGPPChange * (100 + iMod)) / 100;
-						strToolTipText = strToolTipText .. " (+" .. math.floor(iGPPChange/100) .. "[ICON_GREAT_PEOPLE])";	
+-- Vox Populi
+						local iProgress100 = pCity:GetSpecialistGreatPersonProgressTimes100(iSpecialistIndex);
+						local iTurns = math.ceil( (threshold * 100 - iProgress100) / iGPPChange );
+						--strToolTipText = strToolTipText .. " (+" .. math.floor(iGPPChange/100) .. "[ICON_GREAT_PEOPLE])";	
+						strToolTipText = strToolTipText .. string.format(" (%+4.1f[ICON_GREAT_PEOPLE], ",iGPPChange/100) .. iTurns .. "[ICON_TURNS_REMAINING])";
+-- Vox Populi end
 						if (iPlayerMod > 0) then
 							strToolTipText = strToolTipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PLAYER_GP_MOD", iPlayerMod);
 						end

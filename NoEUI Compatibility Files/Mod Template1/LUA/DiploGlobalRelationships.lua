@@ -108,7 +108,7 @@ function InitMajorCivList()
 					if (pBuildingClass.MaxGlobalInstances > 0) then
 						if (pOtherPlayer:CountNumBuildings(iBuilding) > 0) then
 							local textControls = {};
-							ContextPtr:BuildInstanceForControl("LTextEntry", textControls, controlTable.WondersStack);
+							ContextPtr:BuildInstanceForControl("TextEntryShort", textControls, controlTable.WondersStack);
 							textControls.Text:LocalizeAndSetText(pBuilding.Description);
 						end
 					end
@@ -181,7 +181,7 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									local iWarScore = pOtherPlayer:GetWarScore(iThirdPlayer);
 									textControls.Text:LocalizeAndSetText("TXT_KEY_AT_WAR_WITH", thirdName, iWarScore);
 								end
@@ -216,7 +216,7 @@ function InitMajorCivList()
 									end
 
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									textControls.Text:LocalizeAndSetText("TXT_KEY_DIPLO_VASSAL_OF", thirdName);
 								end
 							end
@@ -250,7 +250,7 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									
 									local text = Locale.Lookup("TXT_KEY_DIPLO_FRIENDS_WITH", thirdName);
 									if(pOtherPlayer.GetDoFCounter ~= nil) then
@@ -290,10 +290,10 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									
-									local text = Locale.Lookup("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
-									textControls.Text:SetText(text);
+									--local text = Locale.Lookup("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
+									textControls.Text:LocalizeAndSetText("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
 								end
 							end
 						end
@@ -317,7 +317,7 @@ function InitMajorCivList()
 									thirdName = pThirdPlayer:GetCivilizationShortDescription();
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									textControls.Text:LocalizeAndSetText("TXT_KEY_MARRIED_TO", thirdName);
 								end
 							end
@@ -351,7 +351,7 @@ function InitMajorCivList()
 									end
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									
 									-- Backstab?
 									if (pThirdPlayer:IsFriendDenouncedUs(iOtherPlayer) or pThirdPlayer:IsFriendDeclaredWarOnUs(iOtherPlayer)) then
@@ -389,14 +389,27 @@ function InitMajorCivList()
 									thirdName = pThirdPlayer:GetCivilizationShortDescription();
 									
 									local textControls = {};
-									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
 									textControls.Text:LocalizeAndSetText("TXT_KEY_ALLIED_WITH", thirdName);
 								end
 							end
 						end
 					end
 				end
-
+				
+				-- Promises (Vox Populi)
+				local function ShowPromiseTurns(iNumTurns, sDiploText)
+					if iNumTurns <= 0 then return end -- do not display "0 turns"
+					local textControls = {};
+					ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
+					textControls.Text:LocalizeAndSetText(sDiploText, iNumTurns);
+				end
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsMilitaryPromise(g_iUs),  "TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsExpansionPromise(g_iUs), "TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsBorderPromise(g_iUs),    "TXT_KEY_DIPLO_BORDER_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsNoSpyingPromise(g_iUs),  "TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS");
+				-- Promises END
+				
 				--controlTable.NothingLabel:SetHide(bHasEntry);
 				controlTable.PactStack:CalculateSize();
 				controlTable.PoliciesStack:CalculateSize();

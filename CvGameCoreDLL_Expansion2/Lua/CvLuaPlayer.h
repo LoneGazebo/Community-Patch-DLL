@@ -389,7 +389,7 @@ protected:
 	static int lGetCapitalUnhappinessMod(lua_State* L);
 	static int lGetTraitCityUnhappinessMod(lua_State* L);
 	static int lGetTraitPopUnhappinessMod(lua_State* L);
-	static int lIsIgnorePuppetPenalties(lua_State* L);
+	static int lGetPuppetYieldPenalty(lua_State* L);
 	static int lIsHalfSpecialistUnhappiness(lua_State* L);
 
 	static int lGetHappinessPerGarrisonedUnit(lua_State* L);
@@ -870,6 +870,7 @@ protected:
 
 	static int lIsAlive(lua_State* L);
 	static int lIsEverAlive(lua_State* L);
+	static int lIsPotentiallyAlive(lua_State* L);
 	static int lIsExtendedGame(lua_State* L);
 	static int lIsFoundedFirstCity(lua_State* L);
 
@@ -1111,6 +1112,12 @@ protected:
 #if defined(MOD_BALANCE_CORE_DEALS)
 	LUAAPIEXTN(IsHasDefensivePact, bool);
 	LUAAPIEXTN(IsHasDefensivePactWithPlayer, bool);
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumTurnsMilitaryPromise, int);
+	LUAAPIEXTN(GetNumTurnsExpansionPromise, int);
+	LUAAPIEXTN(GetNumTurnsBorderPromise, int);
+	LUAAPIEXTN(GetNumTurnsNoSpyingPromise, int);
 #endif
 	// END Diplomacy Stuff
 

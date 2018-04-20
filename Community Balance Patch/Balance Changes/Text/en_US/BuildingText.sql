@@ -542,7 +542,7 @@ SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must be built in a Holy City. 3 free Missionaries appear. A free Stupa is constructed in the City.'
+SET Text = 'Must be built in a Holy City. 2 free Missionaries appear, and all Missionaries gain 1 additional Religous Spread action. A free Stupa is constructed in the City.'
 WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -566,11 +566,11 @@ SET Text = 'Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%. Reduces [I
 WHERE Tag = 'TXT_KEY_WONDER_TAJ_MAHAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '1 free Great Writer appears near the City where the Wonder was built. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold if Themed.'
+SET Text = '1 free Great Writer appears near the City where the Wonder was built. Writer, Artist, and Musician Specialists in all Cities gain +1 [ICON_GOLDEN_AGE] Golden Age Points. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold if Themed.'
 WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '1 free Great Artist appears near the City where the Wonder was built. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]+5 [ICON_CULTURE] Culture if Themed.'
+SET Text = '1 free Great Artist appears near the City where the Wonder was built. +1 [ICON_CULTURE] Culture from Great Works in all Cities. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]+10 [ICON_CULTURE] Culture if Themed.'
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -598,7 +598,7 @@ SET Text = 'A Great General appears near the City where the Wonder was built and
 WHERE Tag = 'TXT_KEY_WONDER_BRANDENBURG_GATE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of Artistry branch. 1 free Great Artist appears near the City where the Wonder was built. Contains 4 slots for Great Works of Art.[NEWLINE][NEWLINE]+8 [ICON_CULTURE] Culture if Themed.'
+SET Text = 'Requires completion of Artistry branch. 1 free Great Artist and 2 free Archaeologists appear near the City where the Wonder was built. Contains 4 slots for Great Works of Art, and provides a free Museum in the City.[NEWLINE][NEWLINE]+15 [ICON_CULTURE] Culture if Themed.'
 WHERE Tag = 'TXT_KEY_WONDER_LOUVRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -359,7 +359,7 @@ CvPlayer::CvPlayer() :
 	, m_bHasBetrayedMinorCiv("CvPlayer::m_bHasBetrayedMinorCiv", m_syncArchive)
 	, m_bAlive("CvPlayer::m_bAlive", m_syncArchive)
 	, m_bEverAlive("CvPlayer::m_bEverAlive", m_syncArchive)
-	//, m_bPotentiallyAlive("CvPlayer::m_bPotentiallyAlive", m_syncArchive)
+	, m_bPotentiallyAlive("CvPlayer::m_bPotentiallyAlive", m_syncArchive)
 	, m_bBeingResurrected("CvPlayer::m_bBeingResurrected", m_syncArchive, false, false)
 	, m_bTurnActive("CvPlayer::m_bTurnActive", m_syncArchive, false, true)
 	, m_bAutoMoves("CvPlayer::m_bAutoMoves", m_syncArchive, false, true)
@@ -892,18 +892,20 @@ void CvPlayer::init(PlayerTypes eID)
 	CvAssert(getTeam() != NO_TEAM);
 	GET_TEAM(getTeam()).changeNumMembers(1);
 
+	PlayerTypes p = GetID();
+	SlotStatus s = CvPreGame::slotStatus(p);
+
 #if defined(MOD_BALANCE_CORE)
 	GET_TEAM(getTeam()).addPlayer( GetID() );
 
 	//minors can become free cities...but we have to make sure the UI can know this.
-	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS)
+	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS && s == SS_CLOSED && CvPreGame::isMinorCiv(eID))
 	{
-		//m_bPotentiallyAlive = true;
+		m_bPotentiallyAlive = true;
 	}
 #endif
 
-	PlayerTypes p = GetID();
-	SlotStatus s = CvPreGame::slotStatus(p);
+	
 	if((s == SS_TAKEN) || (s == SS_COMPUTER))
 	{
 		setAlive(true);
@@ -1771,7 +1773,7 @@ void CvPlayer::uninit()
 	m_bHasBetrayedMinorCiv = false;
 	m_bAlive = false;
 	m_bEverAlive = false;
-	//m_bPotentiallyAlive = false;
+	m_bPotentiallyAlive = false;
 	m_bBeingResurrected = false;
 	m_bTurnActive = false;
 	m_bAutoMoves = false;
@@ -2915,6 +2917,10 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 			int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
 			int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+			iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
+			iReligiousStrength /= 100;
+#endif
 			if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 			{
 #if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
@@ -3140,6 +3146,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pOldCity->getNumWorldWonders() > 0)
 			{
 				iValue += (pOldCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			}
+
+			int iNumTimesOwned(pOldCity->GetNumTimesOwned(GetID()));
+			if (iNumTimesOwned > 1)
+			{
+				iValue /= (iNumTimesOwned * 3);
 			}
 #endif
 
@@ -11214,6 +11226,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
 	GetCulture()->SetLastTurnLifetimeCulture(GetJONSCultureEverGenerated());
+	GetCulture()->SetLastTurnCPT(GetJONSCultureEverGenerated() - GetCulture()->GetLastTurnLifetimeCulture());
 	if(kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
 		if(getJONSCulture() < getNextPolicyCost())
@@ -21370,6 +21383,14 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 			if (pLoopCity->IsPuppet())
 				iUnhappiness *= 2;
 
+			int iCapitalDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), getCapitalCity()->getX(), getCapitalCity()->getY());
+
+			int iDistanceFactor = 100 - iCapitalDistance;
+			if (iDistanceFactor <= 0)
+				iDistanceFactor = 1;
+
+			iUnhappiness += iDistanceFactor / 10;
+
 			int iModifier = 0;
 			if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_CityFlipChance, pLoopCity->GetID(), GetID()) == GAMEEVENTRETURN_VALUE) {
 				if (iModifier != 0) {
@@ -22278,7 +22299,12 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	}
 
 	if (pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-		return 0;
+	{
+		if (pCity->IsRazing() || pCity->IsResistance())
+			return pCity->getPopulation() / 2;
+		else
+			return pCity->getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+	}
 
 #endif
 	int iNumCitiesUnhappinessTimes100 = 0;
@@ -22611,10 +22637,22 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 /// Unhappiness from Puppet City Population
 int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 {
-	int iUnhappiness = 0;
-	int iUnhappinessPerPop = GC.getUNHAPPINESS_PER_POPULATION() * 100;
-
 	int iLoop = 0;
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES)
+	{
+		int iTotal = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
+				continue;
+			else
+				iTotal += pLoopCity->getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+		}
+		return iTotal;
+	}
+
+	int iUnhappiness = 0;
+	int iUnhappinessPerPop = GC.getUNHAPPINESS_PER_POPULATION() * 100;	
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		bool bCityValid = false;
@@ -43154,39 +43192,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
 		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), true);
-
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pPolicy->GetNewCityFreeBuilding());
-		if (pkBuildingClassInfo)
-		{
-			const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-			if (NO_BUILDING != eBuilding)
-			{
-				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if (pkBuildingInfo)
-				{
-					int iLoopTwo;
-					for (pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
-					{
-						if (pLoopCity->isValidBuildingLocation(eBuilding))
-						{
-							if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
-							{
-								pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-							}
-
-							pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-
-							if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-							{
-								pLoopCity->clearOrderQueue();
-								pLoopCity->chooseProduction();
-								// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 #endif
 
@@ -43454,6 +43459,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										}
 										int iReligionSpreads = pNewUnit->getUnitInfo().GetReligionSpreads();
 										int iReligiousStrength = pNewUnit->getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+										iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
+										iReligiousStrength /= 100;
+#endif
 										if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 										{
 #if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)
@@ -44859,6 +44868,8 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 		int iReligionSpreads = pGreatPeopleUnit->getUnitInfo().GetReligionSpreads();
 		int iReligiousStrength = pGreatPeopleUnit->getUnitInfo().GetReligiousStrength();
+		iReligiousStrength *= (100 + GetPlayerTraits()->GetExtraMissionaryStrength());
+		iReligiousStrength /= 100;
 		if(iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
 			pGreatPeopleUnit->GetReligionData()->SetSpreadsLeft(iReligionSpreads);
@@ -44890,9 +44901,10 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pGreatPeopleUnit->getX(), pGreatPeopleUnit->getY(), -1);
 		}
 	}
-	if(pGreatPeopleUnit->IsCombatUnit())
+	if(pGreatPeopleUnit->IsCombatUnit() && getCapitalCity() != NULL)
 	{
 		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
+		pGreatPeopleUnit->setOriginCity(getCapitalCity()->GetID());
 	}
 #endif
 	ChangeNumGreatPeople(1);
@@ -44934,7 +44946,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 
 	// In rare cases we can gain the general from an embarked unit being attacked, or from a hovering unit over coast
 	// so if this plot is water, relocate the Great General
-	if (pPlot->isWater()) {
+	if (pPlot->isWater() || pGreatPeopleUnit->IsCombatUnit()) {
 		pGreatPeopleUnit->jumpToNearestValidPlot();
 	}
 #else
@@ -46505,9 +46517,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent && !pPlot->isCoastalLand())
 			iScale = 1;
 
-		//if we want offshore expansion, distance doesn't matter
+		//if we want offshore expansion, distance is less important
 		if (bWantOffshore && bOffshore)
-			iScale = 100;
+			iScale = max(50,min(100,iScale*2));
 
 		//bonus if the plot is in a desirable (large) area
 		if (pPlot->getArea() == iBestArea)
@@ -48785,13 +48797,13 @@ int CvPlayer::CountAllWorkedFeature(FeatureTypes iFeatureType)
 	return iCount;
 }
 
-int CvPlayer::CountAllImprovement(ImprovementTypes iImprovementType)
+int CvPlayer::CountAllImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated)
 {
 	int iCount = 0;
 	
 	int iLoop;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
-		iCount += pLoopCity->CountImprovement(iImprovementType);
+		iCount += pLoopCity->CountImprovement(iImprovementType, bOnlyCreated);
 	}
 	
 	return iCount;

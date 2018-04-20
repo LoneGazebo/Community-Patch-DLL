@@ -2659,11 +2659,17 @@
 		</Row>
 
 		<!-- Promises LUA -->
-		<Row Tag="TXT_KEY_DIPLO_PROMISE_EXPANSION">
-			<Text>[[COLOR_POSITIVE_TEXT]]You promised not to settle near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
+			<Text>You promised to keep your military forces away from their borders for {1_Num} more turn(s).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PROMISE_BORDER">
-			<Text>[[COLOR_POSITIVE_TEXT]]You promised not to buy land near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
+			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
+			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS">
+			<Text>You promised not to spy on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -5201,6 +5207,9 @@
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH">
 			<Text>[NEWLINE]You recently purchased a [ICON_GREAT_PEOPLE] Great Person with [ICON_PEACE] Faith, and must wait for {1_Num} more turn(s) to do so again.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH_LOCAL">
+			<Text>[NEWLINE]You recently made a [ICON_PEACE] Faith purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+		</Row>
 
 		<!-- Tooltips for CBP Austria Ability -->
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE">
@@ -6365,6 +6374,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
+			<Text>{1_Build}: {2_Turns} Turn(s) Required</Text>
 		</Row>
 
 
