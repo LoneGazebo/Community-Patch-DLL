@@ -24468,19 +24468,19 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 #if defined(MOD_BALANCE_CORE)
+	CvCity* pCapital = getCapitalCity();
 	int iPolicyGEorGM = GetPlayerTraits()->GetPolicyGEorGM();
-	if(iPolicyGEorGM > 0)
+	if(iPolicyGEorGM > 0 && pCapital != NULL)
 	{
 		CvCity* pLoopCity;
-		CvCity* pCapital = getCapitalCity(); // JJ: Define capital
 		int iLoop;
-			int iEra = GetCurrentEra(); // JJ: Changed era scaling to match rest of VP
+			int iEra = GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
 			}
-		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+		int iValue = iPolicyGEorGM * iEra;
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iRandom = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
 		if(iRandom <= 33)
@@ -24511,18 +24511,18 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 				{
 					if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
-						pLoopCity->changeProduction((iValue * 2) / 100); // JJ: Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
+						pLoopCity->changeProduction((iValue * 2) / 100); // Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
 					{
-						this->GetTreasury()->ChangeGold((iValue * 4) / 100); // JJ: Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
+						this->GetTreasury()->ChangeGold((iValue * 4) / 100); // Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
 					{
 						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
 						{
-							changeOverflowResearch(iValue / 100); // JJ: Dividing by 100 here to minimise rounding error.
+							changeOverflowResearch(iValue / 100); // Dividing by 100 here to minimise rounding error.
 							if(getOverflowResearch() <= 0)
 							{
 								setOverflowResearch(0);
@@ -24530,23 +24530,15 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 						}
 						else
 						{
-							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), GetID()); // JJ: Dividing by 100 here to minimise rounding error.
+							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), GetID()); // Dividing by 100 here to minimise rounding error.
 							if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
 							{
 								GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
 							}
 						}
-					}
-				//CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-				// JJ: Moved outside of for loop
-					//int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					//iGPThreshold *= 100;
-					////Get % of threshold for test.
-					//iGPThreshold *= iPolicyGEorGM;
-					//iGPThreshold /= 100;
-				
+					}				
 					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
-					if(GetID() == GC.getGame().getActivePlayer()) // JJ: Change the popup to show the specific great person type's icon
+					if(GetID() == GC.getGame().getActivePlayer()) // The popup shows the specific great person type's icon
 					{
 						if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 						{
@@ -24580,7 +24572,7 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 						}
 					}
 				} //end of for loop
-				if(GetID() == GC.getGame().getActivePlayer()) // JJ: Moved notification outside of for loop as it was flooding the screen
+				if(GetID() == GC.getGame().getActivePlayer()) // Moved notification outside of for loop as it was flooding the screen
 				{
 					CvNotifications* pNotification = GetNotifications();
 					if(pNotification)
