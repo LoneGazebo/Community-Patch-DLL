@@ -845,7 +845,7 @@ public:
 	void SetBuilderAIScratchPadValue(short sNewValue);
 
 	void SetStrategicRoute(TeamTypes eTeam, bool bValue);
-	bool IsStrategicRoute(TeamTypes eTeam);
+	bool IsStrategicRoute(TeamTypes eTeam) const;
 
 	int GetPlotIndex() const;
 

@@ -990,6 +990,9 @@
 		<Row Tag="TXT_KEY_OCCUPATION_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_OCCUPIED] Occupation.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS">
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from being a [ICON_PUPPET] Puppet.</Text>
+		</Row>
 
 		<!-- Surplus Threshold -->
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS">
@@ -1005,6 +1008,9 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] Need.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_EO_CITY_PUPPET">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want [ICON_PUPPET] Equal Rights!"</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_OCCUPATION">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Fight the [ICON_OCCUPIED] Oppressors!"</Text>
 		</Row>
@@ -1268,6 +1274,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] Weariness:[ENDCOLOR] They are utterly exhausted.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILD_COST_REDUCTION">
+			<Text>{1_Build} needs {2_Turns} Turn(s) to complete.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

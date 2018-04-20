@@ -414,6 +414,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool greatperson();
 #endif
+	int GetScaleAmount(int iAmountToScale) const;
 	bool canDiscover(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getDiscoverAmount();
 	bool discover();

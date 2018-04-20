@@ -2614,6 +2614,14 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			end
 			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_MOVEMENT", GameInfo.Routes[row.RouteType].Description);
 			numAbilities = numAbilities + 1;
+		end
+
+		for row in GameInfo.Build_TechTimeChanges( condition ) do
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100);
+			numAbilities = numAbilities + 1;
 		end	
 	
 		for row in GameInfo.Improvement_TechYieldChanges( condition ) do

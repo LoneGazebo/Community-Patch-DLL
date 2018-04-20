@@ -209,8 +209,8 @@ ALTER TABLE Traits ADD COLUMN 'GAGarrisonCityRangeStrikeModifier' INTEGER DEFAUL
 -- Player enters a golden age on a declaration of war, either as attacking or defending
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 
--- Puppet negative modifiers no longer apply
-ALTER TABLE Traits ADD COLUMN 'IgnorePuppetPenalties' BOOLEAN DEFAULT 0;
+-- Puppet negative modifiers reduced
+ALTER TABLE Traits ADD COLUMN 'ReducePuppetPenalties' INTEGER DEFAULT 0;
 
 -- Player gains a free policy after unlocking x number of technologies from the tech tree.
 ALTER TABLE Traits ADD COLUMN 'FreePolicyPerXTechs' INTEGER default 0;
@@ -852,6 +852,11 @@ ALTER TABLE UnitPromotions ADD AirInterceptRangeChange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD ConvertDomainUnit TEXT DEFAULT NULL REFERENCES Units(Type);
 ALTER TABLE UnitPromotions ADD ConvertDomain TEXT DEFAULT NULL REFERENCES Domains(Type);
 ALTER TABLE Units ADD IsConvertUnit BOOLEAN DEFAULT 0;
+
+-- relates to Great Artist and Great Writer scaling bonuses
+ALTER TABLE Units ADD 'ScaleFromNumGWs' INTEGER DEFAULT 0;
+ALTER TABLE Units ADD 'ScaleFromNumThemes' INTEGER DEFAULT 0;
+
 
 -- City Gains Wonder Production Modifier while this Unit is stationed in this City
 ALTER TABLE UnitPromotions ADD WonderProductionModifier INTEGER DEFAULT 0;

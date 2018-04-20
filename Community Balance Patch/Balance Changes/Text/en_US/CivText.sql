@@ -1078,7 +1078,7 @@ SET Text = 'This Venetian unique Great Person replaces the Great Merchant. Aside
 WHERE Tag = 'TXT_KEY_UNIT_HELP_VENETIAN_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
-SET Text = 'Cannot found/annex cities. [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled. Free Merchant of Venice at Trade. No Yield penalties for [ICON_PUPPET] Puppets and can spend [ICON_GOLD] Gold in them. +20% [ICON_GREAT_MERCHANT] Great Merchant Rate per [ICON_PUPPET] Puppet.'
+SET Text = 'Cannot found/annex cities. [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled. Free Merchant of Venice at Trade. -30% Yield penalties for [ICON_PUPPET] Puppets, and can spend [ICON_GOLD] Gold in them. +20% [ICON_GREAT_MERCHANT] Great Merchant Rate per [ICON_PUPPET] Puppet.'
  WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
  

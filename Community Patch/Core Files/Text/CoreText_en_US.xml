@@ -6375,6 +6375,9 @@
 		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
+			<Text>{1_Build}: {2_Turns} Turn(s) Required</Text>
+		</Row>
 
 
 		<!-- Plague for JFD-->

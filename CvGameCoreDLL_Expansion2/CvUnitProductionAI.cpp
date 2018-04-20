@@ -293,6 +293,27 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 	}
 
+	//don't build land/sea units if there's no place to put them
+	if (bCombat && m_pCity->HasGarrison())
+	{
+		int iFreePlots = 0;
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_pCity->plot());
+		for (int i = 0; i < 6; i++)
+		{
+			CvPlot* pNeighbor = aNeighbors[i];
+			if (pNeighbor && pNeighbor->isValidMovePlot(m_pCity->getOwner()) && pNeighbor->GetNumCombatUnits() == 0)
+			{
+				if (pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+					iFreePlots++;
+
+				if (!pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+					iFreePlots++;
+			}
+
+			if (iFreePlots == 0)
+				return 0;
+		}
+	}
 
 	//% Value that will modify the base value.
 	int iBonus = 0;
@@ -824,7 +845,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 				else if(kPlayer.GetEconomicAI()->IsUsingStrategy(eNeedDiplomatsCrit))
 				{
-					iInfluence *= 5;
+					iInfluence *= 4;
 				}
 				else
 				{
@@ -834,7 +855,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			bool bAlwaysOne = false;
 			if(kPlayer.GetPlayerTraits()->IsDiplomat())
 			{
-				iInfluence *= 5;
+				iInfluence *= 2;
 				bAlwaysOne = true;
 			}
 
@@ -849,7 +870,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			if(bAlwaysOne && kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true, true) <= 0)
 			{
-				iInfluence *= 10;
+				iInfluence *= 5;
 			}
 			iBonus += iInfluence;
 		}
@@ -1702,6 +1723,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus *= iScale;
 			iBonus /= 100;
 		}
+	}
+
+	//prioritize siege cities for purchase
+	if (bForPurchase && bCombat)
+	{
+		if (m_pCity->isUnderSiege())
+			iBonus *= 10;
+	}
+
+	if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
+	{
+		iBonus /= max(1, 10 - m_pCity->getProductionTurnsLeft());
 	}
 
 	/////

@@ -1228,6 +1228,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	if (m_pCity->isProductionBuilding() && m_pCity->getProductionBuilding() == eBuilding)
+	{
+		iBonus /= max(1, 10 - m_pCity->getProductionTurnsLeft());
+	}
+
 	/////
 	///WEIGHT
 	//////

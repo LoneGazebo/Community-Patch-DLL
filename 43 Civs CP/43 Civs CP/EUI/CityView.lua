@@ -1751,17 +1751,19 @@ local function UpdateCityViewNow()
 		local iScienceUnhappiness = city:GetUnhappinessFromScience();
 		local iCultureUnhappiness = city:GetUnhappinessFromCulture();
 		local iResistanceUnhappiness = 0;
+		local iOccupationUnhappiness = 0;
+		local iPuppetUnhappiness = 0;
 		if(city:IsRazing()) then
 			iResistanceUnhappiness = (city:GetPopulation() / 2);
 		elseif(city:IsResistance()) then
 			iResistanceUnhappiness = (city:GetPopulation() / 2);
-		end
-		local iOccupationUnhappiness = 0;
-		if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance() and not city:IsRazing()) then
+		elseif(city:IsPuppet()) then
+			iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+		elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance() and not city:IsRazing()) then
 			iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
 
 		local iPuppetMod = cityOwner:GetPuppetUnhappinessMod();
 		local iCultureYield = city:GetUnhappinessFromCultureYield() / 100;
@@ -1792,6 +1794,12 @@ local function UpdateCityViewNow()
 		if (iResistanceUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
 		end
+
+		-- Puppet tooltip
+		if (iPuppetUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
+		end
+
 		-- Occupation tooltip
 		if (iOccupationUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);

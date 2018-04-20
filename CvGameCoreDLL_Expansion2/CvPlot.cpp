@@ -7946,7 +7946,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifactResourceType || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifactResourceType))
 				{
-					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
+					if (MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP && GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{
 						CvPlayer& kPlayer = GET_PLAYER(getOwner());
 						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
@@ -8007,6 +8007,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
 							kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
 						}
+					}
+					else
+					{
+						setResourceType(NO_RESOURCE, 0);
+						ClearArchaeologicalRecord();
 					}
 				}
 				else if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
@@ -14341,7 +14346,7 @@ void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
 	if (m_abStrategicRoute[eTeam] != bValue)
 		m_abStrategicRoute[eTeam] = bValue;
 }
-bool CvPlot::IsStrategicRoute(TeamTypes eTeam)
+bool CvPlot::IsStrategicRoute(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");

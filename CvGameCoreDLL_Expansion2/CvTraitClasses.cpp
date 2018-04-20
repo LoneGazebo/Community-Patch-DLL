@@ -134,7 +134,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bPermanentYieldsDecreaseEveryEra(false),
 	m_bImportsCountTowardsMonopolies(false),
 	m_bCanPurchaseNavalUnitsFaith(false),
-	m_bIgnorePuppetPenalties(false),
+	m_iPuppetPenaltyReduction(0),
 	m_iSharedReligionTourismModifier(0),
 	m_iExtraMissionaryStrength(0),
 #endif
@@ -834,9 +834,9 @@ bool CvTraitEntry::IsCanPurchaseNavalUnitsFaith() const
 {
 	return m_bCanPurchaseNavalUnitsFaith;
 }
-bool CvTraitEntry::IsIgnorePuppetPenalties() const
+int CvTraitEntry::GetPuppetPenaltyReduction() const
 {
-	return m_bIgnorePuppetPenalties;
+	return m_iPuppetPenaltyReduction;
 }
 /// Boost to tourism bonus for shared religion (same as the policy one)
 int CvTraitEntry::GetSharedReligionTourismModifier() const
@@ -2080,7 +2080,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bPermanentYieldsDecreaseEveryEra		= kResults.GetBool("PermanentYieldsDecreaseEveryEra");
 	m_bImportsCountTowardsMonopolies		= kResults.GetBool("ImportsCountTowardsMonopolies");
 	m_bCanPurchaseNavalUnitsFaith			= kResults.GetBool("CanPurchaseNavalUnitsFaith");
-	m_bIgnorePuppetPenalties				= kResults.GetBool("IgnorePuppetPenalties");
+	m_iPuppetPenaltyReduction				= kResults.GetInt("ReducePuppetPenalties");
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
 	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
 #endif
@@ -3090,7 +3090,7 @@ bool CvPlayerTraits::IsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
-		(IsIgnorePuppetPenalties() && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
+		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
 		return true;
@@ -3493,10 +3493,8 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bCanPurchaseNavalUnitsFaith = true;
 			}
-			if (trait->IsIgnorePuppetPenalties())
-			{
-				m_bIgnorePuppetPenalties = true;
-			}
+
+			m_iPuppetPenaltyReduction += trait->GetPuppetPenaltyReduction();
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iGoldToGAP += trait->GetGoldToGAP();
 			m_iInfluenceMeetCS += trait->GetInfluenceMeetCS();
@@ -4137,7 +4135,7 @@ void CvPlayerTraits::Reset()
 	m_bPermanentYieldsDecreaseEveryEra = false;
 	m_bImportsCountTowardsMonopolies = false;
 	m_bCanPurchaseNavalUnitsFaith = false;
-	m_bIgnorePuppetPenalties = false;
+	m_iPuppetPenaltyReduction = 0;
 	m_iSharedReligionTourismModifier = 0;
 	m_iExtraMissionaryStrength = 0;
 #endif
@@ -6099,7 +6097,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bCanPurchaseNavalUnitsFaith, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bIgnorePuppetPenalties, false);
+	MOD_SERIALIZE_READ(88, kStream, m_iPuppetPenaltyReduction, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
 #endif
@@ -6681,7 +6679,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
 	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
 	MOD_SERIALIZE_WRITE(kStream, m_bCanPurchaseNavalUnitsFaith);
-	MOD_SERIALIZE_WRITE(kStream, m_bIgnorePuppetPenalties);
+	MOD_SERIALIZE_WRITE(kStream, m_iPuppetPenaltyReduction);
 	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
 #endif

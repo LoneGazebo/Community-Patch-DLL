@@ -9816,6 +9816,7 @@ bool CvUnit::sellExoticGoods()
 					{
 						pBestPlot->setImprovementType(NO_IMPROVEMENT);
 						pBestPlot->setImprovementType(eFeitoria, getOwner());
+						pBestPlot->SilentlyResetAllBuildProgress();
 						
 						IDInfo* pUnitNode;
 						CvUnit* pLoopUnit;
@@ -11622,6 +11623,29 @@ bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
 	return true;
 }
 
+int CvUnit::GetScaleAmount(int iAmountToScale) const
+{
+	int iScaleTotal = 0;
+	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+	{
+		ImprovementTypes eImprovement = (ImprovementTypes)i;
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		int iScaleAmount = getUnitInfo().GetScalingFromOwnedImprovements(eImprovement);
+		if (iScaleAmount <= 0)
+			continue;
+
+		int iOwned = GET_PLAYER(getOwner()).CountAllImprovement(eImprovement, true);
+		iAmountToScale *= ((iOwned * iScaleAmount) + 100);
+		iAmountToScale /= 100;
+
+		iScaleTotal += iAmountToScale;
+	}
+
+	return iScaleTotal;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getDiscoverAmount()
 {
@@ -11643,13 +11667,8 @@ int CvUnit::getDiscoverAmount()
 			//Let's make the GM a little more flexible.
 			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			{
-				ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
-				if (eAcademy != NO_IMPROVEMENT)
-				{
-					int iAcademies = pPlayer->CountAllImprovement(eAcademy);
-					iValue *= ((iAcademies * 10) + 100);
-					iValue /= 100;
-				}
+				//scale up our value
+				iValue = GetScaleAmount(iValue);
 			}
 #endif
 
@@ -11846,13 +11865,8 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 	//Let's make the GM a little more flexible.
 	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	{
-		ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
-		if (eManufactory != NO_IMPROVEMENT)
-		{
-			int iManufactories = GET_PLAYER(getOwner()).CountAllImprovement(eManufactory);
-			iProduction *= ((iManufactories * 20) + 100);
-			iProduction /= 100;
-		}
+		//scale up our value
+		iProduction = GetScaleAmount(iProduction);
 	}
 #endif
 
@@ -12175,12 +12189,7 @@ bool CvUnit::trade()
 			//Let's make the GM a little more flexible.
 			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			{
-				ImprovementTypes eTown = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
-				if (eTown != NO_IMPROVEMENT)
-				{
-					int iTowns = GET_PLAYER(getOwner()).CountAllImprovement(eTown);
-					iCap += iTowns;
-				}
+				iCap = GetScaleAmount(iCap);
 			}
 #endif
 			iCap *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -12905,7 +12914,7 @@ int CvUnit::GetGoldenAgeTurns() const
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	//GA Mod
-	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumThemes() > 0)
 	{
 		int iTotalThemes = 0;
 		int iCityLoop;
@@ -12918,7 +12927,7 @@ int CvUnit::GetGoldenAgeTurns() const
 			}
 		}
 
-		iTotalThemes = (iTotalThemes * GC.getTHEME_GREAT_WORK_GA_MULTIPLIER());
+		iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
 		iGoldenAgeTurns *= (iTotalThemes + 100);
 		iGoldenAgeTurns /= 100;
 	}
@@ -12975,10 +12984,10 @@ int CvUnit::getGivePoliciesCulture()
 		}
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumGWs() > 0)
 		{
 			int iNumGreatWorks = kPlayer.GetCulture()->GetNumGreatWorks();
-			iNumGreatWorks = (iNumGreatWorks * GC.getGREAT_WORK_CULTURE_MULTIPLIER());
+			iNumGreatWorks = (iNumGreatWorks * getUnitInfo().GetScaleFromNumGWs());
 			iValue *= (iNumGreatWorks + 100);
 			iValue /= 100;
 		}

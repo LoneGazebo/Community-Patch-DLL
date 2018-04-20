@@ -406,7 +406,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCapitalUnhappinessMod);
 	Method(GetTraitCityUnhappinessMod);
 	Method(GetTraitPopUnhappinessMod);
-	Method(IsIgnorePuppetPenalties);
+	Method(GetPuppetYieldPenalty);
 	Method(IsHalfSpecialistUnhappiness);
 
 	Method(GetHappinessPerGarrisonedUnit);
@@ -808,6 +808,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsAlive);
 	Method(IsEverAlive);
+	Method(IsPotentiallyAlive);
 	Method(IsExtendedGame);
 	Method(IsFoundedFirstCity);
 
@@ -4099,11 +4100,40 @@ int CvLuaPlayer::lGetTraitPopUnhappinessMod(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lIsIgnorePuppetPenalties(lua_State* L)
+int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const bool bResult = pkPlayer->GetPlayerTraits()->IsIgnorePuppetPenalties();
-	lua_pushboolean(L, bResult);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+
+	int iResult = pkPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + pkPlayer->GetPuppetYieldPenaltyMod();
+	switch (eYield)
+	{
+		case(YIELD_FOOD) :
+			iResult += GC.getPUPPET_GROWTH_MODIFIER();
+			break;
+		case(YIELD_PRODUCTION) :
+			iResult += GC.getPUPPET_PRODUCTION_MODIFIER();
+			break;
+		case(YIELD_SCIENCE) :
+			iResult += GC.getPUPPET_SCIENCE_MODIFIER();
+			break;
+		case(YIELD_GOLD) :
+			iResult += GC.getPUPPET_GOLD_MODIFIER();
+			break;
+		case(YIELD_FAITH) :
+			iResult += GC.getPUPPET_FAITH_MODIFIER();
+			break;
+		case(YIELD_TOURISM) :
+			iResult += GC.getPUPPET_TOURISM_MODIFIER();
+			break;
+		case(YIELD_CULTURE) :
+			iResult += GC.getPUPPET_CULTURE_MODIFIER();
+			break;
+	}
+	if (iResult > 0)
+		iResult = 0;
+
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 
@@ -8919,18 +8949,14 @@ int CvLuaPlayer::lIsAlive(lua_State* L)
 //bool isEverAlive();
 int CvLuaPlayer::lIsEverAlive(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	bool bCheckPotential = luaL_optbool(L, 2, false);
-	if (bCheckPotential && pkPlayer->GetID() >= MAX_MAJOR_CIVS)
-	{
-		const bool bResult = pkPlayer->isEverAlive();
-		//|| pkPlayer->isPotentiallyAlive()
+	return BasicLuaMethod(L, &CvPlayerAI::isEverAlive);
+}
 
-		lua_pushboolean(L, bResult);
-		return 1;
-	}
-	else
-		return BasicLuaMethod(L, &CvPlayerAI::isEverAlive);
+//------------------------------------------------------------------------------
+//bool isEverAlive();
+int CvLuaPlayer::lIsPotentiallyAlive(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::isPotentiallyAlive);
 }
 //------------------------------------------------------------------------------
 //bool isExtendedGame();

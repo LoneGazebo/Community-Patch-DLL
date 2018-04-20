@@ -1307,6 +1307,9 @@ if civ5_mode then
 --CBP
 		--local unhappinessFromPop = g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - unhappinessFromPupetCities
 			local unhappinessFromPop = (g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromPupetCities)
+			if(unhappinessFromPop < 0)then
+				unhappinessFromPop = 0
+			end
 --END	
 
 			tips:insert( "[COLOR:255:150:150:255]" .. L( "TXT_KEY_TP_UNHAPPINESS_TOTAL", g_activePlayer:GetUnhappiness() ) )
