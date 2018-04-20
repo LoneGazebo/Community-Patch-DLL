@@ -143,17 +143,19 @@ function UpdateDisplay()
 		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
 		
 		local iResistanceUnhappiness = 0;
+		local iOccupationUnhappiness = 0;
+		local iPuppetUnhappiness = 0;
 		if(pCity:IsRazing()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		elseif(pCity:IsResistance()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		end
-		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+		elseif(pCity:IsPuppet()) then
+			iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+		elseif(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
 
 		sortEntry.Strength = math.floor(iTotalUnhappiness);
         instance.Defense:SetText( sortEntry.Strength );
@@ -180,6 +182,11 @@ function UpdateDisplay()
 			if (iPuppetMod ~= 0) then
 				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
 			end
+		end
+
+		-- Puppet tooltip
+		if (iPuppetUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
 		end
 
 		-- Occupation tooltip

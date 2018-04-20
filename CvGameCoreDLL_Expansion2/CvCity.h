@@ -1252,6 +1252,9 @@ public:
 
 	int getLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const;
 	void changeLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	void ChangeGreatWorkYieldChange(YieldTypes eYield, int iValue);
+	int GetGreatWorkYieldChange(YieldTypes eYield) const;
 #endif
 
 	int getPowerYieldRateModifier(YieldTypes eIndex) const;
@@ -1551,7 +1554,7 @@ public:
 	int CountNumWorkedRiverTiles(TerrainTypes eTerrain = NO_TERRAIN);
 	int CountFeature(FeatureTypes iFeatureType) const;
 	int CountWorkedFeature(FeatureTypes iFeatureType) const;
-	int CountImprovement(ImprovementTypes iImprovementType) const;
+	int CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated = false) const;
 	int CountWorkedImprovement(ImprovementTypes iImprovementType) const;
 	int CountPlotType(PlotTypes iPlotType) const;
 	int CountWorkedPlotType(PlotTypes iPlotType) const;
@@ -1858,6 +1861,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
 	FAutoVariable<int, CvCity> m_iResourceDiversityModifier;
 	FAutoVariable<bool, CvCity> m_bIsBastion;
+	FAutoVariable<std::vector<int>, CvCity> m_aiGreatWorkYieldChange;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;

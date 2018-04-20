@@ -189,6 +189,19 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		else
 			break
 		end
+	end
+
+	for row in GameInfo.Build_TechTimeChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100) );
+			buttonNum = buttonNum + 1;
+		else
+			break
+		end
 	end	
 	
 

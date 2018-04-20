@@ -4980,11 +4980,7 @@ CvPlayer* CvMinorCivAI::GetPlayer()
 MinorCivTypes CvMinorCivAI::GetMinorCivType() const
 {
 	//	return m_minorCivType;
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-	return CvPreGame::minorCivType((PlayerTypes) (m_pPlayer->GetID() + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS)));
-#else
 	return CvPreGame::minorCivType(m_pPlayer->GetID());
-#endif
 }
 
 /// What is the personality of this Minor
@@ -11516,13 +11512,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iChangeThisTurn += /*-100*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN();
 
 		//Influence decay increases the higher your influence over 100;
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 1000)
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 0)
 		{
-			int iInfluenceTotal = iBaseFriendship * -1;
-			iInfluenceTotal /= 10;
+			float iInfluenceTotal = GetBaseFriendshipWithMajorTimes100(ePlayer) * .01f;
 
-			if (iInfluenceTotal < 0)
-				iChangeThisTurn += iInfluenceTotal;
+			if (iInfluenceTotal != 0)
+				iChangeThisTurn += (int)iInfluenceTotal*-1;
 		}
 		// Decay modified (Trait, policies, shared religion, etc.)
 		int iDecayMod = 100;
@@ -16122,16 +16117,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
 		if(iDuration > 0)
 		{
-			int iLimit = 30;
+			int iLimit = 50;
 			iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iLimit /= 100;
 			if(iDuration <= iLimit)
 			{
-				int iBulliedRecentlyScore = -100;
+				iScore += iFailScore * 2;
 				if (sTooltipSink)
 				{
 					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-					strNegativeFactor << iBulliedRecentlyScore;
+					strNegativeFactor << iFailScore * 2;
 					strNegativeFactor << "TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED";
 					sFactors += strNegativeFactor.toUTF8();
 				}

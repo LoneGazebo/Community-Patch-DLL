@@ -321,6 +321,9 @@ public:
 	bool IsSecondaryPantheon() const;
 	int GetGreatWorkYieldChange(int i) const;
 	int* GetGreatWorkYieldChangeArray() const;
+
+	int GetGreatWorkYieldChangeLocal(int i) const;
+	int* GetGreatWorkYieldChangeLocalArray() const;
 #endif
 	bool IsMountain() const;
 	bool IsHill() const;
@@ -740,6 +743,7 @@ private:
 	bool m_bPurchaseOnly;
 	bool m_bSecondaryPantheon;
 	int* m_piGreatWorkYieldChange;
+	int* m_piGreatWorkYieldChangeLocal;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;

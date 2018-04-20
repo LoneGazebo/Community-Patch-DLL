@@ -209,8 +209,8 @@ ALTER TABLE Traits ADD COLUMN 'GAGarrisonCityRangeStrikeModifier' INTEGER DEFAUL
 -- Player enters a golden age on a declaration of war, either as attacking or defending
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeOnWar' BOOLEAN DEFAULT 0;
 
--- Puppet negative modifiers no longer apply
-ALTER TABLE Traits ADD COLUMN 'IgnorePuppetPenalties' BOOLEAN DEFAULT 0;
+-- Puppet negative modifiers reduced
+ALTER TABLE Traits ADD COLUMN 'ReducePuppetPenalties' INTEGER DEFAULT 0;
 
 -- Player gains a free policy after unlocking x number of technologies from the tech tree.
 ALTER TABLE Traits ADD COLUMN 'FreePolicyPerXTechs' INTEGER default 0;
@@ -232,8 +232,8 @@ ALTER TABLE Improvements ADD COLUMN 'UnitPlotExperience' INTEGER DEFAULT 0;
 -- Grants Free Experience when Unit is On Improvement plot during Golden Ages (must be owned) on Do Turn.
 ALTER TABLE Improvements ADD COLUMN 'GAUnitPlotExperience' INTEGER DEFAULT 0;
 
--- Activates the above two, UnitPlotExperience and GAUnitPlotExperience.
-ALTER TABLE Improvements ADD COLUMN 'IsExperience' BOOLEAN DEFAULT 0;
+-- Improvement grants extra moves when unit is on this plot
+ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
@@ -853,6 +853,11 @@ ALTER TABLE UnitPromotions ADD ConvertDomainUnit TEXT DEFAULT NULL REFERENCES Un
 ALTER TABLE UnitPromotions ADD ConvertDomain TEXT DEFAULT NULL REFERENCES Domains(Type);
 ALTER TABLE Units ADD IsConvertUnit BOOLEAN DEFAULT 0;
 
+-- relates to Great Artist and Great Writer scaling bonuses
+ALTER TABLE Units ADD 'ScaleFromNumGWs' INTEGER DEFAULT 0;
+ALTER TABLE Units ADD 'ScaleFromNumThemes' INTEGER DEFAULT 0;
+
+
 -- City Gains Wonder Production Modifier while this Unit is stationed in this City
 ALTER TABLE UnitPromotions ADD WonderProductionModifier INTEGER DEFAULT 0;
 
@@ -884,6 +889,8 @@ ALTER TABLE Resources ADD COLUMN 'IsMonopoly' BOOLEAN DEFAULT 0;
 
 -- Cooldowns for Units/Buildings
 ALTER TABLE Units ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
+-- Affects only the city the unit is purchased from (works like PurchaseCooldown for faith purchases)
+ALTER TABLE Units ADD COLUMN 'LocalFaithPurchaseCooldown' INTEGER DEFAULT 0;
 -- Affects Faith purchases for all faith buys in all cities.
 ALTER TABLE Units ADD COLUMN 'GlobalFaithPurchaseCooldown' INTEGER DEFAULT 0;
 
@@ -941,6 +948,9 @@ ALTER TABLE Traits ADD COLUMN 'ProductionBonusModifierConquest' INTEGER DEFAULT 
 
 -- GWAM from conquest
 ALTER TABLE Traits ADD COLUMN 'CityConquestGWAM' INTEGER DEFAULT 0;
+
+-- Shared religion tourism modifier, same as the one for policies
+ALTER TABLE Traits ADD COLUMN 'SharedReligionTourismModifier' INTEGER DEFAULT 0;
 
 -- Limits the amount that can be built of a Unit class per city
 ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
@@ -1219,6 +1229,9 @@ ALTER TABLE Improvements ADD COLUMN 'NewOwner' BOOLEAN DEFAULT 0;
 
 -- Improvement grants promotion if plot is owned by the player.
 ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
+
+-- Missionaries gain % more strength
+ALTER TABLE Traits ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
 
 -- CSD
 

@@ -173,7 +173,7 @@
 			<ConversionModifier>-10</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ExtraMissionaryStrengthGlobal>5</ExtraMissionaryStrengthGlobal>
-			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<ReligiousPressureModifier>40</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
@@ -383,8 +383,8 @@
 			<Happiness>1</Happiness>
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>14</PortraitIndex>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_SIEGE_WORKSHOP</Type>

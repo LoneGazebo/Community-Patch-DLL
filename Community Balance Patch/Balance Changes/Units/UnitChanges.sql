@@ -30,6 +30,9 @@
 
 	UPDATE Units SET BaseCultureTurnsToCount = '5' WHERE Type = 'UNIT_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Writer added scaling bonus for num owned GWS
+	UPDATE Units SET ScaleFromNumGWs = '3' WHERE Type = 'UNIT_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Great Scientist science boost lowered slightly.
 
 	UPDATE Units SET BaseBeakersTurnsToCount = '5' WHERE Type = 'UNIT_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -49,6 +52,8 @@
 
 	-- Reduced base golden age turns of artist 
 	UPDATE Units SET GoldenAgeTurns = '4' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	-- Writer added scaling bonus for num themed GWs
+	UPDATE Units SET ScaleFromNumThemes = '20' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Engineer production boost nerfed slightly.
 
@@ -66,7 +71,16 @@
 	UPDATE Units SET Moves = '2' WHERE Type = 'UNIT_WORKBOAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	UPDATE Units SET MilitarySupport = '0' WHERE Type = 'UNIT_WORKBOAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	
+	UPDATE Units
+	SET RequiresFaithPurchaseEnabled = '1'
+	WHERE Type = 'UNIT_ARCHAEOLOGIST';
+
+INSERT INTO Unit_ScalingFromOwnedImprovements
+	(UnitType, ImprovementType, Amount)
+VALUES
+	('UNIT_SCIENTIST', 'IMPROVEMENT_ACADEMY', '10'),
+	('UNIT_ENGINEER', 'IMPROVEMENT_MANUFACTORY', '20'),
+	('UNIT_MERCHANT', 'IMPROVEMENT_CUSTOMS_HOUSE', '1');
 
 INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)

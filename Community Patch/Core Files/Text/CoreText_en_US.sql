@@ -557,7 +557,7 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT' AND EXISTS (SELECT * FROM COMMUNI
 
 
 UPDATE Language_en_US
-SET Text = 'Very well. Not that it will help either of us in the long run – we will all die soon enough.'
+SET Text = 'Very well. Not that it will help either of us in the long run...we will all die soon enough.'
 WHERE Tag = 'TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY';
 
 UPDATE Language_en_US

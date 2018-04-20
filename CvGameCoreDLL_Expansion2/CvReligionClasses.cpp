@@ -1411,7 +1411,14 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 #else
 			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
 #endif
+#if defined(MOD_BALANCE_CORE)
+			int iReligiousStrength = pLoopUnit->getUnitInfo().GetReligiousStrength();
+			iReligiousStrength *= (100 + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
+			iReligiousStrength /= 100;
+			pLoopUnit->GetReligionData()->SetReligiousStrength(iReligiousStrength);
+#else
 			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
+#endif
 		}
 	}
 
@@ -7978,6 +7985,14 @@ bool CvReligionAI::DoFaithPurchases()
 	if(eUnitClassMissionary != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary))
 	{
 		bTooManyMissionaries = true;
+	}
+	// If our civ benefits from sharing religion, even if we are not the founder, we will always be spreading if we can no longer found (Pius IX)
+	else if (kPlayer.GetPlayerTraits()->GetSharedReligionTourismModifier() > 0 && kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength() > 0 && GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() == 0)
+	{
+		if (iNumMissionaries >= iMaxMissionaries)
+		{
+			bTooManyMissionaries = true;
+		}
 	}
 	//Let's not spread a non-founder religion outside of our owned cities. That makes us a pawn!
 	else if(eReligion != kPlayer.GetReligions()->GetReligionCreatedByPlayer())

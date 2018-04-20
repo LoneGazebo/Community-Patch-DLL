@@ -743,6 +743,13 @@ end
 function GetProductionTooltip(pCity)
 
 	local iBaseProductionPT = pCity:GetBaseYieldRate(YieldTypes.YIELD_PRODUCTION);
+	local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_PRODUCTION);
+	if (iYieldPerPop ~= 0) then
+		iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
+		iYieldPerPop = iYieldPerPop / 100;
+		
+		iBaseProductionPT = iBaseProductionPT + iYieldPerPop;
+	end
 	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
 	local strCodeToolTip = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_PRODUCTION);
 	
@@ -1066,7 +1073,7 @@ function GetCultureTooltip(pCity)
 -- END		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
-			iAmount = GameDefines.PUPPET_CULTURE_MODIFIER;
+			iAmount = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_CULTURE);
 			
 			if (iAmount ~= 0) then
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
@@ -1242,7 +1249,7 @@ function GetFaithTooltip(pCity)
 		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
-			local iAmount = GameDefines.PUPPET_FAITH_MODIFIER;
+			local iAmount = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_FAITH);
 		
 			if (iAmount ~= 0) then
 				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", iAmount));
@@ -1284,17 +1291,19 @@ function GetCityHappinessTooltip(pCity)
 		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
 		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
 		local iResistanceUnhappiness = 0;
+		local iOccupationUnhappiness = 0;
+		local iPuppetUnhappiness = 0;
 		if(pCity:IsRazing()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		elseif(pCity:IsResistance()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
-		end
-		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+		elseif(pCity:IsPuppet()) then
+			iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+		elseif(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 			
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
 
 		local iPuppetMod = 0;
 		if(pCity:IsPuppet()) then
@@ -1350,6 +1359,12 @@ function GetCityHappinessTooltip(pCity)
 		if (iOccupationUnhappiness ~= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
 		end
+
+		-- Puppet tooltip
+		if (iPuppetUnhappiness ~= 0) then
+			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
+		end
+
 		-- Resistance tooltip
 		if (iResistanceUnhappiness ~= 0) then
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
