@@ -294,7 +294,7 @@
 			<Text>Ice Breakers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS_HELP">
-			<Text>Allows Workboats to move through Ice tiles.</Text>
+			<Text>Allows movement through Ice tiles.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE">

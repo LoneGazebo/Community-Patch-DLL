@@ -61,6 +61,8 @@ public:
 	int GetHurryMultiplier() const;
 	bool IsRushBuilding() const;
 	int GetBaseGold() const;
+	int GetScaleFromNumGWs() const;
+	int GetScaleFromNumThemes() const;
 	int GetNumGoldPerEra() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetNumInfPerEra() const;
@@ -237,6 +239,7 @@ public:
 	bool GetGreatPeoples(int i) const;
 	bool GetBuildings(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
+	int GetScalingFromOwnedImprovements(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	bool GetBuildOnFound(int i) const;
 	bool GetBuildingClassPurchaseRequireds(int i) const;
@@ -290,6 +293,8 @@ private:
 	int m_iHurryMultiplier;
 	bool m_bRushBuilding;
 	int m_iBaseGold;
+	int m_iScaleFromNumGWs;
+	int m_iScaleFromNumThemes;
 	int m_iNumGoldPerEra;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iNumInfPerEra;
@@ -460,6 +465,7 @@ private:
 	bool* m_pbBuildings;
 	bool* m_pbBuildingClassRequireds;
 #if defined(MOD_BALANCE_CORE)
+	int* m_piScalingFromOwnedImprovements;
 	bool* m_pbBuildOnFound;
 	bool* m_pbBuildingClassPurchaseRequireds;
 	int* m_piEraCombatStrength;

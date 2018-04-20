@@ -2659,11 +2659,17 @@
 		</Row>
 
 		<!-- Promises LUA -->
-		<Row Tag="TXT_KEY_DIPLO_PROMISE_EXPANSION">
-			<Text>[[COLOR_POSITIVE_TEXT]]You promised not to settle near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
+			<Text>You promised to keep your military forces away from their borders for {1_Num} more turn(s).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PROMISE_BORDER">
-			<Text>[[COLOR_POSITIVE_TEXT]]You promised not to buy land near them for {1_Num} more turn(s).[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
+			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
+			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS">
+			<Text>You promised not to spy on them for {1_Num} more turn(s).</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -2750,6 +2756,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE">
 			<Text>Deal Value for Them: Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO">
+			<Text>SANCTIONED BY WORLD CONGRESS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO_TT">
+			<Text>You cannot make deals during peacetime with this Civilization until the Sanction is lifted.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE">
 			<Text>Deal Value for Them: Acceptable</Text>
@@ -5280,6 +5292,13 @@
 			<Text>{1_PlayerName} restored!</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
+			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will become an independent City-State. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
+			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
+		</Row>
+
 		<!-- Denounce Statements -->
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WARMONGER_1">
 			<Text>I have stood by long enough while your armies lay waste to this world. I can only hope this denouncement will finally put a stop to your ambitions. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
@@ -5887,7 +5906,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY">
-			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your primary relgion, thus giving you access to the Founder and Enhancer Belief bonuses associated with it (so long as you retain control of the City).</Text>
+			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your primary religion, thus giving you access to the Founder and Enhancer Belief bonuses associated with it (so long as you retain control of the City).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY">
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
@@ -6355,6 +6374,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
+			<Text>{1_Build}: {2_Turns} Turn(s) Required</Text>
 		</Row>
 
 

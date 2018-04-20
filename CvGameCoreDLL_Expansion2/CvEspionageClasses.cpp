@@ -525,6 +525,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				int iGoal = CalcRequired(SPY_STATE_RIG_ELECTION, pCity, uiSpyIndex);
 				pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 				pCityEspionage->SetLastProgress(ePlayer, iRate);
+				pSpy->SetSpyActiveTurn(GC.getGame().getGameTurn());
 #if defined(MOD_API_ESPIONAGE)
 				}
 #endif
@@ -4468,10 +4469,10 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxTechCostAdjusted /= 100;
 #if defined(MOD_BALANCE_CORE)
-			if (GET_PLAYER(ePlayer).GetCurrentEra() <= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 			{
-				uiMaxTechCostAdjusted *= (100 + GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
-				uiMaxTechCostAdjusted /= 100;
+				uiMaxTechCostAdjusted *= 100;
+				uiMaxTechCostAdjusted /= (100 + (GET_PLAYER(ePlayer).GetCurrentEra() * GET_PLAYER(ePlayer).GetCurrentEra()));
 			}
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
@@ -4960,6 +4961,11 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	else if(iResultPercentage < 5)
 	{
 		iResultPercentage = 5;
+	}
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		int iTurnBonus = (m_aSpyList[uiSpyIndex].GetSpyActiveTurn() - GC.getGame().getGameTurn()) / 5;
+		iResultPercentage += iTurnBonus;
 	}
 #else
 	else if(iResultPercentage < 0)

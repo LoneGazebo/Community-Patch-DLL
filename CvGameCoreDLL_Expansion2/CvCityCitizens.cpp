@@ -919,7 +919,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 		int iTempBonus = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
 		int iTempBonusPlusOne = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
 		if (iTempBonus != iTempBonusPlusOne)
-			iBonus += iTempBonusPlusOne * 100;
+			iBonus += iTempBonusPlusOne;
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -936,7 +936,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield)
 		int iTempBonus = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
 		int iTempBonusPlusOne = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
 		if (iTempBonus != iTempBonusPlusOne)
-			iBonus += iTempBonusPlusOne * 100;
+			iBonus += iTempBonusPlusOne;
 	}
 
 	return iBonus;
@@ -967,8 +967,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		int iPlotBonus = GetBonusPlotValue(pPlot, eYield);
 		if (iPlotBonus > 0)
 		{
-			iYield *= (100 + iPlotBonus);
-			iYield /= 100;
+			iYield += iPlotBonus;
 		}
 
 		if (iYield > 0)
@@ -997,11 +996,12 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				// If our surplus is not at least 2, really emphasize food plots
 				else if (!bAvoidGrowth)
 				{
-					int iFoodTurnsRemaining = m_pCity->getFoodTurnsLeft();
+					int iMultiplier = iExcessFoodTimes100 <= 0 ? 10 : 5;
+					int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft());
 					int iPopulation = m_pCity->getPopulation();
 
 					//Smaller cities want to grow fast - larger cities can slow down a bit.
-					iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * 100 / max(1, iPopulation);
+					iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) / max(1, iPopulation);
 				}
 				iYield *= GC.getAI_CITIZEN_VALUE_FOOD();
 				if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
@@ -4675,6 +4675,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
 		int iReligionSpreads = newUnit->getUnitInfo().GetReligionSpreads();
 		int iReligiousStrength = newUnit->getUnitInfo().GetReligiousStrength();
+#if defined(MOD_BALANCE_CORE)
+		iReligiousStrength *= (100 + kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength());
+		iReligiousStrength /= 100;
+#endif
 		if (iReligionSpreads > 0 && eReligion > RELIGION_PANTHEON)
 		{
 #if defined(MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS)

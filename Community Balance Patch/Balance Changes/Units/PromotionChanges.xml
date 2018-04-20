@@ -2237,28 +2237,28 @@
 			<Description>TXT_KEY_PROMOTION_BUFFALO_CHEST</Description>
 			<Help>TXT_KEY_PROMOTION_BUFFALO_CHEST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_BUFFALO_HORNS</PromotionPrereq>
+			<PromotionPrereq>PROMOTION_BUFFALO_LOINS</PromotionPrereq>
 			<PortraitIndex>9</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_CHEST</PediaEntry>
-			<CombatPercent>10</CombatPercent>
+			<CombatPercent>5</CombatPercent>
 			<FlankAttackModifier>25</FlankAttackModifier>
-			<RangedDefenseMod>10</RangedDefenseMod>
+			<RangedDefenseMod>5</RangedDefenseMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_BUFFALO_LOINS</Type>
 			<Description>TXT_KEY_PROMOTION_BUFFALO_LOINS</Description>
 			<Help>TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_BUFFALO_CHEST</PromotionPrereq>
 			<PortraitIndex>9</PortraitIndex>
+			<CannotBeChosen>true</CannotBeChosen>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_LOINS</PediaEntry>
-			<CombatPercent>15</CombatPercent>
-			<FlankAttackModifier>50</FlankAttackModifier>
-			<RangedDefenseMod>15</RangedDefenseMod>
+			<CombatPercent>5</CombatPercent>
+			<FlankAttackModifier>25</FlankAttackModifier>
+			<RangedDefenseMod>5</RangedDefenseMod>
 		</Replace>
 		<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
 		<Replace>
@@ -2267,13 +2267,13 @@
 			<Help>TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>9</PortraitIndex>
+			<PromotionPrereq>PROMOTION_BUFFALO_HORNS</PromotionPrereq>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_HORNS</PediaEntry>
-			<CannotBeChosen>true</CannotBeChosen>
 			<FlankAttackModifier>25</FlankAttackModifier>
 			<MovesChange>1</MovesChange>
-			<RangedDefenseMod>10</RangedDefenseMod>
+			<RangedDefenseMod>5</RangedDefenseMod>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_GUNPOWDER</Type>

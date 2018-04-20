@@ -2318,6 +2318,14 @@ local function GetCultureTooltip( city )
 	end
 
 	-- Puppet modifier
+	if (city:IsPuppet()) then
+		local puppetMod = Players[city:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_CULTURE)		
+		if (puppetMod ~= 0) then
+			tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )
+		end
+	end
+
+	-- Puppet modifier
 	-- Vox Populi
 	--local puppetMod = city:IsPuppet() and GameDefines.PUPPET_CULTURE_MODIFIER or 0
 	--if (puppetMod ~= 0 and not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
@@ -2358,17 +2366,19 @@ local function GetCityHappinessTooltip(city)
 	local iScienceUnhappiness = city:GetUnhappinessFromScience();
 	local iCultureUnhappiness = city:GetUnhappinessFromCulture();
 	local iResistanceUnhappiness = 0;
+	local iPuppetUnhappiness = 0;
+	local iOccupationUnhappiness = 0;
 	if(city:IsRazing()) then
 		iResistanceUnhappiness = (city:GetPopulation() / 2);
 	elseif(city:IsResistance()) then
 		iResistanceUnhappiness = (city:GetPopulation() / 2);
-	end
-	local iOccupationUnhappiness = 0;
-	if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance() and not city:IsRazing()) then
+	elseif(city:IsPuppet()) then
+		iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+	elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then
 		iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 	end
 		
-	local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
+	local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness + iPuppetUnhappiness;
 
 	local iPuppetMod = 0;
 	if(city:IsPuppet()) then
@@ -2420,6 +2430,11 @@ local function GetCityHappinessTooltip(city)
 
 	strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 	
+	-- Puppet tooltip
+	if (iPuppetUnhappiness ~= 0) then
+		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
+	end
+
 	-- Occupation tooltip
 	if (iOccupationUnhappiness ~= 0) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
@@ -2664,8 +2679,9 @@ local function GetFaithTooltip( city )
 		--END
 
 		-- Puppet modifier
-		if (not Players[city:GetOwner()]:IsIgnorePuppetPenalties()) then
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
+		if (city:IsPuppet()) then
+			local puppetMod = Players[city:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_FAITH);
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", puppetMod)
 		end
 		
 		local trfaith = city:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)

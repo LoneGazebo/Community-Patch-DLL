@@ -406,7 +406,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCapitalUnhappinessMod);
 	Method(GetTraitCityUnhappinessMod);
 	Method(GetTraitPopUnhappinessMod);
-	Method(IsIgnorePuppetPenalties);
+	Method(GetPuppetYieldPenalty);
 	Method(IsHalfSpecialistUnhappiness);
 
 	Method(GetHappinessPerGarrisonedUnit);
@@ -808,6 +808,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsAlive);
 	Method(IsEverAlive);
+	Method(IsPotentiallyAlive);
 	Method(IsExtendedGame);
 	Method(IsFoundedFirstCity);
 
@@ -1047,6 +1048,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_DEALS)
 	Method(IsHasDefensivePact);
 	Method(IsHasDefensivePactWithPlayer);
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) 
+	Method(GetNumTurnsMilitaryPromise);
+	Method(GetNumTurnsExpansionPromise);
+	Method(GetNumTurnsBorderPromise);
+	Method(GetNumTurnsNoSpyingPromise);
 #endif
 
 	Method(GetNumNotifications);
@@ -4093,11 +4100,40 @@ int CvLuaPlayer::lGetTraitPopUnhappinessMod(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lIsIgnorePuppetPenalties(lua_State* L)
+int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const bool bResult = pkPlayer->GetPlayerTraits()->IsIgnorePuppetPenalties();
-	lua_pushboolean(L, bResult);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+
+	int iResult = pkPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + pkPlayer->GetPuppetYieldPenaltyMod();
+	switch (eYield)
+	{
+		case(YIELD_FOOD) :
+			iResult += GC.getPUPPET_GROWTH_MODIFIER();
+			break;
+		case(YIELD_PRODUCTION) :
+			iResult += GC.getPUPPET_PRODUCTION_MODIFIER();
+			break;
+		case(YIELD_SCIENCE) :
+			iResult += GC.getPUPPET_SCIENCE_MODIFIER();
+			break;
+		case(YIELD_GOLD) :
+			iResult += GC.getPUPPET_GOLD_MODIFIER();
+			break;
+		case(YIELD_FAITH) :
+			iResult += GC.getPUPPET_FAITH_MODIFIER();
+			break;
+		case(YIELD_TOURISM) :
+			iResult += GC.getPUPPET_TOURISM_MODIFIER();
+			break;
+		case(YIELD_CULTURE) :
+			iResult += GC.getPUPPET_CULTURE_MODIFIER();
+			break;
+	}
+	if (iResult > 0)
+		iResult = 0;
+
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 
@@ -8915,6 +8951,13 @@ int CvLuaPlayer::lIsEverAlive(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::isEverAlive);
 }
+
+//------------------------------------------------------------------------------
+//bool isEverAlive();
+int CvLuaPlayer::lIsPotentiallyAlive(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::isPotentiallyAlive);
+}
 //------------------------------------------------------------------------------
 //bool isExtendedGame();
 int CvLuaPlayer::lIsExtendedGame(lua_State* L)
@@ -10823,6 +10866,40 @@ int CvLuaPlayer::lIsHasDefensivePactWithPlayer(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+int CvLuaPlayer::lGetNumTurnsMilitaryPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeMilitaryPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumTurnsExpansionPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeExpansionPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumTurnsBorderPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeBorderPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+int CvLuaPlayer::lGetNumTurnsNoSpyingPromise(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeNoSpyingPromise(eWithPlayer);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //void AddNotification()
 int CvLuaPlayer::lAddNotification(lua_State* L)
@@ -12451,20 +12528,36 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	if(MOD_BALANCE_CORE_DEALS)
 	{
 		//Promises
+		iValue = pDiploAI->GetPlayerMadeMilitaryPromise(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
 		iValue = pDiploAI->GetPlayerMadeExpansionPromise(eWithPlayer);
 		if(iValue > 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_PROMISE_EXPANSION", iValue);
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
 		iValue = pDiploAI->GetPlayerMadeBorderPromise(eWithPlayer);
 		if(iValue > 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_PROMISE_BORDER", iValue);
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiploAI->GetPlayerMadeNoSpyingPromise(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -13461,6 +13554,13 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
 	int iValueImOffering, iValueTheyreOffering;
 	int iResult = 0;
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), GC.getGame().getActivePlayer()))
+	{
+		iResult = -2;
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
 	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
 	if(iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{

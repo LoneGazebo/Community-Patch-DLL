@@ -702,6 +702,12 @@ public:
 	int GetClosestCityDistanceInPlots(const CvPlot* pPlot);
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot);
 
+
+	PlayerTypes GetPotentialFreeCityPlayer(CvCity* pCity = NULL);
+	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
+	bool CreateFreeCityPlayer(CvCity* pCity, bool bJustChecking = false);
+	MinorCivTypes GetAvailableMinorCivType();
+
 	//------------------------------------------------------------
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------

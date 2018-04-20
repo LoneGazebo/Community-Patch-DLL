@@ -271,6 +271,11 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_ePlayerResponsibleForImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForRoute = NO_PLAYER;
 	m_ePlayerThatClearedBarbCampHere = NO_PLAYER;
+#if defined(MOD_BALANCE_CORE)
+	m_iUnitPlotExperience = 0;
+	m_iUnitPlotGAExperience = 0;
+	m_iPlotChangeMoves = 0;
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 #endif
@@ -418,6 +423,19 @@ void CvPlot::doTurn()
 	{
 		changeImprovementDuration(1);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
+	{
+		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+
+		if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+		{
+			setResourceType(NO_RESOURCE, 0);
+		}
+	}
+#endif
 
 	verifyUnitValidPlot();
 
@@ -6202,6 +6220,18 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
 						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 					}
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience() * -1);
+					}
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
+					}
+					if (pImprovementInfo->GetMovesChange() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
+					}
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 					// Embassy extra vote in WC mod
@@ -6443,6 +6473,18 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
 						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
 						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					}
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					{
+						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience());
+					}
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					{
+						ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
+					}
+					if (pImprovementInfo->GetMovesChange() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
 					}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -7770,7 +7812,19 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();		
 					changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-				}	
+				}
+				if (oldImprovementEntry.GetUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotExperience(-1 * oldImprovementEntry.GetUnitPlotExperience());
+				}
+				if (oldImprovementEntry.GetGAUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotGAExperience(-1 * oldImprovementEntry.GetGAUnitPlotExperience());
+				}
+				if (oldImprovementEntry.GetMovesChange() > 0)
+				{
+					ChangePlotMovesChange(-1 * oldImprovementEntry.GetMovesChange());
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
@@ -7886,9 +7940,85 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
 #if defined(MOD_BALANCE_CORE)
+			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
 			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
 			{
-				ClearArchaeologicalRecord();
+				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifactResourceType || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifactResourceType))
+				{
+					if (MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP && GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
+					{
+						CvPlayer& kPlayer = GET_PLAYER(getOwner());
+						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
+						kPlayer.GetCulture()->AddDigCompletePlot(this);
+
+						if (kPlayer.isHuman())
+						{
+							CvNotifications* pNotifications;
+							Localization::String locString;
+							Localization::String locSummary;
+							pNotifications = kPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
+								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
+								CancelActivePlayerEndTurn();
+							}
+
+#if !defined(NO_ACHIEVEMENTS)
+							// Raiders of the Lost Ark achievement
+							const char* szCivKey = kPlayer.getCivilizationTypeKey();
+							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+							{
+								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+								szCivKey = kPlotOwner.getCivilizationTypeKey();
+								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+								{
+									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+									{
+										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+										{
+											szCivKey = kLoopPlayer.getCivilizationTypeKey();
+											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+											{
+												CvUnit *pLoopUnit;
+												int iUnitLoop;
+												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+												{
+													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+													{
+														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+														{
+															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+#endif
+						}
+						else
+						{
+							ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
+							kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
+						}
+					}
+					else
+					{
+						setResourceType(NO_RESOURCE, 0);
+						ClearArchaeologicalRecord();
+					}
+				}
+				else if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+				{
+					setResourceType(NO_RESOURCE, 0);
+					ClearArchaeologicalRecord();
+				}
 			}
 #endif
 			// If this improvement can add culture to nearby improvements, update them as well
@@ -7983,7 +8113,19 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
-				}	
+				}
+				if (newImprovementEntry.GetUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotExperience(newImprovementEntry.GetUnitPlotExperience());
+				}
+				if (newImprovementEntry.GetGAUnitPlotExperience() > 0)
+				{
+					ChangeUnitPlotGAExperience(newImprovementEntry.GetGAUnitPlotExperience());
+				}
+				if (newImprovementEntry.GetMovesChange() > 0 && getOwner() == eBuilder)
+				{
+					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
+				}
 #endif
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
@@ -8580,6 +8722,15 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 			{
 				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+			}
+			int iMoves = GC.getImprovementInfo(getImprovementType())->GetMovesChange();
+			if (bPillaged && GetPlotMovesChange() > 0)
+			{
+				ChangePlotMovesChange(iMoves * -1);
+			}
+			else if (!bPillaged && iMoves > 0 && getOwner() == GET_PLAYER(getOwner()).GetID())
+			{
+				ChangePlotMovesChange(iMoves);
 			}
 		}
 #endif
@@ -10681,24 +10832,10 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			if(pCity->HasGarrison())
 			{
 				CvUnit* pUnit = pCity->GetGarrisonedUnit();
-				if(pUnit != NULL)
+				if(pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
 				{
-					for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-					{
-						const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-						if(pkPromotionInfo)
-						{
-							if(pkPromotionInfo->GetGarrisonYield(eYield))
-							{
-								if(pUnit->isHasPromotion(eLoopPromotion))
-								{
-									int igarrisonstrength = pUnit->GetBaseCombatStrength();
-									iYield += ((pkPromotionInfo->GetGarrisonYield(eYield) * igarrisonstrength) / 8);
-								}
-							}
-						}
-					}
+					int igarrisonstrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * igarrisonstrength) / 8);
 				}
 			}
 		}
@@ -12197,51 +12334,53 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				// If we want to prompt the user about archaeology, let's record that
 				if (newImprovementEntry.IsPromptWhenComplete())
 				{
-					CvAssertMsg (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS, "Archaeological dig complete but no archeology data found!");
-
-					kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
-					kPlayer.GetCulture()->AddDigCompletePlot(this);
-
-					if(kPlayer.isHuman())
+					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{
-						CvNotifications* pNotifications;
-						Localization::String locString;
-						Localization::String locSummary;
-						pNotifications = kPlayer.GetNotifications();
-						if(pNotifications)
+
+						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
+						kPlayer.GetCulture()->AddDigCompletePlot(this);
+
+						if (kPlayer.isHuman())
 						{
-							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-							pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
-							CancelActivePlayerEndTurn();
-						}
+							CvNotifications* pNotifications;
+							Localization::String locString;
+							Localization::String locSummary;
+							pNotifications = kPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
+								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
+								CancelActivePlayerEndTurn();
+							}
 
 #if !defined(NO_ACHIEVEMENTS)
-						// Raiders of the Lost Ark achievement
-						const char* szCivKey = kPlayer.getCivilizationTypeKey();
-						if(getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
-						{
-							CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-							szCivKey = kPlotOwner.getCivilizationTypeKey();
-							if(strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+							// Raiders of the Lost Ark achievement
+							const char* szCivKey = kPlayer.getCivilizationTypeKey();
+							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
 							{
-								for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+								szCivKey = kPlotOwner.getCivilizationTypeKey();
+								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
 								{
-									CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-									if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 									{
-										szCivKey = kLoopPlayer.getCivilizationTypeKey();
-										if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
 										{
-											CvUnit *pLoopUnit;
-											int iUnitLoop;
-											for(pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+											szCivKey = kLoopPlayer.getCivilizationTypeKey();
+											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
 											{
-												if(strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+												CvUnit *pLoopUnit;
+												int iUnitLoop;
+												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
 												{
-													if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
 													{
-														gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+														{
+															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+														}
 													}
 												}
 											}
@@ -12249,13 +12388,13 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 									}
 								}
 							}
-						}
 #endif
-					}
-					else
-					{	
-						ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
-						kPlayer.GetCulture()->DoArchaeologyChoice (eChoice);
+						}
+						else
+						{
+							ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
+							kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
+						}
 					}
 				}
 			}
@@ -12539,7 +12678,46 @@ int CvPlot::getNumUnits() const
 {
 	return m_units.getLength();
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvPlot::GetUnitPlotExperience() const
+{
+	VALIDATE_OBJECT
+	return m_iUnitPlotExperience;
+}
+void CvPlot::ChangeUnitPlotExperience(int iExperience)
+{
+	VALIDATE_OBJECT
+	m_iUnitPlotExperience += iExperience;
+}
+int CvPlot::GetUnitPlotGAExperience() const
+{
+	VALIDATE_OBJECT
+	return m_iUnitPlotGAExperience;
+}
+void CvPlot::ChangeUnitPlotGAExperience(int iExperience)
+{
+	VALIDATE_OBJECT
+	m_iUnitPlotGAExperience += iExperience;
+}
+bool CvPlot::IsUnitPlotExperience() const
+{
+	if (GetUnitPlotExperience() > 0 || GetUnitPlotGAExperience() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+int CvPlot::GetPlotMovesChange() const
+{
+	VALIDATE_OBJECT
+	return m_iPlotChangeMoves;
+}
+void CvPlot::ChangePlotMovesChange(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iPlotChangeMoves += iValue;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {
@@ -12937,6 +13115,12 @@ void CvPlot::read(FDataStream& kStream)
 	m_bIsImpassable = bitPackWorkaround;
 	kStream >> bitPackWorkaround;
 	m_bIsFreshwater = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_iUnitPlotExperience = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_iUnitPlotGAExperience = bitPackWorkaround;
+	kStream >> bitPackWorkaround;
+	m_iPlotChangeMoves = bitPackWorkaround;
 #endif
 
 	kStream >> m_eOwner;
@@ -13130,6 +13314,9 @@ void CvPlot::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bIsImpassable;
 	kStream << m_bIsFreshwater;
+	kStream << m_iUnitPlotExperience;
+	kStream << m_iUnitPlotGAExperience;
+	kStream << m_iPlotChangeMoves;
 #endif
 	// m_bPlotLayoutDirty not saved
 	// m_bLayoutStateWorked not saved
@@ -14159,7 +14346,7 @@ void CvPlot::SetStrategicRoute(TeamTypes eTeam, bool bValue)
 	if (m_abStrategicRoute[eTeam] != bValue)
 		m_abStrategicRoute[eTeam] = bValue;
 }
-bool CvPlot::IsStrategicRoute(TeamTypes eTeam)
+bool CvPlot::IsStrategicRoute(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -14343,6 +14530,12 @@ void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 {
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
+	{
+		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+			return;
+	}
 	// Make sure the new record is more significant
 	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
 	{
@@ -14359,6 +14552,13 @@ void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes e
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 {
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
+	{
+		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
+			return;
+	}
+
 	// Make sure the new record is more significant
 	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
 	{
@@ -14379,6 +14579,14 @@ void CvPlot::ClearArchaeologicalRecord()
 	m_kArchaeologyData.m_ePlayer1 = NO_PLAYER;
 	m_kArchaeologyData.m_ePlayer2 = NO_PLAYER;
 	m_kArchaeologyData.m_eEra = NO_ERA;
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+	if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+	{
+		setResourceType(NO_RESOURCE, 0);
+	}
+#endif
 }
 
 //	---------------------------------------------------------------------------

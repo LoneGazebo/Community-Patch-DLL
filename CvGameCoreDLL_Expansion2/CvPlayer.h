@@ -1798,6 +1798,11 @@ public:
 		return m_bEverAlive;
 	}
 
+	bool isPotentiallyAlive() const
+	{
+		return m_bPotentiallyAlive;
+	}
+
 	void setBeingResurrected(bool bNewValue);
 	bool isBeingResurrected() const
 	{
@@ -2766,7 +2771,7 @@ public:
 	void DoForceDefPact(PlayerTypes eOtherPlayer);
 	int CountAllFeature(FeatureTypes iFeatureType);
 	int CountAllWorkedFeature(FeatureTypes iFeatureType);
-	int CountAllImprovement(ImprovementTypes iImprovementType);
+	int CountAllImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated = false);
 	int CountAllWorkedImprovement(ImprovementTypes iImprovementType);
 	int CountAllPlotType(PlotTypes iPlotType);
 	int CountAllWorkedPlotType(PlotTypes iPlotType);
@@ -3399,6 +3404,7 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bHasBetrayedMinorCiv;
 	FAutoVariable<bool, CvPlayer> m_bAlive;
 	FAutoVariable<bool, CvPlayer> m_bEverAlive;
+	FAutoVariable<bool, CvPlayer> m_bPotentiallyAlive;
 	FAutoVariable<bool, CvPlayer> m_bBeingResurrected;
 	FAutoVariable<bool, CvPlayer> m_bTurnActive;
 	FAutoVariable<bool, CvPlayer> m_bAutoMoves;					// Signal that we can process the auto moves when ready.

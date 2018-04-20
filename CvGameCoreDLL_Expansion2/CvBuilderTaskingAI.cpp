@@ -375,6 +375,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		return;
 	}
 
+	bool bHuman = m_pPlayer->isHuman();
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
@@ -400,12 +401,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	//don't build through the wilderness
-	if (iWildPlots>3 && bSamePlayer)
+	if (iWildPlots>3 && bSamePlayer && !bHuman)
 		return;
 
 	//maybe a lighthouse is just as good?
 	if (pPlayerCapital->isCoastal() && pTargetCity->isCoastal() && pPlayerCapital->isMatchingArea(pTargetCity->plot()))
-		if (iNetGoldTimes100<500)
+		if (iNetGoldTimes100<500 && !bHuman)
 			return;
 
 	//see if the new route makes sense economically
@@ -438,7 +439,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		}
 
 		int iProfit = iGoldForRoute + iSideBenefits - iRoadLength*iMaintenancePerTile;
-		if (iProfit < 0 || (iProfit+iNetGoldTimes100 < 0))
+		if (!bHuman && (iProfit < 0 || (iProfit + iNetGoldTimes100 < 0)))
 			return;
 
 		//bring it out of the hundreds to avoid overflow
@@ -1623,6 +1624,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
+	
+	//minors stay out
+	if (m_pPlayer->isMinorCiv())
+		return;
 
 	// if the player can't build a route, bail out!
 	if (eBestRouteType == NO_ROUTE)

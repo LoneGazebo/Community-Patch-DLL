@@ -929,7 +929,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Let's look at yield bonuses.
 	int iYieldValue = 0;
 
-	bool bSmall = m_pCity->getPopulation() < 10 && !m_pCity->isCapital();
+	bool bSmall = m_pCity->getPopulation() <= 12 && !m_pCity->isCapital();
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
@@ -981,7 +981,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				break;
 			case YIELD_FAITH:
 				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
-					iYieldValue /= 3;
+					iYieldValue /= 2;
 				if (iReligion > 0)
 				{
 					iYieldValue += (iReligion * 100);
@@ -990,7 +990,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				break;
 			case YIELD_CULTURE:
 				if (bSmall)
-					iYieldValue *= 3;
+					iYieldValue /= 2;
 				if (iBoredom > 0)
 				{
 					iYieldValue += (iBoredom * 100);
@@ -1000,27 +1000,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				break;
 			case YIELD_PRODUCTION:
 				if (bSmall)
-					iYieldValue *= 5;
+					iYieldValue *= 10;
 				break;
 			case YIELD_FOOD:
 				if (bSmall)
-					iYieldValue *= 5;
+					iYieldValue *= 10;
 				break;
 			case YIELD_TOURISM:
 				if (bSmall)
-					iYieldValue = 0;
+					iYieldValue /= 5;
 				break;
 			case YIELD_GOLDEN_AGE_POINTS:
 				if (bSmall)
-					iYieldValue = 0;
+					iYieldValue /= 5;
 				break;
 			}
 			
 			//Puppets should focus on yield buildings.
 			if (m_pCity->IsPuppet())
 			{
-				iYieldValue *= 5;
-				iYieldTrait *= 5;
+				iYieldValue *= 10;
+				iYieldTrait *= 10;
 			}
 		}
 
@@ -1226,6 +1226,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iBonus /= 50;
 		}
+	}
+
+	if (m_pCity->isProductionBuilding() && m_pCity->getProductionBuilding() == eBuilding)
+	{
+		iBonus /= max(1, 10 - m_pCity->getProductionTurnsLeft());
 	}
 
 	/////

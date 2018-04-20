@@ -706,6 +706,9 @@ void CvPlayerAI::AI_considerAnnex()
 		if (pCity->IsRazing() && pCity->HasAnyWonder() && !IsEmpireVeryUnhappy())
 			unraze(pCity);
 
+		if (pCity->IsResistance())
+			continue;
+
 		//Original City and puppeted? Stop!
 		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
 		{
@@ -713,8 +716,17 @@ void CvPlayerAI::AI_considerAnnex()
 			return;
 		}
 
-		if (pCity->IsResistance())
-			continue;
+		if (pCity->IsOriginalMajorCapital())
+		{
+			pCity->DoAnnex();
+			return;
+		}
+
+		if (pCity->IsBastion())
+		{
+			pCity->DoAnnex();
+			return;
+		}
 
 		CityAndProduction kEval;
 		kEval.pCity = pCity;
@@ -982,10 +994,15 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
+			bCitySameAsMuster = false;
+
 			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
 
 			if (!pMusterPlot)
 				continue;
+
+			if (pCity == pMusterPlot->getWorkingCity())
+				bCitySameAsMuster = true;
 
 			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
 			{
@@ -993,18 +1010,18 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			}				
 #endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
-			
-			if (thisSlot.m_iOperationID == -1)
+
+			if (!thisSlot.IsValid())
 				continue;
 
-			if (thisSlot.IsValid() && OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
+			CvArmyAI* pThisArmy = GET_PLAYER(pCity->getOwner()).getArmyAI(thisSlot.m_iArmyID);
+
+			if (!pThisArmy || !pThisArmy->GetFormationSlot(thisSlot.m_iSlotID)->IsFree())
+				continue;
+
+			if (OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
 			{
 				bestSlot = thisSlot;
-			}
-
-			if (pCity == pMusterPlot->getWorkingCity() && bestSlot == thisSlot)
-			{
-				bCitySameAsMuster = true;
 				break;
 			}
 		}
@@ -1126,6 +1143,12 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		else if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !IsAtWar())
 		{
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_USE_POWER);
+			continue;
+		}
+		// Pseudo Great People (units with missions from GP, but are not SPECIALUNIT_PEOPLE)
+		else if (pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ARTIST) && pLoopUnit->getUnitInfo().GetGoldenAgeTurns() > 0 && pLoopUnit->getUnitInfo().IsGreatWorkUnit())
+		{
+			pLoopUnit->SetGreatPeopleDirective(GetDirectiveArtist(pLoopUnit));
 			continue;
 		}
 		else
@@ -2380,12 +2403,16 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 	// Subtract distance (XML value important here!)
 	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+	max(1, iDistance /= max(1, pUnit->baseMoves()));
 
 	//Are there barbarians near the city-state? If so, careful!
 	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
 	{
 		iDistance *= 3;
 	}
+
+	if (eMinor.getCapitalCity() != NULL && eMinor.getCapitalCity()->isUnderSiege())
+		iDistance *= 3;
 
 	//Let's downplay minors we can't walk to if we don't have embarkation.
 	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())

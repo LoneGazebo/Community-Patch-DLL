@@ -312,7 +312,7 @@
 	
 	-- Text change for Khan ability
 	UPDATE Language_en_US
-	SET Text = 'Units in this tile and and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 10 Additional HP[ENDCOLOR] per turn.'
+	SET Text = 'Units in this tile and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 10 Additional HP[ENDCOLOR] per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Fix Anti-Air Promotion Info
@@ -400,3 +400,35 @@
 	UPDATE Language_en_US
 	SET Text = 'Enemy units receive -15% [ICON_STRENGTH] Combat Strength when adjacent to any unit with this promotion.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Adjusted Buffalo stuff
+
+	UPDATE Language_en_US
+	SET Text = '+1 Movement. Flank attack bonus increased by 25%. +5% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength. Flank attack bonus increased by 25%. +5% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_CHEST_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+5% [ICON_STRENGTH] Combat Strength. Flank attack bonus increased by 50%. +5% [COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_LOINS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+
+	-- Correct "Heals at Double Rate" from Persia/Immortal
+	UPDATE Language_en_US
+	SET Text = 'Faster Healing'
+	WHERE Tag = 'TXT_KEY_PROMOTION_FASTER_HEAL';
+
+	UPDATE Language_en_US
+	SET Text = 'Faster Healing'
+	WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_FASTER_HEAL';
+
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_FASTER_HEAL_HELP', 
+	'This unit [COLOR_POSITIVE_TEXT]Heals 10 Additional HP[ENDCOLOR] per turn.');
+
+	UPDATE UnitPromotions
+	SET Help = 'TXT_KEY_PROMOTION_FASTER_HEAL_HELP'
+	WHERE Type = 'PROMOTION_FASTER_HEAL'

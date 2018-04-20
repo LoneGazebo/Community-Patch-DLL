@@ -242,16 +242,19 @@ public:
 #endif
 	int GetLastTurnLifetimeCulture() const;
 	void SetLastTurnLifetimeCulture(int iValue);
+	int GetLastTurnCPT() const;
+	void SetLastTurnCPT(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
 #if defined(MOD_API_EXTENSIONS)
 	void ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
 #endif
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
+	int GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const;
 	int GetInfluencePerTurn(PlayerTypes ePlayer) const;
 	InfluenceLevelTypes GetInfluenceLevel(PlayerTypes ePlayer) const;
 	InfluenceLevelTrend GetInfluenceTrend(PlayerTypes ePlayer) const;
-	int GetTurnsToInfluential(PlayerTypes ePlayer) const;
+	int GetTurnsToInfluential(PlayerTypes ePlayer);
 	int GetNumCivsInfluentialOn() const;
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
@@ -306,8 +309,10 @@ public:
 	// Public data
 	vector<CvPlot *> m_aDigCompletePlots;
 	int m_iLastTurnLifetimeCulture;
+	int m_iLastTurnCPT;
 	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];
 	int m_aiLastTurnCulturalInfluence[MAX_MAJOR_CIVS];
+	int m_aiLastTurnCulturalIPT[MAX_MAJOR_CIVS];
 	bool m_bReportedTwoCivsAway;
 	bool m_bReportedOneCivAway;
 	PublicOpinionTypes m_eOpinion;

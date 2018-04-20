@@ -354,7 +354,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	}
 #endif
 
-	if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
+	if (this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE && eItem != TRADE_ITEM_PEACE_TREATY && !ContainsItemType(TRADE_ITEM_PEACE_TREATY))
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if (pLeague != NULL && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
@@ -3458,7 +3458,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 										if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 										{
 											int iTemp = pInfo->getMonopolyGALength();
-											iTemp += max(1, GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent());
+											iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
 											iLengthModifier += iTemp;
 										}
 									}
@@ -3533,7 +3533,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 										if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 										{
 											int iTemp = pInfo->getMonopolyGALength();
-											iTemp += max(1, GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent());
+											iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
 											iLengthModifier += iTemp;
 										}
 									}

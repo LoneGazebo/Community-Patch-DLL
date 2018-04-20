@@ -414,6 +414,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool greatperson();
 #endif
+	int GetScaleAmount(int iAmountToScale) const;
 	bool canDiscover(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getDiscoverAmount();
 	bool discover();
@@ -669,6 +670,39 @@ public:
 	void SetNearbyUnitClassBonusRange(int iBonusRange);
 	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
 	void SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass);
+	void ChangeAddedFromNearbyUnitPromotion(PromotionTypes ePromotion, int iChange);
+	int GetAddedFromNearbyUnitPromotion(PromotionTypes eIndex);
+	void ChangeNearbyPromotion(int iValue);
+	int GetNearbyPromotion() const;
+	bool IsNearbyPromotion() const;
+	int GetNearbyUnitPromotionsRange() const;
+	void ChangeNearbyUnitPromotionRange(int iBonusRange);
+	void ChangeNearbyCityPromotion(int iValue);
+	int GetNearbyCityPromotion() const;
+	bool IsNearbyCityPromotion() const;
+	void ChangeNearbyFriendlyCityPromotion(int iValue);
+	int GetNearbyFriendlyCityPromotion() const;
+	bool IsNearbyFriendlyCityPromotion() const;
+	void ChangeNearbyEnemyCityPromotion(int iValue);
+	int GetNearbyEnemyCityPromotion() const;
+	bool IsNearbyEnemyCityPromotion() const;
+	void ChangeIsFriendlyLands(int iValue);
+	int GetIsFriendlyLands() const;
+	bool IsFriendlyLands() const;
+	void ChangeIsEnemyLands(int iValue);
+	int GetIsEnemyLands() const;
+	bool IsEnemyLands() const;
+	void ChangeAdjacentSameType(PromotionTypes ePromotion, int iChange);
+	int GetAdjacentSameType(PromotionTypes eIndex);
+	int GetPillageBonusStrengthPercent() const;
+	void ChangePillageBonusStrengthPercent(int iBonus);
+	int GetStackedGreatGeneralExperience() const;
+	void ChangeStackedGreatGeneralExperience(int iExperience);
+	void ChangeIsHighSeaRaider(int iValue);
+	int GetIsHighSeaRaider() const;
+	bool IsHighSeaRaider() const;
+	int GetWonderProductionModifier() const;
+	void ChangeWonderProductionModifier(int iValue);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -839,6 +873,9 @@ public:
 
 	int GetYieldChange(YieldTypes eYield) const;
 	void SetYieldChange(YieldTypes eYield, int iValue);
+
+	int GetGarrisonYieldChange(YieldTypes eYield) const;
+	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
 	bool IsHasNoValidMove() const;
 
@@ -1258,6 +1295,9 @@ public:
 
 	int GetReligiousPressureModifier() const;
 	void ChangeReligiousPressureModifier(int iChange);
+
+	void ChangeAdjacentCityDefenseMod(int iChange);
+	int GetAdjacentCityDefenseMod() const;
 
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
@@ -1946,6 +1986,19 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonus;
 	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonusRange;
 	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
+	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_iAddedFromNearbyUnitPromotion;
+	FAutoVariable<int, CvUnit> m_bNearbyPromotion;
+	FAutoVariable<int, CvUnit> m_iNearbyUnitPromotionRange;
+	FAutoVariable<int, CvUnit> m_bNearbyCityPromotion;
+	FAutoVariable<int, CvUnit> m_bNearbyFriendlyCityPromotion;
+	FAutoVariable<int, CvUnit> m_bNearbyEnemyCityPromotion;
+	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
+	FAutoVariable<int, CvUnit> m_bIsEnemyLands;
+	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_iAdjacentSameType;
+	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
+	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
+	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
+	FAutoVariable<int, CvUnit> m_iWonderProductionModifier;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2031,6 +2084,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iDamageReductionCityAssault;
 	FAutoVariable<int, CvUnit> m_iGoodyHutYieldBonus;
 	FAutoVariable<int, CvUnit> m_iReligiousPressureModifier;
+	FAutoVariable<int, CvUnit> m_iAdjacentCityDefenseMod;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
@@ -2067,6 +2121,7 @@ protected:
 	std::vector<int> m_extraDomainModifiers;
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
+	std::vector<int> m_iGarrisonYieldChange;
 
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
 	FAutoVariable<int, CvUnit> m_iScenarioData;

@@ -2136,6 +2136,8 @@ int CvLuaPlot::lGetArchaeologyArtifactPlayer2(lua_State* L)
 {
 	CvPlot* kPlot = GetInstance(L);
 	int iPlayer = kPlot->GetArchaeologicalRecord().m_ePlayer2;
+	if (iPlayer == -1)
+		iPlayer = (int)BARBARIAN_PLAYER;
 	lua_pushinteger(L, iPlayer);
 	return 1;
 }

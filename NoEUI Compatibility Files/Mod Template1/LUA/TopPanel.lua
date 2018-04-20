@@ -1026,7 +1026,7 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", iUnhappinessFromCapturedCityCount);
 		end
 -- COMMUNITY PATCH CHANGES BELOW
-		if (iUnhappinessFromPop ~= "0") then
+		if (iUnhappinessFromPop > "0") then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_POPULATION", iUnhappinessFromPop);
 		end
