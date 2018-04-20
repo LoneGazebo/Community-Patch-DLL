@@ -509,7 +509,7 @@ function OnShowHide( isHide, bIsInit )
 
 					--print("iLoopPlayer: " .. iLoopPlayer);
 
-					if (player:IsEverAlive() or player:IsPotentiallyAlive()) then
+					if (pLoopPlayer:IsEverAlive() or pLoopPlayer:IsPotentiallyAlive()) then
 
 						if( g_iUs ~= iLoopPlayer and g_iThem ~= iLoopPlayer and
 							g_pUsTeam:IsHasMet( iLoopTeam ) and g_pThemTeam:IsHasMet( iLoopTeam ) and
