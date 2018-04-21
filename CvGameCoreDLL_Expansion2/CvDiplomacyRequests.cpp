@@ -269,24 +269,26 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 					continue;
 				}
 
-				bool bGood = pDeal->AreAllTradeItemsValid();
-				if (!bGood)
+				bool bDealOk = pDeal->AreAllTradeItemsValid();
+
+				if (!bDealOk)
 				{
 					GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, false);
 
 					if (iter->m_iLookupIndex >= 0)
 						GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iter->m_iLookupIndex, false);
-
-					iter = m_aRequests.erase(iter);
-
+					
 					CvPlayerAI& kFromPlayer = GET_PLAYER(iter->m_eFromPlayer);
 					Localization::String strMessage;
 					Localization::String strSummary;
 
 					strSummary = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN");
 					strMessage = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN_BY_THEM");
-					strMessage << kFromPlayer.getNickName();
+					strMessage << kFromPlayer.getName();
 					GET_PLAYER(m_ePlayer).GetNotifications()->Add(NOTIFICATION_PLAYER_DEAL_RESOLVED, strMessage.toUTF8(), strSummary.toUTF8(), iter->m_eFromPlayer, -1, -1);
+
+					iter = m_aRequests.erase(iter);
+					continue;
 				}
 			}
 			++iter;
@@ -319,7 +321,8 @@ void CvDiplomacyRequests::ActivateNext()
 foundRequest:
 	static CvDeal kDeal;
 	PlayerTypes eFrom = requestIter->m_eFromPlayer;
-	
+	PlayerTypes eTo = m_ePlayer;
+
 	// we remove the first proposed deal and use it as the scratch deal ...
 	if (!(CvPreGame::isHuman(m_ePlayer) && CvPreGame::isHuman(eFrom)))
 	{
@@ -333,14 +336,94 @@ foundRequest:
 		}
 	}
 
-	auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(&kDeal);
-	DLLUI->SetScratchDeal(pDeal.get());
-
 	if (requestIter->m_iLookupIndex >= 0)
 	{
 		// we had a notification: Cancel it
 		GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(requestIter->m_iLookupIndex, false);
 	}
+
+	if (requestIter->m_eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) {
+		bool bCancelDeal = false;
+		bool bBlankDeal = false;
+		if (!kDeal.AreAllTradeItemsValid())
+		{
+			bCancelDeal = true;
+		}
+		else
+		{						
+			CvDealAI* dealAI = GET_PLAYER(eFrom).GetDealAI();
+			int iTotalValueToMe = 0, iValueImOffering = 0, iValueTheyreOffering = 0;
+			int iAmountOverWeWillRequest = 0, iAmountUnderWeWillOffer = 0;
+			bool bCantMatch = false;
+			bool bAcceptable = dealAI->IsDealWithHumanAcceptable(&kDeal, eTo, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatch, false);
+
+			if (!bAcceptable)
+			{				
+				if (kDeal.m_bConsideringForRenewal)
+				{
+					// doesn't make sense to alter deals that are being renewed, leads to confusion.
+					if (iTotalValueToMe < 0) {	// unacceptable deal in other player's favour, could be terrible but we don't want to cancel now. CvDiplomacyAI uses a more involved condition for this
+						requestIter->m_strMessage = GET_PLAYER(eFrom).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_WANT_MORE_RENEW_DEAL);
+					}
+					// we will shamelessly present a bad deal for them
+				}				
+				else if (!kDeal.IsPeaceTreatyTrade(eTo))
+				{
+					// DoEqualizeDealWithHuman won't update the cached peace value so I have split out it here
+					// Otherwise equalizing the deal in the UI won't work. I do not understand why the cached peace value is the way it is.
+					bool bGoodToBeginWith = true;
+					bool bCantMatchOffer = false;
+					// just try modify gold to start off iwth since it could maybe be possible that the AI had something in mind at the time
+					bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, true, true, bGoodToBeginWith, bCantMatchOffer);
+					if (!bAcceptable) // now try harder to get a deal to avoid an improptu withdrawl
+						bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, false, false, bGoodToBeginWith, bCantMatchOffer);
+					if (!bAcceptable) // well, we tried. Gonna just clear the deal and being up a empty non-descript trade as it is slightly less wierd than the deal abruptly being withdrawn
+					{
+						//bBlankDeal = true; // blanking seems to works fine but from reading bug reports, simply cancelling might be less surprising
+						bCancelDeal = true;
+					}
+				}
+				else {
+					// This could change the deal signifcantly from the original but it is better than the current behaviour and probably not an issue since it is the same as how offers are generated currently
+					kDeal.ClearItems();
+					if(GET_PLAYER(eFrom).GetDiplomacyAI()->IsWantsPeaceWithPlayer(eTo)) // Maybe we just don't want peace anymore somehow?
+						bAcceptable = dealAI->IsOfferPeace(eTo, &kDeal, false);
+					if (!bAcceptable) // well, we tried. 
+					{
+						bCancelDeal = true;
+					}
+				}				
+			}				
+		}
+		if (bCancelDeal)
+		{
+			// Cancelling the deal now works but means the left click on the notifcation just makes the deal mysteriously be withdrawn and looks like kinda a bug despite getting a new notification about it
+			// It would be better if deals were checked/adjusted more frequently but I have not been willing to test enough (desyncs, cached peace values, etc) and deals shouldn't be getting withdrawn as much now anyway.
+			CvPlayerAI& kFromPlayer = GET_PLAYER(eFrom);
+			Localization::String strMessage;
+			Localization::String strSummary;
+
+			strSummary = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN");
+			strMessage = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN_BY_THEM");
+			strMessage << kFromPlayer.getName();
+			GET_PLAYER(m_ePlayer).GetNotifications()->Add(NOTIFICATION_PLAYER_DEAL_RESOLVED, strMessage.toUTF8(), strSummary.toUTF8(), eFrom, -1, -1);
+
+			m_aRequests.erase(requestIter);
+			
+			return;
+		}
+		else if (bBlankDeal) 
+		{
+			// well, we tried. Gonna just clear the deal and being up a empty non-descript trade as it is slightly less wierd than the deal abruptly being withdrawn			
+			requestIter->m_eDiploType = DIPLO_UI_STATE_TRADE;
+			requestIter->m_strMessage = GET_PLAYER(eFrom).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
+			requestIter->m_eAnimationType = LEADERHEAD_ANIM_REQUEST;
+			kDeal.ClearItems();
+		}
+	}
+
+	auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(&kDeal);
+	DLLUI->SetScratchDeal(pDeal.get());
 
 	// Send the request
 	m_bRequestActive = true;
