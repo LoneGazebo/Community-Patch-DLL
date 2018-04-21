@@ -570,7 +570,7 @@ public:
 	~CvTacticalAnalysisMap(void);
 
 	void Init(PlayerTypes ePlayer);
-	void Refresh();
+	void Refresh(bool force = false);
 	bool IsUpToDate();
 
 	void EstablishZoneNeighborhood();
@@ -604,6 +604,7 @@ public:
 	void Dump();
 #endif
 
+	void Invalidate();
 protected:
 	bool PopulateCell(int iIndex, CvPlot* pPlot);
 	void AddToDominanceZones(int iIndex, CvTacticalAnalysisCell* pCell);
