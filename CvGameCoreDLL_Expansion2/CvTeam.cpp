@@ -2198,6 +2198,28 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 #else
 	DoMakePeace(eTeam, bBumpUnits, bSuppressNotification);
 #endif
+
+	CvPlayerManager::Refresh(true);
+
+	//refresh tactical AI as well!
+	for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+	{
+		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+		{
+			kAttackingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+			{
+				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+				if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
+				{
+					kDefendingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+				}
+			}
+		}
+	}
 }
 
 //	------------------------------------------------------------------------------------------------
