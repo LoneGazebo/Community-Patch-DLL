@@ -359,7 +359,7 @@ CvPlayer::CvPlayer() :
 	, m_bHasBetrayedMinorCiv("CvPlayer::m_bHasBetrayedMinorCiv", m_syncArchive)
 	, m_bAlive("CvPlayer::m_bAlive", m_syncArchive)
 	, m_bEverAlive("CvPlayer::m_bEverAlive", m_syncArchive)
-	//, m_bPotentiallyAlive("CvPlayer::m_bPotentiallyAlive", m_syncArchive)
+	, m_bPotentiallyAlive("CvPlayer::m_bPotentiallyAlive", m_syncArchive)
 	, m_bBeingResurrected("CvPlayer::m_bBeingResurrected", m_syncArchive, false, false)
 	, m_bTurnActive("CvPlayer::m_bTurnActive", m_syncArchive, false, true)
 	, m_bAutoMoves("CvPlayer::m_bAutoMoves", m_syncArchive, false, true)
@@ -892,18 +892,20 @@ void CvPlayer::init(PlayerTypes eID)
 	CvAssert(getTeam() != NO_TEAM);
 	GET_TEAM(getTeam()).changeNumMembers(1);
 
+	PlayerTypes p = GetID();
+	SlotStatus s = CvPreGame::slotStatus(p);
+
 #if defined(MOD_BALANCE_CORE)
 	GET_TEAM(getTeam()).addPlayer( GetID() );
 
 	//minors can become free cities...but we have to make sure the UI can know this.
-	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS)
+	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS && s == SS_CLOSED && CvPreGame::isMinorCiv(eID))
 	{
-		//m_bPotentiallyAlive = true;
+		m_bPotentiallyAlive = true;
 	}
 #endif
 
-	PlayerTypes p = GetID();
-	SlotStatus s = CvPreGame::slotStatus(p);
+	
 	if((s == SS_TAKEN) || (s == SS_COMPUTER))
 	{
 		setAlive(true);
@@ -1771,7 +1773,7 @@ void CvPlayer::uninit()
 	m_bHasBetrayedMinorCiv = false;
 	m_bAlive = false;
 	m_bEverAlive = false;
-	//m_bPotentiallyAlive = false;
+	m_bPotentiallyAlive = false;
 	m_bBeingResurrected = false;
 	m_bTurnActive = false;
 	m_bAutoMoves = false;
@@ -3144,6 +3146,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pOldCity->getNumWorldWonders() > 0)
 			{
 				iValue += (pOldCity->getNumWorldWonders() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+			}
+
+			int iNumTimesOwned(pOldCity->GetNumTimesOwned(GetID()));
+			if (iNumTimesOwned > 1)
+			{
+				iValue /= (iNumTimesOwned * 3);
 			}
 #endif
 
@@ -11218,6 +11226,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
 	GetCulture()->SetLastTurnLifetimeCulture(GetJONSCultureEverGenerated());
+	GetCulture()->SetLastTurnCPT(GetJONSCultureEverGenerated() - GetCulture()->GetLastTurnLifetimeCulture());
 	if(kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
 		if(getJONSCulture() < getNextPolicyCost())
@@ -21374,6 +21383,14 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 			if (pLoopCity->IsPuppet())
 				iUnhappiness *= 2;
 
+			int iCapitalDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), getCapitalCity()->getX(), getCapitalCity()->getY());
+
+			int iDistanceFactor = 100 - iCapitalDistance;
+			if (iDistanceFactor <= 0)
+				iDistanceFactor = 1;
+
+			iUnhappiness += iDistanceFactor / 10;
+
 			int iModifier = 0;
 			if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_CityFlipChance, pLoopCity->GetID(), GetID()) == GAMEEVENTRETURN_VALUE) {
 				if (iModifier != 0) {
@@ -22282,7 +22299,12 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	}
 
 	if (pCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-		return 0;
+	{
+		if (pCity->IsRazing() || pCity->IsResistance())
+			return pCity->getPopulation() / 2;
+		else
+			return pCity->getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+	}
 
 #endif
 	int iNumCitiesUnhappinessTimes100 = 0;
@@ -22615,10 +22637,22 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 /// Unhappiness from Puppet City Population
 int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 {
-	int iUnhappiness = 0;
-	int iUnhappinessPerPop = GC.getUNHAPPINESS_PER_POPULATION() * 100;
-
 	int iLoop = 0;
+	if (MOD_BALANCE_CORE_PUPPET_CHANGES)
+	{
+		int iTotal = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
+				continue;
+			else
+				iTotal += pLoopCity->getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+		}
+		return iTotal;
+	}
+
+	int iUnhappiness = 0;
+	int iUnhappinessPerPop = GC.getUNHAPPINESS_PER_POPULATION() * 100;	
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		bool bCityValid = false;
@@ -24434,19 +24468,19 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 #if defined(MOD_BALANCE_CORE)
+	CvCity* pCapital = getCapitalCity();
 	int iPolicyGEorGM = GetPlayerTraits()->GetPolicyGEorGM();
-	if(iPolicyGEorGM > 0)
+	if(iPolicyGEorGM > 0 && pCapital != NULL)
 	{
 		CvCity* pLoopCity;
-		CvCity* pCapital = getCapitalCity(); // JJ: Define capital
 		int iLoop;
-			int iEra = GetCurrentEra(); // JJ: Changed era scaling to match rest of VP
+			int iEra = GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
 			}
-		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+		int iValue = iPolicyGEorGM * iEra;
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iRandom = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
 		if(iRandom <= 33)
@@ -24477,18 +24511,18 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 				{
 					if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
-						pLoopCity->changeProduction((iValue * 2) / 100); // JJ: Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
+						pLoopCity->changeProduction((iValue * 2) / 100); // Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
 					{
-						this->GetTreasury()->ChangeGold((iValue * 4) / 100); // JJ: Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
+						this->GetTreasury()->ChangeGold((iValue * 4) / 100); // Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
 					{
 						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
 						{
-							changeOverflowResearch(iValue / 100); // JJ: Dividing by 100 here to minimise rounding error.
+							changeOverflowResearch(iValue / 100); // Dividing by 100 here to minimise rounding error.
 							if(getOverflowResearch() <= 0)
 							{
 								setOverflowResearch(0);
@@ -24496,23 +24530,15 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 						}
 						else
 						{
-							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), GetID()); // JJ: Dividing by 100 here to minimise rounding error.
+							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), GetID()); // Dividing by 100 here to minimise rounding error.
 							if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
 							{
 								GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
 							}
 						}
-					}
-				//CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-				// JJ: Moved outside of for loop
-					//int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					//iGPThreshold *= 100;
-					////Get % of threshold for test.
-					//iGPThreshold *= iPolicyGEorGM;
-					//iGPThreshold /= 100;
-				
+					}				
 					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
-					if(GetID() == GC.getGame().getActivePlayer()) // JJ: Change the popup to show the specific great person type's icon
+					if(GetID() == GC.getGame().getActivePlayer()) // The popup shows the specific great person type's icon
 					{
 						if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 						{
@@ -24546,7 +24572,7 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 						}
 					}
 				} //end of for loop
-				if(GetID() == GC.getGame().getActivePlayer()) // JJ: Moved notification outside of for loop as it was flooding the screen
+				if(GetID() == GC.getGame().getActivePlayer()) // Moved notification outside of for loop as it was flooding the screen
 				{
 					CvNotifications* pNotification = GetNotifications();
 					if(pNotification)
@@ -44867,9 +44893,10 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pGreatPeopleUnit->getX(), pGreatPeopleUnit->getY(), -1);
 		}
 	}
-	if(pGreatPeopleUnit->IsCombatUnit())
+	if(pGreatPeopleUnit->IsCombatUnit() && getCapitalCity() != NULL)
 	{
 		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
+		pGreatPeopleUnit->setOriginCity(getCapitalCity()->GetID());
 	}
 #endif
 	ChangeNumGreatPeople(1);
@@ -44911,7 +44938,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 
 	// In rare cases we can gain the general from an embarked unit being attacked, or from a hovering unit over coast
 	// so if this plot is water, relocate the Great General
-	if (pPlot->isWater()) {
+	if (pPlot->isWater() || pGreatPeopleUnit->IsCombatUnit()) {
 		pGreatPeopleUnit->jumpToNearestValidPlot();
 	}
 #else
@@ -46482,9 +46509,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if (bNewContinent && !pPlot->isCoastalLand())
 			iScale = 1;
 
-		//if we want offshore expansion, distance doesn't matter
+		//if we want offshore expansion, distance is less important
 		if (bWantOffshore && bOffshore)
-			iScale = 100;
+			iScale = max(50,min(100,iScale*2));
 
 		//bonus if the plot is in a desirable (large) area
 		if (pPlot->getArea() == iBestArea)
@@ -48762,13 +48789,13 @@ int CvPlayer::CountAllWorkedFeature(FeatureTypes iFeatureType)
 	return iCount;
 }
 
-int CvPlayer::CountAllImprovement(ImprovementTypes iImprovementType)
+int CvPlayer::CountAllImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated)
 {
 	int iCount = 0;
 	
 	int iLoop;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
-		iCount += pLoopCity->CountImprovement(iImprovementType);
+		iCount += pLoopCity->CountImprovement(iImprovementType, bOnlyCreated);
 	}
 	
 	return iCount;

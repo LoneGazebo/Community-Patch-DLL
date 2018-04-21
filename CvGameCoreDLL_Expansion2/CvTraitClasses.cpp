@@ -134,7 +134,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bPermanentYieldsDecreaseEveryEra(false),
 	m_bImportsCountTowardsMonopolies(false),
 	m_bCanPurchaseNavalUnitsFaith(false),
-	m_bIgnorePuppetPenalties(false),
+	m_iPuppetPenaltyReduction(0),
 	m_iSharedReligionTourismModifier(0),
 	m_iExtraMissionaryStrength(0),
 #endif
@@ -834,9 +834,9 @@ bool CvTraitEntry::IsCanPurchaseNavalUnitsFaith() const
 {
 	return m_bCanPurchaseNavalUnitsFaith;
 }
-bool CvTraitEntry::IsIgnorePuppetPenalties() const
+int CvTraitEntry::GetPuppetPenaltyReduction() const
 {
-	return m_bIgnorePuppetPenalties;
+	return m_iPuppetPenaltyReduction;
 }
 /// Boost to tourism bonus for shared religion (same as the policy one)
 int CvTraitEntry::GetSharedReligionTourismModifier() const
@@ -1793,6 +1793,27 @@ bool CvTraitEntry::IsFreePromotionUnitCombat(const int promotionID, const int un
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Accessor:: Do certain units have a unique upgrade path?
+bool CvTraitEntry::IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const
+{
+	std::multimap<int, int>::const_iterator it = m_piUpgradeUnitClass.find(unitClassesID);
+	if (it != m_piUpgradeUnitClass.end())
+	{
+		// get an iterator to the element that is one past the last element associated with key
+		std::multimap<int, int>::const_iterator lastElement = m_piUpgradeUnitClass.upper_bound(unitClassesID);
+
+		// for each element in the sequence [itr, lastElement)
+		for (; it != lastElement; ++it)
+		{
+			if (it->second == unitID)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 /// Accessor:: Does the civ get free promotions for a class?
 bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
@@ -2059,7 +2080,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bPermanentYieldsDecreaseEveryEra		= kResults.GetBool("PermanentYieldsDecreaseEveryEra");
 	m_bImportsCountTowardsMonopolies		= kResults.GetBool("ImportsCountTowardsMonopolies");
 	m_bCanPurchaseNavalUnitsFaith			= kResults.GetBool("CanPurchaseNavalUnitsFaith");
-	m_bIgnorePuppetPenalties				= kResults.GetBool("IgnorePuppetPenalties");
+	m_iPuppetPenaltyReduction				= kResults.GetInt("ReducePuppetPenalties");
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
 	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
 #endif
@@ -2332,6 +2353,31 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		std::multimap<int,int>(m_FreePromotionUnitCombats).swap(m_FreePromotionUnitCombats);
 
 		kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Trait_ResourceQuantityModifiers", "ResourceType", "TraitType", szTraitType, "ResourceQuantityModifier");
+	}
+	//Populate m_piUpgradeUnitClass
+	{
+		std::string sqlKey = "UnitClassUpgrade";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitClasses.ID, Units.ID from Trait_UnitClassUpgrade, UnitClasses, Units where TraitType = ? and UnitClassType = UnitClasses.Type and UnitType = Units.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int unitClassesID = pResults->GetInt(0);
+			const int unitID = pResults->GetInt(1);
+
+			m_piUpgradeUnitClass.insert(std::pair<int, int>(unitClassesID, unitID));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::multimap<int, int>(m_piUpgradeUnitClass).swap(m_piUpgradeUnitClass);
 	}
 
 	//Populate m_MovesChangeUnitCombats
@@ -3044,7 +3090,7 @@ bool CvPlayerTraits::IsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
-		(IsIgnorePuppetPenalties() && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
+		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
 		return true;
@@ -3447,10 +3493,8 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bCanPurchaseNavalUnitsFaith = true;
 			}
-			if (trait->IsIgnorePuppetPenalties())
-			{
-				m_bIgnorePuppetPenalties = true;
-			}
+
+			m_iPuppetPenaltyReduction += trait->GetPuppetPenaltyReduction();
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iGoldToGAP += trait->GetGoldToGAP();
 			m_iInfluenceMeetCS += trait->GetInfluenceMeetCS();
@@ -4091,7 +4135,7 @@ void CvPlayerTraits::Reset()
 	m_bPermanentYieldsDecreaseEveryEra = false;
 	m_bImportsCountTowardsMonopolies = false;
 	m_bCanPurchaseNavalUnitsFaith = false;
-	m_bIgnorePuppetPenalties = false;
+	m_iPuppetPenaltyReduction = 0;
 	m_iSharedReligionTourismModifier = 0;
 	m_iExtraMissionaryStrength = 0;
 #endif
@@ -4758,6 +4802,24 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Does this player have units that have a special upgrade path?
+bool CvPlayerTraits::HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const
+{
+	CvAssertMsg((unitClassID >= 0), "unitClassID is less than zero");
+	for (size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
+	{
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if (pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
+		{
+			if (pkTraitInfo->IsSpecialUpgradeUnitClass(unitClassID, unitID))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 /// Do all new units of a certain class get a specific promotion?
 bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
@@ -6035,7 +6097,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bCanPurchaseNavalUnitsFaith, false);
-	MOD_SERIALIZE_READ(88, kStream, m_bIgnorePuppetPenalties, false);
+	MOD_SERIALIZE_READ(88, kStream, m_iPuppetPenaltyReduction, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
 #endif
@@ -6617,7 +6679,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
 	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
 	MOD_SERIALIZE_WRITE(kStream, m_bCanPurchaseNavalUnitsFaith);
-	MOD_SERIALIZE_WRITE(kStream, m_bIgnorePuppetPenalties);
+	MOD_SERIALIZE_WRITE(kStream, m_iPuppetPenaltyReduction);
 	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
 #endif

@@ -235,6 +235,7 @@ CvCity::CvCity() :
 	, m_aiDomainFreeExperience("CvCity::m_aiDomainFreeExperience", m_syncArchive)
 	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	, m_aiGreatWorkYieldChange("CvCity::m_aiGreatWorkYieldChange", m_syncArchive)
 	, m_aiEconomicValue("CvCity::m_aiEconomicValue", m_syncArchive)
 	, m_aiEventChoiceDuration("CvCity::m_aiEventChoiceDuration", m_syncArchive)
 	, m_aiEventIncrement("CvCity::m_aiEventIncrement", m_syncArchive)
@@ -787,7 +788,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && owningPlayer.GetNumCitiesFounded() <= 1)
 		{
-			GET_PLAYER(getOwner()).ChangePuppetUnhappinessMod(GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+			//GET_PLAYER(getOwner()).ChangePuppetUnhappinessMod(GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
 
 			int iCapitalMod = GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER();
 
@@ -1621,6 +1622,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromMinors.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSFriendship.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSAlliance.resize(NUM_YIELD_TYPES);
+	m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES);
 #endif
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
@@ -1647,6 +1649,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiChangeGrowthExtraYield.setAt(iI, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
+		m_aiGreatWorkYieldChange.setAt(iI, 0);
 		m_aiYieldFromKnownPantheons.setAt(iI, 0);
 		m_aiYieldFromVictory.setAt(iI, 0);
 		m_aiYieldFromPillage.setAt(iI, 0);
@@ -2915,6 +2918,10 @@ void CvCity::doTurn()
 	if(isCapital() && IsPuppet())
 	{
 		SetPuppet(false);
+	}
+	if (isCapital() && IsOccupied() && !IsNoOccupiedUnhappiness())
+	{
+		ChangeNoOccupiedUnhappinessCount(1);
 	}
 	GetCityReligions()->ComputeReligiousMajority();
 	if(IsRazing())
@@ -7645,6 +7652,27 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 					}
 				}
 			}
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->HasSpecialUnitUpgrade(eUnitClass, eUnit))
+			{
+				const UnitTypes eLoopUnit = (UnitTypes)thisCiv.getCivilizationUnits(eUnitClass);
+
+				if (eLoopUnit != NO_UNIT)
+				{
+					bUpgradeFound = true;
+
+					const UnitTypes eTempUnit = allUpgradesAvailable(eLoopUnit, (iUpgradeCount + 1));
+
+					if (eTempUnit != NO_UNIT)
+					{
+						eUpgradeUnit = eTempUnit;
+						bUpgradeAvailable = true;
+					}
+					else
+					{
+						bUpgradeUnavailable = true;
+					}
+				}
+			}
 		}
 	}
 
@@ -11934,25 +11962,13 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iI;
-			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
+			if (iTempMod != 0)
 			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo != NULL)
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
 				{
-					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
-					{
-						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-						{
-							iTempMod = pkPromotionInfo->GetWonderProductionModifier();
-							iMultiplier += iTempMod;
-							if(toolTipSink && iTempMod)
-							{
-								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
-							}
-						}
-					}
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
 				}
 			}
 		}
@@ -11963,12 +11979,12 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged()) 
 				{
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 					if(pImprovementInfo->GetWonderProductionModifier() > 0)
 					{
-						iTempMod = pImprovementInfo->GetWonderProductionModifier();
+						iTempMod = pImprovementInfo->GetWonderProductionModifier(); 
 						iMultiplier += iTempMod;
 						iNumberOfImprovements++;
 					}
@@ -12088,25 +12104,13 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iI;
-			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			iTempMod = (pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier() * iMod) / 100;
+			if (iTempMod != 0)
 			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo != NULL)
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
 				{
-					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
-					{
-						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-						{
-							iTempMod = (pkPromotionInfo->GetWonderProductionModifier() * iMod) / 100;
-							iMultiplier += iTempMod;
-							if(toolTipSink && iTempMod)
-							{
-								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
-							}
-						}
-					}
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
 				}
 			}
 		}
@@ -12117,14 +12121,14 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
 			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 			{
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged()) 
 				{
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 					if(pImprovementInfo->GetWonderProductionModifier() > 0)
 					{
-						iTempMod = (pImprovementInfo->GetWonderProductionModifier() * iMod) / 100;
+						iTempMod = (pImprovementInfo->GetWonderProductionModifier() * iMod) / 100; 
 						iMultiplier += iTempMod;
-						iNumberOfImprovements++;						
+						iNumberOfImprovements++;
 					}
 				}
 			}
@@ -14113,7 +14117,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 			int iNumResourcePlotsGiven = 0;
 			int iNumResourceTotalPlots = pBuildingInfo->GetNumResourcesToPlace(iResourceLoop);
-			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0)
+			if(pBuildingInfo->GetNumResourcesToPlace(iResourceLoop) > 0 && (iChange > 0) && bFirst)
 			{
 				//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
 				CvPlot* pLoopPlot;
@@ -14313,6 +14317,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
+			int iMod = pBuildingInfo->GetGreatWorkYieldChangeLocal(iI) * iChange;
+			if (iMod != 0)
+			{
+				ChangeGreatWorkYieldChange((YieldTypes)iI, iMod);
+			}
+
 			if( (pBuildingInfo->GetYieldFromVictory(eYield) > 0))
 			{
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
@@ -15812,9 +15822,11 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			}
 		}
 #endif
-		if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+		if (IsPuppet())
 		{
-			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			int iTempMod = GC.getPUPPET_GROWTH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (iTempMod > 0)
+				iTempMod = 0;
 			iTotalMod += iTempMod;
 			if (iTempMod != 0)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PUPPET", iTempMod);
@@ -17397,7 +17409,7 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetCultureWonderMultiplier();
 
 	// Puppet?
-	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction())
 	{
 		iModifier += GC.getPUPPET_CULTURE_MODIFIER();
 	}
@@ -17761,9 +17773,12 @@ int CvCity::GetFaithPerTurn() const
 	iModifier = getBaseYieldRateModifier(YIELD_FAITH);
 
 	// Puppet?
-	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	if (IsPuppet())
 	{
-		iModifier += GC.getPUPPET_FAITH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+		int iTempMod = GC.getPUPPET_FAITH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+		if (iTempMod > 0)
+			iTempMod = 0;
+		iModifier += iTempMod;
 	}
 
 	iFaith *= iModifier;
@@ -20411,7 +20426,10 @@ int CvCity::getHappinessDelta() const
 		{
 			return (getPopulation() / 2) * -1;
 		}
-		return 0;
+		else
+		{
+			return getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD()) * -1;
+		} 
 	}
 
 	GET_PLAYER(getOwner()).CalculateNetHappiness();
@@ -20419,11 +20437,11 @@ int CvCity::getHappinessDelta() const
 	int iPositiveHappiness = GetLocalHappiness();
 	int iNegativeHappiness = getUnhappinessAggregated();
 	
-	if(IsRazing() || IsResistance())
+	if (IsRazing() || IsResistance())
 	{
 		iNegativeHappiness += (getPopulation() / 2);
 	}
-	if(IsOccupied() && !IsNoOccupiedUnhappiness())
+	else if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
 		iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
 	}
@@ -22371,12 +22389,14 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 
 	// Puppet
-	if (IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsIgnorePuppetPenalties())
+	if (IsPuppet())
 	{
 		switch(eIndex)
 		{
 		case YIELD_SCIENCE:
-			iTempMod = GC.getPUPPET_SCIENCE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			iTempMod = GC.getPUPPET_SCIENCE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (iTempMod > 0)
+				iTempMod = 0;
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22384,7 +22404,9 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			break;
 #endif
 		case YIELD_GOLD:
-			iTempMod = GC.getPUPPET_GOLD_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			iTempMod = GC.getPUPPET_GOLD_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (iTempMod > 0)
+				iTempMod = 0;
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22392,7 +22414,9 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			break;
 #endif
 		case YIELD_PRODUCTION:
-			iTempMod = GC.getPUPPET_PRODUCTION_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			iTempMod = GC.getPUPPET_PRODUCTION_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (iTempMod > 0)
+				iTempMod = 0;
 			iModifier += iTempMod;
 			if (iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22401,7 +22425,9 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		case YIELD_TOURISM:
-			iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			iTempMod = GC.getPUPPET_TOURISM_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (iTempMod > 0)
+				iTempMod = 0;
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22409,7 +22435,9 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 		case YIELD_GOLDEN_AGE_POINTS:
-			iTempMod = GC.getPUPPET_GOLDEN_AGE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			iTempMod = GC.getPUPPET_GOLDEN_AGE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (iTempMod > 0)
+				iTempMod = 0;
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
@@ -22417,14 +22445,16 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
-			iTempMod = GC.getPUPPET_CULTURE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
+			iTempMod = GC.getPUPPET_CULTURE_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
+				iTempMod = 0;
 			iModifier += iTempMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
-		case YIELD_FAITH: // taken from getJONSCulturePerTurn
-			iTempMod = GC.getPUPPET_FAITH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod();
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+		//case YIELD_FAITH: // taken from getJONSCulturePerTurn
+			//iTempMod = GC.getPUPPET_FAITH_MODIFIER() + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 #endif
 		}
 	}
@@ -24767,6 +24797,29 @@ void CvCity::changeLocalBuildingClassYield(BuildingClassTypes eIndex1, YieldType
 		m_ppaiLocalBuildingClassYield[eIndex1][eIndex2] += iChange;
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetGreatWorkYieldChange(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiGreatWorkYieldChange[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiGreatWorkYieldChange.setAt(eIndex, m_aiGreatWorkYieldChange[eIndex] + iChange);
+	}
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -26597,6 +26650,9 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 	GC.getMap().updateDeferredFog();
 
+	GetCityCitizens()->SetDirty(true);
+	GetCityCitizens()->DoReallocateCitizens();
+
 	DoUpdateCheapestPlotInfluenceDistance();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -26687,13 +26743,13 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 					ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 					if(eResourceUsage == RESOURCEUSAGE_STRATEGIC)
 					{
-						iRtnValue += /* 50 */ GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
+						iRtnValue += /* 50 */ GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE() * 3;
 					}
 
 					// Luxury resource?
 					else if(eResourceUsage == RESOURCEUSAGE_LUXURY)
 					{
-						int iLuxuryValue = /* 40 */ GC.getAI_PLOT_VALUE_LUXURY_RESOURCE();
+						int iLuxuryValue = /* 40 */ GC.getAI_PLOT_VALUE_LUXURY_RESOURCE() * 3;
 
 						// Luxury we don't have yet?
 						if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource) == 0)
@@ -26722,18 +26778,32 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 		if(eYield == eSpecializationYield)
 			iTempValue += iYield* /*20*/ GC.getAI_PLOT_VALUE_SPECIALIZATION_MULTIPLIER();
-
 		else
 			iTempValue += iYield* /*10*/ GC.getAI_PLOT_VALUE_YIELD_MULTIPLIER();
 
 		// Deficient? If so, give it a boost
 		if(pCityStrategyAI->GetMostDeficientYield() == eYield)
 			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER();
+		else if (pCityStrategyAI->IsYieldDeficient(eYield))
+			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER() / 2;
 
 		iYieldValue += iTempValue;
 	}
 
 	iRtnValue += iYieldValue;
+
+	if (pPlot->IsStrategicRoute(getTeam()))
+	{
+		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
+	}
+	if (pPlot->GetBuilderAIScratchPadPlayer() == getOwner() && pPlot->GetBuilderAIScratchPadRoute() != NO_ROUTE)
+	{
+		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
+	}
+	if (pPlot->IsChokePoint() || pPlot->IsLandbridge(12, 54))
+	{
+		iRtnValue += GC.getAI_PLOT_VALUE_STRATEGIC_RESOURCE();
+	}
 
 	// For each player not on our team, check how close their nearest city is to this plot
 	CvPlayer& owningPlayer = GET_PLAYER(m_eOwner);
@@ -32617,7 +32687,7 @@ int CvCity::CountWorkedFeature(FeatureTypes iFeatureType) const
 	return iCount;
 }
 
-int CvCity::CountImprovement(ImprovementTypes iImprovementType) const
+int CvCity::CountImprovement(ImprovementTypes iImprovementType, bool bOnlyCreated) const
 {
 	int iCount = 0;
 	int iX = getX(); int iY = getY(); int iOwner = getOwner();
@@ -32636,7 +32706,11 @@ int CvCity::CountImprovement(ImprovementTypes iImprovementType) const
 			continue;
 		}
 
-		if (pLoopPlot->HasImprovement(iImprovementType)) {
+		if (pLoopPlot->HasImprovement(iImprovementType)) 
+		{
+			if (bOnlyCreated && pLoopPlot->GetPlayerThatBuiltImprovement() != getOwner())
+				continue;
+
 			++iCount;
 		}
 	}

@@ -746,11 +746,17 @@ void CvGame::InitPlayers()
 					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
 					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
 					CvPreGame::setMinorCiv(eMinorPlayer, true);
+					CvPreGame::setMinorCivType(eMinorPlayer, (MinorCivTypes)pMinorCivInfo->GetID());
 				}
 			}
 			else
 			{
+#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
+				int testingMinor = GetAvailableMinorCivType() + (eMinorPlayer + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS));
+				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo((MinorCivTypes)testingMinor);
+#else
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(GetAvailableMinorCivType());
+#endif
 				if (pMinorCivInfo)
 				{
 					CvPreGame::setSlotStatus(eMinorPlayer, SS_CLOSED);
@@ -10292,31 +10298,58 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 // for small numbers (e.g. direction rolls) this should be good enough
 // most importantly, it should reduce desyncs in multiplayer
 
+// Robert Jenkins method
+unsigned long hash32(unsigned long a)
+{
+	a = (a + 0x7ed55d16) + (a << 12);
+	a = (a ^ 0xc761c23c) ^ (a >> 19);
+	a = (a + 0x165667b1) + (a << 5);
+	a = (a + 0xd3a2646c) ^ (a << 9);
+	a = (a + 0xfd7046c5) + (a << 3);
+	a = (a ^ 0xb55a4f09) ^ (a >> 16);
+	return a;
+}
+
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	int iFake = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + m_iGlobalAssetCounter;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + m_iGlobalAssetCounter;
 	
-	//watch out, iFake^2 may turn negative because of overflow!
+	int iResult = 0;
 	if (iNum > 0)
-		return abs(iFake*iFake) % iNum;
+		iResult = hash32(iState) % iNum;
 	else if (iNum < 0)
-		return (-1) * (abs(iFake*iFake) % (-iNum));
-	else
-		return 0;
+		iResult = -int(hash32(iState) % (-iNum));
+
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsXor.csv", FILogFile::kDontTimeStamp);
+	//if (pLog)
+	//{
+	//	char szOut[1024] = { 0 };
+	//	sprintf_s(szOut, "max %d, res %d, seed (%d:%d)\n", iNum, iResult, input.getX(), input.getY());
+	//	pLog->Msg(szOut);
+	//}
+
+	return iResult;
 }
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	int iFake = getGameTurn() + m_iGlobalAssetCounter + abs(iExtraSeed);
-	
-	if (iNum == 0)
-		iNum = -1;
+	unsigned long iState = getGameTurn() + m_iGlobalAssetCounter + abs(iExtraSeed);
 
-	//watch out, iFake^2 may turn negative because of overflow!
-	if (iNum>0)
-		return abs(iFake*iFake) % iNum;
-	else
-		return (-1) * (abs(iFake*iFake) % (-iNum));
+	int iResult = 0;
+	if (iNum > 0)
+		iResult = hash32(iState) % iNum;
+	else if (iNum < 0)
+		iResult = -int(hash32(iState) % (-iNum));
+
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsHash.csv", FILogFile::kDontTimeStamp);
+	//if (pLog)
+	//{
+	//	char szOut[1024] = { 0 };
+	//	sprintf_s(szOut, "max %d, res %d, seed %d\n", iNum, iResult, iExtraSeed);
+	//	pLog->Msg(szOut);
+	//}
+
+	return iResult;
 }
 
 #endif
@@ -14068,8 +14101,6 @@ MinorCivTypes CvGame::GetAvailableMinorCivType()
 
 bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 {
-	return false;
-
 	if (pStartingCity == NULL)
 		return false;
 
@@ -14119,7 +14150,14 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	kPlayer.getCapitalCity()->ChangeNumTimesOwned(eNewPlayer, 1);
 	kPlayer.getCapitalCity()->setName(kPlayer.getName());
 	kPlayer.getCapitalCity()->SetOccupied(false);
-	kPlayer.getCapitalCity()->ChangeNoOccupiedUnhappinessCount(1);
+
+	if(!kPlayer.getCapitalCity()->IsNoOccupiedUnhappiness())
+		kPlayer.getCapitalCity()->ChangeNoOccupiedUnhappinessCount(1);
+
+	kPlayer.GetMinorCivAI()->SetTurnLiberated(getGameTurn());
+
+	//update our techs!
+	GET_TEAM(kPlayer.getTeam()).DoMinorCivTech();
 
 	DoSpawnUnitsAroundTargetCity(eNewPlayer, kPlayer.getCapitalCity(), GC.getGame().getCurrentEra()+2, false, true, false, false);
 

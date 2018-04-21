@@ -202,6 +202,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bPurchaseOnly(false),
 	m_bSecondaryPantheon(false),
 	m_piGreatWorkYieldChange(NULL),
+	m_piGreatWorkYieldChangeLocal(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_bIsNoWater(false),
@@ -427,6 +428,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyAttack);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyDefense);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
+	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChangeLocal);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piScienceFromYield);
@@ -875,6 +877,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromSpyAttack, "Building_YieldFromSpyAttack", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyDefense, "Building_YieldFromSpyDefense", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piGreatWorkYieldChangeLocal, "Building_GreatWorkYieldChangesLocal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
@@ -2297,6 +2300,19 @@ int* CvBuildingEntry::GetGreatWorkYieldChangeArray() const
 	return m_piGreatWorkYieldChange;
 }
 
+/// Change to Great Work yield by type
+int CvBuildingEntry::GetGreatWorkYieldChangeLocal(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGreatWorkYieldChangeLocal ? m_piGreatWorkYieldChangeLocal[i] : -1;
+}
+/// Array of yield changes to Great Works
+int* CvBuildingEntry::GetGreatWorkYieldChangeLocalArray() const
+{
+	return m_piGreatWorkYieldChangeLocal;
+}
+
 #endif
 
 /// Must this be built in a city next to Mountain?
@@ -3291,7 +3307,7 @@ int* CvBuildingEntry::GetFeatureYieldChangeArray(int i) const
 /// Change to Improvement yield by type
 int CvBuildingEntry::GetImprovementYieldChange(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
@@ -3301,14 +3317,14 @@ int CvBuildingEntry::GetImprovementYieldChange(int i, int j) const
 /// Array of changes to Improvement yield
 int* CvBuildingEntry::GetImprovementYieldChangeArray(int i) const
 {
-	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChange[i];
 }
 /// Change to Improvement yield by type
 int CvBuildingEntry::GetImprovementYieldChangeGlobal(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
@@ -5084,6 +5100,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	int iBaseYield = GC.getBASE_CULTURE_PER_GREAT_WORK();
 	int iSecondaryYield = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
 	iSecondaryYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+	iSecondaryYield += m_pCity->GetGreatWorkYieldChange(eYield);
 
 	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
 	if(eMajority >= RELIGION_PANTHEON)

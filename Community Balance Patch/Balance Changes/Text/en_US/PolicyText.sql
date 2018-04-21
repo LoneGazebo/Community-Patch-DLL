@@ -537,7 +537,7 @@ SET Text = 'Martial Law'
 WHERE Tag = 'TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Martial Law[ENDCOLOR][NEWLINE][ICON_PUPPET] Puppet City Yield penalties reduced by 25%. Constabularies provide +1 [ICON_HAPPINESS_1] Happiness, and garrisons no longer require [ICON_GOLD] Gold maintenance.'
+SET Text = '[COLOR_POSITIVE_TEXT]Martial Law[ENDCOLOR][NEWLINE]Yield penalties in [ICON_PUPPET] puppeted cities reduced to 50% (from 80%). Constabularies provide +1 [ICON_HAPPINESS_1] Happiness, and garrisons no longer require [ICON_GOLD] Gold maintenance.'
 WHERE Tag = 'TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

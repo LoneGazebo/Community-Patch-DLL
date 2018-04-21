@@ -1253,8 +1253,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
 			if (pUnitEntry)
 			{
-				int iPaidUnits = (pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
-				if (iPaidUnits <= 0)
+				bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
 					buildable.m_iIndex = (int)eUnitForOperation;
@@ -1279,8 +1279,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
 			if(pUnitEntry)
 			{
-				int iPaidUnits = (pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
-				if (iPaidUnits <= 0)
+				bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+				if (!bOoS)
 				{
 					buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
 					buildable.m_iIndex = (int)eUnitForArmy;
@@ -1315,8 +1315,8 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		}
 		if (pUnitEntry)
 		{
-			int iPaidUnits = (pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply()) ? kPlayer.GetNumUnitsOutOfSupply() : 0;
-			if (iPaidUnits <= 0)
+			bool bOoS = (kPlayer.GetNumUnitsOutOfSupply() > 0 && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply());
+			if (!bOoS)
 			{
 				// Make sure this unit can be built now
 				if (m_pCity->IsCanPurchase(true, true, (UnitTypes)iUnitLoop, NO_BUILDING, NO_PROJECT, ePurchaseYield))
@@ -4791,6 +4791,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iFlatYield += (iYieldRate * pkBuildingInfo->GetScienceFromYield(eYield) / 100);
 		}
 	}
+	if (pkBuildingInfo->GetGreatWorkYieldChange(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetGreatWorkYieldChange(eYield) * (kPlayer.GetCulture()->GetNumGreatWorkSlots() / 2);
+	}
+	if (pkBuildingInfo->GetGreatWorkYieldChangeLocal(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetGreatWorkYieldChange(eYield) * pCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots();
+	}
 
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	for (int iI = 0; iI < iNumBuildingInfos; iI++)
@@ -5724,6 +5732,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iCultureValue += (pkBuildingInfo->GetTechEnhancedTourism() * 10);
 	}
+
 	if(pCity != NULL && (pkBuildingInfo->GetLandmarksTourismPercent() > 0 || pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0))
 	{
 		int iFromWonders = pCity->GetCityCulture()->GetCultureFromWonders();

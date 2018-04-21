@@ -492,7 +492,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if (iDistance == 1 &&  iFoodValue > 0)
 				iGoodPlotsInRing1++;
 			// and some hammers within ring 2
-			if (iDistance > 0 && iDistance < 3 && iProductionValue > 0)
+			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0))
 				iGoodPlotsInRing2++;
 		}
 

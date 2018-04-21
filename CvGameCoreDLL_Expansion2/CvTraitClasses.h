@@ -160,7 +160,7 @@ public:
 	bool IsPermanentYieldsDecreaseEveryEra() const;
 	bool IsImportsCountTowardsMonopolies() const;
 	bool IsCanPurchaseNavalUnitsFaith() const;
-	bool IsIgnorePuppetPenalties() const;
+	int GetPuppetPenaltyReduction() const;
 	int GetSharedReligionTourismModifier() const;
 	int GetExtraMissionaryStrength() const;
 #endif
@@ -365,6 +365,7 @@ public:
 
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
+	bool IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const;
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
@@ -490,7 +491,7 @@ protected:
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
 	bool m_bCanPurchaseNavalUnitsFaith;
-	bool m_bIgnorePuppetPenalties;
+	int m_iPuppetPenaltyReduction;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
 #endif
@@ -689,6 +690,7 @@ protected:
 	std::multimap<int, int> m_FreePromotionUnitClass;
 	std::multimap<int, int> m_BuildsUnitClasses;
 	std::vector<bool> m_abTerrainClaimBoost;
+	std::multimap<int, int> m_piUpgradeUnitClass;
 #endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -1164,9 +1166,9 @@ public:
 	{
 		return m_bCanPurchaseNavalUnitsFaith;
 	};
-	bool IsIgnorePuppetPenalties() const
+	int GetPuppetPenaltyReduction() const
 	{
-		return m_bIgnorePuppetPenalties;
+		return m_iPuppetPenaltyReduction;
 	};
 	bool IsWarsawPact() const
 	{
@@ -1715,6 +1717,7 @@ public:
 
 	bool HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
+	bool HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const;
 	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
 #endif
@@ -1906,7 +1909,7 @@ private:
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
 	bool m_bCanPurchaseNavalUnitsFaith;
-	bool m_bIgnorePuppetPenalties;
+	int m_iPuppetPenaltyReduction;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
 #endif

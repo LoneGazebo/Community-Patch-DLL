@@ -217,6 +217,15 @@ function GetHelpTextForTech( iTechID )
 			BuildString = BuildString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildInfo.Description);
 		end			
 	end
+	for thisBuildInfo in GameInfo.Build_TechTimeChanges{ TechType = techType} do
+		if(thisBuildInfo) then
+			if numBuilds > 0 then
+				BuildString = BuildString .. "[NEWLINE]"
+			end
+			numBuilds = numBuilds + 1;
+			BuildString = BuildString .. " [ICON_BULLET] " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILD_REDUCTION", GameInfo.Builds[thisBuildInfo.BuildType].Description, thisBuildInfo.TimeChange/100);
+		end			
+	end
 	if numBuilds > 0 then
 		UnlocksString = UnlocksString .. BuildString
 	end

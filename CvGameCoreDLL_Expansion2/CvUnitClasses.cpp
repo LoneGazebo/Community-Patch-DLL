@@ -46,6 +46,8 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iHurryMultiplier(0),
 	m_bRushBuilding(false),
 	m_iBaseGold(0),
+	m_iScaleFromNumGWs(0),
+	m_iScaleFromNumThemes(0),
 	m_iNumGoldPerEra(0),
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra(0),
@@ -170,6 +172,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbBuildings(NULL),
 	m_pbBuildingClassRequireds(NULL),
 #if defined(MOD_BALANCE_CORE)
+	m_piScalingFromOwnedImprovements(NULL),
 	m_pbBuildOnFound(NULL),
 	m_pbBuildingClassPurchaseRequireds(NULL),
 	m_iResourceType(NO_RESOURCE),
@@ -220,6 +223,7 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuildings);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
 #if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piScalingFromOwnedImprovements);
 	SAFE_DELETE_ARRAY(m_pbBuildOnFound);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassPurchaseRequireds);
 #endif
@@ -289,6 +293,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
 	m_bRushBuilding= kResults.GetInt("RushBuilding");
 	m_iBaseGold = kResults.GetInt("BaseGold");
+	m_iScaleFromNumGWs = kResults.GetInt("ScaleFromNumGWs");
+	m_iScaleFromNumThemes = kResults.GetInt("ScaleFromNumThemes");
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
@@ -509,6 +515,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbBuildings, "Buildings", "Unit_Buildings", "BuildingType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
 #if defined(MOD_BALANCE_CORE)
+	kUtility.PopulateArrayByValue(m_piScalingFromOwnedImprovements, "Improvements", "Unit_ScalingFromOwnedImprovements", "ImprovementType", "UnitType", szUnitType, "Amount");
 	kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByValue(m_piEraCombatStrength, "Eras", "Unit_EraCombatStrength", "EraType", "UnitType", szUnitType, "CombatStrength");
@@ -869,6 +876,17 @@ bool CvUnitEntry::IsRushBuilding() const
 int CvUnitEntry::GetBaseGold() const
 {
 	return m_iBaseGold;
+}
+
+/// Era boost to gold (for great people)
+int CvUnitEntry::GetScaleFromNumGWs() const
+{
+	return m_iScaleFromNumGWs;
+}
+/// Era boost to gold (for great people)
+int CvUnitEntry::GetScaleFromNumThemes() const
+{
+	return m_iScaleFromNumThemes;
 }
 
 /// Era boost to gold (for great people)
@@ -1557,6 +1575,14 @@ bool CvUnitEntry::GetBuildingClassRequireds(int i) const
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildingClassRequireds ? m_pbBuildingClassRequireds[i] : false;
+}
+
+
+int CvUnitEntry::GetScalingFromOwnedImprovements(int i) const
+{
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piScalingFromOwnedImprovements ? m_piScalingFromOwnedImprovements[i] : -1;
 }
 
 #if defined(MOD_BALANCE_CORE)
