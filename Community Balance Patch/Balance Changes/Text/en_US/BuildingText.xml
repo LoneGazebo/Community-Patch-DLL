@@ -447,7 +447,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Boosts starting Religious Strength of all Missionaries by 5% (up to 50% in total).</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 40%, and increases the city's resistance to conversion by 10%. Boosts starting Religious Strength of all Missionaries by 5% (up to 50% in total).</Text>
 		</Row>
 
 

@@ -4990,19 +4990,19 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	CvCity* pCapital = m_pPlayer->getCapitalCity(); // JJ: Define capital
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	int iPolicyGEorGM = m_pPlayer->GetPlayerTraits()->GetPolicyGEorGM();
 	if(iPolicyGEorGM > 0 && pCapital != NULL)
 	{
 		CvCity* pLoopCity;
 		int iLoop;
-			int iEra = m_pPlayer->GetCurrentEra(); // JJ: Changed era scaling to match rest of VP
+			int iEra = m_pPlayer->GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
 			}
-		int iValue = iPolicyGEorGM * iEra; // JJ: Changed formula
-		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // JJ: Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
+		int iValue = iPolicyGEorGM * iEra;
+		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 		int iRandom = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
 		if(iRandom <= 33)
@@ -5033,18 +5033,18 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 				{
 					if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
-						pLoopCity->changeProduction((iValue * 2) / 100); // JJ: Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
+						pLoopCity->changeProduction((iValue * 2) / 100); // Production yield is 2x of science. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
 					{
-						m_pPlayer->GetTreasury()->ChangeGold((iValue * 4) / 100); // JJ: Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
+						m_pPlayer->GetTreasury()->ChangeGold((iValue * 4) / 100); // Gold yield is 4x of science, 2x of production. Dividing by 100 here to minimise rounding error.
 					}
 					else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
 					{
 						TechTypes eCurrentTech = m_pPlayer->GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
 						{
-							m_pPlayer->changeOverflowResearch(iValue / 100); // JJ: Dividing by 100 here to minimise rounding error.
+							m_pPlayer->changeOverflowResearch(iValue / 100); // Dividing by 100 here to minimise rounding error.
 							if(m_pPlayer->getOverflowResearch() <= 0)
 							{
 								m_pPlayer->setOverflowResearch(0);
@@ -5052,21 +5052,13 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 						}
 						else
 						{
-							GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), m_pPlayer->GetID()); // JJ: Dividing by 100 here to minimise rounding error.
+							GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), m_pPlayer->GetID()); // Dividing by 100 here to minimise rounding error.
 							if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
 							{
 								GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, m_pPlayer->GetID());
 							}
 						}
 					}
-				//CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-				// JJ: Moved outside of for loop
-					//int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					//iGPThreshold *= 100;
-					////Get % of threshold for test.
-					//iGPThreshold *= iPolicyGEorGM;
-					//iGPThreshold /= 100;
-				
 					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
 					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					{
@@ -5102,7 +5094,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 						}
 					}
 				} //end of for loop
-				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer()) // JJ: Moved notification outside of for loop as it was flooding the screen
+				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer()) // Moved notification outside of for loop as it was flooding the screen
 				{
 					CvNotifications* pNotification = m_pPlayer->GetNotifications();
 					if(pNotification)
@@ -5586,103 +5578,6 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	m_pPlayer->GetCulture()->SetTurnIdeologySwitch(GC.getGame().getGameTurn());
 	m_pPlayer->setJONSCulture(0);
 	m_pPlayer->ChangeNumFreeTenets(iNewBranchTenets, false /*bCountAsFreePolicies*/);
-#if defined(MOD_BALANCE_CORE)
-	int iPolicyGEorGM = m_pPlayer->GetPlayerTraits()->GetPolicyGEorGM();
-	if(iPolicyGEorGM > 0)
-	{
-		CvCity* pLoopCity;
-		int iLoop;
-		int iValue = iPolicyGEorGM * (m_pPlayer->GetCurrentEra() + 1);
-		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-		int iRandom = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
-		if(iRandom <= 33)
-		{
-			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
-		}
-		else if(iRandom > 34 && iRandom <= 66)
-		{
-			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
-		}
-		else if(iRandom > 66)
-		{
-			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT");			
-		}
-		if(eBestSpecialist != NULL)
-		{
-			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-			{
-				if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
-				{
-					pLoopCity->changeProduction(iValue);
-				}
-				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
-				{
-					m_pPlayer->GetTreasury()->ChangeGold(iValue);
-				}
-				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
-				{
-					TechTypes eCurrentTech = m_pPlayer->GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						m_pPlayer->changeOverflowResearch(iValue);
-						if(m_pPlayer->getOverflowResearch() <= 0)
-						{
-							m_pPlayer->setOverflowResearch(0);
-						}
-					}
-					else
-					{
-						GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, m_pPlayer->GetID());
-						if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
-						{
-							GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, m_pPlayer->GetID());
-						}
-					}
-				}
-				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
-				if(pkSpecialistInfo)
-				{
-					int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					iGPThreshold *= 100;
-					//Get % of threshold for test.
-					iGPThreshold *= iPolicyGEorGM;
-					iGPThreshold /= 100;
-				
-					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold, true);
-					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-					{
-						iGPThreshold /= 100;
-						char text[256] = {0};
-						float fDelay = 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
-						DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
-						CvNotifications* pNotification = m_pPlayer->GetNotifications();
-						if(pNotification)
-						{
-							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThreshold);
-							CvString strSummary;
-							// Class specific specialist message
-							if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThreshold);
-							}
-							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThreshold);
-							}
-							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-							{
-								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThreshold);
-							}
-							strSummary = GetLocalizedText("TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS");
-							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, -1);
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 #if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
 	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
 	{
