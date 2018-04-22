@@ -21594,35 +21594,32 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 
 	// Building Class Mods
 	int iSpecialBuildingHappiness = 0;
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		eBuildingClass = (BuildingClassTypes) iI;
+		eBuildingClass = (BuildingClassTypes)iI;
 
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(!pkBuildingClassInfo)
+		if (!pkBuildingClassInfo)
 		{
 			continue;
 		}
 
-		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-		int iNumTotal = countNumBuildings(eBuilding) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0;
-		if (eBuilding != NO_BUILDING && iNumTotal > 0)
+		BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+		if (eBuilding != NO_BUILDING && countNumBuildings(eBuilding) > 0)
 		{
 			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-			if(pkBuilding)
+			if (pkBuilding)
 			{
-				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+				for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
 				{
-					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes) jJ;
+					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes)jJ;
 					int iHappinessPerBuilding = pkBuilding->GetBuildingClassHappiness(eBuildingClassThatGivesHappiness);
-					if(iHappinessPerBuilding > 0)
+					if (iHappinessPerBuilding > 0)
 					{
-						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
-						if(eBuildingThatGivesHappiness != NO_BUILDING)
+						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
+						if (eBuildingThatGivesHappiness != NO_BUILDING)
 						{
-							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0;
-
-							iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
+							iSpecialBuildingHappiness += iHappinessPerBuilding * countNumBuildings(eBuildingThatGivesHappiness);
 						}
 					}
 				}
@@ -21633,11 +21630,8 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 
 	const CvCity* pLoopCity;
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsPuppet() && MOD_BALANCE_CORE_PUPPET_CHANGES)
-			continue;
-
 		iHappiness += pLoopCity->GetHappinessFromBuildings();
 	}
 
