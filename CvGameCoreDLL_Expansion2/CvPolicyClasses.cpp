@@ -215,6 +215,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatEngineerRateModifier(0),
 	m_iDefenseBoost(0),
 	m_eNewCityFreeBuilding(NO_BUILDINGCLASS),
+	m_eAllCityFreeBuilding(NO_BUILDINGCLASS),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -758,6 +759,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	if(szNewCityFreeBuilding)
 	{
 		m_eNewCityFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szNewCityFreeBuilding, true);
+	}
+	const char* szAllCityFreeBuilding = kResults.GetText("AllCityFreeBuilding");
+	if (szAllCityFreeBuilding)
+	{
+		m_eAllCityFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szAllCityFreeBuilding, true);
 	}
 #endif
 	//Arrays
@@ -1905,6 +1911,10 @@ int CvPolicyEntry::GetNewCityExtraPopulation() const
 BuildingClassTypes CvPolicyEntry::GetNewCityFreeBuilding() const
 {
 	return m_eNewCityFreeBuilding;
+}
+BuildingClassTypes CvPolicyEntry::GetAllCityFreeBuilding() const
+{
+	return m_eAllCityFreeBuilding;
 }
 #endif
 /// Amount of free food newly-founded Cities receive

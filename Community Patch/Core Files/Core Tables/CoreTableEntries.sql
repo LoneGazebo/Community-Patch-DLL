@@ -1099,6 +1099,9 @@ ALTER TABLE Units ADD UnitEraUpgrade BOOLEAN DEFAULT 0;
 -- Grants a free building to a city when founded
 ALTER TABLE Policies ADD NewCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
 
+-- Grants a free building to all existing and future cities
+ALTER TABLE Policies ADD AllCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
+
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD COLUMN 'StackedGreatGeneralXP' INTEGER DEFAULT 0;
 

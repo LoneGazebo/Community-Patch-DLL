@@ -155,6 +155,7 @@ VALUES
 	('POLICY_LANDED_ELITE', 'YIELD_GOLDEN_AGE_POINTS', 50),
 	('POLICY_LANDED_ELITE', 'YIELD_CULTURE', 50);
 
+--Note: let's use Policy_FreeBuilding here instead of AllCityFreeBuilding, since these buildings only go in the Capital so we don't confuse the intent.
 INSERT INTO Policy_FreeBuilding
 			(PolicyType,			BuildingClassType,				Count)
 VALUES		('POLICY_ARISTOCRACY',	'BUILDINGCLASS_CAPITAL_ENGINEER',	1),
