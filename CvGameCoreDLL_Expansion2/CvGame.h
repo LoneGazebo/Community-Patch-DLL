@@ -892,6 +892,7 @@ protected:
 	FTimer  m_timeSinceGameTurnStart;		//time since game turn started for human players
 	float	m_fCurrentTurnTimerPauseDelta;	//
 	bool    m_sentAutoMoves;
+	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
 #if defined(MOD_BALANCE_CORE_SPIES)

@@ -552,6 +552,12 @@ function RefreshPlayerList()
     m_bIsHost = Matchmaking.IsHost();
 	m_bLaunchReady = true;
 	
+	-- Avoid Icon Hookup errors and missing/wrong icons. Need to clear mapping of playerID to civ info since all that is potentially changing here. Quite a heavy-handed approach, I freely admit.
+	-- Referencing EUI here is probably not smiled upon. Tried a few Multiplayer Events hook this up to instead but to no avail.
+	if (EUI) then
+		EUI.ResetCache();
+	end
+	
 	-- Get the Current Player List
 	local playerTable = Matchmaking.GetPlayerList();
 	
@@ -599,9 +605,6 @@ function UpdatePlayer( slotInstance, playerInfo )
 	if(slotInstance ~= nil) then
 		slotInstance.Root:SetHide( false );
 
-		local playerName = playerInfo.playerName or Locale.ConvertTextKey( "TXT_KEY_MULTIPLAYER_DEFAULT_PLAYER_NAME", playerID + 1);
-		local playerID   = playerInfo.playerID;
-
 		--------------------------------------------------------------
 		-- Handle Civ Info
 		
@@ -611,35 +614,17 @@ function UpdatePlayer( slotInstance, playerInfo )
 		local activeCivSlot = (PreGame.GetSlotStatus( playerID ) == SlotStatus.SS_COMPUTER 
 													or PreGame.GetSlotStatus( playerID ) == SlotStatus.SS_TAKEN);
 		if( civIndex ~= -1 and activeCivSlot ) then
-      -- if we are loading then we may want to hide the civ details
-			if(PreGame.GetLoadFileName() ~= "" and playerID ~= Matchmaking.GetLocalID() and not ShouldShowCivDetails(playerID) and PreGame.GetSlotStatus(Matchmaking.GetLocalID()) ~= SlotStatus.SS_OBSERVER ) then
-			 
-				civ = GameInfo.Civilizations[ civIndex ];
-	
-				-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
-				local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
-				local leaderDescription = leader.Description;
-				slotInstance.CivLabel:LocalizeAndSetText( "TXT_KEY_UNMET_PLAYER", "", "" );
-				
-				-- Still show the leader in the tooltip, if people really want to look they can - it is not top secret stuff and can be found out other ways if people really want.
-				slotInstance.CivLabel:LocalizeAndSetToolTip( Locale.ConvertTextKey("TXT_KEY_ADVISOR_FIRST_SPY_DISPLAY") ..  "[NEWLINE]" .. Locale.ConvertTextKey( leaderDescription ) );
-	        
-				IconHookup( 22, 64, "LEADER_ATLAS", slotInstance.Portrait );
-				SimpleCivIconHookup(-1, 64, slotInstance.Icon);				
-			else
-				civ = GameInfo.Civilizations[ civIndex ];
-	
-				-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
-				local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
-				local leaderDescription = leader.Description;
-				
-				slotInstance.CivLabel:LocalizeAndSetText( "TXT_KEY_RANDOM_LEADER_CIV", Locale.ConvertTextKey( leaderDescription ), Locale.ConvertTextKey( civ.ShortDescription ) );
-				slotInstance.CivLabel:LocalizeAndSetToolTip( "" );
-	        
-				IconHookup( leader.PortraitIndex, 64, leader.IconAtlas, slotInstance.Portrait );								
-				SimpleCivIconHookup( playerID, 64, slotInstance.Icon);
-				
-			end
+			civ = GameInfo.Civilizations[ civIndex ];
+
+			-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
+			local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
+			local leaderDescription = leader.Description;
+			
+			slotInstance.CivLabel:LocalizeAndSetText( "TXT_KEY_RANDOM_LEADER_CIV", Locale.ConvertTextKey( leaderDescription ), Locale.ConvertTextKey( civ.ShortDescription ) );
+			slotInstance.CivLabel:LocalizeAndSetToolTip( "" );
+        
+			IconHookup( leader.PortraitIndex, 64, leader.IconAtlas, slotInstance.Portrait );
+			SimpleCivIconHookup( playerID, 64, slotInstance.Icon);
 		else   
 			if ( not activeCivSlot or PreGame.IsCivilizationKeyAvailable( playerID ) ) then
 				--------------------------------------------------------------
@@ -814,6 +799,27 @@ function UpdatePlayer( slotInstance, playerInfo )
 			slotInstance.HandicapLabel:SetHide( false );
 			slotInstance.HandicapPulldown:SetHide( bCantChangeCiv );
 			slotInstance.PingTimeLabel:SetHide( false );
+		else
+			slotInstance.HandicapLabel:SetHide( true );
+			slotInstance.HandicapPulldown:SetHide( true );
+			slotInstance.PingTimeLabel:SetHide( true );
+		end
+
+        --slotInstance.DisableBlock:SetHide( not bIsDisabled );
+        
+		if( m_bIsHost ) then
+			if( bIsHotSeat ) then
+				slotInstance.KickButton:SetHide( true );
+				slotInstance.EditButton:SetHide( bIsDisabled or not bIsHuman );				
+				--slotInstance.EnableCheck:SetHide( false );
+				slotInstance.PingTimeLabel:SetHide( true );
+				slotInstance.LockCheck:SetHide( true );				
+			else
+				--slotInstance.EnableCheck:SetHide( bIsHuman or bCantChangeCiv );
+				slotInstance.LockCheck:SetHide( bIsHuman or bCantChangeCiv );
+				slotInstance.KickButton:SetHide( not bIsHuman and not Network.IsPlayerConnected(playerID));
+				slotInstance.EditButton:SetHide( true );
+			end
 		else
 			slotInstance.HandicapLabel:SetHide( true );
 			slotInstance.HandicapPulldown:SetHide( true );

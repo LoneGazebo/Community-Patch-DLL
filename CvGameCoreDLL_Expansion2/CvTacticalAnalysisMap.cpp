@@ -394,10 +394,15 @@ bool CvTacticalAnalysisMap::IsUpToDate()
 	return (m_iTurnBuilt == GC.getGame().getGameTurn() && m_vCells.size()==GC.getMap().numPlots());
 }
 
-/// Fill the map with data for this AI player's turn
-void CvTacticalAnalysisMap::Refresh()
+void CvTacticalAnalysisMap::Invalidate()
 {
-	if(!IsUpToDate())
+	m_iTurnBuilt = -1;
+}
+
+/// Fill the map with data for this AI player's turn
+void CvTacticalAnalysisMap::Refresh(bool force)
+{
+	if(force || !IsUpToDate())
 	{
 		//can happen in the first turn ...
 		if (m_vCells.size()!=GC.getMap().numPlots())

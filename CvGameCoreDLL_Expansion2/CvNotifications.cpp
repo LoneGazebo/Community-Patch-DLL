@@ -1844,16 +1844,17 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvGame& game = GC.getGame();
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+		if((!GET_PLAYER(m_ePlayer).isHuman() || !GET_PLAYER(eFrom).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
-			if (game.GetGameDeals().GetProposedMPDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), true) == NULL)
+			if (game.GetGameDeals().GetProposedMPDeal(m_ePlayer, eFrom, true) == NULL)
 			{
 				return true;
 			}
 		}
 		else
 		{
-			if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+			if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, eFrom))
 			{
 				return true;
 			}
@@ -1871,10 +1872,11 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& game = GC.getGame();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+		// DN: Not understanding the rationale behind this code and it seems there is more to it but skipping it for human-human deals fixes not getting notifications for those deals and doesn't *seem* to break anything (although some code may be redundant now)
+		if((!GET_PLAYER(m_ePlayer).isHuman() || !GET_PLAYER(eFrom).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
-			// JdH =>
-			PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+			// JdH =>			
 			if (!GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->HasActiveRequestFrom(eFrom))
 			{
 				return true;
@@ -1891,7 +1893,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 		else
 		{
-			if(!game.GetGameDeals().ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
+			if(!game.GetGameDeals().ProposedDealExists(eFrom,  m_ePlayer))
 			{
 				return true;
 			}
