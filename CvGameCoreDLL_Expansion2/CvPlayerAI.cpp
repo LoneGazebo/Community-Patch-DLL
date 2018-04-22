@@ -710,7 +710,7 @@ void CvPlayerAI::AI_considerAnnex()
 			continue;
 
 		if (!pCity->IsPuppet())
-
+			continue;
 		//Original City and puppeted? Stop!
 		if(pCity->getOriginalOwner() == GetID())
 		{
