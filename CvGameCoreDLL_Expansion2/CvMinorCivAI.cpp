@@ -16112,7 +16112,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		}
 	}
 #if defined(MOD_BALANCE_CORE_MINORS)
-	if(GC.getGame().getGameTurn() >  30)
+	if (GC.getGame().getGameTurn() > 30 && GetTurnLiberated() != 0)
 	{
 		int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
 		if(iDuration > 0)

@@ -622,7 +622,7 @@ VALUES
 
 INSERT INTO BuildFeatures
 	(BuildType, FeatureType, PrereqTech, Time, Production, Remove)
-VALUES -- GitHub #4097 fix
+VALUES
 	('BUILD_EKI', 'FEATURE_JUNGLE', 'TECH_IRON_WORKING', 400, 15, 1),
 	('BUILD_EKI', 'FEATURE_FOREST', 'TECH_BRONZE_WORKING', 300, 20, 1),
 	('BUILD_EKI', 'FEATURE_MARSH', 'TECH_MACHINERY', 600, 0, 1);
