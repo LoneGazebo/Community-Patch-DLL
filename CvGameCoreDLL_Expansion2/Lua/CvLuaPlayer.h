@@ -1117,7 +1117,6 @@ protected:
 	LUAAPIEXTN(GetNumTurnsMilitaryPromise, int);
 	LUAAPIEXTN(GetNumTurnsExpansionPromise, int);
 	LUAAPIEXTN(GetNumTurnsBorderPromise, int);
-	LUAAPIEXTN(GetNumTurnsNoSpyingPromise, int);
 #endif
 	// END Diplomacy Stuff
 

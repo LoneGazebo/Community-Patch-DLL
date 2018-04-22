@@ -29965,18 +29965,6 @@ void CvDiplomacyAI::ChangePlayerStopSpyingRequestCounter(PlayerTypes ePlayer, in
 {
 	SetPlayerStopSpyingRequestCounter(ePlayer, GetPlayerStopSpyingRequestCounter(ePlayer) + iChange);
 }
-#if defined(MOD_BALANCE_CORE)
-int CvDiplomacyAI::GetPlayerMadeNoSpyingPromise(PlayerTypes ePlayer)
-{
-	// Did this player ask us to stop spying on them?
-	if (!IsPlayerStopSpyingRequestAccepted(ePlayer))
-	{
-		return -1;
-	}
-	// this promise doesn't scale with game speed!
-	return std::max(/*50*/GC.getSTOP_SPYING_MEMORY_TURN_EXPIRATION() - GetPlayerStopSpyingRequestCounter(ePlayer), 0);
-}
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 short CvDiplomacyAI::GetPlayerBackstabCounter(PlayerTypes ePlayer) const
