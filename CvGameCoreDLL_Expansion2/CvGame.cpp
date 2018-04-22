@@ -8111,6 +8111,8 @@ void CvGame::doTurn()
 	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.
 	resetTurnTimer(true);
 
+	m_processPlayerAutoMoves = false; // Starts out as false and gets set to true in updateMoves but was never getting set back to false if MP simultaneous turns with no AI.
+
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
 
