@@ -22645,6 +22645,8 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 		{
 			if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
 				continue;
+			if (!pLoopCity->IsPuppet())
+				continue;
 			else
 				iTotal += pLoopCity->getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
 		}
