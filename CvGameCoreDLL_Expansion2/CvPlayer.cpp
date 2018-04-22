@@ -21588,7 +21588,7 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 		}
 
 		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-		int iNumTotal = countNumBuildings(eBuilding) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0;
+		int iNumTotal = countNumBuildings(eBuilding) - (MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0);
 		if (eBuilding != NO_BUILDING && iNumTotal > 0)
 		{
 			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -21603,7 +21603,7 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
 						if(eBuildingThatGivesHappiness != NO_BUILDING)
 						{
-							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0;
+							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - (MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0);
 
 							iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
 						}
