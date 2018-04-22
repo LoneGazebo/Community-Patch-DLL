@@ -17,7 +17,6 @@
 #include "CvDealAI.h"
 #endif
 
-#include <sstream>
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -443,10 +442,8 @@ void CvDiplomacyRequests::DoAIMPDiplomacyWithHumans()
 }
 
 // Because requests aren't removed on all clients after processing I am just gonna clear them at the start/end of turn
-// REally should delete after a net message but concerned about bugs. This should be an improvement at least.
+// Really should delete after a net message but concerned about bugs. This should be an improvement at least.
 void CvDiplomacyRequests::ClearAllRequests() {
-	if (!m_aRequests.empty())
-		NET_MESSAGE_DEBUG_OSTR_ALWAYS("CvDiplomacyRequests::ClearAllRequests(): Clearning non-empty m_aRequests of player" << m_ePlayer);
 	m_aRequests.clear();
 }
 /*static*/ std::vector<PlayerTypes> CvDiplomacyRequests::s_aDiploHumans;

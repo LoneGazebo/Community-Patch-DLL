@@ -8135,8 +8135,6 @@ void CvGame::doTurn()
 
 	updateScore();
 
-	
-	
 	m_kGameDeals.DoTurn();
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
