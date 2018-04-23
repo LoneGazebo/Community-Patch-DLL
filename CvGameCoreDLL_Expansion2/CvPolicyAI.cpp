@@ -731,6 +731,15 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerTraits* pPlayerTraits = pPlayer->GetPlayerTraits();
+	CvCity* pCapital = pPlayer->getCapitalCity(); //Define capital
+	int iPolicyGEorGM = pPlayerTraits->GetPolicyGEorGM();
+	if (iPolicyGEorGM > 0 && pCapital != NULL)
+	{
+		pPlayer->doPolicyGEorGM(iPolicyGEorGM);
+	}
+#endif
 #if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
 	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
 	{
