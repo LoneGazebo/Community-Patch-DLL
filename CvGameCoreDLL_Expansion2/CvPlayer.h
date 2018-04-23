@@ -1208,6 +1208,7 @@ public:
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
+	void doPolicyGEorGM(int iPolicyGEorGM);
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
