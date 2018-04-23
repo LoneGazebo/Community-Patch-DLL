@@ -838,9 +838,6 @@ public:
 	short GetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer) const;
 	void SetPlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerStopSpyingRequestCounter(PlayerTypes ePlayer, int iChange);
-#if defined(MOD_BALANCE_CORE)
-	int GetPlayerMadeNoSpyingPromise(PlayerTypes ePlayer);
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	short GetPlayerBackstabCounter(PlayerTypes ePlayer) const;

@@ -198,9 +198,9 @@ WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A' AND EXISTS (SELECT * FROM COMMUNITY
 
 --Militarism
 
-INSERT INTO Policy_FreeBuilding
-			(PolicyType,			BuildingClassType,				Count)
-VALUES		('POLICY_MILITARISM',	'BUILDINGCLASS_AIRPORT',	200);
+UPDATE Policies
+SET AllCityFreeBuilding = 'BUILDINGCLASS_AIRPORT'
+WHERE Type = 'POLICY_MILITARISM';
 
 -- Building Class Changes
 

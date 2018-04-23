@@ -681,7 +681,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		if(eBuilding != NO_BUILDING)
 		{
-			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass))
+			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass) || GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass))
 			{		
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if(pkBuildingInfo)
