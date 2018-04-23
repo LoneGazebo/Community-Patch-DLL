@@ -3489,6 +3489,35 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				}
 			}
 		}
+		if (PolicyInfo->GetAllCityFreeBuilding() != NO_BUILDINGCLASS)
+		{
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(PolicyInfo->GetAllCityFreeBuilding());
+			if (pkBuildingClassInfo)
+			{
+				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(PolicyInfo->GetAllCityFreeBuilding())));
+				if (NO_BUILDING != eBuilding)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 50, 10, 10, 10, false, true, true);
+						if (iValue > 0)
+						{
+							iValue /= 2;
+
+							if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
+								iValue /= 2;
+							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+								iValue /= 2;
+
+							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
+
+							yield[YIELD_PRODUCTION] += max(0, iValue);
+						}
+					}
+				}
+			}
+		}
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			YieldTypes eYield = (YieldTypes)i;

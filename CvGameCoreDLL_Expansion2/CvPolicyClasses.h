@@ -183,6 +183,7 @@ public:
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	int GetTradeRouteYieldModifierCapital() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
+	BuildingClassTypes GetAllCityFreeBuilding() const;
 	
 	bool IsNoCSDecayAtWar() const;
 	bool CanBullyFriendlyCS() const;
@@ -579,6 +580,7 @@ private:
 	int m_iInternalTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifierCapital;
 	BuildingClassTypes m_eNewCityFreeBuilding;
+	BuildingClassTypes m_eAllCityFreeBuilding;
 
 	bool m_bNoCSDecayAtWar;
 	bool m_bBullyFriendlyCS;

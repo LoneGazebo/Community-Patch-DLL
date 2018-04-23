@@ -718,6 +718,7 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE)
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
 	, m_pabFreeChosenBuildingNewCity("CvPlayer::m_pabFreeChosenBuildingNewCity", m_syncArchive)
+	, m_pabAllCityFreeBuilding("CvPlayer::m_pabAllCityFreeBuilding", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_pabHasGlobalMonopoly("CvPlayer::m_pabHasGlobalMonopoly", m_syncArchive)
@@ -1218,6 +1219,7 @@ void CvPlayer::uninit()
 	m_aistrInstantYield.clear();
 	m_paiNumCivsConstructingWonder.clear();
 	m_pabFreeChosenBuildingNewCity.clear();
+	m_pabAllCityFreeBuilding.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_pabHasGlobalMonopoly.clear();
@@ -2111,6 +2113,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_pabFreeChosenBuildingNewCity.clear();
 		m_pabFreeChosenBuildingNewCity.resize(GC.getNumBuildingClassInfos(), false);
+
+		m_pabAllCityFreeBuilding.clear();
+		m_pabAllCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), false);
 
 		m_paiNumCivsConstructingWonder.clear();
 		m_paiNumCivsConstructingWonder.resize(GC.getNumBuildingInfos(), 0);
@@ -4295,7 +4300,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pkBuildingClassInfo)
 			{
 				int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
-				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
+				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
 				{
 					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
 					if(NO_BUILDING != eBuilding)
@@ -4502,7 +4507,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				if (pkBuildingClassInfo)
 				{
 					int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
-					if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
+					if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
 					{
 						const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
 						if (NO_BUILDING != eBuilding)
@@ -12477,7 +12482,7 @@ void CvPlayer::findNewCapital()
 			if (pkBuildingClassInfo)
 			{
 				int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
-				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
+				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass) || IsFreeBuildingAllCity(eBuildingClass))
 				{
 					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
 					if (NO_BUILDING != eBuilding)
@@ -18916,10 +18921,22 @@ bool CvPlayer::IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) co
 }
 
 //	--------------------------------------------------------------------------------
-/// Changes number of cities remaining to get a free building
+/// Changes number of new cities remaining to get a free building
 void CvPlayer::ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass, bool bValue)
 {
 	m_pabFreeChosenBuildingNewCity.setAt(eBuildingClass, bValue);
+}
+// City waiting to get a free building?
+bool CvPlayer::IsFreeBuildingAllCity(BuildingClassTypes eBuildingClass) const
+{
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingClass > -1, "Index out of bounds");
+	return m_pabAllCityFreeBuilding[eBuildingClass];
+}
+// Change Cities that get a Free building
+void CvPlayer::ChangeAllCityFreeBuilding(BuildingClassTypes eBuildingClass, bool bValue)
+{
+	m_pabAllCityFreeBuilding.setAt(eBuildingClass, bValue);
 }
 
 /// Reformation Unlock
@@ -21588,7 +21605,7 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 		}
 
 		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
-		int iNumTotal = countNumBuildings(eBuilding) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0;
+		int iNumTotal = countNumBuildings(eBuilding) - (MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuilding) : 0);
 		if (eBuilding != NO_BUILDING && iNumTotal > 0)
 		{
 			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
@@ -21603,7 +21620,7 @@ void CvPlayer::DoUpdateHappinessFromBuildings()
 						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
 						if(eBuildingThatGivesHappiness != NO_BUILDING)
 						{
-							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0;
+							int iNumTotal2 = countNumBuildings(eBuildingThatGivesHappiness) - (MOD_BALANCE_CORE_PUPPET_CHANGES ? countNumBuildingsInPuppets(eBuildingThatGivesHappiness) : 0);
 
 							iSpecialBuildingHappiness += iHappinessPerBuilding * iNumTotal2;
 						}
@@ -22644,6 +22661,8 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
+				continue;
+			if (!pLoopCity->IsPuppet())
 				continue;
 			else
 				iTotal += pLoopCity->getPopulation() / max(1, GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
@@ -43139,7 +43158,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			if(pkBuildingClassInfo)
 			{
 				int iNumFreeBuildings = pPolicy->GetFreeChosenBuilding(eBuildingClass);
-				if(iNumFreeBuildings > 0)
+				if(iNumFreeBuildings > 0 || (pPolicy->GetAllCityFreeBuilding() == eBuildingClass))
 				{
 					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
 					if(NO_BUILDING != eBuilding)
@@ -43148,12 +43167,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						if(pkBuildingInfo)
 						{
 							ChangeNumCitiesFreeChosenBuilding(eBuildingClass, iNumFreeBuildings);
+							ChangeAllCityFreeBuilding(eBuildingClass, iChange);
 							int iLoopTwo;
 							for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
 							{
 								if(pLoopCity->isValidBuildingLocation(eBuilding))
 								{
-									if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
+									if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeBuildingAllCity(eBuildingClass))
 									{
 										if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 										{
@@ -43183,7 +43203,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
-		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), true);
+		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), iChange);
 	}
 #endif
 

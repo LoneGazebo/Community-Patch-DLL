@@ -8504,7 +8504,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 						continue;
 					}
 					
-					if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI))
+					if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
 					{
 						BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings((BuildingClassTypes)iI)));
 
@@ -8518,7 +8518,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 								{
 									if(pLoopCity->isValidBuildingLocation(eBuilding))
 									{
-										if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI))
+										if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
 										{
 											if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 											{
