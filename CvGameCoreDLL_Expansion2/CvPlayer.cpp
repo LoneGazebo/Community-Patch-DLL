@@ -11449,21 +11449,6 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
-	PromotionTypes eDamagePromotion = NO_PROMOTION;
-	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
-	{
-		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-		if (pkPromotionInfo != NULL)
-		{
-			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
-			{
-				eDamagePromotion = eLoopPromotion;
-				break;
-			}
-		}
-	}
-
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -11472,7 +11457,7 @@ void CvPlayer::DoUnitReset()
 
 		// then damage it again
 		int iCitadelDamage;
-		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL, eDamagePromotion) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
+		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)

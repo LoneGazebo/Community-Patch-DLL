@@ -2436,21 +2436,6 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
 	int iNumBlocked = 0;
 
-	PromotionTypes eDamagePromotion = NO_PROMOTION;
-	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
-	{
-		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-		if (pkPromotionInfo != NULL)
-		{
-			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
-			{
-				eDamagePromotion = eLoopPromotion;
-				break;
-			}
-		}
-	}
-
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;
 	int iNumTough = 0;
@@ -2481,7 +2466,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0, eDamagePromotion))
+			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0))
 				bHarmful = true;
 
 			//makes us slow
