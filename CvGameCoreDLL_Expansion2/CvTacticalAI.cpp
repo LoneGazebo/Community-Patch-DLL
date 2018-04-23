@@ -2878,40 +2878,54 @@ void CvTacticalAI::PlotBlockadeMoves()
 /// Assigns units to capture undefended civilians
 void CvTacticalAI::PlotCivilianAttackMoves(AITacticalTargetType eTargetType)
 {
-	CvTacticalTarget* pTarget;
-	pTarget = GetFirstZoneTarget(eTargetType);
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(eTargetType);
 	while(pTarget != NULL)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		if(FindUnitsCloseToPlot(pPlot,1,10,100,DOMAIN_LAND,false,true))
 		{
-			// Queue best one up to capture it
-			ExecuteCivilianCapture(pPlot);
-
-			if(GC.getLogging() && GC.getAILogging())
+			for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 			{
-				CvString strLogString;
-				switch(eTargetType)
+				CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID());
+				if (!pUnit || !pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK))
+					continue;
+				//don't allow humans to use civilians as bait to lure units out of camps
+				if (pUnit->GetDanger() == 0 || pUnit->plot()->getImprovementType()!=(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
 				{
-				case AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN:
-					strLogString.Format("Attacking very high priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
-					                    pTarget->GetTargetY());
-					break;
-				case AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN:
-					strLogString.Format("Attacking high priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
-					                    pTarget->GetTargetY());
-					break;
-				case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN:
-					strLogString.Format("Attacking medium priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
-					                    pTarget->GetTargetY());
-					break;
-				case AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN:
-					strLogString.Format("Attacking low priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
-					                    pTarget->GetTargetY());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_NO_EMBARK);
+
+					// Delete this unit from those we have to move
+					if (!pUnit->canMove())
+						UnitProcessed(m_CurrentMoveUnits[i].GetID());
+
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						switch (eTargetType)
+						{
+						case AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN:
+							strLogString.Format("Attacking very high priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
+								pTarget->GetTargetY());
+							break;
+						case AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN:
+							strLogString.Format("Attacking high priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
+								pTarget->GetTargetY());
+							break;
+						case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN:
+							strLogString.Format("Attacking medium priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
+								pTarget->GetTargetY());
+							break;
+						case AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN:
+							strLogString.Format("Attacking low priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
+								pTarget->GetTargetY());
+							break;
+						}
+						LogTacticalMessage(strLogString);
+					}
+
 					break;
 				}
-				LogTacticalMessage(strLogString);
 			}
 		}
 		pTarget = GetNextZoneTarget();
@@ -5772,21 +5786,6 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 		// Delete this unit from those we have to move
 		if (!pUnit->canMove())
 			UnitProcessed(pUnit->GetID());
-	}
-}
-
-/// Capture an undefended civilian
-void CvTacticalAI::ExecuteCivilianCapture(CvPlot* pTargetPlot)
-{
-	// Move first one to target
-	CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-	if(pUnit && pUnit->canMoveInto(*pTargetPlot,CvUnit::MOVEFLAG_ATTACK))
-	{
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_NO_EMBARK);
-
-		// Delete this unit from those we have to move
-		if (!pUnit->canMove())
-			UnitProcessed(m_CurrentMoveUnits[0].GetID());
 	}
 }
 
