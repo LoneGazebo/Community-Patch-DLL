@@ -1470,6 +1470,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
 #endif
+#if defined(MOD_CIV6_WORKER)
+	m_iBuilderStrength = 0;
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_iCanCrossMountainsCount = 0;
 #endif
