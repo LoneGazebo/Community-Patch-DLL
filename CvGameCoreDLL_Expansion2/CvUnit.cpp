@@ -154,8 +154,8 @@ CvUnit::CvUnit() :
 	, m_iCombatTimer("CvUnit::m_iCombatTimer", m_syncArchive)
 	, m_iCombatFirstStrikes("CvUnit::m_iCombatFirstStrikes", m_syncArchive)
 	, m_iCombatDamage("CvUnit::m_iCombatDamage", m_syncArchive)
-	, m_iFortifyTurns("CvUnit::m_iFortifyTurns", m_syncArchive, true)
-	, m_bFortifiedThisTurn("CvUnit::m_bFortifiedThisTurn", m_syncArchive)
+	, m_bMovedThisTurn("CvUnit::m_bMovedThisTurn", m_syncArchive)
+	, m_bFortified("CvUnit::m_bFortified", m_syncArchive)
 	, m_iBlitzCount("CvUnit::m_iBlitzCount", m_syncArchive)
 	, m_iAmphibCount("CvUnit::m_iAmphibCount", m_syncArchive)
 	, m_iRiverCrossingNoPenaltyCount("CvUnit::m_iRiverCrossingNoPenaltyCount", m_syncArchive)
@@ -1343,8 +1343,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCombatTimer = 0;
 	m_iCombatFirstStrikes = 0;
 	m_iCombatDamage = 0;
-	m_iFortifyTurns = 0;
-	m_bFortifiedThisTurn = false;
+	m_bMovedThisTurn = false;
+	m_bFortified = false;
 	m_iBlitzCount = 0;
 	m_iAmphibCount = 0;
 	m_iRiverCrossingNoPenaltyCount = 0;
@@ -1788,10 +1788,7 @@ void CvUnit::setupGraphical()
 
 		pDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ getMoves() <= 0);
 
-		if(getFortifyTurns() > 0)
-		{
-			pDLL->GameplayUnitFortify(pDllUnit.get(), true);
-		}
+		pDLL->GameplayUnitFortify(pDllUnit.get(), IsFortified());
 
 		int iNewValue = getDamage();
 		if(iNewValue > 0)
@@ -2948,7 +2945,7 @@ void CvUnit::doTurn()
 
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
-	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !getFortifyTurns());
+	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !IsFortified());
 	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (!isHuman() || IsAutomated() || !IsHurt());
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 	if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
@@ -3023,15 +3020,8 @@ void CvUnit::doTurn()
 #endif
 
 	// Only increase our Fortification level if we've actually been told to Fortify
-	if(IsFortifiedThisTurn())
-	{
-		changeFortifyTurns(1);
-		if (GetDamageAoEFortified() > 0)
-		{
-			char chText[256] = "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY";
-			DoAoEDamage(GetDamageAoEFortified(), chText);
-		}
-	}
+	if(IsFortified() && GetDamageAoEFortified() > 0)
+		DoAoEDamage(GetDamageAoEFortified(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY");
 
 	// Recon unit? If so, he sees what's around him
 	if(IsRecon())
@@ -3044,18 +3034,6 @@ void CvUnit::doTurn()
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ false);
-	}
-
-	// If we told our Unit to sleep last turn and it can now Fortify switch states
-	if(GetActivityType() == ACTIVITY_SLEEP)
-	{
-		if(isFortifyable())
-		{
-			CvUnit::dispatchingNetMessage(true);
-			PushMission(CvTypes::getMISSION_FORTIFY());
-			CvUnit::dispatchingNetMessage(false);
-			SetFortifiedThisTurn(true);
-		}
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -6516,7 +6494,7 @@ void CvUnit::unloadAll()
 bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 {
 	VALIDATE_OBJECT
-	if(isHuman() && !getFortifyTurns())  // we aren't fortified
+	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
@@ -6542,7 +6520,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(isHuman() && !getFortifyTurns())  // we aren't fortified
+	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
@@ -6554,7 +6532,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 		}
 	}
 
-	if(isFortifyable())
+	if(IsEverFortifyable())
 	{
 		return false;
 	}
@@ -6571,30 +6549,16 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::canFortify(const CvPlot* pPlot) const
 {
-	VALIDATE_OBJECT
-	if(isHuman() && !getFortifyTurns())  // we aren't fortified
-	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
+	if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
+	if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
 #endif
-		{
-			return false;
-		}
-	}
-
-	if(!isFortifyable(true))
 	{
 		return false;
 	}
 
-	if(isWaiting())
-	{
-		return false;
-	}
-
-	return true;
+	return IsEverFortifyable() && isNativeDomain(pPlot);
 }
 
 //	--------------------------------------------------------------------------------
@@ -7607,7 +7571,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 bool CvUnit::canSentry(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	if(isHuman() && !getFortifyTurns())  // we aren't fortified
+	if(isHuman() && !IsFortified())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
@@ -7876,41 +7840,25 @@ int CvUnit::healTurns(const CvPlot* pPlot) const
 void CvUnit::doHeal()
 {
 	VALIDATE_OBJECT
-	if(!isBarbarian())
+	if (isBarbarian())
 	{
-		//this always returns false for barbarians, therefore inside the conditional
-		if(!canHeal(plot()))
-			return;
-
-#if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
+		if (IsCombatUnit())
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
-			// Loop through all resources
-			ResourceTypes eResource;
-			int iNumResourceInfos = GC.getNumResourceInfos();
-			for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+			if (IsHurt() && !hasMoved() && (plot()->getImprovementType() == eCamp || plot()->getOwner() == BARBARIAN_PLAYER))
 			{
-				eResource = (ResourceTypes) iResourceLoop;
-
-				if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
-				{
-					int iAvailable = kPlayer.getNumResourceAvailable(eResource);
-					if(iAvailable < 0)
-					{
-						return;
-					}
-				}
+				changeDamage(-GC.getBALANCE_BARBARIAN_HEAL_RATE());
 			}
 		}
-#endif
-
+	}
+	else if (canHeal(plot())) //normal player units
+	{
 		int iHealRate = healRate(plot());
 		if (iHealRate==0)
 			return;
 
 		changeDamage( -iHealRate );
+
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
@@ -7965,17 +7913,6 @@ void CvUnit::doHeal()
 			}
 		}
 #endif
-	}
-	else //barbarian!
-	{
-		if(IsCombatUnit())
-		{
-			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-			if( IsHurt() && !hasMoved() && (plot()->getImprovementType()==eCamp || plot()->getOwner()==BARBARIAN_PLAYER) )
-			{
-				changeDamage( -GC.getBALANCE_BARBARIAN_HEAL_RATE() );
-			}
-		}
 	}
 }
 
@@ -9006,7 +8943,7 @@ bool CvUnit::changeTradeUnitHomeCity(int iX, int iY)
 	}
 
 	setXY(iX, iY);
-	setMoves(0);
+	finishMoves();
 	return true;
 }
 
@@ -9115,7 +9052,7 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 	}
 
 	setXY(iX, iY);
-	setMoves(0);
+	finishMoves();
 	return true;
 }
 
@@ -14596,14 +14533,8 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			pNewUnit->m_iAttacksMade = m_iAttacksMade;
 			pNewUnit->m_iMadeInterceptionCount = m_iMadeInterceptionCount;
 			pNewUnit->m_eActivityType = m_eActivityType;
-			if (IsFortifiedThisTurn())
-			{
-				pNewUnit->SetFortifiedThisTurn(true);
-			}
-			else
-			{
-				pNewUnit->setFortifyTurns(getFortifyTurns());
-			}
+			pNewUnit->m_bMovedThisTurn = m_bMovedThisTurn;
+			pNewUnit->m_bFortified = m_bFortified;
 		}
 		else 
 #endif
@@ -15038,7 +14969,7 @@ bool CvUnit::canMove() const
 bool CvUnit::hasMoved()	const
 {
 	VALIDATE_OBJECT
-	return (getMoves() < maxMoves());
+	return m_bMovedThisTurn;
 }
 
 
@@ -16186,7 +16117,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += iTempModifier;
 
 		// Bonus VS fortified
-		if(pDefender->getFortifyTurns() > 0)
+		if(pDefender->IsFortified())
 			iModifier += attackFortifiedModifier();
 
 		// Bonus VS wounded
@@ -16730,7 +16661,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += domainModifier(pOtherUnit->getDomainType());
 
 		// Bonus VS fortified
-		if(pOtherUnit->getFortifyTurns() > 0)
+		if(pOtherUnit->IsFortified())
 			iModifier += attackFortifiedModifier();
 
 		// Bonus VS wounded
@@ -17625,47 +17556,18 @@ bool CvUnit::isWaiting() const
 
 	ActivityTypes eActivityType = GetActivityType();
 
-	return ((eActivityType == ACTIVITY_HOLD)||
+	return ((eActivityType == ACTIVITY_HOLD)	||
 			(eActivityType == ACTIVITY_SLEEP)   ||
 			(eActivityType == ACTIVITY_HEAL)    ||
 			(eActivityType == ACTIVITY_SENTRY)  ||
 			(eActivityType == ACTIVITY_INTERCEPT));
 }
 
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::isFortifyable(bool bCanWaitForNextTurn) const
-{
-	VALIDATE_OBJECT
-	// Can't fortify if you've already used any moves this turn
-	if(!bCanWaitForNextTurn)
-	{
-		if(hasMoved())
-		{
-			return false;
-		}
-	}
-
-	if(!IsEverFortifyable())
-	{
-		return false;
-	}
-
-	return true;
-}
-
 //	--------------------------------------------------------------------------------
 /// Can this Unit EVER fortify? (may be redundant with some other stuff)
 bool CvUnit::IsEverFortifyable() const
 {
-	VALIDATE_OBJECT
-
-	if(!IsCombatUnit() || noDefensiveBonus() || ((getDomainType() != DOMAIN_LAND) && (getDomainType() != DOMAIN_IMMOBILE)))
-	{
-		return false;
-	}
-
-	return true;
+	return (IsCombatUnit() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
 }
 
 //	--------------------------------------------------------------------------------
@@ -17673,16 +17575,14 @@ int CvUnit::fortifyModifier() const
 {
 	VALIDATE_OBJECT
 	int iValue = 0;
-	int iTurnsFortified = getFortifyTurns();
-
 	if(isRangedSupportFire())
 	{
 		return iValue;
 	}
 
-	if(iTurnsFortified > 0)
+	if( IsFortified() )
 	{
-		iValue = iTurnsFortified * GC.getFORTIFY_MODIFIER_PER_TURN();
+		iValue = GC.getFORTIFY_MODIFIER_PER_TURN();
 	
 		// Apply modifiers
 		int iMod = GET_PLAYER(getOwner()).getUnitFortificationModifier();
@@ -19951,7 +19851,8 @@ if (!bDoEvade)
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
 		}
 
-		setFortifyTurns(0);
+		// safety if ever we call setXY directly without a mission
+		SetFortified(false);
 
 		if (canChangeVisibility())
 		{
@@ -20002,12 +19903,11 @@ if (!bDoEvade)
 				}
 			}
 		}
+
 		DoNearbyUnitPromotion(this, pNewPlot);
 		if(getAoEDamageOnMove() != 0)
-		{
-			char chText[256] = "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE";
-			DoAoEDamage(getAoEDamageOnMove(), chText);
-		}
+			DoAoEDamage(getAoEDamageOnMove(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE");
+
 #endif
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
@@ -21226,11 +21126,12 @@ int CvUnit::getMoves() const
 //	--------------------------------------------------------------------------------
 void CvUnit::setMoves(int iNewValue)
 {
-	VALIDATE_OBJECT
-	if(getMoves() != iNewValue)
-	{
-		CvPlot* pPlot = plot();
+	//un-fortify
+	if (iNewValue < m_iMoves)
+		SetFortified(false);
 
+	if(m_iMoves != iNewValue)
+	{
 		m_iMoves = iNewValue;
 
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -21244,6 +21145,7 @@ void CvUnit::setMoves(int iNewValue)
 		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
 
+		CvPlot* pPlot = plot();
 		if(pPlot && pPlot->GetPlotIndex() == iSelectionPlotIndex)
 		{
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
@@ -21257,8 +21159,27 @@ void CvUnit::changeMoves(int iChange)
 {
 	VALIDATE_OBJECT
 	setMoves(getMoves() + iChange);
+
+	if (iChange<0)
+		m_bMovedThisTurn = true;
 }
 
+//	--------------------------------------------------------------------------------
+void CvUnit::restoreFullMoves()
+{
+#if defined(MOD_PROMOTIONS_FLAGSHIP)
+	if (IsGreatGeneral() || (MOD_PROMOTIONS_FLAGSHIP && IsGreatAdmiral()))
+#else
+	if (IsGreatGeneral())
+#endif
+	{
+		setMoves( GetGreatGeneralStackMovement() );
+	}
+	else
+		setMoves( maxMoves() );
+
+	m_bMovedThisTurn = false;
+}
 
 //	--------------------------------------------------------------------------------
 void CvUnit::finishMoves()
@@ -21895,98 +21816,39 @@ CvCity* CvUnit::GetGarrisonedCity()
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getFortifyTurns() const
+void CvUnit::triggerFortifyAnimation(bool bState)
 {
-	VALIDATE_OBJECT
-	return m_iFortifyTurns;
+	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	gDLL->GameplayUnitFortify(pDllUnit.get(), bState);
+
+	setInfoBarDirty(true);
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setFortifyTurns(int iNewValue)
+bool CvUnit::IsFortified() const
 {
 	VALIDATE_OBJECT
-	iNewValue = range(iNewValue, 0, GC.getMAX_FORTIFY_TURNS());
-
-	if(iNewValue != getFortifyTurns())
-	{
-		// Unit subtly slipped into Fortification state by remaining stationary for a turn
-		if(getFortifyTurns() == 0 && iNewValue > 0)
-		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-			gDLL->GameplayUnitFortify(pDllUnit.get(), true);
-		}
-
-		m_iFortifyTurns = iNewValue;
-		setInfoBarDirty(true);
-
-		// Fortification turned off, send an event noting this
-		if(iNewValue == 0)
-		{
-			SetFortifiedThisTurn(false);
-
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-			gDLL->GameplayUnitFortify(pDllUnit.get(), false);
-		}
-	}
+	return m_bFortified;
 }
 
-
 //	--------------------------------------------------------------------------------
-void CvUnit::changeFortifyTurns(int iChange)
+void CvUnit::SetFortified(bool bValue)
 {
-	VALIDATE_OBJECT
-	setFortifyTurns(getFortifyTurns() + iChange);
-}
-
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::IsFortifiedThisTurn() const
-{
-	VALIDATE_OBJECT
-	return m_bFortifiedThisTurn;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvUnit::SetFortifiedThisTurn(bool bValue)
-{
-	VALIDATE_OBJECT
-	if(!IsEverFortifyable() && bValue)
-	{
+	if(!IsEverFortifyable())
 		return;
-	}
 
-	if(IsFortifiedThisTurn() != bValue)
+	if (m_bFortified != bValue)
 	{
-		m_bFortifiedThisTurn = bValue;
-
-		if(bValue)
-		{
-			int iTurnsToFortify = 1;
-			if(!isFortifyable())
-			{
-				iTurnsToFortify = 0;
-			}
-
-			// Manually set us to being fortified for the first turn (so we get the Fort bonus immediately)
-			setFortifyTurns(iTurnsToFortify);
-
-			if(iTurnsToFortify > 0)
-			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-				gDLL->GameplayUnitFortify(pDllUnit.get(), true);
-			}
-		}
+		triggerFortifyAnimation(bValue);
+		m_bFortified = bValue;
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
-void CvUnit::DoAoEDamage(int iValue, char chText[256])
+void CvUnit::DoAoEDamage(int iValue, const char* chText)
 {
-	CvPlot* pAdjacentPlot;
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
 		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
 		{
@@ -22010,29 +21872,7 @@ void CvUnit::DoAoEDamage(int iValue, char chText[256])
 		}
 	}
 }
-#else
-void CvUnit::DoAoEDamage(int iValue)
-{
-	CvPlot* pAdjacentPlot;
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
 
-		if (pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
-		{
-			for (int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
-			{
-				CvUnit* pEnemyUnit = pAdjacentPlot->getUnitByIndex(iJ);
-				if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()))
-				{
-					CvString strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY");
-					pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
-				}
-			}
-		}
-	}
-}
-#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlitzCount() const
 {
@@ -23342,21 +23182,19 @@ bool CvUnit::IsStackedGreatGeneral(const CvPlot* pLoopPlot, const CvUnit* pIgnor
 //	--------------------------------------------------------------------------------
 int CvUnit::GetGreatGeneralStackMovement(const CvPlot* pLoopPlot) const
 {
-	int iRtnValue = baseMoves() * GC.getMOVE_DENOMINATOR();
+	int iRtnValue = maxMoves();
 
 	if (pLoopPlot == NULL)
 		pLoopPlot = plot();
-	const IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
 
 	// If there are Units here, loop through them
 	if(pLoopPlot->getNumUnits() > 0)
 	{
-		pUnitNode = pLoopPlot->headUnitNode();
+		const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
 		while(pUnitNode != NULL)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
+			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 			pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 			if(pLoopUnit)
@@ -23845,7 +23683,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 				{
 					pConvertUnit->convert(this, false);
 					pConvertUnit->finishMoves();
-					pConvertUnit->setMoves(pConvertUnit->maxMoves());
+					pConvertUnit->restoreFullMoves();
 				}
 			}
 		}
@@ -23877,7 +23715,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 				{
 					pConvertUnit->convert(this, false);
 					pConvertUnit->finishMoves();
-					pConvertUnit->setMoves(pConvertUnit->maxMoves());
+					pConvertUnit->restoreFullMoves();
 				}
 			}
 		}
@@ -28035,11 +27873,7 @@ ActivityTypes CvUnit::GetActivityType() const
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-void CvUnit::SetActivityType(ActivityTypes eNewValue, bool bClearFortify)
-#else
 void CvUnit::SetActivityType(ActivityTypes eNewValue)
-#endif
 {
 	VALIDATE_OBJECT
 	CvPlot* pPlot;
@@ -28053,16 +27887,6 @@ void CvUnit::SetActivityType(ActivityTypes eNewValue)
 		pPlot = plot();
 
 		m_eActivityType = eNewValue;
-
-		// If we're waking up a Unit then remove it's fortification bonus
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-		if(eNewValue == ACTIVITY_AWAKE && bClearFortify)
-#else
-		if(eNewValue == ACTIVITY_AWAKE)
-#endif
-		{
-			setFortifyTurns(0);
-		}
 
 		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
@@ -29676,7 +29500,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 				if(bOnlyFortified)
 				{
 					CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
-					if(pEnemyUnit && pEnemyUnit->IsFortifiedThisTurn())
+					if(pEnemyUnit && pEnemyUnit->IsFortified())
 					{
 						return true;
 					}

@@ -2054,7 +2054,7 @@ void CvEconomicAI::DoHurry()
 							CvUnit* pUnit = m_pPlayer->getUnit(iResult);
 							if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 							{
-								pUnit->setMoves(0);
+								pUnit->finishMoves();
 							}
 							bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
 							pSelectedCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());

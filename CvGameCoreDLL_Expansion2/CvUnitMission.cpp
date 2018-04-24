@@ -1512,6 +1512,22 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 		if(hUnit->canMove())
 		{
+			if (pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_HEAL() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_ALERT())
+			{
+				//start the animation right now to give feedback to the player
+				if (!hUnit->IsFortified() && hUnit->canFortify(hUnit->plot()))
+					hUnit->triggerFortifyAnimation(true);
+			}
+			else if (hUnit->IsFortified())
+			{
+				// unfortify for any other mission
+				hUnit->triggerFortifyAnimation(false);
+			}
+
+			// ---------- now the real missions with action -----------------------
+
 			if( pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
@@ -1525,16 +1541,6 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), 0);
 				}
-			}
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY())
-			{
-				hUnit->SetFortifiedThisTurn(true);
-			}
-
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_HEAL() ||
-			        pkQueueData->eMissionType == CvTypes::getMISSION_ALERT())
-			{
-				hUnit->SetFortifiedThisTurn(true);
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_SET_UP_FOR_RANGED_ATTACK())

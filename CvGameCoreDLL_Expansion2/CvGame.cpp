@@ -8769,7 +8769,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 			}
 			else
 			{
-				pstartUnit->setMoves(0);
+				pstartUnit->finishMoves();
 				if(ePlayer != BARBARIAN_PLAYER)
 				{
 					pCity->addProductionExperience(pstartUnit);
@@ -8796,7 +8796,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					}
 					else
 					{
-						pmUnit->setMoves(0);
+						pmUnit->finishMoves();
 						if(ePlayer != BARBARIAN_PLAYER)
 						{
 							pCity->addProductionExperience(pmUnit);
@@ -8818,7 +8818,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 						}
 						else
 						{
-							pUnit->setMoves(0);
+							pUnit->finishMoves();
 							if(ePlayer != BARBARIAN_PLAYER)
 							{
 								pCity->addProductionExperience(pUnit);
@@ -9307,9 +9307,7 @@ void CvGame::updateMoves()
 							if(pLoopUnit)
 							{
 								bool bMoveMe  = false;
-								int iNumTurnsFortified = pLoopUnit->getFortifyTurns();
-								IDInfo* pUnitNodeInner;
-								pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
+								IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
 								while(pUnitNodeInner != NULL && !bMoveMe)
 								{
 									CvUnit* pLoopUnitInner = ::getUnit(*pUnitNodeInner);
@@ -9323,7 +9321,7 @@ void CvGame::updateMoves()
 											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 #endif
 											{
-												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
+												if(pLoopUnitInner->IsFortified() && !pLoopUnit->IsFortified())
 												{
 													bMoveMe = true;
 												}

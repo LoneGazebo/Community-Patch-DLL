@@ -12659,8 +12659,7 @@ CvUnit* CvCity::initConscriptedUnit()
 	if(NULL != pUnit)
 	{
 		addProductionExperience(pUnit, true);
-
-		pUnit->setMoves(pUnit->maxMoves());
+		pUnit->restoreFullMoves();
 	}
 
 	return pUnit;
@@ -15474,7 +15473,7 @@ void CvCity::CheckForOperationUnits()
 								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 								{
-									pUnit->setMoves(0);
+									pUnit->finishMoves();
 								}
 								CleanUpQueue();
 								return;
@@ -15565,7 +15564,7 @@ void CvCity::CheckForOperationUnits()
 					CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
 					if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 					{
-						pUnit->setMoves(0);
+						pUnit->finishMoves();
 					}
 					CleanUpQueue();
 				}
@@ -16840,7 +16839,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
 									}
-									pUnit->setMoves(0);
+									pUnit->finishMoves();
 									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 									if(pUnit && pNotifications)
 									{
@@ -27845,7 +27844,7 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	addProductionExperience(pUnit, false, bIsPurchase);
 
 #if defined(MOD_BALANCE_CORE)
-	pUnit->setMoves(pUnit->maxMoves());
+	pUnit->restoreFullMoves();
 	if(pUnit->isTrade())
 	{
 		if(GC.getLogging() && GC.getAILogging())
@@ -28854,7 +28853,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				CvUnit* pUnit = kPlayer.getUnit(iResult);
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 				{
-					pUnit->setMoves(0);
+					pUnit->finishMoves();
 				}
 #if defined(MOD_BALANCE_CORE)
 				if(pUnit && pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
@@ -29065,7 +29064,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 			{
 #endif
-				pUnit->setMoves(0);
+				pUnit->finishMoves();
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 			}
 #endif

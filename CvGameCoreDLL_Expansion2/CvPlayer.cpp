@@ -11475,24 +11475,20 @@ void CvPlayer::DoUnitReset()
 #endif
 		}
 
+		// Bonus for entrenched units
+		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
+			pLoopUnit->SetFortified(true);
+
 		// Finally (now that healing is done), restore movement points
-		pLoopUnit->setMoves(pLoopUnit->maxMoves());
-#if defined(MOD_PROMOTIONS_FLAGSHIP)
-		if(pLoopUnit->IsGreatGeneral() || (MOD_PROMOTIONS_FLAGSHIP && pLoopUnit->IsGreatAdmiral()))
-#else
-		if(pLoopUnit->IsGreatGeneral())
-#endif
-		{
-			pLoopUnit->setMoves(pLoopUnit->GetGreatGeneralStackMovement());
-		}
+		pLoopUnit->restoreFullMoves();
 
 		// Archaeologist can't move on turn he finishes a dig (while waiting for user to decide his next action)
-		else if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
 		{
 			CvPlayer &kPlayer = GET_PLAYER(pLoopUnit->getOwner());
 			if (kPlayer.GetCulture()->HasDigCompleteHere(pLoopUnit->plot()))
 			{
-				pLoopUnit->setMoves(0);
+				pLoopUnit->finishMoves();
 			}
 		}
 
@@ -33267,6 +33263,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
+			//important: healing and restoration of movement points
 			DoUnitReset();
 
 			if(!isHuman())
@@ -42566,7 +42563,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							{
 								pUnit->kill(false);	// Could not find a valid spot!
 							}
-							pUnit->setMoves(0);
+							pUnit->finishMoves();
 							CvNotifications* pNotifications = GetNotifications();
 							if(pUnit && pNotifications)
 							{

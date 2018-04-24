@@ -3012,7 +3012,6 @@ void CvTacticalAI::PlotHealMoves()
 		{
 			passiveAggressive.insert(pUnit->GetID());
 			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-			pUnit->SetFortifiedThisTurn(true);
 		}
 	}
 
@@ -3047,13 +3046,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			else
 			{
 				TacticalAIHelpers::PerformOpportunityAttack(currentDefender);
-				if (currentDefender->canFortify(pPlot))
-				{
-					currentDefender->PushMission(CvTypes::getMISSION_FORTIFY());
-					currentDefender->SetFortifiedThisTurn(true);
-				}
-				else
-					currentDefender->PushMission(CvTypes::getMISSION_SKIP());
+				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
 				UnitProcessed(currentDefender->GetID());
 			}
 
@@ -3116,15 +3109,8 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 				}
 			}
 
-			if (pGarrison->canFortify(pGarrison->plot()))
-			{
-				pGarrison->PushMission(CvTypes::getMISSION_FORTIFY());
-				pGarrison->SetFortifiedThisTurn(true);
-			}
-			else
-				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
-
 			//do not call finishMoves() else the garrison will not heal!
+			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(pGarrison->GetID());
 		}
 		else if ( !pCity->isInDangerOfFalling() )
@@ -3840,15 +3826,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 		if (pUnit && !pUnit->TurnProcessed())
 		{
 			pUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-
-			if (pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pUnit->SetTurnProcessed(true);
 		}
 	}
@@ -6611,11 +6589,6 @@ void CvTacticalAI::ExecuteHeals()
 		//finish this up
 		if (pUnit->canHeal(pUnit->plot()))
 			pUnit->PushMission(CvTypes::getMISSION_HEAL());
-		else if (pUnit->canFortify(pUnit->plot()))
-		{
-			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-			pUnit->SetFortifiedThisTurn(true);
-		}
 		else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
@@ -6653,13 +6626,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(pPlot && (pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() || pPlot->isCity()))
 					{
 						pUnit->setTacticalMove((TacticalAIMoveTypes)AI_TACTICAL_BARBARIAN_CAMP_DEFENSE);
-						if (pUnit->canFortify(pPlot))
-						{
-							pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-							pUnit->SetFortifiedThisTurn(true);
-						}
-						else
-							pUnit->PushMission(CvTypes::getMISSION_SKIP());
+						pUnit->PushMission(CvTypes::getMISSION_SKIP());
 						UnitProcessed(pUnit->GetID());
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -7033,20 +7000,8 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 	{
 		bResult = true;
 
-		// Fortify if possible
-		if (!TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit))
-		{
-			if( pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		}
-		else
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-
+		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		//don't call finish moves, otherwise we won't heal!
 	}
 	else if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
@@ -8623,15 +8578,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 
 		//don't call finish moves, otherwise we won't heal!
 		if (pUnit->canMove())
-		{
-			if( pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		}
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 		return true;
 	}
@@ -9441,39 +9388,13 @@ void CvTacticalAI::PerformChosenMoves()
 			//see if we can hit an enemy
 			TacticalAIHelpers::PerformOpportunityAttack(pUnit,true);
 
-			if(pUnit->canFortify(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("Already in position, will fortify with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-					LogTacticalMessage(strMsg);
-				}
-			}
-			else if(pUnit->getDamage() > 0 && pUnit->canHeal(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_HEAL());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("Already in position, will heal up with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-					LogTacticalMessage(strMsg);
-				}
-			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("Already in position, no move for %s, X: %d, Y: %d", pUnit->getName().GetCString(),
-						m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
-					LogTacticalMessage(strMsg);
-				}
+				CvString strMsg;
+				strMsg.Format("%s %d is in position, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->GetID(),
+					m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+				LogTacticalMessage(strMsg);
 			}
 		}
 
@@ -13147,26 +13068,14 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			bPostcondition = true;
 			break;
 		case STacticalAssignment::A_FINISH:
-			if (pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			//this is the difference to a blocked unit, we prevent anyone else from moving it
 			GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
 			bPrecondition = true;
 			bPostcondition = true;
 			break;
 		case STacticalAssignment::A_BLOCKED:
-			if (pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			//do not mark the unit as processed, it can be reused for other tasks!
 			bPrecondition = true;
 			bPostcondition = true;

@@ -3022,7 +3022,7 @@ int CvLuaUnit::lIsWaiting(lua_State* L)
 int CvLuaUnit::lIsFortifyable(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isFortifyable();
+	const bool bResult = pkUnit->canFortify(pkUnit->plot());
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -4399,7 +4399,7 @@ int CvLuaUnit::lGetFortifyTurns(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->getFortifyTurns();
+	const int iResult = pkUnit->IsFortified() ? 1 : 0; //need to fake this
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5627,13 +5627,7 @@ int CvLuaUnit::lSetActivityType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const ActivityTypes eActivity = (ActivityTypes)lua_tointeger(L, 2);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-	const bool bClearFortify = luaL_optbool(L, 3, true);
-
-	pkUnit->SetActivityType(eActivity, bClearFortify);
-#else
 	pkUnit->SetActivityType(eActivity);
-#endif
 
 	return 0;
 }

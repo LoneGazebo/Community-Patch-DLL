@@ -1199,9 +1199,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->getNameKey(), pkAttacker->getNameKey(), iDamage);
 #if defined(MOD_BALANCE_CORE)
-						if(pkDefender->IsFortifiedThisTurn() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
+						if(pkDefender->IsFortified() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
 						{
-							pkDefender->SetActivityType(ACTIVITY_AWAKE, false);
+							pkDefender->SetActivityType(ACTIVITY_AWAKE);
 						}
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath())
 						{
@@ -3622,9 +3622,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	//	CvAssert(pDefender != NULL);
 	CvAssert(!kAttacker.isFighting());
 
-	// Unit that attacks loses his Fort bonus
-	kAttacker.setFortifyTurns(0);
-
 	CvUnit* pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
 	if(!pDefender)
 	{
@@ -3635,9 +3632,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	pDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 	// We want to "wake up" a unit that is being attacked by a hidden enemy (probably being bombed, indirect naval fire,
-	// or sneaky long-range archers) so the player can consider what to do with them, but without removing any fortification bonus!
+	// or sneaky long-range archers) so the player can consider what to do with them
 	if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-		pDefender->SetActivityType(ACTIVITY_AWAKE, false); 
+		pDefender->SetActivityType(ACTIVITY_AWAKE); 
 	}
 #endif
 
@@ -3786,8 +3783,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 			{
 				CvAssertMsg(!pFireSupportUnit->isDelayedDeath(), "Supporting battle unit is already dead!");
 				eSupportResult = AttackRanged(*pFireSupportUnit, kAttacker.getX(), kAttacker.getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
-				// Turn off Fortify Turns, as this is the trigger for whether or not a ranged Unit can provide support fire (in addition to hasMadeAttack)
-				pFireSupportUnit->setFortifyTurns(0);
 			}
 
 			if(eSupportResult == ATTACK_QUEUED)
@@ -3861,8 +3856,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		}
 	}
 
-	// Unit that attacks loses his Fort bonus
-	kAttacker.setFortifyTurns(0);
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 
 	bool bDoImmediate = CvPreGame::quickCombat();
@@ -3876,7 +3869,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		pDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 		if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-			pDefender->SetActivityType(ACTIVITY_AWAKE, false); 
+			pDefender->SetActivityType(ACTIVITY_AWAKE); 
 		}
 #endif
 
@@ -3988,7 +3981,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		pDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 		if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-			pDefender->SetActivityType(ACTIVITY_AWAKE, false); 
+			pDefender->SetActivityType(ACTIVITY_AWAKE); 
 		}
 #endif
 
@@ -4096,7 +4089,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		pkDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
 		if (MOD_BUGFIX_UNITS_AWAKE_IN_DANGER) {
-			pkDefender->SetActivityType(ACTIVITY_AWAKE, false); 
+			pkDefender->SetActivityType(ACTIVITY_AWAKE); 
 		}
 #endif
 		CvAssertMsg(!kAttacker.isDelayedDeath() && !pkDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
@@ -4170,11 +4163,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 
 		ATTACK_RESULT eSupportResult = ATTACK_ABORTED;
 		if(pFireSupportUnit)
-		{
 			eSupportResult = AttackRanged(*pFireSupportUnit, kAttacker.getX(), kAttacker.getY(), CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT);
-			// Turn off Fortify Turns, as this is the trigger for whether or not a ranged Unit can provide support fire (in addition to hasMadeAttack)
-			pFireSupportUnit->setFortifyTurns(0);
-		}
 
 		if(eSupportResult == ATTACK_QUEUED)
 		{
@@ -4366,7 +4355,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	if(pkWinner->isExtraAttackHealthOnKill())
 	{
 		int iHealAmount = min(pkWinner->getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
-		pkWinner->changeMoves(60);
+		pkWinner->changeMoves(GC.getMOVE_DENOMINATOR());
 		pkWinner->setMadeAttack(false);
 		pkWinner->changeDamage(-iHealAmount);
 	}

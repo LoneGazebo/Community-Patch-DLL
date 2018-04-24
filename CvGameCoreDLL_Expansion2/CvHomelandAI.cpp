@@ -2070,24 +2070,11 @@ void CvHomelandAI::ExecuteAggressivePatrolMoves()
 			{
 				//use the exact target location - GetPatrolTarget makes sure there is a free spot
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
-				if (pUnit->canMove())
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				UnitProcessed(pUnit->GetID());
 			}
-			else
-			{
-				if (pUnit->canFortify(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-					pUnit->SetFortifiedThisTurn(true);
-					pUnit->SetTurnProcessed(true);
-				}
-				else
-				{
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-					pUnit->SetTurnProcessed(true);
-				}
-			}
+
+			if (pUnit->canMove())
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->SetTurnProcessed(true);
 		}
 	}
 }
@@ -2187,24 +2174,12 @@ void CvHomelandAI::ExecutePatrolMoves()
 			{
 				//use the exact target location - GetPatrolTarget makes sure there is a free spot
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
-				if (pUnit->canMove())
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				UnitProcessed(pUnit->GetID());
 			}
-			else
-			{
-				if (pUnit->canFortify(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-					pUnit->SetFortifiedThisTurn(true);
-					pUnit->SetTurnProcessed(true);
-				}
-				else
-				{
-					pUnit->PushMission(CvTypes::getMISSION_SKIP());
-					pUnit->SetTurnProcessed(true);
-				}
-			}
+
+			if (pUnit->canMove())
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
+			pUnit->SetTurnProcessed(true);
 		}
 	}
 }
@@ -3917,21 +3892,9 @@ void CvHomelandAI::ExecuteHeals()
 					continue;
 				}
 			}
-			//Remove all status if not fortified so we can see if it is possible to fortify.
-			if(pUnit->getFortifyTurns() <= 0)
-			{
-				pUnit->SetActivityType(NO_ACTIVITY);
-			}
-			if(pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			}
-			UnitProcessed(pUnit->GetID());
+
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->SetTurnProcessed(true);
 		}
 	}
 }
@@ -3979,24 +3942,13 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 
 	if(pUnit->plot() == pTarget)
 	{
-		//Remove all status if not fortified so we can see if it is possible to fortify.
-		if(pUnit->getFortifyTurns() <= 0)
-		{
-			pUnit->SetActivityType(NO_ACTIVITY);
-		}
-		if (pUnit->canFortify(pUnit->plot()))
-		{
-			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-			pUnit->SetFortifiedThisTurn(true);
-		}
-		else
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 #if defined(MOD_BALANCE_CORE)
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
-			strLogString.Format("Best unit fortified at X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+			strLogString.Format("Best unit in position at X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 			LogHomelandMessage(strLogString);
 		}
 #endif
@@ -7315,7 +7267,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries
-					if(pLoopUnit->isFortifyable() && !pLoopUnit->IsGarrisoned() && !pLoopUnit->noDefensiveBonus() && (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
+					if(pLoopUnit->IsEverFortifyable() && !pLoopUnit->IsGarrisoned() && !pLoopUnit->noDefensiveBonus() && (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 					{
 						bSuitableUnit = true;
 
@@ -8170,20 +8122,8 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		}
 		else
 		{
-			//Remove all status if not fortified so we can see if it is possible to fortify.
-			if(pUnit->getFortifyTurns() <= 0)
-			{
-				pUnit->SetActivityType(NO_ACTIVITY);
-			}
-
 			// No safe path so just stay put and fortify until life improves for you.
-			if (pUnit->canFortify(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
-				pUnit->SetFortifiedThisTurn(true);
-			}
-			else
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			return false;
 		}
 	}
