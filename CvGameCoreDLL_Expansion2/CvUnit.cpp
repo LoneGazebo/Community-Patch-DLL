@@ -21114,10 +21114,6 @@ int CvUnit::getMoves() const
 //	--------------------------------------------------------------------------------
 void CvUnit::setMoves(int iNewValue)
 {
-	//un-fortify
-	if (iNewValue < m_iMoves)
-		SetFortified(false);
-
 	if(m_iMoves != iNewValue)
 	{
 		m_iMoves = iNewValue;
@@ -21148,8 +21144,11 @@ void CvUnit::changeMoves(int iChange)
 	VALIDATE_OBJECT
 	setMoves(getMoves() + iChange);
 
-	if (iChange<0)
+	if (iChange < 0)
+	{
 		m_bMovedThisTurn = true;
+		SetFortified(false);
+	}
 }
 
 //	--------------------------------------------------------------------------------
