@@ -39,9 +39,6 @@ class CvGameCorporations;
 class CvGameContracts;
 #endif
 
-#if defined(MOD_SAVE_CONTROLLER)
-class CvSaveController;
-#endif 
 class CvGameInitialItemsOverrides
 {
 public:
@@ -698,9 +695,6 @@ public:
 	int GetNextGlobalID() { return ++m_iGlobalAssetCounter; }
 #endif
 
-#if defined(MOD_SAVE_CONTROLLER)
-	CvSaveController* getSaveController();
-#endif
 	void SetClosestCityMapDirty();
 	//assuming a typical unit with baseMoves==2
 	int GetClosestCityDistanceInTurns( const CvPlot* pPlot );
@@ -884,10 +878,6 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations*		   m_pGameCorporations;
 	CvGameContracts*		   m_pGameContracts;
-#endif
-
-#if defined(MOD_SAVE_CONTROLLER)
-	CvSaveController* m_pSaveController;
 #endif
 
 	//necessary because we only want to hide the mouseover of the most recently moused over unit -KS
