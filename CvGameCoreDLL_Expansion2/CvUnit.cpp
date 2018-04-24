@@ -14933,21 +14933,9 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 //	---------------------------------------------------------------------------
 int CvUnit::maxMoves() const
 {
-	VALIDATE_OBJECT
-#if defined(MOD_PROMOTIONS_FLAGSHIP)
-	if(IsGreatGeneral() || (MOD_PROMOTIONS_FLAGSHIP && IsGreatAdmiral()))
-#else
-	if(IsGreatGeneral())
-#endif
-	{
-		return GetGreatGeneralStackMovement();
-	}
-	else
-	{
-		return (plot()->getOwner() == getOwner() ? ((baseMoves() + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR()) : (baseMoves() * GC.getMOVE_DENOMINATOR()));	// WARNING: Uses the current embark state of the unit!
-	}
+	// WARNING: Depends on the current embark state of the unit!
+	return (plot()->getOwner() == getOwner() ? ((baseMoves() + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR()) : (baseMoves() * GC.getMOVE_DENOMINATOR()));
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::movesLeft() const
