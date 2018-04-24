@@ -8117,15 +8117,18 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		if (pUnit->isEmbarked())
 		{
 			pTargetPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-			return true;
+			if (pTargetPlot)
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+			else
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 		else
 		{
 			// No safe path so just stay put and fortify until life improves for you.
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			return false;
 		}
+
+		return false;
 	}
 }
 /// Move up to our target (this time within 2 spaces) avoiding our own units if possible
