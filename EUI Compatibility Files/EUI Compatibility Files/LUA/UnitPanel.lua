@@ -1235,7 +1235,11 @@ local UpdateUnitPromotions = EUI.UpdateUnitPromotions or function(unit)
 			IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, controlTable.UnitPromotionImage )
 
 			-- Tooltip
-			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
+			local sDurationTip = ""
+			if unit:GetPromotionDuration(unitPromotionID) > 0 then
+				sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(unitPromotionID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(unitPromotionID))) .. ")"
+			end
+			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. sDurationTip .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
 		end
 	end
 	g_EarnedPromotionIM:Commit()

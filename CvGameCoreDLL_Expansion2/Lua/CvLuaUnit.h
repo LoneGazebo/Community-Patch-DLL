@@ -571,6 +571,10 @@ protected:
 	static int lIsPromotionValid(lua_State* L);
 	static int lIsHasPromotion(lua_State* L);
 	static int lSetHasPromotion(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	static int lGetPromotionDuration(lua_State* L);
+	static int lGetTurnPromotionGained(lua_State* L);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(SetActivityType, void, iActivityType, bClearFortify);
