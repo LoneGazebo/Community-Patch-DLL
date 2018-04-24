@@ -896,7 +896,8 @@ void CvPlayer::init(PlayerTypes eID)
 	SlotStatus s = CvPreGame::slotStatus(p);
 
 #if defined(MOD_BALANCE_CORE)
-	GET_TEAM(getTeam()).addPlayer( GetID() );
+	if (!GET_TEAM(getTeam()).addPlayer( GetID() ))
+		GET_TEAM(getTeam()).changeNumMembers(-1);
 
 	//minors can become free cities...but we have to make sure the UI can know this.
 	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS && s == SS_CLOSED && CvPreGame::isMinorCiv(eID))
@@ -33900,10 +33901,12 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 	CvPreGame::setTeamType(GetID(), eTeam);
 
 #if defined(MOD_BALANCE_CORE)
-	GET_TEAM(getTeam()).addPlayer(GetID());
+	if (GET_TEAM(getTeam()).addPlayer(GetID()))
+		GET_TEAM(getTeam()).changeNumMembers(1);
+#else
+	GET_TEAM(getTeam()).changeNumMembers(1);
 #endif
 
-	GET_TEAM(getTeam()).changeNumMembers(1);
 	if(isAlive())
 	{
 		GET_TEAM(getTeam()).changeAliveCount(1);

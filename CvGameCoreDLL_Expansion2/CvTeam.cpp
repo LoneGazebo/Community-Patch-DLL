@@ -3602,15 +3602,21 @@ void CvTeam::changeNumMembers(int iChange)
 }
 
 #if defined(MOD_BALANCE_CORE)
-void CvTeam::addPlayer(PlayerTypes eID)
+bool CvTeam::addPlayer(PlayerTypes eID)
 {
 	if (eID==NO_PLAYER)
-		return;
+		return false;
+
+	bool bPlayerAdded = false;
 
 	if ( std::find( m_members.begin(), m_members.end(), eID ) == m_members.end() )
+	{
 		m_members.push_back(eID);
+		bPlayerAdded = true;
+	}
 
 	updateTeamStatus();
+	return bPlayerAdded;
 }
 
 void CvTeam::removePlayer(PlayerTypes eID)
