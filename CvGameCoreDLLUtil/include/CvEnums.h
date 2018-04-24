@@ -1312,6 +1312,10 @@ enum GameOptionTypes
 #define GAMEOPTION_RANDOM_VICTORY			"GAMEOPTION_RANDOM_VICTORY"
 #endif
 
+#if defined(MOD_SAVE_CONTROLLER)
+#define GAMEOPTION_POST_AUTOSAVES			"GAMEOPTION_POST_AUTOSAVES"
+#endif
+
 enum MultiplayerOptionTypes		
 {
 	NO_MPOPTION = -1,
