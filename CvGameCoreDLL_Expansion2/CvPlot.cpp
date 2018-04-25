@@ -156,10 +156,6 @@ CvPlot::CvPlot() :
 
 	m_szScriptData = NULL;
 
-#if defined(SHOW_PLOT_POPUP)
-	m_fPopupDelay = 0.5;
-#endif
-
 	m_cContinentType = 0;
 	m_cRiverCrossing = 0;
 
@@ -195,10 +191,6 @@ void CvPlot::init(int iX, int iY)
 void CvPlot::uninit()
 {
 	SAFE_DELETE_ARRAY(m_szScriptData);
-
-#if defined(SHOW_PLOT_POPUP)
-	m_fPopupDelay = 0.5;
-#endif
 
 	m_pCenterUnit = NULL;
 
@@ -410,10 +402,6 @@ void CvPlot::erase(bool bEraseUnits)
 //	--------------------------------------------------------------------------------
 void CvPlot::doTurn()
 {
-#if defined(SHOW_PLOT_POPUP)
-	m_fPopupDelay = 0.5;
-#endif
-
 	if(isOwned())
 	{
 		changeOwnershipDuration(1);
@@ -12921,7 +12909,7 @@ uint CvPlot::getUnits(IDInfoVector* pkInfoVector) const
 //	--------------------------------------------------------------------------------
 CvString CvPlot::getScriptData() const
 {
-	CvString scriptData = (m_szScriptData != NULL)? m_szScriptData : "";
+	CvString scriptData = (m_szScriptData != NULL) ? m_szScriptData : "";
 	return scriptData;
 }
 
@@ -12939,10 +12927,7 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 	{
 		//show the popup only if we're not on autoplay - too many stored popups seems to lead to crashes
 		if (GC.getGame().getAIAutoPlay() < 10)
-		{
-			DLLUI->AddPopupText(getX(), getY(), szMessage, m_fPopupDelay);
-			m_fPopupDelay += 0.5;
-		}
+			DLLUI->AddPopupText(getX(), getY(), szMessage, 0.8f);
 	}
 }
 #endif
@@ -14318,7 +14303,7 @@ void CvPlot::SetBuilderAIScratchPadTurn(short sNewTurnValue)
 //	--------------------------------------------------------------------------------
 RouteTypes CvPlot::GetBuilderAIScratchPadRoute() const
 {
-	return m_eBuilderAIScratchPadRoute;
+	return (RouteTypes)m_eBuilderAIScratchPadRoute;
 }
 
 //	--------------------------------------------------------------------------------

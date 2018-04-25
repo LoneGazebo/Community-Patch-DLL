@@ -21772,7 +21772,7 @@ void CvUnit::changeCombatFirstStrikes(int iChange)
 
 bool CvUnit::CanGarrison() const
 {
-	return GetMapLayer()==DEFAULT_UNIT_MAP_LAYER && getDomainType()==DOMAIN_LAND && IsCanDefend() && !isDelayedDeath();
+	return GetMapLayer()==DEFAULT_UNIT_MAP_LAYER && getDomainType()!=DOMAIN_AIR && IsCanDefend() && !isDelayedDeath();
 }
 
 int CvUnit::GetMapLayer() const

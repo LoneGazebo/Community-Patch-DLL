@@ -2464,9 +2464,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 					// If under 100% health, might flee to safety
 					if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints())
 					{
-#if defined(MOD_BALANCE_CORE)
 						int iDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
-#endif
 						if(pUnit->isBarbarian())
 						{
 							// Barbarian combat units - only naval units flee (but they flee if have taken ANY damage)
@@ -2475,8 +2473,6 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 								bAddUnit = true;
 							}
 						}
-
-#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
 						else if(iDamage > 0 && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50))
 						{
 							bAddUnit = true;
@@ -2506,16 +2502,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 						{
 							bAddUnit = false;
 						}
-
-#else
-						// Everyone else flees at less than or equal to 50% combat strength
-						else if(pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
-						{
-							bAddUnit = true;
-						}
-#endif
 					}
-
 					// Also flee if danger is really high in current plot (but not if we're barbarian)
 					//Not if we're operational units!
 					else if(!pUnit->isBarbarian() && pUnit->getArmyID() == -1 && !pUnit->IsRecentlyDeployedFromOperation())
@@ -7961,8 +7948,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		if (!bIsCityTarget && (pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatAdmiral()))
 			continue;
 
-		// Garrisons have special moves
-		if (pLoopUnit->IsGarrisoned())
+		// Land garrisons have special moves
+		if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType()==DOMAIN_LAND)
 			continue;
 
 		// Don't pull barbarian units out of camps to attack.
@@ -12030,10 +12017,6 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		if (it == reachablePlots.end())
 			return vector<STacticalAssignment>();
 
-		//todo: reconsider end turn score if the range attack is a kill
-		SMovePlot unitPlot = *it;
-		int endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, unitPlot, *this, true).iScore;
-
 		set<int> rangeAttackPlots;
 		getRangeAttackPlotsForUnit(unit.iUnitID, rangeAttackPlots);
 		for (set<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
@@ -12057,6 +12040,16 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 					move.iRemainingMoves = 0;
 				else
 					move.iRemainingMoves -= min(move.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+
+				int endTurnMoveScore = 0;
+				if (move.eType == STacticalAssignment::A_RANGEATTACK)
+					endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, *it, *this, true).iScore;
+				else if (move.eType == STacticalAssignment::A_RANGEKILL)
+				{
+					CvTacticalPosition newPos(*this);
+					newPos.addAssignment(move);
+					endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, *it, newPos, true).iScore;
+				}
 
 				//if we would need to stay here but it's a bad idea, then don't do the attack
 				if (move.iRemainingMoves == 0 && endTurnMoveScore < 0)
