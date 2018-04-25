@@ -6685,9 +6685,13 @@
 		<Row Tag="TXT_KEY_YIELD_SPY_MODIFIER">
 			<Text>[NEWLINE][ICON_BULLET]Active Spies Modifier: {1_Num}%</Text>
 		</Row>
-		
-
-
+		<!-- Unit Panel stuff -->
+		<Row Tag="TXT_KEY_UPANEL_BUILDER_STRENGTH">
+			<Text>Build Charges</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPANEL_BUILDER_STRENGTH_TT">
+			<Text>The number of times you can use this unit to build. At zero, the unit is consumed, unless it is a military unit.</Text>
+		</Row>
 		<!-- Tooltip for Investments in cities -->
 		<Row Tag="TXT_KEY_ALREADY_INVESTED">
 			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>

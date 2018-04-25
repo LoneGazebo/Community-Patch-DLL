@@ -8165,7 +8165,8 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		if (pUnit->isEmbarked())
 		{
 			pTargetPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
+			if (pTargetPlot != NULL)
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
 		else

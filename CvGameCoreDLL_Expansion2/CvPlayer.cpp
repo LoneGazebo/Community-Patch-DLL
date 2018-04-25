@@ -897,7 +897,8 @@ void CvPlayer::init(PlayerTypes eID)
 	SlotStatus s = CvPreGame::slotStatus(p);
 
 #if defined(MOD_BALANCE_CORE)
-	GET_TEAM(getTeam()).addPlayer( GetID() );
+	if (!GET_TEAM(getTeam()).addPlayer( GetID() ))
+		GET_TEAM(getTeam()).changeNumMembers(-1);
 
 	//minors can become free cities...but we have to make sure the UI can know this.
 	if (eID >= MAX_MAJOR_CIVS && eID < MAX_CIV_PLAYERS && s == SS_CLOSED && CvPreGame::isMinorCiv(eID))
@@ -11449,21 +11450,6 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
-	PromotionTypes eDamagePromotion = NO_PROMOTION;
-	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
-	{
-		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-		if (pkPromotionInfo != NULL)
-		{
-			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
-			{
-				eDamagePromotion = eLoopPromotion;
-				break;
-			}
-		}
-	}
-
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -11472,7 +11458,7 @@ void CvPlayer::DoUnitReset()
 
 		// then damage it again
 		int iCitadelDamage;
-		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL, eDamagePromotion) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
+		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -33923,10 +33909,12 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 	CvPreGame::setTeamType(GetID(), eTeam);
 
 #if defined(MOD_BALANCE_CORE)
-	GET_TEAM(getTeam()).addPlayer(GetID());
+	if (GET_TEAM(getTeam()).addPlayer(GetID()))
+		GET_TEAM(getTeam()).changeNumMembers(1);
+#else
+	GET_TEAM(getTeam()).changeNumMembers(1);
 #endif
 
-	GET_TEAM(getTeam()).changeNumMembers(1);
 	if(isAlive())
 	{
 		GET_TEAM(getTeam()).changeAliveCount(1);

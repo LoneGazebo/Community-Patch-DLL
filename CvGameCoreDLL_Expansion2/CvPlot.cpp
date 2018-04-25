@@ -14621,7 +14621,7 @@ bool CvPlot::HasWrittenArtifact() const
 
 //	--------------------------------------------------------------------------------
 // Citadel
-bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage, PromotionTypes ePromotion) const
+bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 {
 	VALIDATE_OBJECT
 
@@ -14643,34 +14643,37 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage, Promo
 				eImprovement = pLoopPlot->getImprovementType();
 
 				// Citadel here?
-				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
 				{
 					iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-					if(iDamage != 0)
+					if(pLoopPlot->getOwner() != NO_PLAYER)
 					{
-						if(pLoopPlot->getOwner() != NO_PLAYER)
+						if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
 						{
-							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
-							{
-								if(piCitadelDamage)
-									*piCitadelDamage = iDamage;
-								return true;
-							}
+							if(piCitadelDamage)
+								*piCitadelDamage = iDamage;
+							return true;
+						}
+					}
+				}
+				// Unit here that acts like a citadel?
+				else if (pLoopPlot->getNumUnits() != 0)
+				{
+					for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
+					{
+						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
+						if (pLoopUnit != NULL && pLoopUnit->GetNearbyEnemyDamage() > 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
+						{
+							iDamage = pLoopUnit->GetNearbyEnemyDamage();
+							if (piCitadelDamage)
+								*piCitadelDamage = iDamage;
+							return true;
 						}
 					}
 				}
 			}
 		}
 	}
-	
-	if(ePromotion != NO_PROMOTION && IsWithinDistanceOfUnitPromotion(ePlayer, ePromotion, 1, false, true))
-	{
-		iDamage = GC.getPromotionInfo(ePromotion)->GetNearbyEnemyDamage();
-		if(piCitadelDamage)
-			*piCitadelDamage = iDamage;
-		return true;
-	}
-
 	return false;
 }
 
