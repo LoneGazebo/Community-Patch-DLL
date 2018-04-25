@@ -6,7 +6,6 @@
 -- code is common using gk_mode and bnw_mode switches
 -------------------------------------------------
 include( "EUI_tooltips" )
-include( "IconSupport" );
 
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI notification panel",ContextPtr,os.clock(),[[ 
@@ -466,8 +465,8 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			itemImage = instance.TechAwardImage
 
 		elseif type == NotificationTypes.NOTIFICATION_PLAYER_DEAL_RECEIVED then
-      return SimpleCivIconHookup(iGameValue, 80, instance.DiplomacyPlayerImage);
-
+			local index = iGameValue;
+			CivIconHookup( index, 80, instance.DiplomacyPlayerImage, instance.CivIconBG, instance.CivIconShadow, false, true );
 		elseif type == NotificationTypes.NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER then
 			smallCivFrame = instance.WonderSmallCivFrame
 
