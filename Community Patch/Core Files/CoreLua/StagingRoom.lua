@@ -585,11 +585,7 @@ function RefreshPlayerList()
 	Controls.ListingScrollPanel:CalculateInternalSize();
 end
 
-function ShouldShowCivDetails(playerID)
-  -- do we want to have "unmet players" for players we haven't met yet in the actual game?  
-  if(not PreGame.GetGameOption("GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN")) then
-  	return true;
-  end
+function HasMetCivInGame(playerID)
   -- this nasty bit of code is actually asking if the local player has met this player. The IsCivilizationKeyAvailable was hijacked since I couldn't seem to be able to add new functions to query PreGame
   -- The player is transformed as such to differentiate from the normal proper usage of the function - playerids in the range of [0,MAX_CIV_PLAYERS) and possible bad values of -1 (NO_PLAYER)
   -- will just return true regardless if the game does not have the GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN set
@@ -605,6 +601,9 @@ function UpdatePlayer( slotInstance, playerInfo )
 	if(slotInstance ~= nil) then
 		slotInstance.Root:SetHide( false );
 
+		local playerName = playerInfo.playerName or Locale.ConvertTextKey( "TXT_KEY_MULTIPLAYER_DEFAULT_PLAYER_NAME", playerID + 1);
+		local playerID   = playerInfo.playerID;
+
 		--------------------------------------------------------------
 		-- Handle Civ Info
 		
@@ -613,18 +612,53 @@ function UpdatePlayer( slotInstance, playerInfo )
 		local civIndex = PreGame.GetCivilization( playerID );
 		local activeCivSlot = (PreGame.GetSlotStatus( playerID ) == SlotStatus.SS_COMPUTER 
 													or PreGame.GetSlotStatus( playerID ) == SlotStatus.SS_TAKEN);
-		if( civIndex ~= -1 and activeCivSlot ) then
-			civ = GameInfo.Civilizations[ civIndex ];
-
-			-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
-			local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
-			local leaderDescription = leader.Description;
-			
-			slotInstance.CivLabel:LocalizeAndSetText( "TXT_KEY_RANDOM_LEADER_CIV", Locale.ConvertTextKey( leaderDescription ), Locale.ConvertTextKey( civ.ShortDescription ) );
-			slotInstance.CivLabel:LocalizeAndSetToolTip( "" );
-        
-			IconHookup( leader.PortraitIndex, 64, leader.IconAtlas, slotInstance.Portrait );
-			SimpleCivIconHookup( playerID, 64, slotInstance.Icon);
+		if( civIndex ~= -1 and activeCivSlot ) then      
+			local hideCivDetails = false;
+			-- Does the player want to hide unmet civ details?
+			if(PreGame.GetGameOption("GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN")) then
+				-- Allow players to see themselves and teams to see each other
+				if(playerID ~= Matchmaking.GetLocalID() and PreGame.GetTeam(Matchmaking.GetLocalID()) ~= PreGame.GetTeam(playerID)) then
+					if(PreGame.GetLoadFileName() ~= "") then
+						-- if we are loading then we may want to hide the civ details
+						if(not HasMetCivInGame(playerID)) then
+							hideCivDetails = true;			
+						end
+					else
+					-- if we are setting up a game, then we may want to hide the civ details BUT only if they aren't random cos we don't want people to sneakily explicitly select their favourite civ.
+						if(playerID ~= Matchmaking.GetLocalID() and PreGame.GetSlotStatus(playerID) == SlotStatus.SS_TAKEN) then
+							hideCivDetails = true;			
+						end
+					end
+				end
+			end
+    	
+			if(hideCivDetails) then
+			 
+				civ = GameInfo.Civilizations[ civIndex ];
+	
+				-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
+				local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
+				local leaderDescription = leader.Description;
+				slotInstance.CivLabel:LocalizeAndSetText( "TXT_KEY_UNMET_PLAYER", "", "" );
+				
+				-- Still show the leader in the tooltip, if people really want to look they can - it is not top secret stuff and can be found out other ways if people really want.
+				slotInstance.CivLabel:LocalizeAndSetToolTip( Locale.ConvertTextKey("TXT_KEY_ADVISOR_FIRST_SPY_DISPLAY") ..  "[NEWLINE]" .. Locale.ConvertTextKey( leaderDescription ) );
+	        
+				IconHookup( 22, 64, "LEADER_ATLAS", slotInstance.Portrait );
+				SimpleCivIconHookup(-1, 64, slotInstance.Icon);				
+			else
+				civ = GameInfo.Civilizations[ civIndex ];
+	
+				-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
+				local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
+				local leaderDescription = leader.Description;
+				
+				slotInstance.CivLabel:LocalizeAndSetText( "TXT_KEY_RANDOM_LEADER_CIV", Locale.ConvertTextKey( leaderDescription ), Locale.ConvertTextKey( civ.ShortDescription ) );
+				slotInstance.CivLabel:LocalizeAndSetToolTip( "" );
+	        
+				IconHookup( leader.PortraitIndex, 64, leader.IconAtlas, slotInstance.Portrait );
+				SimpleCivIconHookup( playerID, 64, slotInstance.Icon);
+			end
 		else   
 			if ( not activeCivSlot or PreGame.IsCivilizationKeyAvailable( playerID ) ) then
 				--------------------------------------------------------------
@@ -799,27 +833,6 @@ function UpdatePlayer( slotInstance, playerInfo )
 			slotInstance.HandicapLabel:SetHide( false );
 			slotInstance.HandicapPulldown:SetHide( bCantChangeCiv );
 			slotInstance.PingTimeLabel:SetHide( false );
-		else
-			slotInstance.HandicapLabel:SetHide( true );
-			slotInstance.HandicapPulldown:SetHide( true );
-			slotInstance.PingTimeLabel:SetHide( true );
-		end
-
-        --slotInstance.DisableBlock:SetHide( not bIsDisabled );
-        
-		if( m_bIsHost ) then
-			if( bIsHotSeat ) then
-				slotInstance.KickButton:SetHide( true );
-				slotInstance.EditButton:SetHide( bIsDisabled or not bIsHuman );				
-				--slotInstance.EnableCheck:SetHide( false );
-				slotInstance.PingTimeLabel:SetHide( true );
-				slotInstance.LockCheck:SetHide( true );				
-			else
-				--slotInstance.EnableCheck:SetHide( bIsHuman or bCantChangeCiv );
-				slotInstance.LockCheck:SetHide( bIsHuman or bCantChangeCiv );
-				slotInstance.KickButton:SetHide( not bIsHuman and not Network.IsPlayerConnected(playerID));
-				slotInstance.EditButton:SetHide( true );
-			end
 		else
 			slotInstance.HandicapLabel:SetHide( true );
 			slotInstance.HandicapPulldown:SetHide( true );
