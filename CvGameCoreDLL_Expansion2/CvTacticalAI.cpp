@@ -9999,8 +9999,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,Reachab
 					//good plot for ranged
 					bChoiceBombardSpot = true;
 
-					std::vector<CvPlot*> vAttackablePlots;
-					pPlot->GetPlotsAtRangeX(2, true, true, vAttackablePlots);
+					std::vector<CvPlot*> vAttackablePlots = GC.getMap().GetPlotsAtRange(pPlot, 2, true, true);
 					iScore += vAttackablePlots.size() * 30;
 				}
 
@@ -10942,8 +10941,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
 
-	std::vector<CvPlot*> vCandidates;
-	pTarget->GetPlotsAtRangeX(iRange, false, !bIgnoreLOS, vCandidates);
+	std::vector<CvPlot*> vCandidates = GC.getMap().GetPlotsAtRange(pTarget, iRange, false, !bIgnoreLOS);
 
 	//filter and take only the half closer to origin
 	CvPlot* pRefPlot = pUnit->plot();
@@ -11109,9 +11107,9 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 			}
 			
 			//need to move and shoot
-			std::vector<CvPlot*> vAttackPlots;
+			
 			bool bIgnoreLOS = pAttacker->IsRangeAttackIgnoreLOS();
-			pDefender->plot()->GetPlotsAtRangeX(pAttacker->GetRange(), false, !bIgnoreLOS, vAttackPlots);
+			std::vector<CvPlot*> vAttackPlots = GC.getMap().GetPlotsAtRange(pDefender->plot(),pAttacker->GetRange(), false, !bIgnoreLOS);
 			for (std::vector<CvPlot*>::iterator it=vAttackPlots.begin(); it!=vAttackPlots.end(); ++it)
 			{
 				if (pAttacker->TurnsToReachTarget(*it,false,false,1)==0)
@@ -11520,7 +11518,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			if (iRange==1 && currentPlot.getType()!=CvTacticalPlot::TP_FRONTLINE)
 				continue;
 
-			pCurrentPlot->GetPlotsAtRangeX(iRange,true,!pUnit->IsRangeAttackIgnoreLOS(),vAttackPlots);
+			vAttackPlots = GC.getMap().GetPlotsAtRange(pCurrentPlot,iRange,true,!pUnit->IsRangeAttackIgnoreLOS());
 			for(size_t iCount=0; iCount<vAttackPlots.size(); iCount++)
 			{
 				CvPlot* pLoopPlot = vAttackPlots[iCount];

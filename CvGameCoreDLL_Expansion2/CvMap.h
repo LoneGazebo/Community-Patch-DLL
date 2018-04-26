@@ -316,6 +316,9 @@ public:
 	int GetAIMapHint();
 	// End Natural Wonders stuff
 
+	void ClearPlotsAtRange(const CvPlot* pPlot);
+	std::vector<CvPlot*> GetPlotsAtRange(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLOS);
+
 #if defined(MOD_UNIT_KILL_STATS)
 	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
@@ -369,11 +372,22 @@ protected:
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;
 
+	//store non-zero values outside of CvPlot because it will be zero almost all the time
+	typedef map<int, vector<unsigned char>> PlotInvisibleVisibilityLookup;
+	map<TeamTypes, PlotInvisibleVisibilityLookup> m_invisibleVisibilityCount;
+
 	GUID m_guid;
 
 	CvPlotManager	m_kPlotManager;
 
 	DeferredFogPlots m_vDeferredFogPlots; // don't serialize me
+
+	//caching some semi-static data, not serialized
+	typedef map<int, vector<CvPlot*>> PlotNeighborLookup;
+	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot2;
+	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot3;
+	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot2;
+	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot3;
 
 #if defined(MOD_UNIT_KILL_STATS)
 	// player -> plot index -> number of owned units killed
