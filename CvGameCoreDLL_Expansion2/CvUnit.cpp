@@ -28275,15 +28275,19 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	//now copy the new path
-	//but skip the first node, it's the current unit plot
-	//important: this means that an empty m_kLastPath is valid!
 	if (bCacheResult)
 	{
 		ClearPathCache();
-		CvPathNode nextNode;
-		for (size_t i = 1; i < newPath.vPlots.size(); i++)
+
+		for (size_t i = 0; i < newPath.vPlots.size(); i++)
 		{
-			nextNode = newPath.vPlots[i];
+			CvPathNode nextNode( newPath.vPlots[i] );
+
+			//skip the first node (if it's not a stop node), it's the current unit plot
+			//important: this means that an empty m_kLastPath is valid!
+			if (i == 0 && nextNode.m_iMoves > 0)
+				continue;
+
 			m_kLastPath.push_back(nextNode);
 		}
 
@@ -28337,10 +28341,11 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 		if (m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
 		{
 			//did we just reveal a unit? if so, abort movement
-			if (isHuman())
-				bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
-			else
-				bHaveValidPath = !(pkNextPlot->isVisibleEnemyUnit(getOwner()));
+			bHaveValidPath = !(pkNextPlot->isVisibleOtherUnit(getOwner()));
+
+			//for AI don't abort if we will move on
+			if (!isHuman())
+				bHaveValidPath |= (m_kLastPath.front().m_iMoves>0 && m_kLastPath.size()>1);
 		}
 		else
 		{
@@ -28616,9 +28621,9 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			pPathPlot = m_kLastPath.GetFirstPlot();
 
 			//if the pathfinder inserted a stop node because the next plot is occupied
-			//we see that the expected moves are greater than what we have right now
+			//we see that the expected moves are greater than what we have right now (or the turns are impossible)
 			//in that case don't execute the move
-			if (pPathPlot && m_kLastPath.front().m_iMoves>getMoves())
+			if (pPathPlot && (m_kLastPath.front().m_iMoves>getMoves() || m_kLastPath.front().m_iTurns>1))
 			{
 				finishMoves();
 				return MOVE_RESULT_CANCEL;
@@ -29528,7 +29533,7 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Use pathfinder to create a path
+/// Use pathfinder to create a path (protected, allows caching)
 bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns, bool bCacheResult)
 {
 	if(pToPlot == NULL)

@@ -1514,10 +1514,11 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		{
 			if (pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_HEAL() ||
-				pkQueueData->eMissionType == CvTypes::getMISSION_ALERT())
+				pkQueueData->eMissionType == CvTypes::getMISSION_ALERT() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_SKIP() )
 			{
 				//start the animation right now to give feedback to the player
-				if (!hUnit->IsFortified() && hUnit->canFortify(hUnit->plot()))
+				if (!hUnit->IsFortified() && !hUnit->hasMoved() && hUnit->canFortify(hUnit->plot()))
 					hUnit->triggerFortifyAnimation(true);
 			}
 			else if (hUnit->IsFortified())

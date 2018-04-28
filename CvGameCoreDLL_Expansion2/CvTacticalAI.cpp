@@ -6996,7 +6996,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		//don't attack accidentally
 		iFlags |= CvUnit::MOVEFLAG_NO_ATTACKING;
 
-		if (pUnit->GeneratePath(pTarget,iFlags))
+		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,NULL,true))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 			bResult = true;

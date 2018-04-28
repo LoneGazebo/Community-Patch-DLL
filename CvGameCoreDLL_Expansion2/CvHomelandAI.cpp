@@ -3894,7 +3894,7 @@ void CvHomelandAI::ExecuteHeals()
 			}
 
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pUnit->SetTurnProcessed(true);
+			UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -8106,7 +8106,7 @@ void CvHomelandAI::ClearCurrentMoveHighPriorityUnits()
 
 bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
 {
-	if(pUnit->GeneratePath(pTargetPlot,iFlags))
+	if(pUnit->GeneratePath(pTargetPlot,iFlags,INT_MAX,NULL,true))
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags, false, false, MISSIONAI_HOMEMOVE, pTargetPlot);
 		return true;
