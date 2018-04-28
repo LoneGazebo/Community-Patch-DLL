@@ -6236,7 +6236,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				//defensive only - don't send lonesome units into danger
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange*2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 				if (pBestPlot != NULL)
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
 				if (pBestPlot != NULL)
@@ -6265,7 +6265,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				bool bMoveMade = false;
 
 				//defensive only - don't send lonesome units into danger
-				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange*2, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
+				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 				if (!pBestPlot)
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 				if (!pBestPlot)
@@ -8918,7 +8918,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = 0;
-	int iMaxTurns = iRange/2+3;
+	int iMaxTurns = iRange/2+1;
 
 	// fill this in once we have our first match
 	ReachablePlots reachablePlots;
@@ -8963,14 +8963,17 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 		}
 
 		// Is this unit near enough?
-		if(bTypeMatch)
+		if (bTypeMatch)
 		{
 			CvPlot* pPlot = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
-			if(!pPlot)
+			if (!pPlot)
+				continue;
+
+			if (plotDistance(target.GetTargetX(), target.GetTargetY(),pUnit->getX(),pUnit->getY()) > iRange)
 				continue;
 
 			//shortcut, may happen often
-			if (pUnit->plot()==pPlot)
+			if (pUnit->plot() == pPlot)
 				return pPlot;
 
 			//can't do anything if we would need to embark
@@ -8978,10 +8981,10 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 				continue;
 
 			//Ranged naval unit? Let's get a water plot (naval melee can enter cities, don't care for others)
-			if(!pPlot->isWater() && pUnit->isRanged() && pUnit->getDomainType() == DOMAIN_SEA)
+			if (!pPlot->isWater() && pUnit->isRanged() && pUnit->getDomainType() == DOMAIN_SEA)
 			{
 				pPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pPlot);
-				if(!pPlot)
+				if (!pPlot)
 					continue;
 			}
 	
