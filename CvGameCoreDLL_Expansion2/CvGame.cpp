@@ -9124,8 +9124,8 @@ void CvGame::updateMoves()
 	int currentTurn = getGameTurn();
 	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
 
-#if defined(MOD_BUGFIX_SKIPPED_HUMAN_TURN_ON_MP_LOAD)
-	bool firstActivationOfPlayersAfterLoad = activatePlayers && m_lastTurnAICivsProcessed == -1;
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+	m_firstActivationOfPlayersAfterLoad = activatePlayers && m_lastTurnAICivsProcessed == -1;
 #endif
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
@@ -9404,22 +9404,6 @@ void CvGame::updateMoves()
 				if(!player.isTurnActive() && player.isHuman() && player.isAlive() && player.isSimultaneousTurns())
 				{
 					player.setTurnActive(true);
-#if defined(MOD_BUGFIX_SKIPPED_HUMAN_TURN_ON_MP_LOAD)
-					if (firstActivationOfPlayersAfterLoad && player.isLocalPlayer())
-					{
-						// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
-						// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
-						// A hacky solution to this is to tell Civ to cancel the player turn complete state.
-						// Otherwise they get their turn ended in the next call to updateMoves after the condition (!player.isEndTurn() && gDLL->HasReceivedTurnComplete(player.GetID()) && player.isHuman())
-						if (gDLL->HasReceivedTurnComplete(player.GetID()))
-						{
-							bool unreadied = gDLL->sendTurnUnready();
-							bool turnComplete = gDLL->HasReceivedTurnComplete(player.GetID());
-							NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : Attempting to fix skipped first turn issue - HasReceivedTurnComplete(" << player.GetID() << ") returned 1, sendTurnUnready() returned "
-								<< unreadied << " and now HasReceivedTurnComplete(" << player.GetID() << ") returned " << turnComplete);
-						}
-					}
-#endif
 				}
 			}
 		}
@@ -14222,4 +14206,10 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	return true;
 }
 #endif
+#endif
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+bool CvGame::isFirstActivationOfPlayersAfterLoad()
+{
+	return m_firstActivationOfPlayersAfterLoad;
+}
 #endif
