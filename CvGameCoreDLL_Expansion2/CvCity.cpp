@@ -683,7 +683,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		if(eBuilding != NO_BUILDING)
 		{
-			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass))
+			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass) || GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass))
 			{		
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if(pkBuildingInfo)
@@ -11796,24 +11796,13 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetMilitaryProductionModifier();
+			if(iTempMod != 0)
 			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo != NULL)
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
 				{
-					if(pkPromotionInfo->GetMilitaryProductionModifier() > 0)
-					{
-						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-						{
-							iTempMod = pkPromotionInfo->GetMilitaryProductionModifier();
-							iMultiplier += iTempMod;
-							if(toolTipSink && iTempMod)
-							{
-								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
-							}
-						}
-					}
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
 				}
 			}
 		}

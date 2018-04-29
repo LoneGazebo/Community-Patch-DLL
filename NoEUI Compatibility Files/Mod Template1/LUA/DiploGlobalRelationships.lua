@@ -407,7 +407,6 @@ function InitMajorCivList()
 				ShowPromiseTurns(pOtherPlayer:GetNumTurnsMilitaryPromise(g_iUs),  "TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS");
 				ShowPromiseTurns(pOtherPlayer:GetNumTurnsExpansionPromise(g_iUs), "TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS");
 				ShowPromiseTurns(pOtherPlayer:GetNumTurnsBorderPromise(g_iUs),    "TXT_KEY_DIPLO_BORDER_PROMISE_TURNS");
-				ShowPromiseTurns(pOtherPlayer:GetNumTurnsNoSpyingPromise(g_iUs),  "TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS");
 				-- Promises END
 				
 				--controlTable.NothingLabel:SetHide(bHasEntry);

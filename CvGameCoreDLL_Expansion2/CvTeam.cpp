@@ -3626,15 +3626,21 @@ void CvTeam::changeNumMembers(int iChange)
 }
 
 #if defined(MOD_BALANCE_CORE)
-void CvTeam::addPlayer(PlayerTypes eID)
+bool CvTeam::addPlayer(PlayerTypes eID)
 {
 	if (eID==NO_PLAYER)
-		return;
+		return false;
+
+	bool bPlayerAdded = false;
 
 	if ( std::find( m_members.begin(), m_members.end(), eID ) == m_members.end() )
+	{
 		m_members.push_back(eID);
+		bPlayerAdded = true;
+	}
 
 	updateTeamStatus();
+	return bPlayerAdded;
 }
 
 void CvTeam::removePlayer(PlayerTypes eID)
@@ -8528,7 +8534,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 						continue;
 					}
 					
-					if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI))
+					if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
 					{
 						BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings((BuildingClassTypes)iI)));
 
@@ -8542,7 +8548,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 								{
 									if(pLoopCity->isValidBuildingLocation(eBuilding))
 									{
-										if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI))
+										if (kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0 || kPlayer.IsFreeChosenBuildingNewCity((BuildingClassTypes)iI) || kPlayer.IsFreeBuildingAllCity((BuildingClassTypes)iI))
 										{
 											if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 											{
