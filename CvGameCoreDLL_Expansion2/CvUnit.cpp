@@ -28620,13 +28620,11 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		{
 			pPathPlot = m_kLastPath.GetFirstPlot();
 
-			//if the pathfinder inserted a stop node because the next plot is occupied
-			//we see that the expected moves are greater than what we have right now (or the turns are impossible)
-			//in that case don't execute the move
-			if (pPathPlot && (m_kLastPath.front().m_iMoves>getMoves() || m_kLastPath.front().m_iTurns>1))
+			//wait until next turn if the pathfinder inserted a stop node because the next plot is occupied
+			if (pPathPlot && m_kLastPath.front().m_iTurns>0)
 			{
 				finishMoves();
-				return MOVE_RESULT_CANCEL;
+				return MOVE_RESULT_NEXT_TURN;
 			}
 
 			//the given target may be different from the actual target
@@ -28657,7 +28655,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			bRejectMove = true;
 		}
 		// if we should end our turn there this turn, but can't move into that tile
-		else if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot,iFlags|MOVEFLAG_DESTINATION))  
+		else if(kDestNode.m_iTurns == 0 && !canMoveInto(*pDestPlot,iFlags|MOVEFLAG_DESTINATION))  
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -28707,13 +28705,14 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			m_uiLastPathLength = m_kLastPath.size();
 
 			//have we used up all plots for this turn?
-			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>1)
+			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>0)
 			{
 				//we will need to recalculate next turn anyway, but deleting the path would abort the mission
 				for (size_t i=0; i<m_kLastPath.size(); i++)
 					m_kLastPath[i].m_iTurns--;
 
 				//means we're done for this turn
+				finishMoves();
 				return MOVE_RESULT_NEXT_TURN;
 			}
 		}

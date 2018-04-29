@@ -70,7 +70,7 @@ public:
 	bool VerifyPath(const SPath& path);
 
 	// Get the result
-	SPath GetCurrentPath() const;
+	SPath GetCurrentPath(bool bUseUiTurnCountConvention) const;
 
 	inline bool HaveFlag(int iFlag) const
 	{
@@ -350,8 +350,8 @@ inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, co
 class CvPathFinder : public CvAStar
 {
 public:
-	virtual SPath GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
-	virtual SPath GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
+	virtual SPath GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, bool bUseUiTurnCountConvention=false);
+	virtual SPath GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data, bool bUseUiTurnCountConvention=false);
 	virtual bool DoesPathExist(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 	virtual bool DoesPathExist(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 	virtual int GetPathLengthInPlots(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
