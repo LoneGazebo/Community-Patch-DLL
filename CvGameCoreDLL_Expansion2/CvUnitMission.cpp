@@ -688,15 +688,10 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_SWAP_UNITS())
 			{
-				CvPlot* pOriginationPlot;
-				CvPlot* pTargetPlot;
-
-				// Get target plot
-				pTargetPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
-
+				CvPlot* pTargetPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
 				if(pTargetPlot != NULL)
 				{
-					pOriginationPlot = hUnit->plot();
+					CvPlot* pOriginationPlot = hUnit->plot();
 
 					if(pTargetPlot->getNumUnits() < 1)
 					{
@@ -713,11 +708,18 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						if(pUnit2->AreUnitsOfSameType(*(hUnit)) && pUnit2->ReadyToMove())
 						{
 							// Start the swap
-							hUnit->UnitPathTo(HeadMissionData(kMissionQueue)->iData1, HeadMissionData(kMissionQueue)->iData2, CvUnit::MOVEFLAG_IGNORE_STACKING);
+							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))
+							{
+								int iResult = 0;
+								while (iResult >= 0)
+									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
+								int iResult2 = 0;
+								while (iResult2 >= 0)
+									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
 
-							// Move the other unit back out
-							pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 0);
-							bDone = true;
+								bDone = true;
+								break;
+							}
 						}
 					}
 				}
