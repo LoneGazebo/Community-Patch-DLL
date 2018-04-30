@@ -6520,10 +6520,6 @@ void CvTacticalAI::ExecuteHeals()
 					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
 				}
 			}
-			else
-			{
-				pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
-			}
 		}
 		else if (pUnit->getDomainType()==DOMAIN_SEA)
 		{
@@ -6561,7 +6557,7 @@ void CvTacticalAI::ExecuteHeals()
 			else //plot should be free
 				ExecuteMoveToPlot(pUnit, pBetterPlot, true);
 		}
-		else if (!pBetterPlot && pUnit->getDomainType()!=DOMAIN_AIR)
+		else if (!pBetterPlot && pUnit->getDomainType()!=DOMAIN_AIR && pUnit->GetDanger()>0)
 		{
 			//apparently no chance to heal? try again
 			pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);

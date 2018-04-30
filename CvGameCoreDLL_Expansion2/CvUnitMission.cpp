@@ -803,7 +803,8 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
 			{
-				if(hUnit->at(kMissionData.iData1, kMissionData.iData2))
+				//don't check against the target plot directly in case of approximate pathfinding
+				if(hUnit->m_kLastPath.empty())
 				{
 					bDone = true;
 #ifdef LOG_UNIT_MOVES

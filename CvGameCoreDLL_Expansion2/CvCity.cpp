@@ -24348,14 +24348,15 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 18;
+					//this can happen multiple times per turn, be sure to include the unit id or similar
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());
+							int iYield = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation() + pUnit->GetID());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);

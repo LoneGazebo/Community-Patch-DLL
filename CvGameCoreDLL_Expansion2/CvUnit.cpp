@@ -28560,26 +28560,20 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingRoute)
 {
 	VALIDATE_OBJECT
-	CvPlot* pPathPlot = NULL;
-
-	LOG_UNIT_MOVES_MESSAGE_OSTR( std::string("UnitPathTo() : player ") << GET_PLAYER(getOwner()).getName() << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << iX << std::string(", ") << iY);
-
-	if (at(iX, iY))
-		return MOVE_RESULT_CANCEL;
-
 	CvAssert(!IsBusy());
 	CvAssert(getOwner() != NO_PLAYER);
+	CvAssertMsg(canMove(), "canAllMove is expected to be true");
+	LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("UnitPathTo() : player ") << GET_PLAYER(getOwner()).getName() << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << iX << std::string(", ") << iY);
 
+	CvPlot* pPathPlot = NULL;
 	CvMap& kMap = GC.getMap();
 	CvPlot* pDestPlot = kMap.plot(iX, iY);
 	if (!pDestPlot)
 		return MOVE_RESULT_CANCEL;
 
-	CvAssertMsg(canMove(), "canAllMove is expected to be true");
-
 	if(getDomainType() == DOMAIN_AIR)
 	{
-		if(!canMoveInto(*pDestPlot))
+		if(!canMoveInto(*pDestPlot) || at(iX,iY))
 			return MOVE_RESULT_CANCEL;
 
 		pPathPlot = pDestPlot;
@@ -28627,18 +28621,17 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				return MOVE_RESULT_NEXT_TURN;
 			}
 
+			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
+			if (pPathPlot == NULL)
+				pPathPlot = pDestPlot;
+
 			//the given target may be different from the actual target
 			if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2))
-			{
 				pDestPlot = m_kLastPath.GetFinalPlot();
-				//check if we are there yet
-				if (pDestPlot && pDestPlot->getX()==getX() && pDestPlot->getY()==getY())
-					return MOVE_RESULT_CANCEL;
-			}
 
-			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
-			if (pPathPlot==NULL)
-				pPathPlot = pDestPlot;
+			//check if we are there yet
+			if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
+				return MOVE_RESULT_CANCEL;
 		}
 	}
 
