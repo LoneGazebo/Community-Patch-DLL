@@ -143,9 +143,18 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
--- Abnormal scaler for Specialist yields in cities UA. +specialist yield in medieval/industrial/atomic eras.
+-- Abnormal scaler. Works for:
+---- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)
+---- FreeSocialPoliciesPerEra column in Traits
+---- Trait_YieldChangesPerImprovementBuilt (x2/x3/x4 of the bonus in Medieval/Industrial/Atomic)
 
 ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
+
+-- Trait only provides bonus in the capital. Works for:
+---- Trait_YieldChangesPerImprovementBuilt (yield change shows up in capital only, instead of all cities)
+---- Trait_GreatPersonProgressFromPolicyUnlock (GP points show up in capital only, instead of all cities)
+
+ALTER TABLE Traits ADD COLUMN 'IsCapitalOnly' BOOLEAN DEFAULT 0;
 
 -- No natural religion spread to/from unowned cities
 

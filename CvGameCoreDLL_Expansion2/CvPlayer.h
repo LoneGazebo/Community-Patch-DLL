@@ -1209,6 +1209,10 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL);
+	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
+	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
+	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -2235,6 +2239,11 @@ public:
 	void changeTotalImprovementsBuilt(int iChange);
 	int getImprovementCount(ImprovementTypes eIndex) const;
 	void changeImprovementCount(ImprovementTypes eIndex, int iChange);
+
+#if defined(MOD_BALANCE_CORE)
+	int getTotalImprovementsBuilt(ImprovementTypes eIndex) const;
+	void changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange);
+#endif
 
 	int getGreatPersonImprovementCount();
 
@@ -3265,6 +3274,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
+	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantGreatPersonProgress;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abActiveContract;
 	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;
 	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldownRate;
@@ -3501,6 +3511,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromMinors;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourcesSiphoned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiTotalImprovementsBuilt;
+#endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitCombatProductionModifiers;

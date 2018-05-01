@@ -16,6 +16,7 @@ public:
 
 	int GetUnitClassType() const;
 	int GetSpecialistType() const;
+	const char* GetIconString() const;
 
 	// Other
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
@@ -23,6 +24,7 @@ public:
 protected:
 	int m_iUnitClass;
 	int m_iSpecialist;
+	CvString m_strIconString;
 
 private:
 	CvGreatPersonInfo(const CvGreatPersonInfo&);
