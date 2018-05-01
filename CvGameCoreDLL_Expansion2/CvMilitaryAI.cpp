@@ -1203,7 +1203,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 						{
 #endif
-							pUnit->setMoves(0);
+							pUnit->finishMoves();
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 						}
 #endif
@@ -1241,7 +1241,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 				{
 #endif
-					pUnit->setMoves(0);
+					pUnit->finishMoves();
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 				}
 #endif
@@ -2481,7 +2481,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0, eDamagePromotion))
+			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0))
 				bHarmful = true;
 
 			//makes us slow

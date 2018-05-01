@@ -214,7 +214,7 @@ function RefreshData()
 --			end
 -- CBP
 			elseif (iYield == YieldTypes.YIELD_CULTURE) then
-				tradeRoute.Culture = u.Theirs;
+				tradeRoute.Culture = u.Mine;
 				tradeRoute.CultureDelta = u.Mine - u.Theirs;
 			elseif (iYield == YieldTypes.YIELD_PRODUCTION) then
 				tradeRoute.Production = u.Theirs;

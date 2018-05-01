@@ -789,7 +789,7 @@ function DoUpdateButtons()
 			Controls.PeaceDealBorderFrame:SetHide(false);
 			local iCurrent = g_pThem:GetTotalValueToMeNormal(g_Deal);
 			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE", iCurrent);
-			if(iCurrent == -2) then
+			if(iCurrent == -99999) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO");
 			elseif(iCurrent == -1) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE");
@@ -797,7 +797,7 @@ function DoUpdateButtons()
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE");
 			end
 			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT");
-			if(iCurrent == -2) then
+			if(iCurrent == -99999) then
 				ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO_TT");
 			end
 			Controls.PeaceValue:SetText(Valuestr);

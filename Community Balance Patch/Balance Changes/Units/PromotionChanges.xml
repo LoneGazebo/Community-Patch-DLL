@@ -2267,7 +2267,7 @@
 			<Help>TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>9</PortraitIndex>
-			<PromotionPrereq>PROMOTION_BUFFALO_HORNS</PromotionPrereq>
+			<PromotionPrereq>PROMOTION_BUFFALO_CHEST</PromotionPrereq>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_HORNS</PediaEntry>

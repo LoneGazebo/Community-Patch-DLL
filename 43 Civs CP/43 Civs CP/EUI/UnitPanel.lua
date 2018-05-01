@@ -1327,6 +1327,9 @@ local function UpdateUnitStats(unit)
 	elseif bnw_mode and unit:CargoSpace() > 0 then
 		Controls.UnitStatRangedAttack:SetText( L"TXT_KEY_UPANEL_CARGO_CAPACITY" .. " " .. unit:CargoSpace() )
 		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName() )
+	elseif unit:GetBuilderStrength() > 0 then
+		Controls.UnitStatRangedAttack:SetText( "[ICON_WORKER]" ..unit:GetBuilderStrength() )
+		Controls.UnitStatRangedAttack:SetToolTipString( L"TXT_KEY_UPANEL_BUILDER_STRENGTH_TT" )
 	else
 		Controls.UnitStatRangedAttack:SetText()
 	end

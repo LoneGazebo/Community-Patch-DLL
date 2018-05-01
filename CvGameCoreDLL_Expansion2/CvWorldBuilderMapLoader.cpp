@@ -722,7 +722,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 		{
 			if(kSavedUnit.GetFlag(CvWorldBuilderMap::Unit::UNIT_FORTIFIED))
 			{
-				if(pkGameplayUnit->isFortifyable(true))
+				if(pkGameplayUnit->canFortify(pkGameplayUnit->plot()))
 					gDLL->sendPushMission(pkGameplayUnit->GetID(), CvTypes::getMISSION_FORTIFY(), 0, 0, 0, false);
 				else
 					gDLL->sendPushMission(pkGameplayUnit->GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
@@ -733,7 +733,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 				const PromotionTypes ePromotionEmbarkation = kPlayer.GetEmbarkationPromotion();
 				pkGameplayUnit->setHasPromotion(ePromotionEmbarkation, true);
 				pkGameplayUnit->setEmbarked(true);
-				pkGameplayUnit->setMoves(pkGameplayUnit->maxMoves());
+				pkGameplayUnit->restoreFullMoves();
 			}
 
 			if(kSavedUnit.m_uiHealth != kSavedUnit.MaxHealth)

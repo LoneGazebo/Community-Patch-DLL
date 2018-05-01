@@ -110,6 +110,7 @@ CvGame::CvGame() :
 	, m_bFOW(true)
 	, m_bArchaeologyTriggered(false)
 	, m_lastTurnAICivsProcessed(-1)
+	, m_processPlayerAutoMoves(false)
 {
 	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
 	m_aiRankPlayer = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by rank...
@@ -755,7 +756,9 @@ void CvGame::InitPlayers()
 				int testingMinor = GetAvailableMinorCivType() + (eMinorPlayer + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS));
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo((MinorCivTypes)testingMinor);
 #else
-				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(GetAvailableMinorCivType());
+				MinorCivTypes eAvailableMinor = GetAvailableMinorCivType();
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_FreeCitySelector, eMinorPlayer, eAvailableMinor);
+				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(eAvailableMinor);
 #endif
 				if (pMinorCivInfo)
 				{
@@ -1093,6 +1096,7 @@ void CvGame::uninit()
 	m_bForceEndingTurn = false;
 
 	m_lastTurnAICivsProcessed = -1;
+	m_processPlayerAutoMoves = false;
 	m_iEndTurnMessagesSent = 0;
 	m_iElapsedGameTurns = 0;
 	m_iStartTurn = 0;
@@ -8109,12 +8113,27 @@ void CvGame::doTurn()
 	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.
 	resetTurnTimer(true);
 
+	m_processPlayerAutoMoves = false; // Starts out as false and gets set to true in updateMoves but was never getting set back to false if MP simultaneous turns with no AI.
+
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
 
 	gDLL->DoTurn();
 
 	CvBarbarians::BeginTurn();
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	// Dodgy business to cleanup all the completed requests from last turn. Any still here should just be ones that were processed on other clients anyway.
+	if (MOD_ACTIVE_DIPLOMACY)
+	{
+		for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			CvAssertMsg((kPlayer.isLocalPlayer() && !kPlayer.GetDiplomacyRequests()->HasPendingRequests()) || !kPlayer.isLocalPlayer(), "Clearing requests, expected local player to be empty.");
+			kPlayer.GetDiplomacyRequests()->ClearAllRequests();
+		}
+	}
+#endif
 
 	doUpdateCacheOnTurn();
 
@@ -8769,7 +8788,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 			}
 			else
 			{
-				pstartUnit->setMoves(0);
+				pstartUnit->finishMoves();
 				if(ePlayer != BARBARIAN_PLAYER)
 				{
 					pCity->addProductionExperience(pstartUnit);
@@ -8796,7 +8815,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					}
 					else
 					{
-						pmUnit->setMoves(0);
+						pmUnit->finishMoves();
 						if(ePlayer != BARBARIAN_PLAYER)
 						{
 							pCity->addProductionExperience(pmUnit);
@@ -8818,7 +8837,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 						}
 						else
 						{
-							pUnit->setMoves(0);
+							pUnit->finishMoves();
 							if(ePlayer != BARBARIAN_PLAYER)
 							{
 								pCity->addProductionExperience(pUnit);
@@ -9085,8 +9104,6 @@ void CvGame::updateMoves()
 	int iLoop;
 	int iI;
 
-	static bool processPlayerAutoMoves = false;
-
 	// Process all AI first, then process players.
 	// Processing of the AI 'first' only occurs when the AI are activated first
 	// in doTurn, when MPSIMULTANEOUS_TURNS is set.  If the turns are sequential,
@@ -9099,7 +9116,7 @@ void CvGame::updateMoves()
 		if(player.isAlive() && player.isTurnActive() && !player.isHuman())
 		{
 			playersToProcess.push_back(static_cast<PlayerTypes>(iI));
-			processPlayerAutoMoves = false;
+			m_processPlayerAutoMoves = false;
 			// Notice the break.  Even if there is more than one AI with an active turn, we do them sequentially.
 			break;
 		}
@@ -9108,6 +9125,10 @@ void CvGame::updateMoves()
 
 	int currentTurn = getGameTurn();
 	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
+
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+	m_firstActivationOfPlayersAfterLoad = activatePlayers && m_lastTurnAICivsProcessed == -1;
+#endif
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
 	{
@@ -9129,7 +9150,7 @@ void CvGame::updateMoves()
 #endif
 			}
 
-			if(!processPlayerAutoMoves)
+			if(!m_processPlayerAutoMoves)
 			{
 				if(!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 				{//fully simultaneous turns.
@@ -9141,10 +9162,10 @@ void CvGame::updateMoves()
 						if(player.isHuman() && !player.isObserver() && !player.isAutoMoves())
 							readyForAutoMoves = false;
 					}
-					processPlayerAutoMoves = readyForAutoMoves;
+					m_processPlayerAutoMoves = readyForAutoMoves;
 				}
 				else
-					processPlayerAutoMoves = true;
+					m_processPlayerAutoMoves = true;
 			}
 
 			for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -9230,7 +9251,7 @@ void CvGame::updateMoves()
 					}
 				}
 
-				if(player.isAutoMoves() && (!player.isHuman() || processPlayerAutoMoves))
+				if(player.isAutoMoves() && (!player.isHuman() || m_processPlayerAutoMoves))
 				{
 					bool bRepeatAutomoves = false;
 					int iRepeatPassCount = 2;	// Prevent getting stuck in a loop
@@ -9307,9 +9328,7 @@ void CvGame::updateMoves()
 							if(pLoopUnit)
 							{
 								bool bMoveMe  = false;
-								int iNumTurnsFortified = pLoopUnit->getFortifyTurns();
-								IDInfo* pUnitNodeInner;
-								pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
+								IDInfo* pUnitNodeInner = pLoopUnit->plot()->headUnitNode();
 								while(pUnitNodeInner != NULL && !bMoveMe)
 								{
 									CvUnit* pLoopUnitInner = ::getUnit(*pUnitNodeInner);
@@ -9323,7 +9342,7 @@ void CvGame::updateMoves()
 											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 #endif
 											{
-												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
+												if(pLoopUnitInner->IsFortified() && !pLoopUnit->IsFortified())
 												{
 													bMoveMe = true;
 												}
@@ -9642,6 +9661,13 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
 						{
 							if(kPlayer.GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
+								continue;
+						}
+
+						ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+						if (eUtopia != NO_PROJECT)
+						{
+							if (GET_TEAM(kPlayer.getTeam()).getProjectCount(eUtopia) <= 0)
 								continue;
 						}
 					}
@@ -11179,6 +11205,9 @@ void CvGame::Read(FDataStream& kStream)
 	//when loading from file, we need to reset m_lastTurnAICivsProcessed 
 	//so that updateMoves() can turn active players after loading an autosave in simultaneous turns multiplayer.
 	m_lastTurnAICivsProcessed = -1;
+
+	// used to be a static in updateMoves but made a member due to it not being re-inited and maybe causing issues when loading after an exit-to-menu. Not serialized - I wasn't willing to think about the implications.
+	m_processPlayerAutoMoves = false;
 }
 
 //	---------------------------------------------------------------------------
@@ -14007,6 +14036,7 @@ int CvGame::GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) cons
 
 	return GET_PLAYER(eGreatestPlayer).GetMonopolyPercent(eResource);
 }
+#endif
 
 PlayerTypes CvGame::GetPotentialFreeCityPlayer(CvCity* pCity)
 {
@@ -14184,4 +14214,9 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	return true;
 }
 #endif
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+bool CvGame::isFirstActivationOfPlayersAfterLoad()
+{
+	return m_firstActivationOfPlayersAfterLoad;
+}
 #endif

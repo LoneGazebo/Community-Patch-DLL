@@ -4081,48 +4081,15 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 	if ((int)ePlayer != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
 		// check to see if the other player has the Great Firewall
-		bool bTargetHasGreatFirewall = false;
+		bool bTargetHasGreatFirewall = m_pPlayer->IsNullifyInfluenceModifier();
 
 		int iLoopCity;
 		CvCity *pLoopCity;
 
 		// only check for firewall if the internet influence spread modifier is > 0
 		int iTechSpreadModifier = m_pPlayer->GetInfluenceSpreadModifier();
-		if (iTechSpreadModifier != 0) 
-		{
-			for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity))
-			{
-				// Buildings
-				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
-				{
-					BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
 
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-
-					const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pLoopCity->getOwner()).getCivilizationInfo();
-					BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-					if(eBuilding != NO_BUILDING)
-					{
-
-						CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-						if (!pBuildingEntry || !pBuildingEntry->NullifyInfluenceModifier())
-						{
-							continue;
-						}
-
-						if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-						{
-							bTargetHasGreatFirewall = true;				
-						}
-					}
-				}
-			}
-		}
-
+		int iInfluenceToAdd = 0;
 		// Loop through each of our cities
 		for (pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 		{
@@ -4133,7 +4100,7 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 			}
 
 #if defined(MOD_BALANCE_CORE)
-			int iInfluenceToAdd = pLoopCity->GetBaseTourism();
+			iInfluenceToAdd += pLoopCity->GetBaseTourism();
 #else
 			int iInfluenceToAdd = pLoopCity->GetCityCulture()->GetBaseTourism();
 #endif
@@ -4150,18 +4117,18 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 				int iInfluenceWithTechModifier = iInfluenceWithoutModifier * iTechSpreadModifier;
 				iInfluenceToAdd -= (iInfluenceWithTechModifier / 100);
 			}
-			
-			iRtnValue += iInfluenceToAdd;
 		}
+
+		iRtnValue += iInfluenceToAdd;
 
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		int iExtraInfluenceToAdd = 0;
 
 		// Tourism from religion
-		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM);
+		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM) * 100;
 
 		// Trait bonus which adds Tourism for trade partners? 
-		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM);
+		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM) * 100;
 		
 		if (iExtraInfluenceToAdd != 0)
 		{
@@ -4179,7 +4146,7 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 		iRtnValue = iRtnValue * (100 + iModifier) / 100;
 	}
 
-	return iRtnValue;
+	return iRtnValue / 100;
 
 }
 
@@ -4757,21 +4724,24 @@ int CvPlayerCulture::GetTourism()
 #endif
 		CvCity *pCity;
 		int iLoop;
+		int iCityValue = 0;
 		for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 		{
 #if defined(MOD_BALANCE_CORE)
-			iRtnValue += pCity->GetBaseTourism();
+			iCityValue += pCity->GetBaseTourism();
 #else
 			iRtnValue += pCity->GetCityCulture()->GetBaseTourism();
 #endif
 		}
 
+		iRtnValue += iCityValue;
+
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 		// Tourism from religion
-		iRtnValue += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM);
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM) * 100;
 
 		// Trait bonus which adds Tourism for trade partners? 
-		iRtnValue += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM);
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM) * 100;
 	}
 #endif
 
@@ -5230,7 +5200,7 @@ int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 	else
 	{
 #endif
-	iStrength = iMultiplier * GetTourism();
+	iStrength = iMultiplier * GetTourism() / 100;
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	}
 #endif
@@ -6424,7 +6394,7 @@ void CvPlayerCulture::LogCultureData()
 	}
 
 	AppendToLog(strHeader, strLog, "Great Works", GetNumGreatWorks());
-	AppendToLog(strHeader, strLog, "Tourism", GetTourism());
+	AppendToLog(strHeader, strLog, "Tourism", GetTourism() / 100);
 	AppendToLog(strHeader, strLog, "Theming Bonuses", GetTotalThemingBonuses());
 
 	if(bBuildHeader)
@@ -6972,7 +6942,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 }
 void CvCityCulture::CalculateBaseTourism()
 {
-	int iBase = m_pCity->GetBaseTourismBeforeModifiers();
+	int iBase = m_pCity->GetBaseTourismBeforeModifiers() * 100;
 	if(iBase <= 0)
 	{
 		m_pCity->SetBaseTourism(0);
@@ -6996,7 +6966,7 @@ void CvCityCulture::CalculateBaseTourism()
 	if (iNumCities != 0)
 	{
 		// Mod for City Count
-		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
 		iMod -= kPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= (iNumCities - 1);
@@ -7190,10 +7160,9 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 int CvCityCulture::GetBaseTourism()
 {
 #if defined(MOD_BALANCE_CORE)
-	int iBase = m_pCity->GetBaseTourismBeforeModifiers();
+	return m_pCity->GetBaseTourism();
 #else
 	int iBase = GetBaseTourismBeforeModifiers();
-#endif
 
 	int iModifier = 0;
 
@@ -7213,7 +7182,7 @@ int CvCityCulture::GetBaseTourism()
 	if (iNumCities != 0)
 	{
 		// Mod for City Count
-		int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
 		iMod -= kPlayer.GetTourismCostXCitiesMod();
 
 		iMod *= (iNumCities - 1);
@@ -7281,6 +7250,7 @@ int CvCityCulture::GetBaseTourism()
 	m_pCity->SetBaseTourism(iBase);
 #endif
 	return iBase;
+#endif
 }
 
 /// What is the tourism modifier for one player
@@ -7881,7 +7851,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		if (iNumCities != 0)
 		{
 			// Mod for City Count
-			iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
+			iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
 			iMod -= kCityPlayer.GetTourismCostXCitiesMod();
 
 			iMod *= (iNumCities - 1);

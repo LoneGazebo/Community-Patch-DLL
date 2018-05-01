@@ -611,6 +611,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Policies/PolicyBranches.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Projects/NewProjects.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -1875,6 +1880,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Policies\Tradition\Tradition.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Projects\NewProjects.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

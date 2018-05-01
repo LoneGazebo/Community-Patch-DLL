@@ -738,7 +738,16 @@ function UpdateUnitStats(unit)
         local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName());
         Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
         Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
-    else
+    elseif unit:GetBuilderStrength() > 0 then
+		iRangedStrength = unit:GetBuilderStrength() .. "      ";
+		Controls.UnitRangedAttackBox:SetHide(false);
+		local rangeStrengthStr = Locale.ConvertTextKey( "TXT_KEY_UPANEL_BUILDER_STRENGTH" );
+		Controls.UnitStatNameRangedAttack:SetText(rangeStrengthStr);
+        Controls.UnitStatRangedAttack:SetText(iRangedStrength);
+		local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_BUILDER_STRENGTH_TT" );
+        Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
+        Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
+	else
         Controls.UnitRangedAttackBox:SetHide(true);
     end        
     
