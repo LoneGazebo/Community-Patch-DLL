@@ -4546,9 +4546,12 @@ void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo &
 				pkUnit->changeDamage(kEntry.GetDamage(), pkAttacker->getOwner());
 				if (pkUnit->IsDead())
 				{
-					//unit kill is delayed. in case of multiple attacks this turn we remove the garrison manually
+					//unit kill is delayed. in case of multiple attacks this turn we remove / switch the garrison manually
 					if (pkUnit->IsGarrisoned())
-						pkUnit->GetGarrisonedCity()->SetGarrison(NULL);
+					{
+						CvCity* pCity = pkUnit->GetGarrisonedCity();
+						pCity->SetGarrison( pCity->plot()->getBestGarrison(pCity->getOwner()) );
+					}
 
 					CvString strBuffer;
 					int iActivePlayerID = GC.getGame().getActivePlayer();
