@@ -149,7 +149,7 @@ public:
 	bool IsEventValid(EventTypes eEvent);
 	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
 	void DoStartEvent(EventTypes eEvent);
-	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT);
+	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT, bool bSendMsg = true);
 	void DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity);
 	CvString GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly);
 	CvString GetDisabledTooltip(EventChoiceTypes eEventChoice);
@@ -561,6 +561,9 @@ public:
 
 	bool IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const;
 	void ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass, bool bValue);
+
+	bool IsFreeBuildingAllCity(BuildingClassTypes eBuildingClass) const;
+	void ChangeAllCityFreeBuilding(BuildingClassTypes eBuildingClass, bool bValue);
 	
 	void SetReformation(bool bValue);
 	bool IsReformation() const;
@@ -1205,6 +1208,7 @@ public:
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
+	void doPolicyGEorGM(int iPolicyGEorGM);
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -1387,6 +1391,9 @@ public:
 
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
+
+	void SetNullifyInfluenceModifier(bool bValue);
+	bool IsNullifyInfluenceModifier() const;
 #endif
 
 	int getMilitaryFoodProductionCount() const;
@@ -1396,6 +1403,9 @@ public:
 	int GetGoldenAgeCultureBonusDisabledCount() const;
 	bool IsGoldenAgeCultureBonusDisabled() const;
 	void ChangeGoldenAgeCultureBonusDisabledCount(int iChange);
+
+	void ChangeNumMissionarySpreads(int iChange);
+	int GetNumMissionarySpreads() const;
 
 	int GetSecondReligionPantheonCount() const;
 	bool IsSecondReligionPantheon() const;
@@ -2262,7 +2272,7 @@ public:
 	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const;
 
 	int getProjectMaking(ProjectTypes eIndex) const;
-	void changeProjectMaking(ProjectTypes eIndex, int iChange);
+	void changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCity = NULL);
 
 	int getHurryCount(HurryTypes eIndex) const;
 	bool IsHasAccessToHurry(HurryTypes eIndex) const;
@@ -3237,9 +3247,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCapitalCount;
 	FAutoVariable<int, CvPlayer> m_iTradeRouteLandDistanceModifier;
 	FAutoVariable<int, CvPlayer> m_iTradeRouteSeaDistanceModifier;
+	FAutoVariable<bool, CvPlayer> m_bNullifyInfluenceModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMilitaryFoodProductionCount;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeCultureBonusDisabledCount;
+	FAutoVariable<int, CvPlayer> m_iNumMissionarySpreads;
 	FAutoVariable<int, CvPlayer> m_iSecondReligionPantheonCount;
 	FAutoVariable<int, CvPlayer> m_iEnablesSSPartHurryCount;
 	FAutoVariable<int, CvPlayer> m_iEnablesSSPartPurchaseCount;
@@ -3515,6 +3527,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCitiesFreeChosenBuilding;
 	FAutoVariable<std::vector<int>, CvPlayer> m_pabFreeChosenBuildingNewCity;
+	FAutoVariable<std::vector<int>, CvPlayer> m_pabAllCityFreeBuilding;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;

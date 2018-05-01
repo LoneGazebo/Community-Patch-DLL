@@ -394,10 +394,15 @@ bool CvTacticalAnalysisMap::IsUpToDate()
 	return (m_iTurnBuilt == GC.getGame().getGameTurn() && m_vCells.size()==GC.getMap().numPlots());
 }
 
-/// Fill the map with data for this AI player's turn
-void CvTacticalAnalysisMap::Refresh()
+void CvTacticalAnalysisMap::Invalidate()
 {
-	if(!IsUpToDate())
+	m_iTurnBuilt = -1;
+}
+
+/// Fill the map with data for this AI player's turn
+void CvTacticalAnalysisMap::Refresh(bool force)
+{
+	if(force || !IsUpToDate())
 	{
 		//can happen in the first turn ...
 		if (m_vCells.size()!=GC.getMap().numPlots())
@@ -506,21 +511,6 @@ void CvTacticalAnalysisMap::BuildEnemyUnitList()
 // Indicate the plots we might want to move to that the enemy can attack
 void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 {
-	PromotionTypes eDamagePromotion = NO_PROMOTION;
-	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
-	{
-		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-		if (pkPromotionInfo != NULL)
-		{
-			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
-			{
-				eDamagePromotion = eLoopPromotion;
-				break;
-			}
-		}
-	}
-
 	for(unsigned int iUnitIndex = 0;  iUnitIndex < m_EnemyUnits.size(); iUnitIndex++)
 	{
 		CvUnit* pUnit = getUnit(m_EnemyUnits[iUnitIndex]);
@@ -599,7 +589,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 		if(m_vCells[iI].IsRevealed() && !m_vCells[iI].IsImpassableTerrain() && !m_vCells[iI].IsImpassableTerritory())
 		{
 			// Check adjacent plots for enemy citadels
-			if (pPlot->IsNearEnemyCitadel(m_ePlayer, 0, eDamagePromotion))
+			if (pPlot->IsNearEnemyCitadel(m_ePlayer, 0))
 					m_vCells[iI].SetSubjectToAttack(true);
 
 			for(unsigned int iCityIndex = 0;  iCityIndex < m_EnemyCities.size(); iCityIndex++)

@@ -751,10 +751,9 @@ void CvMap::updateAdjacency()
 	{
 		CvPlot* pPlot = plotByIndexUnchecked(iI);
 		pPlot->m_bIsAdjacentToLand = pPlot->isAdjacentToLand();
-#if defined(MOD_BALANCE_CORE)
-		pPlot->UpdatePlotsWithLOS();
-#endif
 	}
+
+	GC.getMap().ClearPlotsAtRange(NULL);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1495,7 +1494,6 @@ void CvMap::Read(FDataStream& kStream)
 
 	kStream >> m_landmasses;
 
-	m_iAIMapHints = 0;
 	kStream >> m_iAIMapHints;
 
 	setup();
@@ -1554,7 +1552,6 @@ void CvMap::Write(FDataStream& kStream) const
 	kStream << m_landmasses;
 
 	kStream << m_iAIMapHints;
-
 }
 
 
@@ -2409,3 +2406,159 @@ void CvMap::DoKillCountDecay(float fDecayFactor)
 			itPlot->second = int(itPlot->second*fDecayFactor);
 }
 #endif
+
+void CvMap::ClearPlotsAtRange(const CvPlot* pPlot)
+{
+	if (pPlot == NULL)
+	{
+		m_vPlotsWithLineOfSightFromPlot2.clear();
+		m_vPlotsWithLineOfSightFromPlot3.clear();
+		m_vPlotsWithLineOfSightToPlot2.clear();
+		m_vPlotsWithLineOfSightToPlot3.clear();
+	}
+	else
+	{
+		m_vPlotsWithLineOfSightFromPlot2.erase(pPlot->GetPlotIndex());
+		m_vPlotsWithLineOfSightFromPlot3.erase(pPlot->GetPlotIndex());
+		m_vPlotsWithLineOfSightToPlot2.erase(pPlot->GetPlotIndex());
+		m_vPlotsWithLineOfSightToPlot3.erase(pPlot->GetPlotIndex());
+	}
+}
+
+std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLOS)
+{
+	if (!pPlot)
+		return vector<CvPlot*>();
+
+	//for now, we can only do up to range 3
+	if (iRange<1 || iRange>3)
+		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
+
+	iRange = max(1, iRange);
+	iRange = min(3, iRange);
+
+	if (bWithLOS)
+	{
+		switch (iRange)
+		{
+		case 1:
+			{
+				//just take all direct neighbors
+				CvPlot** aDirectNeighbors = getNeighborsUnchecked(pPlot);
+				return vector<CvPlot*>(aDirectNeighbors, aDirectNeighbors + NUM_DIRECTION_TYPES);
+			}
+		case 2:
+			if (bFromPlot)
+			{
+				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightFromPlot2.find(pPlot->GetPlotIndex());
+				if (it != m_vPlotsWithLineOfSightFromPlot2.end())
+					return it->second;
+
+				//not found? update cache
+				m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()] = vector<CvPlot*>();
+				for (int i = RING1_PLOTS; i<RING2_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+					if (!pLoopPlot)
+						continue;
+
+					if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
+						m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+				}
+			}
+			else
+			{
+				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightToPlot2.find(pPlot->GetPlotIndex());
+				if (it != m_vPlotsWithLineOfSightToPlot2.end())
+					return it->second;
+
+				//not found? update cache
+				m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()] = vector<CvPlot*>();
+				for (int i = RING1_PLOTS; i<RING2_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+					if (!pLoopPlot)
+						continue;
+
+					if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
+						m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+				}
+			}
+		case 3:
+			if (bFromPlot)
+			{
+				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightFromPlot3.find(pPlot->GetPlotIndex());
+				if (it != m_vPlotsWithLineOfSightFromPlot3.end())
+					return it->second;
+
+				//not found? update cache
+				m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()] = vector<CvPlot*>();
+				for (int i = RING2_PLOTS; i<RING3_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+					if (!pLoopPlot)
+						continue;
+
+					if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
+						m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+				}
+			}
+			else
+			{
+				PlotNeighborLookup::iterator it = m_vPlotsWithLineOfSightToPlot3.find(pPlot->GetPlotIndex());
+				if (it != m_vPlotsWithLineOfSightToPlot3.end())
+					return it->second;
+
+				//not found? update cache
+				m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()] = vector<CvPlot*>();
+				for (int i = RING2_PLOTS; i<RING3_PLOTS; i++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+					if (!pLoopPlot)
+						continue;
+
+					if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 3, NO_DIRECTION))
+						m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()].push_back(pLoopPlot);
+				}
+			}
+		}
+	}
+	else //no LOS - not cached, rarely accessed (should be only for units with indirect fire promotion)
+	{
+		switch (iRange)
+		{
+		case 1:
+		{
+			//just take all direct neighbors
+			CvPlot** aDirectNeighbors = getNeighborsUnchecked(pPlot);
+			return vector<CvPlot*>(aDirectNeighbors, aDirectNeighbors + NUM_DIRECTION_TYPES);
+		}
+		case 2:
+		{
+			vector<CvPlot*> vResult;
+			vResult.reserve(RING2_PLOTS - RING1_PLOTS);
+			for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
+			{
+				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
+				if (pCandidate)
+					vResult.push_back(pCandidate);
+			}
+			return vResult;
+		}
+		case 3:
+		{
+			vector<CvPlot*> vResult;
+			vResult.reserve(RING3_PLOTS - RING2_PLOTS);
+			for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+			{
+				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
+				if (pCandidate)
+					vResult.push_back(pCandidate);
+			}
+			return vResult;
+		}
+		}
+	}
+
+	return vector<CvPlot*>();
+}

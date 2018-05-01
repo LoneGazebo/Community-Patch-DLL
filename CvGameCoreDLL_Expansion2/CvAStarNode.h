@@ -296,14 +296,13 @@ public:
 	void SetFlag(int eFlag) { m_iFlags |= eFlag; }
 	void ClearFlag(int eFlag) { m_iFlags = (m_iFlags & ~eFlag); }
 
-	CvPathNode& operator =(const SPathNode& rhs)
+	CvPathNode(const SPathNode& rhs)
 	{
 		m_iX = rhs.x;
 		m_iY = rhs.y;
 		m_iTurns = rhs.turns;
 		m_iMoves = rhs.moves;
 		m_iFlags = 0;
-		return *this;
 	}
 };
 

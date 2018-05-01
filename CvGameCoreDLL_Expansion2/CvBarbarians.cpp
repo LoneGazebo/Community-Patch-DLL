@@ -918,12 +918,13 @@ void CvBarbarians::DoUnits()
 {
 	CvGame& kGame = GC.getGame();
 
-	if(kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+	if(!CanBarbariansSpawn())
 	{
 		return;
 	}
 
-	if(!CanBarbariansSpawn())
+
+	if (kGame.isOption(GAMEOPTION_NO_BARBARIANS))
 	{
 		return;
 	}

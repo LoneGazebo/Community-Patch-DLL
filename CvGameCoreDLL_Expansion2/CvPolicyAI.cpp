@@ -731,6 +731,15 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerTraits* pPlayerTraits = pPlayer->GetPlayerTraits();
+	CvCity* pCapital = pPlayer->getCapitalCity(); //Define capital
+	int iPolicyGEorGM = pPlayerTraits->GetPolicyGEorGM();
+	if (iPolicyGEorGM > 0 && pCapital != NULL)
+	{
+		pPlayer->doPolicyGEorGM(iPolicyGEorGM);
+	}
+#endif
 #if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
 	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
 	{
@@ -3466,6 +3475,35 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			if (pkBuildingClassInfo)
 			{
 				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+				if (NO_BUILDING != eBuilding)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 50, 10, 10, 10, false, true, true);
+						if (iValue > 0)
+						{
+							iValue /= 2;
+
+							if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
+								iValue /= 2;
+							else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+								iValue /= 2;
+
+							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
+
+							yield[YIELD_PRODUCTION] += max(0, iValue);
+						}
+					}
+				}
+			}
+		}
+		if (PolicyInfo->GetAllCityFreeBuilding() != NO_BUILDINGCLASS)
+		{
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(PolicyInfo->GetAllCityFreeBuilding());
+			if (pkBuildingClassInfo)
+			{
+				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(PolicyInfo->GetAllCityFreeBuilding())));
 				if (NO_BUILDING != eBuilding)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);

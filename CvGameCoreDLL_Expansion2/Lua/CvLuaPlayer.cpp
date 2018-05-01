@@ -1053,7 +1053,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumTurnsMilitaryPromise);
 	Method(GetNumTurnsExpansionPromise);
 	Method(GetNumTurnsBorderPromise);
-	Method(GetNumTurnsNoSpyingPromise);
 #endif
 
 	Method(GetNumNotifications);
@@ -3201,7 +3200,7 @@ int CvLuaPlayer::lGetTourismPenalty(lua_State* L)
 		return 0;
 
 	// Mod for City Count
-	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 15, gets smaller on larger maps
+	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 15, gets smaller on larger maps
 
 	lua_pushinteger(L, iMod);
 	return 1;
@@ -5561,8 +5560,8 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
 #else
 		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
@@ -5749,8 +5748,8 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						lua_pushinteger(L, iFromPressure);
 						lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-						int iToDelta = pOriginCity->GetBaseTourism() * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
-						int iFromDelta = pDestCity->GetBaseTourism() * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+						int iToDelta = (pOriginCity->GetBaseTourism() / 100) * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
+						int iFromDelta = (pDestCity->GetBaseTourism() / 100) * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
 #else
 						int iToDelta = pOriginCity->GetBaseTourism() * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
 						int iFromDelta = pDestCity->GetBaseTourism() * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
@@ -5873,8 +5872,8 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
 #else
 		int iToDelta = pFromCity->GetCityCulture()->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = pToCity->GetCityCulture()->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
@@ -10891,14 +10890,6 @@ int CvLuaPlayer::lGetNumTurnsBorderPromise(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-int CvLuaPlayer::lGetNumTurnsNoSpyingPromise(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eWithPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	int iValue = pkPlayer->GetDiplomacyAI()->GetPlayerMadeNoSpyingPromise(eWithPlayer);
-	lua_pushinteger(L, iValue);
-	return 1;
-}
 #endif
 //------------------------------------------------------------------------------
 //void AddNotification()
@@ -12552,14 +12543,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue);
 			aOpinions.push_back(kOpinion);
 		}
-		iValue = pDiploAI->GetPlayerMadeNoSpyingPromise(eWithPlayer);
-		if(iValue > 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = 0;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_NO_SPYING_PROMISE_TURNS", iValue);
-			aOpinions.push_back(kOpinion);
-		}
 
 		iValue = pDiploAI->GetDPAcceptedScore(eWithPlayer);
 		if (iValue != 0)
@@ -13557,7 +13540,7 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), GC.getGame().getActivePlayer()))
 	{
-		iResult = -2;
+		iResult = -99999;
 		lua_pushinteger(L, iResult);
 		return 1;
 	}

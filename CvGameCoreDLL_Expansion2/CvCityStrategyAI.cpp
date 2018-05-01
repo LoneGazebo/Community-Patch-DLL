@@ -4515,7 +4515,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 	iTourismValue += pCity->GetCityCulture()->GetCultureFromImprovements();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	iTourismValue += pCity->GetBaseTourism();
+	iTourismValue += pCity->GetBaseTourism() / 100;
 #else
 	iTourismValue += pCity->GetCityCulture()->GetBaseTourism();
 #endif
@@ -6114,7 +6114,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetNumThemingBonuses() > 0 || pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
 		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
-		iValue += (iNumWorks * pkBuildingInfo->GetNumThemingBonuses() * 25);
+		iValue += (pkBuildingInfo->GetNumThemingBonuses());
 		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 25);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)
 		{
@@ -6247,6 +6247,13 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
 
 		iValue += (iNumNearbyCities / 10);
+	}
+
+	if (pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
+	{
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+
+		iValue += (iNumNearbyCities * 2);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)

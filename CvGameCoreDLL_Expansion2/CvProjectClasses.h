@@ -45,6 +45,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	PolicyTypes GetFreePolicy() const;
 	BuildingClassTypes  GetFreeBuilding() const;
+	bool InfluenceAllRequired() const;
+	bool IdeologyRequired() const;
 #endif
 	const char* GetMovieArtDef() const;
 
@@ -75,6 +77,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eFreeBuilding;
 	PolicyTypes m_eFreePolicy;
+	bool m_bInfluenceAllRequired;
+	bool m_bIdeologyRequired;
 #endif
 
 	CvString m_strCreateSound;

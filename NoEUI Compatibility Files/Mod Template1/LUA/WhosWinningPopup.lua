@@ -141,8 +141,8 @@ function OnPopup( popupInfo )
     				local pCity = pOtherPlayer:GetCityByID(cityIndex);
     				if (pCity ~= nil) then
 						pCity:RefreshTourism();
-						if(pCity:GetBaseTourism() > 0) then
-							table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetBaseTourism()});
+						if(pCity:GetBaseTourism() / 100 > 0) then
+							table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetBaseTourism() / 100});
 						end
 					end
 				end
@@ -257,7 +257,7 @@ function IsListModeAllowed(iMode)
 		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 			pLoopPlayer = Players[iPlayerLoop];
 			if (pLoopPlayer:IsAlive()) then
-				if (pLoopPlayer:GetTourism() > 0) then
+				if (pLoopPlayer:GetTourism() / 100 > 0) then
 					bNoTourism = false;
 				end
 			end
