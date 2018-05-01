@@ -3200,7 +3200,7 @@ int CvLuaPlayer::lGetTourismPenalty(lua_State* L)
 		return 0;
 
 	// Mod for City Count
-	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 15, gets smaller on larger maps
+	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 15, gets smaller on larger maps
 
 	lua_pushinteger(L, iMod);
 	return 1;
@@ -5560,8 +5560,8 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
 #else
 		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
@@ -5748,8 +5748,8 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						lua_pushinteger(L, iFromPressure);
 						lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-						int iToDelta = pOriginCity->GetBaseTourism() * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
-						int iFromDelta = pDestCity->GetBaseTourism() * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+						int iToDelta = (pOriginCity->GetBaseTourism() / 100) * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
+						int iFromDelta = (pDestCity->GetBaseTourism() / 100) * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
 #else
 						int iToDelta = pOriginCity->GetBaseTourism() * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
 						int iFromDelta = pDestCity->GetBaseTourism() * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
@@ -5872,8 +5872,8 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
 #else
 		int iToDelta = pFromCity->GetCityCulture()->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = pToCity->GetCityCulture()->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
@@ -13540,7 +13540,7 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), GC.getGame().getActivePlayer()))
 	{
-		iResult = -2;
+		iResult = -99999;
 		lua_pushinteger(L, iResult);
 		return 1;
 	}

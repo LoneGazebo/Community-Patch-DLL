@@ -794,7 +794,7 @@ function RefreshYourCulture()
 		cityData.HealthPercent = 1 - (city:GetDamage() / city:GetMaxHitPoints());
     
 		cityData.Culture = city:GetJONSCulturePerTurn();
-		cityData.Tourism = city:GetBaseTourism();
+		cityData.Tourism = city:GetBaseTourism() / 100;
 		cityData.TourismToolTip = city:GetTourismTooltip();
 		cityData.GreatWorks = city:GetNumGreatWorks();
 		cityData.GreatWorksToolTip = city:GetTotalSlotsTooltip();
@@ -1970,7 +1970,7 @@ function RefreshCultureVictory()
 				row.InfluencePct = iNumInfluential/iNumToBeInfluential;
 			end
 			
-			local iTourism = pPlayer:GetTourism();
+			local iTourism = pPlayer:GetTourism() / 100;
 			row.Tourism = iTourism;
 			row.strTourism = tostring(iTourism);
 			
@@ -2084,7 +2084,7 @@ function RefreshPlayerInfluence()
 	
 	local selectedPlayer = Players[g_iSelectedPlayerID];
 	
-	g_InfluenceByPlayer.SelectedPlayerTourism = selectedPlayer:GetTourism();
+	g_InfluenceByPlayer.SelectedPlayerTourism = selectedPlayer:GetTourism() / 100;
 		
 	g_InfluenceByPlayer.Players = {};
 	

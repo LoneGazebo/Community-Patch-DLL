@@ -140,6 +140,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iVictoryPoints(0),
 	m_iExtraMissionarySpreads(0),
 	m_iExtraMissionaryStrength(0),
+	m_iExtraMissionarySpreadsGlobal(0),
 	m_iReligiousPressureModifier(0),
 	m_iEspionageModifier(0),
 	m_iGlobalEspionageModifier(0),
@@ -682,6 +683,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iVictoryPoints = kResults.GetInt("VictoryPoints");
 	m_iExtraMissionarySpreads = kResults.GetInt("ExtraMissionarySpreads");
 	m_iExtraMissionaryStrength = kResults.GetInt("ExtraMissionaryStrengthGlobal");
+	m_iExtraMissionarySpreadsGlobal = kResults.GetInt("ExtraMissionarySpreadsGlobal");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iGlobalEspionageModifier = kResults.GetInt("GlobalEspionageModifier");
@@ -2015,6 +2017,12 @@ int CvBuildingEntry::GetVictoryPoints() const
 int CvBuildingEntry::GetExtraMissionarySpreads() const
 {
 	return m_iExtraMissionarySpreads;
+}
+
+/// Extra religion spreads from missionaries global
+int CvBuildingEntry::GetExtraMissionarySpreadsGlobal() const
+{
+	return m_iExtraMissionarySpreadsGlobal;
 }
 
 /// Extra religion spreads from missionaries built in this city
@@ -5519,6 +5527,26 @@ void CvCityBuildings::ChangeMissionaryExtraSpreads(int iChange)
 	{
 		m_iMissionaryExtraSpreads = (m_iMissionaryExtraSpreads + iChange);
 		CvAssert(m_iMissionaryExtraSpreads >= 0);
+		if (iChange > 0)
+		{
+			int iUnitLoop;
+			for (CvUnit* pLoopUnit = GET_PLAYER(m_pCity->getOwner()).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_pCity->getOwner()).nextUnit(&iUnitLoop))
+			{
+				if (pLoopUnit->getOriginCity() != m_pCity)
+					continue;
+
+				if (pLoopUnit->IsGreatPerson())
+					continue;
+
+				if (pLoopUnit->GetReligionData() == NULL)
+					continue;
+
+				if (pLoopUnit->GetReligionData()->GetSpreadsLeft() <= 0)
+					continue;
+
+				pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->GetReligionData()->GetSpreadsLeft() + iChange);
+			}
+		}
 	}
 }
 

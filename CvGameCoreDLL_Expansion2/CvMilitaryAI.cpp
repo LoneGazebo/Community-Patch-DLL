@@ -1203,7 +1203,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 						if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 						{
 #endif
-							pUnit->setMoves(0);
+							pUnit->finishMoves();
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 						}
 #endif
@@ -1241,7 +1241,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 				{
 #endif
-					pUnit->setMoves(0);
+					pUnit->finishMoves();
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 				}
 #endif
@@ -2435,6 +2435,21 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	CvPlot* pLoopPlot;
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
 	int iNumBlocked = 0;
+
+	PromotionTypes eDamagePromotion = NO_PROMOTION;
+	for (int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+	{
+		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+		if (pkPromotionInfo != NULL)
+		{
+			if (pkPromotionInfo->GetNearbyEnemyDamage() > 0)
+			{
+				eDamagePromotion = eLoopPromotion;
+				break;
+			}
+		}
+	}
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;

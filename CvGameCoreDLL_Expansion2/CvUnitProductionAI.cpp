@@ -1372,7 +1372,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
 					if (pkResourceInfo != NULL && pkResourceInfo->isTerrain(TERRAIN_COAST))
 					{
-						iUnimprovedAround += m_pCity->GetNumResourceLocal(eResourceLoop, true, true);
+						iUnimprovedAround += m_pCity->GetNumResourceLocal(eResourceLoop);
 					}
 				}
 			}

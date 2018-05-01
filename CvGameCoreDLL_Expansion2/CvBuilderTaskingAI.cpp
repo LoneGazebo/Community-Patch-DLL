@@ -1629,6 +1629,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (m_pPlayer->isMinorCiv())
 		return;
 
+	//humans don't get a route cache, so ignore them.
+	if (m_pPlayer->isHuman())
+		return;
+
 	// if the player can't build a route, bail out!
 	if (eBestRouteType == NO_ROUTE)
 	{

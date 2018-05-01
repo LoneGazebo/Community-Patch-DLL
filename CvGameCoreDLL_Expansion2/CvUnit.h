@@ -172,11 +172,7 @@ public:
 	bool IsDoingPartialMove() const;
 
 	ActivityTypes GetActivityType() const;
-#if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
-	void SetActivityType(ActivityTypes eNewValue, bool bClearFortify = true);
-#else
 	void SetActivityType(ActivityTypes eNewValue);
-#endif
 
 	AutomateTypes GetAutomateType() const;
 	bool IsAutomated() const;
@@ -616,7 +612,6 @@ public:
 	int GetRangedCombatLimit() const;
 
 	bool isWaiting() const;
-	bool isFortifyable(bool bCanWaitForNextTurn = false) const;
 	bool IsEverFortifyable() const;
 	int fortifyModifier() const;
 
@@ -953,8 +948,8 @@ public:
 #endif
 
 	int getMoves() const;
-	void setMoves(int iNewValue);
 	void changeMoves(int iChange);
+	void restoreFullMoves();
 	void finishMoves();
 
 	bool IsImmobile() const;
@@ -997,17 +992,11 @@ public:
 	bool IsGarrisoned(void) const;
 	void SetGarrisonedCity(int iCityID);
 	CvCity* GetGarrisonedCity();
-	int getFortifyTurns() const;
-	void setFortifyTurns(int iNewValue);
-	void changeFortifyTurns(int iChange);
-	bool IsFortifiedThisTurn() const;
-	void SetFortifiedThisTurn(bool bValue);
+	void triggerFortifyAnimation(bool bState);
+	bool IsFortified() const;
+	void SetFortified(bool bValue);
 	
-#if defined(MOD_BALANCE_CORE)
-	void DoAoEDamage(int iValue, char chText[256]);
-#else
-	void DoAoEDamage(int iValue);
-#endif
+	void DoAoEDamage(int iValue, const char* chText = NULL);
 
 	int getBlitzCount() const;
 	bool isBlitz() const;
@@ -1702,15 +1691,8 @@ public:
 	CvPlot* GetPathLastPlot() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
 
-	bool isBusyMoving() const;
-	void setBusyMoving(bool bState);
-
 	bool IsIgnoringDangerWakeup() const;
 	void SetIgnoreDangerWakeup(bool bState);
-
-	bool IsNotCivilianIfEmbarked() const;
-	void ChangeNotCivilianIfEmbarkedCount(int iValue);
-	int GetNotCivilianIfEmbarkedCount() const;
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
@@ -1826,6 +1808,8 @@ protected:
 	const MissionData* HeadMissionData() const;
 	MissionData* HeadMissionData();
 
+	void setMoves(int iNewValue);
+
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const;
 	bool IsCachedPathValid() const;
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
@@ -1874,8 +1858,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCombatTimer;
 	FAutoVariable<int, CvUnit> m_iCombatFirstStrikes;
 	FAutoVariable<int, CvUnit> m_iCombatDamage;
-	FAutoVariable<int, CvUnit> m_iFortifyTurns;
-	FAutoVariable<bool, CvUnit> m_bFortifiedThisTurn;
+	FAutoVariable<bool, CvUnit> m_bMovedThisTurn;
+	FAutoVariable<bool, CvUnit> m_bFortified;
 	FAutoVariable<int, CvUnit> m_iBlitzCount;
 	FAutoVariable<int, CvUnit> m_iAmphibCount;
 	FAutoVariable<int, CvUnit> m_iRiverCrossingNoPenaltyCount;

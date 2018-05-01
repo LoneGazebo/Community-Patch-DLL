@@ -1088,8 +1088,9 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
 
+	//no caching!
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
-	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data);
+	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data, true);
 
 	if (!!path)
 	{

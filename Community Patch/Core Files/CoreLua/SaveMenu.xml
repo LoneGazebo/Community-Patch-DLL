@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow">
+
+
+  <Instance Name="LoadButton" >
+    <Container Size="460,32" ID="InstanceRoot" >
+
+      <GridButton Anchor="C,B"  ID="Button" Offset="0,0" Size="460,32" Style="ZoomButton"  >
+        <ShowOnMouseOver>
+          <AlphaAnim Anchor="L,T" Size="460,32" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+            <Grid   Size="460,32" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+          </AlphaAnim>
+
+        </ShowOnMouseOver>
+
+        <!-- Selected State -->
+        <Grid Anchor="C,C" Offset="0,0" Size="460,32"  Style="Grid9FrameTurns" ID="SelectHighlight" Hidden="1" />
+        <Label ID="ButtonText" Anchor="C,C"  Offset="0,0"  String="TXT_KEY_DELETE_BUTTON" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+
+      </GridButton>
+    </Container>
+  </Instance>
+
+
+  <Box Size="Full,Full" Color="Black,200" ConsumeMouse="1" HideBox="0" ID="BGBlock" />
+
+    <Grid Size="960,658" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" ConsumeMouse="1">
+
+        <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="910,56" Color="255,255,255,0" >
+
+            <!-- Delete Button  -->
+            <GridButton Anchor="C,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0"  ID="Delete">
+                    <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_DELETE_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+            </GridButton>
+            <GridButton Anchor="L,B"  Style="SmallButton" Offset="200,0"  Size="150,32"  StateOffsetIncrement="0,0" ID="SaveMapButton"  >
+                <Label Anchor="C,C"  Offset="0,0" String="TXT_KEY_MENU_SAVE_MAP_LOWER"  Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+            </GridButton>
+
+            <!-- Back Button  -->
+            <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="BackButton"  >
+                <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_BACK_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+            </GridButton>
+
+        </Box>
+
+        <!-- Save Game  -->
+        <GridButton Anchor="R,B" ID="SaveButton"     Offset="38,54"     Size="260,45"    Style="BaseButton" String="TXT_KEY_MENU_SAVE" />
+
+        <CheckBox Offset="20,44" Anchor="R,T"  String="TXT_KEY_STEAMCLOUD" TextAnchor="L,C"  IsChecked="0" ID="CloudCheck" />
+        
+        <!-- Couldn't figure out how to add text keys to an existing modpack, so for now...  -->
+        <CheckBox Offset="20,109" Anchor="R,B"  String="TXT_KEY_FORCE_MP_SAVE" TextAnchor="L,C"  IsChecked="0" ID="ForceFreshMPSave" ToolTip="TXT_KEY_FORCE_MP_SAVE_TOOLTIP"/>
+        
+
+      <!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+
+			<Box Style="MenuTopTreatment"/>
+			<Box Style="MenuBottomTreatment"/>
+
+
+			<!-- Screen Title  -->
+      <Label Style="MenuTitleCaption" String="TXT_KEY_MENU_SAVE_BUTTON" />
+
+
+      <!-- File List -->
+        <Box Anchor="R,T" Offset="48,102" Size="490,404" Color="255,255,255,0" >
+
+          <ScrollPanel Offset="0,0" Anchor="L,T" Size="495,400" ID="ScrollPanel" Vertical="1" AutoScrollBar="1" >
+
+            <Stack Anchor="C,T" Offset="0,0"  StackGrowth="Bottom" ID="LoadFileButtonStack">
+            </Stack>
+              <!-- Scroll Controls -->
+              <ScrollBar Style="VertSlider" Length="364" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
+              <UpButton  Offset="0.0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="O,I" />
+              <DownButton Offset="0.0" Style="ScrollBarDown"  Anchor="R,B" AnchorSide="O,I" />
+
+          </ScrollPanel>
+
+            <Grid Anchor="L,T" Offset="0,-2" Size="490,404" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+
+        </Box>
+
+
+        <!-- file details treatment -->
+        <Box Anchor="L,T" Offset="48,100" Size="354,404" Color="255,255,255,0" >
+            <Image Anchor="C,C" Offset="0,0" Color="White.36" Size="360,410" Texture="MapAmerica512.dds" ID="LargeMapImage"/>
+            <Grid Anchor="C,C" Offset="0,0" Size="354,404" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+
+            <Image Anchor="L,T" Offset="0.0" Size="128,128"   Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds"  >
+                    <Image Anchor="C,C" Offset="0,0" Size="128,128"   Texture="Assets/UI/Art/Icons/LeaderPortraits1024.dds" ID="Portrait" />
+            </Image>
+
+            <Stack Anchor="L,T" Offset="6,122"  Padding="8" StackGrowth="Bottom" >
+                
+                <Box Anchor="C,T" Anchorside="I.O" Offset="0,0" Size="330,24" Color="255,255,200,255" ID="NameBoxFrame" >
+                    <Box Anchor="C,C"  Offset="0,0" Size="328,22" Color="0,0,0,255" >
+                        <EditBox CallOnChar="1" Size="324,22" Anchor="C,C" Font="TwCenMT20"  ID="NameBox" MaxLength="32" />
+                    </Box>
+                </Box>
+              <Image Anchor="L.C"  Offset="0,0" Texture="bar340x2.dds" Size="340.1"  Hidden="0"/>
+
+
+                    <Label Anchor="L,C" WrapWidth="350" Offset="6,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Washington - America" TruncateWidth="305" ID="Title"/>
+                    <Label Anchor="L,C" Offset="6,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="October 24, 1972 10:32 A.M." ID="TimeSaved"/>
+                    <Label Anchor="L,C" Offset="6,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Ancient Era: (64 Turns)" ID="EraTurn"/>
+                    <Label Anchor="L,C" Offset="6,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Ancient Era: (64 Turns)" ID="StartEra"/>
+										<Label Anchor="L,C" Offset="6,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GameType"/>
+
+						</Stack>
+
+          <Image Anchor="C,B"  Offset="0,84" Texture="bar340x2.dds" Size="340.1"  Hidden="0"/>
+
+
+          <Stack Anchor="C,B" Offset="0,12"  Padding="0" StackGrowth="Right" >
+
+                <Image Anchor="L,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds"   ToolTip="TXT_KEY_MULTIPLAYER_STAGING_ROOM_HEADER_CIVILIZATION" >
+                        <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" Hidden="0" ID="CivIcon" />
+                    <Label Anchor="L,C" Offset="64,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="" />
+                </Image>
+
+                <Image Anchor="L,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds"   ToolTip="TXT_KEY_AD_SETUP_MAP_TYPE" >
+                        <Image Anchor="C,C"  Size="64,64" Texture="Assets/UI/Art/Icons/MapTypeIcons256.dds" ID="MapType" />
+                    <Label Anchor="L,C" Offset="64,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="" />
+                </Image>
+
+                <Image Anchor="L,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" ToolTip="TXT_KEY_AD_SETUP_MAP_SIZE"  >
+                        <Image Anchor="C,C"  Size="64,64" Texture="Assets/UI/Art/Icons/MapSizeIcons256.dds" ID="MapSize" />
+                    <Label Anchor="L,C" Offset="64,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String=""  />
+                </Image>
+
+                <Image Anchor="L,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" ToolTip="TXT_KEY_AD_SETUP_HANDICAP"  >
+                        <Image Anchor="C,C"  Size="64,64" Texture="Assets/UI/Art/Icons/DifficultyLevelIcons256.dds" ID="Handicap"/>
+                    <Label Anchor="L,C" Offset="64,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String=""  />
+                </Image>
+
+                <Image Anchor="L,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" ToolTip="TXT_KEY_GAME_SPEED"   >
+                        <Image Anchor="C,C"  Size="64,64" Texture="Assets/UI/Art/Icons/GameSpeedIcons256.dds" ID="SpeedIcon"/>
+                    <Label Anchor="L,C" Offset="64,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String=""   />
+                </Image>
+            </Stack>
+
+        </Box>
+
+    </Grid>
+
+  <Box Color="Black.200" Size="Full.Full" ID="DeleteConfirm" Hidden="1" ConsumeMouseOver="1" >
+    <Grid Size="500,360" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140"  Hidden="0" >
+
+      <!-- Side treatments -->
+			<Box Style="PopupLeftSideTreatment"/>
+			<Box Style="PopupRightSideTreatment"/>
+			<Box Style="PopupNotificationTopTreatment"/>
+
+			<Label ID="Message" Anchor="C,T"  Offset="0,74"  WrapWidth="440" String="TXT_KEY_CONFIRM_TXT" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+      <Stack Anchor="C,B" Offset="0,80" Padding="24" StackGrowth="Bottom" ID="ButtonStack">
+        <!-- Yes Button  -->
+        <GridButton Style="BaseButton"  ID="Yes" Size="400,42" Anchor="C,T" Offset="0,0"  Hidden="0">
+          <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_YES_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow" />
+        </GridButton>
+        <!-- No Button  -->
+        <GridButton  Style="BaseButton" ID="No" Size="400,42" Anchor="C,T" Offset="0,0"  Hidden="0">
+          <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_NO_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow" />
+        </GridButton>
+      </Stack>
+    </Grid>
+  </Box>
+
+
+    <LuaContext FileName="Assets/UI/InGame/Menus/SaveMapMenu" ID="SaveMapMenu" Hidden="True" />
+
+</Context>

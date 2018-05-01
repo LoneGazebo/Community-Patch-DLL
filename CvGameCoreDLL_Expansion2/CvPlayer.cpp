@@ -66,6 +66,7 @@
 #endif
 #include "CvGoodyHuts.h"
 
+#include "CvDllNetMessageExt.h"
 // Include this after all other headers.
 #define LINT_WARNINGS_ONLY
 #include "LintFree.h"
@@ -280,6 +281,7 @@ CvPlayer::CvPlayer() :
 	, m_iHalfSpecialistFoodCount("CvPlayer::m_iHalfSpecialistFoodCount", m_syncArchive)
 	, m_iMilitaryFoodProductionCount("CvPlayer::m_iMilitaryFoodProductionCount", m_syncArchive)
 	, m_iGoldenAgeCultureBonusDisabledCount("CvPlayer::m_iGoldenAgeCultureBonusDisabledCount", m_syncArchive)
+	, m_iNumMissionarySpreads("CvPlayer::m_iNumMissionarySpreads", m_syncArchive)
 	, m_iSecondReligionPantheonCount("CvPlayer::m_iSecondReligionPantheonCount", m_syncArchive)
 	, m_iEnablesSSPartHurryCount("CvPlayer::m_iEnablesSSPartHurryCount", m_syncArchive)
 	, m_iEnablesSSPartPurchaseCount("CvPlayer::m_iEnablesSSPartPurchaseCount", m_syncArchive)
@@ -558,6 +560,7 @@ CvPlayer::CvPlayer() :
 	, m_iHalfSpecialistFoodCapitalCount("CvPlayer::m_iHalfSpecialistFoodCapitalCount", m_syncArchive)
 	, m_iTradeRouteLandDistanceModifier("CvPlayer::m_iTradeRouteLandDistanceModifier", m_syncArchive)
 	, m_iTradeRouteSeaDistanceModifier("CvPlayer::m_iTradeRouteSeaDistanceModifier", m_syncArchive)
+	, m_bNullifyInfluenceModifier("CvPlayer::m_bNullifyInfluenceModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_aistrInstantYield("CvPlayer::m_aistrInstantYield", m_syncArchive)
@@ -1560,9 +1563,11 @@ void CvPlayer::uninit()
 	m_iHalfSpecialistFoodCapitalCount = 0;
 	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradeRouteSeaDistanceModifier = 0;
+	m_bNullifyInfluenceModifier = false;
 #endif
 	m_iMilitaryFoodProductionCount = 0;
 	m_iGoldenAgeCultureBonusDisabledCount = 0;
+	m_iNumMissionarySpreads = 0;
 	m_iSecondReligionPantheonCount = 0;
 	m_iEnablesSSPartHurryCount = 0;
 	m_iEnablesSSPartPurchaseCount = 0;
@@ -2718,7 +2723,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 	}
 #endif
 
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+	if (isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 	{
 		if((eUnitAI == UNITAI_SETTLE) || (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_SETTLE))
 		{
@@ -3618,9 +3623,16 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pOldCity->getOriginalOwner() != eOldOwner && pOldCity->getOriginalOwner() != GetID())
 			{
 				eLiberatedPlayer = pOldCity->getOriginalOwner();
+				if (IsAtWarWith(eLiberatedPlayer) && pOldCity->getOriginalOwner() != pOldCity->getPreviousOwner() && pOldCity->getPreviousOwner() != NO_PLAYER)
+				{
+					if (GET_PLAYER(pOldCity->getPreviousOwner()).isMinorCiv())
+					{
+						eLiberatedPlayer = pOldCity->getPreviousOwner();
+					}
+				}
 				if(eLiberatedPlayer != NO_PLAYER)
 				{
-					if(CanLiberatePlayerCity(eLiberatedPlayer))
+					if (CanLiberatePlayerCity(eLiberatedPlayer))
 					{
 						bDoWarmonger = false;
 						pOldCity->SetNoWarmonger(true);
@@ -4382,8 +4394,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								// here would be a good place to put additional checks (for example, influence)
+								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GetEconomicMight());
 #if defined(MOD_BALANCE_CORE)
-								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (GC.getGame().getSmallFakeRandNum(10, *pNewCity->plot()) * 10 < pkLoopBuildingInfo->GetConquestProbability()))
+								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (iConquestChance <= pkLoopBuildingInfo->GetConquestProbability()))
 #else
 								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
 #endif
@@ -4686,7 +4699,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	bool bDisbanded = false;
 
 	// In OCC games, all captured cities are toast
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+	if (isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 	{
 		bDisbanded = true;
 		disband(pNewCity);
@@ -6392,8 +6405,12 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	}
 
 	//Exploit checks.
-	if(isEndTurn())
-		return false;
+	if (isEndTurn())
+	{
+		// Not sure what the exploits are in particular but global events are fired outside of human turns so we can't return here
+		if(!GC.getGame().isNetworkMultiPlayer()) // check simul/hybrid turns instead maybe? not sure yet.
+			return false;
+	}
 
 	if(!IsEventActive(eParentEvent))
 		return false;
@@ -8680,8 +8697,12 @@ void CvPlayer::DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity)
 		}
 	}
 }
-void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
+void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, bool bSendMsg)
 {
+	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && isHuman()) {
+		NetMessageExt::Send::DoEventChoice(GetID(), eEventChoice, eEvent);
+		return;
+	}
 	if(eEventChoice != NO_EVENT_CHOICE)
 	{
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
@@ -11075,13 +11096,7 @@ void CvPlayer::doTurn()
 	{
 		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
-			//Don't do events in MP
-			bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer() || GC.getGame().isNetworkMultiPlayer());
-
-			if (!bDontShowRewardPopup)
-			{
-				DoEvents();
-			}
+			DoEvents();
 		}
 	}
 #endif
@@ -11127,6 +11142,8 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 			UpdateDangerPlots(false);
+			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true); // Just do it now instead of maybe doing it at an unspecified point?
+			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate(); // Invalidating so that it will be updated even if already (possible erroneously) updated in UpdatdCityThreatCriteria with stale data.
 			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
@@ -11466,24 +11483,20 @@ void CvPlayer::DoUnitReset()
 #endif
 		}
 
+		// Bonus for entrenched units
+		if (!pLoopUnit->hasMoved() && pLoopUnit->canFortify(pLoopUnit->plot()))
+			pLoopUnit->SetFortified(true);
+
 		// Finally (now that healing is done), restore movement points
-		pLoopUnit->setMoves(pLoopUnit->maxMoves());
-#if defined(MOD_PROMOTIONS_FLAGSHIP)
-		if(pLoopUnit->IsGreatGeneral() || (MOD_PROMOTIONS_FLAGSHIP && pLoopUnit->IsGreatAdmiral()))
-#else
-		if(pLoopUnit->IsGreatGeneral())
-#endif
-		{
-			pLoopUnit->setMoves(pLoopUnit->GetGreatGeneralStackMovement());
-		}
+		pLoopUnit->restoreFullMoves();
 
 		// Archaeologist can't move on turn he finishes a dig (while waiting for user to decide his next action)
-		else if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
 		{
 			CvPlayer &kPlayer = GET_PLAYER(pLoopUnit->getOwner());
 			if (kPlayer.GetCulture()->HasDigCompleteHere(pLoopUnit->plot()))
 			{
-				pLoopUnit->setMoves(0);
+				pLoopUnit->finishMoves();
 			}
 		}
 
@@ -15108,7 +15121,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		return false;
 
 	// Don't allow a city to consider an espionage building if they are playing a non-espionage game
-	if(GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && pkBuildingInfo->IsEspionage() && pkBuildingInfo->GetDefenseHappinessChangeBuilding() == 0 && pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() == 0)
+	if (pkBuildingInfo->IsEspionage() && pkBuildingInfo->GetDefenseHappinessChangeBuilding() == 0 && pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() == 0 && GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 	{
 		return false;
 	}
@@ -15666,6 +15679,19 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 
 	if(!bTestVisible)
 	{
+		if (pProjectInfo.InfluenceAllRequired())
+		{
+			if (GetCulture()->GetNumCivsInfluentialOn() < GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin())
+				return false;
+		}
+		if (pProjectInfo.IdeologyRequired())
+		{
+			if (GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+				return false;
+			else if (GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
+				return false;
+		}
+
 		// Resource Requirements
 		ResourceTypes eResource;
 		int iNumResource;
@@ -16113,6 +16139,26 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 			}
 		}
 	}
+	else
+	{
+		int iTotalEraMod = 0;
+		for (int iLoop = 0; iLoop < GetCurrentEra(); iLoop++)
+		{
+			CvAssertMsg(iLoop >= 0, "Loop should be within era bounds");
+			CvAssertMsg(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
+
+			if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
+			{
+				CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
+				if (pkEraInfo)
+				{
+					iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+				}
+			}
+		}
+
+		iProductionModifier += iTotalEraMod;
+	}
 
 	if(!isHuman() && !IsAITeammateOfHuman() && !isBarbarian())
 	{
@@ -16462,13 +16508,14 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 		iPrereqs *= (getBuildingClassCount(eBuildingClass) + iExtra + 1);
 	}
 
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+	bool OCC = GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE);
+	if (OCC && isHuman())
 	{
 		iPrereqs = std::min(1, iPrereqs);
 	}
 #if defined(MOD_BALANCE_CORE)
 	//Poor Venice got ignored here...
-	if(MOD_BALANCE_CORE && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
+	if (MOD_BALANCE_CORE && OCC || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		iPrereqs = std::min(1, iPrereqs);
 	}
@@ -16654,7 +16701,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				ChangeDomainFreeExperiencePerGreatWorkGlobal((DomainTypes)iDomains, pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains));
 			}
 		}
-	}	
+	}
+
+	
+	ChangeNumMissionarySpreads(pBuildingInfo->GetExtraMissionarySpreadsGlobal() * iChange);
+
+	if (pBuildingInfo->NullifyInfluenceModifier())
+	{
+		if (iChange > 0)
+			SetNullifyInfluenceModifier(true);
+		else
+			SetNullifyInfluenceModifier(false);
+	}
+
 	if(pBuildingInfo->IsSecondaryPantheon())
 	{
 		ChangeSecondReligionPantheonCount((pBuildingInfo->IsSecondaryPantheon()) ? iChange : 0);
@@ -16717,11 +16776,17 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 	if (pBuildingInfo->AllowsProductionTradeRoutesGlobal())
 	{
-		SetProductionRoutesAllCities(true);
+		if (iChange > 0)
+			SetProductionRoutesAllCities(true);
+		else
+			SetProductionRoutesAllCities(false);
 	}
 	if (pBuildingInfo->AllowsFoodTradeRoutesGlobal())
 	{
-		SetFoodRoutesAllCities(true);
+		if (iChange > 0)
+			SetFoodRoutesAllCities(true);
+		else
+			SetFoodRoutesAllCities(false);
 	}
 #endif
 
@@ -17313,7 +17378,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 	}
 	else if (eYield == YIELD_TOURISM)
 	{
-		return GetCulture()->GetTourism() + m_viInstantYieldsTotal[YIELD_TOURISM] / (GC.getGame().getElapsedGameTurns() + 1);
+		return GetCulture()->GetTourism() / 100 + m_viInstantYieldsTotal[YIELD_TOURISM] / (GC.getGame().getElapsedGameTurns() + 1);
 	}
 #endif
 
@@ -18844,7 +18909,7 @@ int CvPlayer::GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTu
 		}
 		else if (iTurnTourism == -1) // No data for this turn (ex. late era start)
 		{
-			iSum += (3 * GetCulture()->GetTourism());
+			iSum += (3 * GetCulture()->GetTourism() / 100);
 		}
 	}
 
@@ -24965,14 +25030,18 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 	CvCity* pLoopCity;
 	int iLoop;
 	int iYield = 0;
+	int iCityYield = 0;
 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iGAPoints += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
 		if (GetPlayerTraits()->GetTourismToGAP() > 0)
 		{
-			iYield += pLoopCity->GetBaseTourism();
+			iCityYield += pLoopCity->GetBaseTourism();
 		}
 	}
+
+	iCityYield /= 100;
+	iYield += iCityYield;
 	if (GetPlayerTraits()->GetGoldToGAP() > 0)
 	{
 		iYield += GetTreasury()->CalculateBaseNetGold();
@@ -29503,6 +29572,16 @@ void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, 
 	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.setAt(eIndex, m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange);
 }
+
+void CvPlayer::SetNullifyInfluenceModifier(bool bValue)
+{
+	if (bValue != m_bNullifyInfluenceModifier)
+		m_bNullifyInfluenceModifier = bValue;
+}
+bool CvPlayer::IsNullifyInfluenceModifier() const
+{
+	return m_bNullifyInfluenceModifier;
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getMilitaryFoodProductionCount() const
@@ -29553,6 +29632,33 @@ void CvPlayer::ChangeGoldenAgeCultureBonusDisabledCount(int iChange)
 		m_iGoldenAgeCultureBonusDisabledCount = m_iGoldenAgeCultureBonusDisabledCount + iChange;
 		CvAssert(GetGoldenAgeCultureBonusDisabledCount() >= 0);
 	}
+}
+
+void CvPlayer::ChangeNumMissionarySpreads(int iChange)
+{
+	m_iNumMissionarySpreads += iChange;
+
+	if (iChange > 0)
+	{
+		int iUnitLoop;
+		for (CvUnit* pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
+		{
+			if (pLoopUnit->GetReligionData() == NULL)
+				continue;
+
+			if (pLoopUnit->IsGreatPerson())
+				continue;
+
+			if (pLoopUnit->GetReligionData()->GetSpreadsLeft() <= 0)
+				continue;
+
+			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->GetReligionData()->GetSpreadsLeft() + iChange);
+		}
+	}
+}
+int CvPlayer::GetNumMissionarySpreads() const
+{
+	return m_iNumMissionarySpreads;
 }
 
 //	--------------------------------------------------------------------------------
@@ -33113,15 +33219,28 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
 
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default is true (CvPlayer.h)
 {
 	if(isTurnActive() != bNewValue)
 	{
-		m_bTurnActive = bNewValue;
-		DLLUI->PublishEndTurnDirty();
-
 		CvGame& kGame = GC.getGame();
 		CvMap& theMap = GC.getMap();
+		m_bTurnActive = bNewValue; // R: this is causing the AI playing twice in one turn bug
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+		// DN: There is a strange issue with players missing their turns after loading a game, with the AI getting two turns in a row.
+		// It seems *to me* that Civ is incorrectly thinking telling us that the players have already indicated they have finished their turns
+		// A hacky solution to this is to tell Civ to cancel the player turn complete state.
+		// Otherwise they get their turn ended in the next call to updateMoves after the condition (!player.isEndTurn() && gDLL->HasReceivedTurnComplete(player.GetID()) && player.isHuman())
+		// R: the function CancelActivePlayerEndTurn() does not help with this issue, because player.isEndTurn() == False, only gDLL->HasReceivedTurnComplete(player.GetID()) seems to catch this issue, was there a wrong gDLL->sendTurnComplete() somewhere?
+		// in addition, this bug does not advance the turn count
+		// also, the players do not really miss their turns, what actually happens is that the AI plays twice in one turn
+		if(bNewValue)
+			if(kGame.isFirstActivationOfPlayersAfterLoad())
+				if(isHuman() && isAlive() && isSimultaneousTurns() && isLocalPlayer())
+					if(gDLL->HasReceivedTurnComplete(GetID()))
+						gDLL->sendTurnUnready();
+#endif
+		DLLUI->PublishEndTurnDirty();
 
 		/////////////////////////////////////////////
 		// TURN IS BEGINNING
@@ -33270,6 +33389,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
+			//important: healing and restoration of movement points
 			DoUnitReset();
 
 			if(!isHuman())
@@ -38426,7 +38546,7 @@ int CvPlayer::getProjectMaking(ProjectTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange)
+void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCity)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -38442,6 +38562,35 @@ void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange)
 			if(GC.getProjectInfo(eIndex)->GetResourceQuantityRequirement(iResourceLoop) > 0)
 			{
 				changeNumResourceUsed((ResourceTypes) iResourceLoop, iChange * GC.getProjectInfo(eIndex)->GetResourceQuantityRequirement(iResourceLoop));
+			}
+		}
+
+		if (iChange > 0)
+		{
+			ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+			if (eUtopia == eIndex)
+			{
+				int iNumTurns = pCity != NULL ? pCity->getProductionTurnsLeft() : -1;
+				PlayerTypes ePlayer;
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					ePlayer = (PlayerTypes)iPlayerLoop;
+
+					if (GC.getGame().getActivePlayer() != ePlayer)
+					{
+						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_PROJECT_STARTED");
+							strText << getNameKey();
+							strText << GC.getProjectInfo(eIndex)->GetDescription();
+							strText << iNumTurns;
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PROJECT_STARTED_S");
+							strSummary << GC.getProjectInfo(eIndex)->GetDescription();
+							pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, ePlayer);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -42571,7 +42720,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							{
 								pUnit->kill(false);	// Could not find a valid spot!
 							}
-							pUnit->setMoves(0);
+							pUnit->finishMoves();
 							CvNotifications* pNotifications = GetNotifications();
 							if(pUnit && pNotifications)
 							{
@@ -43327,7 +43476,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						{
 							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
 							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-							if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman() && pUnitEntry != NULL && pUnitEntry->IsFound())
+							if (isHuman() && pUnitEntry != NULL && pUnitEntry->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 							{
 								continue;
 							}
@@ -44589,7 +44738,7 @@ void CvPlayer::Read(FDataStream& kStream)
 			m_pDiplomacyRequests->Uninit();
 
 		m_pDiplomacyRequests->Init(GetID());
-		//m_pDiplomacyRequests->Read(kStream);
+		m_pDiplomacyRequests->Read(kStream);
 	}
 
 	if(m_bTurnActive)
@@ -44764,7 +44913,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_strEmbarkedGraphicOverride;
 
 	m_kPlayerAchievements.Write(kStream);
-
+	
+	if (GetID() < MAX_MAJOR_CIVS)
+		m_pDiplomacyRequests->Write(kStream);	
+	
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_ppiPlotYieldChange;
@@ -47833,7 +47985,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_CULTUREPERTURN"), iGameTurn, GetTotalJONSCulturePerTurn());
 		
 #if defined(MOD_BALANCE_CORE)
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iGameTurn, GetCulture()->GetTourism());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_TOURISMPERTURN"), iGameTurn, GetCulture()->GetTourism() / 100);
 #endif
 
 		// 	Happiness

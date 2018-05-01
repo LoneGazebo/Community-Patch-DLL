@@ -40,6 +40,11 @@
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
 
+
+
+// Enables not showing, during pregame, the details of the civs that have not been met by the local player, i.e. as it doesn't during the game
+#define MOD_KEEP_CIVS_UNKNOWN_PREGAME	(true)
+
 ///////////////////////
 // BATTLE ROYALE CODE
 //////////////////////
@@ -964,6 +969,8 @@
 #define MOD_BUGFIX_MINOR_CIV_STRATEGIES				gCustomMods.isBUGFIX_MINOR_CIV_STRATEGIES()
 // Fixes the ExtraMissionarySpreads column to affect naturally born Prophets
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
+// Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
+#define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
 
 #endif // ACHIEVEMENT_HACKS
 
@@ -1292,6 +1299,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityFlipped				"CityFlipped", "iii"
 #define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
 #define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
+#define GAMEEVENT_FreeCitySelector			"SetFreeCityType", "ii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
