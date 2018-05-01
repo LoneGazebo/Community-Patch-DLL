@@ -46109,27 +46109,37 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if (!pUnit)
 		return;
 
-	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport())
+	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
 	{
-		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
+		bool bFound = false;
+		for (size_t i = 0; i<m_unitsAreaEffectPositive.size(); i++)
 		{
-			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
+			if (m_unitsAreaEffectPositive[i].first == pUnit->GetID())
 			{
 				m_unitsAreaEffectPositive[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
 				break;
 			}
 		}
+
+		if (!bFound)
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 
 	if (pUnit->getNearbyEnemyCombatMod() < 0)
 	{
-		for ( size_t i=0; i<m_unitsAreaEffectNegative.size(); i++ )
+		bool bFound = false;
+		for (size_t i = 0; i<m_unitsAreaEffectNegative.size(); i++)
 		{
-			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
+			if (m_unitsAreaEffectNegative[i].first == pUnit->GetID())
 			{
 				m_unitsAreaEffectNegative[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
 				break;
 			}
+
+			if (!bFound)
+				m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
 	}
 }
@@ -46145,7 +46155,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport())
+		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
 			m_unitsAreaEffectPositive.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)

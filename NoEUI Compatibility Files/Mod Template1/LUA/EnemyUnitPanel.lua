@@ -492,14 +492,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 			
 			-- Sapper unit modifier
-			if (pMyUnit:IsNearSapper(pCity)) then
-				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-			elseif(pMyUnit:IsHalfNearSapper(pCity)) then
-				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
-				iModifier = (iModifier / 2);
+			if (pMyUnit:GetSapperAreaEffectBonus(pCity) ~= 0) then
+				iModifier = pMyUnit:GetSapperAreaEffectBonus(pCity);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -2405,14 +2399,8 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		end
 		
 		-- Sapper unit modifier
-		if (theirUnit:IsNearSapper(myCity)) then
-			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
-			controlTable = g_TheirCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
-			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-		elseif (theirUnit:IsHalfNearSapper(myCity)) then
-			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
-			iModifier = (iModifier / 2);
+		if (theirUnit:GetSapperAreaEffectBonus(myCity) ~= 0) then
+			iModifier = theirUnit:GetSapperAreaEffectBonus(myCity);
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );

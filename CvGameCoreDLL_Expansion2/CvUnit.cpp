@@ -430,6 +430,7 @@ CvUnit::CvUnit() :
 	, m_iWonderProductionModifier("CvUnit::m_iWonderProductionModifier", m_syncArchive)
 	, m_iUnitProductionModifier("CvUnit::m_iUnitProductionModifier", m_syncArchive)
 	, m_iNearbyEnemyDamage("CvUnit::m_iNearbyEnemyDamage", m_syncArchive)
+	, m_iGGGAXPPercent("CvUnit::m_iGGGAXPPercent", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -737,8 +738,17 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//get builder strength
 	if (getUnitInfo().GetBuilderStrength() > 0)
 	{
-		// use speed modifier to increase the work count. *4 because a 25% increase = +1 work = +100 strength
-		setBuilderStrength(getUnitInfo().GetBuilderStrength() + kPlayer.getWorkerSpeedModifier() * 4 + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier() * 4);
+		// use speed modifier to increase the work count.
+		int ibuildercharges = getUnitInfo().GetBuilderStrength();
+		const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
+		if (0 != iworkerspeedmodifier)
+		{
+			float fTemp = (float)ibuildercharges;
+			fTemp *= (100 + iworkerspeedmodifier);
+			fTemp /= 100;
+			ibuildercharges = (int)ceil(fTemp); // Round up
+		}
+		setBuilderStrength(ibuildercharges);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
@@ -1469,6 +1479,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
+	m_iGGGAXPPercent = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -5888,7 +5899,7 @@ int CvUnit::GetScrapGold() const
 
 #if defined(MOD_CIV6_WORKER)
 	//if we are a builder (something with builderstrength), our value decrease with our build strength
-	if (getBuilderStrength() > 0)
+	if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 	{
 		iNumGold *= getUnitInfo().GetBuilderStrength() - getBuilderStrength();
 		iNumGold /= getUnitInfo().GetBuilderStrength();
@@ -13213,7 +13224,12 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
-
+#if defined(MOD_CIV6_WORKER)
+	if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
+	{
+		return false;
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if(!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && !m_pUnitInfo->GetBuilds(eBuild))
 #else
@@ -13334,9 +13350,6 @@ bool CvUnit::build(BuildTypes eBuild)
 	int iWorkRateWithMoves = workRate(false);
 
 	int iStartedYet = pPlot->getBuildProgress(eBuild);
-#if defined(MOD_CIV6_WORKER)
-	int iMaxTimetoBuild = pPlot->getBuildTime(eBuild, getOwner());
-#endif
 
 	bool NewBuild = false;
 	// if we are starting something new wipe out the old thing immediately
@@ -13635,48 +13648,63 @@ bool CvUnit::build(BuildTypes eBuild)
 				if(IsGreatPerson())
 				{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
+#if defined(MOD_CIV6_WORKER)
+					if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
+					{
+						kPlayer.DoGreatPersonExpended(getUnitType(), this);
+					}
+					else
+#endif
 					kPlayer.DoGreatPersonExpended(getUnitType(), this);
 #else
 					kPlayer.DoGreatPersonExpended(getUnitType());
 #endif
 				}
 #if defined(MOD_BALANCE_CORE)
-				if(!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+#if defined(MOD_CIV6_WORKER)
+				if (MOD_CIV6_WORKER)
+				{
+					if ((!pkBuildInfo->isKillOnlyCivilian() && !IsGreatPerson()) || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit() && !IsGreatPerson()))
+					{
+						kill(true);
+					}
+					else if (IsGreatPerson() && getBuilderStrength() <= 0)
+					{
+						kill(true);
+					}
+				}
+				else if (!MOD_CIV6_WORKER)
 				{
 #endif
+					if (!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+					{
+#endif
 
-				kill(true);
+						kill(true);
 #if defined(MOD_BALANCE_CORE)
+					}
 				}
 #endif
 			}
 
 #if defined(MOD_CIV6_WORKER)
 			//if we are a builder (something with builderstrength)
-			if (getBuilderStrength() > 0)
+			if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 			{
 				//check the amount of work done
-				int iTotalCost = pkBuildInfo->getBuilderCost();
-				int iTimeUsed = pPlot->getBuildProgress(eBuild) - iStartedYet;
-				if (bFinished)
-				{
-					iTimeUsed = iMaxTimetoBuild - iStartedYet;
-				}
-				int iCostThisTurn = iTotalCost * iTimeUsed;
-				iCostThisTurn /= iMaxTimetoBuild;
-				
-				//special mod for route construction (used by a policy)
-				if (pkBuildInfo->getRoute() != NO_ROUTE)
-				{
-					iCostThisTurn *= 100 + kPlayer.GetRouteBuilderCostMod();
-					iCostThisTurn /= 100;
-				}
-
+				int iBuildCost = pkBuildInfo->getBuilderCost();
 				// remove this amount (and kill me if it's too high)
-				setBuilderStrength(getBuilderStrength() - iCostThisTurn);
-				if (m_iBuilderStrength == 0){
-					//delete unit
-					kill(true);
+				setBuilderStrength(getBuilderStrength() - iBuildCost);
+				if (getBuilderStrength() <= 0)
+				{
+					UnitTypes eArchaeologist = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
+					// We won't kill Combat Units and we won't kill great people that are combat units unless they run out of build charges. We'll kill Arcaeologists somewhere else.
+					if (!IsCombatUnit() && (getUnitType() != eArchaeologist))
+					{
+						//delete unit
+						kill(true);
+					}
+					
 				}
 			}
 #endif
@@ -15121,7 +15149,12 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	iRate *= Modifiers + 100;
 	iRate /= 100;
-
+#if defined(MOD_CIV6_WORKER)
+	if (MOD_CIV6_WORKER)
+	{
+		iRate = 100;
+	}
+#endif
 	return iRate;
 }
 
@@ -15522,6 +15555,14 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	}
 
 	// Great General nearby
+	int iAuraEffectChange = 0;
+	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
+	{
+		iTempModifier = GetAreaEffectBonus(iAuraEffectChange, pBattlePlot, NULL, NULL, true, false, false);
+		iModifier += iTempModifier;
+		iModifier += iAuraEffectChange;
+	}
+	/*
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
 	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange,pBattlePlot) && !IsIgnoreGreatGeneralBenefit())
@@ -15534,7 +15575,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 		iModifier += iAuraEffectChange;
 #endif
-	}
+	}*/
 #if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
 	if(GET_PLAYER(getOwner()).isMinorCiv())
@@ -15997,18 +16038,21 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += iTempModifier;
 
 			// Nearby unit sapping this city
+			iTempModifier = GetAreaEffectBonus(0, pFromPlot, pToPlot->getPlotCity(), NULL, false, true, false);
+			iModifier += iTempModifier;
+			/*
 			if(IsNearSapper(pToPlot->getPlotCity()))
 			{
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
-			}
-#if defined(MOD_BALANCE_CORE)
+			}*/
+#if defined(MOD_BALANCE_CORE)/*
 			// Nearby unit sapping this city
 			else if(IsHalfNearSapper(pToPlot->getPlotCity()))
 			{
 				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
 				iModifier += iTempModifier;
-			}
+			}*/
 			//bonus for attacking same unit over and over in a turn?
 			iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
@@ -16489,6 +16533,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #endif
 
 	// Great General nearby
+	int iAuraEffectChange = 0;
+	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
+	{
+		iModifier += GetAreaEffectBonus(iAuraEffectChange, pMyPlot, NULL, NULL, true, false, false);
+		iModifier += iAuraEffectChange;
+	}
+	/*
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
 	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange,pMyPlot) && !IsIgnoreGreatGeneralBenefit())
@@ -16500,12 +16551,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += kPlayer.GetGreatGeneralCombatBonus();
 #else
 		iModifier += /*25*/ GC.getGREAT_GENERAL_STRENGTH_MOD();
+	/*
 #endif
 		iModifier += pTraits->GetGreatGeneralExtraBonus();
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 		iModifier += iAuraEffectChange;
 #endif
-	}
+	}*/
 
 	// Reverse Great General nearby
 	int iReverseGGModifier = GetReverseGreatGeneralModifier(pMyPlot);
@@ -16741,6 +16793,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += iTempModifier;
 
 		// Nearby unit sapping this city
+		iTempModifier = GetAreaEffectBonus(0, pMyPlot, pCity, NULL, false, true, false);
+		iModifier += iTempModifier;
+		/*
 		if(IsNearSapper(pCity))
 		{
 			iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
@@ -16753,7 +16808,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
 			iModifier += iTempModifier;
 		}
-#endif
+#endif */
 		//bonus for attacking same unit over and over in a turn?
 		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
@@ -18118,6 +18173,16 @@ void CvUnit::ChangeNearbyEnemyDamage(int iValue)
 {
 	VALIDATE_OBJECT
 	m_iNearbyEnemyDamage += iValue;
+}
+int CvUnit::GetGGGAXPPercent() const
+{
+	VALIDATE_OBJECT
+	return m_iGGGAXPPercent;
+}
+void CvUnit::ChangeGGGAXPPercent(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGGGAXPPercent += iValue;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -21645,6 +21710,24 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			iUnitExperience /= 100;
 #endif
 		}
+#if defined(MOD_BALANCE_CORE)
+		int GGGAXPPercent = GetGoldenAgeGeneralExpPercent(plot());
+		if (GGGAXPPercent != 0 && GET_PLAYER(getOwner()).isGoldenAge())
+		{
+#if defined(MOD_UNITS_XP_TIMES_100)
+			int iUnitGGGAXPPercent = (iUnitExperienceTimes100 * GGGAXPPercent) / 100;
+			if (!MOD_UNITS_XP_TIMES_100)
+			{
+				// If NOT using XP times 100, remove any fractional part
+				iUnitGGGAXPPercent -= (iUnitGGGAXPPercent % 100);
+			}
+			iUnitExperienceTimes100 += iUnitGGGAXPPercent;
+#else
+			iUnitExperience *= 100 + GGGAXPPercent();
+			iUnitExperience /= 100;
+#endif
+		}
+#endif
 	}
 
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -23028,7 +23111,43 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot) cons
 
 	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage);
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+// Golden Age? And have a general near us that gives us additional Exp?
+int CvUnit::GetGoldenAgeGeneralExpPercent(const CvPlot* pAtPlot)
+{
+	VALIDATE_OBJECT
+	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
+	int iExperience = 0;
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
 
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 5)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->GetGGGAXPPercent() != 0)
+		{
+			iExperience = pUnit->GetGGGAXPPercent();
+			if (pUnit->getDomainType() == getDomainType())
+			{
+				if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iGreatGeneralRange)
+					return iExperience;
+			}
+		}
+	}
+	return iExperience;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -23036,8 +23155,6 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 {
 	VALIDATE_OBJECT
 
-	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
-
 	if (pAtPlot == NULL)
 	{
 		pAtPlot = plot();
@@ -23045,25 +23162,9 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 			return false;
 	}
 
-	const std::vector<std::pair<int,int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	if (GetAreaEffectBonus(0, pAtPlot, NULL, pIgnoreThisGeneral, false, false, true) != 0)
 	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
-			continue;
-
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackSupport())
-		{
-			// Same domain
-			if(pUnit->getDomainType() == getDomainType())
-			{
-				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iSapperRange)
-					return true;
-			}
-		}
-
+		return true;
 	}
 
 	return false;
@@ -23071,79 +23172,106 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-bool CvUnit::IsNearGreatGeneral(int& iAuraEffectChange, const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+bool CvUnit::IsNearGreatGeneral(int iAuraEffectChange, const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 #else
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 #endif
 {
 	VALIDATE_OBJECT
-
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool bFound = false;
-	iAuraEffectChange = 0;
-	
-	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
-#else
-	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
-#endif
-
 	if (pAtPlot == NULL)
 	{
 		pAtPlot = plot();
 		if (pAtPlot == NULL)
 			return false;
 	}
+	if (GetAreaEffectBonus(iAuraEffectChange, pAtPlot, NULL, pIgnoreThisGeneral, true, false, false) != 0)
+	{
+		return true;
+	}
+	return false;
+}
+int CvUnit::GetAreaEffectBonus(int iAuraEffectChange, const CvPlot* pAtPlot, const CvCity* pTargetCity, const CvUnit* pIgnoreThisUnit, bool bGreatGeneral, bool bSapper, bool bCityAttackSupport) const
+{
+	VALIDATE_OBJECT
+	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	bool bFound = false;
+	int iBonus = 0;
+	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
+#else
+		int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
+#endif
 
-	const std::vector<std::pair<int,int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY())>5)
 			continue;
-
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackSupport())
+		if (pUnit != NULL && pUnit->getDomainType() == getDomainType() && pUnit != pIgnoreThisUnit)
 		{
-			// Same domain
-			if(pUnit->getDomainType() == getDomainType())
-			{
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-				if (MOD_PROMOTIONS_AURA_CHANGE)
+			if (plotDistance(pUnit->getX(), pUnit->getY(), pAtPlot->getX(), pAtPlot->getY()) <= (iGreatGeneralRange + pUnit->GetAuraRangeChange()))
+			{
+				if (bGreatGeneral && !pUnit->IsSapper() && !pUnit->IsCityAttackSupport())
 				{
-					if(plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= (iGreatGeneralRange + pUnit->GetAuraRangeChange()))
+					// We have to check all possible units as one may be better than another
+					if (!bFound)
 					{
-						// We have to check all possible units as one may be better than another
-						if (!bFound)
+						// Can't do a straight compare for the first one found, as it could have a negative modifier
+						iAuraEffectChange = pUnit->GetAuraEffectChange();
+					}
+					else
+					{
+						if (pUnit->GetAuraEffectChange() > iAuraEffectChange)
 						{
-							// Can't do a straight compare for the first one found, as it could have a negative modifier
 							iAuraEffectChange = pUnit->GetAuraEffectChange();
 						}
-						else
-						{
-							if (pUnit->GetAuraEffectChange() > iAuraEffectChange)
-							{
-								iAuraEffectChange = pUnit->GetAuraEffectChange();
-							}
-						}
-					
-						bFound = true;
 					}
-				} else
-#endif
-				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iGreatGeneralRange)
-					return true;
+					bFound = true;
+					if (bFound)
+					{
+						iBonus = kPlayer.GetGreatGeneralCombatBonus();
+						iBonus += kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus();
+						iBonus += iAuraEffectChange;
+					}
+				}
+				else if (bSapper && !bGreatGeneral && !bCityAttackSupport && pUnit->IsSapper())
+				{
+					CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
+					if (pTargetCity != NULL)
+					{
+						if (pUnit->IsSappingCity(pTargetCity))
+						{
+							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER();
+						}
+						else if (pUnit->IsHalfSappingCity(pTargetCity))
+						{
+							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2;
+						}
+					}
+				}
+				else if (bCityAttackSupport && !bSapper && !bGreatGeneral && pUnit->IsCityAttackSupport())
+				{
+					//we'll use this as a boolean, we only use this as a move call
+					iBonus = 1;
+				}
 			}
 		}
-
-	}
-
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	return bFound;
-#else
-	return false;
 #endif
+	}
+	return iBonus;
 }
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -24268,57 +24396,11 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 	{
 		return false;
 	}
-
-	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-
-	// Look around this Unit to see if there's a Sapper nearby
-	for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+	bool bSapping = false;
+	if (GetAreaEffectBonus(0, plot(), pTargetCity, NULL, false, true, false) > 0)
 	{
-		for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
-
-			if(pLoopPlot != NULL)
-			{
-				// Units in our plot do not count
-#if !defined(MOD_BALANCE_CORE)
-				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
-					continue;
-#endif
-
-				// If there are Units here, loop through them
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					pUnitNode = pLoopPlot->headUnitNode();
-
-					while(pUnitNode != NULL)
-					{
-						pLoopUnit = ::getUnit(*pUnitNode);
-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-						// Owned by us
-						if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
-						{
-							// Sapper unit
-							if(pLoopUnit->IsSappingCity(pTargetCity))
-							{
-								// Must be same domain
-								if(pLoopUnit->getDomainType() == getDomainType())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		return true;
 	}
-
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -24333,49 +24415,10 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 	{
 		return false;
 	}
-
-	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-
-	// Look around this Unit to see if there's a Sapper nearby
-	for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+	bool bHalfSapping = false;
+	if (GetAreaEffectBonus(0, plot(), pTargetCity, NULL, false, true, false) > 0)
 	{
-		for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
-
-			if(pLoopPlot != NULL)
-			{
-				// If there are Units here, loop through them
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					pUnitNode = pLoopPlot->headUnitNode();
-
-					while(pUnitNode != NULL)
-					{
-						pLoopUnit = ::getUnit(*pUnitNode);
-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-						// Owned by us
-						if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
-						{
-							// Sapper unit
-							if(pLoopUnit->IsHalfSappingCity(pTargetCity))
-							{
-								// Must be same domain
-								if(pLoopUnit->getDomainType() == getDomainType())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		return true;
 	}
 
 	return false;
@@ -26587,6 +26630,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
 		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
 		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
+		ChangeGGGAXPPercent(thisPromotion.GetGeneralGoldenAgeExpPercent() * iChange);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {

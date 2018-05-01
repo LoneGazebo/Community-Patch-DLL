@@ -521,6 +521,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
 	Method(GetNearbyUnitClassModifierFromUnitClass);
+	Method(GetSapperAreaEffectBonus);
 #endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
@@ -5136,6 +5137,15 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
+int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
+	const int bResult = pkUnit->GetAreaEffectBonus(0, pkUnit->plot(), pkCity, NULL, false, true, false);
+	lua_pushinteger(L, bResult);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 //bool IsHalfNearSapper(CvCity* pTargetCity);
 int CvLuaUnit::lIsHalfNearSapper(lua_State* L)

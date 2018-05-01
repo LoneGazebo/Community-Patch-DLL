@@ -247,6 +247,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piYieldModifier(NULL),
 	m_piYieldChange(NULL),
 	m_bHighSeaRaider(false),
+	m_iGeneralGoldenAgeExpPercent(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -494,6 +495,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_eAdjacentSameType = (PromotionTypes)GC.getInfoTypeForString(szAdjacentSameType, true);
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
+	m_iGeneralGoldenAgeExpPercent = kResults.GetInt("GeneralGoldenAgeExpPercent");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -2274,6 +2276,10 @@ int CvPromotionEntry::GetMilitaryProductionModifier() const
 bool CvPromotionEntry::IsHighSeaRaider() const
 {
 	return m_bHighSeaRaider;
+}
+int CvPromotionEntry::GetGeneralGoldenAgeExpPercent() const
+{
+	return m_iGeneralGoldenAgeExpPercent;
 }
 #endif
 

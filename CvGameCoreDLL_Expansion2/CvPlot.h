@@ -1043,7 +1043,7 @@ protected:
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
 
-	int m_iLastTurnBuildChanged;
+	short m_iLastTurnBuildChanged;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1058,10 +1058,10 @@ protected:
 	short* m_paiBuildProgress;
 	CvUnit* m_pCenterUnit;
 
-	short m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
+	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
 
-	int m_iArea;
-	int m_iLandmass;
+	short m_iArea;
+	short m_iLandmass;
 
 	// This is a variable that you can use for whatever nefarious deeds you need to do
 	// it will not be saved or loaded - you should assume that it is filled with garbage
@@ -1070,7 +1070,7 @@ protected:
 	char m_cBuilderAIScratchPadPlayer;
 	short m_sBuilderAIScratchPadTurn;
 	short m_sBuilderAIScratchPadValue;
-	RouteTypes m_eBuilderAIScratchPadRoute;
+	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
 
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;

@@ -272,6 +272,7 @@ public:
 	PromotionTypes GetAdjacentSameType() const;
 	int GetMilitaryProductionModifier() const;
 	bool IsHighSeaRaider() const;
+	int GetGeneralGoldenAgeExpPercent() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -562,6 +563,7 @@ protected:
 	PromotionTypes m_eAdjacentSameType;
 	int m_iMilitaryProductionModifier;
 	bool m_bHighSeaRaider;
+	int m_iGeneralGoldenAgeExpPercent;
 #endif
 	bool m_bCanHeavyCharge;
 

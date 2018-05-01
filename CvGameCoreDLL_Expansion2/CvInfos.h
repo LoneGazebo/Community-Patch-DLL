@@ -1243,7 +1243,6 @@ public:
 	int getTechObsolete() const;
 	bool isKillOnlyCivilian() const;
 	bool IsFreeBestDomainUnit() const;
-	bool IsKillImprovement() const;
 	bool IsCultureBoost() const;
 #endif
 	int getImprovement() const;

@@ -5222,7 +5222,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (!pDefender)
 					continue;
 
-				if(pUnit->IsNearCityAttackSupport(pCandidate, pUnit)) //near another general
+				if(pUnit->IsNearCityAttackSupport(pCandidate, pUnit)) //near another City Attack Support
 					continue;
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe

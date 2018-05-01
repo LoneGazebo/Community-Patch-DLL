@@ -817,6 +817,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 -- Promotion grants the same bonus as the Japan UA
 ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 
+-- Promotion grants the same bonus as the Japan UA
+ALTER TABLE UnitPromotions ADD COLUMN 'GeneralGoldenAgeExpPercent' INTEGER DEFAULT 0;
+
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
 

@@ -702,6 +702,8 @@ public:
 	void ChangeMilitaryProductionModifier(int iValue);
 	int GetNearbyEnemyDamage() const;
 	void ChangeNearbyEnemyDamage(int iValue);
+	int GetGGGAXPPercent() const;
+	void ChangeGGGAXPPercent(int iValue);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1199,11 +1201,14 @@ public:
 
 	// Citadel
 	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
-
+#if defined(MOD_BALANCE_CORE)
+	int GetGoldenAgeGeneralExpPercent(const CvPlot * pAtPlot);
+#endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+	int GetAreaEffectBonus(int iAuraEffectChange = 0, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL, bool bGreatGeneral = false, bool bSapper = false, bool bCityAttackSupport = false) const;
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool IsNearGreatGeneral(int& iAuraEffectChange, const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+	bool IsNearGreatGeneral(int iAuraEffectChange, const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 #else
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 #endif
@@ -1989,6 +1994,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iWonderProductionModifier;
 	FAutoVariable<int, CvUnit> m_iUnitProductionModifier;
 	FAutoVariable<int, CvUnit> m_iNearbyEnemyDamage;
+	FAutoVariable<int, CvUnit> m_iGGGAXPPercent;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
