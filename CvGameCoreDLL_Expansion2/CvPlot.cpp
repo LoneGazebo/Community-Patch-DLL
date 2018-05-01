@@ -2543,6 +2543,10 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 #if defined(MOD_BALANCE_CORE)
 		if(pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer) < pkImprovementInfo->GetPrereqNatureYield(iI))
 #else
@@ -7136,6 +7140,10 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				pWorkingCity->UpdateYieldPerXTerrain((YieldTypes)iI, getTerrainType());
 				pWorkingCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, getTerrainType());
 			}
@@ -7237,6 +7245,10 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				pWorkingCity->UpdateYieldPerXFeature((YieldTypes)iI, getFeatureType());
 				pWorkingCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI, getFeatureType());
 			}
@@ -7738,6 +7750,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_API_UNIFIED_YIELDS)
 			for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				if(oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iI) > 0)
 #else
 				if(oldImprovementEntry.GetCultureAdjacentSameType() > 0)
@@ -8013,6 +8029,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_API_UNIFIED_YIELDS)
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				if(newImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iYield) > 0)
 #else
 				if(newImprovementEntry.GetCultureAdjacentSameType() > 0)
@@ -8362,6 +8382,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8390,6 +8414,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8418,6 +8446,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8446,6 +8478,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8474,6 +8510,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8490,6 +8530,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
 							{
 								bUp2 = true;								
@@ -8518,6 +8562,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8534,6 +8582,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
 							{
 								bUp2 = true;								
@@ -9132,9 +9184,15 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 		{
 			CvAssertMsg(pCity->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_ResourceLinkedCity = pCity->GetIDInfo();
+
+			int iResourceChange = getNumResource();
+			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange, true);
 		}
 		else
 		{
+			int iResourceChange = getNumResource();
+			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), -iResourceChange, true);
+
 			// Set to inactive BEFORE unassigning linked City
 			SetResourceLinkedCityActive(false);
 
@@ -9165,6 +9223,8 @@ void CvPlot::SetResourceLinkedCityActive(bool bValue)
 
 		int iResourceChange = bValue ? getNumResource() : -getNumResource();
 		GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange);
+		GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange*-1, true);
+
 	}
 }
 
@@ -10903,6 +10963,10 @@ bool CvPlot::hasYield() const
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			return false;
+
 		if(getYield((YieldTypes)iI) > 0)
 		{
 			return true;
@@ -10922,6 +10986,10 @@ void CvPlot::updateYield()
 
 	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		int iNewYield = calculateYield((YieldTypes)iI);
 
 		if(getYield((YieldTypes)iI) != iNewYield)
@@ -13006,6 +13074,10 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
 				{
 					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 					{
+						//Simplification - errata yields not worth considering.
+						if ((YieldTypes)iJ > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+							break;
+
 						pArea->changeYieldRateModifier(pCity->getOwner(), ((YieldTypes)iJ), (pkBuildingInfo->GetAreaYieldModifier(iJ) * iChange * pCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding)));
 					}
 				}
@@ -14606,7 +14678,7 @@ bool CvPlot::HasWrittenArtifact() const
 
 //	--------------------------------------------------------------------------------
 // Citadel
-bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage, PromotionTypes ePromotion) const
+bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 {
 	VALIDATE_OBJECT
 
@@ -14628,34 +14700,37 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage, Promo
 				eImprovement = pLoopPlot->getImprovementType();
 
 				// Citadel here?
-				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
 				{
 					iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-					if(iDamage != 0)
+					if(pLoopPlot->getOwner() != NO_PLAYER)
 					{
-						if(pLoopPlot->getOwner() != NO_PLAYER)
+						if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
 						{
-							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
-							{
-								if(piCitadelDamage)
-									*piCitadelDamage = iDamage;
-								return true;
-							}
+							if(piCitadelDamage)
+								*piCitadelDamage = iDamage;
+							return true;
+						}
+					}
+				}
+				// Unit here that acts like a citadel?
+				else if (pLoopPlot->getNumUnits() != 0)
+				{
+					for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
+					{
+						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
+						if (pLoopUnit != NULL && pLoopUnit->GetNearbyEnemyDamage() > 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
+						{
+							iDamage = pLoopUnit->GetNearbyEnemyDamage();
+							if (piCitadelDamage)
+								*piCitadelDamage = iDamage;
+							return true;
 						}
 					}
 				}
 			}
 		}
 	}
-	
-	if(ePromotion != NO_PROMOTION && IsWithinDistanceOfUnitPromotion(ePlayer, ePromotion, 1, false, true))
-	{
-		iDamage = GC.getPromotionInfo(ePromotion)->GetNearbyEnemyDamage();
-		if(piCitadelDamage)
-			*piCitadelDamage = iDamage;
-		return true;
-	}
-
 	return false;
 }
 

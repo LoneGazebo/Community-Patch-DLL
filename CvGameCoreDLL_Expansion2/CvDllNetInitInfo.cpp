@@ -46,6 +46,10 @@ CvDllNetInitInfo::CvDllNetInitInfo()
 	m_iNumAdvancedStartPoints = CvPreGame::advancedStartPoints();
 	m_eMode = CvPreGame::gameMode();
 
+#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
+	m_aiKnownPlayersTable = CvPreGame::GetKnownPlayersTable();
+#endif
+	
 	ZeroMemory(m_szDebugString, sizeof m_szDebugString);
 }
 //------------------------------------------------------------------------------
@@ -107,6 +111,7 @@ void* CvDllNetInitInfo::operator new(size_t bytes)
 //------------------------------------------------------------------------------
 const char* CvDllNetInitInfo::GetDebugString()
 {
+#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
 	sprintf(m_szDebugString, "NetInitInfo : m_szLoadFileName=\"%s\", "\
 	        "m_szMapScriptName=\"%s\", "\
 	        "m_bWBMapNoPlayers=\"%s\", "\
@@ -121,7 +126,8 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        "m_eTurnTimer=%d "\
 	        "m_szGameName=\"%s\" "\
 	        "m_uiSyncRandSeed=%u "\
-	        "m_uiMapRandSeed=%u"
+	        "m_uiMapRandSeed=%u "\
+			"m_aiKnownPlayersTable.size()=%d"
 	        , CvPreGame::loadFileName().c_str()
 	        , CvPreGame::mapScriptName().c_str()
 	        , CvPreGame::mapNoPlayers() ? "true" : "false"
@@ -137,8 +143,41 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        , CvPreGame::gameName().c_str()
 	        , CvPreGame::syncRandomSeed()
 	        , CvPreGame::mapRandomSeed()
+			, CvPreGame::GetKnownPlayersTable()
 	       );
-
+#else
+	sprintf(m_szDebugString, "NetInitInfo : m_szLoadFileName=\"%s\", "\
+		"m_szMapScriptName=\"%s\", "\
+		"m_bWBMapNoPlayers=\"%s\", "\
+		"m_eWorldSize=%d, "\
+		"m_eClimate=%d "\
+		"m_eSeaLevel=%d "\
+		"m_eEra=%d "\
+		"m_eCalendar=%d "\
+		"m_iGameTurn=%d "\
+		"m_bGameStarted=%d "\
+		"m_eGameSpeed=%d "\
+		"m_eTurnTimer=%d "\
+		"m_szGameName=\"%s\" "\
+		"m_uiSyncRandSeed=%u "\
+		"m_uiMapRandSeed=%u "
+		, CvPreGame::loadFileName().c_str()
+		, CvPreGame::mapScriptName().c_str()
+		, CvPreGame::mapNoPlayers() ? "true" : "false"
+		, static_cast<int>(CvPreGame::worldSize())
+		, static_cast<int>(CvPreGame::climate())
+		, static_cast<int>(CvPreGame::seaLevel())
+		, static_cast<int>(CvPreGame::era())
+		, static_cast<int>(CvPreGame::calendar())
+		, CvPreGame::gameTurn()
+		, static_cast<int>(CvPreGame::gameStarted())
+		, static_cast<int>(CvPreGame::gameSpeed())
+		, static_cast<int>(CvPreGame::turnTimer())
+		, CvPreGame::gameName().c_str()
+		, CvPreGame::syncRandomSeed()
+		, CvPreGame::mapRandomSeed()
+	);
+#endif
 	return m_szDebugString;
 }
 //------------------------------------------------------------------------------
@@ -178,7 +217,9 @@ bool CvDllNetInitInfo::Read(FDataStream& kStream)
 	kStream >> m_iNumAdvancedStartPoints;
 	kStream >> m_eMode;
 	kStream >> m_bStatReporting;
-
+#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
+	kStream >> m_aiKnownPlayersTable;
+#endif
 	return true;
 }
 //------------------------------------------------------------------------------
@@ -216,7 +257,9 @@ bool CvDllNetInitInfo::Write(FDataStream& kStream)
 	kStream << m_iNumAdvancedStartPoints;
 	kStream << m_eMode;
 	kStream << m_bStatReporting;
-
+#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
+	kStream << m_aiKnownPlayersTable;
+#endif
 	return true;
 }
 //------------------------------------------------------------------------------
@@ -263,6 +306,9 @@ bool CvDllNetInitInfo::Commit()
 	CvPreGame::setNumMinorCivs(m_iNumMinorCivs);
 	CvPreGame::setAdvancedStartPoints(m_iNumAdvancedStartPoints);
 	CvPreGame::setGameMode(m_eMode);
+#if defined(MOD_KEEP_CIVS_UNKNOWN_PREGAME)
+	CvPreGame::SetKnownPlayersTable(m_aiKnownPlayersTable);
+#endif
 
 	return true;
 }

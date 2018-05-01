@@ -561,6 +561,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsPromotionValid);
 	Method(IsHasPromotion);
 	Method(SetHasPromotion);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetPromotionDuration);
+	Method(GetTurnPromotionGained);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(SetActivityType);
@@ -5468,6 +5472,27 @@ int CvLuaUnit::lSetHasPromotion(lua_State* L)
 	pkUnit->setHasPromotion(eIndex, bNewValue);
 	return 0;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+int CvLuaUnit::lGetPromotionDuration(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const int iResult = pkUnit->getPromotionDuration(ePromotion);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaUnit::lGetTurnPromotionGained(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const PromotionTypes ePromotion = (PromotionTypes)lua_tointeger(L, 2);
+	const int iResult = pkUnit->getTurnPromotionGained(ePromotion);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+#endif
 //------------------------------------------------------------------------------
 //ReligionTypes GetReligion();
 int CvLuaUnit::lGetReligion(lua_State* L)

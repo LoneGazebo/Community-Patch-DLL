@@ -44,6 +44,8 @@
 #if defined(MOD_BALANCE_CORE)
 #include "CvBarbarians.h"
 #endif
+
+#include "CvDllNetMessageExt.h"
 // include after all other headers
 #include "LintFree.h"
 
@@ -257,6 +259,7 @@ CvCity::CvCity() :
 	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
 	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
 	, m_paiNumResourcesLocal("CvCity::m_paiNumResourcesLocal", m_syncArchive)
+	, m_paiNumUnimprovedResourcesLocal("CvCity::m_paiNumUnimprovedResourcesLocal", m_syncArchive)
 	, m_paiProjectProduction("CvCity::m_paiProjectProduction", m_syncArchive)
 	, m_paiSpecialistProduction("CvCity::m_paiSpecialistProduction", m_syncArchive)
 	, m_paiUnitProduction("CvCity::m_paiUnitProduction", m_syncArchive)
@@ -681,7 +684,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		if(eBuilding != NO_BUILDING)
 		{
-			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass))
+			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass) || GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass))
 			{		
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if(pkBuildingInfo)
@@ -1834,6 +1837,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_paiFreeResource.resize(iNumResources);
 		m_paiNumResourcesLocal.clear();
 		m_paiNumResourcesLocal.resize(iNumResources);
+
+		m_paiNumUnimprovedResourcesLocal.clear();
+		m_paiNumUnimprovedResourcesLocal.resize(iNumResources);
 #if defined(MOD_BALANCE_CORE)
 		m_aiResourceQuantityPerXFranchises.clear();
 		m_aiResourceQuantityPerXFranchises.resize(iNumResources);
@@ -1843,6 +1849,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			m_paiNoResource.setAt(iI, 0);
 			m_paiFreeResource.setAt(iI, 0);
 			m_paiNumResourcesLocal.setAt(iI, 0);
+			m_paiNumUnimprovedResourcesLocal.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
 			m_aiResourceQuantityPerXFranchises.setAt(iI, 0);
 #endif
@@ -2868,13 +2875,7 @@ void CvCity::doTurn()
 	{
 		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
-			//Don't do events in MP
-			bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer() || GC.getGame().isNetworkMultiPlayer());
-
-			if (!bDontShowRewardPopup)
-			{
-				DoEvents();
-			}
+			DoEvents();
 		}
 	}
 #endif
@@ -4457,7 +4458,11 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	//Exploit checks.
 	if(kPlayer.isEndTurn())
-		return false;
+	{
+		// Not sure what the exploits are in particular but global events are fired outside of human turns so we can't return here
+		if(!GC.getGame().isNetworkMultiPlayer()) // check simul/hybrid turns instead maybe? not sure yet.
+			return false;
+	}
 
 	if(!IsEventActive(eParentEvent))
 		return false;
@@ -6102,8 +6107,12 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 	return DisabledTT.c_str();
 
 }
-void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent)
+void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg)
 {
+	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && GET_PLAYER(getOwner()).isHuman()) {
+		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent);
+		return;
+	}
 	if(eEventChoice != NO_EVENT_CHOICE)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -8791,7 +8800,7 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 	// Actually check to see if we have this Resource to use right now
 	if(!bTestVisible)
 	{
-		return m_paiNumResourcesLocal[eResource] > 0;
+		return GetNumTotalResource(eResource);
 	}
 
 	// See if we have the resource linked to this city, but not connected yet
@@ -8837,49 +8846,56 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 }
 
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved, bool bNoImprovement)
+int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
 
-	if (!bImproved) 
+	if (bImproved) 
 	{
 		return m_paiNumResourcesLocal[eResource];
 	} 
-	else 
+
+	return m_paiNumUnimprovedResourcesLocal[eResource];
+
+	/*
+	int iCount = 0;
+	CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
+
+	CvPlot* pLoopPlot;
+
+	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 	{
-		int iCount = 0;
-		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
+		pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 
-		CvPlot* pLoopPlot;
-
-		for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+		if (pLoopPlot != NULL && pLoopPlot->getWorkingCity() == this) 
 		{
-			pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-
-			if (pLoopPlot != NULL && pLoopPlot->getWorkingCity() == this) 
+			if (bNoImprovement)
 			{
-				if (bNoImprovement)
-				{
-					if (pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-					{
-						++iCount;
-					}
-				}
-				else if (pImprovement && pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes)pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged())
+				if (pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 				{
 					++iCount;
 				}
 			}
+			else if (pImprovement && pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes)pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged())
+			{
+				++iCount;
+			}
 		}
-		
-		return iCount;
 	}
+		
+	return iCount;
+	*/
 }
 #endif
 
+int CvCity::GetNumTotalResource(ResourceTypes eResource) const
+{
+	return m_paiNumUnimprovedResourcesLocal[eResource] + m_paiNumResourcesLocal[eResource];
+}
+
 //	--------------------------------------------------------------------------------
-void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
+void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool bUnimproved)
 {
 	VALIDATE_OBJECT
 
@@ -8890,9 +8906,16 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 	{
 		bool bOldHasResource = IsHasResourceLocal(eResource, /*bTestVisible*/ false);
 
-		m_paiNumResourcesLocal.setAt(eResource, m_paiNumResourcesLocal[eResource] + iChange);
+		//unimproved is just here for the cache.
+		if (bUnimproved)
+		{
+			m_paiNumUnimprovedResourcesLocal.setAt(eResource, m_paiNumUnimprovedResourcesLocal[eResource] + iChange);
+			return;
+		}
+		else
+			m_paiNumResourcesLocal.setAt(eResource, m_paiNumResourcesLocal[eResource] + iChange);
 
-		if(bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
+		if(!bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{
 			if(IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 			{
@@ -11792,24 +11815,13 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetMilitaryProductionModifier();
+			if(iTempMod != 0)
 			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo != NULL)
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
 				{
-					if(pkPromotionInfo->GetMilitaryProductionModifier() > 0)
-					{
-						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
-						{
-							iTempMod = pkPromotionInfo->GetMilitaryProductionModifier();
-							iMultiplier += iTempMod;
-							if(toolTipSink && iTempMod)
-							{
-								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
-							}
-						}
-					}
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
 				}
 			}
 		}
@@ -19664,8 +19676,12 @@ bool CvCity::DoRazingTurn()
 
 		ChangeRazingTurns(-1);
 
+		changePopulation(min(getPopulation()*-1, -iPopulationDrop), true);
+		if (getPopulation() < 0)
+			setPopulation(0);
+
 		// Counter has reached 0, disband the City
-		if(GetRazingTurns() <= 0 || getPopulation() <= 1)
+		if(GetRazingTurns() <= 0 || getPopulation() <= 0)
 		{
 			CvPlot* pkPlot = plot();
 
@@ -19678,11 +19694,7 @@ bool CvCity::DoRazingTurn()
 #endif
 			return true;
 		}
-		// Counter is positive, reduce population
-		else
-		{
-			changePopulation(-iPopulationDrop, true);
-		}
+
 #if defined(MOD_BALANCE_CORE)
 		PlayerTypes eFormerOwner = getPreviousOwner();
 		if(eFormerOwner == NO_PLAYER || eFormerOwner == getOwner() || eFormerOwner == BARBARIAN_PLAYER)
@@ -20454,7 +20466,7 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
 	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
 	iTech /= max(1, GC.getNumTechInfos());
 	
@@ -27016,7 +27028,7 @@ OrderData order;
 		if(canCreate((ProjectTypes)iData1))
 		{
 			GET_TEAM(getTeam()).changeProjectMaking(((ProjectTypes)iData1), 1);
-			GET_PLAYER(getOwner()).changeProjectMaking(((ProjectTypes)iData1), 1);
+			GET_PLAYER(getOwner()).changeProjectMaking(((ProjectTypes)iData1), 1, this);
 
 			bValid = true;
 		}

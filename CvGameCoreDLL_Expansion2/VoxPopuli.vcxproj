@@ -307,6 +307,7 @@
     <ClCompile Include="CvDllNetLoadGameInfo.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="CvDllNetMessageExt.cpp" />
     <ClCompile Include="CvDllNetMessageHandler.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -779,6 +780,7 @@
     <ClInclude Include="CvDllMissionInfo.h" />
     <ClInclude Include="CvDllNetInitInfo.h" />
     <ClInclude Include="CvDllNetLoadGameInfo.h" />
+    <ClInclude Include="CvDllNetMessageExt.h" />
     <ClInclude Include="CvDllNetMessageHandler.h" />
     <ClInclude Include="CvDllNetworkSyncronization.h" />
     <ClInclude Include="CvDllPathFinderUpdate.h" />

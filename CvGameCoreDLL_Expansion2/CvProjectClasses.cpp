@@ -51,6 +51,9 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bAllowsNukes = kResults.GetBool("AllowsNukes");
 
 #if defined(MOD_BALANCE_CORE)
+	m_bInfluenceAllRequired = kResults.GetBool("InfluenceAllRequired");
+	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
+
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
 	{
@@ -222,6 +225,15 @@ BuildingClassTypes CvProjectEntry::GetFreeBuilding() const
 PolicyTypes CvProjectEntry::GetFreePolicy() const
 {
 	return m_eFreePolicy;
+}
+
+bool CvProjectEntry::InfluenceAllRequired() const
+{
+	return m_bInfluenceAllRequired;
+}
+bool CvProjectEntry::IdeologyRequired() const
+{
+	return m_bIdeologyRequired;
 }
 #endif
 

@@ -712,6 +712,9 @@ public:
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------
 	//------------------------------------------------------------
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+	bool isFirstActivationOfPlayersAfterLoad();
+#endif
 
 private:
 	//------------------------------------------------------------
@@ -721,6 +724,9 @@ private:
 
 protected:
 
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+	bool m_firstActivationOfPlayersAfterLoad;
+#endif
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int m_iGlobalAssetCounter;
 #endif
@@ -892,6 +898,7 @@ protected:
 	FTimer  m_timeSinceGameTurnStart;		//time since game turn started for human players
 	float	m_fCurrentTurnTimerPauseDelta;	//
 	bool    m_sentAutoMoves;
+	bool	m_processPlayerAutoMoves;
 	bool	m_bForceEndingTurn;
 
 #if defined(MOD_BALANCE_CORE_SPIES)

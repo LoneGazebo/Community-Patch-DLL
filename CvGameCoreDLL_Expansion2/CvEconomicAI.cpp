@@ -1976,28 +1976,28 @@ void CvEconomicAI::DoHurry()
 	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
 
 	// Look at each of our cities
-	int maxLoops = 0;
-	while (pTreasury->GetGold() > iTreasuryBuffer && maxLoops < m_pPlayer->getNumCities())
+	m_Buildables.clear();
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		m_Buildables.clear();
-		maxLoops++;
-		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
-			if (pLoopCity == pMostThreatenedCity && !pLoopCity->isCapital())
-				continue;
+		//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
+		if (pLoopCity == pMostThreatenedCity && !pLoopCity->isCapital())
+			continue;
 
-			CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
-			selection.m_iCityID = pLoopCity->GetID();
-			m_Buildables.push_back(selection, selection.m_iValue);
-		}
-		m_Buildables.SortItems();
-		if (m_Buildables.size() <= 0)
-			break;
+		CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
+		selection.m_iCityID = pLoopCity->GetID();
+		m_Buildables.push_back(selection, selection.m_iValue);
+	}
+	if (m_Buildables.size() <= 0)
+		return;
 
-		LogPossibleHurries(m_Buildables);
+	m_Buildables.SortItems();
+	LogPossibleHurries(m_Buildables);
 
-		CvCityBuildable selection = m_Buildables.GetElement(0);
+	int iSelection = 0;
+	while (pTreasury->GetGold() > iTreasuryBuffer && iSelection < m_Buildables.size())
+	{
+		CvCityBuildable selection = m_Buildables.GetElement(iSelection);
+		iSelection++;
 
 		CvCity* pSelectedCity = m_pPlayer->getCity(selection.m_iCityID);
 		if (pSelectedCity == NULL)
@@ -3605,7 +3605,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 #endif
 		return false;
 
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
+	if (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		return false;
 
 	// scale based on flavor and world size

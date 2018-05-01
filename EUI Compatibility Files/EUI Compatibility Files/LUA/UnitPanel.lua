@@ -1235,7 +1235,11 @@ local UpdateUnitPromotions = EUI.UpdateUnitPromotions or function(unit)
 			IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, controlTable.UnitPromotionImage )
 
 			-- Tooltip
-			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
+			local sDurationTip = ""
+			if unit:GetPromotionDuration(unitPromotionID) > 0 then
+				sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(unitPromotionID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(unitPromotionID))) .. ")"
+			end
+			controlTable.EarnedPromotion:SetToolTipString( L(unitPromotion.Description) .. sDurationTip .. "[NEWLINE][NEWLINE]" .. L(unitPromotion.Help) )
 		end
 	end
 	g_EarnedPromotionIM:Commit()
@@ -1323,6 +1327,9 @@ local function UpdateUnitStats(unit)
 	elseif bnw_mode and unit:CargoSpace() > 0 then
 		Controls.UnitStatRangedAttack:SetText( L"TXT_KEY_UPANEL_CARGO_CAPACITY" .. " " .. unit:CargoSpace() )
 		Controls.UnitStatRangedAttack:LocalizeAndSetToolTip( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName() )
+	elseif unit:GetBuilderStrength() > 0 then
+		Controls.UnitStatRangedAttack:SetText( "[ICON_WORKER]" ..unit:GetBuilderStrength() )
+		Controls.UnitStatRangedAttack:SetToolTipString( L"TXT_KEY_UPANEL_BUILDER_STRENGTH_TT" )
 	else
 		Controls.UnitStatRangedAttack:SetText()
 	end

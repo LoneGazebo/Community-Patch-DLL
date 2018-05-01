@@ -309,6 +309,8 @@ protected:
 	static int lGetNumCitiesPolicyCostMod(lua_State* L);
 	static int lGetNumCitiesTechCostMod(lua_State* L);
 
+	static int lGetNumCitiesTourismCostMod(lua_State* L);
+
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lGetBuildingYieldModifier(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
@@ -514,6 +516,12 @@ protected:
 	// Lua CSV Logging Functions
 	static int lDeleteCSV(lua_State* L);
 	static int lWriteCSV(lua_State* L);
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	static int lIsPitbossHost(lua_State* L);
+	static int lIsHost(lua_State* L);
+	static int lGetTimeStringForYear(lua_State* L);
 #endif
 };
 

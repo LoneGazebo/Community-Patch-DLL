@@ -284,6 +284,7 @@ void CvPlayerAI::AI_unitUpdate()
 
 	//do this only after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
 	//despite the name, the tactical map is used by homeland AI as well.
+	//DN: If the above comment is still true then it sounds like there is an issue since CvPlayer::UpdateCityThreatCriteria is called just before doPostTurnDiplomacy and it refreshes the tacmamp
 	GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
 
 	//so that workers know where to build roads
@@ -697,8 +698,15 @@ void CvPlayerAI::AI_considerAnnex()
 	if (eCourthouseType == NO_BUILDINGCLASS)
 		return;
 
-	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
+	for (pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+	{
+		//if we're already converting one, stop!
+		if (pCity->IsOccupied() && !pCity->IsNoOccupiedUnhappiness())
+			return;
+	}
+
+	std::vector<CityAndProduction> aCityAndProductions;
 	pCity = NULL;
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
@@ -709,8 +717,10 @@ void CvPlayerAI::AI_considerAnnex()
 		if (pCity->IsResistance())
 			continue;
 
+		if (!pCity->IsPuppet())
+			continue;
 		//Original City and puppeted? Stop!
-		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
+		if(pCity->getOriginalOwner() == GetID())
 		{
 			pCity->DoAnnex();
 			return;

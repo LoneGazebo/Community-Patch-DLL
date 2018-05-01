@@ -320,6 +320,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetNumCitiesPolicyCostMod);
 	Method(GetNumCitiesTechCostMod);
+	Method(GetNumCitiesTourismCostMod);
 
 	Method(GetBuildingYieldChange);
 	Method(GetBuildingYieldModifier);
@@ -525,6 +526,13 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DeleteCSV);
 	Method(WriteCSV);
 #endif
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsPitbossHost);
+	Method(IsHost);
+	Method(GetTimeStringForYear);
+#endif
+
 }
 //------------------------------------------------------------------------------
 
@@ -2216,6 +2224,12 @@ int CvLuaGame::lGetNumCitiesPolicyCostMod(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaGame::lGetNumCitiesTourismCostMod(lua_State* L)
+{
+	lua_pushinteger(L, GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod());
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesTechCostMod(lua_State* L)
 {
 	const PlayerTypes ePlayer = GC.getGame().getActivePlayer();
@@ -3454,8 +3468,8 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
 #else
 		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
@@ -4067,6 +4081,33 @@ int CvLuaGame::lWriteCSV(lua_State * L)
 
 	CvLoggerCSV::WriteCSVLog(szCSVFilename, szCSVLine);
 
+	return 1;
+}
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+int CvLuaGame::lIsPitbossHost(lua_State* L)
+{
+	lua_pushboolean(L, gDLL->IsPitbossHost());
+	return 1;
+}
+
+int CvLuaGame::lIsHost(lua_State* L)
+{
+	lua_pushboolean(L, gDLL->IsHost());
+	return 1;
+}
+
+int CvLuaGame::lGetTimeStringForYear(lua_State* L)
+{
+	int year = lua_tointeger(L, 1);
+
+	CvString timeString;
+
+	CvGame& kGame = GC.getGame();
+	CvGameTextMgr::setDateStr(timeString, year, true, kGame.getCalendar(), kGame.getStartYear(), kGame.getGameSpeedType());
+
+	lua_pushstring(L, timeString.GetCString());
 	return 1;
 }
 #endif

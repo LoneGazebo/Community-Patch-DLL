@@ -236,14 +236,14 @@ Panels = {
 
 			g_ReplayMessageInstanceManager:ResetInstances();
 			for i,message in ipairs(g_ReplayInfo.Messages) do
-				if(message.Text ~= nil and #message.Text > 0) then
+				if(message ~= nil and message.Text ~= nil and #message.Text > 0) then
 					local messageInstance = g_ReplayMessageInstanceManager:GetInstance();
 				
 					messageInstance.MessageText2:SetHide(true);
 				
 					local text = tostring(message.Turn) .. " - " .. message.Text;
 										
-					if(message.Player > -1) then					
+					if(message.Player ~= nil and message.Player > -1) then					
 						local playerInfo = g_ReplayInfo.PlayerInfo[message.Player];
 						if(playerInfo ~= nil) then
 							local colorVector = playerColorVectors[message.Player];							
@@ -1271,6 +1271,9 @@ function GenerateReplayInfoFromCurrentGame()
 	
 	g_ReplayInfo.PlayerInfo = playerInfos;
 	g_ReplayInfo.ActivePlayer = playerMap[Game.GetActivePlayer()];
+	if(g_ReplayInfo.ActivePlayer == nil) then
+		g_ReplayInfo.ActivePlayer = playerMap[0];
+	end
 	
 	-- Populate Messages	
 	-- Grab messages and sort by their turn.

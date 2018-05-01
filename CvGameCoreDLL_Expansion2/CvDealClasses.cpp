@@ -5294,7 +5294,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 		}
 		else
 		{
-			strLogName = "DiplomacyAI_TradeAgremeents_Log.csv";
+			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 		}
 
 		FILogFile* pLog;
@@ -5861,32 +5861,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		// JdH => savegame compatible load
-		loadFrom >> iEntriesToRead;
-		for (int iI = 0; iI < iEntriesToRead; iI++)
-		{
-			loadFrom >> tempItem;
-			if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer()))
-			{
-				// only load human to humand deals until other problems are fixed
-				writeTo.m_ProposedDeals.push_back(tempItem);
-			}
-		}
-	}
-	else
-	{
-		writeTo.m_ProposedDeals.clear();
-		loadFrom >> iEntriesToRead;
-		for(int iI = 0; iI < iEntriesToRead; iI++)
-		{
-			loadFrom >> tempItem;
-			writeTo.m_ProposedDeals.push_back(tempItem);
-		}
-	}
-#else
 	writeTo.m_ProposedDeals.clear();
 	loadFrom >> iEntriesToRead;
 	for(int iI = 0; iI < iEntriesToRead; iI++)
@@ -5894,7 +5868,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ProposedDeals.push_back(tempItem);
 	}
-#endif
 	writeTo.m_CurrentDeals.clear();
 	loadFrom >> iEntriesToRead;
 	for(int iI = 0; iI < iEntriesToRead; iI++)
@@ -5922,40 +5895,11 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		// JdH => savegame compatible save
-		DealList saveList;
-		for (it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
-		{
-			if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
-			{
-				// only save human to human deals until we save notifications & requests too
-				saveList.push_back(*it);
-			}
-		}
-		saveTo << saveList.size();
-		for (it = saveList.begin(); it != saveList.end(); ++it) 
-		{
-			saveTo << *it;
-		}
-	}
-	else
-	{
-		saveTo << readFrom.m_ProposedDeals.size();
-		for(it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
-		{
-			saveTo << *it;
-		}
-	}
-#else
 	saveTo << readFrom.m_ProposedDeals.size();
 	for(it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
 	{
 		saveTo << *it;
 	}
-#endif
 	saveTo << readFrom.m_CurrentDeals.size();
 	for(it = readFrom.m_CurrentDeals.begin(); it != readFrom.m_CurrentDeals.end(); ++it)
 	{

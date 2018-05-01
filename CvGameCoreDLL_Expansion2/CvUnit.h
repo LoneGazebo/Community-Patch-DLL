@@ -698,6 +698,10 @@ public:
 	bool IsHighSeaRaider() const;
 	int GetWonderProductionModifier() const;
 	void ChangeWonderProductionModifier(int iValue);
+	int GetMilitaryProductionModifier() const;
+	void ChangeMilitaryProductionModifier(int iValue);
+	int GetNearbyEnemyDamage() const;
+	void ChangeNearbyEnemyDamage(int iValue);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1194,7 +1198,7 @@ public:
 	void changeExtraAttacks(int iChange);
 
 	// Citadel
-	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL, PromotionTypes ePromotion = NO_PROMOTION) const;
+	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
 
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1983,6 +1987,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
 	FAutoVariable<int, CvUnit> m_iWonderProductionModifier;
+	FAutoVariable<int, CvUnit> m_iUnitProductionModifier;
+	FAutoVariable<int, CvUnit> m_iNearbyEnemyDamage;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

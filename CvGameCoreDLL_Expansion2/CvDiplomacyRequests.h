@@ -44,6 +44,7 @@ public:
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	void ActivateAllFrom(PlayerTypes eFromPlayer);
 	void CheckRemainingNotifications();
+	void ClearAllRequests();
 #endif
 	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 

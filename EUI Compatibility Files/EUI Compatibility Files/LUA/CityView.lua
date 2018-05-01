@@ -1690,7 +1690,7 @@ local function UpdateCityViewNow()
 			Controls.NoAutoSpecialistCheckbox:SetCheck( isNoAutoAssignSpecialists )
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( g_isViewingMode )
 			if bnw_mode then
-				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() )
+				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
 				-- CBP
 				local iHappinessPerTurn = city:getHappinessDelta();
 				Controls.HappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn)

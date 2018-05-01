@@ -428,6 +428,8 @@ CvUnit::CvUnit() :
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
 	, m_iWonderProductionModifier("CvUnit::m_iWonderProductionModifier", m_syncArchive)
+	, m_iUnitProductionModifier("CvUnit::m_iUnitProductionModifier", m_syncArchive)
+	, m_iNearbyEnemyDamage("CvUnit::m_iNearbyEnemyDamage", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -1465,6 +1467,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStackedGreatGeneralExperience = 0;
 	m_bIsHighSeaRaider = false;
 	m_iWonderProductionModifier = 0;
+	m_iUnitProductionModifier = 0;
+	m_iNearbyEnemyDamage = 0;
+#endif
+#if defined(MOD_CIV6_WORKER)
+	m_iBuilderStrength = 0;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_iCanCrossMountainsCount = 0;
@@ -13048,10 +13055,7 @@ int CvUnit::getBlastTourism()
 		return 0;
 	}
 
-	int iTourismBlast = GetTourismBlastStrength();
-	iTourismBlast = iTourismBlast * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
-
-	return iTourismBlast;
+	return GetTourismBlastStrength();
 }
 
 //	--------------------------------------------------------------------------------
@@ -14933,6 +14937,8 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 //	---------------------------------------------------------------------------
 int CvUnit::maxMoves() const
 {
+	if (plot() == NULL)
+		return 0;
 	// WARNING: Depends on the current embark state of the unit!
 	return (plot()->getOwner() == getOwner() ? ((baseMoves() + plot()->GetPlotMovesChange()) * GC.getMOVE_DENOMINATOR()) : (baseMoves() * GC.getMOVE_DENOMINATOR()));
 }
@@ -18092,6 +18098,26 @@ void CvUnit::ChangeWonderProductionModifier(int iValue)
 {
 	VALIDATE_OBJECT
 	m_iWonderProductionModifier += iValue;
+}
+int CvUnit::GetMilitaryProductionModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iUnitProductionModifier;
+}
+void CvUnit::ChangeMilitaryProductionModifier(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iUnitProductionModifier += iValue;
+}
+int CvUnit::GetNearbyEnemyDamage() const
+{
+	VALIDATE_OBJECT
+	return m_iNearbyEnemyDamage;
+}
+void CvUnit::ChangeNearbyEnemyDamage(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNearbyEnemyDamage += iValue;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -22993,14 +23019,14 @@ void CvUnit::changeExtraAttacks(int iChange)
 
 //	--------------------------------------------------------------------------------
 // Citadel
-bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot, PromotionTypes ePromotion) const
+bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot) const
 {
 	VALIDATE_OBJECT
 
 	if (pInPlot == NULL)
 		pInPlot = plot();
 
-	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage, ePromotion);
+	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26559,6 +26585,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
 		ChangeIsHighSeaRaider((thisPromotion.IsHighSeaRaider()) ? iChange : 0);
 		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
+		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
+		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
