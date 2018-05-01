@@ -13743,12 +13743,23 @@ bool CvUnit::build(BuildTypes eBuild)
 				}
 			}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				kPlayer.changeTotalImprovementsBuilt(1);
+				kPlayer.changeTotalImprovementsBuilt(eImprovement, 1);
+			}
+			else if ((RouteTypes)pkBuildInfo->getRoute() != NO_ROUTE)
+			{
+				kPlayer.changeTotalImprovementsBuilt(1); // This is here even though routes are not technically improvements, because Firaxis put this here (don't change behaviour of existing tables!)
+			}
+#else
 			// Add to player's Improvement count, which will increase cost of future Improvements
-			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT || pkBuildInfo->getRoute() != NO_ROUTE)	// Prevents chopping Forest or Jungle from counting
+			if (pkBuildInfo->getImprovement() != NO_IMPROVEMENT || pkBuildInfo->getRoute() != NO_ROUTE)	// Prevents chopping Forest or Jungle from counting
 			{
 				kPlayer.changeTotalImprovementsBuilt(1);
 			}
+#endif
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -20426,7 +20437,12 @@ if (!bDoEvade)
 				if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
 				{
 					pLoopUnit->setXY(iX, iY, bGroup, bUpdate);
-
+#if defined(MOD_BALANCE_CORE)
+					if (pNewPlot != NULL)
+					{
+						DoNearbyUnitPromotion(pLoopUnit, pNewPlot);
+					}
+#endif
 					// Reset to head node since we just moved some cargo around, and the unit storage in the plot is going to be different now
 					pUnitNode = pOldPlot->headUnitNode();
 				}
