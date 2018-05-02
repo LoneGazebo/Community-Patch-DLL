@@ -8804,7 +8804,7 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 	}
 	else
 	{
-		return m_paiNumUnimprovedResourcesLocal[eResource];
+		return m_paiNumUnimprovedResourcesLocal[eResource] + m_paiNumResourcesLocal[eResource];
 	}
 }
 
@@ -8878,7 +8878,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 		else
 			m_paiNumResourcesLocal.setAt(eResource, m_paiNumResourcesLocal[eResource] + iChange);
 
-		if(!bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
+		if(bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{
 			if(IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 			{
