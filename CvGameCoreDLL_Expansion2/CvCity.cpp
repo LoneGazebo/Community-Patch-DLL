@@ -8800,49 +8800,12 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 	// Actually check to see if we have this Resource to use right now
 	if(!bTestVisible)
 	{
-		return GetNumTotalResource(eResource);
+		return m_paiNumResourcesLocal[eResource];
 	}
-
-	// See if we have the resource linked to this city, but not connected yet
-
-	bool bFoundResourceLinked = false;
-
-	// Loop through all plots near this City to see if we can find eResource - tests are ordered to optimize performance
-	CvPlot* pLoopPlot;
-
-	//Settled on it? We good.
-	if (this->plot()->getResourceType() == eResource)
-		return true;
-
-	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	else
 	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-
-		// Invalid plot
-		if(pLoopPlot == NULL)
-			continue;
-
-		// Doesn't have the resource (ignore team first to save time)
-		if(pLoopPlot->getResourceType() != eResource)
-			continue;
-
-		// Not owned by this player
-		if(pLoopPlot->getOwner() != getOwner())
-			continue;
-
-		// Team can't see the resource here
-		if(pLoopPlot->getResourceType(getTeam()) != eResource)
-			continue;
-
-		// Resource not linked to this city
-		if(pLoopPlot->GetResourceLinkedCity() != this)
-			continue;
-
-		bFoundResourceLinked = true;
-		break;
+		return m_paiNumUnimprovedResourcesLocal[eResource] + m_paiNumResourcesLocal[eResource];
 	}
-
-	return bFoundResourceLinked;
 }
 
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
@@ -8915,7 +8878,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 		else
 			m_paiNumResourcesLocal.setAt(eResource, m_paiNumResourcesLocal[eResource] + iChange);
 
-		if(!bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
+		if(bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{
 			if(IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 			{
