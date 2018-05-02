@@ -263,6 +263,7 @@ public:
 	int GetVictoryPoints() const;
 	int GetExtraMissionarySpreads() const;
 	int GetExtraMissionaryStrength() const;
+	int GetExtraMissionarySpreadsGlobal() const;
 	int GetReligiousPressureModifier() const;
 	int GetEspionageModifier() const;
 	int GetGlobalEspionageModifier() const;
@@ -683,6 +684,7 @@ private:
 	int m_iVictoryPoints;
 	int m_iExtraMissionarySpreads;
 	int m_iExtraMissionaryStrength;
+	int m_iExtraMissionarySpreadsGlobal;
 	int m_iReligiousPressureModifier;
 	int m_iEspionageModifier;
 	int m_iGlobalEspionageModifier;

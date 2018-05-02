@@ -1324,16 +1324,16 @@ WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- TR fix for religion spread
 UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '30' WHERE Type = 'GAMESPEED_MARATHON';
+SET ReligiousPressureAdjacentCity = '25' WHERE Type = 'GAMESPEED_MARATHON';
 
 UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '50' WHERE Type = 'GAMESPEED_EPIC';
+SET ReligiousPressureAdjacentCity = '45' WHERE Type = 'GAMESPEED_EPIC';
 
 UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '70' WHERE Type = 'GAMESPEED_STANDARD';
+SET ReligiousPressureAdjacentCity = '65' WHERE Type = 'GAMESPEED_STANDARD';
 
 UPDATE Gamespeeds
-SET ReligiousPressureAdjacentCity = '100' WHERE Type = 'GAMESPEED_QUICK';
+SET ReligiousPressureAdjacentCity = '95' WHERE Type = 'GAMESPEED_QUICK';
 
 -- Spies
 UPDATE Defines SET Value =  '200' WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';

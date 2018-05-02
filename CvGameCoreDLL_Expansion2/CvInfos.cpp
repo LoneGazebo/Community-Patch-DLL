@@ -6539,6 +6539,7 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
 #if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iNumCitiesTourismCostMod(5),
 	m_iTradeRouteDistanceMod(100),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -6646,6 +6647,11 @@ int CvWorldInfo::GetNumCitiesTechCostMod() const
 }
 #if defined(MOD_TRADE_ROUTE_SCALING)
 //------------------------------------------------------------------------------
+int CvWorldInfo::GetNumCitiesTourismCostMod() const
+{
+	return m_iNumCitiesTourismCostMod;
+}
+//------------------------------------------------------------------------------
 int CvWorldInfo::getTradeRouteDistanceMod() const
 {
 	return m_iTradeRouteDistanceMod;
@@ -6724,6 +6730,7 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iNumCitiesTourismCostMod = kResults.GetInt("NumCitiesTourismCostMod");
 	m_iMinDistanceCities = kResults.GetInt("MinDistanceCities");
 	m_iMinDistanceCityStates = kResults.GetInt("MinDistanceCityStates");
 	m_iReformationPercent = kResults.GetInt("ReformationPercentRequired");
@@ -6759,6 +6766,7 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) return false;
 	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
 	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
 	if(m_iReformationPercent != rhs.m_iReformationPercent) return false;
@@ -6811,6 +6819,7 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(67, loadFrom, m_iNumCitiesTourismCostMod, 5);
 	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCities, 3);
 	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCityStates, 3);
 	MOD_SERIALIZE_READ(67, loadFrom, m_iReformationPercent, 100);
@@ -6871,6 +6880,7 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(saveTo, m_iNumCitiesTourismCostMod);
 	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCities);
 	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCityStates);
 	MOD_SERIALIZE_WRITE(saveTo, m_iReformationPercent);

@@ -589,8 +589,12 @@ function UpdateUnitPromotions(unit)
 			IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, controlTable.UnitPromotionImage );
 
             -- Tooltip
+			local sDurationTip = ""
+			if unit:GetPromotionDuration(unitPromotionID) > 0 then
+				sDurationTip = " (" .. Locale.ConvertTextKey("TXT_KEY_STR_TURNS", unit:GetPromotionDuration(unitPromotionID) - (Game.GetGameTurn() - unit:GetTurnPromotionGained(unitPromotionID))) .. ")"
+			end
             local strToolTip = Locale.ConvertTextKey(unitPromotion.Description);
-            strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(unitPromotion.Help)
+            strToolTip = strToolTip .. sDurationTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(unitPromotion.Help)
             controlTable.UnitPromotionImage:SetToolTipString(strToolTip);
             
         end
@@ -734,7 +738,16 @@ function UpdateUnitStats(unit)
         local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_CARGO_CAPACITY_TT", unit:GetName());
         Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
         Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
-    else
+	elseif unit:GetBuilderStrength() > 0 then
+		iRangedStrength = unit:GetBuilderStrength() .. "      ";
+		Controls.UnitRangedAttackBox:SetHide(false);
+		local rangeStrengthStr = Locale.ConvertTextKey( "TXT_KEY_UPANEL_BUILDER_STRENGTH" );
+		Controls.UnitStatNameRangedAttack:SetText(rangeStrengthStr);
+        Controls.UnitStatRangedAttack:SetText(iRangedStrength);
+		local rangeStrengthTT = Locale.ConvertTextKey( "TXT_KEY_UPANEL_BUILDER_STRENGTH_TT" );
+        Controls.UnitStatRangedAttack:SetToolTipString(rangeStrengthTT);
+        Controls.UnitStatNameRangedAttack:SetToolTipString(rangeStrengthTT);
+	else
         Controls.UnitRangedAttackBox:SetHide(true);
     end        
     

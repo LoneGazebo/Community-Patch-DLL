@@ -688,15 +688,10 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_SWAP_UNITS())
 			{
-				CvPlot* pOriginationPlot;
-				CvPlot* pTargetPlot;
-
-				// Get target plot
-				pTargetPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
-
+				CvPlot* pTargetPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
 				if(pTargetPlot != NULL)
 				{
-					pOriginationPlot = hUnit->plot();
+					CvPlot* pOriginationPlot = hUnit->plot();
 
 					if(pTargetPlot->getNumUnits() < 1)
 					{
@@ -713,11 +708,18 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						if(pUnit2->AreUnitsOfSameType(*(hUnit)) && pUnit2->ReadyToMove())
 						{
 							// Start the swap
-							hUnit->UnitPathTo(HeadMissionData(kMissionQueue)->iData1, HeadMissionData(kMissionQueue)->iData2, CvUnit::MOVEFLAG_IGNORE_STACKING);
+							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))
+							{
+								int iResult = 0;
+								while (iResult >= 0)
+									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
+								int iResult2 = 0;
+								while (iResult2 >= 0)
+									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 1, CvUnit::MOVEFLAG_IGNORE_STACKING);
 
-							// Move the other unit back out
-							pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 0);
-							bDone = true;
+								bDone = true;
+								break;
+							}
 						}
 					}
 				}
@@ -803,7 +805,8 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
 			{
-				if(hUnit->at(kMissionData.iData1, kMissionData.iData2))
+				//don't check against the target plot directly in case of approximate pathfinding
+				if(hUnit->m_kLastPath.empty())
 				{
 					bDone = true;
 #ifdef LOG_UNIT_MOVES
@@ -1512,6 +1515,23 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 		if(hUnit->canMove())
 		{
+			if (pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_HEAL() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_ALERT() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_SKIP() )
+			{
+				//start the animation right now to give feedback to the player
+				if (!hUnit->IsFortified() && !hUnit->hasMoved() && hUnit->canFortify(hUnit->plot()))
+					hUnit->triggerFortifyAnimation(true);
+			}
+			else if (hUnit->IsFortified())
+			{
+				// unfortify for any other mission
+				hUnit->triggerFortifyAnimation(false);
+			}
+
+			// ---------- now the real missions with action -----------------------
+
 			if( pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
@@ -1525,16 +1545,6 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), 0);
 				}
-			}
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY())
-			{
-				hUnit->SetFortifiedThisTurn(true);
-			}
-
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_HEAL() ||
-			        pkQueueData->eMissionType == CvTypes::getMISSION_ALERT())
-			{
-				hUnit->SetFortifiedThisTurn(true);
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_SET_UP_FOR_RANGED_ATTACK())
@@ -1760,6 +1770,12 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				CvAssertMsg(pPlot, "pPlot is null! OH NOES, JOEY!");
 				if (pPlot)
 				{
+					if (GC.getGame().isNetworkMultiPlayer())
+					{
+						// This should fix TR/cargo unit related desyncs (different paths etc). I suspect there is still the potential for desyncs if the user opens the TR popup but something changes before they issue the command. Even just opening the popup could cause problems. I think a net message is in order for a real fix.
+						GC.getGame().GetGameTrade()->InvalidateTradePathCache(hUnit->getOwner()); // although we are only interested in one trade route, we invalidate all since the originating client has updated their whole cache when opening the popup
+					}
+
 					if(hUnit->makeTradeRoute(pPlot->getX(), pPlot->getY(), (TradeConnectionType)pkQueueData->iData2))
 					{
 						bAction = true;

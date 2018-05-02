@@ -5040,7 +5040,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
 			{
-				int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) * 10;
+				int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(pCity->getOwner()).GetEconomicMight());
 				//If we've already got this resource, divide the value by the amount.
 				if(m_pPlayer->getNumResourceTotal(eResource, false) > 0)
 				{

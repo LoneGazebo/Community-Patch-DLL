@@ -2662,7 +2662,8 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				// Cultural influence bump
 				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
 
-				iAdjustedTechDifference += iInfluenceBoost;
+				if (iInfluenceBoost > 0)
+					iAdjustedTechDifference += iInfluenceBoost;
 
 				return iAdjustedTechDifference * 100;
 			}
@@ -2841,7 +2842,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 							bool bOurMonopoly = false;
 							bool bTheirMonopoly = false;
 							if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
-								bOurMonopoly = true;;
+								bOurMonopoly = true;
 							if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
 								bTheirMonopoly = true;
 
@@ -6955,7 +6956,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 #if defined(MOD_BALANCE_CORE)
 	//precalculate this, it's expensive
-	bool bHaveTourism = (m_pPlayer->GetCulture()->GetTourism() > 0);
+	bool bHaveTourism = (m_pPlayer->GetCulture()->GetTourism() / 100 > 0);
 #endif
 
 	// GOLD GOLD GOLD GOLD

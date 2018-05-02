@@ -4726,7 +4726,7 @@ int CvPlayerReligions::GetCityStateYieldModifier(PlayerTypes ePlayer) const
 int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
 {
 	int iRtnValue = 0;
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
 	//if(eReligion == NO_RELIGION)
 	//{
 	//	eReligion = GetReligionInMostCities();
@@ -5445,10 +5445,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 				{
 					if (kPlayer.GetEspionage()->GetSpyIndexInCity(m_pCity) != -1)
 					{
-						if (GetNumFollowers(eReligion) != 0)
-						{
-							iPressure += iSpyPressure * GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
-						}
+						iPressure += iSpyPressure * GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 					}
 				}
 			}
@@ -6423,11 +6420,12 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 			if (eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetCurrentReligion(false) == eMajority)
 			{
+				bool paid = false;
 				if (iGoldBonus > 0)
 				{
 					GET_PLAYER(eReligionController).GetTreasury()->ChangeGold(iGoldBonus);
 #if defined(MOD_BALANCE_CORE)
-					m_pCity->SetPaidAdoptionBonus(eMajority, true);
+					paid = true;
 #else
 					SetPaidAdoptionBonus(true);
 #endif
@@ -6445,6 +6443,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+				
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
@@ -6454,10 +6453,12 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					int iValue = pNewReligion->m_Beliefs.GetYieldFromConversion(eYield, eReligionController, pHolyCity);
 					if(iValue > 0)
 					{
-						m_pCity->SetPaidAdoptionBonus(eMajority, true);
+						paid = true;
 						break;
 					}
 				}
+				if (paid)
+					m_pCity->SetPaidAdoptionBonus(eMajority, true);
 			}
 #endif
 		}
@@ -6592,7 +6593,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				CvPlayer& kCityOwnerPlayer = GET_PLAYER(m_pCity->getOwner());
 
 				// Did he found another religion?
-				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eCityOwnerReligion = kCityOwnerPlayer.GetReligions()->GetCurrentReligion(false);
 				if(eCityOwnerReligion >= RELIGION_PANTHEON)
 				{
 					int iPoints = 0;
@@ -9006,7 +9007,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	{
 		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && (pCity->GetNumResourceLocal(eResource, false, true) > 0 || pCity->GetNumResourceLocal(eResource, true, true) > 0 || pCity->GetNumResourceLocal(eResource) > 0 || m_pPlayer->getNumResourceAvailable(eResource) > 0))
+		if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && (pCity->GetNumResourceLocal(eResource) > 0 || pCity->GetNumResourceLocal(eResource) > 0 || pCity->GetNumResourceLocal(eResource) > 0 || m_pPlayer->getNumResourceAvailable(eResource) > 0))
 		{
 			iNumLuxuries++;
 		}

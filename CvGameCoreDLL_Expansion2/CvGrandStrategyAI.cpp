@@ -850,7 +850,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	// Loop through Players to see how we are doing on Tourism and Culture
 	PlayerTypes eLoopPlayer;
 	int iOurCulture = m_pPlayer->GetTotalJONSCulturePerTurn();
-	int iOurTourism = m_pPlayer->GetCulture()->GetTourism();
+	int iOurTourism = m_pPlayer->GetCulture()->GetTourism() / 100;
 	int iNumCivsBehindCulture = 0;
 	int iNumCivsAheadCulture = 0;
 	int iNumCivsBehindTourism = 0;
@@ -872,7 +872,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 			{
 				iNumCivsBehindCulture++;
 			}
-			if (iOurTourism > kPlayer.GetCulture()->GetTourism())
+			if (iOurTourism > kPlayer.GetCulture()->GetTourism() / 100)
 			{
 				iNumCivsAheadTourism++;
 			}
@@ -905,7 +905,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 
 	//Add in our base culture value.
 	iPriorityBonus += (m_pPlayer->getJONSCulture() / 30);
-	iPriorityBonus += (m_pPlayer->GetCulture()->GetTourism() / 30);
+	iPriorityBonus += (m_pPlayer->GetCulture()->GetTourism() / 130);
 
 	iPriorityBonus += (m_pPlayer->GetMaxEffectiveCities() * -10);
 
@@ -1801,7 +1801,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 		if(GET_PLAYER(eMajor).isAlive())
 		{
 			iWorldCultureAverage += GET_PLAYER(eMajor).GetJONSCultureEverGenerated();
-			iWorldTourismAverage += GET_PLAYER(eMajor).GetCulture()->GetTourism();
+			iWorldTourismAverage += GET_PLAYER(eMajor).GetCulture()->GetTourism() / 100;
 			iNumPlayersAlive++;
 		}
 	}
@@ -1953,12 +1953,12 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 		else if(strGrandStrategyName == "AIGRANDSTRATEGY_CULTURE")
 		{
 			int iOurInfluence = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
-			int iOurTourism = GetPlayer()->GetCulture()->GetTourism();
+			int iOurTourism = GetPlayer()->GetCulture()->GetTourism() / 100;
 			int iOurCulture = GetPlayer()->GetTotalJONSCulturePerTurn();
 			int iOurTotal = (iOurCulture + iOurTourism) * (max(1, iOurInfluence));
 			
 			int iTheirInfluence = GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn();
-			int iTheirTourism = GET_PLAYER(ePlayer).GetCulture()->GetTourism();
+			int iTheirTourism = GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100;
 			int iTheirCulture = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurn();
 			int iTheirTotal = (iTheirCulture + iTheirTourism) * (max(1, iTheirInfluence));
 
@@ -2100,7 +2100,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	// Compare their Tourism to the world average; Possible range is 75 to -75
 	if(iWorldTourismAverage > 0)
 	{
-		iRatio = (GET_PLAYER(ePlayer).GetCulture()->GetTourism() - iWorldTourismAverage) * /*75*/ GC.getAI_GS_TOURISM_RATIO_MULTIPLIER() / iWorldTourismAverage;
+		iRatio = (GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100 - iWorldTourismAverage) * /*75*/ GC.getAI_GS_TOURISM_RATIO_MULTIPLIER() / iWorldTourismAverage;
 		if (iRatio > GC.getAI_GS_TOURISM_RATIO_MULTIPLIER())
 		{
 			iCulturePriority += GC.getAI_GS_TOURISM_RATIO_MULTIPLIER();

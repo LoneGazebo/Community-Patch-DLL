@@ -234,6 +234,18 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 	}
 
+	eVictory = (VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	if (eVictory != NO_VICTORY && ePrereqVictory == eVictory)
+	{
+		if (!GC.getGame().isVictoryValid(ePrereqVictory))
+		{
+			return 0;
+		}
+		else
+		{
+			iTempWeight *= 100;
+		}
+	}
 	return iTempWeight;
 }
 #endif

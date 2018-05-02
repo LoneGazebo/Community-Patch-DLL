@@ -949,8 +949,6 @@ public:
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 
 	int GetDefenseBuildValue(PlayerTypes eOwner);
-	void UpdatePlotsWithLOS();
-	bool GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const;
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
@@ -1058,11 +1056,6 @@ protected:
 
 	char* m_szScriptData;
 	short* m_paiBuildProgress;
-
-#if defined(SHOW_PLOT_POPUP)
-	float m_fPopupDelay;
-#endif
-
 	CvUnit* m_pCenterUnit;
 
 	short m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
