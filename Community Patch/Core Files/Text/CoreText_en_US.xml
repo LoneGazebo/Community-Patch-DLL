@@ -6430,13 +6430,13 @@
 
 		<!-- Great Person Progress -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS">
-			<Text>Empire-Wide Bonus Great Person Progress</Text>
+			<Text>Empire-Wide Bonus Great Person Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE">
-			<Text>Bonus Great Person Progress Update</Text>
+			<Text>Bonus Great Person Points Update</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_IN_CITY">
-			<Text>Bonus Great Person Progress in {1_City}!</Text>
+			<Text>Bonus Great Person Points in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS">
 			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
