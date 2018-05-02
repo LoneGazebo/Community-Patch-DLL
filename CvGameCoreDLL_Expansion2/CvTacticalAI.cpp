@@ -4763,6 +4763,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
+	GetTacticalAnalysisMap()->ClearDynamicFlags();
 
 	if (!pArmy || !pTarget)
 		return false;
@@ -4837,12 +4838,14 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 				iScore -= 25; //can override 10 defense bonus
 
 			//avoid enemies right now
-			if(pCell->IsSubjectToAttack())
+			if (m_pPlayer->GetPossibleAttackers(*pPlot).size() > 0)
+			{
 				iScore -= 100;
 
-			//be careful with ranged units here
-			if (pCell->IsVisibleToEnemy() && pCell->IsSubjectToAttack())
-				bSafeForDeployment = false;
+				//extra careful with ranged units here
+				if (pCell->IsVisibleToEnemy())
+					bSafeForDeployment = false;
+			}
 
 			//todo: maybe avoid "slow" plot? but ending the turn there is usually good.
 			//need to know a unit's previous position before making the call ...
@@ -9941,6 +9944,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,Reachab
 
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
+	GetTacticalAnalysisMap()->ClearDynamicFlags();
 
 	for (int iDX = -m_iDeployRadius; iDX <= m_iDeployRadius; iDX++)
 	{

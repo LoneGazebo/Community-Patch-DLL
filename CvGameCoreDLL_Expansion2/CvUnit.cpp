@@ -4223,6 +4223,12 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		iOurDefense /= 2;
 	}
 
+	//special check for naval garrison in city
+	if (getDomainType() == DOMAIN_SEA && !plot()->isWater())
+	{
+		iOurDefense /= 2;
+	}
+
 	if(NULL == pAttacker)
 	{
 		if(pDefender->currInterceptionProbability() > 0)
@@ -4250,6 +4256,12 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker);
 	if(::isWorldUnitClass(pDefender->getUnitClassType()))
+	{
+		iTheirDefense /= 2;
+	}
+
+	//special check for naval garrison in city
+	if (pDefender->getDomainType()==DOMAIN_SEA && !pDefender->plot()->isWater())
 	{
 		iTheirDefense /= 2;
 	}

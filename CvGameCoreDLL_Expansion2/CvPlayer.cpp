@@ -46111,25 +46111,35 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 
 	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport())
 	{
+		bool bFound = false;
 		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
 		{
 			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
 			{
 				m_unitsAreaEffectPositive[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
 				break;
 			}
 		}
+
+		if (!bFound)
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 
 	if (pUnit->getNearbyEnemyCombatMod() < 0)
 	{
+		bool bFound = false;
 		for ( size_t i=0; i<m_unitsAreaEffectNegative.size(); i++ )
 		{
 			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
 			{
 				m_unitsAreaEffectNegative[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
 				break;
 			}
+
+			if (!bFound)
+				m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
 	}
 }

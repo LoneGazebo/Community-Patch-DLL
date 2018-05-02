@@ -1201,12 +1201,14 @@ bool CvPlot::isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer) 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isLake() const
 {
+	//quick check to avoid the hash lookup of the landmass
+	if (!isWater())
+		return false;
+
 	CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
 
 	if(pLandmass != NULL)
-	{
 		return pLandmass->isLake();
-	}
 
 	return false;
 }
