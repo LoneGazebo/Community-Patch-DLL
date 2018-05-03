@@ -14,7 +14,7 @@ namespace NetMessageExt
 	{
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent);
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent);
-		void RefreshTradeRouteCache(PlayerTypes ePlayer);
+		void PlayerFirstEndTurn();
 	}
 
 	// Used to respond to sent messages in the normal fashion
@@ -22,7 +22,7 @@ namespace NetMessageExt
 	{
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent);
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent);
-		void RefreshTradeRouteCache(PlayerTypes ePlayer);
+		void PlayerFirstEndTurn(PlayerTypes ePlayer);
 	}
 }
 
