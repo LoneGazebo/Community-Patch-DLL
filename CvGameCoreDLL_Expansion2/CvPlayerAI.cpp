@@ -698,8 +698,15 @@ void CvPlayerAI::AI_considerAnnex()
 	if (eCourthouseType == NO_BUILDINGCLASS)
 		return;
 
-	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
+	for (pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+	{
+		//if we're already converting one, stop!
+		if (pCity->IsOccupied() && !pCity->IsNoOccupiedUnhappiness())
+			return;
+	}
+
+	std::vector<CityAndProduction> aCityAndProductions;
 	pCity = NULL;
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{

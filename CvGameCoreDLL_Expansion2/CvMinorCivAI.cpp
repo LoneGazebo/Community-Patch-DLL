@@ -1245,7 +1245,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		}
 		if(pkSmallAwardInfo->GetGPPointsGlobal() > 0)
 		{
-			int iBonus = iEra * pkSmallAwardInfo->GetGPPointsGlobal();
+			int iBonus = pkSmallAwardInfo->GetGPPointsGlobal();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetEconomicMight() + 1) * 2;
@@ -1724,7 +1724,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer)
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	else if(eType == MINOR_CIV_QUEST_CONTEST_TOURISM)
 	{
-		iValue = GET_PLAYER(ePlayer).GetCulture()->GetTourism();
+		iValue = GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100;
 	}
 #endif
 
@@ -3214,7 +3214,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	// Tourism
 	else if(m_eType == MINOR_CIV_QUEST_CONTEST_TOURISM)
 	{
-		int iValue = pAssignedPlayer->GetCulture()->GetTourism();
+		int iValue = pAssignedPlayer->GetCulture()->GetTourism() / 100;
 		m_iData1 = iValue;
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
@@ -5050,7 +5050,7 @@ void CvMinorCivAI::DoPickPersonality()
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	int* pFlavors = pFlavorManager->GetAllPersonalityFlavors();
 
-	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, m_pPlayer->GetEconomicMight());
+	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, m_pPlayer->GetID());
 	if (eRandPersonality == NO_MINOR_CIV_PERSONALITY_TYPE)
 		eRandPersonality = MINOR_CIV_PERSONALITY_FRIENDLY;
 #if defined(MOD_API_EXTENSIONS)
@@ -11512,9 +11512,9 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iChangeThisTurn += /*-100*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN();
 
 		//Influence decay increases the higher your influence over 100;
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 0)
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 100)
 		{
-			float iInfluenceTotal = GetBaseFriendshipWithMajorTimes100(ePlayer) * .01f;
+			float iInfluenceTotal = GetBaseFriendshipWithMajorTimes100(ePlayer) * .001f;
 
 			if (iInfluenceTotal != 0)
 				iChangeThisTurn += (int)iInfluenceTotal*-1;

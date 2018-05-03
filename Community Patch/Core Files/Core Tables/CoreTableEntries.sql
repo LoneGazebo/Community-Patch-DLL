@@ -609,6 +609,9 @@ ALTER TABLE Buildings ADD COLUMN 'NationalFollowerPopRequired' INTEGER DEFAULT 0
 -- Global Religious Followers Needed for a Building
 ALTER TABLE Buildings ADD COLUMN 'GlobalFollowerPopRequired' INTEGER DEFAULT 0;
 
+-- Gives all current and future missionaries an extra x spread(s)
+ALTER TABLE Buildings ADD COLUMN 'ExtraMissionarySpreadsGlobal' INTEGER DEFAULT 0;
+
 -- Allows for Reformation Policy
 ALTER TABLE Buildings ADD COLUMN 'IsReformation' BOOLEAN DEFAULT 0;
 
@@ -980,6 +983,10 @@ ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'FreeBuildingClassIfFirst' TEXT DEFAULT NULL;
 ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
 
+ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
+
+
 -- Advanced Action Spy Stuff (for CBP)
 
 -- Spies cannot fail advanced actions -- they won't trigger unless they can do damage
@@ -1065,6 +1072,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
+ALTER TABLE Worlds ADD COLUMN 'NumCitiesTourismCostMod' INTEGER DEFAULT 0;
 
 -- New City Plot Yields Method
 ALTER TABLE Yields ADD COLUMN 'MinCityFlatFreshWater' INTEGER DEFAULT 0;

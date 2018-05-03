@@ -320,6 +320,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetNumCitiesPolicyCostMod);
 	Method(GetNumCitiesTechCostMod);
+	Method(GetNumCitiesTourismCostMod);
 
 	Method(GetBuildingYieldChange);
 	Method(GetBuildingYieldModifier);
@@ -2223,6 +2224,12 @@ int CvLuaGame::lGetNumCitiesPolicyCostMod(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaGame::lGetNumCitiesTourismCostMod(lua_State* L)
+{
+	lua_pushinteger(L, GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod());
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesTechCostMod(lua_State* L)
 {
 	const PlayerTypes ePlayer = GC.getGame().getActivePlayer();
@@ -3461,8 +3468,8 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 #if defined(MOD_BALANCE_CORE)
-		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
 #else
 		int iToDelta = pFromCity->GetBaseTourism() * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
 		int iFromDelta = pToCity->GetBaseTourism() * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);

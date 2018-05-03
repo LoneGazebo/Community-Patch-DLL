@@ -983,6 +983,7 @@ bool GetGameOption(const char* szOptionName, int& iValue)
 		if(kLookup.Step())
 		{
 			iValue = kLookup.GetInt(0);
+			s_GameOptions.push_back(CustomOption(szOptionName, iValue));
 			return true;
 		}
 	}
@@ -1550,6 +1551,8 @@ bool GetMapOption(const char* szOptionName, int& iValue)
 		if(kLookup.Step())
 		{
 			iValue = kLookup.GetInt(0);
+			//Didn't find the option, push it.
+			s_MapOptions.push_back(CustomOption(szOptionName, iValue));
 			return true;
 		}
 	}

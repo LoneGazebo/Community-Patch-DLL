@@ -696,7 +696,7 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 
 //	--------------------------------------------------------------------------------
 /// Get the whole path
-SPath CvAStar::GetCurrentPath() const
+SPath CvAStar::GetCurrentPath(bool bUseUiTurnCountConvention) const
 {
 	SPath ret;
 	ret.iNormalizedDistance = INT_MAX;
@@ -720,7 +720,7 @@ SPath CvAStar::GetCurrentPath() const
 		ret.vPlots.push_back(SPathNode(pNode));
 
 		//switch counting convention. if zero moves left, consider this as plus one turns
-		if (ret.vPlots.back().moves == 0)
+		if (ret.vPlots.back().moves == 0 && bUseUiTurnCountConvention)
 			ret.vPlots.back().turns++;
 
 		pNode = pNode->m_pParent;
@@ -2417,7 +2417,7 @@ bool CvStepFinder::Configure(PathType ePathType)
 //	--------------------------------------------------------------------------------
 /// configure the pathfinder and do the magic
 ///	atomic call, should be threadsafe
-SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data, bool bUseUiTurnCountConvention)
 {
 	//make sure we don't call this from dll and lua at the same time
 	CvGuard guard(m_cs);
@@ -2426,18 +2426,18 @@ SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, co
 		return SPath();
 
 	if (CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
-		return CvAStar::GetCurrentPath();
+		return CvAStar::GetCurrentPath(bUseUiTurnCountConvention);
 	else
 		return SPath();
 }
 
 //wrapper for CvPlot*
-SPath CvPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data)
+SPath CvPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data, bool bUseUiTurnCountConvention)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
 		return SPath();
 
-	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
+	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data, bUseUiTurnCountConvention);
 }
 
 //	--------------------------------------------------------------------------------

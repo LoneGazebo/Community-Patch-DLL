@@ -1299,6 +1299,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityFlipped				"CityFlipped", "iii"
 #define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
 #define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
+#define GAMEEVENT_FreeCitySelector			"SetFreeCityType", "ii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE

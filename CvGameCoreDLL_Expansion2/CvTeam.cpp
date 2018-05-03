@@ -1452,6 +1452,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 		GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
 		GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES) 
 		{
@@ -1463,6 +1464,13 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			}
 		}
 #endif	
+
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+		// Bump Units out of places they shouldn't be
+		GC.getMap().verifyUnitValidPlot();
+#endif
+
 		for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
 		{
 			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
@@ -1655,11 +1663,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 
 	// Meet the team if we haven't already
 	meet(eTeam, false);
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
-#endif
 
 #else
 

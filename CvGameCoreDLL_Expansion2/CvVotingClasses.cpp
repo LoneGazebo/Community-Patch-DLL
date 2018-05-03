@@ -12963,7 +12963,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iScore += 1000;
 				}
-				if(GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() > GetPlayer()->GetCulture()->GetTourism())
+				if (GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() / 100 > GetPlayer()->GetCulture()->GetTourism() / 100)
 				{
 					iScore += 500;
 				}
@@ -13024,7 +13024,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iScore -= 1000;
 				}
-				if(GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() > GetPlayer()->GetCulture()->GetTourism())
+				if (GET_PLAYER(eLoopPlayer).GetCulture()->GetTourism() / 100 > GetPlayer()->GetCulture()->GetTourism() / 100)
 				{
 					iScore -= 500;
 				}

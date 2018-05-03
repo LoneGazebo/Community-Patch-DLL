@@ -297,9 +297,10 @@ public:
 #endif
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false, bool bNoImprovement = false);
+	int GetNumResourceLocal(ResourceTypes eResource, bool bImproved = false);
 #endif
-	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
+	int GetNumTotalResource(ResourceTypes eResource) const;
+	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool bUnimproved = false);
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE_DEALS)
@@ -1897,6 +1898,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiNoResource;
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreeResource;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumResourcesLocal;
+	FAutoVariable<std::vector<int>, CvCity> m_paiNumUnimprovedResourcesLocal;
 	FAutoVariable<std::vector<int>, CvCity> m_paiProjectProduction;
 	FAutoVariable<std::vector<int>, CvCity> m_paiSpecialistProduction;
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitProduction;

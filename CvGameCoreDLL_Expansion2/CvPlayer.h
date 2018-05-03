@@ -1391,6 +1391,9 @@ public:
 
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
+
+	void SetNullifyInfluenceModifier(bool bValue);
+	bool IsNullifyInfluenceModifier() const;
 #endif
 
 	int getMilitaryFoodProductionCount() const;
@@ -1400,6 +1403,9 @@ public:
 	int GetGoldenAgeCultureBonusDisabledCount() const;
 	bool IsGoldenAgeCultureBonusDisabled() const;
 	void ChangeGoldenAgeCultureBonusDisabledCount(int iChange);
+
+	void ChangeNumMissionarySpreads(int iChange);
+	int GetNumMissionarySpreads() const;
 
 	int GetSecondReligionPantheonCount() const;
 	bool IsSecondReligionPantheon() const;
@@ -2266,7 +2272,7 @@ public:
 	int getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const;
 
 	int getProjectMaking(ProjectTypes eIndex) const;
-	void changeProjectMaking(ProjectTypes eIndex, int iChange);
+	void changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCity = NULL);
 
 	int getHurryCount(HurryTypes eIndex) const;
 	bool IsHasAccessToHurry(HurryTypes eIndex) const;
@@ -3241,9 +3247,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCapitalCount;
 	FAutoVariable<int, CvPlayer> m_iTradeRouteLandDistanceModifier;
 	FAutoVariable<int, CvPlayer> m_iTradeRouteSeaDistanceModifier;
+	FAutoVariable<bool, CvPlayer> m_bNullifyInfluenceModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMilitaryFoodProductionCount;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeCultureBonusDisabledCount;
+	FAutoVariable<int, CvPlayer> m_iNumMissionarySpreads;
 	FAutoVariable<int, CvPlayer> m_iSecondReligionPantheonCount;
 	FAutoVariable<int, CvPlayer> m_iEnablesSSPartHurryCount;
 	FAutoVariable<int, CvPlayer> m_iEnablesSSPartPurchaseCount;

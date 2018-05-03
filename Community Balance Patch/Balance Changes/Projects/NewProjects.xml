@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/28/2018 9:12:29 PM -->
+<GameData>
+	<Projects>
+		<Row>
+			<Type>PROJECT_UTOPIA_PROJECT</Type>
+			<Description>TXT_KEY_PROJECT_UTOPIA_PROJECT</Description>
+			<Help>TXT_KEY_PROJECT_UTOPIA_PROJECT_HELP</Help>
+			<Civilopedia>TXT_KEY_PROJECT_UTOPIA_PROJECT_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_PROJECT_UTOPIA_PROJECT_STRATEGY</Strategy>
+			<VictoryPrereq>VICTORY_CULTURAL</VictoryPrereq>
+			<TechPrereq>TECH_TELECOM</TechPrereq>
+			<MaxGlobalInstances>-1</MaxGlobalInstances>
+			<MaxTeamInstances>1</MaxTeamInstances>
+			<Cost>6000</Cost>
+			<IdeologyRequired>true</IdeologyRequired>
+			<InfluenceAllRequired>true</InfluenceAllRequired>
+			<IconAtlas>BW_ATLAS_2</IconAtlas>
+			<PortraitIndex>43</PortraitIndex>
+		</Row>
+	</Projects>
+	<Project_Flavors>
+		<Row>
+			<ProjectType>PROJECT_UTOPIA_PROJECT</ProjectType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>300</Flavor>
+		</Row>
+	</Project_Flavors>
+</GameData>

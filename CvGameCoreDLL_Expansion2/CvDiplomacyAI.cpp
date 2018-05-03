@@ -11850,19 +11850,6 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 				iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_CRAMPED_MULTIPLIER();
 			}
 
-			// JON: Is this Strategy deprecated?
-
-			// If we're not actually trying to expand any more, then we shouldn't be as upset about land!
-			//EconomicAIStrategyTypes eStrategyNormalExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION", true);
-
-			//if (eStrategyNormalExpansion != NO_ECONOMICAISTRATEGY)
-			//{
-			//	if (!GetPlayer()->GetEconomicAI()->IsUsingStrategy(eStrategyNormalExpansion))
-			//	{
-			//		iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_NO_EXPANSION_STRATEGY();
-			//	}
-			//}
-
 			// If the player has deleted the EXPANSION Flavor we have to account for that
 			iExpansionFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
 
@@ -13349,7 +13336,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				{
 					bWar = true;
 				}
-				if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 0)
+				if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
 				{
 					bCulture = true;
 				}
@@ -16063,17 +16050,13 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 
 	int iWarMongerValue = GC.getWARMONGER_THREAT_MINOR_ATTACKED_WEIGHT();
-	if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+	if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer) || GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
 	{
-		iWarMongerValue += GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-	}
-	else if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
-	{
-		iWarMongerValue += GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+		iWarMongerValue = GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
 	}
 	else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
 	{
-		iWarMongerValue += GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+		iWarMongerValue = GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
 	}
 
 	iWarMongerValue *= (100 + GetOtherPlayerNumMinorsAttacked(ePlayer));
@@ -16193,17 +16176,13 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
 
 	int iWarMongerValue = GC.getWARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT();
-	if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+	if (GC.getGame().GetGameLeagues()->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer) || GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
 	{
-		iWarMongerValue += GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
-	}
-	else if (GC.getGame().GetGameLeagues()->IsWorldWar(GetPlayer()->GetID()) > 0)
-	{
-		iWarMongerValue += GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
+		iWarMongerValue = GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_WAR();
 	}
 	else if (GC.getGame().GetGameLeagues()->GetUnitMaintenanceMod(GetPlayer()->GetID()) > 0)
 	{
-		iWarMongerValue += GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
+		iWarMongerValue = GC.getWARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE();
 	}
 
 	iWarMongerValue *= (100 + GetOtherPlayerNumMajorsAttacked(ePlayer));
@@ -23795,7 +23774,7 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 			bWar = true;
 		}
 		//More than double our influence, and we both have some?
-		if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 0 && GetPlayer()->GetCulture()->GetNumCivsInfluentialOn() > 0 && (GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > (GetPlayer()->GetCulture()->GetNumCivsInfluentialOn() * 2)))
+		if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 1 && GetPlayer()->GetCulture()->GetNumCivsInfluentialOn() > 0 && (GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > (GetPlayer()->GetCulture()->GetNumCivsInfluentialOn() * 2)))
 		{
 			bCulture = true;
 		}
@@ -34686,6 +34665,12 @@ bool CvDiplomacyAI::IsCloseToCultureVictory()
 			}
 		}
 	}
+	ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+	if (eUtopia != NO_PROJECT)
+	{
+		if (GET_TEAM(GetPlayer()->getTeam()).getProjectMaking(eUtopia) > 0)
+			return true;
+	}
 	return false;
 }
 bool CvDiplomacyAI::IsCloseToDiploVictory()
@@ -39954,7 +39939,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 					//Is the conquered player embargoed (i.e. sanctioned)? If so, half warmonger penalties against this civ.
 					if(GC.getGame().GetGameLeagues()->IsTradeEmbargoed(eMajor, eConquered))
 					{
-						iWarmongerStatusModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+						iWarmongerStatusModifier -= GC.getWARMONGER_THREAT_MODIFIER_LARGE();
 					}
 
 					//JUST WAR
@@ -39962,7 +39947,7 @@ int CvDiplomacyAIHelpers::GetPlayerCaresValue(PlayerTypes eConqueror, PlayerType
 					//Is the Just War resolution enabled? If so, greatly reduce warmonger penalties.
 					if(MOD_DIPLOMACY_CITYSTATES && GC.getGame().GetGameLeagues()->IsWorldWar(eMajor) > 0)
 					{
-						iWarmongerStatusModifier += GC.getWARMONGER_THREAT_MODIFIER_LARGE();
+						iWarmongerStatusModifier -= GC.getWARMONGER_THREAT_MODIFIER_LARGE();
 					}
 					//WORLD PEACE
 

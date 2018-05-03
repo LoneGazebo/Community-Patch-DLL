@@ -221,7 +221,7 @@ function RefreshList()
 		    sTT = sTT .. "[NEWLINE][ICON_BULLET] " .. pDestCity:GetName()
 			local pDestPlayer = Players[pDestCity:GetOwner()]
 			if (pDestPlayer:IsMinorCiv()) then
-		      sTT = sTT .. " (City State)"
+			  sTT = sTT .. " (" .. Locale.Lookup("TXT_KEY_CIV_MINOR_DESC") .. ")"
 
               if (pDestPlayer:IsMinorCivActiveQuestForPlayer(iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE)) then
                 sTT = sTT .. " [ICON_INTERNATIONAL_TRADE]"

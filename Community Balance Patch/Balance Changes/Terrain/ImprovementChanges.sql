@@ -326,6 +326,11 @@ SET RequiresFlatlandsOrFreshWater = '0'
 WHERE Type = 'IMPROVEMENT_FARM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
 	-- Forts and Citadels 'no two adjacent' and no outside borders for Fort - cannot be built on resources (helps AI quite a bit)
+
+UPDATE Builds
+SET Time = '400'
+WHERE Type = 'BUILD_FORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
 UPDATE Improvements
 SET NoTwoAdjacent = '1'
 WHERE Type = 'IMPROVEMENT_FORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );

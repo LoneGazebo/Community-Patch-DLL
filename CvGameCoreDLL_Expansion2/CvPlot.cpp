@@ -156,10 +156,6 @@ CvPlot::CvPlot() :
 
 	m_szScriptData = NULL;
 
-#if defined(SHOW_PLOT_POPUP)
-	m_fPopupDelay = 0.5;
-#endif
-
 	m_cContinentType = 0;
 	m_cRiverCrossing = 0;
 
@@ -195,10 +191,6 @@ void CvPlot::init(int iX, int iY)
 void CvPlot::uninit()
 {
 	SAFE_DELETE_ARRAY(m_szScriptData);
-
-#if defined(SHOW_PLOT_POPUP)
-	m_fPopupDelay = 0.5;
-#endif
 
 	m_pCenterUnit = NULL;
 
@@ -410,10 +402,6 @@ void CvPlot::erase(bool bEraseUnits)
 //	--------------------------------------------------------------------------------
 void CvPlot::doTurn()
 {
-#if defined(SHOW_PLOT_POPUP)
-	m_fPopupDelay = 0.5;
-#endif
-
 	if(isOwned())
 	{
 		changeOwnershipDuration(1);
@@ -2136,7 +2124,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 #if defined(MOD_BALANCE_CORE)
 				//hack: don't do this during map generation
 				if (bRecalculate && GC.getGame().getGameTurn()>0)
-					pLoopPlot->UpdatePlotsWithLOS();
+					GC.getMap().ClearPlotsAtRange(pLoopPlot);
 #endif
 			}
 		}
@@ -2555,6 +2543,10 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 #if defined(MOD_BALANCE_CORE)
 		if(pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer) < pkImprovementInfo->GetPrereqNatureYield(iI))
 #else
@@ -7148,6 +7140,10 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				pWorkingCity->UpdateYieldPerXTerrain((YieldTypes)iI, getTerrainType());
 				pWorkingCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, getTerrainType());
 			}
@@ -7249,6 +7245,10 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 		{
 			for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				pWorkingCity->UpdateYieldPerXFeature((YieldTypes)iI, getFeatureType());
 				pWorkingCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI, getFeatureType());
 			}
@@ -7750,6 +7750,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_API_UNIFIED_YIELDS)
 			for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				if(oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iI) > 0)
 #else
 				if(oldImprovementEntry.GetCultureAdjacentSameType() > 0)
@@ -8025,6 +8029,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_API_UNIFIED_YIELDS)
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
 				if(newImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iYield) > 0)
 #else
 				if(newImprovementEntry.GetCultureAdjacentSameType() > 0)
@@ -8374,6 +8382,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8402,6 +8414,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentImprovementYieldChanges(pAdjacentPlot->getImprovementType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8430,6 +8446,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8458,6 +8478,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8486,6 +8510,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8502,6 +8530,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
 							{
 								bUp2 = true;								
@@ -8530,6 +8562,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), (YieldTypes)iK) > 0)
 							{
 								bUp = true;								
@@ -8546,6 +8582,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 						{
+							//Simplification - errata yields not worth considering.
+							if ((YieldTypes)iK > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+								break;
+
 							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
 							{
 								bUp2 = true;								
@@ -9144,9 +9184,15 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 		{
 			CvAssertMsg(pCity->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_ResourceLinkedCity = pCity->GetIDInfo();
+
+			int iResourceChange = getNumResource();
+			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange, true);
 		}
 		else
 		{
+			int iResourceChange = getNumResource();
+			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), -iResourceChange, true);
+
 			// Set to inactive BEFORE unassigning linked City
 			SetResourceLinkedCityActive(false);
 
@@ -9177,6 +9223,8 @@ void CvPlot::SetResourceLinkedCityActive(bool bValue)
 
 		int iResourceChange = bValue ? getNumResource() : -getNumResource();
 		GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange);
+		GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange*-1, true);
+
 	}
 }
 
@@ -10915,6 +10963,10 @@ bool CvPlot::hasYield() const
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			return false;
+
 		if(getYield((YieldTypes)iI) > 0)
 		{
 			return true;
@@ -10934,6 +10986,10 @@ void CvPlot::updateYield()
 
 	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		int iNewYield = calculateYield((YieldTypes)iI);
 
 		if(getYield((YieldTypes)iI) != iNewYield)
@@ -12539,8 +12595,8 @@ int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisib
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_TEAMS) return 0;
-	if(eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return 0;
+	if (eTeam < 0 || eTeam >= MAX_TEAMS) return 0;
+	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return 0;
 	return m_apaiInvisibleVisibilityCount[eTeam][eInvisible];
 }
 
@@ -12564,10 +12620,10 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eInvisible < iNumInvisibleInfos, "eInvisible is expected to be within maximum bounds (invalid Index)");
-	if(eTeam < 0 || eTeam >= MAX_TEAMS) return;
-	if(eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return;
+	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
+	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return;
 
-	if(iChange != 0)
+	if (iChange != 0)
 	{
 		bOldInvisibleVisible = isInvisibleVisible(eTeam, eInvisible);
 
@@ -12577,22 +12633,22 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 
 		bNewInvisibleVisible = isInvisibleVisible(eTeam, eInvisible);
 
-		if(bOldInvisibleVisible != bNewInvisibleVisible)
+		if (bOldInvisibleVisible != bNewInvisibleVisible)
 		{
 			TeamTypes activeTeam = GC.getGame().getActiveTeam();
-			if(eTeam == activeTeam)
+			if (eTeam == activeTeam)
 			{
 				// for all (nominally invisible) units in this plot
 				// tell the engine to flip whether they are being drawn or not
 				IDInfo* pUnitNode;
 				CvUnit* pLoopUnit = NULL;
 				pUnitNode = headUnitNode();
-				while(pUnitNode != NULL)
+				while (pUnitNode != NULL)
 				{
 					pLoopUnit = GetPlayerUnit(*pUnitNode);
 					pUnitNode = nextUnitNode(pUnitNode);
 
-					if(NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->getInvisibleType() == eInvisible)
+					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->getInvisibleType() == eInvisible)
 					{
 						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
@@ -12921,7 +12977,7 @@ uint CvPlot::getUnits(IDInfoVector* pkInfoVector) const
 //	--------------------------------------------------------------------------------
 CvString CvPlot::getScriptData() const
 {
-	CvString scriptData = (m_szScriptData != NULL)? m_szScriptData : "";
+	CvString scriptData = (m_szScriptData != NULL) ? m_szScriptData : "";
 	return scriptData;
 }
 
@@ -12939,10 +12995,7 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 	{
 		//show the popup only if we're not on autoplay - too many stored popups seems to lead to crashes
 		if (GC.getGame().getAIAutoPlay() < 10)
-		{
-			DLLUI->AddPopupText(getX(), getY(), szMessage, m_fPopupDelay);
-			m_fPopupDelay += 0.5;
-		}
+			DLLUI->AddPopupText(getX(), getY(), szMessage, 0.8f);
 	}
 }
 #endif
@@ -13021,6 +13074,10 @@ void CvPlot::processArea(CvArea* pArea, int iChange)
 				{
 					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 					{
+						//Simplification - errata yields not worth considering.
+						if ((YieldTypes)iJ > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+							break;
+
 						pArea->changeYieldRateModifier(pCity->getOwner(), ((YieldTypes)iJ), (pkBuildingInfo->GetAreaYieldModifier(iJ) * iChange * pCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding)));
 					}
 				}
@@ -16059,105 +16116,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		return iScore;
 	}
 	return 0;
-}
-
-void CvPlot::UpdatePlotsWithLOS()
-{
-	m_vPlotsWithLineOfSightFromHere2.clear();
-	m_vPlotsWithLineOfSightFromHere3.clear();
-	m_vPlotsWithLineOfSightToHere2.clear();
-	m_vPlotsWithLineOfSightToHere3.clear();
-
-	for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(this,i);
-		if (!pLoopPlot)
-			continue;
-
-		if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
-			m_vPlotsWithLineOfSightToHere2.push_back(pLoopPlot);
-		if (this->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
-			m_vPlotsWithLineOfSightFromHere2.push_back(pLoopPlot);
-	}
-
-	for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(this,i);
-		if (!pLoopPlot)
-			continue;
-
-		if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
-			m_vPlotsWithLineOfSightToHere3.push_back(pLoopPlot);
-		if (this->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
-			m_vPlotsWithLineOfSightFromHere3.push_back(pLoopPlot);
-	}
-}
-
-bool CvPlot::GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const 
-{
-	vResult.clear();
-
-	//for now, we can only do up to range 3
-	if (iRange<1 || iRange>3)
-		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
-
-	iRange = max(1,iRange);
-	iRange = min(3,iRange);
-
-	if (bWithLOS)
-	{
-		switch (iRange)
-		{
-		case 1:
-			{
-				//just take all direct neighbors
-				CvPlot** aDirectNeighbors = GC.getMap().getNeighborsUnchecked(this);
-				vResult.insert( vResult.begin(), aDirectNeighbors, aDirectNeighbors+NUM_DIRECTION_TYPES );
-				return true;
-			}
-		case 2:
-			//copy the precomputed result
-			vResult = bFromPlot ? m_vPlotsWithLineOfSightFromHere2 : m_vPlotsWithLineOfSightToHere2;
-			return true;
-		case 3:
-			//copy the precomputed result
-			vResult = bFromPlot ? m_vPlotsWithLineOfSightFromHere3 : m_vPlotsWithLineOfSightToHere3;
-			return true;
-		}
-	}
-	else //no LOS
-	{
-		switch (iRange)
-		{
-		case 1:
-			{
-				//just take all direct neighbors
-				CvPlot** aDirectNeighbors = GC.getMap().getNeighborsUnchecked(this);
-				vResult.insert( vResult.begin(), aDirectNeighbors, aDirectNeighbors+NUM_DIRECTION_TYPES );
-				return true;
-			}
-		case 2:
-			vResult.reserve( RING2_PLOTS-RING1_PLOTS );
-			for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
-			{
-				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
-				if (pCandidate)
-					vResult.push_back(pCandidate);
-			}
-			return true;
-		case 3:
-			vResult.reserve( RING3_PLOTS-RING2_PLOTS );
-			for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
-			{
-				CvPlot* pCandidate = iterateRingPlots( getX(),getY(),i);
-				if (pCandidate)
-					vResult.push_back(pCandidate);
-			}
-			return true;
-		}
-	}
-
-	return false;
 }
 
 #endif

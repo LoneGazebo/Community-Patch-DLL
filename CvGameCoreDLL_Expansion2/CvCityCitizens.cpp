@@ -962,6 +962,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		if (eYield == NO_YIELD)
 			continue;
 
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		int iYield = pPlot->getYield(eYield);
 		
 		int iPlotBonus = GetBonusPlotValue(pPlot, eYield);
@@ -981,11 +985,11 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 				iYield *= 2;
 			}
 			CityAIFocusTypes eFocus = GetFocusType();
-			if (eYield == YIELD_FOOD && !m_pCity->isFoodProduction())
+			if (eYield == YIELD_FOOD)
 			{
 				int iFoodEmphasisModifier = 0;
 				//Food is unique, so let's separate it out for now.
-				bool bAvoidGrowth = IsAvoidGrowth();
+				bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
 
 				// Food can be worth less if we don't want to grow
 				if (bUseAllowGrowthFlag && iExcessFoodTimes100 >= 0 && bAvoidGrowth)
@@ -1739,7 +1743,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	CityAIFocusTypes eFocus = GetFocusType();
 	//Calc food first (as it might end the function early)
 	int iPenalty = 0;
-	bool bAvoidGrowth = IsAvoidGrowth();
+	bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
 	if (iExcessFoodTimes100 < 0 && bAvoidGrowth)
 	{
 		return 0;
@@ -1750,28 +1754,19 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 	}
 	else if (iExcessFoodTimes100 > 0 && !bAvoidGrowth)
 	{
-		//Increase penalty based on function of excess food value and growth thresholds. 
-		int iFoodTurnsRemaining = m_pCity->getFoodTurnsLeft();
+		int iMultiplier = iExcessFoodTimes100 <= 0 ? 10 : 5;
+		int iFoodTurnsRemaining = min(GC.getAI_CITIZEN_VALUE_FOOD() * iMultiplier, m_pCity->getFoodTurnsLeft());
 		int iPopulation = m_pCity->getPopulation();
 
 		//Smaller cities want to grow fast - larger cities can slow down a bit.
-		int iFoodEmphasisModifier = iFoodTurnsRemaining * 100 / max(1, iPopulation);
+		int iFoodEmphasisModifier = max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) * max(GC.getAI_CITIZEN_VALUE_FOOD(), iFoodTurnsRemaining) / max(1, iPopulation);
 
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-		{
 			iPenalty = iFoodEmphasisModifier * 8;
-		}
 		else if ((eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
-		{
 			iPenalty = iFoodEmphasisModifier * 4;
-		}
 		else
 			iPenalty = iFoodEmphasisModifier;
-
-		if (iExcessFoodTimes100 <= 200 && !bAvoidGrowth)
-		{
-			iPenalty *= 5;
-		}
 	}
 
 	///////
@@ -1784,6 +1779,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 
 		if (eYield == NO_YIELD)
 			continue;
+
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
 
 		int iYield = pPlayer->specialistYield(eSpecialist, eYield);
 		//Culture is treated differently, sadly.
@@ -2338,10 +2337,10 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 	}
 #if defined(MOD_BALANCE_CORE)
 	//FOUR STAGE SETUP:
-
+	bool bAvoidGrowth = IsAvoidGrowth() || m_pCity->isFoodProduction();
 	//FIRST, WE FEED OURSELVES!
 	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	if (!IsAvoidGrowth() && iPotentialExcessTimes100 < 200 || (IsAvoidGrowth() && iPotentialExcessTimes100 < 0))
+	if (!bAvoidGrowth && iPotentialExcessTimes100 < 200 || (bAvoidGrowth && iPotentialExcessTimes100 < 0))
 	{
 		int iBestPlotValue = 0;
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
@@ -2367,7 +2366,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false, false, bLogging);
 		if (pBestPlot != NULL)
 		{
-			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue && ((iPotentialExcessTimes100 > 0) || (IsAvoidGrowth() && iPotentialExcessTimes100 >= 0)));
+			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue && ((iPotentialExcessTimes100 > 0) || (bAvoidGrowth && iPotentialExcessTimes100 >= 0)));
 			if (bSpecialistBetterThanPlot)
 			{
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
@@ -2840,6 +2839,10 @@ void CvCityCitizens::DoReallocateCitizens()
 		if (eYield == NO_YIELD)
 			continue;
 
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
 		m_pCity->UpdateCityYields(eYield);
 		m_pCity->UpdateSpecialReligionYields(eYield);
 	}
@@ -2862,6 +2865,10 @@ void CvCityCitizens::DoReallocateCitizens()
 		YieldTypes eYield = (YieldTypes)iI;
 		if (eYield == NO_YIELD)
 			continue;
+
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
 
 		GetCity()->UpdateCityYields(eYield);
 		GetCity()->UpdateSpecialReligionYields(eYield);
@@ -2966,6 +2973,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 				//}
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
+					//Simplification - errata yields not worth considering.
+					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						break;
+
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));
 				}
 #if defined(MOD_BALANCE_CORE)
@@ -3004,6 +3015,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
+					//Simplification - errata yields not worth considering.
+					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						break;
+
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), -pPlot->getYield((YieldTypes)iI));
 				}
 #if defined(MOD_BALANCE_CORE)
@@ -3041,6 +3056,10 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 			{
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
+					//Simplification - errata yields not worth considering.
+					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						break;
+
 					YieldTypes eYield = (YieldTypes)iI;
 					if (eYield == NO_YIELD)
 						continue;

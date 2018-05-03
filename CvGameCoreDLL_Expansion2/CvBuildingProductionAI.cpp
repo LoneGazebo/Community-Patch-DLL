@@ -1003,7 +1003,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldValue *= 10;
 				break;
 			case YIELD_FOOD:
-				if (bSmall)
+				if (m_pCity->GetCityCitizens()->IsAvoidGrowth())
+				{
+					iYieldValue = 0;
+					iYieldTrait = 0;
+				}
+				else if (bSmall)
 					iYieldValue *= 10;
 				break;
 			case YIELD_TOURISM:
