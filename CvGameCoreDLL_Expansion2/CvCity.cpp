@@ -16719,6 +16719,9 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 {
 	VALIDATE_OBJECT
 	int iOldPopulation;
+
+	//make sure this is valid
+	iNewValue = max(0, iNewValue);
 	
 #if defined(MOD_BUGFIX_CITY_CENTRE_WORKING)
 	// To fix the "not working the centre tile" bug always call GetCityCitizens()->SetWorkingPlot(plot(), true, false); here
@@ -16749,8 +16752,6 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		}
 
 		m_iPopulation = iNewValue;
-
-		CvAssert(getPopulation() >= 0);
 
 		GET_PLAYER(getOwner()).invalidatePopulationRankCache();
 
@@ -19668,17 +19669,11 @@ bool CvCity::DoRazingTurn()
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 		int iPopulationDrop = 1;
-		iPopulationDrop *= (100 + kPlayer.GetPlayerTraits()->GetRazeSpeedModifier());
-		iPopulationDrop /= 100;
-
-		iPopulationDrop *= (100 + kPlayer.GetRazingSpeedBonus());
+		iPopulationDrop *= (100 + kPlayer.GetPlayerTraits()->GetRazeSpeedModifier() + kPlayer.GetRazingSpeedBonus());
 		iPopulationDrop /= 100;
 
 		ChangeRazingTurns(-1);
-
-		changePopulation(min(getPopulation()*-1, -iPopulationDrop), true);
-		if (getPopulation() < 0)
-			setPopulation(0);
+		changePopulation(-iPopulationDrop, true);
 
 		// Counter has reached 0, disband the City
 		if(GetRazingTurns() <= 0 || getPopulation() <= 0)

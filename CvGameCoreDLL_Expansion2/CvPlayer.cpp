@@ -12682,12 +12682,9 @@ void CvPlayer::raze(CvCity* pCity)
 	}
 #endif
 	int iPopulationDrop = 1;
-	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier());
+	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier() + GetRazingSpeedBonus());
 	iPopulationDrop /= 100;
-#if defined(MOD_BALANCE_CORE)
-	iPopulationDrop *= (100 + GetRazingSpeedBonus());
-	iPopulationDrop /= 100;
-#endif
+
 	int iTurnsToRaze = pCity->getPopulation();
 	if(iPopulationDrop > 0)
 	{

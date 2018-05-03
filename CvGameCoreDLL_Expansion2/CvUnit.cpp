@@ -6534,7 +6534,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	// Can't sleep if we're a Unit that can normally fortify
-	if(!noDefensiveBonus() && IsCombatUnit())
+	if(canFortify(pPlot))
 	{
 		return false;
 	}
@@ -6549,11 +6549,6 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 		{
 			return false;
 		}
-	}
-
-	if(IsEverFortifyable())
-	{
-		return false;
 	}
 
 	if(isWaiting())
