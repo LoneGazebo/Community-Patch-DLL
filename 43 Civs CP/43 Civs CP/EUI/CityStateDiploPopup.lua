@@ -311,6 +311,9 @@ function OnDisplay()
 	Controls.AllyIconShadow:SetToolTipString(strAllyTT)
 	Controls.AllyText:SetToolTipString(strAllyTT)
 	Controls.AllyLabel:SetToolTipString(strAllyTT)
+	
+	-- Vox Populi - Contender info
+	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, minorPlayerID) )
 
 	-- Protected by anyone?
 	local sProtectingPlayers = getProtectingPlayers(minorPlayerID);
