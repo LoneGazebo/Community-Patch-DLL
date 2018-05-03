@@ -273,6 +273,8 @@ public:
 	int GetMilitaryProductionModifier() const;
 	bool IsHighSeaRaider() const;
 	int GetGeneralGoldenAgeExpPercent() const;
+	int GetGiveCombatMod() const;
+	int GetGiveHPIfEnemyKilled() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -564,6 +566,8 @@ protected:
 	int m_iMilitaryProductionModifier;
 	bool m_bHighSeaRaider;
 	int m_iGeneralGoldenAgeExpPercent;
+	int m_iGiveCombatMod;
+	int m_iGiveHPHealedIfEnemyKilled;
 #endif
 	bool m_bCanHeavyCharge;
 

@@ -11147,6 +11147,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
+			UpdateAreaEfectPromotionUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
 
@@ -12682,12 +12683,9 @@ void CvPlayer::raze(CvCity* pCity)
 	}
 #endif
 	int iPopulationDrop = 1;
-	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier());
+	iPopulationDrop *= (100 + GetPlayerTraits()->GetRazeSpeedModifier() + GetRazingSpeedBonus());
 	iPopulationDrop /= 100;
-#if defined(MOD_BALANCE_CORE)
-	iPopulationDrop *= (100 + GetRazingSpeedBonus());
-	iPopulationDrop /= 100;
-#endif
+
 	int iTurnsToRaze = pCity->getPopulation();
 	if(iPopulationDrop > 0)
 	{
@@ -44776,6 +44774,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
+	UpdateAreaEfectPromotionUnits();
 	UpdateAreaEffectPlots();
 	GET_TEAM(getTeam()).updateTeamStatus();
 	UpdateCurrentAndFutureWars();
@@ -46103,7 +46102,41 @@ void CvPlayer::UpdateMilitaryStats()
 
 	m_iAvgUnitExp100 = iExpSum / max(1,iExpCount);
 }
+void CvPlayer::UpdateAreaEfectPromotionUnit(CvUnit* pUnit)
+{
+	if (!pUnit)
+		return;
 
+	if (pUnit->IsNearbyPromotion())
+	{
+		bool bFound = false;
+		for (size_t i = 0; i<m_unitsAreaEffectPromotion.size(); i++)
+		{
+			if (m_unitsAreaEffectPromotion[i].first == pUnit->GetID())
+			{
+				m_unitsAreaEffectPromotion[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
+				break;
+			}
+		}
+
+		if (!bFound)
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+	}
+}
+void CvPlayer::UpdateAreaEfectPromotionUnits()
+{
+
+	m_unitsAreaEffectPromotion.clear();
+
+	// Loop through our units
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsNearbyPromotion())
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+	}
+}
 void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 {
 	if (!pUnit)
@@ -46112,9 +46145,9 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
 	{
 		bool bFound = false;
-		for (size_t i = 0; i<m_unitsAreaEffectPositive.size(); i++)
+		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
 		{
-			if (m_unitsAreaEffectPositive[i].first == pUnit->GetID())
+			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
 			{
 				m_unitsAreaEffectPositive[i].second = pUnit->plot()->GetPlotIndex();
 				bFound = true;
@@ -46129,9 +46162,9 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if (pUnit->getNearbyEnemyCombatMod() < 0)
 	{
 		bool bFound = false;
-		for (size_t i = 0; i<m_unitsAreaEffectNegative.size(); i++)
+		for ( size_t i=0; i<m_unitsAreaEffectNegative.size(); i++ )
 		{
-			if (m_unitsAreaEffectNegative[i].first == pUnit->GetID())
+			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
 			{
 				m_unitsAreaEffectNegative[i].second = pUnit->plot()->GetPlotIndex();
 				bFound = true;
@@ -46195,7 +46228,10 @@ void CvPlayer::UpdateAreaEffectPlots()
 		}
 	}
 }
-
+const std::vector<std::pair<int, int>>& CvPlayer::GetAreaEffectPromotionUnits() const
+{
+	return m_unitsAreaEffectPromotion;
+}
 const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectPositiveUnits() const
 {
 	return m_unitsAreaEffectPositive;

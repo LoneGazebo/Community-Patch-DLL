@@ -101,14 +101,6 @@ public:
 	{
 		SetBit(TACTICAL_FLAG_VISIBLE_TO_ENEMY, bNewValue);
 	};
-	bool IsSubjectToAttack()
-	{
-		return GetBit(TACTICAL_FLAG_SUBJECT_TO_ENEMY_ATTACK);
-	};
-	void SetSubjectToAttack(bool bNewValue)
-	{
-		SetBit(TACTICAL_FLAG_SUBJECT_TO_ENEMY_ATTACK, bNewValue);
-	};
 	bool IsFriendlyTurnEndTile()
 	{
 		return GetBit(TACTICAL_FLAG_FRIENDLY_TURN_END_TILE);
@@ -572,39 +564,28 @@ public:
 	void Init(PlayerTypes ePlayer);
 	void Refresh(bool force = false);
 	bool IsUpToDate();
-
-	void EstablishZoneNeighborhood();
-	int GetNumZones() const
-	{
-		return m_DominanceZones.size();
-	};
+	void Invalidate();
 
 	CvTacticalDominanceZone* GetZoneByIndex(int iIndex);
 	CvTacticalDominanceZone* GetZoneByCity(CvCity* pCity, bool bWater);
 	CvTacticalDominanceZone* GetZoneByID(int iID);
 	CvTacticalDominanceZone* GetZoneByPlot(CvPlot* pPlot);
 
-	CvTacticalAnalysisCell* GetCell(int iPlotIndex)
-	{
-		return (iPlotIndex>=0 && iPlotIndex<(int)m_vCells.size()) ? &m_vCells[iPlotIndex] : NULL;
-	}
-	int GetDominancePercentage() const
-	{
-		return m_iDominancePercentage;
-	}
 	bool IsInEnemyDominatedZone(CvPlot* pPlot);
+	CvTacticalAnalysisCell* GetCell(int iPlotIndex);
+	int GetNumZones();
 
 	// Routines to update the map
 	void ClearDynamicFlags();
 
-	// Range variable to keep dominance zones and tactical AI in sync
+	// quasi-const members
 	int GetTacticalRange() const {return m_iTacticalRange;}
+	int GetDominancePercentage() const { return m_iDominancePercentage; }
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	void Dump();
 #endif
 
-	void Invalidate();
 protected:
 	bool PopulateCell(int iIndex, CvPlot* pPlot);
 	void AddToDominanceZones(int iIndex, CvTacticalAnalysisCell* pCell);
@@ -612,11 +593,10 @@ protected:
 	void PrioritizeZones();
 	void LogZones();
 	void UpdateZoneIds();
-	void BuildEnemyUnitList();
-	void MarkCellsNearEnemy();
 	CvTacticalDominanceZone* MergeWithExistingZone(CvTacticalDominanceZone* pNewZone);
 	eTacticalDominanceFlags ComputeDominance(CvTacticalDominanceZone* pZone);
 	CvTacticalDominanceZone* AddNewDominanceZone(CvTacticalDominanceZone& zone);
+	void EstablishZoneNeighborhood();
 
 	// Cached global define values
 	int m_iDominancePercentage;
@@ -629,8 +609,6 @@ protected:
 
 	std::map<int, int> m_IdLookup;
 	std::vector<CvTacticalDominanceZone> m_DominanceZones;
-	std::vector<IDInfo> m_EnemyUnits;
-	std::vector<IDInfo> m_EnemyCities;
 
 	friend FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFrom);
 	friend FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo);

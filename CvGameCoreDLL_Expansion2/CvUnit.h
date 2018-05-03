@@ -704,6 +704,10 @@ public:
 	void ChangeNearbyEnemyDamage(int iValue);
 	int GetGGGAXPPercent() const;
 	void ChangeGGGAXPPercent(int iValue);
+	int GetGiveCombatMod() const;
+	void ChangeGiveCombatMod(int iValue);
+	int GetGiveHPIfEnemyKilled() const;
+	void ChangeGiveHPIfEnemyKilled(int iValue);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1203,6 +1207,8 @@ public:
 	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldenAgeGeneralExpPercent(const CvPlot * pAtPlot);
+	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
+	int GetGiveHPIfEnemyKilledToUnit() const;
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1283,7 +1289,7 @@ public:
 	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
-	void DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot = NULL);
+	void DoNearbyUnitPromotion(const CvPlot* pPlot = NULL);
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
@@ -1995,6 +2001,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iUnitProductionModifier;
 	FAutoVariable<int, CvUnit> m_iNearbyEnemyDamage;
 	FAutoVariable<int, CvUnit> m_iGGGAXPPercent;
+	FAutoVariable<int, CvUnit> m_iGiveCombatMod;
+	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

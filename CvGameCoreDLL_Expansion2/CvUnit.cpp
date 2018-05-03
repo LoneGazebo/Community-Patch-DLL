@@ -431,6 +431,8 @@ CvUnit::CvUnit() :
 	, m_iUnitProductionModifier("CvUnit::m_iUnitProductionModifier", m_syncArchive)
 	, m_iNearbyEnemyDamage("CvUnit::m_iNearbyEnemyDamage", m_syncArchive)
 	, m_iGGGAXPPercent("CvUnit::m_iGGGAXPPercent", m_syncArchive)
+	, m_iGiveCombatMod("CvUnit::m_iGiveCombatMod", m_syncArchive)
+	, m_iGiveHPIfEnemyKilled("CvUnit::m_iGiveHPIfEnemyKilled", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -963,7 +965,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(bGivePromotion)
 			setHasPromotion(ePromotionEmbarkation, true);
 	}
-	
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// These get done in SetXY, but if the unit doesn't have the promotion, the variable doesn't get stored.
+	kPlayer.UpdateAreaEffectUnit(this);
+	kPlayer.UpdateAreaEfectPromotionUnit(this);
+#endif
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
 	if (IsEmbarkDeepWater()) {
@@ -1480,6 +1486,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
 	m_iGGGAXPPercent = 0;
+	m_iGiveCombatMod = 0;
+	m_iGiveHPIfEnemyKilled = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -3077,7 +3085,7 @@ void CvUnit::doTurn()
 	DoImprovementExperience(plot());
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
-	DoNearbyUnitPromotion(this, plot());
+	DoNearbyUnitPromotion(plot());
 	DoConvertEnemyUnitToBarbarian(plot());
 	DoConvertReligiousUnitsToMilitary(plot());
 #endif
@@ -4234,6 +4242,12 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		iOurDefense /= 2;
 	}
 
+	//special check for naval garrison in city
+	if (getDomainType() == DOMAIN_SEA && !plot()->isWater())
+	{
+		iOurDefense /= 2;
+	}
+
 	if(NULL == pAttacker)
 	{
 		if(pDefender->currInterceptionProbability() > 0)
@@ -4261,6 +4275,12 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker);
 	if(::isWorldUnitClass(pDefender->getUnitClassType()))
+	{
+		iTheirDefense /= 2;
+	}
+
+	//special check for naval garrison in city
+	if (pDefender->getDomainType()==DOMAIN_SEA && !pDefender->plot()->isWater())
 	{
 		iTheirDefense /= 2;
 	}
@@ -6533,7 +6553,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
 	// Can't sleep if we're a Unit that can normally fortify
-	if(!noDefensiveBonus() && IsCombatUnit())
+	if(canFortify(pPlot))
 	{
 		return false;
 	}
@@ -6548,11 +6568,6 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 		{
 			return false;
 		}
-	}
-
-	if(IsEverFortifyable())
-	{
-		return false;
 	}
 
 	if(isWaiting())
@@ -15630,7 +15645,12 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		iModifier += iNearbyUnitClassModifier;
 	}
-
+	// NearbyUnit gives a Combat Modifier?
+	int iGetGiveCombatModifier = GetGiveCombatModToUnit(pFromPlot);
+	if (iGetGiveCombatModifier != 0)
+	{
+		iModifier += iGetGiveCombatModifier;
+	}
 	// Adjacent Friendly military Unit?
 	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
@@ -18184,6 +18204,26 @@ void CvUnit::ChangeGGGAXPPercent(int iValue)
 	VALIDATE_OBJECT
 	m_iGGGAXPPercent += iValue;
 }
+int CvUnit::GetGiveCombatMod() const
+{
+	VALIDATE_OBJECT
+	return m_iGiveCombatMod;
+}
+void CvUnit::ChangeGiveCombatMod(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGiveCombatMod += iValue;
+}
+int CvUnit::GetGiveHPIfEnemyKilled() const
+{
+	VALIDATE_OBJECT
+	return m_iGiveHPIfEnemyKilled;
+}
+void CvUnit::ChangeGiveHPIfEnemyKilled(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGiveHPIfEnemyKilled += iValue;
+}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 //	--------------------------------------------------------------------------------
@@ -18633,7 +18673,7 @@ int CvUnit::getHealOnPillageCount() const
 int CvUnit::getHPHealedIfDefeatEnemy() const
 {
 	VALIDATE_OBJECT
-	return m_iHPHealedIfDefeatEnemy;
+	return m_iHPHealedIfDefeatEnemy + GetGiveHPIfEnemyKilledToUnit();
 }
 
 //	--------------------------------------------------------------------------------
@@ -19905,6 +19945,7 @@ if (!bDoEvade)
 	{
 		//update area effects
 		kPlayer.UpdateAreaEffectUnit(this);
+		kPlayer.UpdateAreaEfectPromotionUnit(this);
 
 		//update facing direction
 		if(pOldPlot != NULL)
@@ -19983,7 +20024,7 @@ if (!bDoEvade)
 			}
 		}
 
-		DoNearbyUnitPromotion(this, pNewPlot);
+		DoNearbyUnitPromotion(pNewPlot);
 		if(getAoEDamageOnMove() != 0)
 			DoAoEDamage(getAoEDamageOnMove(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE");
 
@@ -23131,7 +23172,7 @@ int CvUnit::GetGoldenAgeGeneralExpPercent(const CvPlot* pAtPlot)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 5)
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
@@ -23146,6 +23187,72 @@ int CvUnit::GetGoldenAgeGeneralExpPercent(const CvPlot* pAtPlot)
 		}
 	}
 	return iExperience;
+}
+int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iMod = 0;
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->GetGiveCombatMod() != 0)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			iMod = pUnit->GetGiveCombatMod();
+			if (pUnit->getDomainType() == getDomainType())
+			{
+				if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+					return iMod;
+			}
+		}
+	}
+	return iMod;
+}
+int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iHP = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->GetGiveHPIfEnemyKilled() != 0)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			iHP = pUnit->GetGiveHPIfEnemyKilled();
+			if (pUnit->getDomainType() == getDomainType() && !isRanged())
+			{
+				if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+					return iHP;
+			}
+		}
+	}
+	return iHP;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -23567,41 +23674,63 @@ int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClass
 	return 0;
 }
 
-void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
+void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
 	if (pPlot == NULL)
 	{
-		pPlot = pUnit->plot();
+		pPlot = plot();
 	}
-	int iX = pPlot->getX(); int iY = pPlot->getY();
 	if(pPlot != NULL)
 	{
-		int iI;
-		for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		
+		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 		{
 			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
 			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
 			if(pkPromotionInfo != NULL)
 			{
-				if(pkPromotionInfo->AddedFromNearbyPromotion() != NO_PROMOTION)
+				/*if(pkPromotionInfo->AddedFromNearbyPromotion() != NO_PROMOTION)
 				{
-					if(!pUnit->IsWithinDistanceOfUnitPromotion(pkPromotionInfo->AddedFromNearbyPromotion(), GC.getPromotionInfo(pkPromotionInfo->AddedFromNearbyPromotion())->GetNearbyRange(), true, false))
+					const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+					for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-						if (pkPromotionInfo->GetInvisibleType() != NO_INVISIBLE)
+						bool bFound = false;
+						//first quick check with a large, fixed distance
+						CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+						if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), pPlot->getX(), pPlot->getY()) > 4)
+							continue;
+						CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+						if (pUnit != NULL)
 						{
-							pUnit->setInvisibleType(NO_INVISIBLE);
+							if (plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) <= pUnit->GetNearbyUnitPromotionsRange())
+							{
+								bFound = true;
+							}
+							if(!bFound)
+							{
+								setHasPromotion((PromotionTypes)pUnit->GetAddedFromNearbyUnitPromotion(eLoopPromotion), false);
+								CvPromotionEntry* pkPromotionInfo2 = GC.getPromotionInfo((PromotionTypes)pUnit->GetAddedFromNearbyUnitPromotion(eLoopPromotion));
+								if (pkPromotionInfo2 && pkPromotionInfo2->GetInvisibleType() != NO_INVISIBLE)
+								{
+									setInvisibleType(NO_INVISIBLE);
+								}
+							}
+							else
+							{
+								if(::IsPromotionValidForUnitCombatType((PromotionTypes)pUnit->GetAddedFromNearbyUnitPromotion(eLoopPromotion), getUnitType()) && !isHasPromotion(eLoopPromotion))
+									setHasPromotion((PromotionTypes)pUnit->GetAddedFromNearbyUnitPromotion(eLoopPromotion), true);
+							}
 						}
 					}
-					else if (pUnit->isHasPromotion(pkPromotionInfo->AddedFromNearbyPromotion()) && pUnit->IsNearbyPromotion())
+					if (IsNearbyPromotion())
 					{
-						int iRange = pUnit->GetNearbyUnitPromotionsRange();
+						int iRange = GetNearbyUnitPromotionsRange();
 						for (int i = -iRange; i <= iRange; ++i)
 						{
 							for (int j = -iRange; j <= iRange; ++j)
 							{
-								CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iRange);
+								CvPlot* pLoopPlot = ::plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), i, j, iRange);
 								if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
 								{
 									for (int iK = 0; iK < pLoopPlot->getNumUnits(); iK++)
@@ -23609,15 +23738,15 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 										CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iK);
 										if (pLoopUnit != NULL)
 										{
-											if (GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(pUnit->getOwner()).getTeam())
+											if (GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(getOwner()).getTeam())
 											{
 												if (pLoopUnit->IsNearbyPromotion() && pLoopUnit->isHasPromotion(eLoopPromotion))
 												{
-													pLoopUnit->setHasPromotion(eLoopPromotion, false);
+													pLoopUnit->setHasPromotion((PromotionTypes)GetAddedFromNearbyUnitPromotion(eLoopPromotion), false);
 												}
-												if (::IsPromotionValidForUnitCombatType(eLoopPromotion, pLoopUnit->getUnitType()) && !pLoopUnit->IsNearbyPromotion())
+												if (::IsPromotionValidForUnitCombatType((PromotionTypes)GetAddedFromNearbyUnitPromotion(eLoopPromotion), pLoopUnit->getUnitType()) && !pLoopUnit->isHasPromotion(eLoopPromotion))
 												{
-													pLoopUnit->setHasPromotion(eLoopPromotion, true);
+													pLoopUnit->setHasPromotion((PromotionTypes)GetAddedFromNearbyUnitPromotion(eLoopPromotion), true);
 												}
 											}
 										}
@@ -23626,68 +23755,61 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 							}
 						}
 					}
-					else
-					{
-						if (::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
-						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
-						}
-					}
-				}				
-				if(pkPromotionInfo->IsNearbyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				}*/
+				if(pkPromotionInfo->IsNearbyCityPromotion() && pkPromotionInfo->getRequiredUnit() == getUnitType())
 				{
-					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, true))
+					if(!IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, true))
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
+						setHasPromotion(eLoopPromotion, false);
 					}
 					else
 					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
+						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
 						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
+							setHasPromotion(eLoopPromotion, true);
 						}
 					}
 				}
-				if(pkPromotionInfo->IsNearbyFriendlyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsNearbyFriendlyCityPromotion() && pkPromotionInfo->getRequiredUnit() == getUnitType())
 				{
-					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, false))
+					if(!IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, false))
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
+						setHasPromotion(eLoopPromotion, false);
 					}
 					else
 					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
+						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
 						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
+							setHasPromotion(eLoopPromotion, true);
 						}
 					}
 				}
-				if(pkPromotionInfo->IsNearbyEnemyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsNearbyEnemyCityPromotion() && pkPromotionInfo->getRequiredUnit() == getUnitType())
 				{
-					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), false, true))
+					if(!IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), false, true))
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
+						setHasPromotion(eLoopPromotion, false);
 					}
 					else
 					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
+						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
 						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
+							setHasPromotion(eLoopPromotion, true);
 						}
 					}
 				}
-				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == getUnitType())
 				{
-					if(pPlot->IsFriendlyTerritory(pUnit->getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(pUnit->getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(pUnit->getTeam())))
+					if(pPlot->IsFriendlyTerritory(getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(getTeam())))
 					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
+						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
 						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
+							setHasPromotion(eLoopPromotion, true);
 						}
 					}
 					else
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
+						setHasPromotion(eLoopPromotion, false);
 					}
 				}
 				if(pkPromotionInfo->IsEnemyLands())
@@ -23697,22 +23819,22 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iJ);
 						if(kPlayer.GetPlayerTraits()->IsWarsawPact())
 						{
-							if(GET_TEAM(pUnit->getTeam()).isAtWar(GET_TEAM(kPlayer.getTeam()).GetID()))
+							if(GET_TEAM(getTeam()).isAtWar(GET_TEAM(kPlayer.getTeam()).GetID()))
 							{
 								if((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
 								{
-									pUnit->setHasPromotion(eLoopPromotion, true);
+									setHasPromotion(eLoopPromotion, true);
 								}
 								else
 								{
-									pUnit->setHasPromotion(eLoopPromotion, false);
+									setHasPromotion(eLoopPromotion, false);
 								}
 							}
 							else
 							{
-								if(pUnit->HasPromotion(eLoopPromotion))
+								if(HasPromotion(eLoopPromotion))
 								{
-									pUnit->setHasPromotion(eLoopPromotion, false);
+									setHasPromotion(eLoopPromotion, false);
 								}
 							}
 						}
@@ -23720,26 +23842,26 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 				}
 				if(pkPromotionInfo->GetAdjacentSameType() != NO_PROMOTION)
 				{
-					if(pUnit->HasPromotion(pkPromotionInfo->GetAdjacentSameType()) && pUnit->IsAdjacentToUnitPromotion(pkPromotionInfo->GetAdjacentSameType(), true, false))
+					if(HasPromotion(pkPromotionInfo->GetAdjacentSameType()) && IsAdjacentToUnitPromotion(pkPromotionInfo->GetAdjacentSameType(), true, false))
 					{
-						pUnit->setHasPromotion(eLoopPromotion, true);
+						setHasPromotion(eLoopPromotion, true);
 					}
 					else
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
+						setHasPromotion(eLoopPromotion, false);
 					}
 				}
 			}
 		}
-		if (pUnit->GetPillageBonusStrengthPercent() > 0)
+		if (GetPillageBonusStrengthPercent() > 0)
 		{
 			if (pPlot->IsImprovementPillaged())
 			{
-				pUnit->SetBaseCombatStrength(pUnit->getUnitInfo().GetCombat() + ((pUnit->GetPillageBonusStrengthPercent() * pUnit->getUnitInfo().GetCombat()) / 100));
+				SetBaseCombatStrength(getUnitInfo().GetCombat() + ((GetPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));
 			}
 			else
 			{
-				pUnit->SetBaseCombatStrength(pUnit->getUnitInfo().GetCombat());
+				SetBaseCombatStrength(getUnitInfo().GetCombat());
 			}
 		}
 	}
@@ -24396,7 +24518,6 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 	{
 		return false;
 	}
-	bool bSapping = false;
 	if (GetAreaEffectBonus(0, plot(), pTargetCity, NULL, false, true, false) > 0)
 	{
 		return true;
@@ -24415,7 +24536,6 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 	{
 		return false;
 	}
-	bool bHalfSapping = false;
 	if (GetAreaEffectBonus(0, plot(), pTargetCity, NULL, false, true, false) > 0)
 	{
 		return true;
@@ -26631,6 +26751,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
 		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
 		ChangeGGGAXPPercent(thisPromotion.GetGeneralGoldenAgeExpPercent() * iChange);
+		ChangeGiveCombatMod(thisPromotion.GetGiveCombatMod() * iChange);
+		ChangeGiveHPIfEnemyKilled(thisPromotion.GetGiveHPIfEnemyKilled() * iChange);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {

@@ -248,6 +248,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piYieldChange(NULL),
 	m_bHighSeaRaider(false),
 	m_iGeneralGoldenAgeExpPercent(0),
+	m_iGiveCombatMod(0),
+	m_iGiveHPHealedIfEnemyKilled(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -496,6 +498,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
 	m_iGeneralGoldenAgeExpPercent = kResults.GetInt("GeneralGoldenAgeExpPercent");
+	m_iGiveCombatMod = kResults.GetInt("GiveCombatMod");
+	m_iGiveHPHealedIfEnemyKilled = kResults.GetInt("GiveHPHealedIfEnemyKilled");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -2280,6 +2284,14 @@ bool CvPromotionEntry::IsHighSeaRaider() const
 int CvPromotionEntry::GetGeneralGoldenAgeExpPercent() const
 {
 	return m_iGeneralGoldenAgeExpPercent;
+}
+int CvPromotionEntry::GetGiveCombatMod() const
+{
+	return m_iGiveCombatMod;
+}
+int CvPromotionEntry::GetGiveHPIfEnemyKilled() const
+{
+	return m_iGiveHPHealedIfEnemyKilled;
 }
 #endif
 
