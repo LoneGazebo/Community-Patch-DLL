@@ -11196,22 +11196,13 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	if (bOldVisibility == false && isVisible(eTeam))
 	{
 		eResult = VISIBILITY_CHANGE_TO_VISIBLE;
-
+		
+		bool alreadyRevealed = isRevealed(eTeam); // result from setRevealed is not just a simple "we reveled a new plot to the player" and was causing all sorts of issues (poor ai explore decisions, desyncs, etc).
 #if defined(MOD_API_EXTENSIONS)
-		if (setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
+		if (!setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
 #else
-		if (setRevealed(eTeam, true))	// Change to revealed, returns true if the visibility was changed
+		if (!setRevealed(eTeam, true))	// Change to revealed, returns true if the visibility was changed
 #endif
-		{
-			//we are seeing this plot for the first time
-			if (bInformExplorationTracking)
-			{
-				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
-				for (size_t i = 0; i < vPlayers.size(); i++)
-					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
-			}
-		}
-		else
 		{
 			// The visibility was not changed because it was already revealed, but we are changing to a visible state as well, so we must update.
 			// Just trying to avoid redundant messages.
@@ -11221,6 +11212,14 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				updateFog(true);
 				updateVisibility();
 			}
+		}
+
+		//we are seeing this plot for the first time		
+		if (!alreadyRevealed && isRevealed(eTeam) && bInformExplorationTracking)
+		{
+			vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
+			for (size_t i = 0; i < vPlayers.size(); i++)
+				GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 		}
 
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
