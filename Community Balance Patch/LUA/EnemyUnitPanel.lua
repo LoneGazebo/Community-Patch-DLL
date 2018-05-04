@@ -606,7 +606,13 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_MOD_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
-			
+			--NearbyPromtoion Unit that Gives a Combat bonus
+			if (pMyUnit:GetGiveCombatModToUnit() ~= 0) then
+				iModifier = pMyUnit:GetGiveCombatModToUnit();
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
 				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
@@ -983,7 +989,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 			end
-			
+			-- NearbyPromotion Unit Bonus
+			if (pMyUnit:GetGiveCombatModToUnit() ~= 0) then
+				iModifier = pMyUnit:GetGiveCombatModToUnit();
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
 				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
@@ -1647,7 +1659,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 	--				strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_FORTIFY_MOD", iModifier));
 				end
-				
+				-- NearbyPromotion Unit Bonus
+				if (pTheirUnit:GetGiveCombatModToUnit() ~= 0) then
+					iModifier = pTheirUnit:GetGiveCombatModToUnit();
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
 				-- Great General bonus
 				if (pTheirUnit:IsNearGreatGeneral()) then
 					iModifier = pTheirPlayer:GetGreatGeneralCombatBonus() + pTheirUnit:GetGreatGeneralAuraBonus();

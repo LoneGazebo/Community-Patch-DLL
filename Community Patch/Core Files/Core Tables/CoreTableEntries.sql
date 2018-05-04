@@ -817,8 +817,23 @@ ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 -- Promotion grants the same bonus as the Japan UA
 ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 
--- Promotion grants the same bonus as the Japan UA
+-- Great General gives extra XP% during a golden age (Persia)
 ALTER TABLE UnitPromotions ADD COLUMN 'GeneralGoldenAgeExpPercent' INTEGER DEFAULT 0;
+
+-- The Following Promotions Require IsNearbyPromotion to be set. IsNearbyPromotion is an "m_unitsAreaEffectPromotion" Unit
+ALTER TABLE UnitPromotions ADD AddedFromNearbyPromotion INTEGER DEFAULT -1; -- Note: this will be deleted and not used in a future commit.
+ALTER TABLE UnitPromotions ADD IsNearbyPromotion BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD NearbyRange INTEGER DEFAULT 0;
+
+-- Unit gives additional combat strength to nearby units? Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveCombatMod' INTEGER DEFAULT 0;
+
+-- Unit Gives HP to additional units if they kill an enemy units? Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveHPHealedIfEnemyKilled' INTEGER DEFAULT 0;
+
+-- Unit Gives additional XP in combat to nearby units? Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveExperiencePercent' INTEGER DEFAULT 0;
+-- End
 
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
@@ -837,12 +852,6 @@ ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD CombatBonusFromNearbyUnitClass INTEGER DEFAULT -1;
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonusRange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonus INTEGER DEFAULT 0;
-
--- Requres some Explanation: Unit A has X promotion, Unit B gains promotion by adding these Values to a Promotion that it wishes to gain when near some distance
--- AddedFromNearbyPromotion = 'Unit A's promotion' IsNearbyPromotion must be set to 1 or true, and NearbyRange is distance in which the promotion triggers.
-ALTER TABLE UnitPromotions ADD AddedFromNearbyPromotion INTEGER DEFAULT -1;
-ALTER TABLE UnitPromotions ADD IsNearbyPromotion BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD NearbyRange INTEGER DEFAULT 0;
 
 -- A unit gains a promotion if "NearbyRange" is set to a distance from City, RequiredUnit must be set to the unit that you wish to give the promotion to.
 ALTER TABLE UnitPromotions ADD IsNearbyCityPromotion BOOLEAN DEFAULT 0;
