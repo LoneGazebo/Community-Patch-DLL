@@ -8798,13 +8798,13 @@ bool CvCity::IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) cons
 	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
 
 	// Actually check to see if we have this Resource to use right now
-	if(!bTestVisible)
+	if (!bTestVisible)
 	{
-		return m_paiNumResourcesLocal[eResource];
+		return m_paiNumResourcesLocal[eResource] > 0;
 	}
 	else
 	{
-		return m_paiNumUnimprovedResourcesLocal[eResource] + m_paiNumResourcesLocal[eResource];
+		return (m_paiNumUnimprovedResourcesLocal[eResource] + m_paiNumResourcesLocal[eResource]) > 0;
 	}
 }
 
@@ -8813,42 +8813,7 @@ int CvCity::GetNumResourceLocal(ResourceTypes eResource, bool bImproved)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eResource > -1 && eResource < GC.getNumResourceInfos(), "Invalid resource index.");
-
-	if (bImproved) 
-	{
-		return m_paiNumResourcesLocal[eResource];
-	} 
-
-	return m_paiNumUnimprovedResourcesLocal[eResource];
-
-	/*
-	int iCount = 0;
-	CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
-
-	CvPlot* pLoopPlot;
-
-	for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-	{
-		pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-
-		if (pLoopPlot != NULL && pLoopPlot->getWorkingCity() == this) 
-		{
-			if (bNoImprovement)
-			{
-				if (pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-				{
-					++iCount;
-				}
-			}
-			else if (pImprovement && pLoopPlot->getResourceType() == eResource && pLoopPlot->getImprovementType() == ((ImprovementTypes)pImprovement->GetID()) && !pLoopPlot->IsImprovementPillaged())
-			{
-				++iCount;
-			}
-		}
-	}
-		
-	return iCount;
-	*/
+	return bImproved ? m_paiNumResourcesLocal[eResource] : m_paiNumUnimprovedResourcesLocal[eResource];
 }
 #endif
 
