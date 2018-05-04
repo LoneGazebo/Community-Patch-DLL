@@ -971,6 +971,8 @@
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 // Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
+// Fixes issue where explore plot list was not being consistently updated when a plot was revealed
+#define MOD_BUGFIX_EXPLORE_REVEALED_PLOT	(true)
 
 #endif // ACHIEVEMENT_HACKS
 
