@@ -20327,12 +20327,6 @@ if (!bDoEvade)
 				if(pLoopUnit && pLoopUnit->getTransportUnit() == this)
 				{
 					pLoopUnit->setXY(iX, iY, bGroup, bUpdate);
-#if defined(MOD_BALANCE_CORE)
-					if (pNewPlot != NULL && pLoopUnit->IsNearbyPromotion()) // Only check for aura carriers, we want any unit that receives the aura promotion to keep it until the next DoTurn clears it.
-					{
-						DoNearbyUnitPromotion(pLoopUnit, pNewPlot);
-					}
-#endif
 					// Reset to head node since we just moved some cargo around, and the unit storage in the plot is going to be different now
 					pUnitNode = pOldPlot->headUnitNode();
 				}
