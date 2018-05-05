@@ -1443,6 +1443,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
+		if (eYield == NULL)
+			continue;
 		iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eManufactory, eYield);
 	}
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_ENGINEER));
@@ -1489,6 +1491,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
+			if (eYield == NULL)
+				continue;
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eCustomHouse, eYield);
 		}
 		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_MERCHANT));
@@ -1521,6 +1525,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
+			if (eYield == NULL)
+				continue;
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eAcademy, eYield);
 		}
 		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
