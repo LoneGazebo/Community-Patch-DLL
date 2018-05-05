@@ -286,6 +286,9 @@ function OnDisplay()
 	Controls.AllyIconContainer:SetHide(bHideIcon);
 	Controls.AllyText:SetHide(bHideText);
 	
+	-- Vox Populi - Contender info
+	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, minorPlayerID) )
+	
 	-- Protected by anyone?
 	local sProtectingPlayers = getProtectingPlayers(g_iMinorCivID);
 
