@@ -1385,11 +1385,6 @@ int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, Yi
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldChangePerImprovementBuilt ? m_ppiYieldChangePerImprovementBuilt[eIndex1][eIndex2] : 0;
 }
-
-bool CvTraitEntry::IsCapitalOnly() const
-{
-	return m_bIsCapitalOnly;
-}
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -2324,7 +2319,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.PopulateArrayByValue(m_piNumPledgesDomainProdMod, "Domains", "Trait_NumPledgeDomainProdMod", "DomainType", "TraitType", szTraitType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
-	m_bIsCapitalOnly = kResults.GetBool("IsCapitalOnly");
 #endif
 	const int iNumTerrains = GC.getNumTerrainInfos();
 
@@ -3305,7 +3299,7 @@ bool CvPlayerTraits::IsExpansionist()
 		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
 		{
 			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
-			if ((GetYieldChangePerImprovementBuilt(eImprovement, eYield) != 0 && IsCapitalOnly() == false)) // These two should remain in one bracket / line
+			if (GetYieldChangePerImprovementBuilt(eImprovement, eYield) != 0)
 				return true;
 		}
 	}
@@ -3547,10 +3541,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			if (trait->IsCanPurchaseNavalUnitsFaith())
 			{
 				m_bCanPurchaseNavalUnitsFaith = true;
-			}
-			if (trait->IsCapitalOnly())
-			{
-				m_bIsCapitalOnly = true;
 			}
 
 			m_iPuppetPenaltyReduction += trait->GetPuppetPenaltyReduction();
@@ -4209,7 +4199,6 @@ void CvPlayerTraits::Reset()
 	m_iPuppetPenaltyReduction = 0;
 	m_iSharedReligionTourismModifier = 0;
 	m_iExtraMissionaryStrength = 0;
-	m_bIsCapitalOnly = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -6193,7 +6182,6 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_iPuppetPenaltyReduction, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
-	MOD_SERIALIZE_READ(65, kStream, m_bIsCapitalOnly, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6778,7 +6766,6 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iPuppetPenaltyReduction);
 	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
-	MOD_SERIALIZE_WRITE(kStream, m_bIsCapitalOnly);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

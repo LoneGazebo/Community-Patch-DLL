@@ -17589,9 +17589,9 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 	for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
 	{
 		ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
-		if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly() == false || (isCapital() == true && GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly() == true))
+		int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
+		if (iYieldChangePerImprovementBuilt != 0)
 		{
-			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
 			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
 			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler() && iYieldChangePerImprovementBuilt > 0)
 			{

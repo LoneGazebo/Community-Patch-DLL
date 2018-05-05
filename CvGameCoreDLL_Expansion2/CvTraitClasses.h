@@ -298,7 +298,6 @@ public:
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
-	bool IsCapitalOnly() const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -620,7 +619,6 @@ protected:
 	int* m_piMovesChangeUnitClasses;
 	int** m_ppiYieldFromTileEarnTerrainType;
 	int** m_ppiYieldChangePerImprovementBuilt;
-	bool m_bIsCapitalOnly;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
@@ -1548,10 +1546,6 @@ public:
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
 	}
-	bool IsCapitalOnly() const
-	{
-		return m_bIsCapitalOnly;
-	}
 #endif
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
@@ -2054,7 +2048,6 @@ private:
 	std::vector<int> m_paiMovesChangeUnitClass;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileEarnTerrainType;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
-	bool m_bIsCapitalOnly;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;

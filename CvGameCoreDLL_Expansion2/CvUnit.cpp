@@ -20328,7 +20328,7 @@ if (!bDoEvade)
 				{
 					pLoopUnit->setXY(iX, iY, bGroup, bUpdate);
 #if defined(MOD_BALANCE_CORE)
-					if (pNewPlot != NULL)
+					if (pNewPlot != NULL && pLoopUnit->IsNearbyPromotion()) // Only check for aura carriers, we want any unit that receives the aura promotion to keep it until the next DoTurn clears it.
 					{
 						DoNearbyUnitPromotion(pLoopUnit, pNewPlot);
 					}

@@ -448,10 +448,10 @@
 		<Column name="Value" type="integer"/>
 	</Table>
 	<Table name="Trait_GreatPersonProgressFromPolicyUnlock">
-		<!-- TRAIT: Great Person progress in all cities when a policy is unlocked -->
+		<!-- TRAIT: Great Person progress in the capital when a policy is unlocked-->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
-		<Column name="Value" type="integer"/>
+		<Column name="Value" type="integer" default="0"/>
 	</Table>
 	<GreatPersons>
 		<Row>

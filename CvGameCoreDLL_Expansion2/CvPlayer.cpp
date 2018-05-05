@@ -27855,11 +27855,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			{
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 				{
-					if (GetPlayerTraits()->IsCapitalOnly() == true && pLoopCity->isCapital() == true)
-					{
-						iValue += GetPlayerTraits()->GetGreatPersonProgressFromPolicyUnlock(eGreatPerson);
-					}
-					else if (GetPlayerTraits()->IsCapitalOnly() == false)
+					if (pLoopCity->isCapital() == true)
 					{
 						iValue += GetPlayerTraits()->GetGreatPersonProgressFromPolicyUnlock(eGreatPerson);
 					}
@@ -27956,6 +27952,46 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		else
 		{
 			pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+		}
+	}
+	// 4th step: Loop through all cities again to check for GP spawns
+	for (pLoopCity = this->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = this->nextCity(&iLoop))
+	{
+		if (pLoopCity == NULL)
+			continue;
+		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+		{
+			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+			if (pkSpecialistInfo)
+			{
+				int iCheckGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+				// Enough to spawn a GP?
+				if (pLoopCity->GetCityCitizens()->GetSpecialistGreatPersonProgress(eSpecialist) >= iCheckGPThreshold)
+				{
+					// No Minors
+					if (!GET_PLAYER(pLoopCity->getOwner()).isMinorCiv())
+					{
+						// Reset progress on this Specialist
+						pLoopCity->GetCityCitizens()->DoResetSpecialistGreatPersonProgressTimes100(eSpecialist, (iCheckGPThreshold * 100));
+
+						// Now... actually create the GP!
+						const UnitClassTypes eUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+						const CivilizationTypes eCivilization = pLoopCity->getCivilizationType();
+						CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(eCivilization);
+						if (pCivilizationInfo != NULL)
+						{
+							UnitTypes eUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(eUnitClass);
+
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+							pLoopCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true, false, false);
+#else
+							pLoopCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true, false);
+#endif
+						}
+					}
+				}
+			}
 		}
 	}
 }

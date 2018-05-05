@@ -150,12 +150,6 @@ ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
--- Trait only provides bonus in the capital. Works for:
----- Trait_YieldChangesPerImprovementBuilt (yield change shows up in capital only, instead of all cities)
----- Trait_GreatPersonProgressFromPolicyUnlock (GP points show up in capital only, instead of all cities)
-
-ALTER TABLE Traits ADD COLUMN 'IsCapitalOnly' BOOLEAN DEFAULT 0;
-
 -- No natural religion spread to/from unowned cities
 
 ALTER TABLE Traits ADD COLUMN 'NoNaturalReligionSpread' BOOLEAN DEFAULT 0;
