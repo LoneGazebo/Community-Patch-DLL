@@ -820,19 +820,41 @@ ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 -- Great General gives extra XP% during a golden age (Persia)
 ALTER TABLE UnitPromotions ADD COLUMN 'GeneralGoldenAgeExpPercent' INTEGER DEFAULT 0;
 
--- The Following Promotions Require IsNearbyPromotion to be set. IsNearbyPromotion is an "m_unitsAreaEffectPromotion" Unit
-ALTER TABLE UnitPromotions ADD AddedFromNearbyPromotion INTEGER DEFAULT -1; -- Note: this will be deleted and not used in a future commit.
+-- The Following Promotions Require IsNearbyPromotion and NearbyRange to be set. IsNearbyPromotion is an "m_unitsAreaEffectPromotion" Unit
 ALTER TABLE UnitPromotions ADD IsNearbyPromotion BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyRange INTEGER DEFAULT 0;
+-- Set the Domain that Gets the Bonus
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveDomain' TEXT DEFAULT NULL REFERENCES Domains(Type);
 
--- Unit gives additional combat strength to nearby units? Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+-- Unit gives additional combat strength to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
 ALTER TABLE UnitPromotions ADD COLUMN 'GiveCombatMod' INTEGER DEFAULT 0;
 
--- Unit Gives HP to additional units if they kill an enemy units? Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+-- Unit Gives HP to additional units if they kill an enemy units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
 ALTER TABLE UnitPromotions ADD COLUMN 'GiveHPHealedIfEnemyKilled' INTEGER DEFAULT 0;
 
--- Unit Gives additional XP in combat to nearby units? Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+-- Unit Gives additional XP in combat to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
 ALTER TABLE UnitPromotions ADD COLUMN 'GiveExperiencePercent' INTEGER DEFAULT 0;
+
+-- Unit Gives a bonus to outside friendly lands unis? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveOutsideFriendlyLandsModifier' INTEGER DEFAULT 0;
+
+-- Unit Gives extra attacks to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveExtraAttacks' INTEGER DEFAULT 0;
+
+-- Unit Gives extra defense to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveDefenseMod' INTEGER DEFAULT 0;
+
+-- Unit gives Invisibility to another Unit? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveInvisibility' BOOLEAN DEFAULT 0;
+
+-- Unit gains Combat modifier when near cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD NearbyCityCombatMod INTEGER DEFAULT 0;
+
+-- Unit gains Combat modifier when near friendly cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD NearbyFriendlyCityCombatMod INTEGER DEFAULT 0;
+
+-- Unit gains Combat modifier when near enemy cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD NearbyEnemyCityCombatMod INTEGER DEFAULT 0;
 -- End
 
 -- Double Movement on Mountains
@@ -854,9 +876,6 @@ ALTER TABLE UnitPromotions ADD NearbyUnitClassBonusRange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonus INTEGER DEFAULT 0;
 
 -- A unit gains a promotion if "NearbyRange" is set to a distance from City, RequiredUnit must be set to the unit that you wish to give the promotion to.
-ALTER TABLE UnitPromotions ADD IsNearbyCityPromotion BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD IsNearbyFriendlyCityPromotion BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD IsNearbyEnemyCityPromotion BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD IsFriendlyLands BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD RequiredUnit TEXT DEFAULT NULL REFERENCES Units(Type);
 
@@ -1228,9 +1247,6 @@ ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;
 
 -- Units gain this promotion when "WarsawPact" Player is set.
 ALTER TABLE UnitPromotions ADD COLUMN 'EnemyLands' BOOLEAN DEFAULT 0;
-
--- Unit gains this promotion when adjacent when adjacent to a unit and both units have this Prereq Promotion defined as AdjacentSameType = 'PROMOTION_X'
-ALTER TABLE UnitPromotions ADD AdjacentSameType TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 
 -- Build adds an instant yield of culture to Player's culture pool.
 ALTER TABLE Builds ADD CultureBoost BOOLEAN DEFAULT 0;

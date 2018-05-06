@@ -532,6 +532,8 @@ protected:
 	static int lIsHalfNearSapper(lua_State* L);
 	static int lGetNearbyUnitClassModifierFromUnitClass(lua_State* L);
 	static int lGetSapperAreaEffectBonus(lua_State* L);
+	static int lGetGiveCombatModToUnit(lua_State* L);
+	static int lGetNearbyCityBonusCombatMod(lua_State* L);
 #endif
 	static int lGetNearbyImprovementModifier(lua_State* L);
 	static int lIsFriendlyUnitAdjacent(lua_State* L);

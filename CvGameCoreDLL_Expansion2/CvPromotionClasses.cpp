@@ -226,14 +226,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bPostCombatPromotionsExclusive(false),
 	m_bSapper(false),
 #if defined(MOD_BALANCE_CORE)
-	m_bIsNearbyCityPromotion(false),
-	m_bIsNearbyFriendlyCityPromotion(false),
-	m_bIsNearbyEnemyCityPromotion(false),
+	m_iNearbyCityCombatMod(0),
+	m_iNearbyFriendlyCityCombatMod(0),
+	m_iNearbyEnemyCityCombatMod(0),
 	m_bIsNearbyPromotion(false),
 	m_bIsFriendlyLands(false),
 	m_bEnemyLands(false),
 	m_iNearbyRange(0),
-	m_eAddedFromNearbyPromotion(NO_PROMOTION),
 	m_eRequiredUnit(NO_UNIT),
 	m_eConvertDomainUnit(NO_UNIT),
 	m_eConvertDomain(NO_DOMAIN),
@@ -242,7 +241,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iReligiousPressureModifier(0),
 	m_iAdjacentCityDefesneMod(0),
 	m_iNearbyEnemyDamage(0),
-	m_eAdjacentSameType(NO_PROMOTION),
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
 	m_piYieldChange(NULL),
@@ -250,6 +248,12 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGeneralGoldenAgeExpPercent(0),
 	m_iGiveCombatMod(0),
 	m_iGiveHPHealedIfEnemyKilled(0),
+	m_iGiveExperiencePercent(0),
+	m_iGiveOutsideFriendlyLandsModifier(0),
+	m_eGiveDomain(NO_DOMAIN),
+	m_iGiveExtraAttacks(0),
+	m_iGiveDefenseMod(0),
+	m_bGiveInvisibility(false),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -473,15 +477,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bPostCombatPromotionsExclusive = kResults.GetBool("PostCombatPromotionsExclusive");
 	m_bSapper = kResults.GetBool("Sapper");
 #if defined(MOD_BALANCE_CORE)
-	m_bIsNearbyCityPromotion = kResults.GetBool("IsNearbyCityPromotion");
-	m_bIsNearbyFriendlyCityPromotion = kResults.GetBool("IsNearbyFriendlyCityPromotion");
-	m_bIsNearbyEnemyCityPromotion = kResults.GetBool("IsNearbyEnemyCityPromotion");
+	m_iNearbyCityCombatMod = kResults.GetInt("NearbyCityCombatMod");
+	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
+	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
 	m_bEnemyLands = kResults.GetBool("EnemyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
-	const char* szAddedFromNearbyPromotion = kResults.GetText("AddedFromNearbyPromotion");
-	m_eAddedFromNearbyPromotion = (PromotionTypes)GC.getInfoTypeForString(szAddedFromNearbyPromotion, true);
 	const char* szUnitType = kResults.GetText("RequiredUnit");
 	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
@@ -493,13 +495,18 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 	m_iAdjacentCityDefesneMod = kResults.GetInt("AdjacentCityDefenseMod");
 	m_iNearbyEnemyDamage = kResults.GetInt("NearbyEnemyDamage");
-	const char* szAdjacentSameType = kResults.GetText("AdjacentSameType");
-	m_eAdjacentSameType = (PromotionTypes)GC.getInfoTypeForString(szAdjacentSameType, true);
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
 	m_iGeneralGoldenAgeExpPercent = kResults.GetInt("GeneralGoldenAgeExpPercent");
 	m_iGiveCombatMod = kResults.GetInt("GiveCombatMod");
 	m_iGiveHPHealedIfEnemyKilled = kResults.GetInt("GiveHPHealedIfEnemyKilled");
+	m_iGiveExperiencePercent = kResults.GetInt("GiveExperiencePercent");
+	m_iGiveOutsideFriendlyLandsModifier = kResults.GetInt("GiveOutsideFriendlyLandsModifier");
+	const char* szGiveDomain = kResults.GetText("GiveDomain");
+	m_eGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
+	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
+	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
+	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -2205,17 +2212,17 @@ bool CvPromotionEntry::IsSapper() const
 }
 
 #if defined(MOD_BALANCE_CORE)
-bool CvPromotionEntry::IsNearbyCityPromotion() const
+int CvPromotionEntry::GetNearbyCityCombatMod() const
 {
-	return m_bIsNearbyCityPromotion;
+	return m_iNearbyCityCombatMod;
 }
-bool CvPromotionEntry::IsNearbyFriendlyCityPromotion() const
+int CvPromotionEntry::GetNearbyFriendlyCityCombatMod() const
 {
-	return m_bIsNearbyFriendlyCityPromotion;
+	return m_iNearbyFriendlyCityCombatMod;
 }
-bool CvPromotionEntry::IsNearbyEnemyCityPromotion() const
+int CvPromotionEntry::GetNearbyEnemyCityCombatMod() const
 {
-	return m_bIsNearbyEnemyCityPromotion;
+	return m_iNearbyEnemyCityCombatMod;
 }
 bool CvPromotionEntry::IsNearbyPromotion() const
 {
@@ -2237,10 +2244,6 @@ UnitTypes CvPromotionEntry::getRequiredUnit() const
 {
 	return m_eRequiredUnit;
 }
-PromotionTypes CvPromotionEntry::GetAdjacentSameType() const
-{
-	return m_eAdjacentSameType;
-}
 UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
 {
 	return m_eConvertDomainUnit;
@@ -2248,10 +2251,6 @@ UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
 DomainTypes CvPromotionEntry::GetConvertDomain() const
 {
 	return m_eConvertDomain;
-}
-PromotionTypes CvPromotionEntry::AddedFromNearbyPromotion() const
-{
-	return m_eAddedFromNearbyPromotion;
 }
 int CvPromotionEntry::GetStackedGreatGeneralExperience() const
 {
@@ -2292,6 +2291,30 @@ int CvPromotionEntry::GetGiveCombatMod() const
 int CvPromotionEntry::GetGiveHPIfEnemyKilled() const
 {
 	return m_iGiveHPHealedIfEnemyKilled;
+}
+int CvPromotionEntry::GetGiveExperiencePercent() const
+{
+	return m_iGiveExperiencePercent;
+}
+int CvPromotionEntry::GetGiveOutsideFriendlyLandsModifier() const
+{
+	return m_iGiveOutsideFriendlyLandsModifier;
+}
+DomainTypes CvPromotionEntry::GetGiveDomain() const
+{
+	return m_eGiveDomain;
+}
+int CvPromotionEntry::GetGiveExtraAttacks() const
+{
+	return m_iGiveExtraAttacks;
+}
+int CvPromotionEntry::GetGiveDefenseMod() const
+{
+	return m_iGiveDefenseMod;
+}
+bool CvPromotionEntry::IsGiveInvisibility() const
+{
+	return m_bGiveInvisibility;
 }
 #endif
 

@@ -613,6 +613,13 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
+			--NearbyPromtoion Unit that gets a bonus near cities?
+			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0) then
+				iModifier = pMyUnit:GetNearbyCityBonusCombatMod();
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
 			-- Great General bonus
 			if (pMyUnit:IsNearGreatGeneral()) then
 				iModifier = pMyPlayer:GetGreatGeneralCombatBonus() + pMyUnit:GetGreatGeneralAuraBonus();
@@ -994,6 +1001,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				iModifier = pMyUnit:GetGiveCombatModToUnit();
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+			--NearbyPromtoion Unit that gets a bonus near cities?
+			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0) then
+				iModifier = pMyUnit:GetNearbyCityBonusCombatMod();
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 			-- Great General bonus
@@ -1664,6 +1678,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					iModifier = pTheirUnit:GetGiveCombatModToUnit();
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+				--NearbyPromtoion Unit that gets a bonus near cities?
+				if (pTheirUnit:GetNearbyCityBonusCombatMod() ~= 0) then
+					iModifier = pTheirUnit:GetNearbyCityBonusCombatMod();
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 				-- Great General bonus

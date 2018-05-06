@@ -253,9 +253,9 @@ public:
 	bool IsIgnoreZOC() const;
 	bool IsSapper() const;
 #if defined(MOD_BALANCE_CORE)
-	bool IsNearbyCityPromotion() const;
-	bool IsNearbyFriendlyCityPromotion() const;
-	bool IsNearbyEnemyCityPromotion() const;
+	int GetNearbyCityCombatMod() const;
+	int GetNearbyFriendlyCityCombatMod() const;
+	int GetNearbyEnemyCityCombatMod() const;
 	bool IsNearbyPromotion() const;
 	bool IsFriendlyLands() const;
 	bool IsEnemyLands() const;
@@ -263,18 +263,22 @@ public:
 	UnitTypes getRequiredUnit() const;
 	UnitTypes GetConvertDomainUnit() const;
 	DomainTypes GetConvertDomain() const;
-	PromotionTypes AddedFromNearbyPromotion() const;
 	int GetStackedGreatGeneralExperience() const;
 	int GetPillageBonusStrengthPercent() const;
 	int GetReligiousPressureModifier() const;
 	int GetAdjacentCityDefenseMod() const;
 	int GetNearbyEnemyDamage() const;
-	PromotionTypes GetAdjacentSameType() const;
 	int GetMilitaryProductionModifier() const;
 	bool IsHighSeaRaider() const;
 	int GetGeneralGoldenAgeExpPercent() const;
 	int GetGiveCombatMod() const;
 	int GetGiveHPIfEnemyKilled() const;
+	int GetGiveExperiencePercent() const;
+	int GetGiveOutsideFriendlyLandsModifier() const;
+	DomainTypes GetGiveDomain() const;
+	int GetGiveExtraAttacks() const;
+	int GetGiveDefenseMod() const;
+	bool IsGiveInvisibility() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -546,14 +550,13 @@ protected:
 	bool m_bPostCombatPromotionsExclusive;
 	bool m_bSapper;
 #if defined(MOD_BALANCE_CORE)
-	bool m_bIsNearbyCityPromotion;
-	bool m_bIsNearbyFriendlyCityPromotion;
-	bool m_bIsNearbyEnemyCityPromotion;
+	int m_iNearbyCityCombatMod;
+	int m_iNearbyFriendlyCityCombatMod;
+	int m_iNearbyEnemyCityCombatMod;
 	bool m_bIsNearbyPromotion;
 	bool m_bIsFriendlyLands;
 	bool m_bEnemyLands;
 	int m_iNearbyRange;
-	PromotionTypes m_eAddedFromNearbyPromotion;
 	UnitTypes m_eRequiredUnit;
 	UnitTypes m_eConvertDomainUnit;
 	DomainTypes m_eConvertDomain;
@@ -562,12 +565,17 @@ protected:
 	int m_iReligiousPressureModifier;
 	int m_iAdjacentCityDefesneMod;
 	int m_iNearbyEnemyDamage;
-	PromotionTypes m_eAdjacentSameType;
 	int m_iMilitaryProductionModifier;
 	bool m_bHighSeaRaider;
 	int m_iGeneralGoldenAgeExpPercent;
 	int m_iGiveCombatMod;
 	int m_iGiveHPHealedIfEnemyKilled;
+	int m_iGiveExperiencePercent;
+	int m_iGiveOutsideFriendlyLandsModifier;
+	DomainTypes m_eGiveDomain;
+	int m_iGiveExtraAttacks;
+	int m_iGiveDefenseMod;
+	bool m_bGiveInvisibility;
 #endif
 	bool m_bCanHeavyCharge;
 
