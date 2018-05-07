@@ -659,15 +659,15 @@ public:
 	void SetCombatBonusImprovement(ImprovementTypes eImprovement);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetNearbyUnitClassBonus() const;
+	int getNearbyUnitClassBonus() const;
 	void SetNearbyUnitClassBonus(int iCombatBonus);
-	int GetNearbyUnitClassBonusRange() const;
+	int getNearbyUnitClassBonusRange() const;
 	void SetNearbyUnitClassBonusRange(int iBonusRange);
-	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
+	UnitClassTypes getCombatBonusFromNearbyUnitClass() const;
 	void SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass);
 	void ChangeNearbyPromotion(int iValue);
 	int GetNearbyPromotion() const;
-	bool IsNearbyPromotion() const;
+	bool isNearbyPromotion() const;
 	int GetNearbyUnitPromotionsRange() const;
 	void ChangeNearbyUnitPromotionRange(int iBonusRange);
 	void ChangeNearbyCityCombatMod(int iValue);
@@ -678,28 +678,28 @@ public:
 	int getNearbyEnemyCityCombatMod() const;
 	void ChangeIsFriendlyLands(int iValue);
 	int GetIsFriendlyLands() const;
-	bool IsFriendlyLands() const;
+	bool isFriendlyLands() const;
 	void ChangeIsEnemyLands(int iValue);
 	int GetIsEnemyLands() const;
-	bool IsEnemyLands() const;
-	int GetPillageBonusStrengthPercent() const;
+	bool isEnemyLands() const;
+	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
-	int GetStackedGreatGeneralExperience() const;
+	int getStackedGreatGeneralExperience() const;
 	void ChangeStackedGreatGeneralExperience(int iExperience);
 	void ChangeIsHighSeaRaider(int iValue);
 	int GetIsHighSeaRaider() const;
-	bool IsHighSeaRaider() const;
-	int GetWonderProductionModifier() const;
+	bool isHighSeaRaider() const;
+	int getWonderProductionModifier() const;
 	void ChangeWonderProductionModifier(int iValue);
-	int GetMilitaryProductionModifier() const;
+	int getMilitaryProductionModifier() const;
 	void ChangeMilitaryProductionModifier(int iValue);
-	int GetNearbyEnemyDamage() const;
+	int getNearbyEnemyDamage() const;
 	void ChangeNearbyEnemyDamage(int iValue);
 	int GetGGGAXPPercent() const;
 	void ChangeGGGAXPPercent(int iValue);
 	int getGiveCombatMod() const;
 	void ChangeGiveCombatMod(int iValue);
-	int GetGiveHPIfEnemyKilled() const;
+	int getGiveHPIfEnemyKilled() const;
 	void ChangeGiveHPIfEnemyKilled(int iValue);
 	int getGiveExperiencePercent() const;
 	void ChangeGiveExperiencePercent(int iValue);
@@ -1217,7 +1217,7 @@ public:
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveDefenseModToUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
-	bool IsGiveInvisibilityToUnit(const CvPlot * pAtPlot = NULL) const;
+	bool IsGiveInvisibilityToUnit(TeamTypes eTeam, const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;
@@ -1564,7 +1564,7 @@ public:
 	bool isGoldenAgeOnBirth() const;
 	bool isCultureBoost() const;
 	bool isExtraAttackHealthOnKill() const;
-	bool isHighSeaRaider() const;
+	bool isHighSeaRaiderUnit() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;

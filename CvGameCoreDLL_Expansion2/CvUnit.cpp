@@ -10468,9 +10468,9 @@ bool CvUnit::pillage()
 
 	if(bSuccessfulNonRoadPillage)
 	{
-		if (GetPillageBonusStrengthPercent() > 0)
+		if (getPillageBonusStrengthPercent() != 0)
 		{
-			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((GetPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
+			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
 		}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
@@ -17936,7 +17936,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
-int CvUnit::GetNearbyUnitClassBonus() const
+int CvUnit::getNearbyUnitClassBonus() const
 {
 	return m_iNearbyUnitClassBonus;
 }
@@ -17946,7 +17946,7 @@ void CvUnit::SetNearbyUnitClassBonus(int iCombatBonus)
 	m_iNearbyUnitClassBonus = iCombatBonus;
 }
 
-int CvUnit::GetNearbyUnitClassBonusRange() const
+int CvUnit::getNearbyUnitClassBonusRange() const
 {
 	return m_iNearbyUnitClassBonusRange;
 }
@@ -17956,7 +17956,7 @@ void CvUnit::SetNearbyUnitClassBonusRange(int iBonusRange)
 	m_iNearbyUnitClassBonusRange = iBonusRange;
 }
 
-UnitClassTypes CvUnit::GetCombatBonusFromNearbyUnitClass() const
+UnitClassTypes CvUnit::getCombatBonusFromNearbyUnitClass() const
 {
 	return (UnitClassTypes)m_iCombatBonusFromNearbyUnitClass;
 }
@@ -17975,7 +17975,7 @@ int CvUnit::GetNearbyPromotion() const
 	VALIDATE_OBJECT
 	return	m_bNearbyPromotion;
 }
-bool CvUnit::IsNearbyPromotion() const
+bool CvUnit::isNearbyPromotion() const
 {
 	VALIDATE_OBJECT
 	return GetNearbyPromotion() > 0;
@@ -18030,7 +18030,7 @@ int CvUnit::GetIsFriendlyLands() const
 	VALIDATE_OBJECT
 	return	m_bIsFriendlyLands;
 }
-bool CvUnit::IsFriendlyLands() const
+bool CvUnit::isFriendlyLands() const
 {
 	VALIDATE_OBJECT
 	return GetIsFriendlyLands() > 0;
@@ -18045,12 +18045,12 @@ int CvUnit::GetIsEnemyLands() const
 	VALIDATE_OBJECT
 	return	m_bIsEnemyLands;
 }
-bool CvUnit::IsEnemyLands() const
+bool CvUnit::isEnemyLands() const
 {
 	VALIDATE_OBJECT
 	return GetIsEnemyLands() > 0;
 }
-int CvUnit::GetPillageBonusStrengthPercent() const
+int CvUnit::getPillageBonusStrengthPercent() const
 {
 	VALIDATE_OBJECT
 	return m_iPillageBonusStrengthPercent;
@@ -18060,7 +18060,7 @@ void CvUnit::ChangePillageBonusStrengthPercent(int iBonus)
 	VALIDATE_OBJECT
 	m_iPillageBonusStrengthPercent += iBonus;
 }
-int CvUnit::GetStackedGreatGeneralExperience() const
+int CvUnit::getStackedGreatGeneralExperience() const
 {
 	VALIDATE_OBJECT
 	return m_iStackedGreatGeneralExperience;
@@ -18080,12 +18080,12 @@ int CvUnit::GetIsHighSeaRaider() const
 	VALIDATE_OBJECT
 	return	m_bIsHighSeaRaider;
 }
-bool CvUnit::IsHighSeaRaider() const
+bool CvUnit::isHighSeaRaider() const
 {
 	VALIDATE_OBJECT
 	return GetIsHighSeaRaider() > 0;
 }
-int CvUnit::GetWonderProductionModifier() const
+int CvUnit::getWonderProductionModifier() const
 {
 	VALIDATE_OBJECT
 	return m_iWonderProductionModifier;
@@ -18095,7 +18095,7 @@ void CvUnit::ChangeWonderProductionModifier(int iValue)
 	VALIDATE_OBJECT
 	m_iWonderProductionModifier += iValue;
 }
-int CvUnit::GetMilitaryProductionModifier() const
+int CvUnit::getMilitaryProductionModifier() const
 {
 	VALIDATE_OBJECT
 	return m_iUnitProductionModifier;
@@ -18105,7 +18105,7 @@ void CvUnit::ChangeMilitaryProductionModifier(int iValue)
 	VALIDATE_OBJECT
 	m_iUnitProductionModifier += iValue;
 }
-int CvUnit::GetNearbyEnemyDamage() const
+int CvUnit::getNearbyEnemyDamage() const
 {
 	VALIDATE_OBJECT
 	return m_iNearbyEnemyDamage;
@@ -18135,7 +18135,7 @@ void CvUnit::ChangeGiveCombatMod(int iValue)
 	VALIDATE_OBJECT
 	m_iGiveCombatMod += iValue;
 }
-int CvUnit::GetGiveHPIfEnemyKilled() const
+int CvUnit::getGiveHPIfEnemyKilled() const
 {
 	VALIDATE_OBJECT
 	return m_iGiveHPIfEnemyKilled;
@@ -23283,7 +23283,7 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 	}
 	return iMod;
 }
-bool CvUnit::IsGiveInvisibilityToUnit(const CvPlot* pAtPlot) const
+bool CvUnit::IsGiveInvisibilityToUnit(TeamTypes eTeam, const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
 	int iRange = 0;
@@ -23303,7 +23303,7 @@ bool CvUnit::IsGiveInvisibilityToUnit(const CvPlot* pAtPlot) const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit())
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit() && pUnit->getTeam() == eTeam)
 				{
 					return true;
 				}
@@ -23399,14 +23399,14 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->GetGiveHPIfEnemyKilled() != 0)
+		if (pUnit && pUnit->getGiveHPIfEnemyKilled() != 0)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
 				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && !isRanged())
 				{
-					iHP = pUnit->GetGiveHPIfEnemyKilled();;
+					iHP = pUnit->getGiveHPIfEnemyKilled();
 				}
 			}
 		}
@@ -23789,7 +23789,7 @@ int CvUnit::GetNearbyImprovementModifier()const
 #if defined(MOD_BALANCE_CORE)
 int CvUnit::GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot) const
 {
-	return GetNearbyUnitClassModifier(GetCombatBonusFromNearbyUnitClass(), GetNearbyUnitClassBonusRange(), GetNearbyUnitClassBonus(), pAtPlot);
+	return GetNearbyUnitClassModifier(getCombatBonusFromNearbyUnitClass(), getNearbyUnitClassBonusRange(), getNearbyUnitClassBonus(), pAtPlot);
 }
 
 int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot) const
@@ -23893,11 +23893,11 @@ void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 				}
 			}
 		}
-		if (GetPillageBonusStrengthPercent() > 0)
+		if (getPillageBonusStrengthPercent() != 0)
 		{
 			if (pPlot->IsImprovementPillaged())
 			{
-				SetBaseCombatStrength(getUnitInfo().GetCombat() + ((GetPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));
+				SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));
 			}
 			else
 			{
@@ -23941,7 +23941,7 @@ void CvUnit::DoStackedGreatGeneralExperience(const CvPlot* pPlot)
 	}
 	if(pPlot != NULL)
 	{
-		int iExperience = GetStackedGreatGeneralExperience();
+		int iExperience = getStackedGreatGeneralExperience();
 		if(IsStackedGreatGeneral(pPlot) && iExperience > 0)
 		{
 			changeExperienceTimes100(iExperience * 100);
@@ -31503,7 +31503,7 @@ bool CvUnit::isExtraAttackHealthOnKill() const
 	VALIDATE_OBJECT
 	return getUnitInfo().IsExtraAttackHealthOnKill();
 }
-bool CvUnit::isHighSeaRaider() const
+bool CvUnit::isHighSeaRaiderUnit() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().IsHighSeaRaider();

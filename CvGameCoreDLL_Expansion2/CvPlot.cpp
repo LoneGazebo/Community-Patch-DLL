@@ -14787,9 +14787,9 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 					for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
 					{
 						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
-						if (pLoopUnit != NULL && pLoopUnit->GetNearbyEnemyDamage() > 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
+						if (pLoopUnit != NULL && pLoopUnit->getNearbyEnemyDamage() != 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
 						{
-							iDamage = pLoopUnit->GetNearbyEnemyDamage();
+							iDamage = pLoopUnit->getNearbyEnemyDamage();
 							if (piCitadelDamage)
 								*piCitadelDamage = iDamage;
 							return true;

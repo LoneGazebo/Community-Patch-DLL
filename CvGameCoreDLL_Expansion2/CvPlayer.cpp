@@ -46107,7 +46107,7 @@ void CvPlayer::UpdateAreaEfectPromotionUnit(CvUnit* pUnit)
 	if (!pUnit)
 		return;
 
-	if (pUnit->IsNearbyPromotion())
+	if (pUnit->isNearbyPromotion())
 	{
 		bool bFound = false;
 		for (size_t i = 0; i<m_unitsAreaEffectPromotion.size(); i++)
@@ -46133,7 +46133,7 @@ void CvPlayer::UpdateAreaEfectPromotionUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (pLoopUnit->IsNearbyPromotion())
+		if (pLoopUnit->isNearbyPromotion())
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 	}
 }
