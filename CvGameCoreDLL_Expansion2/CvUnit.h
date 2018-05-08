@@ -1217,7 +1217,7 @@ public:
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveDefenseModToUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
-	bool IsGiveInvisibilityToUnit(TeamTypes eTeam, const CvPlot * pAtPlot = NULL) const;
+	bool IsHiddenByNearbyUnit(TeamTypes eTeam, const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
 	int GetGiveExtraAttacksToUnit() const;
 	int GetGiveHPIfEnemyKilledToUnit() const;

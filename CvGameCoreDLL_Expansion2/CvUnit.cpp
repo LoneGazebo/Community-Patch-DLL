@@ -972,7 +972,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// These get done in SetXY, but if the unit doesn't have the promotion, the variable doesn't get stored.
 	kPlayer.UpdateAreaEffectUnit(this);
-	kPlayer.UpdateAreaEfectPromotionUnit(this);
+	kPlayer.UpdateAreaEffectPromotionUnit(this);
 #endif
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
@@ -19931,7 +19931,7 @@ if (!bDoEvade)
 	{
 		//update area effects
 		kPlayer.UpdateAreaEffectUnit(this);
-		kPlayer.UpdateAreaEfectPromotionUnit(this);
+		kPlayer.UpdateAreaEffectPromotionUnit(this);
 
 		//update facing direction
 		if(pOldPlot != NULL)
@@ -23142,7 +23142,7 @@ int CvUnit::GetGoldenAgeGeneralExpPercent() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->GetGGGAXPPercent() != 0 && GET_PLAYER(pUnit->getOwner()).isGoldenAge())
+		if (pUnit && pUnit->GetGGGAXPPercent() != 0 && GET_PLAYER(pUnit->getOwner()).isGoldenAge() && pUnit != this)
 		{
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iGreatGeneralRange)
 			{
@@ -23175,7 +23175,7 @@ int CvUnit::GetGiveExperiencePercentToUnit() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getGiveExperiencePercent() != 0)
+		if (pUnit && pUnit->getGiveExperiencePercent() != 0 && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23210,7 +23210,7 @@ int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getGiveCombatMod() != 0)
+		if (pUnit && pUnit->getGiveCombatMod() != 0 && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23243,7 +23243,7 @@ int CvUnit::GetGiveDefenseModToUnit() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getGiveDefenseMod() != 0)
+		if (pUnit && pUnit->getGiveDefenseMod() != 0 && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23268,22 +23268,37 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 		if (pAtPlot == NULL)
 			return 0;
 	}
-
-	if (getNearbyCityCombatMod() != 0 && IsWithinDistanceOfCity(iRange, true, true))
+	for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
 	{
-		iMod = getNearbyCityCombatMod();
-	}
-	else if (getNearbyFriendlyCityCombatMod() && IsWithinDistanceOfCity(iRange, true, false))
-	{		
-		iMod = getNearbyFriendlyCityCombatMod();
-	}
-	else if (getNearbyEnemyCityCombatMod() && IsWithinDistanceOfCity(iRange, false, true))
-	{
-		iMod = getNearbyEnemyCityCombatMod();
+		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
+		const std::vector<std::pair<int, int>>& possibleCities = kLoopPlayer.GetAreaEffectPositiveCities();
+		for (std::vector<std::pair<int, int>>::const_iterator it = possibleCities.begin(); it != possibleCities.end(); ++it)
+		{
+			//first quick check with a large, fixed distance
+			CvPlot* pCityPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			if (plotDistance(pCityPlot->getX(), pCityPlot->getY(), getX(), getY()) > 4)
+				continue;
+			CvCity* pCity = kLoopPlayer.getCity(it->first);
+			if (pCity != NULL)
+			{
+				if (getNearbyCityCombatMod() != 0 && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
+				{
+					iMod = getNearbyCityCombatMod();
+				}
+				else if (getNearbyFriendlyCityCombatMod() != 0 && pCity->plot()->isFriendlyCity(*this, true) && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
+				{
+					iMod = getNearbyFriendlyCityCombatMod();
+				}
+				else if (getNearbyEnemyCityCombatMod() != 0 && pCity->plot()->isEnemyCity(*this) && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
+				{
+					iMod = getNearbyEnemyCityCombatMod();
+				}
+			}
+		}
 	}
 	return iMod;
 }
-bool CvUnit::IsGiveInvisibilityToUnit(TeamTypes eTeam, const CvPlot* pAtPlot) const
+bool CvUnit::IsHiddenByNearbyUnit(TeamTypes eTeam, const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
 	int iRange = 0;
@@ -23298,7 +23313,7 @@ bool CvUnit::IsGiveInvisibilityToUnit(TeamTypes eTeam, const CvPlot* pAtPlot) co
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->isGiveInvisibility())
+		if (pUnit && pUnit->isGiveInvisibility() && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23331,7 +23346,7 @@ int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getGiveOutsideFriendlyLandsModifier() != 0)
+		if (pUnit && pUnit->getGiveOutsideFriendlyLandsModifier() != 0 && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23365,7 +23380,7 @@ int CvUnit::GetGiveExtraAttacksToUnit() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getGiveExtraAttacks() != 0)
+		if (pUnit && pUnit->getGiveExtraAttacks() != 0 && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23399,7 +23414,7 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 			continue;
 
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit->getGiveHPIfEnemyKilled() != 0)
+		if (pUnit && pUnit->getGiveHPIfEnemyKilled() != 0 && pUnit != this)
 		{
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
@@ -23511,16 +23526,16 @@ int CvUnit::GetAreaEffectBonus(int iAuraEffectChange, const CvPlot* pAtPlot, con
 						iBonus += iAuraEffectChange;
 					}
 				}
-				else if (bSapper && !bGreatGeneral && !bCityAttackSupport && pUnit->IsSapper())
+				else if (bSapper && !bGreatGeneral && !bCityAttackSupport && pUnit->IsSapper() && pUnit != this)
 				{
 					CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
 					if (pTargetCity != NULL)
 					{
-						if (pUnit->IsSappingCity(pTargetCity))
+						if (pTargetCity->plot()->isEnemyCity(*pUnit) && (plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY()) == (iGreatGeneralRange / 2)))
 						{
 							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 						}
-						else if (pUnit->IsHalfSappingCity(pTargetCity))
+						else if (pTargetCity->plot()->isEnemyCity(*pUnit) && (plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY()) == iGreatGeneralRange))
 						{
 							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2;
 						}
