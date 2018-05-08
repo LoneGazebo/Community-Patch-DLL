@@ -7166,6 +7166,11 @@
 		<Row Tag="TXT_KEY_REPLAY_VIEWER_GRAPHBY_TOURISM">
 			<Text>Tourism [ICON_TOURISM] Per Turn</Text>
 		</Row>
+		
+		<!-- Splash Damage popup texts -->
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE">
+			<Text>Rend</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">
