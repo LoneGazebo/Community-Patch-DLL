@@ -1750,8 +1750,16 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY()) > data.iTypeParameter)
+	if(plotDistance(*pFromPlot,*pToPlot) > data.iTypeParameter)
 		return FALSE;
+
+	//can only claim ocean tiles after we can cross oceans
+	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+			return FALSE;
+	}
 
 	return TRUE;
 }
@@ -1824,6 +1832,14 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 	if(plotDistance(*pOrigin,*pToPlot) > data.iTypeParameter)
 		return FALSE;
+
+	//can only claim ocean tiles after we can cross oceans
+	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+			return FALSE;
+	}
 
 	return TRUE;
 }

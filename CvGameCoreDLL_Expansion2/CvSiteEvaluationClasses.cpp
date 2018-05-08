@@ -424,7 +424,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	int iGoodPlotsInRing1 = 0, iGoodPlotsInRing2 = 0;
+	int nFoodPlots = 0, nHammerPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -488,12 +488,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
 
-			// need at least some food in ring 1
-			if (iDistance == 1 &&  iFoodValue > 0)
-				iGoodPlotsInRing1++;
-			// and some hammers within ring 2
+			// need at least some food close by
+			if (iDistance > 0 && iDistance < 3 &&  iFoodValue > 0)
+				nFoodPlots++;
+			// and some hammers close by
 			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0))
-				iGoodPlotsInRing2++;
+				nHammerPlots++;
 		}
 
 		// for the central plot
@@ -601,9 +601,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (iGoodPlotsInRing1 < 2)
+	if (nFoodPlots < 4)
 		return 0;
-	if (iGoodPlotsInRing2 < 3)
+	if (nHammerPlots < 4)
 		return 0;
 
 	//civ-specific bonuses

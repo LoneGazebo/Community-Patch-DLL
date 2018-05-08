@@ -25822,7 +25822,6 @@ void CvCity::changeDamage(int iChange)
 bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 {
 	VALIDATE_OBJECT
-	CvPlot* pTargetPlot = NULL;
 
 	if(GC.getBUY_PLOTS_DISABLED())
 	{
@@ -25835,8 +25834,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	}
 #endif
 
-	pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
-
+	CvPlot* pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if(!pTargetPlot)
 	{
 		// no plot to buy
@@ -25886,8 +25884,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	if(!bFoundAdjacent)
 		return false;
 
-	// Max range of 3
-
+	// Max range
 	const int iMaxRange = getBuyPlotDistance();
 	if(plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return false;
@@ -25899,6 +25896,14 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 		{
 			return false;
 		}
+	}
+
+	//can only claim ocean tiles after we can cross oceans
+	if (pTargetPlot->isDeepWater())
+	{
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+			return false;
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -26010,7 +26015,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	int iDirectionLoop;
 	bool bFoundAdjacentOwnedByCity;
 
-	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
+	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange);
 	ReachablePlots influencePlots = GC.GetStepFinder().GetPlotsInReach( pThisPlot, data );
 
 	int iWorkPlotDistance = getWorkPlotDistance();
@@ -26256,6 +26261,21 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 }
 
 //	--------------------------------------------------------------------------------
+int CvCity::calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const
+{
+	if (pDest == NULL)
+		return -1;
+
+	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange);
+	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), pDest->getX(), pDest->getY(), data);
+	if (!path)
+		return -1; // no passable path exists
+	else
+		return (path.iNormalizedDistance<INT_MAX) ? path.iNormalizedDistance : -1;
+
+}
+
+//	--------------------------------------------------------------------------------
 /// How much will purchasing this plot cost -- (-1,-1) will return the generic price
 int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 {
@@ -26274,10 +26294,6 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	// Base cost
 	int iCost = GET_PLAYER(getOwner()).GetBuyPlotCost();
 
-	// Influence cost factor (e.g. Hills are more expensive than flat land)
-	CvMap& thisMap = GC.getMap();
-	CvPlot* pThisPlot = plot();
-
 	const int iMaxRange = getBuyPlotDistance();
 	if(plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return 9999; // Critical hit!
@@ -26287,7 +26303,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GC.getPLOT_INFLUENCE_DISTANCE_DIVISOR();
 	int iPLOT_BUY_RESOURCE_COST = /*-100*/ GC.getPLOT_BUY_RESOURCE_COST();
 
-	int iDistance = thisMap.calculateInfluenceDistance(pThisPlot, pPlot, iMaxRange);
+	int iDistance = calculateInfluenceDistance(pPlot, iMaxRange);
 	int iRefDistance = GetCheapestPlotInfluenceDistance();
 	if (iRefDistance==INT_MAX)
 		iRefDistance = 0;
@@ -26848,9 +26864,7 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 
 	if (!plots.empty())
 	{
-		int iRefDistance = GC.getMap().calculateInfluenceDistance( 
-			plot(), GC.getMap().plotByIndex(plots.front()), getBuyPlotDistance() );
-
+		int iRefDistance = calculateInfluenceDistance( GC.getMap().plotByIndex(plots.front()), getBuyPlotDistance() );
 		SetCheapestPlotInfluenceDistance( iRefDistance);
 	}
 	else

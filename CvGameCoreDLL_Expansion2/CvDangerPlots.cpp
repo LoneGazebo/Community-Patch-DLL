@@ -471,7 +471,8 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 /// Should this unit be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility)
 {
-	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit)
+	//watch out: if this is called for a half-initialized unit, the pointer may be valid but the plot invalid
+	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit || !pUnit->plot())
 		return true;
 
 	if(!pUnit->IsCanAttack())

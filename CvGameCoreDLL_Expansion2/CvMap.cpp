@@ -1419,26 +1419,6 @@ void CvMap::recalculateAreas()
 	recalculateLandmasses();
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange)
-{
-	if(pSource == NULL || pDest == NULL)
-	{
-		return -1;
-	}
-
-	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
-	SPath path = GC.GetStepFinder().GetPath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data);
-	if (!path)
-		return -1; // no passable path exists
-	else
-		return (path.iNormalizedDistance<INT_MAX) ? path.iNormalizedDistance : -1;
-
-}
-
-
-
 //	--------------------------------------------------------------------------------
 //
 // read object from a stream

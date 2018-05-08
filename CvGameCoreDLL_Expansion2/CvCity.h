@@ -1407,6 +1407,7 @@ public:
 	int GetCheapestPlotInfluenceDistance() const;
 	void SetCheapestPlotInfluenceDistance(int iValue);
 	void DoUpdateCheapestPlotInfluenceDistance();
+	int calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const;
 
 	// End plot acquisition
 

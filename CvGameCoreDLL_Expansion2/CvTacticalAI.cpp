@@ -11256,7 +11256,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			iDamageDealt += iDamageDealt/5;
 
 		//special: if there are multiple enemy units around, try to attack those first
-		if (tactPlot.getNumAdjacentEnemies()>1)
+		if (tactPlot.getNumAdjacentEnemies()>1 && pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD)
 			iDamageDealt /= 2;
 	}
 	else if (tactPlot.isEnemyCombatUnit())
@@ -11274,6 +11274,14 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 
 		bFlankModifierDefensive = pEnemy->GetFlankAttackModifier() > 0;
 		bFlankModifierOffensive = pUnit->GetFlankAttackModifier() > 0;
+
+		//repeat attacks may give extra bonus
+		if (iPrevDamage > 0)
+		{
+			int iBonus = pUnit->getMultiAttackBonus() + GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+			if (iBonus > 0) //the bonus affects attack strength, so the effect is hard to predict ...
+				iDamageDealt += iDamageDealt / 10;
+		}
 	}
 
 	//fake general bonus
@@ -11355,7 +11363,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	case AL_HIGH:
 		//we want to be able to survive a basic city counterattack (10 damage)
 		if ( iDamageReceived+10 < pUnit->GetCurrHitPoints() || fUnitNumberRatio>1 )
-			fAggFactor = 4.2f;
+			fAggFactor = 2.8f;
 		break;
 	}
 
@@ -11637,7 +11645,12 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 		//minor bonus for staying put and healing
 		if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft == pUnit->maxMoves())
-			result.iScore++;
+		{
+			if (pUnit->noDefensiveBonus())
+				result.iScore++; //cannot fortify
+			else
+				result.iScore+=5; //fortification bonus!
+		}
 	}
 
 	//will we end the turn here?
@@ -12260,14 +12273,25 @@ bool CvTacticalPosition::isComplete() const
 //check that we're not just shuffling around units
 bool CvTacticalPosition::isOffensive() const
 { 
-	//todo: consider positions where melee units engage the enemy for ZOC as offensive too
-	for (vector<STacticalAssignment>::const_iterator it=assignedMoves.begin(); it!=assignedMoves.end(); ++it)
-		if (it->eType==STacticalAssignment::A_MELEEATTACK ||
-			it->eType==STacticalAssignment::A_MELEEKILL ||
-			it->eType==STacticalAssignment::A_RANGEATTACK ||
-			it->eType==STacticalAssignment::A_RANGEKILL ||
-			it->eType==STacticalAssignment::A_CAPTURE)
+	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
+	{
+		if (it->eType == STacticalAssignment::A_MELEEATTACK ||
+			it->eType == STacticalAssignment::A_MELEEKILL ||
+			it->eType == STacticalAssignment::A_RANGEATTACK ||
+			it->eType == STacticalAssignment::A_RANGEKILL ||
+			it->eType == STacticalAssignment::A_CAPTURE)
 			return true;
+
+		//consider positions where melee units engage the enemy for ZOC as offensive too
+		if (it->eType == STacticalAssignment::A_FINISH)
+		{
+			const CvTacticalPlot& plot = getTactPlot(it->iToPlotIndex);
+			if (plot.getType() == CvTacticalPlot::TP_FRONTLINE &&
+				plot.getNumAdjacentFirstlineFriendlies() > 0 &&
+				!GET_PLAYER(ePlayer).getUnit(it->iUnitID)->isRanged())
+				return true;
+		}
+	}
 
 	//note: a pillage move alone does not count as offensive!
 	return false;
