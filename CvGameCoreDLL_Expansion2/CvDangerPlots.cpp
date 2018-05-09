@@ -123,6 +123,9 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 /// Updates the danger plots values to reflect threats across the map
 void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 {
+	if (!m_bArrayAllocated)
+		return;
+
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	set<int> plotsWithOwnedUnitsLikelyToBeKilled;
 
