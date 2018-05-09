@@ -318,6 +318,9 @@ public:
 	void ClearPlotsAtRange(const CvPlot* pPlot);
 	std::vector<CvPlot*> GetPlotsAtRange(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLOS);
 
+	int GetPopupCount(int iPlotIndex);
+	void IncreasePopupCount(int iPlotIndex);
+
 #if defined(MOD_UNIT_KILL_STATS)
 	int GetUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
 	void IncrementUnitKillCount(PlayerTypes ePlayer, int iPlotIndex);
@@ -387,6 +390,8 @@ protected:
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot3;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot2;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot3;
+
+	map<int, int> m_plotPopupCount; //not serialized
 
 #if defined(MOD_UNIT_KILL_STATS)
 	// player -> plot index -> number of owned units killed

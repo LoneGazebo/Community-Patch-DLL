@@ -937,17 +937,11 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements ...
-	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS))
+	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements
+	if (MOD_BALANCE_CORE_SETTLER && 
+		( ( (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS ) && pPlot->getFeatureType() == NO_FEATURE ) || 
+		   pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS ) )
 		rtnValue += 1;
-
-	//let's encourage settlement on/near oases
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_OASIS)
-		rtnValue += 2;
-
-	//let's encourage settlement on/near flood plains
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS)
-		rtnValue += 3;
 
 	//Help with island settling - assume a lighthouse
 	if(pPlot->isShallowWater())
@@ -963,8 +957,7 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1028,8 +1021,8 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// assume a mine or similar ...
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills())
+	// assume a mine or similar in friendly climate. don't run off into the snow
+	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills() && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE)
 		rtnValue += 1;
 #endif
 
@@ -1040,12 +1033,10 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
-
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
 		{

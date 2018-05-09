@@ -20526,42 +20526,6 @@ if (!bDoEvade)
 		PlayerTypes ePlotOwner = pNewPlot->getOwner();
 		if(ePlotOwner != NO_PLAYER)
 		{
-			// If we're in friendly territory and we can embark, give the promotion for free
-			if(pNewPlot->IsFriendlyTerritory(getOwner()))
-			{
-				if(GET_TEAM(eOurTeam).canEmbark())
-				{
-					PromotionTypes ePromotionEmbarkation = kPlayer.GetEmbarkationPromotion();
-
-					bool bGivePromotion = false;
-
-					// Civilians get it for free
-					if(getDomainType() == DOMAIN_LAND)
-					{
-						if(!IsCombatUnit())
-							bGivePromotion = true;
-					}
-
-					// Can the unit get this? (handles water units and such)
-					if(!bGivePromotion && ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, getUnitType()))
-						bGivePromotion = true;
-
-					// Some case that gives us the promotion?
-					if(bGivePromotion)
-						setHasPromotion(ePromotionEmbarkation, true);
-						
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-					if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION) {
-						// Incredibly unlikely to ever happen as it implies that hovering units come before embarkation in the tech tree!
-						PromotionTypes ePromotionDeepWaterEmbarkation = kPlayer.GetDeepWaterEmbarkationPromotion();
-						if(::IsPromotionValidForUnitCombatType(ePromotionDeepWaterEmbarkation, getUnitType())) {
-							setHasPromotion(ePromotionDeepWaterEmbarkation, true);
-						}
-					}
-#endif
-				}
-			}
-
 			// Are we in enemy territory? If so, give notification to owner
 			if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(ePlotOwner).getTeam()) && !isInvisible(GET_PLAYER(ePlotOwner).getTeam(),false,false))
 			{
@@ -28714,8 +28678,12 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 	}
 
-	//todo: consider movement flags here. especially turn destination, not only path destination
+	int iOldDanger = -1;
 	bool bEndMove = (pPathPlot == pDestPlot);
+	if (!bEndMove && (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
+		iOldDanger = GetDanger(pPathPlot);
+
+	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
 
 	int iETA = 1;
@@ -28725,6 +28693,18 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 		if (bMoved)
 		{
+			//it's possible that the move made additional enemies visible
+			//for some units we want to abort if the danger is significant and we have a chance to evade it
+			if (canMove() && iOldDanger >= 0)
+			{
+				int iNewDanger = GetDanger();
+				if (iNewDanger > GetCurrHitPoints()/2 && iNewDanger > iOldDanger)
+				{
+					ClearPathCache();
+					return MOVE_RESULT_CANCEL;
+				}
+			}
+
 			//this plot has now been consumed
 			m_kLastPath.pop_front();
 

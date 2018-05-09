@@ -636,6 +636,8 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
 //	--------------------------------------------------------------------------------
 void CvMap::doTurn()
 {
+	m_plotPopupCount.clear();
+
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->doTurn();
@@ -2541,4 +2543,14 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 	}
 
 	return vector<CvPlot*>();
+}
+
+int CvMap::GetPopupCount(int iPlotIndex)
+{
+	return m_plotPopupCount[iPlotIndex];
+}
+
+void CvMap::IncreasePopupCount(int iPlotIndex)
+{
+	m_plotPopupCount[iPlotIndex] += 1;
 }

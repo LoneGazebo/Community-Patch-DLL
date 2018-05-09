@@ -12997,7 +12997,10 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 	{
 		//show the popup only if we're not on autoplay - too many stored popups seems to lead to crashes
 		if (GC.getGame().getAIAutoPlay() < 10)
-			DLLUI->AddPopupText(getX(), getY(), szMessage, 0.8f);
+		{
+			DLLUI->AddPopupText(getX(), getY(), szMessage, GC.getMap().GetPopupCount(m_iPlotIndex)*0.5f);
+			GC.getMap().IncreasePopupCount(m_iPlotIndex);
+		}
 	}
 }
 #endif

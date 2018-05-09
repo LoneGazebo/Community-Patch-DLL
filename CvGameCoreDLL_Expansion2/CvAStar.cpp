@@ -1803,8 +1803,10 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		{
 			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
 			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
-			iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
-			iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+			if (pFeature)
+				iExtraCost = max(iExtraCost, pFeature->getInfluenceCost());
+			else if (pTerrain)
+				iExtraCost = max(iExtraCost, pTerrain->getInfluenceCost());
 		}
 
 		//going along routes is cheaper

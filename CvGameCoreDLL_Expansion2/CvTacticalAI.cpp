@@ -2790,13 +2790,17 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 
 			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
-				ExecuteMoveToPlot(pUnit,pPlot,false,CvUnit::MOVEFLAG_NO_EMBARK);
-
-			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvString strLogString;
-				strLogString.Format("Moving toward %s for pillage, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
-				LogTacticalMessage(strLogString);
+				ExecuteMoveToPlot(pUnit, pPlot, false, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Moving toward %s for pillage, X: %d, Y: %d", szTargetName.GetCString(), pTarget->GetTargetX(), pTarget->GetTargetY());
+					LogTacticalMessage(strLogString);
+				}
+
+				UnitProcessed(pUnit->GetID());
 			}
 		}
 	}
@@ -4138,14 +4142,14 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags, INT_MAX, NULL, true);
 			if(bHavePathCivilian)
 			{
-				CvPlot* pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
-				if(pCommonPlot != NULL)
+				CvPlot* pTurnTarget = pCivilian->GetPathEndFirstTurnPlot();
+				if(pTurnTarget != NULL)
 				{
-					if (pCivilian->GetDanger(pCommonPlot) == INT_MAX)
-						pCommonPlot = TacticalAIHelpers::FindSafestPlotInReach(pCivilian, true, false, true);
+					if (pCivilian->GetDanger(pTurnTarget) == INT_MAX)
+						pTurnTarget = TacticalAIHelpers::FindSafestPlotInReach(pCivilian, true, false, true);
 
-					bSaveMoves = (pCommonPlot == pOperation->GetTargetPlot());
-					ExecuteMoveToPlot(pCivilian, pCommonPlot, bSaveMoves);
+					bSaveMoves = (pTurnTarget == pOperation->GetTargetPlot());
+					ExecuteMoveToPlot(pCivilian, pTurnTarget, bSaveMoves, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						strLogString.Format("%s now at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -6998,7 +7002,14 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,NULL,true))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
-			bResult = true;
+			bResult = pUnit->at(pTarget->getX(), pTarget->getY());
+
+			if (!bResult) //typically happens with MOVEFLAG_AI_ABORT_IN_DANGER
+			{
+				pTarget = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+				if (pTarget)
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
+			}
 
 			//for inspection in GUI
 			pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);

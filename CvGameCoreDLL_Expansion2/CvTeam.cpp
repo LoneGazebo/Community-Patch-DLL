@@ -4344,19 +4344,15 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 			{
 				if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
 				{
+					PromotionTypes ePromotionEmbarkation = GET_PLAYER((PlayerTypes)iI).GetEmbarkationPromotion();
 					for(pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 					{
 						// Land Unit
 						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
 						{
-							// If we're in friendly territory and we can embark, give the promotion for free
-							if(pLoopUnit->plot()->IsFriendlyTerritory((PlayerTypes)iI))
-							{
-								// Civilian unit or the unit can acquire this promotion
-								PromotionTypes ePromotionEmbarkation = GET_PLAYER((PlayerTypes)iI).GetEmbarkationPromotion();
-								if(!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
-									pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
-							}
+							// Civilian unit or the unit can acquire this promotion
+							if(!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
+								pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
 						}
 					}
 				}
