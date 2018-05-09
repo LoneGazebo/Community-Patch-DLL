@@ -436,6 +436,9 @@
 		<Row Tag="TXT_KEY_EUI_BUILDING_SUPPLY_CAP_GLOBAL">
 			<Text>Supply Cap Global:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUI_BUILDING_GRANTED_BY">
+			<Text>GRANTED BY</Text>
+		</Row>
 		<!-- VP end -->
 <!-- MISC EUI tooltips -->
 		<Row Tag="TXT_KEY_CBE91AF606834326BC7758BB489E509F_DESCRIPTION">
