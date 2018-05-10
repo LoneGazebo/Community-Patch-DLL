@@ -19928,32 +19928,6 @@ if (!bDoEvade)
 	if(pOldPlot != NULL)
 	{
 		pOldPlot->removeUnit(this, bUpdate);
-		if (isGiveInvisibility())
-		{
-			int iRange = GetNearbyUnitPromotionsRange();
-			int iMax = maxMoves();
-			int iLoop;
-			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-			{
-				if (!pLoopUnit->IsCombatUnit())
-					continue;
-
-				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
-					continue;
-
-				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax + 1))
-					continue;
-				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
-				{
-					pLoopUnit->plot()->updateVisibility();
-				}
-				else if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
-				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
-					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
-				}
-			}
-		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{
