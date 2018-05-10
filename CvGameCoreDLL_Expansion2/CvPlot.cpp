@@ -11197,12 +11197,17 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	{
 		eResult = VISIBILITY_CHANGE_TO_VISIBLE;
 
+#if defined(MOD_BUGFIX_EXPLORE_REVEALED_PLOT)
+		bool alreadyRevealed = isRevealed(eTeam); // result from setRevealed is not just a simple "we revealed a new plot to the player" and was causing all sorts of issues (poor ai explore decisions, desyncs, etc).
+#endif
+
 #if defined(MOD_API_EXTENSIONS)
 		if (setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
 #else
 		if (setRevealed(eTeam, true))	// Change to revealed, returns true if the visibility was changed
 #endif
 		{
+#if !defined(MOD_BUGFIX_EXPLORE_REVEALED_PLOT)		
 			//we are seeing this plot for the first time
 			if (bInformExplorationTracking)
 			{
@@ -11210,6 +11215,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				for (size_t i = 0; i < vPlayers.size(); i++)
 					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 			}
+#endif
 		}
 		else
 		{
@@ -11222,6 +11228,16 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				updateVisibility();
 			}
 		}
+
+#if defined(MOD_BUGFIX_EXPLORE_REVEALED_PLOT)
+		// this team is seeing this plot for the first time		
+		if (bInformExplorationTracking && !alreadyRevealed && isRevealed(eTeam))
+		{
+			vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
+			for (size_t i = 0; i < vPlayers.size(); i++)
+				GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
+		}
+#endif
 
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
