@@ -3035,15 +3035,11 @@ CvPlot* CvPathNodeArray::GetTurnDestinationPlot(int iTurn) const
 	if (empty() || iTurn<0)
 		return NULL;
 
-	//walk backwards and return the first match
+	//walk backwards and return the first (last) match
 	for (size_t i = size(); i != 0; i--)
 	{
 		const CvPathNode& thisNode = at(i-1);
-		//actual end turn plot
-		if (thisNode.m_iTurns == iTurn+1 && thisNode.m_iMoves == 0)
-			return GC.getMap().plotUnchecked(thisNode.m_iX, thisNode.m_iY);
-		//unit still has moves left at the end of the path
-		if (thisNode.m_iTurns == iTurn && thisNode.m_iMoves > 0)
+		if (thisNode.m_iTurns == iTurn)
 			return GC.getMap().plotUnchecked(thisNode.m_iX, thisNode.m_iY);
 	}
 
