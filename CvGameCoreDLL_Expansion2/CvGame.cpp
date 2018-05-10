@@ -481,7 +481,7 @@ void SetAllPlotsVisible(TeamTypes eTeam)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
 			pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
-
+			pLoopPlot->changeInvisibleVisibilityCountUnit(eTeam, pLoopPlot->getInvisibleVisibilityCountUnit(eTeam) + 1);
 			for (int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 			{
 				pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);

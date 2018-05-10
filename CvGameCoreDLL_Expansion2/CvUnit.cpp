@@ -973,6 +973,20 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// These get done in SetXY, but if the unit doesn't have the promotion, the variable doesn't get stored.
 	kPlayer.UpdateAreaEffectUnit(this);
 	kPlayer.UpdateAreaEffectPromotionUnit(this);
+	if (isGiveInvisibility())
+	{
+		int iLoop;
+		int iRange = GetNearbyUnitPromotionsRange();
+		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iRange)
+				continue;
+			if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+			{
+				pLoopUnit->plot()->updateVisibility();
+			}
+		}
+	}
 #endif
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
@@ -2641,7 +2655,30 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
+	// Let's force a visibility update to all nearby units (in the domain)--within range--if this general is captured or killed regardless if there is another general around to give the bonus
+	if (isGiveInvisibility())
+	{
+		int iLoop;
+		int iRange = GetNearbyUnitPromotionsRange();
+		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if (!pLoopUnit->IsCombatUnit())
+				continue;
 
+			if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+				continue;
+
+			if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iRange)
+				continue;
+
+			if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+			{
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+			}
+		}
+	}
 	//////////////////////////////////////////////////////////////////////////
 	// WARNING: This next statement will delete 'this'
 	// ANYTHING BELOW HERE MUST NOT REFERENCE THE UNIT!
@@ -18821,7 +18858,11 @@ bool CvUnit::isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo) const
 			}
 		}
 	}
-
+	if (IsHiddenByNearbyUnit() && eTeam != NO_TEAM && !plot()->isInvisibleVisibleUnit(eTeam))
+	{
+		return true;
+	}
+	
 	if(m_eInvisibleType == NO_INVISIBLE)
 	{
 		return false;
@@ -19887,7 +19928,32 @@ if (!bDoEvade)
 	if(pOldPlot != NULL)
 	{
 		pOldPlot->removeUnit(this, bUpdate);
+		if (isGiveInvisibility())
+		{
+			int iRange = GetNearbyUnitPromotionsRange();
+			int iMax = maxMoves();
+			int iLoop;
+			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
 
+				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+					continue;
+
+				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax + 1))
+					continue;
+				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+				{
+					pLoopUnit->plot()->updateVisibility();
+				}
+				else if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+				}
+			}
+		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{
@@ -19979,7 +20045,32 @@ if (!bDoEvade)
 		{
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, m_iMapLayer);
 		}
+		if (isGiveInvisibility())
+		{
+			int iRange = GetNearbyUnitPromotionsRange();
+			int iMax = maxMoves();
+			int iLoop;
+			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
 
+				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+					continue;
+
+				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax +1))
+					continue;
+				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+				{
+					pLoopUnit->plot()->updateVisibility();
+				}
+				else if(pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+				}
+			}
+		}
 #if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
@@ -20214,6 +20305,19 @@ if (!bDoEvade)
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 			}
 		}
+		if (eOurTeam != activeTeam && (IsHiddenByNearbyUnit(pNewPlot)))
+		{
+			bool bOldInvisibleVisibleUnit = false;
+			if (pOldPlot)
+				bOldInvisibleVisibleUnit = pOldPlot->isInvisibleVisibleUnit(activeTeam);
+			bool bNewInvisibleVisibleUnit = pNewPlot->isInvisibleVisibleUnit(activeTeam);
+			if (bOldInvisibleVisibleUnit != bNewInvisibleVisibleUnit)
+			{
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisibleUnit, true);
+			}
+		}
+
 
 		CvTeam& kOurTeam = GET_TEAM(eOurTeam);
 
@@ -23298,7 +23402,7 @@ int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 	}
 	return iMod;
 }
-bool CvUnit::IsHiddenByNearbyUnit(TeamTypes eTeam, const CvPlot* pAtPlot) const
+bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
 	int iRange = 0;
@@ -23318,7 +23422,7 @@ bool CvUnit::IsHiddenByNearbyUnit(TeamTypes eTeam, const CvPlot* pAtPlot) const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit() && pUnit->getTeam() == eTeam)
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit() && pUnit->getTeam() == getTeam())
 				{
 					return true;
 				}

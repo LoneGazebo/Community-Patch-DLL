@@ -318,6 +318,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 
 	for(int iI = 0; iI < MAX_TEAMS; ++iI)
 	{
+		m_paiInvisibleVisibilityUnitCount[iI] = 0;
 		for(int iJ = 0; iJ < NUM_INVISIBLE_TYPES; ++iJ)
 		{
 			m_apaiInvisibleVisibilityCount[iI][iJ] = 0;
@@ -617,6 +618,11 @@ void CvPlot::updateVisibility()
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 				}
+				if (pLoopUnit->IsHiddenByNearbyUnit(this))
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
+				}
 			}
 		}
 
@@ -637,6 +643,12 @@ void CvPlot::updateVisibility()
 						// This unit has visibility rules, send a message that it needs to update itself.
 						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
+					}
+					if (pLoopUnit->IsHiddenByNearbyUnit(this))
+					{
+						// This unit has visibility rules, send a message that it needs to update itself.
+						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 					}
 				}
 			}
@@ -11185,6 +11197,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 
 	if(bAlwaysSeeInvisible)
 	{
+		changeInvisibleVisibilityCountUnit(eTeam, iChange);
 		for(int iI = 0; iI < NUM_INVISIBLE_TYPES; iI++)
 		{
 			changeInvisibleVisibilityCount(eTeam, (InvisibleTypes) iI, iChange);
@@ -12655,7 +12668,62 @@ void CvPlot::setCenterUnit(CvUnit* pNewValue)
 		}
 	}
 }
+int CvPlot::getInvisibleVisibilityCountUnit(TeamTypes eTeam) const
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	return m_paiInvisibleVisibilityUnitCount[eTeam];
+}
+bool CvPlot::isInvisibleVisibleUnit(TeamTypes eTeam) const
+{
+	return (getInvisibleVisibilityCountUnit(eTeam) > 0);
+}
+void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
+{
+	bool bOldInvisibleVisible;
+	bool bNewInvisibleVisible;
 
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
+
+	if (iChange != 0)
+	{
+		bOldInvisibleVisible = isInvisibleVisibleUnit(eTeam);
+
+		m_paiInvisibleVisibilityUnitCount[eTeam] = (m_paiInvisibleVisibilityUnitCount[eTeam] + iChange);
+
+		CvAssertFmt(m_apaiInvisibleVisibilityCount[eTeam] >= 0, "Invisible Visibility going negative for %d, %d", m_iX, m_iY);
+
+		bNewInvisibleVisible = isInvisibleVisibleUnit(eTeam);
+		if (bOldInvisibleVisible != bNewInvisibleVisible)
+		{
+			TeamTypes activeTeam = GC.getGame().getActiveTeam();
+			if (eTeam == activeTeam)
+			{
+				// for all (nominally invisible) units in this plot
+				// tell the engine to flip whether they are being drawn or not
+				IDInfo* pUnitNode;
+				CvUnit* pLoopUnit = NULL;
+				pUnitNode = headUnitNode();
+				while (pUnitNode != NULL)
+				{
+					pLoopUnit = GetPlayerUnit(*pUnitNode);
+					pUnitNode = nextUnitNode(pUnitNode);
+
+					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+					{
+						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
+					}
+				}
+
+				updateCenterUnit();
+
+			}
+		}
+	}
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const
 {
@@ -13367,6 +13435,7 @@ void CvPlot::read(FDataStream& kStream)
 	}
 
 	kStream >> m_apaiInvisibleVisibilityCount;
+	kStream >> m_paiInvisibleVisibilityUnitCount;
 
 	//m_units.Read(kStream);
 	UINT uLength;
@@ -13525,6 +13594,7 @@ void CvPlot::write(FDataStream& kStream) const
 	}
 
 	kStream << m_apaiInvisibleVisibilityCount;
+	kStream << m_paiInvisibleVisibilityUnitCount;
 
 	//  Write m_units.Write(kStream);
 	UINT uLength = (UINT)m_units.getLength();
