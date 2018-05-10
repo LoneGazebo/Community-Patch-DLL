@@ -2543,9 +2543,15 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateMilitaryStats();
+	void UpdateAreaEffectPromotionUnit(CvUnit* pUnit);
+	void UpdateAreaEffectPromotionUnits();
 	void UpdateAreaEffectUnits();
+	void UpdateAreaEffectCityPlots();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
+	void UpdateAreaEffectCityPlot(CvCity* pCity);
 	void UpdateAreaEffectPlots();
+	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
+	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveCities() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
@@ -3715,6 +3721,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAvgUnitExp100;
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
+	std::vector< std::pair<int,int> > m_unitsAreaEffectPromotion; //unit / plot
+	std::vector< std::pair<int,int> > m_plotsAreaEffectPositiveCities; //city /plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;

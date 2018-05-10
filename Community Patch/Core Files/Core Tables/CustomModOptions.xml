@@ -1063,7 +1063,7 @@
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->
-	<Row Class="6" Name="CIV6_TYPE_WORKER" Value="0"/>
+	<Row Class="6" Name="CIV6_WORKER" Value="0"/>
 	<!-- City-state influence and yields scale with era and number of cities. -->
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->

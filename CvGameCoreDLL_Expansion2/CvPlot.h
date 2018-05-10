@@ -779,6 +779,10 @@ public:
 	const CvUnit* getDebugCenterUnit() const;
 	void setCenterUnit(CvUnit* pNewValue);
 
+	int getInvisibleVisibilityCountUnit(TeamTypes eTeam) const;
+	bool isInvisibleVisibleUnit(TeamTypes eTeam) const;
+	void changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange);
+
 	int getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);
@@ -1059,6 +1063,8 @@ protected:
 	CvUnit* m_pCenterUnit;
 
 	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
+
+	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
 
 	short m_iArea;
 	short m_iLandmass;

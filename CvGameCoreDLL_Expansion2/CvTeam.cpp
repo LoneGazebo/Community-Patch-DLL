@@ -651,7 +651,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		pLoopPlot->changeVisibilityCount(GetID(), pLoopPlot->getVisibilityCount(eTeam), NO_INVISIBLE, true, false);
-
+		pLoopPlot->changeInvisibleVisibilityCountUnit(GetID(), pLoopPlot->getInvisibleVisibilityCountUnit(eTeam));
 		for(iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 		{
 			pLoopPlot->changeInvisibleVisibilityCount(GetID(), ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)));

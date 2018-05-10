@@ -595,7 +595,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	// this is a list of plot that are owned by the player
 	owningPlayer.UpdatePlots();
-
+	owningPlayer.UpdateAreaEffectCityPlot(this);
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	static BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
 	static BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
@@ -11743,7 +11743,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetMilitaryProductionModifier();
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getMilitaryProductionModifier();
 			if(iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
@@ -11902,7 +11902,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier();
+			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier();
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
@@ -12044,7 +12044,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = (pCityPlot->getUnitByIndex(iUnitLoop)->GetWonderProductionModifier() * iMod) / 100;
+			iTempMod = (pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier() * iMod) / 100;
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;

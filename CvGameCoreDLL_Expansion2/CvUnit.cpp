@@ -415,21 +415,28 @@ CvUnit::CvUnit() :
 	, m_iCombatBonusFromNearbyUnitClass("CvUnit::m_iCombatBonusFromNearbyUnitClass", m_syncArchive)
 	, m_iNearbyUnitClassBonusRange("CvUnit::m_iNearbyUnitClassBonusRange", m_syncArchive)
 	, m_iNearbyUnitClassBonus("CvUnit::m_iNearbyUnitClassBonus", m_syncArchive)
-	, m_iAddedFromNearbyUnitPromotion("CvUnit::m_iAddedFromNearbyUnitPromotion", m_syncArchive)
 	, m_bNearbyPromotion("CvUnit::m_bNearbyPromotion", m_syncArchive)
 	, m_iNearbyUnitPromotionRange("CvUnit::m_iNearbyUnitPromotionRange", m_syncArchive)
-	, m_bNearbyCityPromotion("CvUnit::m_bNearbyCityPromotion", m_syncArchive)
-	, m_bNearbyFriendlyCityPromotion("CvUnit::m_bNearbyFriendlyCityPromotion", m_syncArchive)
-	, m_bNearbyEnemyCityPromotion("CvUnit::m_bNearbyEnemyCityPromotion", m_syncArchive)
+	, m_inearbyCityCombatMod("CvUnit::m_inearbyCityCombatMod", m_syncArchive)
+	, m_inearbyFriendlyCityCombatMod("CvUnit::m_inearbyFriendlyCityCombatMod", m_syncArchive)
+	, m_inearbyEnemyCityCombatMod("CvUnit::m_inearbyEnemyCityCombatMod", m_syncArchive)
 	, m_bIsFriendlyLands("CvUnit::m_bIsFriendlyLands", m_syncArchive)
 	, m_bIsEnemyLands("CvUnit::m_bIsEnemyLands", m_syncArchive)
-	, m_iAdjacentSameType("CvUnit::m_iAdjacentSameType", m_syncArchive)
 	, m_iPillageBonusStrengthPercent("CvUnit::m_iPillageBonusStrengthPercent", m_syncArchive)
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
 	, m_iWonderProductionModifier("CvUnit::m_iWonderProductionModifier", m_syncArchive)
 	, m_iUnitProductionModifier("CvUnit::m_iUnitProductionModifier", m_syncArchive)
 	, m_iNearbyEnemyDamage("CvUnit::m_iNearbyEnemyDamage", m_syncArchive)
+	, m_iGGGAXPPercent("CvUnit::m_iGGGAXPPercent", m_syncArchive)
+	, m_iGiveCombatMod("CvUnit::m_iGiveCombatMod", m_syncArchive)
+	, m_iGiveHPIfEnemyKilled("CvUnit::m_iGiveHPIfEnemyKilled", m_syncArchive)
+	, m_iGiveExperiencePercent("CvUnit::m_iGiveExperiencePercent", m_syncArchive)
+	, m_igiveOutsideFriendlyLandsModifier("CvUnit::m_igiveOutsideFriendlyLandsModifier", m_syncArchive)
+	, m_pabGiveDomainBonus("CvUnit::m_pabGiveDomainBonus", m_syncArchive)
+	, m_igiveExtraAttacks("CvUnit::m_igiveExtraAttacks", m_syncArchive)
+	, m_igiveDefenseMod("CvUnit::m_igiveDefenseMod", m_syncArchive)
+	, m_bgiveInvisibility("CvUnit::m_bgiveInvisibility", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -737,8 +744,17 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//get builder strength
 	if (getUnitInfo().GetBuilderStrength() > 0)
 	{
-		// use speed modifier to increase the work count. *4 because a 25% increase = +1 work = +100 strength
-		setBuilderStrength(getUnitInfo().GetBuilderStrength() + kPlayer.getWorkerSpeedModifier() * 4 + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier() * 4);
+		// use speed modifier to increase the work count.
+		int ibuildercharges = getUnitInfo().GetBuilderStrength();
+		const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
+		if (0 != iworkerspeedmodifier)
+		{
+			float fTemp = (float)ibuildercharges;
+			fTemp *= (100 + iworkerspeedmodifier);
+			fTemp /= 100;
+			ibuildercharges = (int)ceil(fTemp); // Round up
+		}
+		setBuilderStrength(ibuildercharges);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
@@ -953,7 +969,25 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(bGivePromotion)
 			setHasPromotion(ePromotionEmbarkation, true);
 	}
-	
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// These get done in SetXY, but if the unit doesn't have the promotion, the variable doesn't get stored.
+	kPlayer.UpdateAreaEffectUnit(this);
+	kPlayer.UpdateAreaEffectPromotionUnit(this);
+	if (isGiveInvisibility())
+	{
+		int iLoop;
+		int iRange = GetNearbyUnitPromotionsRange();
+		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iRange)
+				continue;
+			if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+			{
+				pLoopUnit->plot()->updateVisibility();
+			}
+		}
+	}
+#endif
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
 	if (IsEmbarkDeepWater()) {
@@ -1458,9 +1492,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCombatBonusFromNearbyUnitClass = NO_UNITCLASS;
 	m_bNearbyPromotion = false;
 	m_iNearbyUnitPromotionRange = 0;
-	m_bNearbyCityPromotion = false;
-	m_bNearbyFriendlyCityPromotion = false;
-	m_bNearbyEnemyCityPromotion = false;
+	m_inearbyCityCombatMod = 0;
+	m_inearbyFriendlyCityCombatMod = 0;
+	m_inearbyEnemyCityCombatMod = 0;
 	m_bIsFriendlyLands = false;
 	m_bIsEnemyLands = false;
 	m_iPillageBonusStrengthPercent = 0;
@@ -1469,6 +1503,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
+	m_iGGGAXPPercent = 0;
+	m_iGiveCombatMod = 0;
+	m_iGiveHPIfEnemyKilled = 0;
+	m_iGiveExperiencePercent = 0;
+	m_igiveOutsideFriendlyLandsModifier = 0;
+	m_igiveExtraAttacks = 0;
+	m_igiveDefenseMod = 0;
+	m_bgiveInvisibility = false;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -1609,6 +1651,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_combatUnit.reset();
 	m_transportUnit.reset();
 	m_extraDomainModifiers.clear();
+	m_pabGiveDomainBonus.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
@@ -1676,8 +1719,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_BALANCE_CORE)
 		m_PromotionDuration.dirtyGet().clear();
 		m_TurnPromotionGained.dirtyGet().clear();
-		m_iAddedFromNearbyUnitPromotion.dirtyGet().clear();
-		m_iAdjacentSameType.dirtyGet().clear();
 #endif
 		m_terrainImpassableCount.dirtyGet().clear();
 		m_extraTerrainAttackPercent.dirtyGet().clear();
@@ -1704,6 +1745,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
+		m_pabGiveDomainBonus.clear();
+		m_pabGiveDomainBonus.resize(NUM_DOMAIN_TYPES, false);
 #endif
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
@@ -1843,8 +1886,6 @@ void CvUnit::uninitInfos()
 #if defined(MOD_BALANCE_CORE)
 	m_PromotionDuration.dirtyGet().clear();
 	m_TurnPromotionGained.dirtyGet().clear();
-	m_iAddedFromNearbyUnitPromotion.dirtyGet().clear();
-	m_iAdjacentSameType.dirtyGet().clear();
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_terrainDoubleHeal.dirtyGet().clear();
@@ -2614,7 +2655,30 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
+	// Let's force a visibility update to all nearby units (in the domain)--within range--if this general is captured or killed regardless if there is another general around to give the bonus
+	if (isGiveInvisibility())
+	{
+		int iLoop;
+		int iRange = GetNearbyUnitPromotionsRange();
+		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if (!pLoopUnit->IsCombatUnit())
+				continue;
 
+			if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+				continue;
+
+			if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iRange)
+				continue;
+
+			if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+			{
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+			}
+		}
+	}
 	//////////////////////////////////////////////////////////////////////////
 	// WARNING: This next statement will delete 'this'
 	// ANYTHING BELOW HERE MUST NOT REFERENCE THE UNIT!
@@ -3066,7 +3130,7 @@ void CvUnit::doTurn()
 	DoImprovementExperience(plot());
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
-	DoNearbyUnitPromotion(this, plot());
+	DoNearbyUnitPromotion(plot());
 	DoConvertEnemyUnitToBarbarian(plot());
 	DoConvertReligiousUnitsToMilitary(plot());
 #endif
@@ -5900,7 +5964,7 @@ int CvUnit::GetScrapGold() const
 
 #if defined(MOD_CIV6_WORKER)
 	//if we are a builder (something with builderstrength), our value decrease with our build strength
-	if (getBuilderStrength() > 0)
+	if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 	{
 		iNumGold *= getUnitInfo().GetBuilderStrength() - getBuilderStrength();
 		iNumGold /= getUnitInfo().GetBuilderStrength();
@@ -10441,9 +10505,9 @@ bool CvUnit::pillage()
 
 	if(bSuccessfulNonRoadPillage)
 	{
-		if (GetPillageBonusStrengthPercent() > 0)
+		if (getPillageBonusStrengthPercent() != 0)
 		{
-			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((GetPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
+			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
 		}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
@@ -13220,7 +13284,12 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
-
+#if defined(MOD_CIV6_WORKER)
+	if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
+	{
+		return false;
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if(!GET_PLAYER(getOwner()).GetPlayerTraits()->HasUnitClassCanBuild(eBuild, getUnitClassType()) && !m_pUnitInfo->GetBuilds(eBuild))
 #else
@@ -13341,9 +13410,6 @@ bool CvUnit::build(BuildTypes eBuild)
 	int iWorkRateWithMoves = workRate(false);
 
 	int iStartedYet = pPlot->getBuildProgress(eBuild);
-#if defined(MOD_CIV6_WORKER)
-	int iMaxTimetoBuild = pPlot->getBuildTime(eBuild, getOwner());
-#endif
 
 	bool NewBuild = false;
 	// if we are starting something new wipe out the old thing immediately
@@ -13642,48 +13708,63 @@ bool CvUnit::build(BuildTypes eBuild)
 				if(IsGreatPerson())
 				{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
+#if defined(MOD_CIV6_WORKER)
+					if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
+					{
+						kPlayer.DoGreatPersonExpended(getUnitType(), this);
+					}
+					else
+#endif
 					kPlayer.DoGreatPersonExpended(getUnitType(), this);
 #else
 					kPlayer.DoGreatPersonExpended(getUnitType());
 #endif
 				}
 #if defined(MOD_BALANCE_CORE)
-				if(!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+#if defined(MOD_CIV6_WORKER)
+				if (MOD_CIV6_WORKER)
+				{
+					if ((!pkBuildInfo->isKillOnlyCivilian() && !IsGreatPerson()) || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit() && !IsGreatPerson()))
+					{
+						kill(true);
+					}
+					else if (IsGreatPerson() && getBuilderStrength() <= 0)
+					{
+						kill(true);
+					}
+				}
+				else if (!MOD_CIV6_WORKER)
 				{
 #endif
+					if (!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+					{
+#endif
 
-				kill(true);
+						kill(true);
 #if defined(MOD_BALANCE_CORE)
+					}
 				}
 #endif
 			}
 
 #if defined(MOD_CIV6_WORKER)
 			//if we are a builder (something with builderstrength)
-			if (getBuilderStrength() > 0)
+			if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 			{
 				//check the amount of work done
-				int iTotalCost = pkBuildInfo->getBuilderCost();
-				int iTimeUsed = pPlot->getBuildProgress(eBuild) - iStartedYet;
-				if (bFinished)
-				{
-					iTimeUsed = iMaxTimetoBuild - iStartedYet;
-				}
-				int iCostThisTurn = iTotalCost * iTimeUsed;
-				iCostThisTurn /= iMaxTimetoBuild;
-				
-				//special mod for route construction (used by a policy)
-				if (pkBuildInfo->getRoute() != NO_ROUTE)
-				{
-					iCostThisTurn *= 100 + kPlayer.GetRouteBuilderCostMod();
-					iCostThisTurn /= 100;
-				}
-
+				int iBuildCost = pkBuildInfo->getBuilderCost();
 				// remove this amount (and kill me if it's too high)
-				setBuilderStrength(getBuilderStrength() - iCostThisTurn);
-				if (m_iBuilderStrength == 0){
-					//delete unit
-					kill(true);
+				setBuilderStrength(getBuilderStrength() - iBuildCost);
+				if (getBuilderStrength() <= 0)
+				{
+					UnitTypes eArchaeologist = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
+					// We won't kill Combat Units and we won't kill great people that are combat units unless they run out of build charges. We'll kill Arcaeologists somewhere else.
+					if (!IsCombatUnit() && (getUnitType() != eArchaeologist))
+					{
+						//delete unit
+						kill(true);
+					}
+					
 				}
 			}
 #endif
@@ -15128,7 +15209,12 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	iRate *= Modifiers + 100;
 	iRate /= 100;
-
+#if defined(MOD_CIV6_WORKER)
+	if (MOD_CIV6_WORKER)
+	{
+		iRate = 100;
+	}
+#endif
 	return iRate;
 }
 
@@ -15527,20 +15613,16 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		pFromPlot = plot();
 	}
-
-	// Great General nearby
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	int iAuraEffectChange = 0;
-	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange,pBattlePlot) && !IsIgnoreGreatGeneralBenefit())
-#else
-	if(IsNearGreatGeneral(pBattlePlot) && !IsIgnoreGreatGeneralBenefit())
-#endif
+	if (GetNearbyCityBonusCombatMod(pBattlePlot) != 0)
 	{
-		iModifier += kPlayer.GetGreatGeneralCombatBonus();
-		iModifier += kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus();
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-		iModifier += iAuraEffectChange;
-#endif
+		iModifier += GetNearbyCityBonusCombatMod(pBattlePlot);
+	}
+	// Great General nearby
+	int iAuraEffectChange = 0;
+	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
+	{
+		iTempModifier = GetAreaEffectBonus(iAuraEffectChange, pBattlePlot, NULL, NULL, true, false, false);
+		iModifier += iTempModifier;
 	}
 #if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
@@ -15596,7 +15678,12 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		iModifier += iNearbyUnitClassModifier;
 	}
-
+	// NearbyUnit gives a Combat Modifier?
+	int iGetGiveCombatModifier = GetGiveCombatModToUnit(pFromPlot);
+	if (iGetGiveCombatModifier != 0)
+	{
+		iModifier += iGetGiveCombatModifier;
+	}
 	// Adjacent Friendly military Unit?
 	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
@@ -16004,18 +16091,21 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += iTempModifier;
 
 			// Nearby unit sapping this city
+			iTempModifier = GetAreaEffectBonus(0, pFromPlot, pToPlot->getPlotCity(), NULL, false, true, false);
+			iModifier += iTempModifier;
+			/*
 			if(IsNearSapper(pToPlot->getPlotCity()))
 			{
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
-			}
-#if defined(MOD_BALANCE_CORE)
+			}*/
+#if defined(MOD_BALANCE_CORE)/*
 			// Nearby unit sapping this city
 			else if(IsHalfNearSapper(pToPlot->getPlotCity()))
 			{
 				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
 				iModifier += iTempModifier;
-			}
+			}*/
 			//bonus for attacking same unit over and over in a turn?
 			iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
@@ -16494,24 +16584,15 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(iTempModifier != 0)
 		iModifier += iTempModifier;
 #endif
-
-	// Great General nearby
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	int iAuraEffectChange = 0;
-	if(!bIgnoreUnitAdjacencyBoni && IsNearGreatGeneral(iAuraEffectChange,pMyPlot) && !IsIgnoreGreatGeneralBenefit())
-#else
-	if(IsNearGreatGeneral(pMyPlot) && !IsIgnoreGreatGeneralBenefit())
-#endif
+	if (GetNearbyCityBonusCombatMod(pMyPlot) != 0)
 	{
-#if defined(MOD_BUGFIX_MINOR)
-		iModifier += kPlayer.GetGreatGeneralCombatBonus();
-#else
-		iModifier += /*25*/ GC.getGREAT_GENERAL_STRENGTH_MOD();
-#endif
-		iModifier += pTraits->GetGreatGeneralExtraBonus();
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-		iModifier += iAuraEffectChange;
-#endif
+		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
+	}
+	// Great General nearby
+	int iAuraEffectChange = 0;
+	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
+	{
+		iModifier += GetAreaEffectBonus(iAuraEffectChange, pMyPlot, NULL, NULL, true, false, false);
 	}
 
 	// Reverse Great General nearby
@@ -16748,6 +16829,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += iTempModifier;
 
 		// Nearby unit sapping this city
+		iTempModifier = GetAreaEffectBonus(0, pMyPlot, pCity, NULL, false, true, false);
+		iModifier += iTempModifier;
+		/*
 		if(IsNearSapper(pCity))
 		{
 			iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
@@ -16760,7 +16844,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
 			iModifier += iTempModifier;
 		}
-#endif
+#endif */
 		//bonus for attacking same unit over and over in a turn?
 		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
@@ -17889,7 +17973,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
-int CvUnit::GetNearbyUnitClassBonus() const
+int CvUnit::getNearbyUnitClassBonus() const
 {
 	return m_iNearbyUnitClassBonus;
 }
@@ -17899,7 +17983,7 @@ void CvUnit::SetNearbyUnitClassBonus(int iCombatBonus)
 	m_iNearbyUnitClassBonus = iCombatBonus;
 }
 
-int CvUnit::GetNearbyUnitClassBonusRange() const
+int CvUnit::getNearbyUnitClassBonusRange() const
 {
 	return m_iNearbyUnitClassBonusRange;
 }
@@ -17909,7 +17993,7 @@ void CvUnit::SetNearbyUnitClassBonusRange(int iBonusRange)
 	m_iNearbyUnitClassBonusRange = iBonusRange;
 }
 
-UnitClassTypes CvUnit::GetCombatBonusFromNearbyUnitClass() const
+UnitClassTypes CvUnit::getCombatBonusFromNearbyUnitClass() const
 {
 	return (UnitClassTypes)m_iCombatBonusFromNearbyUnitClass;
 }
@@ -17917,28 +18001,6 @@ UnitClassTypes CvUnit::GetCombatBonusFromNearbyUnitClass() const
 void CvUnit::SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass)
 {
 	m_iCombatBonusFromNearbyUnitClass = eUnitClass;
-}
-
-void CvUnit::ChangeAddedFromNearbyUnitPromotion(PromotionTypes ePromotion, int iChange)
-{
-	std::map<PromotionTypes, int>& m_map = m_iAddedFromNearbyUnitPromotion.dirtyGet();
-	if (m_map.find(ePromotion) != m_map.end())
-	{
-		m_map[ePromotion] += iChange;
-		if (m_map[ePromotion] == 0)
-			m_map.erase(ePromotion);
-	}
-	else
-		m_map[ePromotion] = iChange;
-}
-int CvUnit::GetAddedFromNearbyUnitPromotion(PromotionTypes eIndex)
-{
-	const std::map<PromotionTypes, int>& m_map = m_iAddedFromNearbyUnitPromotion.get();
-	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
 }
 void CvUnit::ChangeNearbyPromotion(int iValue)
 {
@@ -17950,7 +18012,7 @@ int CvUnit::GetNearbyPromotion() const
 	VALIDATE_OBJECT
 	return	m_bNearbyPromotion;
 }
-bool CvUnit::IsNearbyPromotion() const
+bool CvUnit::isNearbyPromotion() const
 {
 	VALIDATE_OBJECT
 	return GetNearbyPromotion() > 0;
@@ -17965,50 +18027,35 @@ void CvUnit::ChangeNearbyUnitPromotionRange(int iBonusRange)
 	VALIDATE_OBJECT
 	m_iNearbyUnitPromotionRange += iBonusRange;
 }
-void CvUnit::ChangeNearbyCityPromotion(int iValue)
+void CvUnit::ChangeNearbyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	m_bNearbyCityPromotion += iValue;
+	m_inearbyCityCombatMod += iValue;
 }
-int CvUnit::GetNearbyCityPromotion() const
+int CvUnit::getNearbyCityCombatMod() const
 {
 	VALIDATE_OBJECT
-	return	m_bNearbyCityPromotion;
+	return	m_inearbyCityCombatMod;
 }
-bool CvUnit::IsNearbyCityPromotion() const
+void CvUnit::ChangeNearbyFriendlyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	return GetNearbyCityPromotion() > 0;
+	m_inearbyFriendlyCityCombatMod += iValue;
 }
-void CvUnit::ChangeNearbyFriendlyCityPromotion(int iValue)
+int CvUnit::getNearbyFriendlyCityCombatMod() const
 {
 	VALIDATE_OBJECT
-	m_bNearbyFriendlyCityPromotion += iValue;
+	return	m_inearbyFriendlyCityCombatMod;
 }
-int CvUnit::GetNearbyFriendlyCityPromotion() const
+void CvUnit::ChangeNearbyEnemyCityCombatMod(int iValue)
 {
 	VALIDATE_OBJECT
-	return	m_bNearbyFriendlyCityPromotion;
+	m_inearbyEnemyCityCombatMod += iValue;
 }
-bool CvUnit::IsNearbyFriendlyCityPromotion() const
+int CvUnit::getNearbyEnemyCityCombatMod() const
 {
 	VALIDATE_OBJECT
-	return GetNearbyFriendlyCityPromotion() > 0;
-}
-void CvUnit::ChangeNearbyEnemyCityPromotion(int iValue)
-{
-	VALIDATE_OBJECT
-	m_bNearbyEnemyCityPromotion += iValue;
-}
-int CvUnit::GetNearbyEnemyCityPromotion() const
-{
-	VALIDATE_OBJECT
-	return	m_bNearbyEnemyCityPromotion;
-}
-bool CvUnit::IsNearbyEnemyCityPromotion() const
-{
-	VALIDATE_OBJECT
-	return GetNearbyEnemyCityPromotion() > 0;
+	return m_inearbyEnemyCityCombatMod;
 }
 void CvUnit::ChangeIsFriendlyLands(int iValue)
 {
@@ -18020,7 +18067,7 @@ int CvUnit::GetIsFriendlyLands() const
 	VALIDATE_OBJECT
 	return	m_bIsFriendlyLands;
 }
-bool CvUnit::IsFriendlyLands() const
+bool CvUnit::isFriendlyLands() const
 {
 	VALIDATE_OBJECT
 	return GetIsFriendlyLands() > 0;
@@ -18035,33 +18082,12 @@ int CvUnit::GetIsEnemyLands() const
 	VALIDATE_OBJECT
 	return	m_bIsEnemyLands;
 }
-bool CvUnit::IsEnemyLands() const
+bool CvUnit::isEnemyLands() const
 {
 	VALIDATE_OBJECT
 	return GetIsEnemyLands() > 0;
 }
-void CvUnit::ChangeAdjacentSameType(PromotionTypes ePromotion, int iChange)
-{
-	std::map<PromotionTypes, int>& m_map = m_iAdjacentSameType.dirtyGet();
-	if (m_map.find(ePromotion) != m_map.end())
-	{
-		m_map[ePromotion] += iChange;
-		if (m_map[ePromotion] == 0)
-			m_map.erase(ePromotion);
-	}
-	else
-		m_map[ePromotion] = iChange;
-}
-int CvUnit::GetAdjacentSameType(PromotionTypes eIndex)
-{
-	const std::map<PromotionTypes, int>& m_map = m_iAdjacentSameType.get();
-	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
-	if (it != m_map.end())
-		return it->second;
-	else
-		return 0;
-}
-int CvUnit::GetPillageBonusStrengthPercent() const
+int CvUnit::getPillageBonusStrengthPercent() const
 {
 	VALIDATE_OBJECT
 	return m_iPillageBonusStrengthPercent;
@@ -18071,7 +18097,7 @@ void CvUnit::ChangePillageBonusStrengthPercent(int iBonus)
 	VALIDATE_OBJECT
 	m_iPillageBonusStrengthPercent += iBonus;
 }
-int CvUnit::GetStackedGreatGeneralExperience() const
+int CvUnit::getStackedGreatGeneralExperience() const
 {
 	VALIDATE_OBJECT
 	return m_iStackedGreatGeneralExperience;
@@ -18091,12 +18117,12 @@ int CvUnit::GetIsHighSeaRaider() const
 	VALIDATE_OBJECT
 	return	m_bIsHighSeaRaider;
 }
-bool CvUnit::IsHighSeaRaider() const
+bool CvUnit::isHighSeaRaider() const
 {
 	VALIDATE_OBJECT
 	return GetIsHighSeaRaider() > 0;
 }
-int CvUnit::GetWonderProductionModifier() const
+int CvUnit::getWonderProductionModifier() const
 {
 	VALIDATE_OBJECT
 	return m_iWonderProductionModifier;
@@ -18106,7 +18132,7 @@ void CvUnit::ChangeWonderProductionModifier(int iValue)
 	VALIDATE_OBJECT
 	m_iWonderProductionModifier += iValue;
 }
-int CvUnit::GetMilitaryProductionModifier() const
+int CvUnit::getMilitaryProductionModifier() const
 {
 	VALIDATE_OBJECT
 	return m_iUnitProductionModifier;
@@ -18116,7 +18142,7 @@ void CvUnit::ChangeMilitaryProductionModifier(int iValue)
 	VALIDATE_OBJECT
 	m_iUnitProductionModifier += iValue;
 }
-int CvUnit::GetNearbyEnemyDamage() const
+int CvUnit::getNearbyEnemyDamage() const
 {
 	VALIDATE_OBJECT
 	return m_iNearbyEnemyDamage;
@@ -18125,6 +18151,101 @@ void CvUnit::ChangeNearbyEnemyDamage(int iValue)
 {
 	VALIDATE_OBJECT
 	m_iNearbyEnemyDamage += iValue;
+}
+int CvUnit::GetGGGAXPPercent() const
+{
+	VALIDATE_OBJECT
+	return m_iGGGAXPPercent;
+}
+void CvUnit::ChangeGGGAXPPercent(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGGGAXPPercent += iValue;
+}
+int CvUnit::getGiveCombatMod() const
+{
+	VALIDATE_OBJECT
+	return m_iGiveCombatMod;
+}
+void CvUnit::ChangeGiveCombatMod(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGiveCombatMod += iValue;
+}
+int CvUnit::getGiveHPIfEnemyKilled() const
+{
+	VALIDATE_OBJECT
+	return m_iGiveHPIfEnemyKilled;
+}
+void CvUnit::ChangeGiveHPIfEnemyKilled(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGiveHPIfEnemyKilled += iValue;
+}
+int CvUnit::getGiveExperiencePercent() const
+{
+	VALIDATE_OBJECT
+	return m_iGiveExperiencePercent;
+}
+void CvUnit::ChangeGiveExperiencePercent(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iGiveExperiencePercent += iValue;
+}
+int CvUnit::getGiveOutsideFriendlyLandsModifier() const
+{
+	VALIDATE_OBJECT
+	return m_igiveOutsideFriendlyLandsModifier;
+}
+void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
+{
+	VALIDATE_OBJECT
+	m_igiveOutsideFriendlyLandsModifier += iValue;
+}
+bool CvUnit::IsGiveDomainBonus(DomainTypes eDomain) const
+{
+	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(eDomain > -1, "Index out of bounds");
+	return m_pabGiveDomainBonus[eDomain];
+}
+void CvUnit::ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue)
+{
+	m_pabGiveDomainBonus.setAt(eDomain, bValue);
+}
+int CvUnit::getGiveExtraAttacks() const
+{
+	VALIDATE_OBJECT
+	return m_igiveExtraAttacks;
+}
+void CvUnit::ChangeGiveExtraAttacks(int iValue)
+{
+	VALIDATE_OBJECT
+	m_igiveExtraAttacks += iValue;
+}
+int CvUnit::getGiveDefenseMod() const
+{
+	VALIDATE_OBJECT
+	return m_igiveDefenseMod;
+}
+void CvUnit::ChangeGiveDefenseMod(int iValue)
+{
+	VALIDATE_OBJECT
+	m_igiveDefenseMod += iValue;
+}
+void CvUnit::ChangeIsGiveInvisibility(int iValue)
+{
+	VALIDATE_OBJECT
+	m_bgiveInvisibility += iValue;
+}
+int CvUnit::GetIsGiveInvisibility() const
+{
+	VALIDATE_OBJECT
+	return	m_bgiveInvisibility;
+}
+bool CvUnit::isGiveInvisibility() const
+{
+	VALIDATE_OBJECT
+	return GetIsGiveInvisibility() > 0;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -18575,7 +18696,7 @@ int CvUnit::getHealOnPillageCount() const
 int CvUnit::getHPHealedIfDefeatEnemy() const
 {
 	VALIDATE_OBJECT
-	return m_iHPHealedIfDefeatEnemy;
+	return m_iHPHealedIfDefeatEnemy + GetGiveHPIfEnemyKilledToUnit();
 }
 
 //	--------------------------------------------------------------------------------
@@ -18737,7 +18858,11 @@ bool CvUnit::isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo) const
 			}
 		}
 	}
-
+	if (IsHiddenByNearbyUnit() && eTeam != NO_TEAM && !plot()->isInvisibleVisibleUnit(eTeam))
+	{
+		return true;
+	}
+	
 	if(m_eInvisibleType == NO_INVISIBLE)
 	{
 		return false;
@@ -18995,7 +19120,7 @@ void CvUnit::changeAttackModifier(int iValue)
 int CvUnit::getDefenseModifier() const
 {
 	VALIDATE_OBJECT
-	return m_iDefenseModifier;
+	return m_iDefenseModifier + GetGiveDefenseModToUnit();
 }
 
 //	--------------------------------------------------------------------------------
@@ -19803,7 +19928,32 @@ if (!bDoEvade)
 	if(pOldPlot != NULL)
 	{
 		pOldPlot->removeUnit(this, bUpdate);
+		if (isGiveInvisibility())
+		{
+			int iRange = GetNearbyUnitPromotionsRange();
+			int iMax = maxMoves();
+			int iLoop;
+			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
 
+				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+					continue;
+
+				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax + 1))
+					continue;
+				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+				{
+					pLoopUnit->plot()->updateVisibility();
+				}
+				else if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+				}
+			}
+		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{
@@ -19847,6 +19997,7 @@ if (!bDoEvade)
 	{
 		//update area effects
 		kPlayer.UpdateAreaEffectUnit(this);
+		kPlayer.UpdateAreaEffectPromotionUnit(this);
 
 		//update facing direction
 		if(pOldPlot != NULL)
@@ -19894,7 +20045,32 @@ if (!bDoEvade)
 		{
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, m_iMapLayer);
 		}
+		if (isGiveInvisibility())
+		{
+			int iRange = GetNearbyUnitPromotionsRange();
+			int iMax = maxMoves();
+			int iLoop;
+			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
 
+				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+					continue;
+
+				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax +1))
+					continue;
+				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
+				{
+					pLoopUnit->plot()->updateVisibility();
+				}
+				else if(pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+				}
+			}
+		}
 #if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
@@ -19925,7 +20101,7 @@ if (!bDoEvade)
 			}
 		}
 
-		DoNearbyUnitPromotion(this, pNewPlot);
+		DoNearbyUnitPromotion(pNewPlot);
 		if(getAoEDamageOnMove() != 0)
 			DoAoEDamage(getAoEDamageOnMove(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE");
 
@@ -20129,6 +20305,19 @@ if (!bDoEvade)
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 			}
 		}
+		if (eOurTeam != activeTeam && (IsHiddenByNearbyUnit(pNewPlot)))
+		{
+			bool bOldInvisibleVisibleUnit = false;
+			if (pOldPlot)
+				bOldInvisibleVisibleUnit = pOldPlot->isInvisibleVisibleUnit(activeTeam);
+			bool bNewInvisibleVisibleUnit = pNewPlot->isInvisibleVisibleUnit(activeTeam);
+			if (bOldInvisibleVisibleUnit != bNewInvisibleVisibleUnit)
+			{
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisibleUnit, true);
+			}
+		}
+
 
 		CvTeam& kOurTeam = GET_TEAM(eOurTeam);
 
@@ -22968,7 +23157,7 @@ void CvUnit::changeExtraRoughDefensePercent(int iChange)
 int CvUnit::getNumAttacks() const
 {
 	VALIDATE_OBJECT
-	return m_iNumAttacks;
+	return m_iNumAttacks + GetGiveExtraAttacksToUnit();
 }
 int CvUnit::getNumAttacksMadeThisTurn() const
 {
@@ -22999,7 +23188,315 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot) cons
 
 	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage);
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+// Golden Age? And have a general near us that gives us additional Exp?
+int CvUnit::GetGoldenAgeGeneralExpPercent() const
+{
+	VALIDATE_OBJECT
+	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
+	int iExperience = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
 
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->GetGGGAXPPercent() != 0 && GET_PLAYER(pUnit->getOwner()).isGoldenAge() && pUnit != this)
+		{
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iGreatGeneralRange)
+			{
+				if (pUnit->getDomainType() == getDomainType())
+				{
+					iExperience = pUnit->GetGGGAXPPercent();
+				}
+			}
+		}
+	}
+	return iExperience;
+}
+// NearbyUnit Promotion gives additional XP Percent to a Unit?
+int CvUnit::GetGiveExperiencePercentToUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iExperience = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getGiveExperiencePercent() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				{
+					iExperience = pUnit->getGiveExperiencePercent();
+				}
+			}
+		}
+	}
+	return iExperience;
+}
+int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iMod = 0;
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getGiveCombatMod() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				{
+					iMod = pUnit->getGiveCombatMod();
+				}
+			}
+		}
+	}
+	return iMod;
+}
+int CvUnit::GetGiveDefenseModToUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iMod = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getGiveDefenseMod() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				{
+					iMod = pUnit->getGiveDefenseMod();
+				}
+			}
+		}
+	}
+	return iMod;
+}
+int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
+{
+	VALIDATE_OBJECT
+	int iRange = GetNearbyUnitPromotionsRange();
+	int iMod = 0;
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+	for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+	{
+		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
+		const std::vector<std::pair<int, int>>& possibleCities = kLoopPlayer.GetAreaEffectPositiveCities();
+		for (std::vector<std::pair<int, int>>::const_iterator it = possibleCities.begin(); it != possibleCities.end(); ++it)
+		{
+			//first quick check with a large, fixed distance
+			CvPlot* pCityPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			if (plotDistance(pCityPlot->getX(), pCityPlot->getY(), getX(), getY()) > 4)
+				continue;
+			CvCity* pCity = kLoopPlayer.getCity(it->first);
+			if (pCity != NULL)
+			{
+				if (getNearbyCityCombatMod() != 0 && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
+				{
+					iMod = getNearbyCityCombatMod();
+				}
+				else if (getNearbyFriendlyCityCombatMod() != 0 && pCity->plot()->isFriendlyCity(*this, true) && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
+				{
+					iMod = getNearbyFriendlyCityCombatMod();
+				}
+				else if (getNearbyEnemyCityCombatMod() != 0 && pCity->plot()->isEnemyCity(*this) && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
+				{
+					iMod = getNearbyEnemyCityCombatMod();
+				}
+			}
+		}
+	}
+	return iMod;
+}
+bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return false;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->isGiveInvisibility() && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit() && pUnit->getTeam() == getTeam())
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iMod = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getGiveOutsideFriendlyLandsModifier() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				// Only Giving it out to a specific domain?
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				{
+					iMod = pUnit->getGiveOutsideFriendlyLandsModifier();
+				}
+			}
+		}
+	}
+	return iMod;
+}
+int CvUnit::GetGiveExtraAttacksToUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iExtraAttacks = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getGiveExtraAttacks() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				// Only Giving it out to a specific domain?
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				{
+					iExtraAttacks = pUnit->getGiveExtraAttacks();
+				}
+			}
+		}
+	}
+	return iExtraAttacks;
+}
+int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iHP = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getGiveHPIfEnemyKilled() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && !isRanged())
+				{
+					iHP = pUnit->getGiveHPIfEnemyKilled();
+				}
+			}
+		}
+	}
+	return iHP;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -23007,8 +23504,6 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 {
 	VALIDATE_OBJECT
 
-	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
-
 	if (pAtPlot == NULL)
 	{
 		pAtPlot = plot();
@@ -23016,25 +23511,9 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 			return false;
 	}
 
-	const std::vector<std::pair<int,int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	if (GetAreaEffectBonus(0, pAtPlot, NULL, pIgnoreThisGeneral, false, false, true) != 0)
 	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
-			continue;
-
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackSupport())
-		{
-			// Same domain
-			if(pUnit->getDomainType() == getDomainType())
-			{
-				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iSapperRange)
-					return true;
-			}
-		}
-
+		return true;
 	}
 
 	return false;
@@ -23042,79 +23521,106 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-bool CvUnit::IsNearGreatGeneral(int& iAuraEffectChange, const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+bool CvUnit::IsNearGreatGeneral(int iAuraEffectChange, const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 #else
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 #endif
 {
 	VALIDATE_OBJECT
-
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool bFound = false;
-	iAuraEffectChange = 0;
-	
-	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
-#else
-	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
-#endif
-
 	if (pAtPlot == NULL)
 	{
 		pAtPlot = plot();
 		if (pAtPlot == NULL)
 			return false;
 	}
+	if (GetAreaEffectBonus(iAuraEffectChange, pAtPlot, NULL, pIgnoreThisGeneral, true, false, false) != 0)
+	{
+		return true;
+	}
+	return false;
+}
+int CvUnit::GetAreaEffectBonus(int iAuraEffectChange, const CvPlot* pAtPlot, const CvCity* pTargetCity, const CvUnit* pIgnoreThisUnit, bool bGreatGeneral, bool bSapper, bool bCityAttackSupport) const
+{
+	VALIDATE_OBJECT
+	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	bool bFound = false;
+	int iBonus = 0;
+	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
+#else
+		int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
+#endif
 
-	const std::vector<std::pair<int,int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY())>5)
 			continue;
-
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackSupport())
+		if (pUnit != NULL && pUnit->getDomainType() == getDomainType() && pUnit != pIgnoreThisUnit)
 		{
-			// Same domain
-			if(pUnit->getDomainType() == getDomainType())
-			{
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-				if (MOD_PROMOTIONS_AURA_CHANGE)
+			if (plotDistance(pUnit->getX(), pUnit->getY(), pAtPlot->getX(), pAtPlot->getY()) <= (iGreatGeneralRange + pUnit->GetAuraRangeChange()))
+			{
+				if (bGreatGeneral && ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0)))
 				{
-					if(plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= (iGreatGeneralRange + pUnit->GetAuraRangeChange()))
+					// We have to check all possible units as one may be better than another
+					if (!bFound)
 					{
-						// We have to check all possible units as one may be better than another
-						if (!bFound)
+						// Can't do a straight compare for the first one found, as it could have a negative modifier
+						iAuraEffectChange = pUnit->GetAuraEffectChange();
+					}
+					else
+					{
+						if (pUnit->GetAuraEffectChange() > iAuraEffectChange)
 						{
-							// Can't do a straight compare for the first one found, as it could have a negative modifier
 							iAuraEffectChange = pUnit->GetAuraEffectChange();
 						}
-						else
-						{
-							if (pUnit->GetAuraEffectChange() > iAuraEffectChange)
-							{
-								iAuraEffectChange = pUnit->GetAuraEffectChange();
-							}
-						}
-					
-						bFound = true;
 					}
-				} else
-#endif
-				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iGreatGeneralRange)
-					return true;
+					bFound = true;
+					if (bFound)
+					{
+						iBonus = kPlayer.GetGreatGeneralCombatBonus();
+						iBonus += kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus();
+						iBonus += iAuraEffectChange;
+					}
+				}
+				else if (bSapper && !bGreatGeneral && !bCityAttackSupport && pUnit->IsSapper() && pUnit != this)
+				{
+					CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
+					if (pTargetCity != NULL)
+					{
+						if (pTargetCity->plot()->isEnemyCity(*pUnit) && (plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY()) == (iGreatGeneralRange / 2)))
+						{
+							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER();
+						}
+						else if (pTargetCity->plot()->isEnemyCity(*pUnit) && (plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY()) == iGreatGeneralRange))
+						{
+							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2;
+						}
+					}
+				}
+				else if (bCityAttackSupport && !bSapper && !bGreatGeneral && pUnit->IsCityAttackSupport())
+				{
+					//we'll use this as a boolean, we only use this as a move call
+					iBonus = 1;
+				}
 			}
 		}
-
-	}
-
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	return bFound;
-#else
-	return false;
 #endif
+	}
+	return iBonus;
 }
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -23366,7 +23872,7 @@ int CvUnit::GetNearbyImprovementModifier()const
 #if defined(MOD_BALANCE_CORE)
 int CvUnit::GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot) const
 {
-	return GetNearbyUnitClassModifier(GetCombatBonusFromNearbyUnitClass(), GetNearbyUnitClassBonusRange(), GetNearbyUnitClassBonus(), pAtPlot);
+	return GetNearbyUnitClassModifier(getCombatBonusFromNearbyUnitClass(), getNearbyUnitClassBonusRange(), getNearbyUnitClassBonus(), pAtPlot);
 }
 
 int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot) const
@@ -23410,127 +23916,34 @@ int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClass
 	return 0;
 }
 
-void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
+void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
 	if (pPlot == NULL)
 	{
-		pPlot = pUnit->plot();
+		pPlot = plot();
 	}
-	int iX = pPlot->getX(); int iY = pPlot->getY();
 	if(pPlot != NULL)
 	{
-		int iI;
-		for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		
+		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 		{
 			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
 			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
 			if(pkPromotionInfo != NULL)
 			{
-				if(pkPromotionInfo->AddedFromNearbyPromotion() != NO_PROMOTION)
+				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == getUnitType())
 				{
-					if(!pUnit->IsWithinDistanceOfUnitPromotion(pkPromotionInfo->AddedFromNearbyPromotion(), GC.getPromotionInfo(pkPromotionInfo->AddedFromNearbyPromotion())->GetNearbyRange(), true, false))
+					if(pPlot->IsFriendlyTerritory(getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(getTeam())))
 					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-						if (pkPromotionInfo->GetInvisibleType() != NO_INVISIBLE)
+						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
 						{
-							pUnit->setInvisibleType(NO_INVISIBLE);
-						}
-					}
-					else if (pUnit->isHasPromotion(pkPromotionInfo->AddedFromNearbyPromotion()) && pUnit->IsNearbyPromotion())
-					{
-						int iRange = pUnit->GetNearbyUnitPromotionsRange();
-						for (int i = -iRange; i <= iRange; ++i)
-						{
-							for (int j = -iRange; j <= iRange; ++j)
-							{
-								CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iRange);
-								if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
-								{
-									for (int iK = 0; iK < pLoopPlot->getNumUnits(); iK++)
-									{
-										CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iK);
-										if (pLoopUnit != NULL)
-										{
-											if (GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(pUnit->getOwner()).getTeam())
-											{
-												if (pLoopUnit->IsNearbyPromotion() && pLoopUnit->isHasPromotion(eLoopPromotion))
-												{
-													pLoopUnit->setHasPromotion(eLoopPromotion, false);
-												}
-												if (::IsPromotionValidForUnitCombatType(eLoopPromotion, pLoopUnit->getUnitType()) && !pLoopUnit->IsNearbyPromotion())
-												{
-													pLoopUnit->setHasPromotion(eLoopPromotion, true);
-												}
-											}
-										}
-									}
-								}
-							}
+							setHasPromotion(eLoopPromotion, true);
 						}
 					}
 					else
 					{
-						if (::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
-						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
-						}
-					}
-				}				
-				if(pkPromotionInfo->IsNearbyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
-				{
-					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, true))
-					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-					}
-					else
-					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
-						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
-						}
-					}
-				}
-				if(pkPromotionInfo->IsNearbyFriendlyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
-				{
-					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, false))
-					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-					}
-					else
-					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
-						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
-						}
-					}
-				}
-				if(pkPromotionInfo->IsNearbyEnemyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
-				{
-					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), false, true))
-					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-					}
-					else
-					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
-						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
-						}
-					}
-				}
-				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
-				{
-					if(pPlot->IsFriendlyTerritory(pUnit->getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(pUnit->getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(pUnit->getTeam())))
-					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
-						{
-							pUnit->setHasPromotion(eLoopPromotion, true);
-						}
-					}
-					else
-					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
+						setHasPromotion(eLoopPromotion, false);
 					}
 				}
 				if(pkPromotionInfo->IsEnemyLands())
@@ -23540,49 +23953,38 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iJ);
 						if(kPlayer.GetPlayerTraits()->IsWarsawPact())
 						{
-							if(GET_TEAM(pUnit->getTeam()).isAtWar(GET_TEAM(kPlayer.getTeam()).GetID()))
+							if(GET_TEAM(getTeam()).isAtWar(GET_TEAM(kPlayer.getTeam()).GetID()))
 							{
 								if((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
 								{
-									pUnit->setHasPromotion(eLoopPromotion, true);
+									setHasPromotion(eLoopPromotion, true);
 								}
 								else
 								{
-									pUnit->setHasPromotion(eLoopPromotion, false);
+									setHasPromotion(eLoopPromotion, false);
 								}
 							}
 							else
 							{
-								if(pUnit->HasPromotion(eLoopPromotion))
+								if(HasPromotion(eLoopPromotion))
 								{
-									pUnit->setHasPromotion(eLoopPromotion, false);
+									setHasPromotion(eLoopPromotion, false);
 								}
 							}
 						}
 					}
 				}
-				if(pkPromotionInfo->GetAdjacentSameType() != NO_PROMOTION)
-				{
-					if(pUnit->HasPromotion(pkPromotionInfo->GetAdjacentSameType()) && pUnit->IsAdjacentToUnitPromotion(pkPromotionInfo->GetAdjacentSameType(), true, false))
-					{
-						pUnit->setHasPromotion(eLoopPromotion, true);
-					}
-					else
-					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-					}
-				}
 			}
 		}
-		if (pUnit->GetPillageBonusStrengthPercent() > 0)
+		if (getPillageBonusStrengthPercent() != 0)
 		{
 			if (pPlot->IsImprovementPillaged())
 			{
-				pUnit->SetBaseCombatStrength(pUnit->getUnitInfo().GetCombat() + ((pUnit->GetPillageBonusStrengthPercent() * pUnit->getUnitInfo().GetCombat()) / 100));
+				SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));
 			}
 			else
 			{
-				pUnit->SetBaseCombatStrength(pUnit->getUnitInfo().GetCombat());
+				SetBaseCombatStrength(getUnitInfo().GetCombat());
 			}
 		}
 	}
@@ -23622,7 +24024,7 @@ void CvUnit::DoStackedGreatGeneralExperience(const CvPlot* pPlot)
 	}
 	if(pPlot != NULL)
 	{
-		int iExperience = GetStackedGreatGeneralExperience();
+		int iExperience = getStackedGreatGeneralExperience();
 		if(IsStackedGreatGeneral(pPlot) && iExperience > 0)
 		{
 			changeExperienceTimes100(iExperience * 100);
@@ -24239,57 +24641,10 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 	{
 		return false;
 	}
-
-	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-
-	// Look around this Unit to see if there's a Sapper nearby
-	for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+	if (GetAreaEffectBonus(0, plot(), pTargetCity, NULL, false, true, false) > 0)
 	{
-		for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
-
-			if(pLoopPlot != NULL)
-			{
-				// Units in our plot do not count
-#if !defined(MOD_BALANCE_CORE)
-				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
-					continue;
-#endif
-
-				// If there are Units here, loop through them
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					pUnitNode = pLoopPlot->headUnitNode();
-
-					while(pUnitNode != NULL)
-					{
-						pLoopUnit = ::getUnit(*pUnitNode);
-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-						// Owned by us
-						if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
-						{
-							// Sapper unit
-							if(pLoopUnit->IsSappingCity(pTargetCity))
-							{
-								// Must be same domain
-								if(pLoopUnit->getDomainType() == getDomainType())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		return true;
 	}
-
 	return false;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -24304,49 +24659,9 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 	{
 		return false;
 	}
-
-	int iSapperRange = GC.getSAPPER_BONUS_RANGE();
-
-	CvPlot* pLoopPlot;
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-
-	// Look around this Unit to see if there's a Sapper nearby
-	for(int iX = -iSapperRange; iX <= iSapperRange; iX++)
+	if (GetAreaEffectBonus(0, plot(), pTargetCity, NULL, false, true, false) > 0)
 	{
-		for(int iY = -iSapperRange; iY <= iSapperRange; iY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iSapperRange);
-
-			if(pLoopPlot != NULL)
-			{
-				// If there are Units here, loop through them
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					pUnitNode = pLoopPlot->headUnitNode();
-
-					while(pUnitNode != NULL)
-					{
-						pLoopUnit = ::getUnit(*pUnitNode);
-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-						// Owned by us
-						if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
-						{
-							// Sapper unit
-							if(pLoopUnit->IsHalfSappingCity(pTargetCity))
-							{
-								// Must be same domain
-								if(pLoopUnit->getDomainType() == getDomainType())
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		return true;
 	}
 
 	return false;
@@ -24499,7 +24814,7 @@ void CvUnit::changeFriendlyLandsAttackModifier(int iChange)
 int CvUnit::getOutsideFriendlyLandsModifier() const
 {
 	VALIDATE_OBJECT
-	return m_iOutsideFriendlyLandsModifier;
+	return m_iOutsideFriendlyLandsModifier + GetGiveOutsideFriendlyLandsModifierToUnit();
 }
 
 //	--------------------------------------------------------------------------------
@@ -24554,7 +24869,7 @@ void CvUnit::changeUpgradeDiscount(int iChange)
 int CvUnit::getExperiencePercent() const
 {
 	VALIDATE_OBJECT
-	return m_iExperiencePercent;
+	return m_iExperiencePercent + GetGoldenAgeGeneralExpPercent() + GetGiveExperiencePercentToUnit();
 }
 
 //	--------------------------------------------------------------------------------
@@ -24652,7 +24967,7 @@ bool CvUnit::isOutOfAttacks() const
 		return false;
 	}
 
-	return m_iAttacksMade >= m_iNumAttacks;
+	return getNumAttacksMadeThisTurn() >= getNumAttacks();
 }
 
 
@@ -26547,9 +26862,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			ChangeNearbyPromotion(thisPromotion.IsNearbyPromotion() ? iChange : 0);
 			ChangeNearbyUnitPromotionRange(thisPromotion.GetNearbyRange() * iChange);
 		}
-		ChangeNearbyCityPromotion((thisPromotion.IsNearbyCityPromotion()) ? iChange : 0);
-		ChangeNearbyFriendlyCityPromotion((thisPromotion.IsNearbyFriendlyCityPromotion()) ? iChange : 0);
-		ChangeNearbyEnemyCityPromotion((thisPromotion.IsNearbyEnemyCityPromotion()) ? iChange : 0);
+		ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
+		ChangeNearbyFriendlyCityCombatMod((thisPromotion.GetNearbyFriendlyCityCombatMod()) * iChange);
+		ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
 		ChangeIsFriendlyLands((thisPromotion.IsFriendlyLands()) ? iChange : 0);
 		ChangeIsEnemyLands((thisPromotion.IsEnemyLands()) ? iChange : 0);
 		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
@@ -26558,6 +26873,14 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
 		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
 		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
+		ChangeGGGAXPPercent(thisPromotion.GetGeneralGoldenAgeExpPercent() * iChange);
+		ChangeGiveCombatMod(thisPromotion.GetGiveCombatMod() * iChange);
+		ChangeGiveHPIfEnemyKilled(thisPromotion.GetGiveHPIfEnemyKilled() * iChange);
+		ChangeGiveExperiencePercent(thisPromotion.GetGiveExperiencePercent() * iChange);
+		ChangeGiveOutsideFriendlyLandsModifier(thisPromotion.GetGiveOutsideFriendlyLandsModifier() * iChange);
+		ChangeGiveExtraAttacks(thisPromotion.GetGiveExtraAttacks() * iChange);
+		ChangeGiveDefenseMod(thisPromotion.GetGiveDefenseMod() * iChange);
+		ChangeIsGiveInvisibility((thisPromotion.IsGiveInvisibility()) ? iChange : 0);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
@@ -26645,28 +26968,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			else
 			{
 				SetNegatorPromotion(-1);
-			}
-		}
-		if (thisPromotion.AddedFromNearbyPromotion() != NO_PROMOTION)
-		{
-			if (bNewValue)
-			{
-				ChangeAddedFromNearbyUnitPromotion(eIndex, (thisPromotion.AddedFromNearbyPromotion()) * iChange);
-			}
-			else
-			{
-				ChangeAddedFromNearbyUnitPromotion(NO_PROMOTION, 0);
-			}
-		}
-		if (thisPromotion.GetAdjacentSameType() != NO_PROMOTION)
-		{
-			if (bNewValue)
-			{
-				ChangeAdjacentSameType(eIndex, (thisPromotion.GetAdjacentSameType()) * iChange);
-			}
-			else
-			{
-				ChangeAdjacentSameType(NO_PROMOTION, 0);
 			}
 		}
 		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
@@ -26852,6 +27153,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
+			const DomainTypes eDomain = static_cast<DomainTypes>(iI);
+			if (eDomain != NULL && thisPromotion.GetGiveDomain() == eDomain)
+			{
+				ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
+			}
 		}
 
 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -31296,7 +31602,7 @@ bool CvUnit::isExtraAttackHealthOnKill() const
 	VALIDATE_OBJECT
 	return getUnitInfo().IsExtraAttackHealthOnKill();
 }
-bool CvUnit::isHighSeaRaider() const
+bool CvUnit::isHighSeaRaiderUnit() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().IsHighSeaRaider();

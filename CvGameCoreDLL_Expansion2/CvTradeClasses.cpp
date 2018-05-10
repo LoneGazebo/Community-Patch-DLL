@@ -4774,7 +4774,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	iPlunderGoldValue /= 100;
 #if defined(MOD_BALANCE_CORE)
 	iPlunderGoldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	if(pUnit && pUnit->isHighSeaRaider())
+	if(pUnit && pUnit->isHighSeaRaiderUnit())
 	{
 		iPlunderGoldValue *= 3;
 		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)

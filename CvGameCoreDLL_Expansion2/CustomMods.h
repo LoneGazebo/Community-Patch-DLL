@@ -417,7 +417,7 @@
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
-#define MOD_CIV6_WORKER								gCustomMods.isCIV6_TYPE_WORKER()
+#define MOD_CIV6_WORKER								gCustomMods.isCIV6_WORKER()
 // Roads are created by trade routes.
 #define MOD_CIV6_ROADS								gCustomMods.isCIV6_ROADS()
 // scale city-state yield per city owned
