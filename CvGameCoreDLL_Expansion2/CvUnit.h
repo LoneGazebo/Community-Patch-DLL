@@ -83,6 +83,13 @@ struct CvUnitCaptureDefinition
 	}
 };
 
+enum AreaEffectType
+{
+	AE_GREAT_GENERAL,
+	AE_SAPPER,
+	AE_SIEGETOWER
+};
+
 class CvUnit
 {
 
@@ -1225,12 +1232,9 @@ public:
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-	int GetAreaEffectBonus(int iAuraEffectChange = 0, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL, bool bGreatGeneral = false, bool bSapper = false, bool bCityAttackSupport = false) const;
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool IsNearGreatGeneral(int iAuraEffectChange, const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#else
+	int GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#endif
+
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
@@ -1295,11 +1299,7 @@ public:
 
 	bool IsSapper() const;
 	void ChangeSapperCount(int iChange);
-	bool IsSappingCity(const CvCity* pTargetCity) const;
-	bool IsNearSapper(const CvCity* pTargetCity) const;
 #if defined(MOD_BALANCE_CORE)
-	bool IsHalfSappingCity(const CvCity* pTargetCity) const;
-	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
 	void DoNearbyUnitPromotion(const CvPlot* pPlot = NULL);

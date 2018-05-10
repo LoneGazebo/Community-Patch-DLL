@@ -5139,7 +5139,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
-			int iAura = 0;
+
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
@@ -5151,7 +5151,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (!pDefender || (pDefender->GetNumEnemyUnitsAdjacent()>0 && !pCandidate->isCity()))
 					continue;
 
-				if(pUnit->IsNearGreatGeneral(iAura, pCandidate, pUnit)) //near another general
+				if(pUnit->IsNearGreatGeneral(pCandidate)) //near another general
 					continue;
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe
