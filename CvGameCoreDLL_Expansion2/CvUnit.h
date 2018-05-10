@@ -1294,11 +1294,7 @@ public:
 
 	bool IsSapper() const;
 	void ChangeSapperCount(int iChange);
-	bool IsSappingCity(const CvCity* pTargetCity) const;
-	bool IsNearSapper(const CvCity* pTargetCity) const;
 #if defined(MOD_BALANCE_CORE)
-	bool IsHalfSappingCity(const CvCity* pTargetCity) const;
-	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
 	void DoNearbyUnitPromotion(const CvPlot* pPlot = NULL);

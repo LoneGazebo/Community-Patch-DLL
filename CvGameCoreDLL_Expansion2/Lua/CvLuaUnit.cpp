@@ -517,9 +517,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAuraRange);
 	Method(GetAuraEffect);
 #endif
-	Method(IsNearSapper);
 #if defined(MOD_BALANCE_CORE)
-	Method(IsHalfNearSapper);
 	Method(GetNearbyUnitClassModifierFromUnitClass);
 	Method(GetSapperAreaEffectBonus);
 	Method(GetGiveCombatModToUnit);
@@ -5128,16 +5126,6 @@ int CvLuaUnit::lGetAuraEffect(lua_State* L)
 }
 #endif
 //------------------------------------------------------------------------------
-//bool IsNearSapper(CvCity* pTargetCity);
-int CvLuaUnit::lIsNearSapper(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
-
-	const bool bResult = pkUnit->IsNearSapper(pkCity);
-	lua_pushboolean(L, bResult);
-	return 1;
-}
 #if defined(MOD_BALANCE_CORE)
 int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
 {
@@ -5165,16 +5153,6 @@ int CvLuaUnit::lGetNearbyCityBonusCombatMod(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool IsHalfNearSapper(CvCity* pTargetCity);
-int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
-
-	const bool bResult = pkUnit->IsHalfNearSapper(pkCity);
-	lua_pushboolean(L, bResult);
-	return 1;
-}
 //bool GetNearbyUnitClassModifierFromUnitClass();
 int CvLuaUnit::lGetNearbyUnitClassModifierFromUnitClass(lua_State* L)
 {
