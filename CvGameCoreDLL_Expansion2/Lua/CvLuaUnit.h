@@ -523,11 +523,13 @@ protected:
 	static int lIsIgnoreGreatGeneralBenefit(lua_State* L);
 	static int lGetReverseGreatGeneralModifier(lua_State* L);
 	static int lGetGreatGeneralCombatModifier(lua_State* L);
+	static int lIsNearSapper(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_AURA_CHANGE)
 	LUAAPIEXTN(GetAuraRange, int);
 	LUAAPIEXTN(GetAuraEffect, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	static int lIsHalfNearSapper(lua_State* L);
 	static int lGetNearbyUnitClassModifierFromUnitClass(lua_State* L);
 	static int lGetSapperAreaEffectBonus(lua_State* L);
 	static int lGetGiveCombatModToUnit(lua_State* L);

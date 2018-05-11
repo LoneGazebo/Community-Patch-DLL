@@ -513,11 +513,13 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsIgnoreGreatGeneralBenefit);
 	Method(GetReverseGreatGeneralModifier);
 	Method(GetGreatGeneralCombatModifier);
+	Method(IsNearSapper);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_AURA_CHANGE)
 	Method(GetAuraRange);
 	Method(GetAuraEffect);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	Method(IsHalfNearSapper);
 	Method(GetNearbyUnitClassModifierFromUnitClass);
 	Method(GetSapperAreaEffectBonus);
 	Method(GetGiveCombatModToUnit);
