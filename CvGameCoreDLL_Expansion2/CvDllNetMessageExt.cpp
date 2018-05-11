@@ -12,7 +12,6 @@ namespace NetMessageExt
 			None = 0,
 			DoEventChoice,
 			DoCityEventChoice,	// Could use the same id but I doubt we will use more than 254		
-			PlayerFirstEndTurn,
 		};
 	}
 
@@ -42,11 +41,6 @@ namespace NetMessageExt
 					Response::DoCityEventChoice(eActualPlayer, iCityID, eEventChoice, eCityEvent);
 					break;
 				}
-				case Flags::PlayerFirstEndTurn:
-				{					
-					Response::PlayerFirstEndTurn(ePlayer);
-					break;
-				}
 			}
 			return true;
 		}
@@ -69,10 +63,6 @@ namespace NetMessageExt
 			
 			unsigned int uiMsgFlagAndPlayer = static_cast<unsigned int>(Flags::DoCityEventChoice << 24 | ePlayer);
 			gDLL->sendFromUIDiploEvent(static_cast<PlayerTypes>(uiMsgFlagAndPlayer), static_cast<FromUIDiploEventTypes>(eCityEvent), iCityID, static_cast<int>(eEventChoice));
-		}
-		void PlayerFirstEndTurn() {
-			unsigned int uiMsgFlagAndPlayer = static_cast<unsigned int>(Flags::PlayerFirstEndTurn << 24 | GC.getGame().getActivePlayer());
-			gDLL->sendFromUIDiploEvent(static_cast<PlayerTypes>(uiMsgFlagAndPlayer), static_cast<FromUIDiploEventTypes>(-1), -1, static_cast<int>(-1));
 		}
 	}
 
@@ -99,10 +89,6 @@ namespace NetMessageExt
 				}
 
 			}
-		}
-
-		void PlayerFirstEndTurn(PlayerTypes ePlayer) {
-			GET_PLAYER(ePlayer).SetReceivedFirstEndTurnMessage();
 		}
 	}
 }

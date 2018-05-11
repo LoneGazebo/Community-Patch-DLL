@@ -2875,13 +2875,6 @@ public:
 	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
 #endif
 
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
-	bool WaitingOnFirstEndTurnMessage();
-	void SendFirstEndTurnMessage();
-	void SetReceivedFirstEndTurnMessage();
-
-#endif
-
 protected:
 	class ConqueredByBoolField
 	{
@@ -3733,11 +3726,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMilitarySeaMight;
 	FAutoVariable<int, CvPlayer> m_iMilitaryAirMight;
 	FAutoVariable<int, CvPlayer> m_iMilitaryLandMight;
-#endif
-
-#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
-	bool sentFirstEndTurnMessage;
-	bool receivedFirstEndTurnMessage;
 #endif
 
 };
