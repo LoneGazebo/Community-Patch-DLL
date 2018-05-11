@@ -11009,35 +11009,32 @@ void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityRe
 
 	for(int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+		YieldTypes eYield = (YieldTypes)iI;
 		//Simplification - errata yields not worth considering.
-		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			break;
 
-		int iNewYield = calculateYieldFast((YieldTypes)iI,false,pWorkingCity,pMajorityReligion,pSecondaryPantheon);
+		int iNewYield = calculateYieldFast(eYield,false,pWorkingCity,pMajorityReligion,pSecondaryPantheon);
 
-		if(getYield((YieldTypes)iI) != iNewYield)
+		if(getYield(eYield) != iNewYield)
 		{
-			int iOldYield = getYield((YieldTypes)iI);
-
+			int iOldYield = getYield(eYield);
 			m_aiYield[iI] = (uint8) min(0xFF,max(0,iNewYield));
-			CvAssertMsg(getYield((YieldTypes)iI) >= 0 && getYield((YieldTypes)iI) < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-			if(pWorkingCity != NULL)
+			if(pWorkingCity != NULL && pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
-				if(isBeingWorked())
-				{
-					pWorkingCity->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), (getYield((YieldTypes)iI) - iOldYield));
+				pWorkingCity->ChangeBaseYieldRateFromTerrain(eYield, getYield(eYield) - iOldYield);
+
 #if defined(MOD_BALANCE_CORE)
-					pWorkingCity->UpdateCityYields((YieldTypes)iI);
-					if((((YieldTypes)iI == YIELD_CULTURE) || ((YieldTypes)iI == YIELD_TOURISM)) && (iOldYield != iNewYield))
-					{
-						pWorkingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pWorkingCity->GetCityCulture()->CalculateBaseTourism();
-					}				
+				pWorkingCity->UpdateCityYields(eYield);
+				if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+				{
+					pWorkingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pWorkingCity->GetCityCulture()->CalculateBaseTourism();
+				}				
 #endif
-				}
-				// JON: New City Citizens AI shoulud update here 08/17/09
 			}
+
 			bChange = true;
 		}
 	}

@@ -2602,7 +2602,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 			if (pLoopPlot != NULL)
 			{
 				// Is this a Plot this City controls?
-				if (pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->GetID() == GetCity()->GetID())
+				if (pLoopPlot->getWorkingCityID() == GetCity()->GetID())
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
 					if ((IsWorkingPlot(pLoopPlot) && bWantWorked) ||
@@ -2890,9 +2890,7 @@ void CvCityCitizens::DoReallocateCitizens()
 /// Is our City working a CvPlot?
 bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
 {
-	int iIndex;
-
-	iIndex = GetCityIndexFromPlot(pPlot);
+	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	if (iIndex != -1)
 	{
@@ -2961,16 +2959,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 		if (pPlot != NULL)
 		{
-			// investigate later
-			//CvAssertMsg(pPlot->getWorkingCity() == GetCity(), "WorkingCity is expected to be this");
-
 			// Now working pPlot
 			if (IsWorkingPlot(pPlot))
 			{
-				//if (iIndex != CITY_HOME_PLOT)
-				//{
-				//	GetCity()->changeWorkingPopulation(1);
-				//}
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
@@ -3008,11 +2999,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 			// No longer working pPlot
 			else
 			{
-				//if (iIndex != CITY_HOME_PLOT)
-				//{
-				//	GetCity()->changeWorkingPopulation(-1);
-				//}
-
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
@@ -3129,8 +3115,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 		{
 			if (IsCanWork(pPlot))
 			{
-				//				GetCity()->setCitizensAutomated(false);
-
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
@@ -3170,10 +3154,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 							CvAssert(false);
 						}
 					}
-					//if ((GetCity()->extraSpecialists() > 0) || GetCity()->AI_removeWorstCitizen())
-					//{
-					//	SetWorkingPlot(pPlot, true);
-					//}
 				}
 			}
 			// JON: Need to update this block to work with new system

@@ -51,13 +51,6 @@
 
 OBJECT_VALIDATE_DEFINITION(CvCity)
 
-namespace
-{
-// debugging
-YieldTypes s_lastYieldUsedToUpdateRateFromTerrain;
-int        s_changeYieldFromTerreain;
-}
-
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
@@ -22615,9 +22608,7 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 	}
 
 #if defined(MOD_PROCESS_STOCKPILE)
-	int iYield = getBasicYieldRateTimes100(eIndex, bIgnoreTrade) + iProcessYield;
-
-	return iYield;
+	return getBasicYieldRateTimes100(eIndex, bIgnoreTrade) + iProcessYield;
 }
 
 int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
@@ -22828,12 +22819,12 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
+		if (m_aiBaseYieldRateFromTerrain[eIndex] + iChange < 0)
+		{
+			OutputDebugString("houston, we have a problem!\n");
+		}
+
 		m_aiBaseYieldRateFromTerrain.setAt(eIndex, m_aiBaseYieldRateFromTerrain[eIndex] + iChange);
-
-		// JAR - debugging
-		s_lastYieldUsedToUpdateRateFromTerrain = eIndex;
-		s_changeYieldFromTerreain = iChange;
-
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -31743,11 +31734,14 @@ std::string CvCity::debugDump(const FAutoVariableBase& /*var*/) const
 std::string CvCity::stackTraceRemark(const FAutoVariableBase& var) const
 {
 	std::string result = debugDump(var);
+	//example
+	/*
 	if(&var == &m_aiBaseYieldRateFromTerrain)
 	{
 		result += std::string("\nlast yield used to update from terrain = ") + FSerialization::toString(s_lastYieldUsedToUpdateRateFromTerrain) + std::string("\n");
 		result += std::string("change value used for update = ") + FSerialization::toString(s_changeYieldFromTerreain) + std::string("\n");
 	}
+	*/
 	return result;
 }
 
