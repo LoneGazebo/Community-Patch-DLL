@@ -143,7 +143,10 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
--- Abnormal scaler for Specialist yields in cities UA. +specialist yield in medieval/industrial/atomic eras.
+-- Abnormal scaler. Works for:
+---- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)
+---- FreeSocialPoliciesPerEra column in Traits
+---- Trait_YieldChangesPerImprovementBuilt (x2/x3/x4 of the bonus in Medieval/Industrial/Atomic)
 
 ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 

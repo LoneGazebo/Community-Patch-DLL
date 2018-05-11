@@ -294,8 +294,10 @@ public:
 	int GetMountainRangeYield(int i) const;
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
 	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const;
+	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -616,6 +618,7 @@ protected:
 	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
 	int** m_ppiYieldFromTileEarnTerrainType;
+	int** m_ppiYieldChangePerImprovementBuilt;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
@@ -648,6 +651,7 @@ protected:
 	bool m_bCombatBoostNearNaturalWonder;
 	int* m_piNumPledgesDomainProdMod;
 	int* m_piDomainFreeExperienceModifier;
+	int* m_piGreatPersonProgressFromPolicyUnlock;
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1534,6 +1538,10 @@ public:
 	{
 		return ((uint)eDomain < m_aiDomainFreeExperienceModifier.size()) ? m_aiDomainFreeExperienceModifier[(int)eDomain] : 0;
 	};
+	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const
+	{
+		return ((uint)eIndex < m_aiGreatPersonProgressFromPolicyUnlock.size()) ? m_aiGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
+	};
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
@@ -1543,6 +1551,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
@@ -2038,6 +2047,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiMovesChangeUnitClass;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileEarnTerrainType;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
@@ -2098,6 +2108,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiDomainFreeExperienceModifier;
+	std::vector<int> m_aiGreatPersonProgressFromPolicyUnlock;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;
