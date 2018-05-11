@@ -2366,6 +2366,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_aUnitExtraCosts.clear();
 
 		AI_reset();
+
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+		sentFirstEndTurnMessage = false;
+		receivedFirstEndTurnMessage = false;
+#endif		
 	}
 }
 
@@ -32184,7 +32189,33 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 	}
 }
 
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+bool CvPlayer::WaitingOnFirstEndTurnMessage()
+{
+	if (!GC.getGame().isNetworkMultiPlayer())
+		return false;
+	//if (!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)) // just check isSimultaneousTurns? Do humans who are currently warring with each other have the turn skip issue? Other code seems to think so.
+	if (!isSimultaneousTurns())
+		return false;
+	if (!isHuman() || isObserver())
+		return false;
+	return !receivedFirstEndTurnMessage;
+}
 
+void CvPlayer::SendFirstEndTurnMessage()
+{
+	if (!sentFirstEndTurnMessage)
+	{
+		NetMessageExt::Send::PlayerFirstEndTurn();
+		sentFirstEndTurnMessage = true;
+	}
+}
+
+void CvPlayer::SetReceivedFirstEndTurnMessage()
+{
+	receivedFirstEndTurnMessage = true;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Player who first captured our capital
 PlayerTypes CvPlayer::GetCapitalConqueror() const
@@ -33528,12 +33559,24 @@ void CvPlayer::setEndTurn(bool bNewValue)
 {
 	CvGame& game = GC.getGame();
 
-	if(isSimultaneousTurns()
-		&& bNewValue 
-		&& game.isNetworkMultiPlayer() 
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)			
+	// Extra condition to check that we have received the extra message required to finish the first turn. 
+	// This is required when playing with hybrid/simultaneous turns with pitboss mode to prevent turn from getting skipped when player is not present when host starts.
+	// It might also prevent a potential race condition even when not in pitboss mode.
+	if (bNewValue
+		&& game.isNetworkMultiPlayer()
+		&& WaitingOnFirstEndTurnMessage())
+	{
+		return;
+
+	}
+#endif
+	if (isSimultaneousTurns()
+		&& bNewValue
+		&& game.isNetworkMultiPlayer()
 		&& !gDLL->HasReceivedTurnAllCompleteFromAllPlayers())
 	{//When doing simultaneous turns in multiplayer, we don't want anyone to end their turn until everyone has signalled TurnAllComplete.
-		// No setting end turn to true until all the players have sent the TurnComplete network message
+	 // No setting end turn to true until all the players have sent the TurnComplete network message		
 		return;
 	}
 
@@ -33578,7 +33621,7 @@ void CvPlayer::setEndTurn(bool bNewValue)
 		if(isEndTurn())
 		{
 			if(!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
-			{//fully simultaneous turns only run automoves after every human has moved.
+			{//fully simultaneous turns only run automoves after every human has moved.				
 				checkRunAutoMovesForEveryone();
 			}
 			else

@@ -3779,6 +3779,12 @@ void CvGame::doControl(ControlTypes eControl)
 #if !defined(NO_ACHIEVEMENTS)
 			kActivePlayer.GetPlayerAchievements().EndTurn();
 #endif
+
+#if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
+			// Send a message so that this and all other clients will allow the player to end their turn. 
+			// There is a condition in setEndTurn that prevents ending until this message is sent (when simul/hybrid turns and human player).
+			kActivePlayer.SendFirstEndTurnMessage();
+#endif
 			gDLL->sendTurnComplete();
 #if !defined(NO_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
