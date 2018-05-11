@@ -10503,7 +10503,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		eRoute = getRouteType();
 	}
 
-	iYield = calculateNatureYieldFast(eYield, ePlayer, pOwningCity, false, pMajorityReligion, pSecondaryPantheon);
+	iYield = calculateNatureYieldFast(eYield, ePlayer, false, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	if (ePlayer != NO_PLAYER) 

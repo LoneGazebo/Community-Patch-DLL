@@ -126,7 +126,6 @@ public:
 	bool IsCanWork(CvPlot* pPlot) const;
 	bool IsAnyPlotBlockaded() const;
 
-	void DoVerifyWorkingPlot(CvPlot* pPlot);
 	void DoVerifyWorkingPlots();
 
 	const std::vector<int>& GetWorkedPlots() const { return m_vWorkedPlots; }

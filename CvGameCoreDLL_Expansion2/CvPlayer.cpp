@@ -17478,7 +17478,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 /// How many Units can we support for free without paying Production?
 int CvPlayer::GetNumUnitsSupplied() const
 {
-	if (m_iNumUnitsSuppliedCached != -1)
+	if (m_iNumUnitsSuppliedCached == -1)
 	{
 
 		int iFreeUnits = GetNumUnitsSuppliedByHandicap();

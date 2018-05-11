@@ -3388,27 +3388,6 @@ bool CvCityCitizens::IsAnyPlotBlockaded() const
 	return false;
 }
 
-/// If we're working this plot make sure we're allowed, and if we're not then correct the situation
-void CvCityCitizens::DoVerifyWorkingPlot(CvPlot* pPlot)
-{
-	if (pPlot != NULL)
-	{
-		if (IsWorkingPlot(pPlot))
-		{
-			if (!IsCanWork(pPlot))
-			{
-#if defined(MOD_BALANCE_CORE)
-				SetWorkingPlot(pPlot, false, true, false);
-#else
-				SetWorkingPlot(pPlot, false);
-#endif
-				std::map<SpecialistTypes, int> specialistValueCache;
-				DoAddBestCitizenFromUnassigned(specialistValueCache);
-			}
-		}
-	}
-}
-
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 void CvCityCitizens::DoVerifyWorkingPlots()
 {
@@ -3416,7 +3395,15 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 
-		DoVerifyWorkingPlot(pPlot);
+		if (pPlot && IsWorkingPlot(pPlot))
+		{
+			if (!IsCanWork(pPlot))
+			{
+				SetWorkingPlot(pPlot, false, true, false);
+				std::map<SpecialistTypes, int> dummy;
+				DoAddBestCitizenFromUnassigned(dummy);
+			}
+		}
 	}
 }
 
