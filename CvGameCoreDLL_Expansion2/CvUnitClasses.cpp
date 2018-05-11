@@ -56,7 +56,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iNumFreeLux(0),
 	m_iBeliefUnlock(NO_BELIEF),
 	m_bCultureFromExperienceOnDisband(false),
-	m_bIsConvertUnit(false),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
 	m_bIsConvertOnDamage(false),
@@ -429,7 +428,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	szTextVal = kResults.GetText("BeliefRequired");
 	m_iBeliefUnlock = GC.getInfoTypeForString(szTextVal, true);
 	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
-	m_bIsConvertUnit = kResults.GetBool("IsConvertUnit");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
 	m_bIsConvertOnDamage = kResults.GetBool("ConvertOnDamage");
 	m_iDamageThreshold = kResults.GetInt("DamageThreshold");
@@ -1385,10 +1383,6 @@ int CvUnitEntry::StackCombat() const
 bool CvUnitEntry::IsCultureFromExperienceDisbandUpgrade() const
 {
 	return m_bCultureFromExperienceOnDisband;
-}
-bool CvUnitEntry::IsConvertUnit() const
-{
-	return m_bIsConvertUnit;
 }
 bool CvUnitEntry::IsConvertOnDamage() const
 {

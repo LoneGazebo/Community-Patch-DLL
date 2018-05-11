@@ -261,7 +261,8 @@ public:
 	bool IsEnemyLands() const;
 	int GetNearbyRange() const;
 	UnitTypes getRequiredUnit() const;
-	UnitTypes GetConvertDomainUnit() const;
+	bool IsConvertUnit() const;
+	int GetConvertDomainUnit() const;
 	DomainTypes GetConvertDomain() const;
 	int GetStackedGreatGeneralExperience() const;
 	int GetPillageBonusStrengthPercent() const;
@@ -558,8 +559,9 @@ protected:
 	bool m_bEnemyLands;
 	int m_iNearbyRange;
 	UnitTypes m_eRequiredUnit;
-	UnitTypes m_eConvertDomainUnit;
+	int m_iConvertDomainUnit;
 	DomainTypes m_eConvertDomain;
+	bool m_bIsConvertUnit;
 	int m_iStackedGreatGeneralExperience;
 	int m_iPillageBonusStrength;
 	int m_iReligiousPressureModifier;

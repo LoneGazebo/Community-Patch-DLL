@@ -424,7 +424,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	int iGoodPlotsInRing1 = 0, iGoodPlotsInRing2 = 0;
+	int nFoodPlots = 0, nHammerPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -488,12 +488,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
 
-			// need at least some food in ring 1
-			if (iDistance == 1 &&  iFoodValue > 0)
-				iGoodPlotsInRing1++;
-			// and some hammers within ring 2
+			// need at least some food close by
+			if (iDistance > 0 && iDistance < 3 &&  iFoodValue > 0)
+				nFoodPlots++;
+			// and some hammers close by
 			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0))
-				iGoodPlotsInRing2++;
+				nHammerPlots++;
 		}
 
 		// for the central plot
@@ -601,9 +601,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (iGoodPlotsInRing1 < 2)
+	if (nFoodPlots < 4)
 		return 0;
-	if (iGoodPlotsInRing2 < 3)
+	if (nHammerPlots < 4)
 		return 0;
 
 	//civ-specific bonuses
@@ -937,17 +937,11 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements ...
-	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS))
+	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements
+	if (MOD_BALANCE_CORE_SETTLER && 
+		( ( (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS ) && pPlot->getFeatureType() == NO_FEATURE ) || 
+		   pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS ) )
 		rtnValue += 1;
-
-	//let's encourage settlement on/near oases
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_OASIS)
-		rtnValue += 2;
-
-	//let's encourage settlement on/near flood plains
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS)
-		rtnValue += 3;
 
 	//Help with island settling - assume a lighthouse
 	if(pPlot->isShallowWater())
@@ -963,8 +957,7 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1028,8 +1021,8 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// assume a mine or similar ...
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills())
+	// assume a mine or similar in friendly climate. don't run off into the snow
+	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills() && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE)
 		rtnValue += 1;
 #endif
 
@@ -1040,12 +1033,10 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
-
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
 		{

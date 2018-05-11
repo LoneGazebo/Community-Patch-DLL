@@ -2265,7 +2265,6 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if(pUnit->GetDanger(pPlot) > 0)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
@@ -2290,19 +2289,10 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 			return false;
 		}
 	}
-#else
-	if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
-	{
-		if(m_bLogging)
-		{
-			CvString strLog;
-			strLog.Format("plotX: %d plotY: %d, danger: %d,, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
-			LogInfo(strLog, m_pPlayer, true);
-		}
 
+	//danger check is not enough - we don't want to be adjacent to enemy territory for example
+	if (!m_pPlayer->isHuman() && pPlot->isVisibleToEnemy(pUnit->getOwner()))
 		return false;
-	}
-#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	if(!pUnit->atPlot(*pPlot) && pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())

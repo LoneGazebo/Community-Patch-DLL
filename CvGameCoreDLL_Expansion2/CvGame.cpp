@@ -12581,16 +12581,10 @@ void CvGame::LogGameState(bool bLogHeaders)
 		CvString otherPlayerName;
 		CvString strMinorString;
 		CvString strDesc;
-		CvString strLogName;
 		CvString strTemp;
 
-		strLogName = "WorldState_Log.csv";
-
-		FILogFile* pLog;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strOutput.Format("%03d", GC.getGame().getElapsedGameTurns());
+		CvString strLogName = "WorldState_Log.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		AIGrandStrategyTypes eGrandStrategy;
 		int iGSConquest = 0;
@@ -12744,13 +12738,15 @@ void CvGame::LogGameState(bool bLogHeaders)
 		// Grand Strategies
 		if(bFirstTurn)
 		{
+			strOutput = "Turn";
 			strOutput += ", Conquest";
 			strOutput += ", Spaceship";
-			strOutput += ", United Nations";
+			strOutput += ", Diplo";
 			strOutput += ", Culture";
 		}
 		else
 		{
+			strOutput.Format("%03d", GC.getGame().getElapsedGameTurns());
 			strTemp.Format("%d", iGSConquest);
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iGSSpaceship);
@@ -12760,8 +12756,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iGSCulture);
 			strOutput += ", " + strTemp;
 		}
-
-		strOutput += ", ";
 
 		// Major Approaches
 		if(bFirstTurn)
@@ -12792,8 +12786,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", " + strTemp;
 		}
 
-		strOutput += ", ";
-
 		// Major Approaches
 		if(bFirstTurn)
 		{
@@ -12822,8 +12814,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iMajorNeutral);
 			strOutput += ", " + strTemp;
 		}
-
-		strOutput += ", ";
 
 		// Minor Approaches
 		if(bFirstTurn)

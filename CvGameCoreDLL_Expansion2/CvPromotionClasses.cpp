@@ -234,8 +234,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bEnemyLands(false),
 	m_iNearbyRange(0),
 	m_eRequiredUnit(NO_UNIT),
-	m_eConvertDomainUnit(NO_UNIT),
+	m_iConvertDomainUnit(NO_UNIT),
 	m_eConvertDomain(NO_DOMAIN),
+	m_bIsConvertUnit(false),
 	m_iStackedGreatGeneralExperience(0),
 	m_iPillageBonusStrength(0),
 	m_iReligiousPressureModifier(0),
@@ -487,9 +488,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	const char* szUnitType = kResults.GetText("RequiredUnit");
 	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
-	m_eConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
+	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
 	m_eConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_bIsConvertUnit = kResults.GetBool("IsConvertUnit");
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
@@ -2244,9 +2246,13 @@ UnitTypes CvPromotionEntry::getRequiredUnit() const
 {
 	return m_eRequiredUnit;
 }
-UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
+bool CvPromotionEntry::IsConvertUnit() const
 {
-	return m_eConvertDomainUnit;
+	return m_bIsConvertUnit;
+}
+int CvPromotionEntry::GetConvertDomainUnit() const
+{
+	return m_iConvertDomainUnit;
 }
 DomainTypes CvPromotionEntry::GetConvertDomain() const
 {

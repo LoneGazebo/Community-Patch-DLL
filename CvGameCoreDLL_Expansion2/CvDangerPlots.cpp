@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -123,7 +123,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 /// Updates the danger plots values to reflect threats across the map
 void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 {
-	if (!m_bArrayAllocated)
+	if (!m_bArrayAllocated) //nothing to do and causes an endless recursion
 		return;
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
@@ -147,6 +147,9 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 
 void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
 {
+	if (!m_bArrayAllocated) //nothing to do
+		return;
+
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
 
@@ -475,7 +478,7 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility)
 {
 	//watch out: if this is called for a half-initialized unit, the pointer may be valid but the plot invalid
-	if (!m_bArrayAllocated || m_ePlayer == NO_PLAYER || !pUnit || !pUnit->plot())
+	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit || !pUnit->plot())
 		return true;
 
 	if(!pUnit->IsCanAttack())

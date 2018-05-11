@@ -83,6 +83,13 @@ struct CvUnitCaptureDefinition
 	}
 };
 
+enum AreaEffectType
+{
+	AE_GREAT_GENERAL,
+	AE_SAPPER,
+	AE_SIEGETOWER
+};
+
 class CvUnit
 {
 
@@ -120,6 +127,7 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
+		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible
 	};
 
 	enum MoveResult
@@ -714,6 +722,13 @@ public:
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
+	void ChangeIsConvertUnit(int iValue);
+	int getIsConvertUnit() const;
+	bool isConvertUnit() const;
+	bool IsConvertDomain(DomainTypes eDomain) const;
+	void ChangeConvertDomain(DomainTypes eDomain, bool bValue);
+	const UnitTypes getConvertDomainUnitType() const;
+	void ChangeConvertDomainUnit(UnitTypes eUnit);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1224,12 +1239,9 @@ public:
 #endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-	int GetAreaEffectBonus(int iAuraEffectChange = 0, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL, bool bGreatGeneral = false, bool bSapper = false, bool bCityAttackSupport = false) const;
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool IsNearGreatGeneral(int iAuraEffectChange, const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#else
+	int GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#endif
+
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
@@ -1550,7 +1562,6 @@ public:
 	int getYieldFromScouting(YieldTypes eIndex) const;
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
 	bool isCultureFromExperienceDisbandUpgrade() const;
-	bool isConvertUnit() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
 	bool isConvertOnDamage() const;
@@ -2015,6 +2026,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
 	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
+	FAutoVariable<int, CvUnit> m_bconvertUnit;
+	FAutoVariable<std::vector<int>, CvUnit> m_pabConvertDomain;
+	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

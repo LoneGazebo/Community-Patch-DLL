@@ -3452,7 +3452,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), 
-					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING, 
+					CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,
 					false, false, MISSIONAI_EXPLORE, pDestPlot);
 
 				if (!pUnit->canMove())
@@ -3674,7 +3674,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			//verify that we don't move into danger ...
 			if (pBestPlot)
 			{
-				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, INT_MAX, NULL, true))
+				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING, INT_MAX, NULL, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
@@ -3700,7 +3700,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			}
 
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 
-				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING,
+				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,
 				false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			// Only mark as done if out of movement - we'll do a second pass later
@@ -5139,7 +5139,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
-			int iAura = 0;
+
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn(true, true, false);
@@ -5151,7 +5151,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (!pDefender || (pDefender->GetNumEnemyUnitsAdjacent()>0 && !pCandidate->isCity()))
 					continue;
 
-				if(pUnit->IsNearGreatGeneral(iAura, pCandidate, pUnit)) //near another general
+				if(pUnit->IsNearGreatGeneral(pCandidate)) //near another general
 					continue;
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe

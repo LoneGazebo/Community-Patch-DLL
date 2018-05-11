@@ -206,7 +206,6 @@ public:
 	int GetLocalFaithCooldown() const;
 	bool IsMounted() const;
 	bool IsCultureFromExperienceDisbandUpgrade() const;
-	bool IsConvertUnit() const;
 	bool IsUnitEraUpgrade() const;
 	bool IsConvertOnDamage() const;
 	int GetDamageThreshold() const;

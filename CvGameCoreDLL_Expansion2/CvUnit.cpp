@@ -437,6 +437,9 @@ CvUnit::CvUnit() :
 	, m_igiveExtraAttacks("CvUnit::m_igiveExtraAttacks", m_syncArchive)
 	, m_igiveDefenseMod("CvUnit::m_igiveDefenseMod", m_syncArchive)
 	, m_bgiveInvisibility("CvUnit::m_bgiveInvisibility", m_syncArchive)
+	, m_bconvertUnit("CvUnit::m_bconvertUnit", m_syncArchive)
+	, m_pabConvertDomain("CvUnit::m_pabConvertDomain", m_syncArchive)
+	, m_eConvertDomainUnit("CvUnit::m_eConvertDomainUnit", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -561,6 +564,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			ePromotion = (PromotionTypes) iI;
 
 			if(GC.getPromotionInfo(ePromotion)->IsHoveringUnit())
+				setHasPromotion(ePromotion, true);
+
+			if(GC.getPromotionInfo(ePromotion)->IsConvertUnit())
 				setHasPromotion(ePromotion, true);
 		}
 	}
@@ -857,7 +863,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
 				continue;
 
-			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit())	// Hovering units handled above
+			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit() && !GC.getPromotionInfo(ePromotion)->IsConvertUnit())	// Hovering and Convert domain units handled above
 				setHasPromotion(ePromotion, true);
 		}
 	}
@@ -1511,6 +1517,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_igiveExtraAttacks = 0;
 	m_igiveDefenseMod = 0;
 	m_bgiveInvisibility = false;
+	m_bconvertUnit = false;
+	m_eConvertDomainUnit = NO_UNIT;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -1652,6 +1660,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_transportUnit.reset();
 	m_extraDomainModifiers.clear();
 	m_pabGiveDomainBonus.clear();
+	m_pabConvertDomain.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
@@ -1747,6 +1756,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_yieldFromScouting.clear();
 		m_pabGiveDomainBonus.clear();
 		m_pabGiveDomainBonus.resize(NUM_DOMAIN_TYPES, false);
+		m_pabConvertDomain.clear();
+		m_pabConvertDomain.resize(NUM_DOMAIN_TYPES, false);
 #endif
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
@@ -6690,15 +6701,19 @@ bool CvUnit::IsCityAttackSupport() const
 {
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_CORE)
-	if(getUnitInfo().IsCityAttackSupport())
-	{
-		return true;
-	}
-#endif
+	//city attack support units are civilians with a sapper bonus
+	//sapper is a separate promotion that can theoretically apply to combat units as well
+	if (IsCombatUnit())
+		return false;
+
+	return getUnitInfo().IsCityAttackSupport();
+#else
 	return m_iCityAttackOnlyCount > 0;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
+//this is no longer used
 void CvUnit::ChangeCityAttackOnlyCount(int iChange)
 {
 	VALIDATE_OBJECT
@@ -7028,7 +7043,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
-	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !isCargo() && !canMoveAllTerrain());
+	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !isCargo() && !canMoveAllTerrain() && !isConvertUnit());
 }
 
 //	--------------------------------------------------------------------------------
@@ -15618,12 +15633,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += GetNearbyCityBonusCombatMod(pBattlePlot);
 	}
 	// Great General nearby
-	int iAuraEffectChange = 0;
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
-		iTempModifier = GetAreaEffectBonus(iAuraEffectChange, pBattlePlot, NULL, NULL, true, false, false);
-		iModifier += iTempModifier;
+		iModifier += GetAreaEffectBonus(AE_GREAT_GENERAL, pBattlePlot);
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
 	if(GET_PLAYER(getOwner()).isMinorCiv())
@@ -16091,21 +16105,10 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += iTempModifier;
 
 			// Nearby unit sapping this city
-			iTempModifier = GetAreaEffectBonus(0, pFromPlot, pToPlot->getPlotCity(), NULL, false, true, false);
+			iTempModifier = GetAreaEffectBonus(AE_SAPPER, pFromPlot, pToPlot->getPlotCity());
 			iModifier += iTempModifier;
-			/*
-			if(IsNearSapper(pToPlot->getPlotCity()))
-			{
-				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
-				iModifier += iTempModifier;
-			}*/
-#if defined(MOD_BALANCE_CORE)/*
-			// Nearby unit sapping this city
-			else if(IsHalfNearSapper(pToPlot->getPlotCity()))
-			{
-				iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
-				iModifier += iTempModifier;
-			}*/
+
+#if defined(MOD_BALANCE_CORE)
 			//bonus for attacking same unit over and over in a turn?
 			iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
@@ -16588,11 +16591,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
 	}
+
 	// Great General nearby
-	int iAuraEffectChange = 0;
 	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
 	{
-		iModifier += GetAreaEffectBonus(iAuraEffectChange, pMyPlot, NULL, NULL, true, false, false);
+		iModifier += GetAreaEffectBonus(AE_GREAT_GENERAL, pMyPlot);
 	}
 
 	// Reverse Great General nearby
@@ -16825,26 +16828,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(pCity != NULL)
 	{
 		// Attacking a City
-		iTempModifier = cityAttackModifier();
-		iModifier += iTempModifier;
+		iModifier += cityAttackModifier();
 
 		// Nearby unit sapping this city
-		iTempModifier = GetAreaEffectBonus(0, pMyPlot, pCity, NULL, false, true, false);
-		iModifier += iTempModifier;
-		/*
-		if(IsNearSapper(pCity))
-		{
-			iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
-			iModifier += iTempModifier;
-		}
-#if defined(MOD_BALANCE_CORE)
-		// Nearby unit sapping this city
-		else if(IsHalfNearSapper(pCity))
-		{
-			iTempModifier = (GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2);
-			iModifier += iTempModifier;
-		}
-#endif */
+		iModifier += GetAreaEffectBonus(AE_SAPPER, pMyPlot, pCity);
+
 		//bonus for attacking same unit over and over in a turn?
 		iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
@@ -18204,12 +18192,14 @@ void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 }
 bool CvUnit::IsGiveDomainBonus(DomainTypes eDomain) const
 {
+	VALIDATE_OBJECT
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(eDomain > -1, "Index out of bounds");
 	return m_pabGiveDomainBonus[eDomain];
 }
 void CvUnit::ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue)
 {
+	VALIDATE_OBJECT
 	m_pabGiveDomainBonus.setAt(eDomain, bValue);
 }
 int CvUnit::getGiveExtraAttacks() const
@@ -18246,6 +18236,42 @@ bool CvUnit::isGiveInvisibility() const
 {
 	VALIDATE_OBJECT
 	return GetIsGiveInvisibility() > 0;
+}
+void CvUnit::ChangeIsConvertUnit(int iValue)
+{
+	VALIDATE_OBJECT
+	m_bconvertUnit += iValue;
+}
+int CvUnit::getIsConvertUnit() const
+{
+	VALIDATE_OBJECT
+	return	m_bconvertUnit;
+}
+bool CvUnit::isConvertUnit() const
+{
+	VALIDATE_OBJECT
+	return getIsConvertUnit() > 0;
+}
+bool CvUnit::IsConvertDomain(DomainTypes eDomain) const
+{
+	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(eDomain > -1, "Index out of bounds");
+	return m_pabConvertDomain[eDomain];
+}
+void CvUnit::ChangeConvertDomain(DomainTypes eDomain, bool bValue)
+{
+	VALIDATE_OBJECT
+	m_pabConvertDomain.setAt(eDomain, bValue);
+}
+const UnitTypes CvUnit::getConvertDomainUnitType() const
+{
+	VALIDATE_OBJECT
+	return m_eConvertDomainUnit;
+}
+void CvUnit::ChangeConvertDomainUnit(UnitTypes eUnit)
+{
+	VALIDATE_OBJECT
+	m_eConvertDomainUnit = eUnit;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -20045,6 +20071,25 @@ if (!bDoEvade)
 				}
 			}
 		}
+		if (isConvertUnit())
+		{
+			if (IsConvertDomain(pNewPlot->getDomain()))
+			{
+				if (getConvertDomainUnitType() != NO_UNIT)
+				{
+					UnitAITypes eAIType = NO_UNITAI;
+					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDomainUnitType());
+					if (pkUnitType != NULL)
+					{
+						//! Be sure the unit your initializing has as its unitinfo (GetDomainType() == IsConvertDomain(pNewPlot->getDomain())
+						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
+						kill(true, NO_PLAYER, false);
+						pNewUnit->finishMoves();
+						pNewUnit->restoreFullMoves();
+					}
+				}
+			}
 #if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
@@ -20689,42 +20734,6 @@ if (!bDoEvade)
 		PlayerTypes ePlotOwner = pNewPlot->getOwner();
 		if(ePlotOwner != NO_PLAYER)
 		{
-			// If we're in friendly territory and we can embark, give the promotion for free
-			if(pNewPlot->IsFriendlyTerritory(getOwner()))
-			{
-				if(GET_TEAM(eOurTeam).canEmbark())
-				{
-					PromotionTypes ePromotionEmbarkation = kPlayer.GetEmbarkationPromotion();
-
-					bool bGivePromotion = false;
-
-					// Civilians get it for free
-					if(getDomainType() == DOMAIN_LAND)
-					{
-						if(!IsCombatUnit())
-							bGivePromotion = true;
-					}
-
-					// Can the unit get this? (handles water units and such)
-					if(!bGivePromotion && ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, getUnitType()))
-						bGivePromotion = true;
-
-					// Some case that gives us the promotion?
-					if(bGivePromotion)
-						setHasPromotion(ePromotionEmbarkation, true);
-						
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-					if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION) {
-						// Incredibly unlikely to ever happen as it implies that hovering units come before embarkation in the tech tree!
-						PromotionTypes ePromotionDeepWaterEmbarkation = kPlayer.GetDeepWaterEmbarkationPromotion();
-						if(::IsPromotionValidForUnitCombatType(ePromotionDeepWaterEmbarkation, getUnitType())) {
-							setHasPromotion(ePromotionDeepWaterEmbarkation, true);
-						}
-					}
-#endif
-				}
-			}
-
 			// Are we in enemy territory? If so, give notification to owner
 			if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(ePlotOwner).getTeam()) && !isInvisible(GET_PLAYER(ePlotOwner).getTeam(),false,false))
 			{
@@ -20735,37 +20744,6 @@ if (!bDoEvade)
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_ENEMY_SUMMARY");
 					pNotifications->Add(NOTIFICATION_ENEMY_IN_TERRITORY, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, getUnitType(), getOwner());
 				}
-			}
-		}
-		if(isConvertUnit())
-		{
-			CvUnit* pConvertUnit = NULL;
-			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo)
-				{
-					if(pkPromotionInfo->GetConvertDomainUnit() != NO_UNIT)
-					{
-						if((pNewPlot->getDomain() == pkPromotionInfo->GetConvertDomain()) && (this->isHasPromotion(eLoopPromotion)) && (pkPromotionInfo->getRequiredUnit() == this->getUnitType()))
-						{
-							UnitAITypes eAIType = NO_UNITAI;
-							const CvUnitEntry* pkUnitType = GC.getUnitInfo(pkPromotionInfo->GetConvertDomainUnit());
-							if(pkUnitType != NULL)
-							{
-								eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-								CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(pkPromotionInfo->GetConvertDomainUnit(), this->getX(), this->getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
-								pConvertUnit = pNewUnit;
-							}
-						}
-					}
-				}
-			}
-			if(pConvertUnit != NULL)
-			{
-				this->kill(true, NO_PLAYER, false);
-				pConvertUnit->finishMoves();
 			}
 		}
 	}
@@ -23521,20 +23499,12 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 			return false;
 	}
 
-	if (GetAreaEffectBonus(0, pAtPlot, NULL, pIgnoreThisGeneral, false, false, true) != 0)
-	{
-		return true;
-	}
-
-	return false;
+	return (GetAreaEffectBonus(AE_SIEGETOWER, pAtPlot, NULL, pIgnoreThisGeneral) > 0);
 }
+
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-bool CvUnit::IsNearGreatGeneral(int iAuraEffectChange, const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
-#else
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
-#endif
 {
 	VALIDATE_OBJECT
 	if (pAtPlot == NULL)
@@ -23543,23 +23513,15 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 		if (pAtPlot == NULL)
 			return false;
 	}
-	if (GetAreaEffectBonus(iAuraEffectChange, pAtPlot, NULL, pIgnoreThisGeneral, true, false, false) != 0)
-	{
-		return true;
-	}
-	return false;
+	
+	return (GetAreaEffectBonus(AE_GREAT_GENERAL, pAtPlot, NULL, pIgnoreThisGeneral) > 0);
 }
-int CvUnit::GetAreaEffectBonus(int iAuraEffectChange, const CvPlot* pAtPlot, const CvCity* pTargetCity, const CvUnit* pIgnoreThisUnit, bool bGreatGeneral, bool bSapper, bool bCityAttackSupport) const
+
+int CvUnit::GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot, const CvCity* pTargetCity, const CvUnit* pIgnoreThisUnit) const
 {
 	VALIDATE_OBJECT
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool bFound = false;
-	int iBonus = 0;
-	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
-#else
-		int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
-#endif
+	int iResult = 0;
 
 	if (pAtPlot == NULL)
 	{
@@ -23571,64 +23533,63 @@ int CvUnit::GetAreaEffectBonus(int iAuraEffectChange, const CvPlot* pAtPlot, con
 	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
-		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
 		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY())>5)
 			continue;
+
+		//exclude this unit!
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
-		if (pUnit != NULL && pUnit->getDomainType() == getDomainType() && pUnit != pIgnoreThisUnit)
-		{
+		if (pUnit == NULL || pUnit->getDomainType() != getDomainType() || pUnit == this || pUnit == pIgnoreThisUnit)
+			continue;
+
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-			if (plotDistance(pUnit->getX(), pUnit->getY(), pAtPlot->getX(), pAtPlot->getY()) <= (iGreatGeneralRange + pUnit->GetAuraRangeChange()))
+		int iEffectRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE() + pUnit->GetAuraRangeChange();
+#else
+		int iEffectRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
+#endif
+
+		//distance check first
+		if (plotDistance(pUnit->getX(), pUnit->getY(), pAtPlot->getX(), pAtPlot->getY()) > iEffectRange)
+			continue;
+
+		switch (eType)
+		{
+			case AE_GREAT_GENERAL:
 			{
-				if (bGreatGeneral && ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0)))
-				{
-					// We have to check all possible units as one may be better than another
-					if (!bFound)
-					{
-						// Can't do a straight compare for the first one found, as it could have a negative modifier
-						iAuraEffectChange = pUnit->GetAuraEffectChange();
-					}
-					else
-					{
-						if (pUnit->GetAuraEffectChange() > iAuraEffectChange)
-						{
-							iAuraEffectChange = pUnit->GetAuraEffectChange();
-						}
-					}
-					bFound = true;
-					if (bFound)
-					{
-						iBonus = kPlayer.GetGreatGeneralCombatBonus();
-						iBonus += kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus();
-						iBonus += iAuraEffectChange;
-					}
-				}
-				else if (bSapper && !bGreatGeneral && !bCityAttackSupport && pUnit->IsSapper() && pUnit != this)
+				if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0))
+					iResult = max(iResult, kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
+				break;
+			}
+			case AE_SAPPER:
+			{
+				if (pUnit->IsSapper())
 				{
 					CvAssertMsg(pTargetCity, "Target city is NULL when checking sapping combat bonus");
-					if (pTargetCity != NULL)
+					if (pTargetCity != NULL && pUnit->isEnemy(pTargetCity->getTeam()))
 					{
-						if (pTargetCity->plot()->isEnemyCity(*pUnit) && (plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY()) == (iGreatGeneralRange / 2)))
+						int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY());
+						if (iDistance < iEffectRange)
 						{
-							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER();
+							iResult = max(iResult, GC.getSAPPED_CITY_ATTACK_MODIFIER());
 						}
-						else if (pTargetCity->plot()->isEnemyCity(*pUnit) && (plotDistance(pUnit->getX(), pUnit->getY(), pTargetCity->getX(), pTargetCity->getY()) == iGreatGeneralRange))
+						else if (iDistance == iEffectRange)
 						{
-							iBonus = GC.getSAPPED_CITY_ATTACK_MODIFIER() / 2;
+							iResult = max(iResult, GC.getSAPPED_CITY_ATTACK_MODIFIER()/2);
 						}
 					}
 				}
-				else if (bCityAttackSupport && !bSapper && !bGreatGeneral && pUnit->IsCityAttackSupport())
-				{
-					//we'll use this as a boolean, we only use this as a move call
-					iBonus = 1;
-				}
+				break;
+			}
+			case AE_SIEGETOWER:
+			{
+				if (pUnit->IsCityAttackSupport())
+					return 1;
+				break;
 			}
 		}
-#endif
 	}
-	return iBonus;
+
+	return iResult;
 }
 
 #endif
@@ -26656,6 +26617,9 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 	// Hovering units (e.g. Helis) cannot embark
 	if(IsHoveringUnit() && promotionInfo->IsAllowsEmbarkation())
 		return false;
+
+	if (isConvertUnit() && promotionInfo->IsAllowsEmbarkation())
+		return false;
 		
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	// Only hovering units can deep water embark
@@ -26723,7 +26687,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_BUGFIX_MINOR)
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
 		// which doesn't have the situation where the player discovers Optics ...
-		if (bNewValue && canMoveAllTerrain()) {
+		if (bNewValue && (canMoveAllTerrain() || isConvertUnit())) {
 			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater()) {
 				return;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
@@ -26804,6 +26768,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeGiveExtraAttacks(thisPromotion.GetGiveExtraAttacks() * iChange);
 		ChangeGiveDefenseMod(thisPromotion.GetGiveDefenseMod() * iChange);
 		ChangeIsGiveInvisibility((thisPromotion.IsGiveInvisibility()) ? iChange : 0);
+		ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
@@ -27077,12 +27042,22 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
 			const DomainTypes eDomain = static_cast<DomainTypes>(iI);
-			if (eDomain != NULL && thisPromotion.GetGiveDomain() == eDomain)
+			if (eDomain != NULL)
 			{
-				ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
+				if (thisPromotion.GetGiveDomain() == eDomain)
+				{
+					ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
+				}
+				if (thisPromotion.GetConvertDomain() == eDomain)
+				{
+					ChangeConvertDomain(thisPromotion.GetConvertDomain(), iChange);
+				}
 			}
 		}
-
+		if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
+		{
+			ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
+		}
 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
@@ -28907,8 +28882,12 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 	}
 
-	//todo: consider movement flags here. especially turn destination, not only path destination
+	int iOldDanger = -1;
 	bool bEndMove = (pPathPlot == pDestPlot);
+	if (!bEndMove && (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
+		iOldDanger = GetDanger(pPathPlot);
+
+	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
 
 	int iETA = 1;
@@ -28918,6 +28897,18 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 		if (bMoved)
 		{
+			//it's possible that the move made additional enemies visible
+			//for some units we want to abort if the danger is significant and we have a chance to evade it
+			if (canMove() && iOldDanger >= 0)
+			{
+				int iNewDanger = GetDanger();
+				if (iNewDanger > GetCurrHitPoints()/2 && iNewDanger > iOldDanger)
+				{
+					ClearPathCache();
+					return MOVE_RESULT_CANCEL;
+				}
+			}
+
 			//this plot has now been consumed
 			m_kLastPath.pop_front();
 
@@ -31454,11 +31445,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 }
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-bool CvUnit::isConvertUnit() const
-{
-	VALIDATE_OBJECT
-	return getUnitInfo().IsConvertUnit();
-}
 bool CvUnit::isCultureFromExperienceDisbandUpgrade() const
 {
 	VALIDATE_OBJECT

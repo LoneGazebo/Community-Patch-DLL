@@ -1750,8 +1750,16 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY()) > data.iTypeParameter)
+	if(plotDistance(*pFromPlot,*pToPlot) > data.iTypeParameter)
 		return FALSE;
+
+	//can only claim ocean tiles after we can cross oceans
+	if (pToPlot->isDeepWater() && data.ePlayer != NO_PLAYER)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+			return FALSE;
+	}
 
 	return TRUE;
 }
@@ -1795,8 +1803,10 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		{
 			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->getTerrainType());
 			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
-			iExtraCost = max(iExtraCost, pTerrain ? pTerrain->getInfluenceCost() : 0);
-			iExtraCost = max(iExtraCost, pFeature ? pFeature->getInfluenceCost() : 0);
+			if (pFeature)
+				iExtraCost = max(iExtraCost, pFeature->getInfluenceCost());
+			else if (pTerrain)
+				iExtraCost = max(iExtraCost, pTerrain->getInfluenceCost());
 		}
 
 		//going along routes is cheaper
@@ -1824,6 +1834,14 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 	if(plotDistance(*pOrigin,*pToPlot) > data.iTypeParameter)
 		return FALSE;
+
+	//can only claim ocean tiles after we can cross oceans
+	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+		if (!kPlayer.CanCrossOcean() && !GET_TEAM(kPlayer.getTeam()).canEmbarkAllWaterPassage())
+			return FALSE;
+	}
 
 	return TRUE;
 }
@@ -3017,15 +3035,11 @@ CvPlot* CvPathNodeArray::GetTurnDestinationPlot(int iTurn) const
 	if (empty() || iTurn<0)
 		return NULL;
 
-	//walk backwards and return the first match
+	//walk backwards and return the first (last) match
 	for (size_t i = size(); i != 0; i--)
 	{
 		const CvPathNode& thisNode = at(i-1);
-		//actual end turn plot
-		if (thisNode.m_iTurns == iTurn+1 && thisNode.m_iMoves == 0)
-			return GC.getMap().plotUnchecked(thisNode.m_iX, thisNode.m_iY);
-		//unit still has moves left at the end of the path
-		if (thisNode.m_iTurns == iTurn && thisNode.m_iMoves > 0)
+		if (thisNode.m_iTurns == iTurn)
 			return GC.getMap().plotUnchecked(thisNode.m_iX, thisNode.m_iY);
 	}
 

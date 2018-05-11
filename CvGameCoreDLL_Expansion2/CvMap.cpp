@@ -636,6 +636,8 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
 //	--------------------------------------------------------------------------------
 void CvMap::doTurn()
 {
+	m_plotPopupCount.clear();
+
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->doTurn();
@@ -1418,26 +1420,6 @@ void CvMap::recalculateAreas()
 
 	recalculateLandmasses();
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange)
-{
-	if(pSource == NULL || pDest == NULL)
-	{
-		return -1;
-	}
-
-	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
-	SPath path = GC.GetStepFinder().GetPath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data);
-	if (!path)
-		return -1; // no passable path exists
-	else
-		return (path.iNormalizedDistance<INT_MAX) ? path.iNormalizedDistance : -1;
-
-}
-
-
 
 //	--------------------------------------------------------------------------------
 //
@@ -2561,4 +2543,14 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 	}
 
 	return vector<CvPlot*>();
+}
+
+int CvMap::GetPopupCount(int iPlotIndex)
+{
+	return m_plotPopupCount[iPlotIndex];
+}
+
+void CvMap::IncreasePopupCount(int iPlotIndex)
+{
+	m_plotPopupCount[iPlotIndex] += 1;
 }
