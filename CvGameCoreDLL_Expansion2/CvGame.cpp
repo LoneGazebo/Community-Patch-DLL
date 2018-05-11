@@ -5228,7 +5228,7 @@ void CvGame::initScoreCalculation()
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(!pPlot->isWater() || pPlot->isAdjacentToLand())
+		if(!pPlot->isWater() || pPlot->isAdjacentToLand(false))
 		{
 			iMaxFood += pPlot->calculateBestNatureYield(YIELD_FOOD, NO_PLAYER);
 		}
@@ -11668,7 +11668,7 @@ void CvGame::doUpdateCacheOnTurn()
 	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		pLoopPlot->updateFreshwater();
+		pLoopPlot->updateWaterFlags();
 	}
 }
 

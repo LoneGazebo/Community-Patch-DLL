@@ -3014,6 +3014,9 @@ void CvUnit::doTurn()
 	VALIDATE_OBJECT
 	CvAssertMsg(!IsDead(), "isDead did not return false as expected");
 
+	// reset cache
+	m_lastStrengthModifiers.clear();
+
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
 	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD) && (isHuman() || !IsFortified());
@@ -15570,12 +15573,40 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 	return iStrength;
 }
 
+SStrengthModifierInput::SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot)
+{
+	m_iOtherUnitID = pOtherUnit ? pOtherUnit->GetID() : 0;
+	m_iBattlePlot = pBattlePlot ? pBattlePlot->GetPlotIndex() : 0;
+	m_iFromPlot = pFromPlot ? pFromPlot->GetPlotIndex() : 0;
+	m_bIgnoreUnitAdjacencyBoni = bIgnoreUnitAdjacencyBoni;
+}
+
+const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs) const
+{
+	return (m_iOtherUnitID == rhs.m_iOtherUnitID && m_iBattlePlot == rhs.m_iBattlePlot && m_iFromPlot == rhs.m_iFromPlot && m_bIgnoreUnitAdjacencyBoni == rhs.m_bIgnoreUnitAdjacencyBoni);
+}
+
+int gCacheHit2 = 0;
+int gCacheMiss2 = 0;
+
+#define STRENGTH_MOD_MAX_CACHE_SIZE 5
+
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
 int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot) const
 {
 	VALIDATE_OBJECT
 
+	//simple caching for speedup
+	SStrengthModifierInput input(pOtherUnit, pBattlePlot, bIgnoreUnitAdjacencyBoni, pFromPlot);
+	for (size_t i = 0; i<m_lastStrengthModifiers.size(); i++)
+	if (input == m_lastStrengthModifiers[i].first)
+	{
+		gCacheHit2++;
+		return m_lastStrengthModifiers[i].second;
+	}
+	gCacheMiss2++;
+		
 	int iModifier = 0;
 	int iTempModifier;
 
@@ -16004,6 +16035,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 		}
 	}
+
+	//update cache
+	m_lastStrengthModifiers.push_back(std::make_pair(input, iModifier));
+	if (m_lastStrengthModifiers.size() == STRENGTH_MOD_MAX_CACHE_SIZE)
+		m_lastStrengthModifiers.erase(m_lastStrengthModifiers.begin());
 
 	return iModifier;
 }
@@ -23305,43 +23341,36 @@ int CvUnit::GetGiveDefenseModToUnit() const
 int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
+	//the easy way out
+	if (getNearbyCityCombatMod() == 0 && getNearbyFriendlyCityCombatMod() == 0 && getNearbyEnemyCityCombatMod() == 0)
+		return 0;
+
 	int iRange = GetNearbyUnitPromotionsRange();
-	int iMod = 0;
 	if (pAtPlot == NULL)
 	{
 		pAtPlot = plot();
 		if (pAtPlot == NULL)
 			return 0;
 	}
-	for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+
+	CvCity* pCity = GC.getGame().GetClosestCityByPlots(pAtPlot);
+	if (!pCity || plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) > iRange)
+		return 0;
+
+	if (getNearbyCityCombatMod() != 0)
 	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iJ);
-		const std::vector<std::pair<int, int>>& possibleCities = kLoopPlayer.GetAreaEffectPositiveCities();
-		for (std::vector<std::pair<int, int>>::const_iterator it = possibleCities.begin(); it != possibleCities.end(); ++it)
-		{
-			//first quick check with a large, fixed distance
-			CvPlot* pCityPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			if (plotDistance(pCityPlot->getX(), pCityPlot->getY(), getX(), getY()) > 4)
-				continue;
-			CvCity* pCity = kLoopPlayer.getCity(it->first);
-			if (pCity != NULL)
-			{
-				if (getNearbyCityCombatMod() != 0 && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
-				{
-					iMod = getNearbyCityCombatMod();
-				}
-				else if (getNearbyFriendlyCityCombatMod() != 0 && pCity->plot()->isFriendlyCity(*this, true) && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
-				{
-					iMod = getNearbyFriendlyCityCombatMod();
-				}
-				else if (getNearbyEnemyCityCombatMod() != 0 && pCity->plot()->isEnemyCity(*this) && (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pCity->getX(), pCity->getY()) <= iRange))
-				{
-					iMod = getNearbyEnemyCityCombatMod();
-				}
-			}
-		}
+		return getNearbyCityCombatMod();
 	}
-	return iMod;
+	else if (getNearbyFriendlyCityCombatMod() != 0 && pCity->plot()->IsFriendlyTerritory(getOwner()))
+	{
+		return getNearbyFriendlyCityCombatMod();
+	}
+	else if (getNearbyEnemyCityCombatMod() != 0 && isEnemy(pCity->getTeam()))
+	{
+		return getNearbyEnemyCityCombatMod();
+	}
+
+	return 0;
 }
 bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 {
@@ -23690,31 +23719,32 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 		const std::vector<std::pair<int,int>>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
 		for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 		{
-			//first quick check with a large, fixed distance
 			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			if ( plotDistance(pUnitPlot->getX(),pUnitPlot->getY(),getX(), getY())>5 )
+			int iDistance = plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnitPlot->getX(), pUnitPlot->getY());
+
+			//first quick check with a large, fixed distance
+			if (iDistance>5 )
 				continue;
 
 			CvUnit* pUnit = kLoopPlayer.getUnit(it->first);
-			if (pUnit)
+			if (!pUnit)
+				continue;
+
+			// Unit with a combat modifier against the enemy
+			int iMod = pUnit->getNearbyEnemyCombatMod();
+			if(iMod != 0)
 			{
-				// Unit with a combat modifier against the enemy
-				int iMod = pUnit->getNearbyEnemyCombatMod();
-				if(iMod != 0)
+				// Same domain
+				if(((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_LAND) && !pUnit->isEmbarked()) || ((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_SEA)))
 				{
-					// Same domain
-					if(((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_LAND) && !pUnit->isEmbarked()) || ((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_SEA)))
+					// Within range?
+					if(iDistance <= pUnit->getNearbyEnemyCombatRange())
 					{
-						// Within range?
-						int iRange = pUnit->getNearbyEnemyCombatRange();
-						if(plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+						// Don't assume the first one found is the worst!
+						// Combat modifiers are negative, as applied against the defender (and not for the attacker)
+						if (iMod < iMaxMod)
 						{
-							// Don't assume the first one found is the worst!
-							// Combat modifiers are negative, as applied against the defender (and not for the attacker)
-							if (iMod < iMaxMod)
-							{
-								iMaxMod = iMod;
-							}
+							iMaxMod = iMod;
 						}
 					}
 				}
@@ -29263,6 +29293,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 
 	//any mission resets the cache
  	ClearReachablePlots();
+	m_lastStrengthModifiers.clear();
 
 	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
 	{

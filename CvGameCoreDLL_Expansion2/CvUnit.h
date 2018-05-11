@@ -83,6 +83,18 @@ struct CvUnitCaptureDefinition
 	}
 };
 
+//we calculate a unit's strength modifier very often, so we cache the most recent results
+struct SStrengthModifierInput
+{
+	SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot);
+	const bool operator==(const SStrengthModifierInput& rhs) const;
+
+	int m_iOtherUnitID;
+	int m_iBattlePlot;
+	int m_iFromPlot;
+	bool m_bIgnoreUnitAdjacencyBoni;
+};
+
 enum AreaEffectType
 {
 	AE_GREAT_GENERAL,
@@ -2242,6 +2254,8 @@ protected:
 	mutable uint m_uiLastPathFlags;
 	mutable uint m_uiLastPathTurn;
 	mutable uint m_uiLastPathLength;
+
+	mutable std::vector< std::pair<SStrengthModifierInput,int> > m_lastStrengthModifiers;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 

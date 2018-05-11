@@ -595,7 +595,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	// this is a list of plot that are owned by the player
 	owningPlayer.UpdatePlots();
-	owningPlayer.UpdateAreaEffectCityPlot(this);
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	static BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
 	static BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
@@ -2250,6 +2249,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		
 	}
 
+	m_GwYieldCache = vector<int>(NUM_YIELD_TYPES, -1);
+
 	if(!bConstructorCall)
 	{
 		// Set up AI and hook it up to the flavor manager
@@ -2777,11 +2778,19 @@ CvPlayer* CvCity::GetPlayer()
 	return &GET_PLAYER(getOwner());
 }
 
+void CvCity::ResetGreatWorkYieldCache()
+{
+	//reset the cache
+	m_GwYieldCache = vector<int>(NUM_YIELD_TYPES, -1);
+}
+
 //	--------------------------------------------------------------------------------
 void CvCity::doTurn()
 {
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doTurn, Turn %03d, %s, %s,", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
+
+	ResetGreatWorkYieldCache();
 
 	if(getDamage() > 0 && !IsBlockadedWaterAndLand())
 	{
@@ -3284,17 +3293,20 @@ void CvCity::updateYield()
 #endif
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot;
+
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+	const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner()) : 0;
+	const CvBeliefEntry* pPantheon = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
+
 	int iI;
-
-
 	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
-		pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
 		if(pLoopPlot != NULL)
 		{
-			pLoopPlot->updateYield();
+			pLoopPlot->updateYieldFast(this,pReligion,pPantheon);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -22788,7 +22800,10 @@ int CvCity::GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	return GetCityBuildings()->GetYieldFromGreatWorks(eIndex);
+	if (m_GwYieldCache[eIndex] == -1)
+		m_GwYieldCache[eIndex] = GetCityBuildings()->GetYieldFromGreatWorks(eIndex);
+
+	return m_GwYieldCache[eIndex];
 }
 #endif
 
@@ -26625,8 +26640,6 @@ int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 
 	const int iMaxRange = getBuyPlotDistance();
 	int iBestScore = -1;
-	int iTempScore;
-
 	int iDX, iDY;
 
 	for(iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -26639,8 +26652,7 @@ int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 				// Can we actually buy this plot?
 				if(CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY(), true))
 				{
-					iTempScore = GetIndividualPlotScore(pLoopPlot);
-
+					int iTempScore = GetIndividualPlotScore(pLoopPlot);
 					if(iTempScore > iBestScore)
 					{
 						iBestScore = iTempScore;
@@ -30222,7 +30234,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires Fresh Water
 	if(pkBuildingInfo->IsFreshWater())
 	{
-		if(!plot()->isFreshWater_cached())
+		if(!plot()->isFreshWater())
 			return false;
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -30231,7 +30243,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	{
 		if(pkBuildingInfo->IsNoWater())
 		{
-			if(plot()->isFreshWater_cached())
+			if(plot()->isFreshWater())
 			return false;
 		}
 		if(pkBuildingInfo->IsNoRiver())
@@ -30369,7 +30381,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 #if defined(MOD_BALANCE_CORE)
 	if(pkBuildingInfo->IsAnyBodyOfWater())
 	{
-		if(plot()->isFreshWater_cached() || isCoastal(pkBuildingInfo->GetMinAreaSize()))
+		if(plot()->isFreshWater() || isCoastal(pkBuildingInfo->GetMinAreaSize()))
 		{
 			return true;
 		}

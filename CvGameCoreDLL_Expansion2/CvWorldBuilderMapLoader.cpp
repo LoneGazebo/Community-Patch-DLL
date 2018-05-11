@@ -1768,7 +1768,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 				if(eTerrainType >= 0 && eTerrainType < iNumTerrainTypes && eTerrainType != eCoast)
 				{
 					const CvTerrainInfo* pkTerrain = GC.getTerrainInfo(eTerrainType);
-					if(pkTerrain != NULL && pkTerrain->isWater() && pkPlot->isAdjacentToLand())
+					if(pkTerrain != NULL && pkTerrain->isWater() && pkPlot->isAdjacentToLand(false))
 					{
 						pkPlot->setTerrainType(eCoast);
 					}

@@ -77,6 +77,7 @@ public:
 	void updateSelectedCity();
 #if defined(MOD_BALANCE_CORE)
 	void updateYield(bool bSkipCity = false);
+	void ResetGreatWorkYieldCache();
 #else
 	void updateYield();
 #endif
@@ -2028,6 +2029,9 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abUnitInvestment;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingConstructed;
 #endif
+
+	//cache for great work yields, they are need often during citizen re-assignment but they don't change
+	mutable vector<int> m_GwYieldCache; //not serialized
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with
 

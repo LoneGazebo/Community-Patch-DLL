@@ -2981,7 +2981,7 @@ int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, const S
 	int iCost = PATH_BASE_COST;
 
 	// prefer the coastline (not identical with coastal water)
-	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand_Cached())
+	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand())
 		iCost += PATH_BASE_COST/4;
 
 	// avoid cities (just for the looks)

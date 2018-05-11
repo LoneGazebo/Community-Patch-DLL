@@ -154,7 +154,8 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	{
 		if(pTerrainInfo->isFoundCoast())
 		{
-			if(pPlot->isCoastalLand())
+			//be careful in the pre-game, the cache might not be set up yet
+			if(pPlot->isCoastalLand(-1,GC.getGame().getElapsedGameTurns()>0))
 			{
 				bValid = true;
 			}
@@ -165,7 +166,7 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	{
 		if(pTerrainInfo->isFoundFreshWater())
 		{
-			if(pPlot->isFreshWater_cached())
+			if(pPlot->isFreshWater())
 			{
 				bValid = true;
 			}
@@ -1256,7 +1257,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, i
 			{
 				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
 			}
-			if(iPlotsFromCity <= 3 && pPlot->isFreshWater_cached())
+			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
 			{
 				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
 			}
@@ -1432,7 +1433,7 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, const std:
 		rtnValue += rtnValue * GC.getBUILD_ON_RIVER_PERCENT() / 100;
 	}
 
-	if(pPlot->isCoastalLand())
+	if(pPlot->isCoastalLand(-1,false))
 	{
 		rtnValue += rtnValue * GC.getSTART_AREA_BUILD_ON_COAST_PERCENT() / 100;
 	}

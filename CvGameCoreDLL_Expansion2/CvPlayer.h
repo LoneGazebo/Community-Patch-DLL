@@ -2546,9 +2546,7 @@ public:
 	void UpdateAreaEffectPromotionUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPromotionUnits();
 	void UpdateAreaEffectUnits();
-	void UpdateAreaEffectCityPlots();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
-	void UpdateAreaEffectCityPlot(CvCity* pCity);
 	void UpdateAreaEffectPlots();
 	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveCities() const;
@@ -3722,11 +3720,13 @@ protected:
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPromotion; //unit / plot
-	std::vector< std::pair<int,int> > m_plotsAreaEffectPositiveCities; //city /plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
 #endif
+
+	mutable int m_iNumUnitsSuppliedCached; //not serialized
+
 #if defined(MOD_BATTLE_ROYALE)
 	FAutoVariable<int, CvPlayer> m_iNumMilitarySeaUnits;
 	FAutoVariable<int, CvPlayer> m_iNumMilitaryAirUnits;
