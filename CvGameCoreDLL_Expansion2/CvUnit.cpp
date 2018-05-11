@@ -20126,6 +20126,7 @@ if (!bDoEvade)
 					}
 				}
 			}
+		}
 #if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
