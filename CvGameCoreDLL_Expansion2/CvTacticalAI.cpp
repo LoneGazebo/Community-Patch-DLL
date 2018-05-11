@@ -1336,7 +1336,7 @@ void CvTacticalAI::FindTacticalTargets()
 					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 || pLoopPlot->IsChokePoint()) && 
 					pLoopPlot->getBestDefender(m_pPlayer->GetID())==NULL)
 				{
-					CvCity* pDefenseCity = pLoopPlot->getWorkingCity();
+					CvCity* pDefenseCity = pLoopPlot->getOwningCity();
 					if ((pDefenseCity && (pDefenseCity->IsBastion() || pDefenseCity->isUnderSiege())) || pLoopPlot->IsChokePoint())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
@@ -1377,7 +1377,7 @@ void CvTacticalAI::FindTacticalTargets()
 					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody() &&
 					pLoopPlot->getBestDefender(m_pPlayer->GetID()))
 				{
-					if (pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->IsBastion())
+					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->IsBastion())
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 						newTarget.SetAuxData((void*)pLoopPlot);
@@ -1411,10 +1411,10 @@ void CvTacticalAI::FindTacticalTargets()
 				//Enemy water plots?
 				if (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && pLoopPlot->isWater() && atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()))
 				{
-					CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
-					if (pWorkingCity != NULL && pWorkingCity->isCoastal())
+					CvCity* pOwningCity = pLoopPlot->getOwningCity();
+					if (pOwningCity != NULL && pOwningCity->isCoastal())
 					{
-						int iDistance = GET_PLAYER(pWorkingCity->getOwner()).GetCityDistanceInPlots(pLoopPlot);
+						int iDistance = GET_PLAYER(pOwningCity->getOwner()).GetCityDistanceInPlots(pLoopPlot);
 						if (iDistance > 3 || pLoopPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(),DOMAIN_SEA)>2)
 							continue;
 
@@ -1422,13 +1422,13 @@ void CvTacticalAI::FindTacticalTargets()
 						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							iWeight += 10;
 
-						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || (pWorkingCity->isCoastal() && pWorkingCity->IsBlockaded(true)))
+						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
 							iWeight *= 2;
 
-						if (pWorkingCity->IsBastion())
+						if (pOwningCity->IsBastion())
 							iWeight *= 2;
 
-						if (pWorkingCity->getDamage() > 0)
+						if (pOwningCity->getDamage() > 0)
 							iWeight *= 2;
 
 						if (iWeight > 0)

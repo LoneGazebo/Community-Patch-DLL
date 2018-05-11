@@ -2602,7 +2602,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 			if (pLoopPlot != NULL)
 			{
 				// Is this a Plot this City controls?
-				if (pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->GetID() == GetCity()->GetID())
+				if (pLoopPlot->getOwningCityID() == GetCity()->GetID())
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
 					if ((IsWorkingPlot(pLoopPlot) && bWantWorked) ||
@@ -2890,9 +2890,7 @@ void CvCityCitizens::DoReallocateCitizens()
 /// Is our City working a CvPlot?
 bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
 {
-	int iIndex;
-
-	iIndex = GetCityIndexFromPlot(pPlot);
+	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	if (iIndex != -1)
 	{
@@ -2961,16 +2959,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 		if (pPlot != NULL)
 		{
-			// investigate later
-			//CvAssertMsg(pPlot->getWorkingCity() == GetCity(), "WorkingCity is expected to be this");
-
 			// Now working pPlot
 			if (IsWorkingPlot(pPlot))
 			{
-				//if (iIndex != CITY_HOME_PLOT)
-				//{
-				//	GetCity()->changeWorkingPopulation(1);
-				//}
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
@@ -3008,11 +2999,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 			// No longer working pPlot
 			else
 			{
-				//if (iIndex != CITY_HOME_PLOT)
-				//{
-				//	GetCity()->changeWorkingPopulation(-1);
-				//}
-
 				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					//Simplification - errata yields not worth considering.
@@ -3129,8 +3115,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 		{
 			if (IsCanWork(pPlot))
 			{
-				//				GetCity()->setCitizensAutomated(false);
-
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
@@ -3170,25 +3154,21 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 							CvAssert(false);
 						}
 					}
-					//if ((GetCity()->extraSpecialists() > 0) || GetCity()->AI_removeWorstCitizen())
-					//{
-					//	SetWorkingPlot(pPlot, true);
-					//}
 				}
 			}
 			// JON: Need to update this block to work with new system
 			else if (pPlot->getOwner() == GetOwner())
 			{
 				// Can't take away forced plots from puppet Cities
-				if (pPlot->getWorkingCityOverride() != NULL)
+				if (pPlot->getOwningCityOverride() != NULL)
 				{
-					if (pPlot->getWorkingCityOverride()->IsPuppet())
+					if (pPlot->getOwningCityOverride()->IsPuppet())
 					{
 						return;
 					}
 				}
 
-				pPlot->setWorkingCityOverride(GetCity());
+				pPlot->setOwningCityOverride(GetCity());
 			}
 		}
 	}
@@ -3348,7 +3328,7 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 /// Can our City work a particular CvPlot?
 bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 {
-	if (pPlot->getWorkingCity() != m_pCity)
+	if (pPlot->getOwningCityID() != m_pCity->GetID())
 	{
 		return false;
 	}
@@ -3408,27 +3388,6 @@ bool CvCityCitizens::IsAnyPlotBlockaded() const
 	return false;
 }
 
-/// If we're working this plot make sure we're allowed, and if we're not then correct the situation
-void CvCityCitizens::DoVerifyWorkingPlot(CvPlot* pPlot)
-{
-	if (pPlot != NULL)
-	{
-		if (IsWorkingPlot(pPlot))
-		{
-			if (!IsCanWork(pPlot))
-			{
-#if defined(MOD_BALANCE_CORE)
-				SetWorkingPlot(pPlot, false, true, false);
-#else
-				SetWorkingPlot(pPlot, false);
-#endif
-				std::map<SpecialistTypes, int> specialistValueCache;
-				DoAddBestCitizenFromUnassigned(specialistValueCache);
-			}
-		}
-	}
-}
-
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 void CvCityCitizens::DoVerifyWorkingPlots()
 {
@@ -3436,7 +3395,15 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 
-		DoVerifyWorkingPlot(pPlot);
+		if (pPlot && IsWorkingPlot(pPlot))
+		{
+			if (!IsCanWork(pPlot))
+			{
+				SetWorkingPlot(pPlot, false, true, false);
+				std::map<SpecialistTypes, int> dummy;
+				DoAddBestCitizenFromUnassigned(dummy);
+			}
+		}
 	}
 }
 

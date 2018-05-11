@@ -99,7 +99,7 @@ public:
 	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity);
 	bool IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInfo& kBuild, YieldTypes eYield, bool bIsBreakEvenOK = false);
 
-	CvCity* GetWorkingCity(CvPlot* pPlot);
+	CvCity* getOwningCity(CvPlot* pPlot);
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
 
 #if defined(MOD_BALANCE_CORE)

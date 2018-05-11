@@ -649,12 +649,12 @@ public:
 
 	void setPlotCity(CvCity* pNewValue);
 
-	int getWorkingCityID() const;
-	CvCity* getWorkingCity() const;
-	void updateWorkingCity();
+	int getOwningCityID() const;
+	CvCity* getOwningCity() const;
+	void updateOwningCity();
 
-	CvCity* getWorkingCityOverride() const;
-	void setWorkingCityOverride(const CvCity* pNewValue);
+	CvCity* getOwningCityOverride() const;
+	void setOwningCityOverride(const CvCity* pNewValue);
 
 	int getReconCount() const;
 	void changeReconCount(int iChange);
@@ -665,19 +665,19 @@ public:
 	int getYield(YieldTypes eIndex) const;
 
 	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, bool bIgnoreFeature = false) const;
-	int calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, const CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
+	int calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
 	int calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const;
 	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
 
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
-	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
 
 	bool hasYield() const;
 
 	void updateYield();
-	void updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
 
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
 
@@ -1033,8 +1033,8 @@ protected:
 	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
 	IDInfo m_plotCity;
-	IDInfo m_workingCity;
-	IDInfo m_workingCityOverride;
+	IDInfo m_owningCity;
+	IDInfo m_owningCityOverride;
 	IDInfo m_ResourceLinkedCity;
 	IDInfo m_purchaseCity;
 

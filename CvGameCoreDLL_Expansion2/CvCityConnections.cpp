@@ -195,7 +195,7 @@ void CvCityConnections::UpdateCityPlotIDs(void)
 					if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() < 50)
 						continue;
 
-					if (pLoopPlot->getWorkingCity() != pLoopCity)
+					if (pLoopPlot->getOwningCity() != pLoopCity)
 						continue;
 
 					//only want border tiles

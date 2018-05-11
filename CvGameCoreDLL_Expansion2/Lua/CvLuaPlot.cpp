@@ -1577,20 +1577,20 @@ int CvLuaPlot::lGetPlotCity(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//CyCity* getWorkingCity();
+//CyCity* getOwningCity();
 int CvLuaPlot::lGetWorkingCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvCity* pkCity = pkPlot->getWorkingCity();
+	CvCity* pkCity = pkPlot->getOwningCity();
 	CvLuaCity::Push(L, pkCity);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//CyCity* getWorkingCityOverride();
+//CyCity* getOwningCityOverride();
 int CvLuaPlot::lGetWorkingCityOverride(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvCity* pkCity = pkPlot->getWorkingCityOverride();
+	CvCity* pkCity = pkPlot->getOwningCityOverride();
 	CvLuaCity::Push(L, pkCity);
 	return 1;
 }

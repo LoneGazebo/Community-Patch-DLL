@@ -258,7 +258,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				if (!bSlowDown)
 				{
 					//city might have special defense buildings
-					CvCity* pCity = pToPlot->getWorkingCity();
+					CvCity* pCity = pToPlot->getOwningCity();
 					if (pCity)
 					{
 						if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
