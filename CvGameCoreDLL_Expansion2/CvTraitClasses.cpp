@@ -137,6 +137,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iPuppetPenaltyReduction(0),
 	m_iSharedReligionTourismModifier(0),
 	m_iExtraMissionaryStrength(0),
+	m_bCanGoldInternalTradeRoutes(false),
+	m_iExtraTradeRoutesPerXOwnedCities(0),
+	m_iExtraTradeRoutesPerXOwnedVassals(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -847,6 +850,19 @@ int CvTraitEntry::GetSharedReligionTourismModifier() const
 int CvTraitEntry::GetExtraMissionaryStrength() const
 {
 	return m_iExtraMissionaryStrength;
+}
+/// Can send internal trade routes which are calculated as if international (yields gold)
+bool CvTraitEntry::IsCanGoldInternalTradeRoutes() const
+{
+	return m_bCanGoldInternalTradeRoutes;
+}
+int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
+{
+	return m_iExtraTradeRoutesPerXOwnedCities;
+}
+int CvTraitEntry::GetExtraTradeRoutesPerXOwnedVassals() const
+{
+	return m_iExtraTradeRoutesPerXOwnedVassals;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2083,6 +2099,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iPuppetPenaltyReduction				= kResults.GetInt("ReducePuppetPenalties");
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
 	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
+	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
+	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
+	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -3068,7 +3087,8 @@ bool CvPlayerTraits::IsWarmonger()
 		GetProductionBonusModifierConquest() != 0 ||
 		GetGoldenAgeFromVictory() != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||
-		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0)
+		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0 ||
+		GetExtraTradeRoutesPerXOwnedVassals() != 0)
 		return true;
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3243,7 +3263,8 @@ bool CvPlayerTraits::IsExpansionist()
 		GetGAUnhappinesNeedMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
-		GetPolicyGEorGM() != 0)
+		GetPolicyGEorGM() != 0 ||
+		GetExtraTradeRoutesPerXOwnedCities() != 0)
 		return true;
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -3521,6 +3542,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iConquestOfTheWorldCityAttack += trait->GetConquestOfTheWorldCityAttack();
 			m_iSharedReligionTourismModifier += trait->GetSharedReligionTourismModifier();
 			m_iExtraMissionaryStrength += trait->GetExtraMissionaryStrength();
+			if (trait->IsCanGoldInternalTradeRoutes())
+			{
+				m_bCanGoldInternalTradeRoutes = true;
+			}
+			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
+			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -4138,6 +4165,9 @@ void CvPlayerTraits::Reset()
 	m_iPuppetPenaltyReduction = 0;
 	m_iSharedReligionTourismModifier = 0;
 	m_iExtraMissionaryStrength = 0;
+	m_bCanGoldInternalTradeRoutes = false;
+	m_iExtraTradeRoutesPerXOwnedCities = 0;
+	m_iExtraTradeRoutesPerXOwnedVassals = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -6100,6 +6130,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_iPuppetPenaltyReduction, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_bCanGoldInternalTradeRoutes, false);
+	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedCities, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedVassals, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6682,6 +6715,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iPuppetPenaltyReduction);
 	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
+	MOD_SERIALIZE_WRITE(kStream, m_bCanGoldInternalTradeRoutes);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedCities);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedVassals);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
