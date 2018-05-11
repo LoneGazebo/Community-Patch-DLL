@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -478,7 +478,7 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility)
 {
 	//watch out: if this is called for a half-initialized unit, the pointer may be valid but the plot invalid
-	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit || !pUnit->plot())
+	if (!m_bArrayAllocated || m_ePlayer == NO_PLAYER || !pUnit || !pUnit->plot())
 		return true;
 
 	if(!pUnit->IsCanAttack())
@@ -774,6 +774,10 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	return 0;
 }
 
+int gCacheHit = 0;
+int gCacheMiss = 0;
+#define DANGER_MAX_CACHE_SIZE 3
+
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
 int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
 {
@@ -787,8 +791,12 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	//simple caching for speedup
 	SUnitInfo unitStats(pUnit, unitsToIgnore);
 	for (size_t i=0; i<m_lastResults.size(); i++)
-		if ( unitStats == m_lastResults[i].first )
+		if (unitStats == m_lastResults[i].first)
+		{
+			gCacheHit++;
 			return m_lastResults[i].second;
+		}
+	gCacheMiss++;
 
 	//otherwise calculate from scratch
 	int iPlotDamage = 0;

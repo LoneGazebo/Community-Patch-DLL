@@ -2367,6 +2367,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		AI_reset();
 	}
+
+	m_iNumUnitsSuppliedCached = -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10904,6 +10906,9 @@ void CvPlayer::doTurn()
 
 	CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
+	//cache reset
+	m_iNumUnitsSuppliedCached = -1;
+
 	AI_doTurnPre();
 
 	if(getCultureBombTimer() > 0)
@@ -11142,12 +11147,10 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 			UpdateDangerPlots(false);
-			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true); // Just do it now instead of maybe doing it at an unspecified point?
 			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate(); // Invalidating so that it will be updated even if already (possible erroneously) updated in UpdatdCityThreatCriteria with stale data.
 			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
-			UpdateAreaEffectCityPlots();
 			UpdateAreaEffectPromotionUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
@@ -17475,27 +17478,33 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 /// How many Units can we support for free without paying Production?
 int CvPlayer::GetNumUnitsSupplied() const
 {
-	int iFreeUnits = GetNumUnitsSuppliedByHandicap();
-	iFreeUnits += GetNumUnitsSuppliedByCities();
-	iFreeUnits += GetNumUnitsSuppliedByPopulation();
-#if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+	if (m_iNumUnitsSuppliedCached != -1)
 	{
-		int iWarWeariness = GetCulture()->GetWarWeariness();
-		int iMod = (100 - min(75, iWarWeariness));
-		iFreeUnits *= iMod;
-		iFreeUnits /= 100;
-	}
+
+		int iFreeUnits = GetNumUnitsSuppliedByHandicap();
+		iFreeUnits += GetNumUnitsSuppliedByCities();
+		iFreeUnits += GetNumUnitsSuppliedByPopulation();
+#if defined(MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+		{
+			int iWarWeariness = GetCulture()->GetWarWeariness();
+			int iMod = (100 - min(75, iWarWeariness));
+			iFreeUnits *= iMod;
+			iFreeUnits /= 100;
+		}
 #endif
 
-	if(!isMinorCiv() && !isHuman() && !IsAITeammateOfHuman())
-	{
-		int iMod = (100 + GC.getGame().getHandicapInfo().getAIUnitSupplyPercent());
-		iFreeUnits *= iMod;
-		iFreeUnits /= 100;
+		if (!isMinorCiv() && !isHuman() && !IsAITeammateOfHuman())
+		{
+			int iMod = (100 + GC.getGame().getHandicapInfo().getAIUnitSupplyPercent());
+			iFreeUnits *= iMod;
+			iFreeUnits /= 100;
+		}
+
+		m_iNumUnitsSuppliedCached = max(0,iFreeUnits);
 	}
 
-	return iFreeUnits;
+	return m_iNumUnitsSuppliedCached;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20414,6 +20423,9 @@ void CvPlayer::CalculateNetHappiness()
 	{
 		return;
 	}
+
+	//reset this as well, when a building is constructed or a policy adopted
+	m_iNumUnitsSuppliedCached = -1;
 
 	DoUpdateTotalHappiness();
 	DoUpdateTotalUnhappiness();
@@ -39845,6 +39857,7 @@ CvCity* CvPlayer::getCity(int iID) const
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::addCity()
 {
+	m_iNumUnitsSuppliedCached = -1;
 	return(m_cities.Add());
 }
 
@@ -39852,6 +39865,7 @@ CvCity* CvPlayer::addCity()
 void CvPlayer::deleteCity(int iID)
 {
 	m_cities.Remove(iID);
+	m_iNumUnitsSuppliedCached = -1;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	SetClosestCityMapDirty();
@@ -44777,7 +44791,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	UpdateAreaEffectUnits();
 	UpdateAreaEffectPromotionUnits();
 	UpdateAreaEffectPlots();
-	UpdateAreaEffectCityPlots();
 	GET_TEAM(getTeam()).updateTeamStatus();
 	UpdateCurrentAndFutureWars();
 
@@ -45607,7 +45620,7 @@ void CvPlayer::UpdatePlots(void)
 			continue;
 
 		//somebody might have plundered an improvement
-		pLoopPlot->updateFreshwater();
+		pLoopPlot->updateWaterFlags();
 
 		m_aiPlots.insert(iI);
 	}
@@ -46178,24 +46191,6 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 		}
 	}
 }
-void CvPlayer::UpdateAreaEffectCityPlot(CvCity* pCity)
-{
-	if (!pCity)
-		return;
-	bool bFound = false;
-	for (size_t i = 0; i<m_plotsAreaEffectPositiveCities.size(); i++)
-	{
-		if (m_plotsAreaEffectPositiveCities[i].first == pCity->GetID())
-		{
-			m_plotsAreaEffectPositiveCities[i].second = pCity->plot()->GetPlotIndex();
-			bFound = true;
-			break;
-		}
-	}
-
-	if (!bFound)
-		m_plotsAreaEffectPositiveCities.push_back(std::make_pair(pCity->GetID(), pCity->plot()->GetPlotIndex()));
-}
 void CvPlayer::UpdateAreaEffectUnits()
 {
 	//great generals/admirals
@@ -46212,16 +46207,6 @@ void CvPlayer::UpdateAreaEffectUnits()
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
-	}
-}
-void CvPlayer::UpdateAreaEffectCityPlots()
-{
-	m_plotsAreaEffectPositiveCities.clear();
-
-	int iLoop;
-	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		m_plotsAreaEffectPositiveCities.push_back( std::make_pair(pLoopCity->GetID(), pLoopCity->plot()->GetPlotIndex()));
 	}
 }
 void CvPlayer::UpdateAreaEffectPlots()
@@ -46259,10 +46244,6 @@ void CvPlayer::UpdateAreaEffectPlots()
 const std::vector<std::pair<int, int>>& CvPlayer::GetAreaEffectPromotionUnits() const
 {
 	return m_unitsAreaEffectPromotion;
-}
-const std::vector<std::pair<int, int>>& CvPlayer::GetAreaEffectPositiveCities() const
-{
-	return m_plotsAreaEffectPositiveCities;
 }
 const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectPositiveUnits() const
 {

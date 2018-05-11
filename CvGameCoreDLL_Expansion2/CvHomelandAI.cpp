@@ -3293,7 +3293,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				int iAdjacentValue = 0;
 				CvPlot* pBestAdjacentPlot = NULL;
 				//Let's check for a river estuary - those are always good
-				if(pUnit->plot()->isFreshWater_cached() && pUnit->plot()->isCoastalLand() && pUnit->canFound(pUnit->plot()))
+				if(pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && pUnit->canFound(pUnit->plot()))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_FOUND());
 					UnitProcessed(pUnit->GetID());

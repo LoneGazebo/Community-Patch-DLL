@@ -749,12 +749,6 @@ void CvMap::updateYield()
 //	Update the adjacency cache values
 void CvMap::updateAdjacency()
 {
-	for (int iI = 0; iI < numPlots(); iI++)
-	{
-		CvPlot* pPlot = plotByIndexUnchecked(iI);
-		pPlot->m_bIsAdjacentToLand = pPlot->isAdjacentToLand();
-	}
-
 	GC.getMap().ClearPlotsAtRange(NULL);
 }
 
@@ -854,7 +848,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 			{
 				if(iFlags & RANDPLOT_ADJACENT_LAND)
 				{
-					if(!(pTestPlot->isAdjacentToLand()))
+					if(!(pTestPlot->isAdjacentToLand(false)))
 					{
 						bValid = false;
 					}
@@ -1115,7 +1109,7 @@ bool CvMap::findWater(CvPlot* pPlot, int iRange, bool bFreshWater)
 			{
 				if(bFreshWater)
 				{
-					if(pLoopPlot->isFreshWater())
+					if(pLoopPlot->isFreshWater(false))
 					{
 						return true;
 					}
@@ -1814,7 +1808,7 @@ void CvMap::DoPlaceNaturalWonders()
 					{
 						if(pLoopPlot->isWater())
 						{
-							if(!pLoopPlot->isLake())
+							if(!pLoopPlot->isLake(false))
 							{
 								// Found a Plot within 2 plots of "the Ocean"
 								bValid = true;
@@ -1876,7 +1870,7 @@ void CvMap::DoPlaceNaturalWonders()
 		// see if we can add the volcano
 		if(featureVolcano != NO_FEATURE)
 		{
-			if(!pRandPlot->isAdjacentToLand())
+			if(!pRandPlot->isAdjacentToLand(false))
 			{
 				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureVolcano);
@@ -1985,7 +1979,7 @@ void CvMap::DoPlaceNaturalWonders()
 		}
 
 		// randomly pick one of the other three - but not if this is a coastal plot, because they look terrible there
-		if(pRandPlot->isCoastalLand())
+		if(pRandPlot->isCoastalLand(-1,false))
 		{
 			continue;
 		}

@@ -4776,6 +4776,8 @@ int CvCityBuildings::GetBuildingGreatWork(BuildingClassTypes eBuildingClass, int
 /// Accessor: Set yield boost for a specific building by yield type
 void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, int iSlot, int iGreatWorkIndex)
 {
+	m_pCity->ResetGreatWorkYieldCache();
+	
 	for(std::vector<BuildingGreatWork>::iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
 	{
 		if((*it).eBuildingClass == eBuildingClass && (*it).iSlot == iSlot)

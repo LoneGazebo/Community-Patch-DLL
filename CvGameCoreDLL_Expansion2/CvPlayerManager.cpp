@@ -29,7 +29,6 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 		kPlayer.SetDangerPlotsDirty();
 		kPlayer.UpdateAreaEffectUnits();
 		kPlayer.UpdateAreaEffectPromotionUnits();
-		kPlayer.UpdateAreaEffectCityPlots();
 		kPlayer.UpdateAreaEffectPlots();
 		kPlayer.UpdateMilitaryStats();
 		kPlayer.UpdateCurrentAndFutureWars();
