@@ -3957,7 +3957,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-	GC.getMap().updateWorkingCity(pCityPlot,iOldCityRings*2);
+	GC.getMap().updateOwningCity(pCityPlot,iOldCityRings*2);
 	// Lost the capital!
 	if(bCapital)
 	{
@@ -4565,7 +4565,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// slewis - moved this here so that conquest victory is tested with each city capture
 	GC.getGame().DoTestConquestVictory();
 
-	GC.getMap().updateWorkingCity(pCityPlot,pNewCity->getWorkPlotDistance()*2);
+	GC.getMap().updateOwningCity(pCityPlot,pNewCity->getWorkPlotDistance()*2);
 	if(bConquest)
 	{
 		for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -28403,7 +28403,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 #if defined(MOD_BALANCE_CORE)
 			if (GetPlayerTraits()->IsGPWLTKD())
 			{
-				CvCity* pCity = pNewGreatPeople->plot()->getWorkingCity();
+				CvCity* pCity = pNewGreatPeople->plot()->getOwningCity();
 				if (pCity != NULL && pCity->getOwner() == GetID())
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
@@ -40435,9 +40435,9 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 								return true;
 							}
 						}
-						else if(pOperation->GetTargetPlot()->getWorkingCity() != NULL)
+						else if(pOperation->GetTargetPlot()->getOwningCity() != NULL)
 						{
-							if(pOperation->GetTargetPlot()->getWorkingCity() == pCity)
+							if(pOperation->GetTargetPlot()->getOwningCity() == pCity)
 							{
 								// Naval attacks are mixed land/naval operations
 								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
@@ -40473,9 +40473,9 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 								return true;
 							}
 						}
-						else if (pOperation->GetTargetPlot()->getWorkingCity() != NULL)
+						else if (pOperation->GetTargetPlot()->getOwningCity() != NULL)
 						{
-							if (pOperation->GetTargetPlot()->getWorkingCity() == pCity)
+							if (pOperation->GetTargetPlot()->getOwningCity() == pCity)
 							{
 								// Naval attacks are mixed land/naval operations
 								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
@@ -40538,9 +40538,9 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 								return true;
 							}
 						}
-						else if(pOperation->GetMusterPlot()->getWorkingCity() != NULL)
+						else if(pOperation->GetMusterPlot()->getOwningCity() != NULL)
 						{
-							if(pOperation->GetMusterPlot()->getWorkingCity() == pCity)
+							if(pOperation->GetMusterPlot()->getOwningCity() == pCity)
 							{
 								// Naval attacks are mixed land/naval operations
 								if((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
@@ -40576,9 +40576,9 @@ bool CvPlayer::IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, i
 								return true;
 							}
 						}
-						else if (pOperation->GetMusterPlot()->getWorkingCity() != NULL)
+						else if (pOperation->GetMusterPlot()->getOwningCity() != NULL)
 						{
-							if (pOperation->GetMusterPlot()->getWorkingCity() == pCity)
+							if (pOperation->GetMusterPlot()->getOwningCity() == pCity)
 							{
 								// Naval attacks are mixed land/naval operations
 								if ((eDomain == NO_DOMAIN || eDomain == DOMAIN_SEA) && pOperation->IsNavalOperation())
@@ -44983,7 +44983,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 #if defined(MOD_BALANCE_CORE)
 	if(GetPlayerTraits()->IsGPWLTKD() && pGreatPeopleUnit != NULL)
 	{
-		CvCity* pCity = pGreatPeopleUnit->plot()->getWorkingCity();
+		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);
@@ -45164,7 +45164,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 #if defined(MOD_BALANCE_CORE)
 	if(GetPlayerTraits()->IsGPWLTKD() && pGreatPeopleUnit != NULL)
 	{
-		CvCity* pCity = pGreatPeopleUnit->plot()->getWorkingCity();
+		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 3);

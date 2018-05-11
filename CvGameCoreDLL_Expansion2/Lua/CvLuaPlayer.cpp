@@ -3654,7 +3654,7 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	if(pkPlot)
 	{
-		CvCity* pPlotCity = pkPlot->getWorkingCity();
+		CvCity* pPlotCity = pkPlot->getOwningCity();
 		if(pPlotCity)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -3685,7 +3685,7 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	if(pkPlot)
 	{
-		CvCity* pPlotCity = pkPlot->getWorkingCity();
+		CvCity* pPlotCity = pkPlot->getOwningCity();
 		if(pPlotCity)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -11707,7 +11707,7 @@ int CvLuaPlayer::lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L)
 	{
 		if(pkPlayer->isGoldenAge())
 		{
-			CvCity* pPlotCity = pkPlot->getWorkingCity();
+			CvCity* pPlotCity = pkPlot->getOwningCity();
 			if(pPlotCity)
 			{
 				if(!GET_PLAYER(pPlotCity->getOwner()).isMinorCiv())

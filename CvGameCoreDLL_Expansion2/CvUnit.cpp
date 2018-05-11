@@ -578,9 +578,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
 #if defined(MOD_BALANCE_CORE)
-	if(plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+	if(plot() != NULL && plot()->getOwningCity() != NULL && plot()->getOwningCity()->getOwner() == getOwner())
 	{
-		setOriginCity(plot()->getWorkingCity()->GetID());
+		setOriginCity(plot()->getOwningCity()->GetID());
 	}
 #endif
 	//--------------------------------
@@ -1168,7 +1168,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(getUnitClassType());
 	if (eGreatPerson != NO_GREATPERSON && bHistoric)
 	{
-		CvCity* pCity = plot()->getWorkingCity();
+		CvCity* pCity = plot()->getOwningCity();
 		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity);
@@ -2093,9 +2093,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 	if (pUnit->getOriginCity() == NULL)
 	{
-		if (plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+		if (plot() != NULL && plot()->getOwningCity() != NULL && plot()->getOwningCity()->getOwner() == getOwner())
 		{
-			setOriginCity(plot()->getWorkingCity()->GetID());
+			setOriginCity(plot()->getOwningCity()->GetID());
 		}
 	}
 	else
@@ -10416,7 +10416,7 @@ bool CvUnit::pillage()
 						iPillageGold = 0;
 					} else
 					{
-						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getWorkingCity();
+						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getOwningCity();
 						if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
 						{
 							iPillageGold = 0;
@@ -10520,7 +10520,7 @@ bool CvUnit::pillage()
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
 		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
 		{
-			CvCity* pCityOfThisPlot = pPlot->getWorkingCity();
+			CvCity* pCityOfThisPlot = pPlot->getOwningCity();
 			if ( pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()) )
 			{
 				if (hasHealOnPillage())
@@ -13044,9 +13044,9 @@ bool CvUnit::givePolicies()
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
 #if defined(MOD_BALANCE_CORE)
-		if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() == getOwner())
+		if(pPlot->getOwningCity() != NULL && pPlot->getOwningCity()->getOwner() == getOwner())
 		{
-			pPlot->getWorkingCity()->ChangeJONSCultureStored(iCultureBonus);
+			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
 		}
 #endif
 		// Refresh - we might get to pick a policy this turn
@@ -15763,7 +15763,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += iTempModifier;
 
 			// Founder Belief bonus
-			CvCity* pPlotCity = pBattlePlot->getWorkingCity();
+			CvCity* pPlotCity = pBattlePlot->getOwningCity();
 			if(pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
@@ -15809,7 +15809,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 #endif
 			// Founder Belief bonus (this must be a city controlled by an enemy)
-			CvCity* pPlotCity = pBattlePlot->getWorkingCity();
+			CvCity* pPlotCity = pBattlePlot->getOwningCity();
 			if(pPlotCity)
 			{
 				if(atWar(getTeam(), pPlotCity->getTeam()))
@@ -16699,7 +16699,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += iTempModifier;
 
 			// Founder Belief bonus
-			CvCity* pPlotCity = pTargetPlot->getWorkingCity();
+			CvCity* pPlotCity = pTargetPlot->getOwningCity();
 			if (pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
@@ -16728,7 +16728,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += iTempModifier;
 
 			// Founder Belief bonus (this must be a city controlled by an enemy)
-			CvCity* pPlotCity = pTargetPlot->getWorkingCity();
+			CvCity* pPlotCity = pTargetPlot->getOwningCity();
 			if (pPlotCity)
 			{
 				if (atWar(getTeam(), pPlotCity->getTeam()))

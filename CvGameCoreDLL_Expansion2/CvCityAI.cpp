@@ -229,11 +229,11 @@ void CvCityAI::AI_stealPlots()
 
 		if(pLoopPlot != NULL)
 		{
-			if(pLoopPlot->getWorkingCityOverride() == this)
+			if(pLoopPlot->getOwningCityOverride() == this)
 			{
 				if(pLoopPlot->getOwner() != getOwner())
 				{
-					pLoopPlot->setWorkingCityOverride(NULL);
+					pLoopPlot->setOwningCityOverride(NULL);
 				}
 			}
 		}

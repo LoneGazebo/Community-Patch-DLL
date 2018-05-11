@@ -825,8 +825,8 @@ void CvHomelandAI::FindHomelandTargets()
 			else if( !pLoopPlot->isWater() && 
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && 
-				pLoopPlot->getWorkingCity() != NULL && 
-				pLoopPlot->getWorkingCity()->IsBastion())
+				pLoopPlot->getOwningCity() != NULL && 
+				pLoopPlot->getOwningCity()->IsBastion())
 			{
 				if (pLoopPlot->isFortification(m_pPlayer->getTeam()))
 				{
@@ -857,15 +857,15 @@ void CvHomelandAI::FindHomelandTargets()
 							iWeight += 25;
 						}
 
-						CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+						CvCity* pOwningCity = pLoopPlot->getOwningCity();
 
-						if (pWorkingCity && m_pPlayer->IsAtWar())
+						if (pOwningCity && m_pPlayer->IsAtWar())
 						{
-							if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || (pWorkingCity->isCoastal() && pWorkingCity->IsBlockaded(true)))
+							if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
 							{
 								iWeight *= 10;
 							}
-							if (pWorkingCity->getDamage() > 0)
+							if (pOwningCity->getDamage() > 0)
 							{
 								iWeight *= 2;
 							}
@@ -893,8 +893,8 @@ void CvHomelandAI::FindHomelandTargets()
 			else if (pLoopPlot->isWater() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
-				if (pWorkingCity != NULL && pWorkingCity->getOwner() == m_pPlayer->GetID() && pWorkingCity->isCoastal() && pWorkingCity->IsBastion())
+				CvCity* pOwningCity = pLoopPlot->getOwningCity();
+				if (pOwningCity != NULL && pOwningCity->getOwner() == m_pPlayer->GetID() && pOwningCity->isCoastal() && pOwningCity->IsBastion())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
 					if (iDistance > 3)
@@ -935,10 +935,10 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 
 
-					if (m_pPlayer->getNumCities() > 1 && pWorkingCity->GetThreatRank() != -1)
+					if (m_pPlayer->getNumCities() > 1 && pOwningCity->GetThreatRank() != -1)
 					{
 						//More cities = more threat.
-						int iThreat = (m_pPlayer->getNumCities() - pWorkingCity->GetThreatRank()) * 10;
+						int iThreat = (m_pPlayer->getNumCities() - pOwningCity->GetThreatRank()) * 10;
 						if (iThreat > 0)
 						{
 							iWeight += iThreat;
@@ -946,11 +946,11 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 					if (m_pPlayer->IsAtWar())
 					{
-						if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || (pWorkingCity->isCoastal() && pWorkingCity->IsBlockaded(true)))
+						if (pOwningCity->isInDangerOfFalling() || pOwningCity->isUnderSiege() || (pOwningCity->isCoastal() && pOwningCity->IsBlockaded(true)))
 						{
 							iWeight *= 10;
 						}
-						if (pWorkingCity->getDamage() > 0)
+						if (pOwningCity->getDamage() > 0)
 						{
 							iWeight *= 2;
 						}
@@ -989,7 +989,7 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... road segment in friendly territory?
-			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getWorkingCity() != NULL && pLoopPlot->getWorkingCity()->IsBastion())
+			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->IsBastion())
 			{
 				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
 				int iWeight = pLoopPlot->defenseModifier(eTeam, false, false);
@@ -1007,9 +1007,9 @@ void CvHomelandAI::FindHomelandTargets()
 #if defined(MOD_BALANCE_CORE)
 			//Let's make a list of all other non-border plots
 			else if (pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && 
-						pLoopPlot->getWorkingCity() != NULL && !pLoopPlot->IsAdjacentOwnedByOtherTeam(m_pPlayer->getTeam()))
+						pLoopPlot->getOwningCity() != NULL && !pLoopPlot->IsAdjacentOwnedByOtherTeam(m_pPlayer->getTeam()))
 			{
-				pZone = pTactMap->GetZoneByCity(pLoopPlot->getWorkingCity(), false);
+				pZone = pTactMap->GetZoneByCity(pLoopPlot->getOwningCity(), false);
 				if (pZone && (pZone->GetBorderScore()>0 || pZone->GetTotalEnemyUnitCount()>0))
 				{
 					int iValue = pZone->GetTotalEnemyUnitCount() + pZone->GetBorderScore() - pZone->GetTotalFriendlyUnitCount();

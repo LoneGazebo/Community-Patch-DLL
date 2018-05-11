@@ -2602,7 +2602,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 			if (pLoopPlot != NULL)
 			{
 				// Is this a Plot this City controls?
-				if (pLoopPlot->getWorkingCityID() == GetCity()->GetID())
+				if (pLoopPlot->getOwningCityID() == GetCity()->GetID())
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
 					if ((IsWorkingPlot(pLoopPlot) && bWantWorked) ||
@@ -3160,15 +3160,15 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			else if (pPlot->getOwner() == GetOwner())
 			{
 				// Can't take away forced plots from puppet Cities
-				if (pPlot->getWorkingCityOverride() != NULL)
+				if (pPlot->getOwningCityOverride() != NULL)
 				{
-					if (pPlot->getWorkingCityOverride()->IsPuppet())
+					if (pPlot->getOwningCityOverride()->IsPuppet())
 					{
 						return;
 					}
 				}
 
-				pPlot->setWorkingCityOverride(GetCity());
+				pPlot->setOwningCityOverride(GetCity());
 			}
 		}
 	}
@@ -3328,7 +3328,7 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 /// Can our City work a particular CvPlot?
 bool CvCityCitizens::IsCanWork(CvPlot* pPlot) const
 {
-	if (pPlot->getWorkingCity() != m_pCity)
+	if (pPlot->getOwningCityID() != m_pCity->GetID())
 	{
 		return false;
 	}

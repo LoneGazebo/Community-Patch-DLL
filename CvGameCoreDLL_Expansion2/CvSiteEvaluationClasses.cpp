@@ -445,7 +445,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iExistingFriendlyCityDistance = pPlayer ? pPlayer->GetCityDistanceInPlots(pLoopPlot) : 5;
 
 		//count the tile only if the city will be able to work it
-		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
+		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getOwningCityID()!=-1 || iExistingCityDistance<2 ) 
 			iRingModifier = 0;
 		else if (iExistingCityDistance==2)
 			//this plot will likely be contested between the two cities, reduce its value

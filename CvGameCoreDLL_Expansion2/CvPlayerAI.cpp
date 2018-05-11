@@ -1011,7 +1011,7 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getWorkingCity())
+			if (pCity == pMusterPlot->getOwningCity())
 				bCitySameAsMuster = true;
 
 			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
@@ -2694,7 +2694,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			}
 
 			// not if we're about to give up the city
-			if (pAdjacentPlot->getWorkingCity() && pAdjacentPlot->getWorkingCity()->IsRazing())
+			if (pAdjacentPlot->getOwningCity() && pAdjacentPlot->getOwningCity()->IsRazing())
 				continue;
 
 			// can't build on some plots

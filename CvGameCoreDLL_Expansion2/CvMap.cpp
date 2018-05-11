@@ -710,7 +710,7 @@ void CvMap::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
+void CvMap::updateOwningCity(CvPlot* pPlot, int iRange)
 {
 	if(pPlot && iRange > 0)
 	{
@@ -721,7 +721,7 @@ void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
 				CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
 				if(pLoopPlot)
 				{
-					pLoopPlot->updateWorkingCity();
+					pLoopPlot->updateOwningCity();
 				}
 			}
 		}
@@ -730,7 +730,7 @@ void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
 	{
 		for(int iI = 0; iI < numPlots(); iI++)
 		{
-			plotByIndexUnchecked(iI)->updateWorkingCity();
+			plotByIndexUnchecked(iI)->updateOwningCity();
 		}
 	}
 }

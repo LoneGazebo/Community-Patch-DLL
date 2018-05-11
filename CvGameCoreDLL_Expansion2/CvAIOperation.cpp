@@ -1903,7 +1903,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 						for (int i=0; i<RING3_PLOTS; i++)
 						{
 							CvPlot* pTestPlot = iterateRingPlots( pCenterOfMass, i );
-							if (pTestPlot && pTestPlot->getOwner()==m_eEnemy && pTestPlot->getWorkingCity())
+							if (pTestPlot && pTestPlot->getOwner()==m_eEnemy && pTestPlot->getOwningCity())
 							{
 								pOtherTarget = pTestPlot;
 								break;

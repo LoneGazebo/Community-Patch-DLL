@@ -8994,7 +8994,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
 		{
-			if (pLoopUnit->plot()->getWorkingCity() == pCity)
+			if (pLoopUnit->plot()->getOwningCity() == pCity)
 			{
 				bIsHolyCity = true;
 				break;
