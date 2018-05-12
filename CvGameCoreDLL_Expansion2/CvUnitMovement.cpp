@@ -179,7 +179,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return INT_MAX;
 	}
 	// This is a special Domain unit that can disembark and becomes a land unit. End Turn like normal disembarkation.
-	else if ((pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit() && pToPlot->isCoastalLand(1) && pFromPlot->isWater()) || (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isConvertUnit() && pToPlot->isWater() && !pFromPlot->isWater()))
+	else if ((pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit() && !pToPlot->isWater() && pFromPlot->isWater()) || (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isConvertUnit() && pToPlot->isWater() && !pFromPlot->isWater()))
 	{
 		return INT_MAX;
 	}

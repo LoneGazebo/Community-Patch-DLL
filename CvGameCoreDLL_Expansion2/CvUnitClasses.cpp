@@ -58,12 +58,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bCultureFromExperienceOnDisband(false),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
-	m_bIsConvertOnDamage(false),
-	m_eConvertUnit(NO_UNIT),
-	m_iDamageThreshold(0),
-	m_bIsConvertOnFullHP(0),
 	m_bWarOnly(0),
-	m_bConvertEnemyUnitToBarbarian(false),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
 	m_bCultureBoost(0),
@@ -429,13 +424,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBeliefUnlock = GC.getInfoTypeForString(szTextVal, true);
 	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
-	m_bIsConvertOnDamage = kResults.GetBool("ConvertOnDamage");
-	m_iDamageThreshold = kResults.GetInt("DamageThreshold");
-	szTextVal = kResults.GetText("ConvertUnit");
-	m_eConvertUnit = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
-	m_bIsConvertOnFullHP = kResults.GetBool("ConvertOnFullHP");
 	m_bWarOnly = kResults.GetBool("WarOnly");
-	m_bConvertEnemyUnitToBarbarian = kResults.GetBool("ConvertEnemyUnitToBarbarian");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
@@ -1384,33 +1373,13 @@ bool CvUnitEntry::IsCultureFromExperienceDisbandUpgrade() const
 {
 	return m_bCultureFromExperienceOnDisband;
 }
-bool CvUnitEntry::IsConvertOnDamage() const
-{
-	return m_bIsConvertOnDamage;
-}
 bool CvUnitEntry::IsUnitEraUpgrade() const
 {
 	return m_bUnitEraUpgrade;
 }
-int CvUnitEntry::GetDamageThreshold() const
-{
-	return m_iDamageThreshold;
-}
-UnitTypes CvUnitEntry::GetConvertUnit() const
-{
-	return m_eConvertUnit;
-}
-bool CvUnitEntry::IsConvertOnFullHP() const
-{
-	return m_bIsConvertOnFullHP;
-}
 bool CvUnitEntry::IsWarOnly() const
 {
 	return m_bWarOnly;
-}
-bool CvUnitEntry::IsConvertEnemyUnitToBarbarian() const
-{
-	return m_bConvertEnemyUnitToBarbarian;
 }
 bool CvUnitEntry::IsWLTKDFromBirth() const
 {

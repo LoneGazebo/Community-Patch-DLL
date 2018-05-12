@@ -725,7 +725,7 @@ public:
 	void ChangeGiveExperiencePercent(int iValue);
 	int getGiveOutsideFriendlyLandsModifier() const;
 	void ChangeGiveOutsideFriendlyLandsModifier(int iValue);
-	bool IsGiveDomainBonus(DomainTypes eDomain) const;
+	const bool IsGiveDomainBonus(DomainTypes eDomain) const;
 	void ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue);
 	int getGiveExtraAttacks() const;
 	void ChangeGiveExtraAttacks(int iValue);
@@ -737,10 +737,23 @@ public:
 	void ChangeIsConvertUnit(int iValue);
 	int getIsConvertUnit() const;
 	bool isConvertUnit() const;
-	bool IsConvertDomain(DomainTypes eDomain) const;
-	void ChangeConvertDomain(DomainTypes eDomain, bool bValue);
+	const DomainTypes getConvertDomain() const;
+	void ChangeConvertDomain(DomainTypes eDomain);
 	const UnitTypes getConvertDomainUnitType() const;
 	void ChangeConvertDomainUnit(UnitTypes eUnit);
+	void ChangeIsConvertEnemyUnitToBarbarian(int iValue);
+	int getIsConvertEnemyUnitToBarbarian() const;
+	bool isConvertEnemyUnitToBarbarian() const;
+	void ChangeIsConvertOnFullHP(int iValue);
+	int getIsConvertOnFullHP() const;
+	bool isConvertOnFullHP() const;
+	void ChangeIsConvertOnDamage(int iValue);
+	int getIsConvertOnDamage() const;
+	bool isConvertOnDamage() const;
+	int getDamageThreshold() const;
+	void ChangeDamageThreshold(int iValue);
+	const UnitTypes getConvertDamageOrFullHPUnit() const;
+	void ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1576,9 +1589,6 @@ public:
 	bool isCultureFromExperienceDisbandUpgrade() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
-	bool isConvertOnDamage() const;
-	bool isConvertOnFullHP() const;
-	bool isConvertEnemyUnitToBarbarian() const;
 	bool isWLKTKDOnBirth() const;
 	bool isGoldenAgeOnBirth() const;
 	bool isCultureBoost() const;
@@ -2039,8 +2049,13 @@ protected:
 	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
 	FAutoVariable<int, CvUnit> m_bconvertUnit;
-	FAutoVariable<std::vector<int>, CvUnit> m_pabConvertDomain;
+	FAutoVariable<int, CvUnit> m_eConvertDomain;
 	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
+	FAutoVariable<int, CvUnit> m_bconvertEnemyUnitToBarbarian;
+	FAutoVariable<int, CvUnit> m_bconvertOnFullHP;
+	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
+	FAutoVariable<int, CvUnit> m_idamageThreshold;
+	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
