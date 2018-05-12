@@ -49179,8 +49179,11 @@ void CvPlayer::updatePlotFoundValues()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
-			ignorePlots[iI] = 1;
+		if (pPlot->isOwned())
+		{
+			if (pPlot->getOwner() != m_eID) //if we own it, it's fine
+				ignorePlots[iI] = 1;
+		}
 		else if (pPlot->IsAdjacentOwnedByOtherTeam(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot)<4)
 			ignorePlots[iI] = 1;
 	}

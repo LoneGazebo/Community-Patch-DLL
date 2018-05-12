@@ -15573,40 +15573,35 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 	return iStrength;
 }
 
-SStrengthModifierInput::SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot)
+SStrengthModifierInput::SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty)
 {
 	m_iOtherUnitID = pOtherUnit ? pOtherUnit->GetID() : 0;
 	m_iBattlePlot = pBattlePlot ? pBattlePlot->GetPlotIndex() : 0;
 	m_iFromPlot = pFromPlot ? pFromPlot->GetPlotIndex() : 0;
 	m_bIgnoreUnitAdjacencyBoni = bIgnoreUnitAdjacencyBoni;
+	m_bQuickAndDirty = bQuickAndDirty;
 }
 
 const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs) const
 {
-	return (m_iOtherUnitID == rhs.m_iOtherUnitID && m_iBattlePlot == rhs.m_iBattlePlot && m_iFromPlot == rhs.m_iFromPlot && m_bIgnoreUnitAdjacencyBoni == rhs.m_bIgnoreUnitAdjacencyBoni);
+	return (m_iOtherUnitID == rhs.m_iOtherUnitID && m_iBattlePlot == rhs.m_iBattlePlot && m_iFromPlot == rhs.m_iFromPlot && 
+			m_bIgnoreUnitAdjacencyBoni == rhs.m_bIgnoreUnitAdjacencyBoni && m_bQuickAndDirty == rhs.m_bQuickAndDirty);
 }
 
-int gCacheHit2 = 0;
-int gCacheMiss2 = 0;
-
 #define STRENGTH_MOD_MAX_CACHE_SIZE 5
-
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
-int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot) const
+int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
+				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
 	//simple caching for speedup
-	SStrengthModifierInput input(pOtherUnit, pBattlePlot, bIgnoreUnitAdjacencyBoni, pFromPlot);
+	SStrengthModifierInput input(pOtherUnit, pBattlePlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
 	for (size_t i = 0; i<m_lastStrengthModifiers.size(); i++)
 	if (input == m_lastStrengthModifiers[i].first)
-	{
-		gCacheHit2++;
 		return m_lastStrengthModifiers[i].second;
-	}
-	gCacheMiss2++;
-		
+
 	int iModifier = 0;
 	int iTempModifier;
 
@@ -15693,50 +15688,51 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	iModifier += iCSStrengthMod;
 #endif
 
-	// Reverse Great General nearby
-	int iReverseGGModifier = GetReverseGreatGeneralModifier(pFromPlot);
-	if(iReverseGGModifier != 0)
+	//sometimes we ignore the finer points
+	if (!bQuickAndDirty)
 	{
-		iModifier += iReverseGGModifier;
-	}
-
-	// Improvement with combat bonus (from trait) nearby
-	int iNearbyImprovementModifier = GetNearbyImprovementModifier(pFromPlot);
-	if(iNearbyImprovementModifier != 0)
-	{
-		iModifier += iNearbyImprovementModifier;
-	}
-	// UnitClass grants a combat bonus if nearby
-	int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass(pBattlePlot);
-	if(iNearbyUnitClassModifier != 0)
-	{
-		iModifier += iNearbyUnitClassModifier;
-	}
-	// NearbyUnit gives a Combat Modifier?
-	int iGetGiveCombatModifier = GetGiveCombatModToUnit(pFromPlot);
-	if (iGetGiveCombatModifier != 0)
-	{
-		iModifier += iGetGiveCombatModifier;
-	}
-	// Adjacent Friendly military Unit?
-	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
-	{
-		iModifier += GetAdjacentModifier();
-#if defined(MOD_BALANCE_CORE)
-		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
+		// Reverse Great General nearby
+		int iReverseGGModifier = GetReverseGreatGeneralModifier(pFromPlot);
+		if (iReverseGGModifier != 0)
 		{
-			const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
-			CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
-			int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
-			if (pkUnitCombatInfo && iModPerAdjacent != 0)
+			iModifier += iReverseGGModifier;
+		}
+
+		// Improvement with combat bonus (from trait) nearby
+		int iNearbyImprovementModifier = GetNearbyImprovementModifier(pFromPlot);
+		if (iNearbyImprovementModifier != 0)
+		{
+			iModifier += iNearbyImprovementModifier;
+		}
+		// UnitClass grants a combat bonus if nearby
+		int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass(pBattlePlot);
+		if (iNearbyUnitClassModifier != 0)
+		{
+			iModifier += iNearbyUnitClassModifier;
+		}
+		// NearbyUnit gives a Combat Modifier?
+		int iGetGiveCombatModifier = GetGiveCombatModToUnit(pFromPlot);
+		if (iGetGiveCombatModifier != 0)
+		{
+			iModifier += iGetGiveCombatModifier;
+		}
+		// Adjacent Friendly military Unit?
+		if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+		{
+			iModifier += GetAdjacentModifier();
+			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 			{
-				int iNumFriendliesAdjacent = 0;
-				iNumFriendliesAdjacent += pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
-				iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
+				const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+				CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
+				int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
+				if (pkUnitCombatInfo && iModPerAdjacent != 0)
+				{
+					int iNumFriendliesAdjacent = 0;
+					iNumFriendliesAdjacent += pFromPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+					iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
+				}
 			}
 		}
-			
-#endif
 	}
 
 	// Our empire fights well in Golden Ages?
@@ -15942,7 +15938,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		CvAssertMsg(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
 
 		// Flanking
-		if(!bIgnoreUnitAdjacencyBoni)
+		if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 		{
 			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent();
 			if(iNumAdjacentFriends > 0)
@@ -16046,13 +16042,14 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when attacking?
-int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreUnitAdjacencyBoni) const
+int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
+								bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot);
+	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
 
 	// Generic Attack bonus
 	int iTempModifier = getAttackModifier();
@@ -16100,7 +16097,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 #endif
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (attack mod only)
-	if (pFromPlot != NULL && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	if (pFromPlot != NULL && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 		{
@@ -16271,7 +16268,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when defending?
-int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack) const
+int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
@@ -16284,7 +16281,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		return 0;
 
 	int iTempModifier;
-	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pInPlot);
+	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pInPlot, bQuickAndDirty);
 
 	// Generic Defense Bonus
 	iTempModifier = getDefenseModifier();
@@ -16322,7 +16319,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 #endif
 #if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (defense mod only)
-	if (pInPlot != NULL && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	if (pInPlot != NULL && !bQuickAndDirty && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 		{
@@ -16531,7 +16528,8 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni) const
+int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
+				const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
@@ -16623,24 +16621,28 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetAreaEffectBonus(AE_GREAT_GENERAL, pMyPlot);
 	}
 
-	// Reverse Great General nearby
-	int iReverseGGModifier = GetReverseGreatGeneralModifier(pMyPlot);
-	if(iReverseGGModifier != 0)
+	// sometimes we want to ignore the finer points
+	if (!bQuickAndDirty)
 	{
-		iModifier += iReverseGGModifier;
-	}
+		// Reverse Great General nearby
+		int iReverseGGModifier = GetReverseGreatGeneralModifier(pMyPlot);
+		if (iReverseGGModifier != 0)
+		{
+			iModifier += iReverseGGModifier;
+		}
 
-	// Improvement with combat bonus (from trait) nearby
-	int iNearbyImprovementModifier = GetNearbyImprovementModifier();
-	if(iNearbyImprovementModifier != 0)
-	{
-		iModifier += iNearbyImprovementModifier;
-	}
-	// UnitClass grants a combat bonus if nearby
-	int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass();
-	if(iNearbyUnitClassModifier != 0)
-	{
-		iModifier += iNearbyUnitClassModifier;
+		// Improvement with combat bonus (from trait) nearby
+		int iNearbyImprovementModifier = GetNearbyImprovementModifier();
+		if (iNearbyImprovementModifier != 0)
+		{
+			iModifier += iNearbyImprovementModifier;
+		}
+		// UnitClass grants a combat bonus if nearby
+		int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass();
+		if (iNearbyUnitClassModifier != 0)
+		{
+			iModifier += iNearbyUnitClassModifier;
+		}
 	}
 
 	// Our empire fights well in Golden Ages?
@@ -16956,10 +16958,11 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+						const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
 #if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
-	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot);
+	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
 #else
 	VALIDATE_OBJECT
 
@@ -17076,7 +17079,8 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni) const
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 	if (pFromPlot == NULL)
@@ -17095,7 +17099,8 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		}
 	}
 
-	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot, bIgnoreUnitAdjacencyBoni);
+	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, 
+									pTargetPlot, pFromPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 	if (iAttackerStrength==0)
 		return 0;
 
@@ -17136,11 +17141,11 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 			if ( (!pTargetPlot && pDefender->isEmbarked()) || (pTargetPlot && pTargetPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
 				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
-				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot, false, bQuickAndDirty);
 		}
 		else
 			//this considers embarkation implicitly
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true, bQuickAndDirty);
 	}
 	else
 	{

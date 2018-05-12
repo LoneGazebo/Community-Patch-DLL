@@ -774,8 +774,6 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	return 0;
 }
 
-int gCacheHit = 0;
-int gCacheMiss = 0;
 #define DANGER_MAX_CACHE_SIZE 3
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
@@ -792,11 +790,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	SUnitInfo unitStats(pUnit, unitsToIgnore);
 	for (size_t i=0; i<m_lastResults.size(); i++)
 		if (unitStats == m_lastResults[i].first)
-		{
-			gCacheHit++;
 			return m_lastResults[i].second;
-		}
-	gCacheMiss++;
 
 	//otherwise calculate from scratch
 	int iPlotDamage = 0;
@@ -872,7 +866,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 							int iAttackerDamage = 0; //ignore this
 							if (pAttacker->plot() != m_pPlot)
 							{
-								int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage);
+								int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage, false, 0, true);
 								if (!m_pPlot->isVisible(pAttacker->getTeam()))
 									iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 								iPlotDamage += iDamage;
@@ -944,7 +938,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)
 		{
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage);
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage, false, 0, true);
 
 			if (!m_pPlot->isVisible(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us

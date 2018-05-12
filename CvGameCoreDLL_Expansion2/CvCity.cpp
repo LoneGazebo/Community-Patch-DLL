@@ -8785,7 +8785,7 @@ bool CvCity::IsHasFeatureLocal(FeatureTypes eFeature) const
 		if(pLoopPlot->getOwner() != getOwner())
 			continue;
 
-		if(pLoopPlot->getOwningCityID() == GetID())
+		if(pLoopPlot->getOwningCityID() != GetID())
 			continue;
 
 		bFoundFeature = true;

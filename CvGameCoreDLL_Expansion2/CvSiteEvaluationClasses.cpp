@@ -434,8 +434,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			continue;
 
 		//ignore some plots (typically enemy or close to enemy)
-		if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
-			continue;
+		if (plotDistance(*pLoopPlot,*pPlot)>1) //but only if we can't instantly claim them
+			if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
+				continue;
 
 		int iDistance = plotDistance(*pPlot,*pLoopPlot);
 		int iRingModifier = m_iRingModifier[iDistance];
@@ -444,8 +445,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
 		int iExistingFriendlyCityDistance = pPlayer ? pPlayer->GetCityDistanceInPlots(pLoopPlot) : 5;
 
-		//count the tile only if the city will be able to work it
-		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getOwningCityID()!=-1 || iExistingCityDistance<2 ) 
+		//count the tile only if the city will be able to work it (doesn't need to be passable)
+		if (iExistingCityDistance<2  || pLoopPlot->isBeingWorked()) 
 			iRingModifier = 0;
 		else if (iExistingCityDistance==2)
 			//this plot will likely be contested between the two cities, reduce its value
@@ -454,7 +455,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iPlotValue = iDefaultPlotValue;
 		if (iRingModifier>0)
 		{
-
 			int iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
 			int iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
 			int	iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
@@ -492,8 +492,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			// need at least some food close by
 			if (iDistance > 0 && iDistance < 3 &&  iFoodValue > 0)
 				nFoodPlots++;
-			// and some hammers close by
-			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0))
+			// and some hammers or other interesting stuff close by
+			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0 || pLoopPlot->IsNaturalWonder(true)))
 				nHammerPlots++;
 		}
 
@@ -505,13 +505,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
 			bIsAlmostCoast = true;
 
-		// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
+		// if this tile is a NW boost the value
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 		if (pLoopPlot->IsNaturalWonder(true) && iPlotValue>0)
 #else
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
 #endif
-			iPlotValue *= 15;
+			iPlotValue *= 3; //yields will improve in later eras!
 
 		// lower value a lot if we or somebody else already own this tile
 		if (iPlotValue > 0 && pLoopPlot->getOwner() != NO_PLAYER)
@@ -552,16 +552,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			++iLakeCount;
 		}
 
-		if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
+		ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+		if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
-			ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
-			if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-			{
-				++iLuxuryCount;
-			}
+			++iLuxuryCount;
 		}
 
-		if (pLoopPlot->getTerrainType() == TERRAIN_DESERT && pLoopPlot->getRouteType() == NO_RESOURCE)
+		if (pLoopPlot->getTerrainType() == TERRAIN_DESERT && eResource == NO_RESOURCE)
 		{
 			++iDesertCount;
 		}

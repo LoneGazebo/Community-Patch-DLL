@@ -86,13 +86,14 @@ struct CvUnitCaptureDefinition
 //we calculate a unit's strength modifier very often, so we cache the most recent results
 struct SStrengthModifierInput
 {
-	SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot);
+	SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty);
 	const bool operator==(const SStrengthModifierInput& rhs) const;
 
 	int m_iOtherUnitID;
 	int m_iBattlePlot;
 	int m_iFromPlot;
 	bool m_bIgnoreUnitAdjacencyBoni;
+	bool m_bQuickAndDirty;
 };
 
 enum AreaEffectType
@@ -596,26 +597,31 @@ public:
 	int GetBaseCombatStrength() const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
-	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL) const;
-	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreUnitAdjacencyBoni = false) const;
-	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
-	int GetEmbarkedUnitDefense() const;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	int GetResistancePower(const CvUnit* pOtherUnit) const;
-#endif
+	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
+									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
+	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, 
+									bool bFromRangedAttack = false, bool bQuickAndDirty = false) const;
 
-	bool canSiege(TeamTypes eTeam) const;
+	int GetEmbarkedUnitDefense() const;
 
 	int GetBaseRangedCombatStrength() const;
 #if defined(MOD_API_EXTENSIONS)
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
+
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
-	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
+	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
+	bool canSiege(TeamTypes eTeam) const;
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
@@ -626,6 +632,9 @@ public:
 
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 	int GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetResistancePower(const CvUnit* pOtherUnit) const;
 #endif
 
 	int GetCombatLimit() const;
