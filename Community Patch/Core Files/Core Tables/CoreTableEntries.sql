@@ -1155,20 +1155,23 @@ ALTER TABLE UnitPromotions ADD COLUMN 'DamageReductionCityAssault' INTEGER DEFAU
 
 -- Note: The below entries are used, e.g. mounting or dismounting a unit, say a Lancer gets below 50 HP "DamageThreshold", and can "dismount" and fortify as an Infantry type unit.
 
--- Unit will convert to another UnitType. Must define a "DamageThreshold" and the "ConvertUnit" Type
-ALTER TABLE Units ADD ConvertOnDamage BOOLEAN DEFAULT 0;
+-- Unit will convert to another UnitType. Must define a "DamageThreshold" and the "ConvertDamageOrFullHPUnit" Type
+ALTER TABLE UnitPromotions ADD IsConvertOnDamage BOOLEAN DEFAULT 0;
 
--- Unit will convert to another UnitType if "ConvertOnDamage" and "DamageThreshold" are defined.
-ALTER TABLE Units ADD ConvertUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+-- Unit will convert to the original UnitType when Max Hit Points are restored. Must define "ConvertDamageOrFullHPUnit" Type to the original Unit.
+ALTER TABLE UnitPromotions ADD IsConvertOnFullHP BOOLEAN DEFAULT 0;
+
+-- Unit will convert to another UnitType if "IsConvertOnDamage" and "DamageThreshold" are defined. If used to convert back to the original unit when full HP is restored, "IsConvertOnFullHp" must be defined.
+ALTER TABLE UnitPromotions ADD ConvertDamageOrFullHPUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+
+-- Unit will convert to another UnitType. Must define a "IsConvertOnDamage" and the "ConvertDamageOrFullHPUnit" Type. Or Can be set with IsConvertEnemyUnitToBarbarian
+ALTER TABLE UnitPromotions ADD DamageThreshold INTEGER DEFAULT 0;
+
+-- Can this unit convert an enemy unit into a barbarian? Must set DamageThreshold to a value you want enemy to convert.
+ALTER TABLE UnitPromotions ADD IsConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
 
 -- Special Units that have a different Special rating can be modified here to load on to ships (e.g. Great People).
 ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialUnits(Type);
-
--- Unit will convert to another UnitType. Must define a "ConvertOnDamage" and the "ConvertUnit" Type
-ALTER TABLE Units ADD DamageThreshold INTEGER DEFAULT 0;
-
--- Unit will convert to the original UnitType when Max Hip Points are restored. Must define "ConvertUnit" Type to the original Unit.
-ALTER TABLE Units ADD ConvertOnFullHP BOOLEAN DEFAULT 0;
 
 -- Does this Civ get a GG/GA Rate Modifier bonus from denunciations and wars?
 ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT 0;
@@ -1178,9 +1181,6 @@ ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Typ
 
 -- Can this unit only be trained during War?
 ALTER TABLE Units ADD WarOnly BOOLEAN DEFAULT 0;
-
--- Can this unit convert an enemy unit into a barbarian? Must set as well DamageThreshold to a value you want enemy to convert.
-ALTER TABLE Units ADD ConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
 
 -- Civ gets an influence boost and Great Admiral Points when sending a Trade Route to a minor Civ.
 ALTER TABLE Traits ADD COLUMN 'TradeRouteMinorInfluenceAP' BOOLEAN DEFAULT 0;

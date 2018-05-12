@@ -426,6 +426,17 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 	newNotification.m_bDismissed = false;
 	newNotification.m_bWaitExtraTurn = false;
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	// Hack to get human-human deals showing with the diplomacy icon with proper civ background - otherwise they have the question mark background.
+	// Deals from AI are coming through with the sending player ID in m_iGameDataIndex, but humans have it in iX (and m_iGameDataIndex is -1). I can't see iX myself where I need it in the Lua so I am hacking it across here.
+	// There is probably something else afoot but this seems to work for the minute and appears safe.
+	if (MOD_ACTIVE_DIPLOMACY && GC.getGame().isReallyNetworkMultiPlayer() && newNotification.m_eNotificationType == NOTIFICATION_PLAYER_DEAL_RECEIVED) {
+		if (newNotification.m_iGameDataIndex == -1) {
+			newNotification.m_iGameDataIndex = iX;
+		}
+	}
+#endif
+
 	// Is this notification being added during the player's auto-moves and will it expire at the end of the turn?
 	// If so, set a flag so the notification will stick around for an extra turn.
 	if (GET_PLAYER(m_ePlayer).isTurnActive() && GET_PLAYER(m_ePlayer).isAutoMoves() && IsNotificationTypeEndOfTurnExpired(eNotificationType))

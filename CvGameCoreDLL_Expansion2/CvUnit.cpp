@@ -437,6 +437,14 @@ CvUnit::CvUnit() :
 	, m_igiveExtraAttacks("CvUnit::m_igiveExtraAttacks", m_syncArchive)
 	, m_igiveDefenseMod("CvUnit::m_igiveDefenseMod", m_syncArchive)
 	, m_bgiveInvisibility("CvUnit::m_bgiveInvisibility", m_syncArchive)
+	, m_bconvertUnit("CvUnit::m_bconvertUnit", m_syncArchive)
+	, m_eConvertDomain("CvUnit::m_eConvertDomain", m_syncArchive)
+	, m_eConvertDomainUnit("CvUnit::m_eConvertDomainUnit", m_syncArchive)
+	, m_bconvertEnemyUnitToBarbarian("CvUnit::m_bconvertEnemyUnitToBarbarian", m_syncArchive)
+	, m_bconvertOnFullHP("CvUnit::m_bconvertOnFullHP", m_syncArchive)
+	, m_bconvertOnDamage("CvUnit::m_bconvertOnDamage", m_syncArchive)
+	, m_idamageThreshold("CvUnit::m_idamageThreshold", m_syncArchive)
+	, m_econvertDamageOrFullHPUnit("CvUnit::m_econvertDamageOrFullHPUnit", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -561,6 +569,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			ePromotion = (PromotionTypes) iI;
 
 			if(GC.getPromotionInfo(ePromotion)->IsHoveringUnit())
+				setHasPromotion(ePromotion, true);
+
+			if(GC.getPromotionInfo(ePromotion)->IsConvertUnit())
 				setHasPromotion(ePromotion, true);
 		}
 	}
@@ -857,7 +868,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
 				continue;
 
-			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit())	// Hovering units handled above
+			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit() && !GC.getPromotionInfo(ePromotion)->IsConvertUnit())	// Hovering and Convert domain units handled above
 				setHasPromotion(ePromotion, true);
 		}
 	}
@@ -1511,6 +1522,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_igiveExtraAttacks = 0;
 	m_igiveDefenseMod = 0;
 	m_bgiveInvisibility = false;
+	m_bconvertUnit = false;
+	m_eConvertDomainUnit = NO_UNIT;
+	m_eConvertDomain = NO_DOMAIN;
+	m_bconvertEnemyUnitToBarbarian = false;
+	m_bconvertOnFullHP = false;
+	m_bconvertOnDamage = false;
+	m_idamageThreshold = 0;
+	m_econvertDamageOrFullHPUnit = NO_UNIT;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -1950,6 +1969,14 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
+			if (pUnit->isConvertOnDamage() && pkPromotionInfo->IsConvertOnDamage())
+			{
+				continue;
+			}
+			if (pUnit->isConvertOnFullHP() && pkPromotionInfo->IsConvertOnFullHP())
+			{
+				continue;
+			}
 			bool bFree = false;
 			if (ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE())
 			{
@@ -7035,7 +7062,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
-	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !isCargo() && !canMoveAllTerrain());
+	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !isCargo() && !canMoveAllTerrain() && !isConvertUnit());
 }
 
 //	--------------------------------------------------------------------------------
@@ -18220,14 +18247,16 @@ void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 	VALIDATE_OBJECT
 	m_igiveOutsideFriendlyLandsModifier += iValue;
 }
-bool CvUnit::IsGiveDomainBonus(DomainTypes eDomain) const
+const bool CvUnit::IsGiveDomainBonus(DomainTypes eDomain) const
 {
+	VALIDATE_OBJECT
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(eDomain > -1, "Index out of bounds");
 	return m_pabGiveDomainBonus[eDomain];
 }
 void CvUnit::ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue)
 {
+	VALIDATE_OBJECT
 	m_pabGiveDomainBonus.setAt(eDomain, bValue);
 }
 int CvUnit::getGiveExtraAttacks() const
@@ -18264,6 +18293,106 @@ bool CvUnit::isGiveInvisibility() const
 {
 	VALIDATE_OBJECT
 	return GetIsGiveInvisibility() > 0;
+}
+void CvUnit::ChangeIsConvertUnit(int iValue)
+{
+	VALIDATE_OBJECT
+	m_bconvertUnit += iValue;
+}
+int CvUnit::getIsConvertUnit() const
+{
+	VALIDATE_OBJECT
+	return	m_bconvertUnit;
+}
+bool CvUnit::isConvertUnit() const
+{
+	VALIDATE_OBJECT
+	return getIsConvertUnit() > 0;
+}
+const DomainTypes CvUnit::getConvertDomain() const
+{
+	VALIDATE_OBJECT
+	return (DomainTypes)(int)m_eConvertDomain;
+}
+void CvUnit::ChangeConvertDomain(DomainTypes eDomain)
+{
+	VALIDATE_OBJECT
+	m_eConvertDomain = eDomain;
+}
+const UnitTypes CvUnit::getConvertDomainUnitType() const
+{
+	VALIDATE_OBJECT
+	return m_eConvertDomainUnit;
+}
+void CvUnit::ChangeConvertDomainUnit(UnitTypes eUnit)
+{
+	VALIDATE_OBJECT
+	m_eConvertDomainUnit = eUnit;
+}
+void CvUnit::ChangeIsConvertEnemyUnitToBarbarian(int iValue)
+{
+	VALIDATE_OBJECT
+	m_bconvertEnemyUnitToBarbarian += iValue;
+}
+int CvUnit::getIsConvertEnemyUnitToBarbarian() const
+{
+	VALIDATE_OBJECT
+	return m_bconvertEnemyUnitToBarbarian;
+}
+bool CvUnit::isConvertEnemyUnitToBarbarian() const
+{
+	VALIDATE_OBJECT
+	return getIsConvertEnemyUnitToBarbarian() > 0;
+}
+void CvUnit::ChangeIsConvertOnFullHP(int iValue)
+{
+	VALIDATE_OBJECT
+	m_bconvertOnFullHP += iValue;
+}
+int CvUnit::getIsConvertOnFullHP() const
+{
+	VALIDATE_OBJECT
+	return m_bconvertOnFullHP;
+}
+bool CvUnit::isConvertOnFullHP() const
+{
+	VALIDATE_OBJECT
+	return getIsConvertOnFullHP() > 0;
+}
+void CvUnit::ChangeIsConvertOnDamage(int iValue)
+{
+	VALIDATE_OBJECT
+	m_bconvertOnDamage += iValue;
+}
+int CvUnit::getIsConvertOnDamage() const
+{
+	VALIDATE_OBJECT
+	return	m_bconvertOnDamage;
+}
+bool CvUnit::isConvertOnDamage() const
+{
+	VALIDATE_OBJECT
+	return getIsConvertOnDamage() > 0;
+}
+int CvUnit::getDamageThreshold() const
+{
+	VALIDATE_OBJECT
+	return m_idamageThreshold;
+}
+void CvUnit::ChangeDamageThreshold(int iValue)
+{
+	VALIDATE_OBJECT
+	m_idamageThreshold += iValue;
+}
+const UnitTypes CvUnit::getConvertDamageOrFullHPUnit() const
+{
+	VALIDATE_OBJECT
+	return m_econvertDamageOrFullHPUnit;
+}
+void CvUnit::ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit)
+{
+	VALIDATE_OBJECT
+	m_econvertDamageOrFullHPUnit = eUnit;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -19946,32 +20075,6 @@ if (!bDoEvade)
 	if(pOldPlot != NULL)
 	{
 		pOldPlot->removeUnit(this, bUpdate);
-		if (isGiveInvisibility())
-		{
-			int iRange = GetNearbyUnitPromotionsRange();
-			int iMax = maxMoves();
-			int iLoop;
-			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-			{
-				if (!pLoopUnit->IsCombatUnit())
-					continue;
-
-				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
-					continue;
-
-				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax + 1))
-					continue;
-				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
-				{
-					pLoopUnit->plot()->updateVisibility();
-				}
-				else if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
-				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
-					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
-				}
-			}
-		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{
@@ -20086,6 +20189,25 @@ if (!bDoEvade)
 				{
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
+				}
+			}
+		}
+		if (isConvertUnit())
+		{
+			if (getConvertDomain()!= NO_DOMAIN && (pNewPlot->getDomain() == getConvertDomain()))
+			{
+				if (getConvertDomainUnitType() != NO_UNIT)
+				{
+					UnitAITypes eAIType = NO_UNITAI;
+					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDomainUnitType());
+					if (pkUnitType != NULL)
+					{
+						//! Be sure the unit your initializing has as its unitinfo (GetDomainType() == IsConvertDomain(pNewPlot->getDomain())
+						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
+						kill(true, NO_PLAYER, false);
+						pNewUnit->finishMoves();
+					}
 				}
 			}
 		}
@@ -20743,37 +20865,6 @@ if (!bDoEvade)
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_ENEMY_SUMMARY");
 					pNotifications->Add(NOTIFICATION_ENEMY_IN_TERRITORY, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, getUnitType(), getOwner());
 				}
-			}
-		}
-		if(isConvertUnit())
-		{
-			CvUnit* pConvertUnit = NULL;
-			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-			{
-				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-				if(pkPromotionInfo)
-				{
-					if(pkPromotionInfo->GetConvertDomainUnit() != NO_UNIT)
-					{
-						if((pNewPlot->getDomain() == pkPromotionInfo->GetConvertDomain()) && (this->isHasPromotion(eLoopPromotion)) && (pkPromotionInfo->getRequiredUnit() == this->getUnitType()))
-						{
-							UnitAITypes eAIType = NO_UNITAI;
-							const CvUnitEntry* pkUnitType = GC.getUnitInfo(pkPromotionInfo->GetConvertDomainUnit());
-							if(pkUnitType != NULL)
-							{
-								eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-								CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(pkPromotionInfo->GetConvertDomainUnit(), this->getX(), this->getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
-								pConvertUnit = pNewUnit;
-							}
-						}
-					}
-				}
-			}
-			if(pConvertUnit != NULL)
-			{
-				this->kill(true, NO_PLAYER, false);
-				pConvertUnit->finishMoves();
 			}
 		}
 	}
@@ -24035,68 +24126,44 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 	}
 	if(pPlot != NULL)
 	{
-		if(this->isConvertOnDamage())
+		if (isConvertOnDamage())
 		{
-			CvUnit* pConvertUnit = NULL;
-			int iDamage = this->getUnitInfo().GetDamageThreshold();
-			if(this->getDamage() > iDamage)
+			int iDamage = getDamageThreshold();
+			if(getDamage() > iDamage)
 			{
-				for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+				// let's not do the conversion unless we are in our native domain
+				if(getConvertDamageOrFullHPUnit() != NO_UNIT && pPlot->getDomain() == getDomainType())
 				{
-					const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-					if(pkUnitInfo)
+					UnitAITypes eAIType = NO_UNITAI;
+					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDamageOrFullHPUnit());
+					if(pkUnitType != NULL)
 					{
-						if(pkUnitInfo->GetConvertUnit() != NO_UNIT && pkUnitInfo->IsConvertOnDamage() && eLoopUnit == this->getUnitType())
-						{
-							UnitAITypes eAIType = NO_UNITAI;
-							const CvUnitEntry* pkUnitType = GC.getUnitInfo(pkUnitInfo->GetConvertUnit());
-							if(pkUnitType != NULL)
-							{
-								eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-								CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(pkUnitInfo->GetConvertUnit(), this->getX(), this->getY(), eAIType);
-								pConvertUnit = pNewUnit;
-							}
-						}
+						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
+						pNewUnit->convert(this, true);
+						pNewUnit->finishMoves();
+						pNewUnit->restoreFullMoves();
 					}
-				}
-				if(pConvertUnit != NULL)
-				{
-					pConvertUnit->convert(this, false);
-					pConvertUnit->finishMoves();
-					pConvertUnit->restoreFullMoves();
 				}
 			}
 		}
-		if(this->isConvertOnFullHP())
+		else if (isConvertOnFullHP())
 		{
-			CvUnit* pConvertUnit = NULL;
-			if(this->getDamage() == 0)
+			if (getDamage() == 0)
 			{
-				for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+				// let's not do the conversion unless we are in our native domain
+				if (getConvertDamageOrFullHPUnit() != NO_UNIT && pPlot->getDomain() == getDomainType())
 				{
-					const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-					if(pkUnitInfo)
+					UnitAITypes eAIType = NO_UNITAI;
+					const CvUnitEntry* pkUnitType = GC.getUnitInfo(getConvertDamageOrFullHPUnit());
+					if (pkUnitType != NULL)
 					{
-						if(pkUnitInfo->GetConvertUnit() != NO_UNIT && pkUnitInfo->IsConvertOnFullHP() && eLoopUnit == this->getUnitType())
-						{
-							UnitAITypes eAIType = NO_UNITAI;
-							const CvUnitEntry* pkUnitType = GC.getUnitInfo(pkUnitInfo->GetConvertUnit());
-							if(pkUnitType != NULL)
-							{
-								eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-								CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(pkUnitInfo->GetConvertUnit(), this->getX(), this->getY(), eAIType);
-								pConvertUnit = pNewUnit;
-							}
-						}
+						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
+						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
+						pNewUnit->convert(this, true);
+						pNewUnit->finishMoves();
+						pNewUnit->restoreFullMoves();
 					}
-				}
-				if(pConvertUnit != NULL)
-				{
-					pConvertUnit->convert(this, false);
-					pConvertUnit->finishMoves();
-					pConvertUnit->restoreFullMoves();
 				}
 			}
 		}
@@ -24121,7 +24188,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 				if(isConvertEnemyUnitToBarbarian())
 				{
 					CvUnit* pConvertUnit = NULL;
-					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
+					int iDamageTheshold = getDamageThreshold();
 					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
 					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian() && !pAdjacentPlot->isEnemyCity(*this))
 					{
@@ -24160,7 +24227,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iNearbyUnitLoop);
 							if(adjUnit != NULL && adjUnit->isConvertEnemyUnitToBarbarian())
 							{
-								int iDamageTheshold = adjUnit->getUnitInfo().GetDamageThreshold();
+								int iDamageTheshold = adjUnit->getDamageThreshold();
 								if(GET_PLAYER(getOwner()).IsAtWarWith(adjUnit->getOwner()))
 								{
 									if(iExistingDamage > iDamageTheshold)
@@ -24572,8 +24639,8 @@ void CvUnit::ChangeSapperCount(int iChange)
 	m_iSapperCount += iChange;
 }
 
+//	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsStrongerDamaged() const
 {
@@ -26641,6 +26708,9 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 	// Hovering units (e.g. Helis) cannot embark
 	if(IsHoveringUnit() && promotionInfo->IsAllowsEmbarkation())
 		return false;
+
+	if (isConvertUnit() && promotionInfo->IsAllowsEmbarkation())
+		return false;
 		
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	// Only hovering units can deep water embark
@@ -26708,7 +26778,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_BUGFIX_MINOR)
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
 		// which doesn't have the situation where the player discovers Optics ...
-		if (bNewValue && canMoveAllTerrain()) {
+		if (bNewValue && (canMoveAllTerrain() || isConvertUnit())) {
 			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater()) {
 				return;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
@@ -26789,6 +26859,15 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeGiveExtraAttacks(thisPromotion.GetGiveExtraAttacks() * iChange);
 		ChangeGiveDefenseMod(thisPromotion.GetGiveDefenseMod() * iChange);
 		ChangeIsGiveInvisibility((thisPromotion.IsGiveInvisibility()) ? iChange : 0);
+		ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
+		ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
+		ChangeIsConvertOnFullHP((thisPromotion.IsConvertOnFullHP()) ? iChange : 0);
+		ChangeIsConvertOnDamage((thisPromotion.IsConvertOnDamage()) ? iChange : 0);
+		ChangeDamageThreshold(thisPromotion.GetDamageThreshold() * iChange);
+		if (getConvertDamageOrFullHPUnit() == NO_UNIT && thisPromotion.GetConvertDamageOrFullHPUnit() != NO_UNIT)
+		{
+			ChangeConvertDamageOrFullHPUnit((UnitTypes)thisPromotion.GetConvertDamageOrFullHPUnit());
+		}
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
@@ -27062,12 +27141,22 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
 			const DomainTypes eDomain = static_cast<DomainTypes>(iI);
-			if (eDomain != NULL && thisPromotion.GetGiveDomain() == eDomain)
+			if (eDomain != NULL)
 			{
-				ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
+				if (thisPromotion.GetGiveDomain() == eDomain)
+				{
+					ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
+				}
 			}
 		}
-
+		if (getConvertDomain() == NO_DOMAIN && thisPromotion.GetConvertDomain() != NO_DOMAIN)
+		{
+			ChangeConvertDomain((DomainTypes)thisPromotion.GetConvertDomain());
+		}
+		if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
+		{
+			ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
+		}
 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
@@ -31456,11 +31545,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 }
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-bool CvUnit::isConvertUnit() const
-{
-	VALIDATE_OBJECT
-	return getUnitInfo().IsConvertUnit();
-}
 bool CvUnit::isCultureFromExperienceDisbandUpgrade() const
 {
 	VALIDATE_OBJECT
@@ -31475,21 +31559,6 @@ bool CvUnit::isUnitEraUpgrade() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().IsUnitEraUpgrade();
-}
-bool CvUnit::isConvertOnDamage() const
-{
-	VALIDATE_OBJECT
-	return getUnitInfo().IsConvertOnDamage();
-}
-bool CvUnit::isConvertOnFullHP() const
-{
-	VALIDATE_OBJECT
-	return getUnitInfo().IsConvertOnFullHP();
-}
-bool CvUnit::isConvertEnemyUnitToBarbarian() const
-{
-	VALIDATE_OBJECT
-	return getUnitInfo().IsConvertEnemyUnitToBarbarian();
 }
 bool CvUnit::isWLKTKDOnBirth() const
 {

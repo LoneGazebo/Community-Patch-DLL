@@ -513,11 +513,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsIgnoreGreatGeneralBenefit);
 	Method(GetReverseGreatGeneralModifier);
 	Method(GetGreatGeneralCombatModifier);
+	Method(IsNearSapper);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_AURA_CHANGE)
 	Method(GetAuraRange);
 	Method(GetAuraEffect);
 #endif
-	Method(IsNearSapper);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
 	Method(GetNearbyUnitClassModifierFromUnitClass);
@@ -5133,7 +5133,6 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	lua_pushboolean(L, iBonus == GC.getSAPPED_CITY_ATTACK_MODIFIER());
 	return 1;
 }
-
 #if defined(MOD_BALANCE_CORE)
 int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
 {

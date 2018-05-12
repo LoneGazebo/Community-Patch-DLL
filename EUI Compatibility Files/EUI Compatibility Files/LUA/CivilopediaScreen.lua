@@ -3258,12 +3258,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		--AnalyzeUnit("BaseLandAirDefense");
 		AnalyzeUnit("FreeUpgrade");
 		AnalyzeUnit("UnitEraUpgrade");
-		AnalyzeUnit("ConvertOnDamage");
-		AnalyzeUnit("ConvertUnit", "Units", "Convert unit");
-		AnalyzeUnit("DamageThreshold");
-		AnalyzeUnit("ConvertOnFullHP");
 		AnalyzeUnit("WarOnly");
-		AnalyzeUnit("ConvertEnemyUnitToBarbarian");
 		AnalyzeUnit("WLTKDFromBirth");
 		AnalyzeUnit("GoldenAgeFromBirth");
 		AnalyzeUnit("CultureBoost");
