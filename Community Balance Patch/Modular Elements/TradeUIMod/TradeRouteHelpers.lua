@@ -39,7 +39,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	local iMinorBonus = pPlayer:GetMinorCivGoldBonus(pOriginCity, pTargetCity, eDomain, true);
 	local strMinorBonus = "";
 	if (iMinorBonus ~= 0) then
-		strMinorBonus = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_MINOR_CS_TT_BONUS", pTargetCity:GetNameKey(), iMinorBonus / 100);
+		if (pOtherPlayer:IsMinorCiv()) then
+			strMinorBonus = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_MINOR_CS_TT_BONUS", pTargetCity:GetNameKey(), iMinorBonus / 100);
+		elseif (iPlayer == iOtherPlayer) then
+			strMinorBonus = Locale.ConvertTextKey("TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_MINOR_CS_TT_BONUS", pTargetCity:GetNameKey(), iMinorBonus / 100);
+		end
 	end
 	--END
 	
@@ -312,8 +316,10 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 	local iDestScience = pOtherPlayer:GetInternationalTradeRouteScience(pOriginCity, pTargetCity, eDomain, false) / 100;
 
 	if (iOriginScience > 0) then
-		if(pOtherPlayer:IsMinorCiv()) then
+		if (pOtherPlayer:IsMinorCiv()) then
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN_CS", iOriginScience);
+		elseif (iPlayer == iOtherPlayer) then
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN", iOriginScience);
 		else	
 			local iNumTechs = pOriginPlayer:GetNumTechDifference(iOtherPlayer);
 			local iInfluenceScience = pOriginPlayer:GetInfluenceTradeRouteScienceBonus(iOtherPlayer);
@@ -407,6 +413,8 @@ function BuildTradeRouteCultureToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iOriginCulture > 0) then
 		if(pOtherPlayer:IsMinorCiv()) then
 			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN_CS", iOriginCulture);
+		elseif (iPlayer == iOtherPlayer) then
+			strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN", iOriginCulture);
 		else	
 			local iNumPolicies = pOriginPlayer:GetNumPolicyDifference(iOtherPlayer);
 			if(iNumPolicies < 0) then
@@ -548,11 +556,11 @@ end
 --END
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain)
+function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain, eTradeConnectionType)
 	local strResult;
 
 	-- shortcut for using gold currently
-	if (pPlayer:GetInternationalTradeRouteTotal(pOriginCity, pTargetCity, true, true) > 0) then
+	if ((eTradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_INTERNATIONAL) or (eTradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_GOLD_INTERNAL)) then
 		local strGoldToolTip = BuildTradeRouteGoldToolTipString(pOriginCity, pTargetCity, eDomain);
 		local strScienceToolTip = BuildTradeRouteScienceToolTipString(pOriginCity, pTargetCity, eDomain);
 		-- CBP
