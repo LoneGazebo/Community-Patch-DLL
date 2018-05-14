@@ -1642,7 +1642,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	//////////////////////////////////////////////////////////////////////
 
 	// Any interception to be done?
-	CvUnit* pInterceptor = kAttacker.GetBestInterceptor(plot, pkDefender);
+	CvUnit* pInterceptor = plot.GetBestInterceptor(&kAttacker);
 	int iInterceptionDamage = 0;
 
 	if(pInterceptor != NULL && pInterceptor != pkDefender)
@@ -3186,7 +3186,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 	CvAssert(paraUnit.getCombatTimer() == 0);
 
 	// Any interception to be done?
-	CvUnit* pInterceptor = paraUnit.GetBestInterceptor(dropPlot, NULL);
+	CvUnit* pInterceptor = dropPlot.GetBestInterceptor(&paraUnit);
 	if (pInterceptor) {
 		uint uiParentEventID = 0;
 		int iInterceptionDamage = 0;
@@ -4074,7 +4074,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		return eResult;
 	}
 
-	CvUnit* pInterceptor = kAttacker.GetBestInterceptor(targetPlot);
+	CvUnit* pInterceptor = targetPlot.GetBestInterceptor(&kAttacker);
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 
 	// Any interceptor to sweep for?

@@ -727,7 +727,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	}
 	else
 	{
-		CvUnit* pInterceptor = pUnit->GetBestInterceptor(*m_pPlot);
+		CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit);
 		if (pInterceptor)
 		{
 			// Air sweeps take modified damage from interceptors
@@ -986,9 +986,6 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 
 	CvCityGarrisonOverride guard(pCity,pPretendGarrison);
 
-	CvPlot* pAttackerPlot = NULL;
-	CvUnit* pInterceptor = NULL;
-
 	// Damage from ranged units and melees that cannot capture 
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
@@ -998,13 +995,12 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			continue;
 		}
 
-		pAttackerPlot = NULL;
-		
+		CvPlot* pAttackerPlot = NULL;
 		if (pUnit->IsCanAttackRanged())
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-				pInterceptor = pUnit->GetBestInterceptor(*m_pPlot);
+				CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit);
 				int iInterceptDamage = 0;
 				if (pInterceptor)
 				{
@@ -1056,8 +1052,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			continue;
 		}
 
-		pAttackerPlot = NULL;
-
+		CvPlot* pAttackerPlot = NULL;
 		if (!pUnit->IsCanAttackRanged() && !pUnit->isNoCapture())
 		{
 			if (plotDistance(iCityX, iCityY, pUnit->getX(), pUnit->getY()) == 1)

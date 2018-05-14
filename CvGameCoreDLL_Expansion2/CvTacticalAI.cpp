@@ -7692,7 +7692,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 {
 	list<int>::iterator it;
 	m_CurrentAirSweepUnits.clear();
-	int interceptionsOnPlot = m_pPlayer->GetMilitaryAI()->GetMaxPossibleInterceptions(pTarget, true);
+	int interceptionsOnPlot = pTarget->GetInterceptorCount(NULL,false,true);
 
 	// Loop through all units available to tactical AI this turn
 	for (it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end() && interceptionsOnPlot > 0; ++it)
@@ -11056,7 +11056,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 	{
 		if (pAttacker->getDomainType() == DOMAIN_AIR)
 		{
-			CvUnit* pInterceptor = pAttacker->GetBestInterceptor(*pDefenderPlot, pDefender, false, true);
+			CvUnit* pInterceptor = pDefenderPlot->GetBestInterceptor(pAttacker, false, true);
 			// assume interception is successful - do this before the actual attack
 			iAttackerDamage = pInterceptor ? pInterceptor->GetInterceptionDamage(pDefender, false, pDefenderPlot, pAttackerPlot) : 0;
 

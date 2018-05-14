@@ -972,7 +972,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// These get done in SetXY, but if the unit doesn't have the promotion, the variable doesn't get stored.
 	kPlayer.UpdateAreaEffectUnit(this);
-	kPlayer.UpdateAreaEffectPromotionUnit(this);
 	if (isGiveInvisibility())
 	{
 		int iLoop;
@@ -17360,82 +17359,6 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, const CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
-{
-	VALIDATE_OBJECT
-	CvUnit* pBestUnit = 0;
-	int iBestValue = 0;
-	int iBestDistance = INT_MAX;
-
-	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
-
-	for(size_t iI = 0; iI < vEnemies.size(); iI++)
-	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER(vEnemies[iI]);
-		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
-
-		//stealth unit? no intercept
-		if(isInvisible(eLoopTeam, false, false))
-			continue;
-
-		int iLoop = 0;
-		for(CvUnit* pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
-		{
-			// Must be able to intercept
-			if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat() && !pLoopUnit->isEmbarked())
-			{
-				// Must not have already intercepted this turn
-				if(!pLoopUnit->isOutOfInterceptions())
-				{
-					// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
-					if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
-					{
-						// Must either be a non-air Unit or an air Unit on intercept
-						if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-						{
-							// Check input booleans
-							if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
-							{
-								if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
-								{
-									// Test range
-									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY());
-									if( iDistance <= ((pLoopUnit->getUnitInfo().GetAirInterceptRange()) + pLoopUnit->GetExtraAirInterceptRange()))
-									{
-										int iValue = pLoopUnit->currInterceptionProbability();
-
-										if (iValue>0 && piNumPossibleInterceptors)
-											(*piNumPossibleInterceptors)++;
-
-										if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
-										{
-											iBestDistance = iDistance;
-											iBestValue = iValue;
-											pBestUnit = pLoopUnit;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return pBestUnit;
-}
-
-//	--------------------------------------------------------------------------------
-int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
-{
-	int iCount = 0;
-	GetBestInterceptor(interceptPlot,pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
-	return iCount;
-}
-
-//	--------------------------------------------------------------------------------
 /// Amount of damage done by this unit when intercepting pAttacker
 int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
@@ -20015,7 +19938,6 @@ if (!bDoEvade)
 	{
 		//update area effects
 		kPlayer.UpdateAreaEffectUnit(this);
-		kPlayer.UpdateAreaEffectPromotionUnit(this);
 
 		//update facing direction
 		if(pOldPlot != NULL)

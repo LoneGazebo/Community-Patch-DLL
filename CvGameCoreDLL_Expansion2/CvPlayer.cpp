@@ -11151,7 +11151,6 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
-			UpdateAreaEffectPromotionUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
 
@@ -44789,7 +44788,6 @@ void CvPlayer::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 /// MODDED ELEMENTS BELOW
 	UpdateAreaEffectUnits();
-	UpdateAreaEffectPromotionUnits();
 	UpdateAreaEffectPlots();
 	GET_TEAM(getTeam()).updateTeamStatus();
 	UpdateCurrentAndFutureWars();
@@ -46117,44 +46115,10 @@ void CvPlayer::UpdateMilitaryStats()
 
 	m_iAvgUnitExp100 = iExpSum / max(1,iExpCount);
 }
-void CvPlayer::UpdateAreaEffectPromotionUnit(CvUnit* pUnit)
-{
-	if (!pUnit)
-		return;
 
-	if (pUnit->isNearbyPromotion())
-	{
-		bool bFound = false;
-		for (size_t i = 0; i<m_unitsAreaEffectPromotion.size(); i++)
-		{
-			if (m_unitsAreaEffectPromotion[i].first == pUnit->GetID())
-			{
-				m_unitsAreaEffectPromotion[i].second = pUnit->plot()->GetPlotIndex();
-				bFound = true;
-				break;
-			}
-		}
-
-		if (!bFound)
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
-	}
-}
-void CvPlayer::UpdateAreaEffectPromotionUnits()
-{
-
-	m_unitsAreaEffectPromotion.clear();
-
-	// Loop through our units
-	int iLoop;
-	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-	{
-		if (pLoopUnit->isNearbyPromotion())
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
-	}
-}
 void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 {
-	if (!pUnit)
+	if (!pUnit || pUnit->isDelayedDeath())
 		return;
 
 	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
@@ -46190,25 +46154,79 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 				m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
 	}
+
+	if (pUnit->isNearbyPromotion())
+	{
+		bool bFound = false;
+		for (size_t i = 0; i<m_unitsAreaEffectPromotion.size(); i++)
+		{
+			if (m_unitsAreaEffectPromotion[i].first == pUnit->GetID())
+			{
+				m_unitsAreaEffectPromotion[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
+				break;
+			}
+		}
+
+		if (!bFound)
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+	}
+
+	// Must be able to intercept
+	if (pUnit->maxInterceptionProbability() > 0 && !pUnit->isEmbarked())
+	{
+		// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
+		if ((pUnit->getDomainType() != DOMAIN_AIR) || (!pUnit->hasMoved() && pUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+		{
+			bool bFound = false;
+			for (size_t i = 0; i < m_unitsWhichCanIntercept.size(); i++)
+			{
+				if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
+				{
+					m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
+					bFound = true;
+					break;
+				}
+
+				if (!bFound)
+					m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+			}
+		}
+	}
 }
+
 void CvPlayer::UpdateAreaEffectUnits()
 {
 	//great generals/admirals
 	m_unitsAreaEffectPositive.clear();
 	//maori warrior et al
 	m_unitsAreaEffectNegative.clear();
+	//interceptors
+	m_unitsWhichCanIntercept.clear();
+	//special promotions
+	m_unitsAreaEffectPromotion.clear();
 
 	// Loop through our units
 	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
-			m_unitsAreaEffectPositive.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
+			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
-			m_unitsAreaEffectNegative.push_back( std::make_pair( pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex() ) );
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+
+		if (pLoopUnit->isNearbyPromotion())
+			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+
+		// Must be able to intercept
+		if (pLoopUnit->maxInterceptionProbability() > 0 && !pLoopUnit->isEmbarked())
+			// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
+			if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || (!pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+				m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 	}
 }
+
 void CvPlayer::UpdateAreaEffectPlots()
 {
 	//moai et al
@@ -46253,6 +46271,11 @@ const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectPositiveUnits() co
 const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectNegativeUnits() const
 {
 	return m_unitsAreaEffectNegative;
+}
+
+const std::vector<std::pair<int, int>>& CvPlayer::GetPossibleInterceptors() const
+{
+	return m_unitsWhichCanIntercept;
 }
 
 const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const

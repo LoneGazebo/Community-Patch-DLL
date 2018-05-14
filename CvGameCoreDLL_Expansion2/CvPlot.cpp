@@ -3248,6 +3248,79 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 	return pBestUnit;
 }
 
+
+//	--------------------------------------------------------------------------------
+int CvPlot::GetInterceptorCount(CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+{
+	int iCount = 0;
+	GetBestInterceptor(pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
+	return iCount;
+}
+
+
+//	--------------------------------------------------------------------------------
+CvUnit* CvPlot::GetBestInterceptor(const CvUnit* pkDefender /* = NULL */, 
+	bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
+{
+	VALIDATE_OBJECT
+	CvUnit* pBestUnit = 0;
+	int iBestValue = 0;
+	int iBestDistance = INT_MAX;
+
+	// Loop through all players' Units (that we're at war with) to see if they can intercept
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
+
+	for(size_t iI = 0; iI < vEnemies.size(); iI++)
+	{
+		CvPlayerAI& kLoopPlayer = GET_PLAYER(vEnemies[iI]);
+		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+
+		//stealth unit? no intercept
+		if(pkDefender && pkDefender->isInvisible(eLoopTeam, false, false))
+			continue;
+
+		const std::vector<std::pair<int, int>>& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
+		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+		{
+			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+
+			if (!pUnit || pUnit->isDelayedDeath())
+				continue;
+
+			// Must not have already intercepted this turn
+			if (pUnit->isOutOfInterceptions())
+				continue;
+
+			// Check input booleans
+			if (bLandInterceptorsOnly && pUnit->getDomainType() != DOMAIN_LAND)
+				continue;
+			if (bVisibleInterceptorsOnly && !pUnit->plot()->isVisible(getTeam()))
+				continue;
+
+			// Test range
+			int iDistance = plotDistance(*pUnitPlot, *this);
+			if( iDistance <= pUnit->getUnitInfo().GetAirInterceptRange() + pUnit->GetExtraAirInterceptRange())
+			{
+				int iValue = pUnit->currInterceptionProbability();
+
+				if (iValue>0 && piNumPossibleInterceptors)
+					(*piNumPossibleInterceptors)++;
+
+				if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
+				{
+					iBestDistance = iDistance;
+					iBestValue = iValue;
+					pBestUnit = pUnit;
+				}
+			}
+		}
+	}
+
+	return pBestUnit;
+}
+
+
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlot::getSelectedUnit() const
 {

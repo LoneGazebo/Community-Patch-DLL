@@ -5266,58 +5266,6 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 }
 #endif
 
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-/// AMS: Get all possible interceptions on that plot, doesn't use visibility to offset AI inability to remember air attacks.
-int CvMilitaryAI::GetMaxPossibleInterceptions(CvPlot* pTargetPlot, bool bCountPercents) const
-{
-	int iRtnValue = 0;
-	int iLoopUnit;
-	CvUnit* pLoopUnit;
-
-	// Loop through all the players
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-
-		if (kPlayer.isAlive() && kPlayer.GetID() != m_pPlayer->GetID())
-		{
-			if (atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
-			{
-				// Loop through their units looking for intercept capable units
-				iLoopUnit = 0;
-				for (pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
-				{
-					// Must be able to intercept this turn
-					if (!pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat() && !pLoopUnit->isOutOfInterceptions())
-					{
-						// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-						if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-						{
-							// Test range
-							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= (pLoopUnit->getUnitInfo().GetAirInterceptRange() + pLoopUnit->GetExtraAirInterceptRange())) // JJ: Added consideration for additional intercept range from promotions
-							{
-								if (pLoopUnit->currInterceptionProbability() > 0)
-								{
-									if (bCountPercents)
-										iRtnValue += pLoopUnit->currInterceptionProbability();
-									else
-										iRtnValue++;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (bCountPercents)
-		iRtnValue /= 100;
-
-	return iRtnValue;
-}
-#endif
-
 /// Assess nearby enemy air assets
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 // Add half of unit range to the calculations.
@@ -5328,39 +5276,36 @@ int CvMilitaryAI::GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int /*iRange*/
 {
 	int iRtnValue = 0;
 
-	// Loop through all the players
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	// Loop through all players' Units (that we're at war with) to see if they can intercept
+	const std::vector<PlayerTypes>& vEnemies = m_pPlayer->GetPlayersAtWarWith();
+
+	for(size_t iI = 0; iI < vEnemies.size(); iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && kPlayer.GetID() != m_pPlayer->GetID())
+		CvPlayerAI& kPlayer = GET_PLAYER(vEnemies[iI]);
+
+		// Loop through their units looking for bombers (this will allow us to find bombers on carriers also
+		int iLoopUnit = 0;
+		for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 		{
-			if (atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
+			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
 			{
-				// Loop through their units looking for bombers (this will allow us to find bombers on carriers also
-				int iLoopUnit = 0;
-				for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
-				{
-					if (pLoopUnit->getDomainType() == DOMAIN_AIR)
-					{
 #if defined(MOD_AI_SMART_AIR_TACTICS)
-						// Just to keep fighters closer to high range bombers (stealth bombers)
-						int iAcceptableDistance = MOD_AI_SMART_AIR_TACTICS ? min(pLoopUnit->GetRange(), 12) + (iRange / 2) : 10;
-						// distance was checked to a fixed 10 value
-						if ( plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= iAcceptableDistance )
+				// Just to keep fighters closer to high range bombers (stealth bombers)
+				int iAcceptableDistance = MOD_AI_SMART_AIR_TACTICS ? min(pLoopUnit->GetRange(), 12) + (iRange / 2) : 10;
+				// distance was checked to a fixed 10 value
+				if ( plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= iAcceptableDistance )
 #else
-						if ( plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= 10 )
+				if ( plotDistance(pCenterPlot->getX(), pCenterPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) <= 10 )
 #endif
-						{
-							// Let's not factor in revealed or visible - As a human I can remember past attacks and intuit whether a bomber could be in range of the city, AIs don't have great intuition...
-							if (pLoopUnit->IsAirSweepCapable() || pLoopUnit->canAirDefend())
-							{
-								if (bCountFighters) iRtnValue++;
-							}
-							else
-							{
-								if (bCountBombers) iRtnValue++;
-							}
-						}
+				{
+					// Let's not factor in revealed or visible - As a human I can remember past attacks and intuit whether a bomber could be in range of the city, AIs don't have great intuition...
+					if (pLoopUnit->IsAirSweepCapable() || pLoopUnit->canAirDefend())
+					{
+						if (bCountFighters) iRtnValue++;
+					}
+					else
+					{
+						if (bCountBombers) iRtnValue++;
 					}
 				}
 			}
