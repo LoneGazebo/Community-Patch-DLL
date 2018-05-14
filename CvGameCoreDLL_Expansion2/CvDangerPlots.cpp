@@ -727,7 +727,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	}
 	else
 	{
-		CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit);
+		CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit->getOwner(), pUnit);
 		if (pInterceptor)
 		{
 			// Air sweeps take modified damage from interceptors
@@ -1000,7 +1000,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-				CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit);
+				CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit->getOwner(), pUnit);
 				int iInterceptDamage = 0;
 				if (pInterceptor)
 				{

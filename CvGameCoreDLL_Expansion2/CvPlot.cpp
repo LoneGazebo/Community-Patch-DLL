@@ -3250,25 +3250,28 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetInterceptorCount(CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+int CvPlot::GetInterceptorCount(PlayerTypes ePlayer, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	int iCount = 0;
-	GetBestInterceptor(pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
+	GetBestInterceptor(ePlayer, pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
 	return iCount;
 }
 
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::GetBestInterceptor(const CvUnit* pkDefender /* = NULL */, 
+CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender /* = NULL */, 
 	bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
+	if (ePlayer == NO_PLAYER)
+		return NULL;
+
 	VALIDATE_OBJECT
 	CvUnit* pBestUnit = 0;
 	int iBestValue = 0;
 	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
 
 	for(size_t iI = 0; iI < vEnemies.size(); iI++)
 	{
@@ -3302,6 +3305,10 @@ CvUnit* CvPlot::GetBestInterceptor(const CvUnit* pkDefender /* = NULL */,
 			int iDistance = plotDistance(*pUnitPlot, *this);
 			if( iDistance <= pUnit->getUnitInfo().GetAirInterceptRange() + pUnit->GetExtraAirInterceptRange())
 			{
+				//do not violate third players' airspace
+				if (isOwned() && !IsFriendlyTerritory(pUnit->getOwner()))
+					continue;
+
 				int iValue = pUnit->currInterceptionProbability();
 
 				if (iValue>0 && piNumPossibleInterceptors)

@@ -2945,7 +2945,7 @@ int CvLuaUnit::lGetBestInterceptor(lua_State* L)
 
 	CvUnit* pkBestUnit = 0;
 	if(pkPlot)
-		pkBestUnit = pkPlot->GetBestInterceptor(pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
+		pkBestUnit = pkPlot->GetBestInterceptor(pkUnit->getOwner(), pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
 
 	CvLuaUnit::Push(L, pkBestUnit);
 	return 1;
@@ -2962,7 +2962,7 @@ int CvLuaUnit::lGetInterceptorCount(lua_State* L)
 
 	int iCount  = 0;
 	if(pkPlot)
-		iCount = pkPlot->GetInterceptorCount(pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
+		iCount = pkPlot->GetInterceptorCount(pkUnit->getOwner(), pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
 
 	lua_pushinteger(L, iCount);
 	return 1;
@@ -2976,7 +2976,7 @@ int CvLuaUnit::lGetBestSeaPillageInterceptor(lua_State* L)
 
 	CvUnit* pkBestUnit = 0;
 	if(pkPlot)
-		pkBestUnit = pkPlot->GetBestInterceptor();
+		pkBestUnit = pkPlot->GetBestInterceptor(pkUnit->getOwner());
 
 	CvLuaUnit::Push(L, pkBestUnit);
 	return 1;
