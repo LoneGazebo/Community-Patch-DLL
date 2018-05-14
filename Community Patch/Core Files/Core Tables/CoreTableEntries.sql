@@ -1247,6 +1247,15 @@ ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 -- Missionaries gain % more strength
 ALTER TABLE Traits ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
 
+-- Can send gold internal trade routes; gold yield calculated as if international, culture and science calculated as if allied city state. Only sender city gets the yields.
+ALTER TABLE Traits ADD COLUMN 'CanGoldInternalTradeRoutes' BOOLEAN DEFAULT 0;
+
+-- Additional trade routes based on the number of owned cities
+ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedCities' INTEGER DEFAULT 0;
+
+-- Additional trade routes based on the number of owned vassals
+ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedVassals' INTEGER DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 
