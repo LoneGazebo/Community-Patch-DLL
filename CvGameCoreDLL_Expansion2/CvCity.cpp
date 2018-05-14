@@ -30782,7 +30782,7 @@ CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlot) const
+int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlot, bool bQuickAndDirty) const
 {
 	if (pInPlot == NULL)
 		pInPlot = pDefender->plot();
@@ -30805,18 +30805,18 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 		if ( (!pInPlot && pDefender->isEmbarked()) || (pInPlot && pInPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		else
-			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, NULL, false, false, pInPlot, plot());
+			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, NULL, false, false, pInPlot, plot(), false, bQuickAndDirty);
 	}
 	else
 	{
-		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
+		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true, bQuickAndDirty);
 	}
 
 	return iDefenderStrength;
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, const CvPlot* pInPlot) const
+int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, const CvPlot* pInPlot, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 	
@@ -30866,7 +30866,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}
 
-		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot);
+		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot, bQuickAndDirty);
 	}
 
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength

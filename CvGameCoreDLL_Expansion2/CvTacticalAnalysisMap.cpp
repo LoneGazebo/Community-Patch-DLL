@@ -759,7 +759,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					if(iUnitStrength == 0 && pLoopUnit->isEmbarked() && !pZone->IsWater())
 						iUnitStrength = pLoopUnit->GetBaseCombatStrength();
 
-					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) / 100;
+					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true, NULL, NULL, true, true) / 100;
 
 					if(!bVisible || bReducedStrength)
 					{

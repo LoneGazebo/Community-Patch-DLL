@@ -326,7 +326,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 					if (pEnemy)
 					{
 						int iAttackerDamage = 0; //to be ignored
-						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage);
+						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage,true,0,true);
 					}
 				}
 			}
@@ -621,9 +621,6 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 	// Damage from terrain - since we don't know the unit, just assume 20
 	int iPlotDamage = m_bFlatPlotDamage ? 20 : 0;
 
-	// Damage from units
-	CvPlot* pAttackerPlot = NULL;
-
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
@@ -633,16 +630,16 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			continue;
 		}
 
-		pAttackerPlot = NULL;
+		CvPlot* pAttackerPlot = NULL;
 		if (pUnit->IsCanAttackRanged())
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-				iPlotDamage += pUnit->GetAirCombatDamage(NULL, NULL, false, 0, m_pPlot);
+				iPlotDamage += pUnit->GetAirCombatDamage(NULL, NULL, false, 0, m_pPlot, NULL, true);
 			}
 			else
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, NULL, true, true);
 			}
 		}
 		else
@@ -653,13 +650,13 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			}
 			//we don't know the defender strength, so assume it's equal to attacker strength!
 			iPlotDamage += pUnit->getCombatDamage(
-				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL),
+				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL, true, true),
 				pUnit->GetBaseCombatStrength()*100, 
 				pUnit->getDamage(), false, false, false);
 
 			if (pUnit->isRangedSupportFire())
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, pAttackerPlot);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, pAttackerPlot, true, true);
 			}
 		}
 	}
@@ -954,7 +951,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		if (!pCity || pCity->getTeam() == pUnit->getTeam())
 			continue;
 
-		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
+		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot, true);
 	}
 
 	// Damage from fog (check visibility again, might have changed ...)
@@ -1068,12 +1065,12 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 				pAttackerPlot = pUnit->plot();
 			}
 
-			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL),
+			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL, true, true),
 				pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
 
 			if (pUnit->isRangedSupportFire())
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot, NULL, true, true);
 			}
 		}
 	}

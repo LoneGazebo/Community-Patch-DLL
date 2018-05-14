@@ -4284,7 +4284,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		}
 	}
 
-	iOurDefense = GetMaxDefenseStrength(plot(), pAttacker);
+	iOurDefense = GetMaxDefenseStrength(plot(), pAttacker, false, true);
 	if(::isWorldUnitClass(getUnitClassType()))
 	{
 		iOurDefense /= 2;
@@ -4321,7 +4321,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	iOurDefense /= (getCargo() + 1);
 
-	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker);
+	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker, false, true);
 	if(::isWorldUnitClass(pDefender->getUnitClassType()))
 	{
 		iTheirDefense /= 2;
@@ -15558,7 +15558,7 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 	}
 #endif
 
-	int iStrength = GetMaxAttackStrength(NULL,NULL,NULL) / 100;
+	int iStrength = GetMaxAttackStrength(NULL,NULL,NULL,true,true) / 100;
 
 	// How much does damage weaken the effectiveness of the Unit?
 	int iDamageMod = m_iDamage * iWoundedDamageMultiplier / 100;

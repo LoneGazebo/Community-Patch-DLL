@@ -1378,8 +1378,8 @@ public:
 	CvUnit* rangedStrikeTarget(const CvPlot* pPlot) const;
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
 
-	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL) const;
-	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL) const;
+	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
+	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
