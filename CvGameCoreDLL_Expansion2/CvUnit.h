@@ -83,6 +83,26 @@ struct CvUnitCaptureDefinition
 	}
 };
 
+//we calculate a unit's strength modifier very often, so we cache the most recent results
+struct SStrengthModifierInput
+{
+	SStrengthModifierInput(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty);
+	const bool operator==(const SStrengthModifierInput& rhs) const;
+
+	int m_iOtherUnitID;
+	int m_iBattlePlot;
+	int m_iFromPlot;
+	bool m_bIgnoreUnitAdjacencyBoni;
+	bool m_bQuickAndDirty;
+};
+
+enum AreaEffectType
+{
+	AE_GREAT_GENERAL,
+	AE_SAPPER,
+	AE_SIEGETOWER
+};
+
 class CvUnit
 {
 
@@ -120,6 +140,7 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
+		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if enemy units become visible
 	};
 
 	enum MoveResult
@@ -576,36 +597,42 @@ public:
 	int GetBaseCombatStrength() const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
-	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL) const;
-	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreUnitAdjacencyBoni = false) const;
-	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
-	int GetEmbarkedUnitDefense() const;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	int GetResistancePower(const CvUnit* pOtherUnit) const;
-#endif
+	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
+									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
+	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, 
+									bool bFromRangedAttack = false, bool bQuickAndDirty = false) const;
 
-	bool canSiege(TeamTypes eTeam) const;
+	int GetEmbarkedUnitDefense() const;
 
 	int GetBaseRangedCombatStrength() const;
 #if defined(MOD_API_EXTENSIONS)
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
+
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
-									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
-	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreUnitAdjacencyBoni = false) const;
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
+	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
+	bool canSiege(TeamTypes eTeam) const;
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	CvUnit* GetBestInterceptor(const CvPlot& pPlot, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false, int* piNumPossibleInterceptors = NULL) const;
-	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
 
 #if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 	int GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetResistancePower(const CvUnit* pOtherUnit) const;
 #endif
 
 	int GetCombatLimit() const;
@@ -659,49 +686,81 @@ public:
 	void SetCombatBonusImprovement(ImprovementTypes eImprovement);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetNearbyUnitClassBonus() const;
+	int getNearbyUnitClassBonus() const;
 	void SetNearbyUnitClassBonus(int iCombatBonus);
-	int GetNearbyUnitClassBonusRange() const;
+	int getNearbyUnitClassBonusRange() const;
 	void SetNearbyUnitClassBonusRange(int iBonusRange);
-	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
+	UnitClassTypes getCombatBonusFromNearbyUnitClass() const;
 	void SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass);
-	void ChangeAddedFromNearbyUnitPromotion(PromotionTypes ePromotion, int iChange);
-	int GetAddedFromNearbyUnitPromotion(PromotionTypes eIndex);
 	void ChangeNearbyPromotion(int iValue);
 	int GetNearbyPromotion() const;
-	bool IsNearbyPromotion() const;
+	bool isNearbyPromotion() const;
 	int GetNearbyUnitPromotionsRange() const;
 	void ChangeNearbyUnitPromotionRange(int iBonusRange);
-	void ChangeNearbyCityPromotion(int iValue);
-	int GetNearbyCityPromotion() const;
-	bool IsNearbyCityPromotion() const;
-	void ChangeNearbyFriendlyCityPromotion(int iValue);
-	int GetNearbyFriendlyCityPromotion() const;
-	bool IsNearbyFriendlyCityPromotion() const;
-	void ChangeNearbyEnemyCityPromotion(int iValue);
-	int GetNearbyEnemyCityPromotion() const;
-	bool IsNearbyEnemyCityPromotion() const;
+	void ChangeNearbyCityCombatMod(int iValue);
+	int getNearbyCityCombatMod() const;
+	void ChangeNearbyFriendlyCityCombatMod(int iValue);
+	int getNearbyFriendlyCityCombatMod() const;
+	void ChangeNearbyEnemyCityCombatMod(int iValue);
+	int getNearbyEnemyCityCombatMod() const;
 	void ChangeIsFriendlyLands(int iValue);
 	int GetIsFriendlyLands() const;
-	bool IsFriendlyLands() const;
+	bool isFriendlyLands() const;
 	void ChangeIsEnemyLands(int iValue);
 	int GetIsEnemyLands() const;
-	bool IsEnemyLands() const;
-	void ChangeAdjacentSameType(PromotionTypes ePromotion, int iChange);
-	int GetAdjacentSameType(PromotionTypes eIndex);
-	int GetPillageBonusStrengthPercent() const;
+	bool isEnemyLands() const;
+	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
-	int GetStackedGreatGeneralExperience() const;
+	int getStackedGreatGeneralExperience() const;
 	void ChangeStackedGreatGeneralExperience(int iExperience);
 	void ChangeIsHighSeaRaider(int iValue);
 	int GetIsHighSeaRaider() const;
-	bool IsHighSeaRaider() const;
-	int GetWonderProductionModifier() const;
+	bool isHighSeaRaider() const;
+	int getWonderProductionModifier() const;
 	void ChangeWonderProductionModifier(int iValue);
-	int GetMilitaryProductionModifier() const;
+	int getMilitaryProductionModifier() const;
 	void ChangeMilitaryProductionModifier(int iValue);
-	int GetNearbyEnemyDamage() const;
+	int getNearbyEnemyDamage() const;
 	void ChangeNearbyEnemyDamage(int iValue);
+	int GetGGGAXPPercent() const;
+	void ChangeGGGAXPPercent(int iValue);
+	int getGiveCombatMod() const;
+	void ChangeGiveCombatMod(int iValue);
+	int getGiveHPIfEnemyKilled() const;
+	void ChangeGiveHPIfEnemyKilled(int iValue);
+	int getGiveExperiencePercent() const;
+	void ChangeGiveExperiencePercent(int iValue);
+	int getGiveOutsideFriendlyLandsModifier() const;
+	void ChangeGiveOutsideFriendlyLandsModifier(int iValue);
+	bool IsGiveDomainBonus(DomainTypes eDomain) const;
+	void ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue);
+	int getGiveExtraAttacks() const;
+	void ChangeGiveExtraAttacks(int iValue);
+	int getGiveDefenseMod() const;
+	void ChangeGiveDefenseMod(int iValue);
+	void ChangeIsGiveInvisibility(int iValue);
+	int GetIsGiveInvisibility() const;
+	bool isGiveInvisibility() const;
+	void ChangeIsConvertUnit(int iValue);
+	int getIsConvertUnit() const;
+	bool isConvertUnit() const;
+	const DomainTypes getConvertDomain() const;
+	void ChangeConvertDomain(DomainTypes eDomain);
+	const UnitTypes getConvertDomainUnitType() const;
+	void ChangeConvertDomainUnit(UnitTypes eUnit);
+	void ChangeIsConvertEnemyUnitToBarbarian(int iValue);
+	int getIsConvertEnemyUnitToBarbarian() const;
+	bool isConvertEnemyUnitToBarbarian() const;
+	void ChangeIsConvertOnFullHP(int iValue);
+	int getIsConvertOnFullHP() const;
+	bool isConvertOnFullHP() const;
+	void ChangeIsConvertOnDamage(int iValue);
+	int getIsConvertOnDamage() const;
+	bool isConvertOnDamage() const;
+	int getDamageThreshold() const;
+	void ChangeDamageThreshold(int iValue);
+	const UnitTypes getConvertDamageOrFullHPUnit() const;
+	void ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit);
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -1105,6 +1164,9 @@ public:
 	ContractTypes getContract() const;
 #endif
 
+	bool IsNoMaintenance() const;
+	void SetNoMaintenance(bool bValue);
+
 	int getExtraEnemyHeal() const;
 	void changeExtraEnemyHeal(int iChange);
 
@@ -1199,14 +1261,22 @@ public:
 
 	// Citadel
 	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
-
+#if defined(MOD_BALANCE_CORE)
+	int GetGoldenAgeGeneralExpPercent() const;
+	int GetGiveExperiencePercentToUnit() const;
+	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
+	int GetGiveDefenseModToUnit() const;
+	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
+	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
+	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
+	int GetGiveExtraAttacksToUnit() const;
+	int GetGiveHPIfEnemyKilledToUnit() const;
+#endif
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	bool IsNearGreatGeneral(int& iAuraEffectChange, const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#else
+	int GetAreaEffectBonus(AreaEffectType eType, const CvPlot* pAtPlot = NULL, const CvCity* pTargetCity = NULL, const CvUnit* pIgnoreThisUnit = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-#endif
+
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
@@ -1271,14 +1341,10 @@ public:
 
 	bool IsSapper() const;
 	void ChangeSapperCount(int iChange);
-	bool IsSappingCity(const CvCity* pTargetCity) const;
-	bool IsNearSapper(const CvCity* pTargetCity) const;
 #if defined(MOD_BALANCE_CORE)
-	bool IsHalfSappingCity(const CvCity* pTargetCity) const;
-	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
-	void DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot = NULL);
+	void DoNearbyUnitPromotion(const CvPlot* pPlot = NULL);
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
@@ -1531,17 +1597,13 @@ public:
 	int getYieldFromScouting(YieldTypes eIndex) const;
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
 	bool isCultureFromExperienceDisbandUpgrade() const;
-	bool isConvertUnit() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
-	bool isConvertOnDamage() const;
-	bool isConvertOnFullHP() const;
-	bool isConvertEnemyUnitToBarbarian() const;
 	bool isWLKTKDOnBirth() const;
 	bool isGoldenAgeOnBirth() const;
 	bool isCultureBoost() const;
 	bool isExtraAttackHealthOnKill() const;
-	bool isHighSeaRaider() const;
+	bool isHighSeaRaiderUnit() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
@@ -1908,6 +1970,7 @@ protected:
 	FAutoVariable<ContractTypes, CvUnit> m_eUnitContract;
 	FAutoVariable<int, CvUnit> m_iNegatorPromotion;
 #endif
+	FAutoVariable<bool, CvUnit> m_bIsNoMaintenance;
 	FAutoVariable<int, CvUnit> m_iExtraEnemyHeal;
 	FAutoVariable<int, CvUnit> m_iExtraNeutralHeal;
 	FAutoVariable<int, CvUnit> m_iExtraFriendlyHeal;
@@ -1974,21 +2037,36 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonus;
 	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonusRange;
 	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
-	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_iAddedFromNearbyUnitPromotion;
 	FAutoVariable<int, CvUnit> m_bNearbyPromotion;
 	FAutoVariable<int, CvUnit> m_iNearbyUnitPromotionRange;
-	FAutoVariable<int, CvUnit> m_bNearbyCityPromotion;
-	FAutoVariable<int, CvUnit> m_bNearbyFriendlyCityPromotion;
-	FAutoVariable<int, CvUnit> m_bNearbyEnemyCityPromotion;
+	FAutoVariable<int, CvUnit> m_inearbyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
+	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
 	FAutoVariable<int, CvUnit> m_bIsEnemyLands;
-	FAutoVariable<std::map<PromotionTypes, int>, CvUnit> m_iAdjacentSameType;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
 	FAutoVariable<int, CvUnit> m_iWonderProductionModifier;
 	FAutoVariable<int, CvUnit> m_iUnitProductionModifier;
 	FAutoVariable<int, CvUnit> m_iNearbyEnemyDamage;
+	FAutoVariable<int, CvUnit> m_iGGGAXPPercent;
+	FAutoVariable<int, CvUnit> m_iGiveCombatMod;
+	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
+	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
+	FAutoVariable<int, CvUnit> m_igiveOutsideFriendlyLandsModifier;
+	FAutoVariable<std::vector<int>, CvUnit> m_pabGiveDomainBonus;
+	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
+	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
+	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
+	FAutoVariable<int, CvUnit> m_bconvertUnit;
+	FAutoVariable<int, CvUnit> m_eConvertDomain;
+	FAutoVariable<UnitTypes, CvUnit> m_eConvertDomainUnit;
+	FAutoVariable<int, CvUnit> m_bconvertEnemyUnitToBarbarian;
+	FAutoVariable<int, CvUnit> m_bconvertOnFullHP;
+	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
+	FAutoVariable<int, CvUnit> m_idamageThreshold;
+	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
@@ -2211,6 +2289,8 @@ protected:
 	mutable uint m_uiLastPathFlags;
 	mutable uint m_uiLastPathTurn;
 	mutable uint m_uiLastPathLength;
+
+	mutable std::vector< std::pair<SStrengthModifierInput,int> > m_lastStrengthModifiers;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 

@@ -126,6 +126,7 @@ class CvAchievementXMLEntries;
 #endif
 class CvBaseInfo;
 class CvReplayInfo;
+class CvReligion;
 class CvReligionEntry;
 class CvReligionXMLEntries;
 class CvBeliefEntry;

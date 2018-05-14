@@ -123,6 +123,9 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 /// Updates the danger plots values to reflect threats across the map
 void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 {
+	if (!m_bArrayAllocated) //nothing to do and causes an endless recursion
+		return;
+
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	set<int> plotsWithOwnedUnitsLikelyToBeKilled;
 
@@ -144,6 +147,9 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 
 void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
 {
+	if (!m_bArrayAllocated) //nothing to do
+		return;
+
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 	TeamTypes thisTeam = thisPlayer.getTeam();
 
@@ -320,7 +326,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& p
 					if (pEnemy)
 					{
 						int iAttackerDamage = 0; //to be ignored
-						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage);
+						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage,true,0,true);
 					}
 				}
 			}
@@ -471,7 +477,8 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 /// Should this unit be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility)
 {
-	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit)
+	//watch out: if this is called for a half-initialized unit, the pointer may be valid but the plot invalid
+	if(!m_bArrayAllocated || m_ePlayer==NO_PLAYER || !pUnit || !pUnit->plot())
 		return true;
 
 	if(!pUnit->IsCanAttack())
@@ -614,9 +621,6 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 	// Damage from terrain - since we don't know the unit, just assume 20
 	int iPlotDamage = m_bFlatPlotDamage ? 20 : 0;
 
-	// Damage from units
-	CvPlot* pAttackerPlot = NULL;
-
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
@@ -626,16 +630,16 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			continue;
 		}
 
-		pAttackerPlot = NULL;
+		CvPlot* pAttackerPlot = NULL;
 		if (pUnit->IsCanAttackRanged())
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-				iPlotDamage += pUnit->GetAirCombatDamage(NULL, NULL, false, 0, m_pPlot);
+				iPlotDamage += pUnit->GetAirCombatDamage(NULL, NULL, false, 0, m_pPlot, NULL, true);
 			}
 			else
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, NULL, true, true);
 			}
 		}
 		else
@@ -646,13 +650,13 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			}
 			//we don't know the defender strength, so assume it's equal to attacker strength!
 			iPlotDamage += pUnit->getCombatDamage(
-				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL),
+				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL, true, true),
 				pUnit->GetBaseCombatStrength()*100, 
 				pUnit->getDamage(), false, false, false);
 
 			if (pUnit->isRangedSupportFire())
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, pAttackerPlot);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, false, 0, m_pPlot, pAttackerPlot, true, true);
 			}
 		}
 	}
@@ -723,7 +727,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	}
 	else
 	{
-		CvUnit* pInterceptor = pUnit->GetBestInterceptor(*m_pPlot);
+		CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit->getOwner(), pUnit);
 		if (pInterceptor)
 		{
 			// Air sweeps take modified damage from interceptors
@@ -767,6 +771,8 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	return 0;
 }
 
+#define DANGER_MAX_CACHE_SIZE 3
+
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
 int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
 {
@@ -780,7 +786,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 	//simple caching for speedup
 	SUnitInfo unitStats(pUnit, unitsToIgnore);
 	for (size_t i=0; i<m_lastResults.size(); i++)
-		if ( unitStats == m_lastResults[i].first )
+		if (unitStats == m_lastResults[i].first)
 			return m_lastResults[i].second;
 
 	//otherwise calculate from scratch
@@ -857,7 +863,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 							int iAttackerDamage = 0; //ignore this
 							if (pAttacker->plot() != m_pPlot)
 							{
-								int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage);
+								int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage, false, 0, true);
 								if (!m_pPlot->isVisible(pAttacker->getTeam()))
 									iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 								iPlotDamage += iDamage;
@@ -929,7 +935,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)
 		{
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage);
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iAttackerDamage, false, 0, true);
 
 			if (!m_pPlot->isVisible(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
@@ -945,7 +951,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		if (!pCity || pCity->getTeam() == pUnit->getTeam())
 			continue;
 
-		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
+		iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot, true);
 	}
 
 	// Damage from fog (check visibility again, might have changed ...)
@@ -980,9 +986,6 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 
 	CvCityGarrisonOverride guard(pCity,pPretendGarrison);
 
-	CvPlot* pAttackerPlot = NULL;
-	CvUnit* pInterceptor = NULL;
-
 	// Damage from ranged units and melees that cannot capture 
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
@@ -992,13 +995,12 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			continue;
 		}
 
-		pAttackerPlot = NULL;
-		
+		CvPlot* pAttackerPlot = NULL;
 		if (pUnit->IsCanAttackRanged())
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-				pInterceptor = pUnit->GetBestInterceptor(*m_pPlot);
+				CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit->getOwner(), pUnit);
 				int iInterceptDamage = 0;
 				if (pInterceptor)
 				{
@@ -1050,8 +1052,7 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 			continue;
 		}
 
-		pAttackerPlot = NULL;
-
+		CvPlot* pAttackerPlot = NULL;
 		if (!pUnit->IsCanAttackRanged() && !pUnit->isNoCapture())
 		{
 			if (plotDistance(iCityX, iCityY, pUnit->getX(), pUnit->getY()) == 1)
@@ -1059,12 +1060,12 @@ int CvDangerPlotContents::GetDanger(CvCity* pCity, const CvUnit* pPretendGarriso
 				pAttackerPlot = pUnit->plot();
 			}
 
-			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL),
+			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL, true, true),
 				pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
 
 			if (pUnit->isRangedSupportFire())
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot, NULL, true, true);
 			}
 		}
 	}

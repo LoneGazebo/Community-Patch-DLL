@@ -1073,7 +1073,7 @@ void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCi
 		CvCityCitizens* pkCitizens = pCity->GetCityCitizens();
 		if(pkCitizens != NULL)
 		{
-			pkCitizens->SetFocusType(eFocus);
+			pkCitizens->SetFocusType(eFocus, true);
 		}
 	}
 }
@@ -1086,7 +1086,7 @@ void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int
 		CvCityCitizens* pkCitizens = pCity->GetCityCitizens();
 		if(pkCitizens != NULL)
 		{
-			pkCitizens->SetForcedAvoidGrowth(bAvoidGrowth);
+			pkCitizens->SetForcedAvoidGrowth(bAvoidGrowth, true);
 		}
 	}
 }

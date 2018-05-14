@@ -188,11 +188,11 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CITADEL_TEXT';
 
 -- CS Stuff
 UPDATE Language_en_US
-SET Text = 'You received tribute very recently'
+SET Text = 'Someone demanded tribute very recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
 
 UPDATE Language_en_US
-SET Text = 'You received tribute recently'
+SET Text = 'Someone demanded tribute recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY';
 
 INSERT INTO Language_en_US

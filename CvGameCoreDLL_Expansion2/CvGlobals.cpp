@@ -4673,10 +4673,6 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 				{
 					strOut += "N ";
 				}
-				else if(pCell->IsSubjectToAttack())
-				{
-					strOut += "A ";
-				}
 				if(pCell->IsFriendlyTurnEndTile())
 				{
 					strOut += "E ";

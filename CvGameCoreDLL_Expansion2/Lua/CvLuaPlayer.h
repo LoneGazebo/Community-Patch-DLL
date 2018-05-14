@@ -773,7 +773,6 @@ protected:
 	LUAAPIEXTN(GetCurrentTotalPop, int);
 	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
 	LUAAPIEXTN(GetBaseLuxuryHappiness, int);
-	LUAAPIEXTN(GetLuxuryBonusPlusOne, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	LUAAPIEXTN(CalculateUnhappinessTooltip, int);

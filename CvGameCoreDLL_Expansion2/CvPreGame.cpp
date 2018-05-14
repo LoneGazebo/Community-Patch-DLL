@@ -3578,7 +3578,8 @@ void updateKnownPlayersTable()
 
 		for (int j = 0; j < MAX_MAJOR_CIVS; j++) {
 			if (i == j || kTeam.isHasMet((TeamTypes)j))
-				bitarray |= 1 << j;
+
+				bitarray |= KnownPlayersBitArray(1) << j;
 		}
 		s_knownPlayersTable[i] = bitarray;
 	}
@@ -3606,7 +3607,9 @@ bool isKnownPlayer(PlayerTypes eA, PlayerTypes eB) {
 	if (s_knownPlayersTable.empty()) return true;
 	if (eA < 0 || eB < 0) return true; // erring on the side of caution
 	if ((size_t)eA >= s_knownPlayersTable.size() || (size_t)eB >= s_knownPlayersTable.size()) return true; // erring on the side of caution
-	bool bKnown = s_knownPlayersTable[eA] & (1 << eB);
+
+	bool bKnown = s_knownPlayersTable[eA] & (KnownPlayersBitArray(1) << eB);
+
 	return bKnown;
 }
 #endif

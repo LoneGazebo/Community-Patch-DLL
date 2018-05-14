@@ -796,7 +796,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCurrentTotalPop);
 	Method(GetScalingNationalPopulationRequrired);
 	Method(GetBaseLuxuryHappiness);
-	Method(GetLuxuryBonusPlusOne);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	Method(CalculateUnhappinessTooltip);
@@ -3654,7 +3653,7 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	if(pkPlot)
 	{
-		CvCity* pPlotCity = pkPlot->getWorkingCity();
+		CvCity* pPlotCity = pkPlot->getOwningCity();
 		if(pPlotCity)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -3685,7 +3684,7 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	if(pkPlot)
 	{
-		CvCity* pPlotCity = pkPlot->getWorkingCity();
+		CvCity* pPlotCity = pkPlot->getOwningCity();
 		if(pPlotCity)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -8869,36 +8868,19 @@ int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->GetBaseLuxuryHappiness();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetLuxuryBonusPlusOne();
-int CvLuaPlayer::lGetLuxuryBonusPlusOne(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iHappiness = pkPlayer->GetBaseLuxuryHappiness();
-	const int iIncrease = lua_tointeger(L, 2);
-	int iExtraHappiness = 0;
 	int iNumHappinessResources = 0;
 	ResourceTypes eResource;
-	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		eResource = (ResourceTypes)iResourceLoop;
 
-		if(eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
+		if (eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
 		{
 			iNumHappinessResources++;
 		}
 	}
-	int iNumLux = iNumHappinessResources + iIncrease;
-	if(iNumLux > 0)
-	{
-		iExtraHappiness = ((iNumLux * iHappiness * 100) / /*8*/ std::max(1,GC.getBALANCE_HAPPINESS_LUXURY_BASE()));
-	}
+	const int iResult = (iNumHappinessResources * pkPlayer->GetBaseLuxuryHappiness()) / max(1, (pkPlayer->getNumCities() / max(1, GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())));
 
-	const int iResult = iExtraHappiness;
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -11707,7 +11689,7 @@ int CvLuaPlayer::lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L)
 	{
 		if(pkPlayer->isGoldenAge())
 		{
-			CvCity* pPlotCity = pkPlot->getWorkingCity();
+			CvCity* pPlotCity = pkPlot->getOwningCity();
 			if(pPlotCity)
 			{
 				if(!GET_PLAYER(pPlotCity->getOwner()).isMinorCiv())

@@ -316,7 +316,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH_SHORT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Missionary Zeal (Now Scholar-Priests)
 UPDATE Language_en_US
-SET Text = 'Missionary conversion strength +25%. Holy City gains [ICON_RESEARCH] Science when owned Missionaries spread this Religion to Cities of other Religions, based the number of followers of the other Religion in the target City.'
+SET Text = 'Missionary conversion strength +25%. Holy City gains [ICON_RESEARCH] Science when owned Missionaries spread this Religion to foreign Cities following other Religions, based the number of followers of the other Religion in the target City.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

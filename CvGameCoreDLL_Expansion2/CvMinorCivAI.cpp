@@ -9576,19 +9576,15 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 	
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		
 		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
 		if(eMinorLoop != NO_PLAYER)
 		{
 			CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-
 			CvCity* pCity = pMinorLoop->getCapitalCity();
-			
-			//Let's see if our CS is juicy and vulnerable.
-			if(pMinorLoop->isAlive() && pMinorLoop->getStartingPlot()->getOwner() == eMinorLoop && pMinorLoop->isMinorCiv())
-			{
-				CvPlot* pPlot;
 
+			//Let's see if our CS is juicy and vulnerable.
+			if(pMinorLoop->isAlive() && pMinorLoop->isMinorCiv() && pCity)
+			{
 				CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 
 				int iPlots = 0;
@@ -9596,10 +9592,9 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 				int iImpassable = 0;
 
 				// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
-
 				for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
 				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+					CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
 					if(pPlot)
 					{

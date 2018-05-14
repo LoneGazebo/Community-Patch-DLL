@@ -24,4 +24,4 @@ UPDATE Technologies SET Cost =   17000 WHERE GridX = 19; --NEW!
 
 -- Speed Change
 UPDATE GameSpeeds SET ResearchPercent = 300 WHERE Type = 'GAMESPEED_MARATHON';
-UPDATE GameSpeeds SET ResearchPercent = 200 WHERE Type = 'GAMESPEED_EPIC';
+UPDATE GameSpeeds SET ResearchPercent = 150 WHERE Type = 'GAMESPEED_EPIC';

@@ -481,7 +481,7 @@ void SetAllPlotsVisible(TeamTypes eTeam)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
 			pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
-
+			pLoopPlot->changeInvisibleVisibilityCountUnit(eTeam, pLoopPlot->getInvisibleVisibilityCountUnit(eTeam) + 1);
 			for (int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 			{
 				pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
@@ -4429,7 +4429,7 @@ int CvGame::getImprovementUpgradeTimeMod(ImprovementTypes eImprovement, const Cv
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	if(pPlot != NULL && NULL != pkImprovementInfo)
 	{
-		if(pPlot->isRiverSide())
+		if(pPlot->isRiver())
 		{
 			if(pkImprovementInfo->GetRiverSideUpgradeMod() > 0)
 			{
@@ -5228,7 +5228,7 @@ void CvGame::initScoreCalculation()
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(!pPlot->isWater() || pPlot->isAdjacentToLand())
+		if(!pPlot->isWater() || pPlot->isAdjacentToLand(false))
 		{
 			iMaxFood += pPlot->calculateBestNatureYield(YIELD_FOOD, NO_PLAYER);
 		}
@@ -11668,7 +11668,7 @@ void CvGame::doUpdateCacheOnTurn()
 	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		pLoopPlot->updateFreshwater();
+		pLoopPlot->updateWaterFlags();
 	}
 }
 
@@ -12581,16 +12581,10 @@ void CvGame::LogGameState(bool bLogHeaders)
 		CvString otherPlayerName;
 		CvString strMinorString;
 		CvString strDesc;
-		CvString strLogName;
 		CvString strTemp;
 
-		strLogName = "WorldState_Log.csv";
-
-		FILogFile* pLog;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strOutput.Format("%03d", GC.getGame().getElapsedGameTurns());
+		CvString strLogName = "WorldState_Log.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		AIGrandStrategyTypes eGrandStrategy;
 		int iGSConquest = 0;
@@ -12744,13 +12738,15 @@ void CvGame::LogGameState(bool bLogHeaders)
 		// Grand Strategies
 		if(bFirstTurn)
 		{
+			strOutput = "Turn";
 			strOutput += ", Conquest";
 			strOutput += ", Spaceship";
-			strOutput += ", United Nations";
+			strOutput += ", Diplo";
 			strOutput += ", Culture";
 		}
 		else
 		{
+			strOutput.Format("%03d", GC.getGame().getElapsedGameTurns());
 			strTemp.Format("%d", iGSConquest);
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iGSSpaceship);
@@ -12760,8 +12756,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iGSCulture);
 			strOutput += ", " + strTemp;
 		}
-
-		strOutput += ", ";
 
 		// Major Approaches
 		if(bFirstTurn)
@@ -12792,8 +12786,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", " + strTemp;
 		}
 
-		strOutput += ", ";
-
 		// Major Approaches
 		if(bFirstTurn)
 		{
@@ -12822,8 +12814,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iMajorNeutral);
 			strOutput += ", " + strTemp;
 		}
-
-		strOutput += ", ";
 
 		// Minor Approaches
 		if(bFirstTurn)

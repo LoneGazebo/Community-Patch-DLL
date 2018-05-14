@@ -636,6 +636,8 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
 //	--------------------------------------------------------------------------------
 void CvMap::doTurn()
 {
+	m_plotPopupCount.clear();
+
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->doTurn();
@@ -708,7 +710,7 @@ void CvMap::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
+void CvMap::updateOwningCity(CvPlot* pPlot, int iRange)
 {
 	if(pPlot && iRange > 0)
 	{
@@ -719,7 +721,7 @@ void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
 				CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
 				if(pLoopPlot)
 				{
-					pLoopPlot->updateWorkingCity();
+					pLoopPlot->updateOwningCity();
 				}
 			}
 		}
@@ -728,7 +730,7 @@ void CvMap::updateWorkingCity(CvPlot* pPlot, int iRange)
 	{
 		for(int iI = 0; iI < numPlots(); iI++)
 		{
-			plotByIndexUnchecked(iI)->updateWorkingCity();
+			plotByIndexUnchecked(iI)->updateOwningCity();
 		}
 	}
 }
@@ -747,12 +749,6 @@ void CvMap::updateYield()
 //	Update the adjacency cache values
 void CvMap::updateAdjacency()
 {
-	for (int iI = 0; iI < numPlots(); iI++)
-	{
-		CvPlot* pPlot = plotByIndexUnchecked(iI);
-		pPlot->m_bIsAdjacentToLand = pPlot->isAdjacentToLand();
-	}
-
 	GC.getMap().ClearPlotsAtRange(NULL);
 }
 
@@ -852,7 +848,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 			{
 				if(iFlags & RANDPLOT_ADJACENT_LAND)
 				{
-					if(!(pTestPlot->isAdjacentToLand()))
+					if(!(pTestPlot->isAdjacentToLand(false)))
 					{
 						bValid = false;
 					}
@@ -1113,7 +1109,7 @@ bool CvMap::findWater(CvPlot* pPlot, int iRange, bool bFreshWater)
 			{
 				if(bFreshWater)
 				{
-					if(pLoopPlot->isFreshWater())
+					if(pLoopPlot->isFreshWater(false))
 					{
 						return true;
 					}
@@ -1418,26 +1414,6 @@ void CvMap::recalculateAreas()
 
 	recalculateLandmasses();
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRange)
-{
-	if(pSource == NULL || pDest == NULL)
-	{
-		return -1;
-	}
-
-	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
-	SPath path = GC.GetStepFinder().GetPath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data);
-	if (!path)
-		return -1; // no passable path exists
-	else
-		return (path.iNormalizedDistance<INT_MAX) ? path.iNormalizedDistance : -1;
-
-}
-
-
 
 //	--------------------------------------------------------------------------------
 //
@@ -1832,7 +1808,7 @@ void CvMap::DoPlaceNaturalWonders()
 					{
 						if(pLoopPlot->isWater())
 						{
-							if(!pLoopPlot->isLake())
+							if(!pLoopPlot->isLake(false))
 							{
 								// Found a Plot within 2 plots of "the Ocean"
 								bValid = true;
@@ -1894,7 +1870,7 @@ void CvMap::DoPlaceNaturalWonders()
 		// see if we can add the volcano
 		if(featureVolcano != NO_FEATURE)
 		{
-			if(!pRandPlot->isAdjacentToLand())
+			if(!pRandPlot->isAdjacentToLand(false))
 			{
 				pRandPlot->setPlotType(PLOT_MOUNTAIN);
 				pRandPlot->setFeatureType(featureVolcano);
@@ -2003,7 +1979,7 @@ void CvMap::DoPlaceNaturalWonders()
 		}
 
 		// randomly pick one of the other three - but not if this is a coastal plot, because they look terrible there
-		if(pRandPlot->isCoastalLand())
+		if(pRandPlot->isCoastalLand(-1,false))
 		{
 			continue;
 		}
@@ -2561,4 +2537,14 @@ std::vector<CvPlot*> CvMap::GetPlotsAtRange(const CvPlot* pPlot, int iRange, boo
 	}
 
 	return vector<CvPlot*>();
+}
+
+int CvMap::GetPopupCount(int iPlotIndex)
+{
+	return m_plotPopupCount[iPlotIndex];
+}
+
+void CvMap::IncreasePopupCount(int iPlotIndex)
+{
+	m_plotPopupCount[iPlotIndex] += 1;
 }

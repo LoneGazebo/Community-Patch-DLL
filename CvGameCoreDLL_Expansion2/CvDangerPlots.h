@@ -21,31 +21,25 @@ typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
 struct SUnitInfo
 {
-	SUnitInfo(const CvUnit* pUnit=NULL, const set<int>& enemyUnitsToIgnore=set<int>())
+	SUnitInfo(const CvUnit* pUnit=NULL, const set<int>& enemyUnitsToIgnore=set<int>()) : m_enemyUnitsToIgnore(enemyUnitsToIgnore)
 	{
-		m_pUnit = pUnit;
+		m_iUnitID = pUnit ? pUnit->GetID() : 0;
 		m_x = pUnit ? pUnit->plot()->getX() : 0;
 		m_y = pUnit ? pUnit->plot()->getY() : 0;
 		m_damage = pUnit ? pUnit->getDamage() : 0;
-		m_enemyUnitsToIgnore = enemyUnitsToIgnore;
-	}
-	const bool operator<(const SUnitInfo& rhs) const
-	{
-		return m_pUnit<rhs.m_pUnit;
 	}
 	const bool operator==(const SUnitInfo& rhs) const
 	{
-		return (m_pUnit==rhs.m_pUnit && m_x==rhs.m_x && m_y==rhs.m_y && m_damage==rhs.m_damage && m_enemyUnitsToIgnore==rhs.m_enemyUnitsToIgnore);
+		return (m_iUnitID==rhs.m_iUnitID && m_x==rhs.m_x && m_y==rhs.m_y && m_damage==rhs.m_damage && m_enemyUnitsToIgnore==rhs.m_enemyUnitsToIgnore);
 	}
 
-	const CvUnit* m_pUnit;
+	int m_iUnitID;
 	int m_x;
 	int m_y;
 	int m_damage;
 	set<int> m_enemyUnitsToIgnore;
 };
 
-#define DANGER_MAX_CACHE_SIZE 5
 struct CvDangerPlotContents
 {
 	CvDangerPlotContents()

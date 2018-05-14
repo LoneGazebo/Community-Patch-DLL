@@ -1788,7 +1788,7 @@ int CvReligionBeliefs::GetNumBeliefs() const
 	return m_ReligionBeliefs.size();
 }
 #if defined(MOD_BALANCE_CORE)
-bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	if(ePlayer != NO_PLAYER)
 	{
@@ -1949,7 +1949,7 @@ int CvReligionBeliefs::GetFaithFromDyingUnits(PlayerTypes ePlayer, bool bHolyCit
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetRiverHappiness(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetRiverHappiness(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -1966,7 +1966,7 @@ int CvReligionBeliefs::GetRiverHappiness(PlayerTypes ePlayer, CvCity* pCity, boo
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetPlotCultureCostModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetPlotCultureCostModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -1983,7 +1983,7 @@ int CvReligionBeliefs::GetPlotCultureCostModifier(PlayerTypes ePlayer, CvCity* p
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCityRangeStrikeModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCityRangeStrikeModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -1999,7 +1999,7 @@ int CvReligionBeliefs::GetCityRangeStrikeModifier(PlayerTypes ePlayer, CvCity* p
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCombatModifierEnemyCities(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCombatModifierEnemyCities(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2016,7 +2016,7 @@ int CvReligionBeliefs::GetCombatModifierEnemyCities(PlayerTypes ePlayer, CvCity*
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCombatModifierFriendlyCities(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCombatModifierFriendlyCities(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2033,7 +2033,7 @@ int CvReligionBeliefs::GetCombatModifierFriendlyCities(PlayerTypes ePlayer, CvCi
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetFriendlyHealChange(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetFriendlyHealChange(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2084,7 +2084,7 @@ int CvReligionBeliefs::GetLandBarbarianConversionPercent(PlayerTypes ePlayer, bo
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetSpreadDistanceModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetSpreadDistanceModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2101,7 +2101,7 @@ int CvReligionBeliefs::GetSpreadDistanceModifier(PlayerTypes ePlayer, CvCity* pC
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetSpreadStrengthModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetSpreadStrengthModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2118,7 +2118,7 @@ int CvReligionBeliefs::GetSpreadStrengthModifier(PlayerTypes ePlayer, CvCity* pC
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetProphetStrengthModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetProphetStrengthModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2135,7 +2135,7 @@ int CvReligionBeliefs::GetProphetStrengthModifier(PlayerTypes ePlayer, CvCity* p
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetProphetCostModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetProphetCostModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2152,7 +2152,7 @@ int CvReligionBeliefs::GetProphetCostModifier(PlayerTypes ePlayer, CvCity* pCity
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetMissionaryStrengthModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMissionaryStrengthModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2169,7 +2169,7 @@ int CvReligionBeliefs::GetMissionaryStrengthModifier(PlayerTypes ePlayer, CvCity
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetMissionaryCostModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMissionaryCostModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2203,7 +2203,7 @@ int CvReligionBeliefs::GetFriendlyCityStateSpreadModifier(PlayerTypes ePlayer, b
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetGreatPersonExpendedFaith(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetGreatPersonExpendedFaith(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2220,7 +2220,7 @@ int CvReligionBeliefs::GetGreatPersonExpendedFaith(PlayerTypes ePlayer, CvCity* 
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCityStateMinimumInfluence(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCityStateMinimumInfluence(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2237,7 +2237,7 @@ int CvReligionBeliefs::GetCityStateMinimumInfluence(PlayerTypes ePlayer, CvCity*
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCityStateInfluenceModifier(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCityStateInfluenceModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2271,7 +2271,7 @@ int CvReligionBeliefs::GetOtherReligionPressureErosion(PlayerTypes ePlayer, bool
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetSpyPressure(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetSpyPressure(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2305,7 +2305,7 @@ int CvReligionBeliefs::GetInquisitorPressureRetention(PlayerTypes ePlayer, bool 
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetFaithBuildingTourism(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetFaithBuildingTourism(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2322,7 +2322,7 @@ int CvReligionBeliefs::GetFaithBuildingTourism(PlayerTypes ePlayer, CvCity* pCit
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2339,7 +2339,7 @@ int CvReligionBeliefs::GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer,
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2356,7 +2356,7 @@ int CvReligionBeliefs::GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlaye
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetMissionaryInfluenceCS(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMissionaryInfluenceCS(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2373,7 +2373,7 @@ int CvReligionBeliefs::GetMissionaryInfluenceCS(PlayerTypes ePlayer, CvCity* pCi
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetHappinessPerPantheon(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetHappinessPerPantheon(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2390,7 +2390,7 @@ int CvReligionBeliefs::GetHappinessPerPantheon(PlayerTypes ePlayer, CvCity* pCit
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetExtraVotes(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetExtraVotes(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2406,7 +2406,7 @@ int CvReligionBeliefs::GetExtraVotes(PlayerTypes ePlayer, CvCity* pCity, bool bH
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2473,7 +2473,7 @@ TechTypes CvReligionBeliefs::GetSpreadModifierDoublingTech(PlayerTypes ePlayer, 
 	return eTech;
 }
 /// Faith from kills
-int CvReligionBeliefs::GetFaithFromKills(int iDistance, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetFaithFromKills(int iDistance, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2497,7 +2497,7 @@ int CvReligionBeliefs::GetFaithFromKills(int iDistance, PlayerTypes ePlayer, CvC
 }
 
 /// Happiness per city
-int CvReligionBeliefs::GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2519,7 +2519,7 @@ int CvReligionBeliefs::GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer,
 }
 
 /// Happiness per X followers in foreign cities of powers you are not at war with
-int CvReligionBeliefs::GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -2536,7 +2536,7 @@ int CvReligionBeliefs::GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePla
 }
 
 /// Wonder production boost
-int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2558,7 +2558,7 @@ int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTy
 }
 
 /// Player happiness boost
-int CvReligionBeliefs:: GetPlayerHappiness(bool bAtPeace, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs:: GetPlayerHappiness(bool bAtPeace, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2580,7 +2580,7 @@ int CvReligionBeliefs:: GetPlayerHappiness(bool bAtPeace, PlayerTypes ePlayer, C
 }
 
 /// Player culture modifier
-int CvReligionBeliefs:: GetPlayerCultureModifier(bool bAtPeace, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs:: GetPlayerCultureModifier(bool bAtPeace, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2602,7 +2602,7 @@ int CvReligionBeliefs:: GetPlayerCultureModifier(bool bAtPeace, PlayerTypes ePla
 }
 
 /// Happiness per following city
-float CvReligionBeliefs::GetHappinessPerFollowingCity(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+float CvReligionBeliefs::GetHappinessPerFollowingCity(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	float rtnValue = 0.0;
@@ -2620,7 +2620,7 @@ float CvReligionBeliefs::GetHappinessPerFollowingCity(PlayerTypes ePlayer, CvCit
 }
 
 /// Gold per following city
-int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2638,7 +2638,7 @@ int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer, CvCity* pCi
 }
 
 /// Gold per following city
-int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2656,7 +2656,7 @@ int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer, CvCity* pCity,
 }
 
 /// Gold per following city
-int CvReligionBeliefs:: GetGoldWhenCityAdopts(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs:: GetGoldWhenCityAdopts(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2674,7 +2674,7 @@ int CvReligionBeliefs:: GetGoldWhenCityAdopts(PlayerTypes ePlayer, CvCity* pCity
 }
 
 /// Science per other religion follower
-int CvReligionBeliefs:: GetSciencePerOtherReligionFollower(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs:: GetSciencePerOtherReligionFollower(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2692,7 +2692,7 @@ int CvReligionBeliefs:: GetSciencePerOtherReligionFollower(PlayerTypes ePlayer, 
 }
 
 /// City growth modifier
-int CvReligionBeliefs::GetCityGrowthModifier(bool bAtPeace, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCityGrowthModifier(bool bAtPeace, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2714,7 +2714,7 @@ int CvReligionBeliefs::GetCityGrowthModifier(bool bAtPeace, PlayerTypes ePlayer,
 }
 
 /// Extra yield
-int CvReligionBeliefs::GetCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2736,7 +2736,7 @@ int CvReligionBeliefs::GetCityYieldChange(int iPopulation, YieldTypes eYield, Pl
 }
 
 /// Extra holy city yield
-int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2754,7 +2754,7 @@ int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes eP
 }
 
 /// Extra yield for foreign cities following religion
-int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2772,7 +2772,7 @@ int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTyp
 }
 
 /// Extra yield for foreign followers
-int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2790,7 +2790,7 @@ int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, Pla
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2806,7 +2806,7 @@ int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes e
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetLakePlotYieldChange(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetLakePlotYieldChange(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2822,7 +2822,7 @@ int CvReligionBeliefs::GetLakePlotYieldChange(YieldTypes eYield, PlayerTypes ePl
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2839,7 +2839,7 @@ int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePla
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2858,7 +2858,7 @@ int CvReligionBeliefs::GetYieldPerOtherReligionFollower(YieldTypes eYield, Playe
 #endif
 
 /// Extra yield from this improvement
-int CvReligionBeliefs::GetResourceQuantityModifier(ResourceTypes eResource, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetResourceQuantityModifier(ResourceTypes eResource, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2876,7 +2876,7 @@ int CvReligionBeliefs::GetResourceQuantityModifier(ResourceTypes eResource, Play
 }
 
 /// Extra yield from this improvement
-int CvReligionBeliefs::GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2894,7 +2894,7 @@ int CvReligionBeliefs::GetImprovementYieldChange(ImprovementTypes eImprovement, 
 }
 
 /// Get yield change from beliefs for a specific building class
-int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2915,7 +2915,7 @@ int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingC
 }
 
 /// Get Happiness from beliefs for a specific building class
-int CvReligionBeliefs::GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2937,7 +2937,7 @@ int CvReligionBeliefs::GetBuildingClassHappiness(BuildingClassTypes eBuildingCla
 }
 
 /// Get Tourism from beliefs for a specific building class
-int CvReligionBeliefs::GetBuildingClassTourism(BuildingClassTypes eBuildingClass, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetBuildingClassTourism(BuildingClassTypes eBuildingClass, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2955,7 +2955,7 @@ int CvReligionBeliefs::GetBuildingClassTourism(BuildingClassTypes eBuildingClass
 }
 
 /// Get yield change from beliefs for a specific feature
-int CvReligionBeliefs::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2973,7 +2973,7 @@ int CvReligionBeliefs::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes e
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvReligionBeliefs::GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2989,7 +2989,7 @@ int CvReligionBeliefs::GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldT
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3005,7 +3005,7 @@ int CvReligionBeliefs::GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldT
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3022,7 +3022,7 @@ int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, 
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3041,7 +3041,7 @@ int CvReligionBeliefs::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yi
 #endif
 
 /// Get yield change from beliefs for a specific resource
-int CvReligionBeliefs::GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3059,7 +3059,7 @@ int CvReligionBeliefs::GetResourceYieldChange(ResourceTypes eResource, YieldType
 }
 
 /// Get yield change from beliefs for a specific terrain
-int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3077,7 +3077,7 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvReligionBeliefs::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3094,7 +3094,7 @@ int CvReligionBeliefs::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes 
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3111,7 +3111,7 @@ int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, Yie
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3128,7 +3128,7 @@ int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3145,7 +3145,7 @@ int CvReligionBeliefs::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGre
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3166,7 +3166,7 @@ int CvReligionBeliefs::GetCapitalYieldChange(int iPopulation, YieldTypes eYield,
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3187,7 +3187,7 @@ int CvReligionBeliefs::GetCoastalCityYieldChange(int iPopulation, YieldTypes eYi
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3209,7 +3209,7 @@ int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYiel
 }
 
 /// Do we get one of our yields from defeating an enemy?
-int CvReligionBeliefs::GetYieldFromKills(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromKills(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3226,7 +3226,7 @@ int CvReligionBeliefs::GetYieldFromKills(YieldTypes eYieldType, PlayerTypes ePla
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetGreatPersonPoints(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetGreatPersonPoints(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3244,7 +3244,7 @@ int CvReligionBeliefs::GetGreatPersonPoints(GreatPersonTypes eGreatPerson, Playe
 }
 
 /// Do we get one of our yields from defeating a barbarian?
-int CvReligionBeliefs::GetYieldFromBarbarianKills(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromBarbarianKills(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3264,7 +3264,7 @@ int CvReligionBeliefs::GetYieldFromBarbarianKills(YieldTypes eYieldType, PlayerT
 
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 /// Get yield change from beliefs for a specific plot
-int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3304,7 +3304,7 @@ int CvReligionBeliefs::GetResourceHappiness(ResourceTypes eResource, PlayerTypes
 }
 
 /// Get yield change from beliefs for a specialist being present in city
-int CvReligionBeliefs::GetYieldChangeAnySpecialist(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldChangeAnySpecialist(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3322,7 +3322,7 @@ int CvReligionBeliefs::GetYieldChangeAnySpecialist(YieldTypes eYieldType, Player
 }
 
 /// Get yield change from beliefs for a trade route
-int CvReligionBeliefs::GetYieldChangeTradeRoute(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldChangeTradeRoute(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3340,7 +3340,7 @@ int CvReligionBeliefs::GetYieldChangeTradeRoute(YieldTypes eYieldType, PlayerTyp
 }
 
 /// Get yield change from beliefs for a natural wonder
-int CvReligionBeliefs::GetYieldChangeNaturalWonder(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldChangeNaturalWonder(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3358,7 +3358,7 @@ int CvReligionBeliefs::GetYieldChangeNaturalWonder(YieldTypes eYieldType, Player
 }
 
 /// Get yield change from beliefs for a world wonder
-int CvReligionBeliefs::GetYieldChangeWorldWonder(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldChangeWorldWonder(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3376,7 +3376,7 @@ int CvReligionBeliefs::GetYieldChangeWorldWonder(YieldTypes eYieldType, PlayerTy
 }
 
 /// Get yield modifier from beliefs for a natural wonder
-int CvReligionBeliefs::GetYieldModifierNaturalWonder(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldModifierNaturalWonder(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3394,7 +3394,7 @@ int CvReligionBeliefs::GetYieldModifierNaturalWonder(YieldTypes eYieldType, Play
 }
 
 /// Get yield modifier from beliefs for a natural wonder
-int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3410,7 +3410,7 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, Pla
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3430,7 +3430,7 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldTyp
 
 
 /// Does this belief allow a building to be constructed?
-bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -3449,7 +3449,7 @@ bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerT
 }
 
 /// Is there a belief that allows faith buying of units
-bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -3468,7 +3468,7 @@ bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer,
 }
 #if defined(MOD_BALANCE_CORE)
 /// Is there a belief that allows faith buying of specific units?
-bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -3506,7 +3506,7 @@ BeliefTypes CvReligionBeliefs::GetSpecificFaithBuyingEnabledBelief(UnitTypes eUn
 }
 #endif
 /// Is there a belief that allows us to convert adjacent barbarians?
-bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -3522,7 +3522,7 @@ bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, CvCity* pCity,
 }
 
 /// Is there a belief that allows faith buying of all great people
-bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -3613,7 +3613,7 @@ bool CvReligionBeliefs::RequiresResource(PlayerTypes ePlayer, bool bHolyCityOnly
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 /// Get yield modifier from beliefs for pop
-int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3630,7 +3630,7 @@ int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer
 	return rtnValue;
 }
 /// Get bonus pressure from trade routes
-int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3647,7 +3647,7 @@ int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, CvCity* 
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for gpt
-int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3664,7 +3664,7 @@ int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for luxury
-int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3681,7 +3681,7 @@ int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for border growth
-int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3698,7 +3698,7 @@ int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, PlayerType
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for border growth
-int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3715,7 +3715,7 @@ int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlaye
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from birth
-int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3747,7 +3747,7 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from science
-int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3764,7 +3764,7 @@ int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePl
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from GP Use
-int CvReligionBeliefs::GetYieldFromGPUse(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromGPUse(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3781,7 +3781,7 @@ int CvReligionBeliefs::GetYieldFromGPUse(YieldTypes eYieldType, PlayerTypes ePla
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from GA bonus
-int CvReligionBeliefs::GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3798,7 +3798,7 @@ int CvReligionBeliefs::GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from spread
-int CvReligionBeliefs::GetYieldFromSpread(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromSpread(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3815,7 +3815,7 @@ int CvReligionBeliefs::GetYieldFromSpread(YieldTypes eYieldType, PlayerTypes ePl
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from foreign spread
-int CvReligionBeliefs::GetYieldFromForeignSpread(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromForeignSpread(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3832,7 +3832,7 @@ int CvReligionBeliefs::GetYieldFromForeignSpread(YieldTypes eYieldType, PlayerTy
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from conquest
-int CvReligionBeliefs::GetYieldFromConquest(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromConquest(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3849,7 +3849,7 @@ int CvReligionBeliefs::GetYieldFromConquest(YieldTypes eYieldType, PlayerTypes e
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from policy unlock
-int CvReligionBeliefs::GetYieldFromPolicyUnlock(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromPolicyUnlock(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3866,7 +3866,7 @@ int CvReligionBeliefs::GetYieldFromPolicyUnlock(YieldTypes eYieldType, PlayerTyp
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from era unlock
-int CvReligionBeliefs::GetYieldFromEraUnlock(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromEraUnlock(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3883,7 +3883,7 @@ int CvReligionBeliefs::GetYieldFromEraUnlock(YieldTypes eYieldType, PlayerTypes 
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from city conversion
-int CvReligionBeliefs::GetYieldFromConversion(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromConversion(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3900,7 +3900,7 @@ int CvReligionBeliefs::GetYieldFromConversion(YieldTypes eYieldType, PlayerTypes
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from wtlkd
-int CvReligionBeliefs::GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3917,7 +3917,7 @@ int CvReligionBeliefs::GetYieldFromWLTKD(YieldTypes eYieldType, PlayerTypes ePla
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from passing a WC proposal
-int CvReligionBeliefs::GetYieldFromProposal(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromProposal(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3934,7 +3934,7 @@ int CvReligionBeliefs::GetYieldFromProposal(YieldTypes eYieldType, PlayerTypes e
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from Hosting WC
-int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3951,7 +3951,7 @@ int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlay
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from Hosting WC
-int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3969,7 +3969,7 @@ int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerT
 }
 
 /// Get yield from beliefs from # of followers
-int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -3986,7 +3986,7 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 	return rtnValue;
 }
 /// Get yield from beliefs from # of followers halved
-int CvReligionBeliefs::GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -4004,7 +4004,7 @@ int CvReligionBeliefs::GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, Playe
 }
 
 /// Get yield from beliefs from # of followers halved
-bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -4020,7 +4020,7 @@ bool CvReligionBeliefs::IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes eP
 }
 
 /// Get yield from beliefs from # of followers halved
-int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;

@@ -77,6 +77,7 @@ public:
 	void updateSelectedCity();
 #if defined(MOD_BALANCE_CORE)
 	void updateYield(bool bSkipCity = false);
+	void ResetGreatWorkYieldCache();
 #else
 	void updateYield();
 #endif
@@ -1377,8 +1378,8 @@ public:
 	CvUnit* rangedStrikeTarget(const CvPlot* pPlot) const;
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
 
-	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL) const;
-	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL) const;
+	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
+	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
@@ -1407,6 +1408,7 @@ public:
 	int GetCheapestPlotInfluenceDistance() const;
 	void SetCheapestPlotInfluenceDistance(int iValue);
 	void DoUpdateCheapestPlotInfluenceDistance();
+	int calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const;
 
 	// End plot acquisition
 
@@ -2027,6 +2029,9 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abUnitInvestment;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingConstructed;
 #endif
+
+	//cache for great work yields, they are need often during citizen re-assignment but they don't change
+	mutable vector<int> m_GwYieldCache; //not serialized
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with
 
