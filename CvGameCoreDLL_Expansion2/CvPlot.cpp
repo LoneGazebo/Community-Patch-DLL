@@ -3286,7 +3286,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
 			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(it->first);
 
 			if (!pUnit || pUnit->isDelayedDeath())
 				continue;
