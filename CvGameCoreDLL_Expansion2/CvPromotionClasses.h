@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -261,8 +261,14 @@ public:
 	bool IsEnemyLands() const;
 	int GetNearbyRange() const;
 	UnitTypes getRequiredUnit() const;
-	UnitTypes GetConvertDomainUnit() const;
-	DomainTypes GetConvertDomain() const;
+	bool IsConvertEnemyUnitToBarbarian() const;
+	bool IsConvertOnFullHP() const;
+	bool IsConvertOnDamage() const;
+	int GetDamageThreshold() const;
+	int GetConvertDamageOrFullHPUnit() const;
+	bool IsConvertUnit() const;
+	int GetConvertDomainUnit() const;
+	int GetConvertDomain() const;
 	int GetStackedGreatGeneralExperience() const;
 	int GetPillageBonusStrengthPercent() const;
 	int GetReligiousPressureModifier() const;
@@ -558,8 +564,14 @@ protected:
 	bool m_bEnemyLands;
 	int m_iNearbyRange;
 	UnitTypes m_eRequiredUnit;
-	UnitTypes m_eConvertDomainUnit;
-	DomainTypes m_eConvertDomain;
+	int m_iConvertDomainUnit;
+	int m_iConvertDomain;
+	bool m_bIsConvertUnit;
+	bool m_bIsConvertEnemyUnitToBarbarian;
+	bool m_bIsConvertOnFullHP;
+	bool m_bIsConvertOnDamage;
+	int m_iDamageThreshold;
+	int m_iConvertDamageOrFullHPUnit;
 	int m_iStackedGreatGeneralExperience;
 	int m_iPillageBonusStrength;
 	int m_iReligiousPressureModifier;

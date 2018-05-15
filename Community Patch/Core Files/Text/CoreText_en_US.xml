@@ -6427,6 +6427,20 @@
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
 			<Text>Local Population Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
+
+		<!-- Great Person Progress -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS">
+			<Text>Empire-Wide Bonus Great Person Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE">
+			<Text>Bonus Great Person Points Update</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_IN_CITY">
+			<Text>Bonus Great Person Points in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_GREAT_PERSON_PROGRESS_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
 		
 		<!-- Instant Yield Text -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD">
@@ -7180,7 +7194,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_FORCE_MP_SAVE_TOOLTIP">
 			<Text>DANGER! Emulate vanilla where a save of the current turn state could be made mid-turn by exploiting a bug in the overwrite file check. Normally a save is/was just a renamed copy of the most recent autosave. With this option enabled mid-turn state can be saved BUT Firaxis explicitly tried to prevent this, presumably because it can cause issues. This option is in NO WAY recommended and to use at own risk.</Text>
-		
+		</Row>
 		<!-- Splash Damage popup texts -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE">
 			<Text>Rend</Text>

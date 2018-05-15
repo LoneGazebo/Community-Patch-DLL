@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -234,8 +234,14 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bEnemyLands(false),
 	m_iNearbyRange(0),
 	m_eRequiredUnit(NO_UNIT),
-	m_eConvertDomainUnit(NO_UNIT),
-	m_eConvertDomain(NO_DOMAIN),
+	m_iConvertDomainUnit(NO_UNIT),
+	m_iConvertDomain(NO_DOMAIN),
+	m_bIsConvertUnit(false),
+	m_bIsConvertEnemyUnitToBarbarian(false),
+	m_bIsConvertOnFullHP(false),
+	m_bIsConvertOnDamage(false),
+	m_iDamageThreshold(0),
+	m_iConvertDamageOrFullHPUnit(NO_UNIT),
 	m_iStackedGreatGeneralExperience(0),
 	m_iPillageBonusStrength(0),
 	m_iReligiousPressureModifier(0),
@@ -487,9 +493,16 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	const char* szUnitType = kResults.GetText("RequiredUnit");
 	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
-	m_eConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
+	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
-	m_eConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_iConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_bIsConvertUnit = kResults.GetBool("IsConvertUnit");
+	m_bIsConvertEnemyUnitToBarbarian = kResults.GetBool("IsConvertEnemyUnitToBarbarian");
+	m_bIsConvertOnFullHP = kResults.GetBool("IsConvertOnFullHP");
+	m_bIsConvertOnDamage = kResults.GetBool("IsConvertOnDamage");
+	m_iDamageThreshold = kResults.GetInt("DamageThreshold");
+	const char* szConvertDamageOrFullHPUnit = kResults.GetText("ConvertDamageOrFullHPUnit");
+	m_iConvertDamageOrFullHPUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDamageOrFullHPUnit, true);
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
@@ -2244,13 +2257,37 @@ UnitTypes CvPromotionEntry::getRequiredUnit() const
 {
 	return m_eRequiredUnit;
 }
-UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
+bool CvPromotionEntry::IsConvertEnemyUnitToBarbarian() const
 {
-	return m_eConvertDomainUnit;
+	return m_bIsConvertEnemyUnitToBarbarian;
 }
-DomainTypes CvPromotionEntry::GetConvertDomain() const
+bool CvPromotionEntry::IsConvertOnFullHP() const
 {
-	return m_eConvertDomain;
+	return m_bIsConvertOnFullHP;
+}
+bool CvPromotionEntry::IsConvertOnDamage() const
+{
+	return m_bIsConvertOnDamage;
+}
+int CvPromotionEntry::GetDamageThreshold() const
+{
+	return m_iDamageThreshold;
+}
+int CvPromotionEntry::GetConvertDamageOrFullHPUnit() const
+{
+	return m_iConvertDamageOrFullHPUnit;
+}
+bool CvPromotionEntry::IsConvertUnit() const
+{
+	return m_bIsConvertUnit;
+}
+int CvPromotionEntry::GetConvertDomainUnit() const
+{
+	return m_iConvertDomainUnit;
+}
+int CvPromotionEntry::GetConvertDomain() const
+{
+	return m_iConvertDomain;
 }
 int CvPromotionEntry::GetStackedGreatGeneralExperience() const
 {

@@ -1386,12 +1386,11 @@ if civ5_mode then
 			tips:insert( "[ENDCOLOR]" )
 -- COMMUNITY PATCH CHANGE
 			-- Happiness/Population calculation.
-			local iPopulation = g_activePlayer:GetCurrentTotalPop()
-			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
-			local iGetLuxuryBonus = (100 * g_activePlayer:GetLuxuryBonusPlusOne(0));
-		local iGetLuxuryBonusPlusOne = (100 * g_activePlayer:GetLuxuryBonusPlusOne(1));
-			if(iGetLuxuryBonusPlusOne > 0) then
-				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, Locale.ToNumber( ((iGetLuxuryBonusPlusOne - iGetLuxuryBonus) / 100), "#.##" )))
+			local iPopulation = g_activePlayer:GetCurrentTotalPop();
+			local iPopNeeded = g_activePlayer:GetPopNeededForLux();
+			local iGetLuxuryBonus = g_activePlayer:GetBaseLuxuryHappiness();
+			if(iGetLuxuryBonus > 0) then
+				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iGetLuxuryBonus))
 				tips:insert("[NEWLINE][NEWLINE]")
 			end
 -- END

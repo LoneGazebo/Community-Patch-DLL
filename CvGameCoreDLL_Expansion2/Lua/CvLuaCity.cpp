@@ -320,6 +320,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeFaithPerTurnFromReligion);
 #endif
 
+	Method(HasConvertedToReligionEver);
 	Method(IsReligionInCity);
 	Method(IsHolyCityForReligion);
 	Method(IsHolyCityAnyReligion);
@@ -3369,6 +3370,18 @@ int CvLuaCity::lIsReligionInCity(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+//int HasConvertedToReligionEver() const;
+int CvLuaCity::lHasConvertedToReligionEver(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 2);
+	const bool bResult = pkCity->HasPaidAdoptionBonus(eReligion);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //int IsHolyCityForReligion(ReligionTypes eReligion) const;
 int CvLuaCity::lIsHolyCityForReligion(lua_State* L)
@@ -4945,7 +4958,7 @@ int CvLuaCity::lSetFocusType(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iFocus = lua_tointeger(L, 2);
 
-	pkCity->GetCityCitizens()->SetFocusType((CityAIFocusTypes) iFocus);
+	pkCity->GetCityCitizens()->SetFocusType((CityAIFocusTypes) iFocus, true);
 
 	return 1;
 }

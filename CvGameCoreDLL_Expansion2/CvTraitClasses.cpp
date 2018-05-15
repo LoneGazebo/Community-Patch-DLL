@@ -263,6 +263,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piFreeUnitClassesDOW(NULL),
 	m_piDomainFreeExperienceModifier(NULL),
 	m_ppiYieldFromTileEarnTerrainType(NULL),
+	m_ppiYieldChangePerImprovementBuilt(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -295,6 +296,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piGoldenAgeFromGreatPersonBirth(NULL),
+	m_piGreatPersonProgressFromPolicyUnlock(NULL),
 #endif
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -324,6 +326,7 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
 #if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileEarnTerrainType);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldChangePerImprovementBuilt);
 #endif
 }
 
@@ -1373,6 +1376,15 @@ int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTyp
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileEarnTerrainType ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
 }
+
+int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldChangePerImprovementBuilt ? m_ppiYieldChangePerImprovementBuilt[eIndex1][eIndex2] : 0;
+}
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1663,6 +1675,13 @@ int CvTraitEntry::GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGoldenAgeFromGreatPersonBirth ? m_piGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
+}
+
+int CvTraitEntry::GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const
+{
+	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
+	return m_piGreatPersonProgressFromPolicyUnlock ? m_piGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
 }
 #endif
 
@@ -2429,6 +2448,28 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiYieldFromTileEarnTerrainType[TerrainID][YieldID] = yield;
 		}
 	}
+	//Populate m_ppiYieldChangePerImprovementBuilt
+	{
+		kUtility.Initialize2DArray(m_ppiYieldChangePerImprovementBuilt, "Improvements", "Yields");
+
+		std::string strKey("Trait_YieldChangesPerImprovementBuilt");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Improvements.ID as ImprovementID, Yields.ID as YieldID, Yield from Trait_YieldChangesPerImprovementBuilt inner join Improvements on Improvements.Type = ImprovementType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int ImprovementID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldChangePerImprovementBuilt[ImprovementID][YieldID] = yield;
+		}
+	}
 	//Populate m_MovesChangeUnitClass
 	{
 		const int iNumUnitClasses = kUtility.MaxRows("UnitClasses");
@@ -2873,6 +2914,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_piGoldenAgeFromGreatPersonBirth, "GreatPersons", "Trait_GoldenAgeFromGreatPersonBirth", "GreatPersonType", "TraitType", szTraitType, "GoldenAgeTurns");
+	kUtility.PopulateArrayByValue(m_piGreatPersonProgressFromPolicyUnlock, "GreatPersons", "Trait_GreatPersonProgressFromPolicyUnlock", "GreatPersonType", "TraitType", szTraitType, "Value");
 #endif
 
 	//UnimprovedFeatureYieldChanges
@@ -3043,7 +3085,7 @@ void CvPlayerTraits::Init(CvTraitXMLEntries* pTraits, CvPlayer* pPlayer)
 	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
 }
 
-bool CvPlayerTraits::IsWarmonger()
+void CvPlayerTraits::SetIsWarmonger()
 {
 	if (GetGreatGeneralRateModifier() != 0 ||
 		GetGreatGeneralExtraBonus() != 0 ||
@@ -3069,21 +3111,30 @@ bool CvPlayerTraits::IsWarmonger()
 		GetGoldenAgeFromVictory() != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0)
-		return true;
+	{
+		m_bIsWarmonger = true;
+		return;
+	}
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
 		if (GetYieldFromLevelUp(eYield) != 0 ||
 			GetYieldFromConquest(eYield) != 0)
-			return true;
+		{
+			m_bIsWarmonger = true;
+			return;
+		}
 	}
 
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
 		DomainTypes eDomain = (DomainTypes)iDomain;
 		if (GetDomainFreeExperienceModifier(eDomain) > 0)
-			return true;
+		{
+			m_bIsWarmonger = true;
+			return;
+		}
 	}
 
 	if (IsReconquista() ||
@@ -3093,27 +3144,32 @@ bool CvPlayerTraits::IsWarmonger()
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
-		return true;
-
-	return false;
+	{
+		m_bIsWarmonger = true;
+		return;
+	}
 }
-bool CvPlayerTraits::IsNerd()
+void CvPlayerTraits::SetIsNerd()
 {
 	if (GetGreatScientistRateModifier() != 0 ||
 		GetInvestmentModifier() != 0 ||
 		GetFreePolicyPerXTechs() != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))) != 0)
-		return true;
+	{
+		m_bIsNerd = true;
+		return;
+	}
 
 	if (IsAdoptionFreeTech() ||
 		IsTechBoostFromCapitalScienceBuildings() ||
 		IsMayaCalendarBonuses() ||
 		IsTechFromCityConquer())
-		return true;
-
-	return false;
+	{
+		m_bIsNerd = true;
+		return;
+	}
 }
-bool CvPlayerTraits::IsTourism()
+void CvPlayerTraits::SetIsTourism()
 {
 	if (GetGreatPeopleRateModifier() != 0 ||
 		GetGreatPersonGiftInfluence() != 0 ||
@@ -3139,22 +3195,30 @@ bool CvPlayerTraits::IsTourism()
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"))) != 0 ||
 		GetSharedReligionTourismModifier() > 0)
-		return true;
+	{
+		m_bIsTourism = true;
+		return;
+	}
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
 		if (GetYieldFromHistoricEvent(eYield) != 0)
-			return true;
+		{
+			m_bIsTourism = true;
+			return;
+		}
 	}
 
 	if(IsGPWLTKD() ||
 		IsGreatWorkWLTKD())
-		return true;
+	{
+		m_bIsTourism = true;
+		return;
+	}
 
-	return false;
 }
-bool CvPlayerTraits::IsDiplomat()
+void CvPlayerTraits::SetIsDiplomat()
 {
 	if (GetCityStateBonusModifier() != 0 ||
 		GetCityStateFriendshipModifier() != 0 ||
@@ -3173,7 +3237,10 @@ bool CvPlayerTraits::IsDiplomat()
 		(MOD_DIPLOMACY_CITYSTATES && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
 #endif
 		)
-		return true;
+	{
+		m_bIsDiplomat = true;
+		return;
+	}
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
@@ -3181,7 +3248,10 @@ bool CvPlayerTraits::IsDiplomat()
 		if (GetYieldChangePerTradePartner(eYield) != 0 ||
 			GetYieldFromCSAlly(eYield) != 0 ||
 			GetYieldFromCSFriend(eYield) != 0)
-			return true;
+		{
+			m_bIsDiplomat = true;
+			return;
+		}
 	}
 
 	if (IsImportsCountTowardsMonopolies() ||
@@ -3189,11 +3259,12 @@ bool CvPlayerTraits::IsDiplomat()
 		IsAbleToAnnexCityStates() ||
 		IsCanPlunderWithoutWar() ||
 		IsIgnoreTradeDistanceScaling())
-		return true;
-
-	return false;
+	{
+		m_bIsDiplomat = true;
+		return;
+	}
 }
-bool CvPlayerTraits::IsSmaller()
+void CvPlayerTraits::SetIsSmaller()
 {
 	if (GetGreatScientistRateModifier() != 0 ||
 		GetFreePolicyPerXTechs() != 0 ||
@@ -3203,7 +3274,10 @@ bool CvPlayerTraits::IsSmaller()
 		GetWonderProductionModifier() != 0 ||
 		GetEventTourismBoost() != 0 ||
 		GetEventGP() != 0)
-		return true;
+	{
+		m_bIsSmaller = true;
+		return;
+	}
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
@@ -3212,7 +3286,10 @@ bool CvPlayerTraits::IsSmaller()
 			GetYieldFromCSAlly(eYield) != 0 ||
 			GetYieldFromCSFriend(eYield) != 0 ||
 			GetYieldChangeWorldWonder(eYield) > 0)
-			return true;
+		{
+			m_bIsSmaller = true;
+			return;
+		}
 	}
 
 	if (IsImportsCountTowardsMonopolies() ||
@@ -3220,17 +3297,21 @@ bool CvPlayerTraits::IsSmaller()
 		IsPopulationBoostReligion() ||
 		IsNoAnnexing() ||
 		IsTechBoostFromCapitalScienceBuildings())
-		return true;
+	{
+		m_bIsSmaller = true;
+		return;
+	}
 
 	if (GC.getGame().getGameTurn() / 2 > GC.getGame().getEstimateEndTurn())
 	{
 		if (m_pPlayer->getNumCities() < 4)
-			return true;
+		{
+			m_bIsSmaller = true;
+			return;
+		}
 	}
-
-	return false;
 }
-bool CvPlayerTraits::IsExpansionist()
+void CvPlayerTraits::SetIsExpansionist()
 {
 	if (GetPlotBuyCostModifier() != 0 ||
 		GetCityWorkingChange() != 0 ||
@@ -3244,7 +3325,10 @@ bool CvPlayerTraits::IsExpansionist()
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
 		GetPolicyGEorGM() != 0)
-		return true;
+	{
+		m_bIsExpansionist = true;
+		return;
+	}
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
@@ -3252,7 +3336,20 @@ bool CvPlayerTraits::IsExpansionist()
 		if (GetYieldFromTilePurchase(eYield) != 0 ||
 			GetYieldFromTileEarn(eYield) != 0 ||
 			GetYieldFromSettle(eYield) != 0)
-			return true;
+		{
+			m_bIsExpansionist = true;
+			return;
+		}
+		
+		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
+			if (GetYieldChangePerImprovementBuilt(eImprovement, eYield) != 0)
+			{
+				m_bIsExpansionist = true;
+				return;
+			}
+		}
 	}
 
 	if (IsBuyOwnedTiles() ||
@@ -3263,12 +3360,13 @@ bool CvPlayerTraits::IsExpansionist()
 		IsEmbarkedAllWater() ||
 		IsRiverTradeRoad() ||
 		IsNoConnectionUnhappiness())
-		return true;
-
-	return false;
+	{
+		m_bIsExpansionist = true;
+		return;
+	}
 }
 
-bool CvPlayerTraits::IsReligious()
+void CvPlayerTraits::SetIsReligious()
 {
 	if (IsForeignReligionSpreadImmune() ||
 		IsNoNaturalReligionSpread() ||
@@ -3277,13 +3375,19 @@ bool CvPlayerTraits::IsReligious()
 		IsAnyBelief() ||
 		IsBonusReligiousBelief() ||
 		IsPopulationBoostReligion())
-		return true;
+	{
+		m_bIsReligious = true;
+		return;
+	}
 
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
 		if (GetYieldFromOwnPantheon(eYield) != 0)
-			return true;
+		{
+			m_bIsReligious = true;
+			return;
+		}
 	}
 
 	if (GetYieldFromHistoricEvent(YIELD_FAITH) != 0 ||
@@ -3300,16 +3404,23 @@ bool CvPlayerTraits::IsReligious()
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PROPHET"))) != 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
 		GetExtraMissionaryStrength() > 0)
-		return true;
+	{
+		m_bIsReligious = true;
+		return;
+	}
 
 	if (GetTradeReligionModifier() != 0 || GetGPFaithPurchaseEra() != 0 || GetFaithCostModifier() != 0 || GetFaithFromKills() != 0)
-		return true;
+	{
+		m_bIsReligious = true;
+		return;
+	}
 	
 
 	if (m_pPlayer->GetReligions()->GetCurrentReligion() != NO_RELIGION)
-		return true;
-
-	return false;
+	{
+		m_bIsReligious = true;
+		return;
+	}
 }
 
 /// Store off data on bonuses from traits
@@ -3741,6 +3852,15 @@ void CvPlayerTraits::InitPlayerTraits()
 						yields[iYield] = (m_ppaaiImprovementYieldChange[iImprovementLoop][iYield] + iChange);
 						m_ppaaiImprovementYieldChange[iImprovementLoop] = yields;
 					}
+#if defined(MOD_BALANCE_CORE)
+					iChange = trait->GetYieldChangePerImprovementBuilt((ImprovementTypes)iImprovementLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop];
+						yields[iYield] = (m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop][iYield] + iChange);
+						m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop] = yields;
+					}
+#endif
 				}
 #if defined(MOD_BALANCE_CORE)
 				for(int iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
@@ -3928,6 +4048,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aiGreatPersonGWAM[iGreatPersonTypes] = trait->GetGreatPersonGWAM((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeGreatPersonRateModifier[iGreatPersonTypes] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes)iGreatPersonTypes);
 				m_aiGoldenAgeFromGreatPersonBirth[iGreatPersonTypes] = trait->GetGoldenAgeFromGreatPersonBirth((GreatPersonTypes)iGreatPersonTypes);
+				m_aiGreatPersonProgressFromPolicyUnlock[iGreatPersonTypes] = trait->GetGreatPersonProgressFromPolicyUnlock((GreatPersonTypes)iGreatPersonTypes);
 			}
 
 			for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -3978,6 +4099,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 		}
 	}
+
+	SetIsWarmonger();
+	SetIsNerd();
+	SetIsTourism();
+	SetIsDiplomat();
+	SetIsExpansionist();
+	SetIsSmaller();
+	SetIsReligious();
 }
 
 /// Deallocate memory created in initialize
@@ -3990,6 +4119,7 @@ void CvPlayerTraits::Uninit()
 	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
 	m_ppiYieldFromTileEarnTerrainType.clear();
+	m_ppaaiYieldChangePerImprovementBuilt.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
@@ -4009,6 +4139,7 @@ void CvPlayerTraits::Uninit()
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
+	m_aiGreatPersonProgressFromPolicyUnlock.clear();
 #endif
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
@@ -4033,6 +4164,14 @@ void CvPlayerTraits::Reset()
 
 	m_vLeaderHasTrait = std::vector<bool>( GC.getNumTraitInfos(), false );
 	m_vPotentiallyActiveLeaderTraits.clear();
+
+	m_bIsWarmonger = false;
+	m_bIsNerd = false;
+	m_bIsTourism = false;
+	m_bIsDiplomat = false;
+	m_bIsExpansionist = false;
+	m_bIsSmaller = false;
+	m_bIsReligious = false;
 
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;
@@ -4235,6 +4374,8 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_ppiYieldFromTileEarnTerrainType.clear();
 	m_ppiYieldFromTileEarnTerrainType.resize(GC.getNumTerrainInfos());
+	m_ppaaiYieldChangePerImprovementBuilt.clear();
+	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChange.clear();
@@ -4284,6 +4425,9 @@ void CvPlayerTraits::Reset()
 		for(int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
 		{
 			m_ppaaiImprovementYieldChange[iImprovement] = yield;
+#if defined(MOD_BALANCE_CORE)
+			m_ppaaiYieldChangePerImprovementBuilt[iImprovement] = yield;
+#endif
 		}
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 		for(int iPlot = 0; iPlot < GC.getNumPlotInfos(); iPlot++)
@@ -4420,12 +4564,14 @@ void CvPlayerTraits::Reset()
 	m_aiGreatPersonGWAM.clear();
 	m_aiGoldenAgeGreatPersonRateModifier.clear();
 	m_aiGoldenAgeFromGreatPersonBirth.clear();
+	m_aiGreatPersonProgressFromPolicyUnlock.clear();
 
 	m_aiGreatPersonCostReduction.resize(GC.getNumGreatPersonInfos());
 	m_aiPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 	m_aiGreatPersonGWAM.resize(GC.getNumGreatPersonInfos());
 	m_aiGoldenAgeGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 	m_aiGoldenAgeFromGreatPersonBirth.resize(GC.getNumGreatPersonInfos());
+	m_aiGreatPersonProgressFromPolicyUnlock.resize(GC.getNumGreatPersonInfos());
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); iI++)
 	{
 		m_aiGreatPersonCostReduction[iI] = 0;
@@ -4433,6 +4579,7 @@ void CvPlayerTraits::Reset()
 		m_aiGreatPersonGWAM[iI] = 0;
 		m_aiGoldenAgeGreatPersonRateModifier[iI] = 0;
 		m_aiGoldenAgeFromGreatPersonBirth[iI] = 0;
+		m_aiGreatPersonProgressFromPolicyUnlock[iI] = 0;
 	}
 
 	m_aiNumPledgesDomainProdMod.clear();
@@ -4611,6 +4758,19 @@ int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain,
 	}
 	return m_ppiYieldFromTileEarnTerrainType[(int)eTerrain][(int)eYield];
 }
+#if defined(MOD_BALANCE_CORE)
+int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
+
+	if (eImprovement == NO_IMPROVEMENT)
+	{
+		return 0;
+	}
+	return m_ppaaiYieldChangePerImprovementBuilt[(int)eImprovement][(int)eYield];
+}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 /// Extra yield from this plot
 int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
@@ -5945,6 +6105,14 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 #if defined(MOD_BALANCE_CORE)
+	kStream >> m_bIsWarmonger;
+	kStream >> m_bIsNerd;
+	kStream >> m_bIsTourism;
+	kStream >> m_bIsDiplomat;
+	kStream >> m_bIsExpansionist;
+	kStream >> m_bIsSmaller;
+	kStream >> m_bIsReligious;
+
 	// precompute the traits our leader has
 	m_vPotentiallyActiveLeaderTraits.clear();
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
@@ -6401,10 +6569,12 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiGreatPersonGWAM;
 	kStream >> m_aiGoldenAgeGreatPersonRateModifier;
 	kStream >> m_aiGoldenAgeFromGreatPersonBirth;
+	kStream >> m_aiGreatPersonProgressFromPolicyUnlock;
 	kStream >> m_aiNumPledgesDomainProdMod;
 	kStream >> m_aiFreeUnitClassesDOW;
 	kStream >> m_aiDomainFreeExperienceModifier;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
+	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -6577,6 +6747,14 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	uint uiVersion = 19;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
+
+	kStream << m_bIsWarmonger;
+	kStream << m_bIsNerd;
+	kStream << m_bIsTourism;
+	kStream << m_bIsDiplomat;
+	kStream << m_bIsExpansionist;
+	kStream << m_bIsSmaller;
+	kStream << m_bIsReligious;
 
 	kStream << m_iGreatPeopleRateModifier;
 	kStream << m_iGreatScientistRateModifier;
@@ -6814,10 +6992,12 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiGreatPersonGWAM;
 	kStream << m_aiGoldenAgeGreatPersonRateModifier;
 	kStream << m_aiGoldenAgeFromGreatPersonBirth;
+	kStream << m_aiGreatPersonProgressFromPolicyUnlock;
 	kStream << m_aiNumPledgesDomainProdMod;
 	kStream << m_aiFreeUnitClassesDOW;
 	kStream << m_aiDomainFreeExperienceModifier;
 	kStream << m_ppiYieldFromTileEarnTerrainType;
+	kStream << m_ppaaiYieldChangePerImprovementBuilt;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

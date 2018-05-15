@@ -4429,7 +4429,7 @@ int CvGame::getImprovementUpgradeTimeMod(ImprovementTypes eImprovement, const Cv
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	if(pPlot != NULL && NULL != pkImprovementInfo)
 	{
-		if(pPlot->isRiverSide())
+		if(pPlot->isRiver())
 		{
 			if(pkImprovementInfo->GetRiverSideUpgradeMod() > 0)
 			{

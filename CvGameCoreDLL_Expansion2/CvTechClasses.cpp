@@ -1799,8 +1799,8 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	int iResearchCost = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
 	
 	// Adjust to the player's research modifier
-	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech));
-	iResearchCost = ((iResearchCost * 10000) / iResearchMod);
+	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech)) - 100;
+	//iResearchCost = ((iResearchCost * 10000) / iResearchMod);
 
 	// Mod for City Count
 	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
@@ -1822,7 +1822,7 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 #else
 	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(/*bIncludePuppets*/ true);
 #endif
-	iResearchCost = iResearchCost * (100 + iMod) / 100;
+	iResearchCost = iResearchCost * (100 + iMod - iResearchMod);
 
 	// We're going to round up so that the user wont get confused when the research progress seems to be equal to the research cost, but it is not acutally done.
 	// This is because the 'real' calculations use the GameCore's fixed point math where things are multiplied by 100
@@ -1830,13 +1830,6 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 		iResearchCost = (iResearchCost / 100) + 1;
 	else
 		iResearchCost = (iResearchCost / 100);
-
-#if defined(MOD_BALANCE_CORE)
-	if(iResearchCost >= MAX_INT)
-	{
-		iResearchCost = (MAX_INT - 1);
-	}
-#endif
 
 	return iResearchCost;
 }

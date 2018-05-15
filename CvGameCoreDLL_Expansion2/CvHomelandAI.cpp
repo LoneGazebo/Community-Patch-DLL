@@ -7554,6 +7554,8 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	CvPlot *pBestTarget = NULL;
 	int iBestTurns = MAX_INT;
 
+	BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+
 	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
 	std::vector<CvHomelandTarget>::iterator it;
 	for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
@@ -7582,6 +7584,9 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		}
 
 		if (bIgnore)
+			continue;
+
+		if (eBuild == NO_BUILD || !pUnit->canBuild(pTarget, eBuild))
 			continue;
 
 		if (pUnit->GetDanger(pTarget) == 0 && !m_pPlayer->IsAtWarWith(pTarget->getOwner()))

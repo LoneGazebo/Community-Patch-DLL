@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3578,11 +3578,8 @@ void updateKnownPlayersTable()
 
 		for (int j = 0; j < MAX_MAJOR_CIVS; j++) {
 			if (i == j || kTeam.isHasMet((TeamTypes)j))
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-				bitarray |= 1LL << j;
-#else
-				bitarray |= 1 << j;
-#endif
+
+				bitarray |= KnownPlayersBitArray(1) << j;
 		}
 		s_knownPlayersTable[i] = bitarray;
 	}
@@ -3610,11 +3607,9 @@ bool isKnownPlayer(PlayerTypes eA, PlayerTypes eB) {
 	if (s_knownPlayersTable.empty()) return true;
 	if (eA < 0 || eB < 0) return true; // erring on the side of caution
 	if ((size_t)eA >= s_knownPlayersTable.size() || (size_t)eB >= s_knownPlayersTable.size()) return true; // erring on the side of caution
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-	bool bKnown = s_knownPlayersTable[eA] & (1LL << eB);
-#else
-	bool bKnown = s_knownPlayersTable[eA] & (1 << eB);
-#endif
+
+	bool bKnown = s_knownPlayersTable[eA] & (KnownPlayersBitArray(1) << eB);
+
 	return bKnown;
 }
 #endif
