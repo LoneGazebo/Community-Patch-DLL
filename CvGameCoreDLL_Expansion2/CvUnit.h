@@ -706,9 +706,6 @@ public:
 	void ChangeIsFriendlyLands(int iValue);
 	int GetIsFriendlyLands() const;
 	bool isFriendlyLands() const;
-	void ChangeIsEnemyLands(int iValue);
-	int GetIsEnemyLands() const;
-	bool isEnemyLands() const;
 	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
 	int getStackedGreatGeneralExperience() const;
@@ -2044,7 +2041,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
-	FAutoVariable<int, CvUnit> m_bIsEnemyLands;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;

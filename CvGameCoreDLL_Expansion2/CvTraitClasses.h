@@ -156,6 +156,7 @@ public:
 	bool IsConquestOfTheWorld() const;
 	bool IsFreeUpgrade() const;
 	bool IsWarsawPact() const;
+	PromotionTypes GetEnemyWarSawPactPromotion() const;
 	bool IsFreeZuluPikemanToImpi() const;
 	bool IsPermanentYieldsDecreaseEveryEra() const;
 	bool IsImportsCountTowardsMonopolies() const;
@@ -490,6 +491,7 @@ protected:
 	bool m_bConquestOfTheWorld;
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
+	int m_iEnemyWarSawPactPromotion;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
@@ -1207,6 +1209,10 @@ public:
 	bool IsWarsawPact() const
 	{
 		return m_bWarsawPact;
+	};
+	PromotionTypes GetEnemyWarSawPactPromotion() const
+	{
+		return (PromotionTypes)m_iEnemyWarSawPactPromotion;
 	};
 	int GetSharedReligionTourismModifier() const
 	{
@@ -1952,6 +1958,7 @@ private:
 	bool m_bConquestOfTheWorld;
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
+	int m_iEnemyWarSawPactPromotion;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
