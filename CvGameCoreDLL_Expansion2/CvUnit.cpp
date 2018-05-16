@@ -23967,24 +23967,24 @@ void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 			}
 		}
 		CvPlayer& pUnitPlayer = GET_PLAYER(getOwner());
-		if(pUnitPlayer.IsAtWar())
+		const std::vector<PlayerTypes>& vEnemies = pUnitPlayer.GetPlayersAtWarWith();
+		for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 		{
-			const std::vector<PlayerTypes>& vEnemies = pUnitPlayer.GetPlayersAtWarWith();
-			for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+			CvPlayer& kPlayer = GET_PLAYER(*it);
+			if (kPlayer.GetPlayerTraits()->IsWarsawPact())
 			{
-				CvPlayer& kPlayer = GET_PLAYER(*it);
-				if (kPlayer.GetPlayerTraits()->IsWarsawPact())
+				const PromotionTypes eWarSawPactPromotion = kPlayer.GetPlayerTraits()->GetEnemyWarSawPactPromotion();
+				if ((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID())
+					|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1)
+					|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
 				{
-					if ((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID())
-						|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1)
-						|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
-					{
-						setHasPromotion(kPlayer.GetPlayerTraits()->GetEnemyWarSawPactPromotion(), true);
-					}
-					else
-					{
+					if(eWarSawPactPromotion != NO_PROMOTION && !isHasPromotion(eWarSawPactPromotion))
+						setHasPromotion(eWarSawPactPromotion, true);
+				}
+				else
+				{
+					if (eWarSawPactPromotion != NO_PROMOTION && isHasPromotion(eWarSawPactPromotion))
 						setHasPromotion(kPlayer.GetPlayerTraits()->GetEnemyWarSawPactPromotion(), false);
-					}
 				}
 			}
 		}
