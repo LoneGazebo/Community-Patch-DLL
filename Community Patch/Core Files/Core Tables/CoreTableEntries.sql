@@ -1245,6 +1245,7 @@ ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 ALTER TABLE Traits ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
 
 -- Can send gold internal trade routes; gold yield calculated as if international, culture and science calculated as if allied city state. Only sender city gets the yields.
+-- Note: Requires BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES in CustomModOptions to be set to 1 (0 by default for performance).
 ALTER TABLE Traits ADD COLUMN 'CanGoldInternalTradeRoutes' BOOLEAN DEFAULT 0;
 
 -- Additional trade routes based on the number of owned cities

@@ -3709,6 +3709,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(MOD_BALANCE_CORE)
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
+					if (eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE)
+					{
+						iDistanceModifier = 0;
+					}
 					iModifier -= iDistanceModifier;
 					iModifier += iCorporationModifier;
 #endif
@@ -3954,6 +3958,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 	#if defined(MOD_BALANCE_CORE)
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
+					if (eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE)
+					{
+						iDistanceModifier = 0;
+					}
 					iModifier -= iDistanceModifier;
 					iModifier += iCorporationModifier;
 	#endif
@@ -4059,6 +4067,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iModifier = 100;
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 						int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
+						if (eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE)
+						{
+							iDistanceModifier = 0;
+						}
 						int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, false /*bAsOriginPlayer*/);
 						iModifier -= iDistanceModifier;
 						iModifier += iPolicyModifier;
