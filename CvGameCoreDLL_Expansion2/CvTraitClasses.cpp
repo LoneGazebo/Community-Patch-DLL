@@ -5090,121 +5090,103 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 }
 #if defined(MOD_BALANCE_CORE)
 /// Should unique luxuries appear around this tile?
-bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
+bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGive)
 {
 	// Still have more of these cities to award?
 	bool bResult = false;
-	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
+	if (m_iUniqueLuxuryCities <= m_iUniqueLuxuryCitiesPlaced)
+		return bResult;
+
+	// Find our unique resources
+	vector<ResourceTypes> vPossibleResources;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
-		
-		// Loop through all resources and see if we can find this many unique ones
-		ResourceTypes eResourceToGive = NO_RESOURCE;
-		int iBestFlavor = 0;
-		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
 		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
+			vPossibleResources.push_back(eResource);
+
+			//if this is one we haven't got so far, boost the chance
+			if (m_pPlayer->getNumResourceTotal(eResource, false) == 0)
+				vPossibleResources.push_back(eResource);
+		}
+	}
+
+	if (vPossibleResources.empty())
+		return false;
+
+	//choose one
+	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().getNumCities() );
+	ResourceTypes eResourceToGive = vPossibleResources[iChoice];
+		
+	//first round. place on owned non-city, non-resource plots without improvement
+	int iNumResourceGiven = 0;
+	CvPlot* pLoopPlot;
+	for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
+		if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
+			pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+		{
+			if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
-				int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(10, GET_PLAYER(pCity->getOwner()).GetEconomicMight());
-				//If we've already got this resource, divide the value by the amount.
-				if(m_pPlayer->getNumResourceTotal(eResource, false) > 0)
+				pLoopPlot->setResourceType(eResourceToGive, 1, false);
+				pLoopPlot->DoFindCityToLinkResourceTo();
+				iNumResourceGiven++;
+
+				if(iNumResourceGiven >= iNumResourceToGive)
 				{
-					iRandomFlavor /= m_pPlayer->getNumResourceTotal(eResource, false);
-					iRandomFlavor += 1;
-				}
-				if(iRandomFlavor > iBestFlavor)
-				{
-					eResourceToGive = eResource;
-					iBestFlavor = iRandomFlavor;
+					bResult = true;
+					break;
 				}
 			}
 		}
+	}
 
-		if (eResourceToGive != NO_RESOURCE)
+	//second round. non-owned plots, remove improvement if necessary
+	if(iNumResourceGiven < iNumResourceToGive)
+	{
+		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 		{
-			int iNumResourceGiven = 0;
-			int iNumResourceTotal = iNumResource;
-			CvPlot* pLoopPlot;
+			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
+			if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
+				!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->getFeatureType() != FEATURE_OASIS)
+			{
+				if(pLoopPlot->getResourceType() == NO_RESOURCE)
+				{
+					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+						pLoopPlot->setImprovementType(NO_IMPROVEMENT);
 
-			for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-			{
-				pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
-					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder(true) && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
-#else
-				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
-					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder()  && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
-#endif
-				{
-					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-					{
-						pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-						pLoopPlot->setResourceType(eResourceToGive, 1, false);
-						pLoopPlot->DoFindCityToLinkResourceTo();
-						iNumResourceGiven++;
-						if(iNumResourceGiven >= iNumResourceTotal)
-						{
-							bResult = true;
-							break;
-						}
-					}
-				}
-			}
-			if(iNumResourceGiven < iNumResourceTotal)
-			{
+					pLoopPlot->setResourceType(eResourceToGive, 1, false);
+					pLoopPlot->DoFindCityToLinkResourceTo();
+					iNumResourceGiven++;
 
-				for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-				{
-					pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
-						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder(true) && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
-#else
-					if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(pCity->getOwner()) && 
-						!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
-#endif
+					if(iNumResourceGiven >= iNumResourceToGive)
 					{
-						if(pLoopPlot->getResourceType() == NO_RESOURCE)
-						{
-							if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-							{
-								pLoopPlot->setImprovementType(NO_IMPROVEMENT);
-							}
-							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-							pLoopPlot->setResourceType(eResourceToGive, 1, false);
-							pLoopPlot->DoFindCityToLinkResourceTo();
-							iNumResourceGiven++;
-							if(iNumResourceGiven >= iNumResourceTotal)
-							{
-								break;
-							}
-							bResult = true;
-						}
-					}
-				}
-			}
-			if(iNumResourceGiven < iNumResourceTotal)
-			{
-				if(pCity->plot()->getResourceType() == NO_RESOURCE)
-				{
-					pCity->plot()->setResourceType(NO_RESOURCE, 0, false);
-					pCity->plot()->setResourceType(eResourceToGive, iNumResourceGiven, false);
-					bResult = true;
-				}
-				else
-				{
-					if (eResourceToGive != NO_RESOURCE)
-					{
-						m_pPlayer->changeNumResourceTotal(eResourceToGive, iNumResource);
 						bResult = true;
+						break;
 					}
 				}
 			}
 		}
 	}
+
+	//third round, city center plot
+	if(iNumResourceGiven < iNumResourceToGive)
+	{
+		ResourceTypes eCurrentResource = pCity->plot()->getResourceType();
+		if(eCurrentResource == NO_RESOURCE)
+		{
+			pCity->plot()->setResourceType(eResourceToGive, 1, false);
+			pCity->plot()->DoFindCityToLinkResourceTo();
+			bResult = true;
+		}
+	}
+
+	if (bResult)
+		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
+
 	return bResult;
 }
 

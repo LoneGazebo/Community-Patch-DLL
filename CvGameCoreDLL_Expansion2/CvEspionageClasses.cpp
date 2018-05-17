@@ -3184,7 +3184,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	// randomize that list
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		uint uiTargetSlot = GC.getGame().getSmallFakeRandNum(aiMajorCivIndex.size(), *pCity->plot());
+		uint uiTargetSlot = GC.getGame().getSmallFakeRandNum(aiMajorCivIndex.size(),pCity->plot()->GetPlotIndex()+ui);
 		int iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
@@ -3469,7 +3469,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	// randomize that list
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		uint uiTargetSlot = GC.getGame().getSmallFakeRandNum(aiMajorCivIndex.size(), *pCity->plot());
+		uint uiTargetSlot = GC.getGame().getSmallFakeRandNum(aiMajorCivIndex.size(),pCity->plot()->GetPlotIndex()+ui);
 		int iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;

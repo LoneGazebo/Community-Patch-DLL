@@ -28616,7 +28616,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			// No prophets
 			if(!pkUnitEntry->IsFoundReligion())
 			{
-				int iScore = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+				int iScore = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()+iX+iY) * 10;
 
 				if(iScore > iBestScore)
 				{
@@ -28904,7 +28904,7 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 				if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != GetID())
 					continue;
 
-				iScore = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+				iScore = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()+iMinorLoop) * 10;
 
 				// Best ally yet?
 				if(eBestMinor == NO_PLAYER || iScore > iBestScore)
@@ -30942,52 +30942,47 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	int iEventGP = GetPlayerTraits()->GetEventGP();
 	if(pCapital != NULL && iEventGP > 0)
 	{
-		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-		int iBestValue = 0;
-		for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+		vector<SpecialistTypes> vPossibleSpecialists;
+		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 		{
 			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-			if(pkSpecialistInfo)
+			if (pkSpecialistInfo)
 			{
 				// Does this Specialist spawn a GP?
-				if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+				if (pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
 				{
-					int iRandom = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+					vPossibleSpecialists.push_back(eSpecialist);
+
+					//boost the chance if we have a slot for the corresponding great work
 					if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{ 
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) <= 0)
+						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) > 0)
 						{
-							iRandom /= 2;
+							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) <= 0)
+						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT()) > 0)
 						{
-							iRandom /= 2;
+							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
-						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) <= 0)
+						if(GetCulture()->GetNumAvailableGreatWorkSlots(CvTypes::getGREAT_WORK_SLOT_MUSIC()) > 0)
 						{
-							iRandom /= 2;
+							vPossibleSpecialists.push_back(eSpecialist);
 						}
 					}
-					//Guarantee at least one.
-					if(iRandom == 0)
-					{
-						iRandom = 1;
-					}
-					if(iRandom > iBestValue)
-					{
-						iBestValue = iRandom;
-						eBestSpecialist = eSpecialist;
-					}			
 				}
 			}
 		}
+
+		//choose one
+		int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleSpecialists.size(), GetEconomicMight() + GC.getGame().getNumCities() );
+		SpecialistTypes eBestSpecialist = vPossibleSpecialists.empty() ? NO_SPECIALIST : vPossibleSpecialists[iChoice];
 		if(eBestSpecialist != NO_SPECIALIST)
 		{
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
@@ -46506,11 +46501,7 @@ void CvPlayer::UpdateAreaEffectPlots()
 		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-			if (pPlot && pPlot->IsNaturalWonder(true))
-#else
 			if (pPlot && pPlot->IsNaturalWonder())
-#endif
 				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
 		}
 	}
@@ -46693,14 +46684,8 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if (pPlot && pPlot->IsNaturalWonder(true))
-#else
 		if (pPlot && pPlot->IsNaturalWonder())
-#endif
-		{
 			iValue++;
-		}
 	}
 	return iValue;
 }

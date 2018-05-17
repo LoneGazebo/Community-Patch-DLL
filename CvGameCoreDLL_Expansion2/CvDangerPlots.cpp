@@ -771,7 +771,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	return 0;
 }
 
-#define DANGER_MAX_CACHE_SIZE 3
+#define DANGER_MAX_CACHE_SIZE 9
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
 int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
