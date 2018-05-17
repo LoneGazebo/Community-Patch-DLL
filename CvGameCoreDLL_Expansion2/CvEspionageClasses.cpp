@@ -9113,7 +9113,7 @@ void CvEspionageAI::StealGreatWork()
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0, "pEspionage->m_aPlayerStealableGWList[uiPlayer] list is empty. Not good");
 			
-			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->GetEconomicMight());
+			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->GetEconomicMight() + uiDefendingPlayer);
 			int iCityLoop;
 			CvCity* pPlayerCity = NULL;
 			int iGreatWorkIndex;
@@ -9353,7 +9353,7 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + uiSpy) * 10;
 		if (iRoll < iChanceOfSuccess)
 		{
 			pEspionage->AttemptCoup(uiSpy);

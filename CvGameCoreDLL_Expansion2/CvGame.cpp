@@ -9018,7 +9018,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 #if defined(MOD_BALANCE_CORE)
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		int iRandom = getSmallFakeRandNum(5, eLoopUnit);
+		int iRandom = getSmallFakeRandNum(5, eLoopUnit + iUnitLoop);
 #else
 		int iRandom = getJonRandNum(5, "Random Value For Gift");
 #endif
@@ -9905,7 +9905,7 @@ void CvGame::testVictory()
 			{
 				if(isVictoryAvailable(eVictory))
 				{
-					iRand = GC.getGame().getSmallFakeRandNum(iNumCompetitionWinners, iNumCompetitionWinners);
+					iRand = GC.getGame().getSmallFakeRandNum(iNumCompetitionWinners, iNumCompetitionWinners + iVictoryLoop);
 					iTeamLoop = m_aiTeamCompetitionWinnersScratchPad[iRand];
 
 					DoPlaceTeamInVictoryCompetition(eVictory, (TeamTypes) iTeamLoop);
@@ -10112,7 +10112,7 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isConquest())
 			continue;
 
-		int iScore = getSmallFakeRandNum(10, GC.getGame().GetGameCulture()->GetNumGreatWorks()) * 10;
+		int iScore = getSmallFakeRandNum(10, GC.getGame().GetGameCulture()->GetNumGreatWorks()+ iVictoryLoop) * 10;
 		
 		if (pkVictoryInfo->isDiploVote())
 		{

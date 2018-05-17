@@ -10624,7 +10624,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue += GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+					iValue += GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iLoopCity) * 10;
 					iValue -= pLoopCity->getStrengthValue() / 100;
 					if(iValue <= 0)
 					{
@@ -18200,7 +18200,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*50*/ GC.getPERMANENT_WAR_OTHER_AT_WAR();
 
-			iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+			iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iMinorCivLoop) * 10;
 			if(iRand < iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))
@@ -18469,7 +18469,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 				}
 
 				// Random factor so that the same thing isn't always picked
-				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->GetEconomicMight());
+				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->GetEconomicMight() + iTechLoop);
 
 				TechVector.push_back(iTechLoop, iValue);
 			}
