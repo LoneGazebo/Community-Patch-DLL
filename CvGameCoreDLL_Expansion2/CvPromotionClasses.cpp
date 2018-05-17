@@ -231,7 +231,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyEnemyCityCombatMod(0),
 	m_bIsNearbyPromotion(false),
 	m_bIsFriendlyLands(false),
-	m_bEnemyLands(false),
 	m_iNearbyRange(0),
 	m_eRequiredUnit(NO_UNIT),
 	m_iConvertDomainUnit(NO_UNIT),
@@ -488,7 +487,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
-	m_bEnemyLands = kResults.GetBool("EnemyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
 	const char* szUnitType = kResults.GetText("RequiredUnit");
 	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
@@ -2244,10 +2242,6 @@ bool CvPromotionEntry::IsNearbyPromotion() const
 bool CvPromotionEntry::IsFriendlyLands() const
 {
 	return m_bIsFriendlyLands;
-}
-bool CvPromotionEntry::IsEnemyLands() const
-{
-	return m_bEnemyLands;
 }
 int CvPromotionEntry::GetNearbyRange() const
 {

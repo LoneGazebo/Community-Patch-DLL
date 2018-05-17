@@ -706,9 +706,6 @@ public:
 	void ChangeIsFriendlyLands(int iValue);
 	int GetIsFriendlyLands() const;
 	bool isFriendlyLands() const;
-	void ChangeIsEnemyLands(int iValue);
-	int GetIsEnemyLands() const;
-	bool isEnemyLands() const;
 	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
 	int getStackedGreatGeneralExperience() const;
@@ -732,7 +729,7 @@ public:
 	void ChangeGiveExperiencePercent(int iValue);
 	int getGiveOutsideFriendlyLandsModifier() const;
 	void ChangeGiveOutsideFriendlyLandsModifier(int iValue);
-	bool IsGiveDomainBonus(DomainTypes eDomain) const;
+	const bool IsGiveDomainBonus(DomainTypes eDomain) const;
 	void ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue);
 	int getGiveExtraAttacks() const;
 	void ChangeGiveExtraAttacks(int iValue);
@@ -1599,6 +1596,7 @@ public:
 	bool isCultureFromExperienceDisbandUpgrade() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
+	bool isReligiousUnit() const;
 	bool isWLKTKDOnBirth() const;
 	bool isGoldenAgeOnBirth() const;
 	bool isCultureBoost() const;
@@ -2043,7 +2041,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
-	FAutoVariable<int, CvUnit> m_bIsEnemyLands;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;

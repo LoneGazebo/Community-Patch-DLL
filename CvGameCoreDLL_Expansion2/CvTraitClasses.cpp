@@ -130,6 +130,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bConquestOfTheWorld(false),
 	m_bFreeUpgrade(false),
 	m_bWarsawPact(false),
+	m_iEnemyWarSawPactPromotion(NO_PROMOTION),
 	m_bFreeZuluPikemanToImpi(false),
 	m_bPermanentYieldsDecreaseEveryEra(false),
 	m_bImportsCountTowardsMonopolies(false),
@@ -820,6 +821,10 @@ bool CvTraitEntry::IsFreeUpgrade() const
 bool CvTraitEntry::IsWarsawPact() const
 {
 	return m_bWarsawPact;
+}
+PromotionTypes CvTraitEntry::GetEnemyWarSawPactPromotion() const
+{
+	return (PromotionTypes)m_iEnemyWarSawPactPromotion;
 }
 bool CvTraitEntry::IsFreeZuluPikemanToImpi() const
 {
@@ -2160,6 +2165,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("EnemyWarSawPactPromotion");
+	if (szTextVal)
+	{
+		m_iEnemyWarSawPactPromotion = (PromotionTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
 	szTextVal = kResults.GetText("BestUnitImprovement");
 	if(szTextVal)
 	{
@@ -3491,6 +3501,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iNearbyImprovementBonusRange += trait->GetNearbyImprovementBonusRange();
 			m_iCultureBuildingYieldChange += trait->GetCultureBuildingYieldChange();
 #if defined(MOD_BALANCE_CORE)
+			m_iEnemyWarSawPactPromotion = trait->GetEnemyWarSawPactPromotion();
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
 			if(trait->IsBuyOwnedTiles())
 			{
@@ -4270,6 +4281,7 @@ void CvPlayerTraits::Reset()
 	m_bConquestOfTheWorld = false;
 	m_bFreeUpgrade = false;
 	m_bWarsawPact = false;
+	m_iEnemyWarSawPactPromotion = NO_PROMOTION;
 	m_bFreeZuluPikemanToImpi = false;
 	m_bPermanentYieldsDecreaseEveryEra = false;
 	m_bImportsCountTowardsMonopolies = false;
@@ -6261,6 +6273,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_bConquestOfTheWorld, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeUpgrade, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bWarsawPact, false);
+	MOD_SERIALIZE_READ(88, kStream, m_iEnemyWarSawPactPromotion, NO_PROMOTION);
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
@@ -6658,8 +6671,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_eGPFaithPurchaseEra, NO_ERA);
 	MOD_SERIALIZE_READ(66, kStream, m_iFaithCostModifier, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -6853,6 +6866,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bConquestOfTheWorld);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeUpgrade);
 	MOD_SERIALIZE_WRITE(kStream, m_bWarsawPact);
+	MOD_SERIALIZE_WRITE(kStream, m_iEnemyWarSawPactPromotion);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
 	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
 	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
