@@ -1842,11 +1842,7 @@ void CvMap::DoPlaceNaturalWonders()
 
 				if(pLoopPlot != NULL)
 				{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-					if(pLoopPlot->IsNaturalWonder(true))
-#else
 					if(pLoopPlot->IsNaturalWonder())
-#endif
 					{
 						// Found a NW too close
 						bValid = false;

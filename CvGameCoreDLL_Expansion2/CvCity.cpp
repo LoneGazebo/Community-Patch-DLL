@@ -1043,11 +1043,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange3);
 			if(pLoopPlot != NULL)
 			{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-				if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder(true))
-#else
 				if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
-#endif
 				{
 					iMountain++;
 				}
@@ -13557,52 +13553,62 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0) && (iChange > 0) && bFirst)
 			{
-				if(!GET_PLAYER(getOwner()).GetPlayerTraits()->GetUniqueLuxuryCities())
+				CvPlayer& kPlayer = GET_PLAYER(getOwner());
+				if(!kPlayer.GetPlayerTraits()->GetUniqueLuxuryCities())
 				{
 					// Does this building add resources?
-					int iNumResource = pBuildingInfo->GrantsRandomResourceTerritory();
-					if(iNumResource != 0)
+					int iNumResourceTotal = pBuildingInfo->GrantsRandomResourceTerritory();
+					if(iNumResourceTotal != 0)
 					{
-						// Loop through all resources and see if we can find this many unique ones
-						ResourceTypes eResourceToGive = NO_RESOURCE;
-						int iBestFlavor = 0;
-						for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+						// Find our unique resources
+						vector<ResourceTypes> vPossibleResources;
+						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 						{
-							ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
 							CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-							if (pkResource != NULL && pkResource->GetRequiredCivilization() == owningPlayer.getCivilizationType())
+							if (pkResource != NULL && pkResource->GetRequiredCivilization() == kPlayer.getCivilizationType())
 							{
-								int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+getPopulation()) * 10;
-								//If we've already got this resource, divide the value by the amount.
-								if(owningPlayer.getNumResourceTotal(eResource, false) > 0)
-								{
-									iRandomFlavor /= owningPlayer.getNumResourceTotal(eResource, false);
-									iRandomFlavor += 1;
-								}
-								if(iRandomFlavor > iBestFlavor)
-								{
-									eResourceToGive = eResource;
-									iBestFlavor = iRandomFlavor;
-								}
+								vPossibleResources.push_back(eResource);
+
+								//if this is one we haven't got so far, boost the chance
+								if (kPlayer.getNumResourceTotal(eResource, false) == 0)
+									vPossibleResources.push_back(eResource);
 							}
 						}
 
-						if (eResourceToGive != NO_RESOURCE)
-						{
-							int iNumResourceGiven = 0;
-							int iNumResourceTotal = iNumResource;
-							CvPlot* pLoopPlot;
+						//choose one
+						int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), plot()->GetPlotIndex() + GC.getGame().getNumCities() );
+						ResourceTypes eResourceToGive = vPossibleResources[iChoice];
 
+						int iNumResourceGiven = 0;
+						CvPlot* pLoopPlot;
+
+						for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+						{
+							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
+							if( pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() && 
+								pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder()  && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+							{
+								if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+								{
+									pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+									pLoopPlot->setResourceType(eResourceToGive, 1, false);
+									pLoopPlot->DoFindCityToLinkResourceTo();
+									iNumResourceGiven++;
+									if(iNumResourceGiven >= iNumResourceTotal)
+									{
+										break;
+									}
+								}
+							}
+						}
+						if(iNumResourceGiven < iNumResourceTotal)
+						{
 							for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 							{
 								pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-								if(pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() && 
-									pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder(true) && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
-#else
-								if( pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() && 
-									pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder()  && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
-#endif
+								if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) && 
+									!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 								{
 									if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 									{
@@ -13617,48 +13623,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									}
 								}
 							}
-							if(iNumResourceGiven < iNumResourceTotal)
-							{
-								for(int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
-								{
-									pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-									if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) && 
-										!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder(true) && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
-#else
-									if( pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) && 
-										!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
-#endif
-									{
-										if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-										{
-											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
-											pLoopPlot->setResourceType(eResourceToGive, 1, false);
-											pLoopPlot->DoFindCityToLinkResourceTo();
-											iNumResourceGiven++;
-											if(iNumResourceGiven >= iNumResourceTotal)
-											{
-												break;
-											}
-										}
-									}
-								}
-							}
-							if(iNumResourceGiven < iNumResourceTotal)
-							{
-								if(plot()->getResourceType() == NO_RESOURCE)
-								{
-									plot()->setResourceType(NO_RESOURCE, 0, false);
-									plot()->setResourceType(eResourceToGive, iNumResourceGiven, false);
-								}
-								else
-								{
-									if (eResourceToGive != NO_RESOURCE)
-									{
-										owningPlayer.changeNumResourceTotal(eResourceToGive, iNumResource);
-									}
-								}
-							}
+						}
+						if(iNumResourceGiven < iNumResourceTotal)
+						{
+							ResourceTypes eCurrentResource = plot()->getResourceType();
+							if (eCurrentResource == NO_RESOURCE)
+								plot()->setResourceType(eResourceToGive, 1, false);
 						}
 					}
 				}
@@ -16731,7 +16701,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 										continue;
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
-										int iChance = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 10;
+										int iChance = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation() + iUnitLoop) * 10;
 										if(iChance < 50)
 										{
 											continue;
@@ -18302,11 +18272,7 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 	//Passed in a feature? Use that.
 	if(eFeature != NO_FEATURE)
 	{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if (!GC.getFeatureInfo(eFeature)->IsNaturalWonder(true))
-#else
 		if (!GC.getFeatureInfo(eFeature)->IsNaturalWonder())
-#endif
 		{
 			int iBaseYield = kPlayer.getCityYieldFromUnimprovedFeature(eFeature, eYield);
 			iBaseYield += kPlayer.GetPlayerTraits()->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
@@ -24317,14 +24283,14 @@ void CvCity::DoBarbIncursion()
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
 					//this can happen multiple times per turn, be sure to include the unit id or similar
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 18;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pLoopPlot->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 18;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation() + pUnit->GetID());
+							int iYield = GC.getGame().getSmallFakeRandNum(10, pLoopPlot->GetPlotIndex() + getPopulation() + pUnit->GetID());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -26187,11 +26153,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					}
 
 					// while we're at it grab Natural Wonders quickly also
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-					if (pLoopPlot->IsNaturalWonder(true))
-#else
 					if (pLoopPlot->IsNaturalWonder())
-#endif
 					{
 						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
 					}
@@ -26231,11 +26193,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 								if (iPlotDistance <= iWorkPlotDistance) // grab for this city
 								{
-	#if defined(MOD_PSEUDO_NATURAL_WONDER)
-									if (pAdjacentPlot->IsNaturalWonder(true))
-	#else
 									if (pAdjacentPlot->IsNaturalWonder())
-	#endif
 										bUnownedNaturalWonderAdjacentCount = true;
 
 									if (pAdjacentPlot->getOwner() != NO_PLAYER && pAdjacentPlot->getTeam() != getTeam())
@@ -26478,11 +26436,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 							break;
 						}
 						//Natural Wonder? Grr!!!!
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-						if(pPlot->IsNaturalWonder(true))
-#else
 						if(pPlot->IsNaturalWonder())
-#endif
 						{
 							pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 3);
 							break;
@@ -30318,11 +30272,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 				pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMountainRange);
 				if(pLoopPlot)
 				{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-					if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder(true) && pLoopPlot->getOwner() == getOwner())
-#else
 					if(pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->getOwner() == getOwner())
-#endif
 					{
 						bFoundMountain = true;
 						break;
@@ -31919,11 +31869,7 @@ bool CvCity::HasAnyNaturalWonder() const
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
 			continue;
 		}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if (pLoopPlot->IsNaturalWonder(true)) {
-#else
 		if (pLoopPlot->IsNaturalWonder()) {
-#endif
 			return true;
 		}
 	}

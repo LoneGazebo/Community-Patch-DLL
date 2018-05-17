@@ -7411,19 +7411,16 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 //	--------------------------------------------------------------------------------
 /// Does this plot have a natural wonder?
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
 bool CvPlot::IsNaturalWonder(bool orPseudoNatural) const
-#else
-bool CvPlot::IsNaturalWonder() const
-#endif
 {
 	FeatureTypes eFeature = getFeatureType();
-
 	if(eFeature == NO_FEATURE)
 		return false;
+
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 	return GC.getFeatureInfo(eFeature)->IsNaturalWonder() || (orPseudoNatural && GC.getFeatureInfo(eFeature)->IsPseudoNaturalWonder());
 #else
+	orPseudoNatural; //ignore this
 	return GC.getFeatureInfo(eFeature)->IsNaturalWonder();
 #endif
 }
@@ -7495,7 +7492,7 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 
 	if(m_eResourceType != eNewValue)
 	{
-		if (eNewValue != -1)
+		if (eNewValue != NO_RESOURCE)
 		{
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eNewValue);
 			if (pkResourceInfo)
@@ -9905,11 +9902,7 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 	{
 		iYield += kYield.getMountainChange();
 #if defined(MOD_BALANCE_CORE)
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if(ePlayer != NO_PLAYER && !IsNaturalWonder(true))
-#else
 		if(ePlayer != NO_PLAYER && !IsNaturalWonder())
-#endif
 		{
 			int iRangeYield = GET_PLAYER(ePlayer).GetPlayerTraits()->GetMountainRangeYield(eYield);
 			int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
@@ -10163,11 +10156,7 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 	if(eTeam != NO_TEAM)
 	{
 		int iBonusYield = ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GET_TEAM(eTeam).getTerrainYieldChange(getTerrainType(), eYield) : GET_TEAM(eTeam).getFeatureYieldChange(getFeatureType(), eYield));
-#if defined(MOD_PSEUDO_NATURAL_WONDER)		
-		if(IsNaturalWonder(true) && !bIgnoreFeature && m_eOwner != NO_PLAYER)
-#else
 		if(IsNaturalWonder() && !bIgnoreFeature && m_eOwner != NO_PLAYER)
-#endif
 		{
 			int iMod = GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetNaturalWonderYieldModifier();
 			if(iMod > 0)
@@ -12009,11 +11998,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 #if defined(MOD_BALANCE_CORE)
 			if (pUnit && (pUnit->IsGainsXPFromScouting() || pUnit->IsGainsYieldFromScouting()) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 			{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-				if(IsNaturalWonder(true))
-#else
 				if(IsNaturalWonder())
-#endif
 				{
 					pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
 				}
@@ -15182,11 +15167,7 @@ bool CvPlot::IsFeatureRiver() const
 
 bool CvPlot::HasAnyNaturalWonder() const
 {
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-	return IsNaturalWonder(true);
-#else
 	return IsNaturalWonder();
-#endif
 }
 
 bool CvPlot::HasNaturalWonder(FeatureTypes iFeatureType) const
