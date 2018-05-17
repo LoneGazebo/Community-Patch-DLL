@@ -2877,14 +2877,14 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if(iDamageLevel == 1)
 					{
 						iBaseDamage = /*30*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), pkCity->getPopulation());
-						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), pkCity->GetPower());
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), pkCity->getPopulation() + i);
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), pkCity->GetPower() +i);
 					}
 					else
 					{
 						iBaseDamage = /*60*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), pkCity->getPopulation());
-						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), pkCity->GetPower());
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), pkCity->getPopulation() + i);
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), pkCity->GetPower() + i);
 					}
 
 					int iNukedPopulation = pkCity->getPopulation() * (iBaseDamage + iRandDamage1 + iRandDamage2) / 100;
@@ -2987,7 +2987,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								// How much destruction is unleashed on nearby Units?
 								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
-									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), *pLoopPlot) + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), pLoopUnit->GetID()));
+									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), *pLoopPlot) + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), pLoopUnit->GetID() + iDX + iDY));
 								}
 								// Wipe everything out
 								else

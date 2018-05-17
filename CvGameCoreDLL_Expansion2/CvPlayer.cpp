@@ -4416,7 +4416,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								// here would be a good place to put additional checks (for example, influence)
-								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GetEconomicMight());
+								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID() + iI) + GC.getGame().getSmallFakeRandNum(32, GetEconomicMight() + iI);
 #if defined(MOD_BALANCE_CORE)
 								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (iConquestChance <= pkLoopBuildingInfo->GetConquestProbability()))
 #else
@@ -9818,7 +9818,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 				{
 #if defined(MOD_CONFIG_AI_IN_XML)
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital(), pNewCity, GetID(), true);
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital() ? true : false, pNewCity, GetID(), true);
 					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
 #else
 					int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
@@ -10087,7 +10087,7 @@ void CvPlayer::disbandUnit(bool)
 				if(pLoopUnit->getUnitInfo().GetProductionCost() > 0)
 				{
 					{
-						iValue = (10000 + GC.getGame().getSmallFakeRandNum(10, pLoopUnit->GetID()) * 100);
+						iValue = (10000 + GC.getGame().getSmallFakeRandNum(10, pLoopUnit->GetID() + iLoop) * 100);
 
 						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
 
@@ -20916,7 +20916,7 @@ void CvPlayer::DoUprising()
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iTempWeight = pLoopCity->getPopulation();
-		iTempWeight += theGame.getSmallFakeRandNum(10, GetEconomicMight());
+		iTempWeight += theGame.getSmallFakeRandNum(10, GetEconomicMight() + iLoop);
 
 		if(iTempWeight > iBestWeight)
 		{
@@ -20959,7 +20959,7 @@ void CvPlayer::DoUprising()
 			if(pPlot->getNumUnits() > 0)
 				continue;
 
-			iTempWeight = theGame.getSmallFakeRandNum(10, GetEconomicMight());
+			iTempWeight = theGame.getSmallFakeRandNum(10, GetEconomicMight() + iPlotLoop);
 
 			// Add weight if there's an improvement here!
 			if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -28944,7 +28944,7 @@ CvCity* CvPlayer::GetGreatPersonSpawnCity(UnitTypes eUnit)
 				continue;
 			}
 
-			int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight());
+			int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight() + iLoop);
 
 			for(int i = 0; i < NUM_YIELD_TYPES; i++)
 			{
@@ -32717,7 +32717,7 @@ void CvPlayer::setCombatExperience(int iExperience)
 					int iLoop;
 					for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight());
+						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight() + iLoop);
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -32929,7 +32929,7 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 							continue;
 						}
 
-						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight());
+						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight() + iLoop);
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -42930,7 +42930,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 							{
-								int iChance = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+								int iChance = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight() + iUnitLoop) * 10;
 								if(iChance < 50)
 								{
 									continue;

@@ -3811,7 +3811,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight());
+				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight() + iLoop);
 
 				if(iTempWeight > iBestWeight)
 				{

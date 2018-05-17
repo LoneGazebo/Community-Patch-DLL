@@ -12439,7 +12439,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 								{
 									if(thisResourceInfo->isFeature(newImprovementEntry.GetCreatedFeature()) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
 									{
-										if(GC.getGame().getSmallFakeRandNum(10, eBuild) == 5)
+										if(GC.getGame().getSmallFakeRandNum(10, eBuild + iI) == 5)
 										{
 											// Good we passed. Now let's add a resource.
 											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
