@@ -818,10 +818,9 @@ function HappinessTipHandler( control )
 		-- Happiness/Population calculation.
 		local iPopulation = pPlayer:GetCurrentTotalPop();
 		local iPopNeeded = pPlayer:GetPopNeededForLux();
-		local iGetLuxuryBonus = (100 * pPlayer:GetLuxuryBonusPlusOne(0));
-		local iGetLuxuryBonusPlusOne = (100 * pPlayer:GetLuxuryBonusPlusOne(1));
-		if(iGetLuxuryBonusPlusOne > 0) then
-			strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, Locale.ToNumber( ((iGetLuxuryBonusPlusOne - iGetLuxuryBonus) / 100), "#.##" ));
+		local iGetLuxuryBonus = pPlayer:GetBaseLuxuryHappiness();
+		if(iGetLuxuryBonus > 0) then
+			strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iGetLuxuryBonus);
 		end
 -- END
 	

@@ -596,6 +596,26 @@ function GetAllyToolTip( majorPlayerID, minorPlayerID )
 	return toolTip
 end
 
+
+-- Vox Populi contender info
+function GetContenderInfo(majorPlayerID, minorPlayerID)
+	local pMinor = Players[ minorPlayerID ]
+	if not pMinor then return "error" end
+	
+	local iContInfluence = 0
+	local eAllyID = pMinor:GetAlly()
+	
+	for ePlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+		if ePlayer ~= eAllyID then
+			local iInfluence = pMinor:GetMinorCivFriendshipWithMajor(ePlayer)
+			if iInfluence > iContInfluence then iContInfluence = iInfluence end
+		end
+	end
+	
+	return tostring(iContInfluence).."[ICON_INFLUENCE]"
+end
+
+
 local isMinorCivQuestForPlayer
 if gk_mode then
 	if bnw_mode then

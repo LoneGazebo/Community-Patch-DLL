@@ -651,7 +651,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		pLoopPlot->changeVisibilityCount(GetID(), pLoopPlot->getVisibilityCount(eTeam), NO_INVISIBLE, true, false);
-
+		pLoopPlot->changeInvisibleVisibilityCountUnit(GetID(), pLoopPlot->getInvisibleVisibilityCountUnit(eTeam));
 		for(iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 		{
 			pLoopPlot->changeInvisibleVisibilityCount(GetID(), ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)));
@@ -1334,27 +1334,6 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 #endif
 
 	CvPlayerManager::Refresh(true);
-
-	//refresh tactical AI as well!
-	// Refreshing all alive players in CvPlayerManager, so no need for this. However, refreshing all might not be required. Have checked in the commented code to show that the refresh needs to be forced.
-	/*for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
-	{
-		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
-		{
-			kAttackingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
-			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
-			{
-				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-				if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
-				{
-					kDefendingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
-				}
-			}
-		}
-	}*/
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -2204,27 +2183,6 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 #endif
 
 	CvPlayerManager::Refresh(true);
-
-	//refresh tactical AI as well!
-	// Refreshing all alive players in CvPlayerManager, so no need for this. However, refreshing all might not be required. Have checked in the commented code to show that the refresh needs to be forced.
-	/*for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
-	{
-		PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-		CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-		if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
-		{
-			kAttackingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
-			for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
-			{
-				PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-				CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-				if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
-				{
-					kDefendingPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
-				}
-			}
-		}
-	}*/
 }
 
 //	------------------------------------------------------------------------------------------------
@@ -4344,19 +4302,15 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 			{
 				if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
 				{
+					PromotionTypes ePromotionEmbarkation = GET_PLAYER((PlayerTypes)iI).GetEmbarkationPromotion();
 					for(pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 					{
 						// Land Unit
 						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
 						{
-							// If we're in friendly territory and we can embark, give the promotion for free
-							if(pLoopUnit->plot()->IsFriendlyTerritory((PlayerTypes)iI))
-							{
-								// Civilian unit or the unit can acquire this promotion
-								PromotionTypes ePromotionEmbarkation = GET_PLAYER((PlayerTypes)iI).GetEmbarkationPromotion();
-								if(!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
-									pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
-							}
+							// Civilian unit or the unit can acquire this promotion
+							if(!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
+								pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
 						}
 					}
 				}
@@ -7072,108 +7026,17 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				}
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if(MOD_DIPLOMACY_CIV4_FEATURES && !bNoBonus)
+				if (MOD_DIPLOMACY_CIV4_FEATURES && !bNoBonus && GetNumVassals() > 0)
 				{
-					CvCity* pLoopCity;
-					int iLoop;
-					PlayerTypes eLoopPlayer;
-
 					// Check all players on this team
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (int iI = 0; iI < MAX_PLAYERS; iI++)
 					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+						CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 
-						if(GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+						if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 						{
-							// Look at all Cities
-							bool bMaster = false;
-							CvCity* pMasterCity = NULL;
-							int iSum = 0;
-							for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
-							{
-								for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-								{
-									const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-									if(pkBuildingInfo)
-									{
-										// Has this Building
-										if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-										{
-											if(pkBuildingInfo->IsVassalLevyEra() && GetNumVassals() > 0)
-											{
-												bMaster = true;
-												pMasterCity = pLoopCity;
-												break;
-											}
-										}
-									}
-								}
-							}
-							if(bMaster && pMasterCity != NULL)
-							{
-								std::vector<UnitTypes> aExtraUnits;
-								std::vector<UnitAITypes> aExtraUnitAITypes;
-								CvUnit* pLoopUnit = NULL;
-								int iLoop = 0;
-								for(pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
-								{
-									if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
-									{
-										UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
-										UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
-
-										// check for duplicate unit
-										bool bAddUnit = true;
-										for (uint ui = 0; ui < aExtraUnits.size(); ui++)
-										{
-											if (aExtraUnits[ui] == eCurrentUnitType)
-											{
-												bAddUnit = false;
-											}
-										}
-
-										if (bAddUnit)
-										{
-											aExtraUnits.push_back(eCurrentUnitType);
-											aExtraUnitAITypes.push_back(eCurrentUnitAIType);
-										}
-									}
-								}
-								if (aExtraUnits.size() > 0)
-								{
-									int iTotal = GetNumVassals() * 2;
-									for (int iK = 0; iK < iTotal; iK++)
-									{
-										int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), *pMasterCity->plot());
-										CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
-										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
-										if (bJumpSuccess)
-										{
-											pMasterCity->addProductionExperience(pNewUnit);
-											iSum++;
-										}
-										if (!bJumpSuccess)
-										{
-											pNewUnit->kill(false);
-											break;
-										}
-									}
-									if (iSum > 0)
-									{
-										CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-										if (pNotifications && eLoopPlayer == GC.getGame().getActivePlayer())
-										{
-											Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY");
-											strText << iSum;
-											Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY");
-											strSummary << iSum;
-											pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pMasterCity->getX(), pMasterCity->getY(), -1);
-										}
-									}
-								}
-							}
+							kPlayer.SetVassalLevy(true);
 						}
 					}
 				}
@@ -7329,78 +7192,17 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-							if(MOD_DIPLOMACY_CIV4_FEATURES && !bNoBonus)
+							if (MOD_DIPLOMACY_CIV4_FEATURES && !bNoBonus && GetNumVassals() > 0)
 							{
-								CvCity* pLoopCity;
-								int iLoop;
-								PlayerTypes eLoopPlayer;
-
 								// Check all players on this team
-								for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+								for (int iI = 0; iI < MAX_PLAYERS; iI++)
 								{
-									eLoopPlayer = (PlayerTypes) iPlayerLoop;
+									const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 
-									if(GET_PLAYER(eLoopPlayer).getTeam() == GetID() && eLoopPlayer == GC.getGame().getActivePlayer())
+									if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 									{
-										// Look at all Cities
-										for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
-										{
-											for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-											{
-												const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-												CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-												if(pkBuildingInfo)
-												{
-													// Has this Building
-													if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-													{
-														if(pkBuildingInfo->IsVassalLevyEra() && GetNumVassals() > 0)
-														{
-															std::vector<UnitTypes> aExtraUnits;
-															std::vector<UnitAITypes> aExtraUnitAITypes;
-															CvUnit* pLoopUnit = NULL;
-															int iLoop = 0;
-															for(pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
-															{
-																if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
-																{
-																	UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
-																	UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
-
-																	// check for duplicate unit
-																	bool bAddUnit = true;
-																	for (uint ui = 0; ui < aExtraUnits.size(); ui++)
-																	{
-																		if (aExtraUnits[ui] == eCurrentUnitType)
-																		{
-																			bAddUnit = false;
-																		}
-																	}
-
-																	if (bAddUnit)
-																	{
-																		aExtraUnits.push_back(eCurrentUnitType);
-																		aExtraUnitAITypes.push_back(eCurrentUnitAIType);
-																	}
-																}
-															}
-
-															for (uint ui = 0; ui < aExtraUnits.size(); ui++)
-															{
-																CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[ui], pLoopCity->getX(), pLoopCity->getY(), aExtraUnitAITypes[ui]);
-																bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
-																if (!bJumpSuccess)
-																{
-																	pNewUnit->kill(false);
-																	break;
-																}
-															}
-														}
-													}
-												}
-											}
-										}
+										kPlayer.SetVassalLevy(true);
 									}
 								}
 							}

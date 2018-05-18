@@ -156,6 +156,7 @@ public:
 	bool IsConquestOfTheWorld() const;
 	bool IsFreeUpgrade() const;
 	bool IsWarsawPact() const;
+	PromotionTypes GetEnemyWarSawPactPromotion() const;
 	bool IsFreeZuluPikemanToImpi() const;
 	bool IsPermanentYieldsDecreaseEveryEra() const;
 	bool IsImportsCountTowardsMonopolies() const;
@@ -294,8 +295,10 @@ public:
 	int GetMountainRangeYield(int i) const;
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
 	int GetDomainFreeExperienceModifier(DomainTypes eDomain) const;
+	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -384,6 +387,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
+
 	int m_iLevelExperienceModifier;
 	int m_iGreatPeopleRateModifier;
 	int m_iGreatScientistRateModifier;
@@ -487,6 +491,7 @@ protected:
 	bool m_bConquestOfTheWorld;
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
+	int m_iEnemyWarSawPactPromotion;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
@@ -616,6 +621,7 @@ protected:
 	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
 	int** m_ppiYieldFromTileEarnTerrainType;
+	int** m_ppiYieldChangePerImprovementBuilt;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
@@ -648,6 +654,7 @@ protected:
 	bool m_bCombatBoostNearNaturalWonder;
 	int* m_piNumPledgesDomainProdMod;
 	int* m_piDomainFreeExperienceModifier;
+	int* m_piGreatPersonProgressFromPolicyUnlock;
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -753,13 +760,42 @@ public:
 	void Reset();
 	void InitPlayerTraits();
 
-	bool IsWarmonger();
-	bool IsNerd();
-	bool IsTourism();
-	bool IsDiplomat();
-	bool IsExpansionist();
-	bool IsSmaller();
-	bool IsReligious();
+	void SetIsWarmonger();
+	void SetIsNerd();
+	void SetIsTourism();
+	void SetIsDiplomat();
+	void SetIsExpansionist();
+	void SetIsSmaller();
+	void SetIsReligious();
+
+	bool IsWarmonger() const
+	{
+		return m_bIsWarmonger;
+	}
+	bool IsNerd() const
+	{
+		return m_bIsNerd;
+	}
+	bool IsTourism() const
+	{
+		return m_bIsTourism;
+	}
+	bool IsDiplomat() const
+	{
+		return m_bIsDiplomat;
+	}
+	bool IsExpansionist() const
+	{
+		return m_bIsExpansionist;
+	}
+	bool IsSmaller() const
+	{
+		return m_bIsSmaller;
+	}
+	bool IsReligious() const
+	{
+		return m_bIsReligious;
+	}
 
 	// Accessor functions
 	bool HasTrait(TraitTypes eTrait) const;
@@ -1174,6 +1210,10 @@ public:
 	{
 		return m_bWarsawPact;
 	};
+	PromotionTypes GetEnemyWarSawPactPromotion() const
+	{
+		return (PromotionTypes)m_iEnemyWarSawPactPromotion;
+	};
 	int GetSharedReligionTourismModifier() const
 	{
 		return m_iSharedReligionTourismModifier;
@@ -1534,6 +1574,10 @@ public:
 	{
 		return ((uint)eDomain < m_aiDomainFreeExperienceModifier.size()) ? m_aiDomainFreeExperienceModifier[(int)eDomain] : 0;
 	};
+	int GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const
+	{
+		return ((uint)eIndex < m_aiGreatPersonProgressFromPolicyUnlock.size()) ? m_aiGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
+	};
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
@@ -1543,6 +1587,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
@@ -1804,6 +1849,14 @@ private:
 	std::vector<bool> m_vLeaderHasTrait;
 	std::vector<TraitTypes> m_vPotentiallyActiveLeaderTraits;
 
+	bool m_bIsWarmonger;
+	bool m_bIsNerd;
+	bool m_bIsTourism;
+	bool m_bIsDiplomat;
+	bool m_bIsExpansionist;
+	bool m_bIsSmaller;
+	bool m_bIsReligious;
+
 	// Cached data about this player's traits
 	int m_iGreatPeopleRateModifier;
 	int m_iGreatScientistRateModifier;
@@ -1905,6 +1958,7 @@ private:
 	bool m_bConquestOfTheWorld;
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
+	int m_iEnemyWarSawPactPromotion;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
@@ -2038,6 +2092,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiMovesChangeUnitClass;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileEarnTerrainType;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
@@ -2098,6 +2153,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiDomainFreeExperienceModifier;
+	std::vector<int> m_aiGreatPersonProgressFromPolicyUnlock;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector<int> m_aiGreatPersonCostReduction;

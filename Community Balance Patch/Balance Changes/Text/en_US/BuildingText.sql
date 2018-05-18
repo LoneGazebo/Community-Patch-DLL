@@ -653,15 +653,15 @@ SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the Int
 WHERE Tag = 'TXT_KEY_PROCESS_INTERNATIONAL_SPACE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Panopticon'
+SET Text = 'Citizen Earth Protocol'
 WHERE Tag = 'TXT_KEY_PROJECT_UTOPIA_PROJECT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Construct the Panopticon to win a [ICON_POSITIVE_TEXT]Cultural Victory[ENDCOLOR]! Must have an Ideology (with a [COLOR_POSITIVE_TEXT]Content[ENDCOLOR] population) and be [ICON_TOURISM] Influential with all other Civilizations in the world in order to construct this.'
+SET Text = 'Construct the Citizen Earth Protocol to win a [ICON_POSITIVE_TEXT]Cultural Victory[ENDCOLOR]! Must have an Ideology (with a [COLOR_POSITIVE_TEXT]Content[ENDCOLOR] population) and be [ICON_TOURISM] Influential with all other Civilizations in the world in order to construct this.'
 WHERE Tag = 'TXT_KEY_PROJECT_UTOPIA_PROJECT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Panopticon is an ideal architectural figure of modern disciplinary power. The Panopticon creates a consciousness of permanent visibility as a form of power, where no bars, chains, and heavy locks are necessary for domination any more. Instead of actual surveillance, the mere threat of surveillance is what disciplines society into behaving according to rules and norms. Technology has allowed for the deployment of panoptic structures invisibly throughout society. Surveillance by CCTV cameras in public spaces is an example of a technology that brings the gaze of a superior into the daily lives of the populace. Critical analyses of internet practice have suggested that the internet allows for a panoptic form of observation. ISPs are able to track users'' activities, while user-generated content means that daily social activity may be recorded and broadcast online.'
+SET Text = 'Global citizenship is idea of all persons having rights and civic responsibilities that come with being a member of the World, with whole-world philosophy and sensibilities, rather than as a citizen of a particular nation or place. The idea is that one’s identity transcends geography or political borders and that responsibilities or rights are derived from membership in a broader class: ''humanity.'' This does not mean that such a person denounces or waives their nationality or other, more local identities, but such identities are given ''second place'' to their membership in a global community. Extended, the idea leads to questions about the state of global society in the age of globalization. In general usage, the term may have much the same meaning as ''world citizen'' or cosmopolitan, but it also has additional, specialized meanings in differing contexts. Various organizations, such as the World Service Authority, have advocated global citizenship.'
 WHERE Tag = 'TXT_KEY_PROJECT_UTOPIA_PROJECT_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

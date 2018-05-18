@@ -3079,7 +3079,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 	}
 
 	// Not a tile a city can work?  Go for artifact
-	else if (pPlot->getWorkingCity() == NULL)
+	else if (pPlot->getOwningCity() == NULL)
 	{
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
 	}
@@ -3407,9 +3407,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		m_pPlayer->changeJONSCulture(iValue);
 #if defined(MOD_BALANCE_CORE)
-		if (pPlot->getWorkingCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
+		if (pPlot->getOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
 		{
-			pPlot->getWorkingCity()->ChangeJONSCultureStored(iValue);
+			pPlot->getOwningCity()->ChangeJONSCultureStored(iValue);
 		}
 #endif
 		if (pUnit)

@@ -1777,7 +1777,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					if(GET_PLAYER(ePlayer).canBuild(pPlot, eBuild))
 					{
 						// ensure there is a city working this tile
-						if(pPlot->getWorkingCity())
+						if(pPlot->getOwningCity())
 						{
 							// check for a worker in this plot
 							bool bWorkerAlreadyOnIt = false;
@@ -1836,7 +1836,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			strLoc = Localization::Lookup("TXT_KEY_CITYIMPROVEMENTSTRATEGY_PLUG_UP_RESOURCES_HAVE_MORE");
 		}
 		strLoc << GC.getResourceInfo(eRecommendedResource)->GetTextKey();
-		strLoc << pResourcePlot->getWorkingCity()->getNameKey();
+		strLoc << pResourcePlot->getOwningCity()->getNameKey();
 
 		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);

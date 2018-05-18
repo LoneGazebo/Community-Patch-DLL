@@ -1409,7 +1409,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 	if (!m_bEvaluateAdjacent)
 	{
-		CvCity* pCity = GetWorkingCity(pPlot);
+		CvCity* pCity = getOwningCity(pPlot);
 		if(!pCity)
 		{
 			return;
@@ -1830,7 +1830,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 		return;
 	}
 
-	CvCity* pCity = GetWorkingCity(pPlot);
+	CvCity* pCity = getOwningCity(pPlot);
 	if(!pCity)
 	{
 		return;
@@ -2088,7 +2088,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		return;
 	}
 
-	CvCity* pCity = GetWorkingCity(pPlot);
+	CvCity* pCity = getOwningCity(pPlot);
 	if(!pCity)
 	{
 		return;
@@ -2154,7 +2154,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 			return false;
 	}
 
-	if (pUnit->IsGreatPerson() && pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() != pUnit->getOwner())
+	if (pUnit->IsGreatPerson() && pPlot->getOwningCity() != NULL && pPlot->getOwningCity()->getOwner() != pUnit->getOwner())
 		return false;
 
 	bool bAdjacent = false;
@@ -2265,7 +2265,6 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if(pUnit->GetDanger(pPlot) > 0)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
@@ -2290,19 +2289,10 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 			return false;
 		}
 	}
-#else
-	if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
-	{
-		if(m_bLogging)
-		{
-			CvString strLog;
-			strLog.Format("plotX: %d plotY: %d, danger: %d,, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
-			LogInfo(strLog, m_pPlayer, true);
-		}
 
+	//danger check is not enough - we don't want to be adjacent to enemy territory for example
+	if (!m_pPlayer->isHuman() && pPlot->isVisibleToEnemy(pUnit->getOwner()))
 		return false;
-	}
-#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	if(!pUnit->atPlot(*pPlot) && pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())
@@ -2672,12 +2662,12 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 }
 
 /// Get this city that can interact with this plot
-CvCity* CvBuilderTaskingAI::GetWorkingCity(CvPlot* pPlot)
+CvCity* CvBuilderTaskingAI::getOwningCity(CvPlot* pPlot)
 {
 	CvCity* pCity = NULL;
-	if(pPlot->getWorkingCity())
+	if(pPlot->getOwningCity())
 	{
-		pCity = pPlot->getWorkingCity();
+		pCity = pPlot->getOwningCity();
 	}
 	else
 	{
@@ -2760,7 +2750,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		if (!pImprovement->IsInAdjacentFriendly())
 		{
-			CvCity* pCity = m_pTargetPlot->getWorkingCity();
+			CvCity* pCity = m_pTargetPlot->getOwningCity();
 			if (!pCity)
 				return -1;
 		}
@@ -2820,7 +2810,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		}
 	}
 #endif
-	CvCity* pCity = m_pTargetPlot->getWorkingCity();
+	CvCity* pCity = m_pTargetPlot->getOwningCity();
 	//Great improvements are great!
 	if (pImprovement->IsCreatedByGreatPerson() && pImprovement->GetCultureBombRadius() <= 0)
 	{
@@ -3223,7 +3213,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
 		if(eReligion != NO_RELIGION)
 		{
-			if(m_pTargetPlot->getWorkingCity() != NULL && m_pTargetPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			if(m_pTargetPlot->getOwningCity() != NULL && m_pTargetPlot->getOwningCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
 				iScore *= 5;
 			}

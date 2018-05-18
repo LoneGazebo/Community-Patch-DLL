@@ -1393,11 +1393,11 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			{
 				if (pkHolyCity && pkHolyCity->getOwner() == kPlayer.GetID())
 				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads());
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + pkHolyCity->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
 				}
 				else if (kPlayer.getCapitalCity())
 				{
-					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads());
+					pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads() + kPlayer.getCapitalCity()->GetCityBuildings()->GetMissionaryExtraSpreads() + kPlayer.GetNumMissionarySpreads());
 				}
 				else
 				{
@@ -3811,7 +3811,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight());
+				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight() + iLoop);
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -8705,11 +8705,7 @@ int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldT
 	if (eFeature != NO_FEATURE)
 	{
 		iRtnValue += pEntry->GetFeatureYieldChange(eFeature, iI);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if (pPlot->IsNaturalWonder(true))
-#else
 		if (pPlot->IsNaturalWonder())
-#endif
 		{
 			iRtnValue += pEntry->GetYieldChangeNaturalWonder(iI);
 			iRtnValue += (pEntry->GetYieldModifierNaturalWonder(iI) / 10);
@@ -8994,7 +8990,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
 		{
-			if (pLoopUnit->plot()->getWorkingCity() == pCity)
+			if (pLoopUnit->plot()->getOwningCity() == pCity)
 			{
 				bIsHolyCity = true;
 				break;

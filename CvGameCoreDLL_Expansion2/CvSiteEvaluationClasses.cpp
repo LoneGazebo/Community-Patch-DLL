@@ -106,11 +106,8 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	{
 		return false;
 	}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-	if(pPlot->IsNaturalWonder(true))
-#else
+
 	if(pPlot->IsNaturalWonder())
-#endif
 		return false;
 
 	//need at least one conventionally accessible plot around the city
@@ -154,7 +151,8 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	{
 		if(pTerrainInfo->isFoundCoast())
 		{
-			if(pPlot->isCoastalLand())
+			//be careful in the pre-game, the cache might not be set up yet
+			if(pPlot->isCoastalLand(-1,GC.getGame().getElapsedGameTurns()>0))
 			{
 				bValid = true;
 			}
@@ -165,7 +163,7 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	{
 		if(pTerrainInfo->isFoundFreshWater())
 		{
-			if(pPlot->isFreshWater_cached())
+			if(pPlot->isFreshWater())
 			{
 				bValid = true;
 			}
@@ -424,7 +422,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
-	int iGoodPlotsInRing1 = 0, iGoodPlotsInRing2 = 0;
+	int nFoodPlots = 0, nHammerPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -433,8 +431,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			continue;
 
 		//ignore some plots (typically enemy or close to enemy)
-		if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
-			continue;
+		if (plotDistance(*pLoopPlot,*pPlot)>1) //but only if we can't instantly claim them
+			if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
+				continue;
 
 		int iDistance = plotDistance(*pPlot,*pLoopPlot);
 		int iRingModifier = m_iRingModifier[iDistance];
@@ -443,8 +442,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
 		int iExistingFriendlyCityDistance = pPlayer ? pPlayer->GetCityDistanceInPlots(pLoopPlot) : 5;
 
-		//count the tile only if the city will be able to work it
-		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
+		//count the tile only if the city will be able to work it (doesn't need to be passable)
+		if (iExistingCityDistance<2  || pLoopPlot->isBeingWorked()) 
 			iRingModifier = 0;
 		else if (iExistingCityDistance==2)
 			//this plot will likely be contested between the two cities, reduce its value
@@ -453,7 +452,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iPlotValue = iDefaultPlotValue;
 		if (iRingModifier>0)
 		{
-
 			int iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
 			int iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
 			int	iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
@@ -488,12 +486,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 			iPlotValue += iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
 
-			// need at least some food in ring 1
-			if (iDistance == 1 &&  iFoodValue > 0)
-				iGoodPlotsInRing1++;
-			// and some hammers within ring 2
-			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0))
-				iGoodPlotsInRing2++;
+			// need at least some food close by
+			if (iDistance > 0 && iDistance < 3 &&  iFoodValue > 0)
+				nFoodPlots++;
+			// and some hammers or other interesting stuff close by
+			if (iDistance > 0 && iDistance < 3 && (iProductionValue > 0 || iResourceValue > 0 || pLoopPlot->IsNaturalWonder(true)))
+				nHammerPlots++;
 		}
 
 		// for the central plot
@@ -504,13 +502,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
 			bIsAlmostCoast = true;
 
-		// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if (pLoopPlot->IsNaturalWonder(true) && iPlotValue>0)
-#else
+		// if this tile is a NW boost the value
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
-#endif
-			iPlotValue *= 15;
+			iPlotValue *= 3; //yields will improve in later eras!
 
 		// lower value a lot if we or somebody else already own this tile
 		if (iPlotValue > 0 && pLoopPlot->getOwner() != NO_PLAYER)
@@ -537,11 +531,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			++iWetlandsCount;
 		}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if (pLoopPlot->IsNaturalWonder(true))
-#else
 		if (pLoopPlot->IsNaturalWonder())
-#endif
 		{
 			++iNaturalWonderCount;
 		}
@@ -551,16 +541,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			++iLakeCount;
 		}
 
-		if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
+		ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+		if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
-			ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
-			if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-			{
-				++iLuxuryCount;
-			}
+			++iLuxuryCount;
 		}
 
-		if (pLoopPlot->getTerrainType() == TERRAIN_DESERT && pLoopPlot->getRouteType() == NO_RESOURCE)
+		if (pLoopPlot->getTerrainType() == TERRAIN_DESERT && eResource == NO_RESOURCE)
 		{
 			++iDesertCount;
 		}
@@ -601,9 +588,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//hard cutoffs
 	if (iTotalPlotValue < 0)
 		return 0;
-	if (iGoodPlotsInRing1 < 2)
+	if (nFoodPlots < 4)
 		return 0;
-	if (iGoodPlotsInRing2 < 3)
+	if (nHammerPlots < 4)
 		return 0;
 
 	//civ-specific bonuses
@@ -708,11 +695,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
 	}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-	if (pPlot->IsNaturalWonder(true))
-#else
 	if (pPlot->IsNaturalWonder())
-#endif
 	{
 		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
@@ -937,17 +920,11 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements ...
-	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS))
+	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements
+	if (MOD_BALANCE_CORE_SETTLER && 
+		( ( (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS ) && pPlot->getFeatureType() == NO_FEATURE ) || 
+		   pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS ) )
 		rtnValue += 1;
-
-	//let's encourage settlement on/near oases
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_OASIS)
-		rtnValue += 2;
-
-	//let's encourage settlement on/near flood plains
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS)
-		rtnValue += 3;
 
 	//Help with island settling - assume a lighthouse
 	if(pPlot->isShallowWater())
@@ -963,8 +940,7 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1028,8 +1004,8 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// assume a mine or similar ...
-	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills())
+	// assume a mine or similar in friendly climate. don't run off into the snow
+	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills() && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE)
 		rtnValue += 1;
 #endif
 
@@ -1040,12 +1016,10 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource;
-	eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
-
 		CvImprovementEntry* pImprovement = GC.GetGameImprovements()->GetImprovementForResource(eResource);
 		if(pImprovement)
 		{
@@ -1265,7 +1239,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer*, i
 			{
 				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
 			}
-			if(iPlotsFromCity <= 3 && pPlot->isFreshWater_cached())
+			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
 			{
 				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
 			}
@@ -1441,7 +1415,7 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, const std:
 		rtnValue += rtnValue * GC.getBUILD_ON_RIVER_PERCENT() / 100;
 	}
 
-	if(pPlot->isCoastalLand())
+	if(pPlot->isCoastalLand(-1,false))
 	{
 		rtnValue += rtnValue * GC.getSTART_AREA_BUILD_ON_COAST_PERCENT() / 100;
 	}

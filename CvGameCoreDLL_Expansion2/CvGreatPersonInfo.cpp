@@ -26,6 +26,11 @@ int CvGreatPersonInfo::GetSpecialistType() const
 	return m_iSpecialist;
 }
 
+const char* CvGreatPersonInfo::GetIconString() const
+{
+	return m_strIconString;
+}
+
 bool CvGreatPersonInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -38,6 +43,8 @@ bool CvGreatPersonInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 
 	szTextVal = kResults.GetText("Specialist");
 	m_iSpecialist = GC.getInfoTypeForString(szTextVal, true);
+
+	m_strIconString = kResults.GetText("IconString");
 
 	return true;
 }

@@ -9576,19 +9576,15 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 	
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		
 		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
 		if(eMinorLoop != NO_PLAYER)
 		{
 			CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-
 			CvCity* pCity = pMinorLoop->getCapitalCity();
-			
-			//Let's see if our CS is juicy and vulnerable.
-			if(pMinorLoop->isAlive() && pMinorLoop->getStartingPlot()->getOwner() == eMinorLoop && pMinorLoop->isMinorCiv())
-			{
-				CvPlot* pPlot;
 
+			//Let's see if our CS is juicy and vulnerable.
+			if(pMinorLoop->isAlive() && pMinorLoop->isMinorCiv() && pCity)
+			{
 				CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 
 				int iPlots = 0;
@@ -9596,10 +9592,9 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 				int iImpassable = 0;
 
 				// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
-
 				for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
 				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+					CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
 					if(pPlot)
 					{
@@ -10629,7 +10624,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue += GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+					iValue += GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iLoopCity) * 10;
 					iValue -= pLoopCity->getStrengthValue() / 100;
 					if(iValue <= 0)
 					{
@@ -11054,11 +11049,7 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 				{
 					continue;
 				}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-				if(pPlot->IsNaturalWonder(true))
-#else
 				if(pPlot->IsNaturalWonder())
-#endif
 				{
 					iValue += 33;
 				}
@@ -18205,7 +18196,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*50*/ GC.getPERMANENT_WAR_OTHER_AT_WAR();
 
-			iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+			iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iMinorCivLoop) * 10;
 			if(iRand < iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))
@@ -18474,7 +18465,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 				}
 
 				// Random factor so that the same thing isn't always picked
-				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->GetEconomicMight());
+				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->GetEconomicMight() + iTechLoop);
 
 				TechVector.push_back(iTechLoop, iValue);
 			}

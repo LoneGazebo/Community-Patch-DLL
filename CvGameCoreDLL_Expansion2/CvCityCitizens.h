@@ -39,7 +39,7 @@ public:
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield);
 #if defined(MOD_BALANCE_CORE)
-	int GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag, int iExcessFoodTimes100);
+	int GetPlotValue(CvPlot* pPlot, int iExcessFoodTimes100);
 #else
 	int GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag);
 #endif
@@ -49,13 +49,13 @@ public:
 	void SetAutomated(bool bValue);
 
 	bool IsNoAutoAssignSpecialists() const;
-	void SetNoAutoAssignSpecialists(bool bValue);
+	void SetNoAutoAssignSpecialists(bool bValue, bool bReallocate = false);
 
 	bool IsAvoidGrowth();
 	bool IsForcedAvoidGrowth();
-	void SetForcedAvoidGrowth(bool bAvoidGrowth);
+	void SetForcedAvoidGrowth(bool bAvoidGrowth, bool bReallocate = false);
 	CityAIFocusTypes GetFocusType() const;
-	void SetFocusType(CityAIFocusTypes eFocus);
+	void SetFocusType(CityAIFocusTypes eFocus, bool bReallocate = false);
 
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
@@ -126,7 +126,6 @@ public:
 	bool IsCanWork(CvPlot* pPlot) const;
 	bool IsAnyPlotBlockaded() const;
 
-	void DoVerifyWorkingPlot(CvPlot* pPlot);
 	void DoVerifyWorkingPlots();
 
 	const std::vector<int>& GetWorkedPlots() const { return m_vWorkedPlots; }

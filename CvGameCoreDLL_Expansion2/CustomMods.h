@@ -417,7 +417,7 @@
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
-#define MOD_CIV6_WORKER								gCustomMods.isCIV6_TYPE_WORKER()
+#define MOD_CIV6_WORKER								gCustomMods.isCIV6_WORKER()
 // Roads are created by trade routes.
 #define MOD_CIV6_ROADS								gCustomMods.isCIV6_ROADS()
 // scale city-state yield per city owned
@@ -971,6 +971,8 @@
 #define MOD_BUGFIX_EXTRA_MISSIONARY_SPREADS			gCustomMods.isBUGFIX_EXTRA_MISSIONARY_SPREADS()
 // Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
+// Fixes issue where explore plot list was not being consistently updated when a plot was revealed
+#define MOD_BUGFIX_EXPLORE_REVEALED_PLOT	(true)
 
 #endif // ACHIEVEMENT_HACKS
 

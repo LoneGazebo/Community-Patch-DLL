@@ -77,6 +77,25 @@ local g_isPoliciesEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOP
 --local g_isHappinessEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 local g_isReligionEnabled = civ5gk_mode and (not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION))
 
+-- Vox Populi granted by building cache data
+local g_grantedByBuilding = {}
+-- cache buildings that grant others
+for building in GameInfo.Buildings() do
+	local function InsertIntoGrantedByBuilding(buildingType, freeBuildingClass)
+		if g_grantedByBuilding[freeBuildingClass] == nil then g_grantedByBuilding[freeBuildingClass] = {} end
+		table.insert(g_grantedByBuilding[freeBuildingClass], buildingType)
+	end
+	if building.FreeBuilding         then InsertIntoGrantedByBuilding(building.Type, building.FreeBuilding) end
+	if building.FreeBuildingThisCity then InsertIntoGrantedByBuilding(building.Type, building.FreeBuildingThisCity) end
+end
+-- connect Civ uniques
+for row in GameInfo.Civilization_BuildingClassOverrides() do
+	if row.BuildingType and g_grantedByBuilding[row.BuildingClassType] then
+		g_grantedByBuilding[ GameInfo.Buildings[row.BuildingType].BuildingClass ] = g_grantedByBuilding[row.BuildingClassType]
+	end
+end
+-- Vox Populi end
+
 local function GetCivUnit( civilizationType, unitClassType )
 	if unitClassType then
 		if civilizationType then
@@ -1145,6 +1164,14 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	freeBuilding = GetCivBuilding( activeCivilizationType, building.FreeBuilding )
 	tips:insertIf( freeBuilding and L"TXT_KEY_FREE".." "..BuildingColor( L( freeBuilding.Description ) ) )-- todo xml
 
+	-- Vox Populi granted by building
+	if g_grantedByBuilding[buildingClassType] then
+		for _,grantedBy in ipairs(g_grantedByBuilding[buildingClassType]) do
+			tips:insertIf( grantedBy and L"TXT_KEY_EUI_BUILDING_GRANTED_BY".." "..BuildingColor( L( GameInfo.Buildings[grantedBy].Description ) ) )
+		end
+	end
+	-- Vox Populi end
+	
 	-- free units
 	for row in GameInfo.Building_FreeUnits( thisBuildingType ) do
 		local freeUnit = GameInfo.Units[ row.UnitType ]
