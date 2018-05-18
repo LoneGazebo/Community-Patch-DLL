@@ -367,7 +367,7 @@
 			<Text>{1_YieldCost} worth of men succumb to the flames.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_3">
-			<Text>Call in our reserve helicopters to water-bomb the fires and spread retardent fertilizer from the air.</Text>
+			<Text>Call in our reserve aircraft to water-bomb the fires and spread retardent fertilizer from the air.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_3_HELP">
 			<Text>Expend {1_YieldCost}. Lush growth burgeons where the fire once raged, nearby Forests yield +1 [ICON_FOOD] Food.</Text>
