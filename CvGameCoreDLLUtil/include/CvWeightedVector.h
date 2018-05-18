@@ -155,18 +155,8 @@ public:
 	/// Return a random entry by weight, but avoid unlikely candidates (by only looking at candidates with a certain percentage chance)
 	T ChooseAbovePercentThreshold(int iPercent, RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
-		int iCutoff;
-		WeightedElement elem;
-
-		// Random roll up to total weight
-		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
-		{
-			elem = m_pItems[0];
-			return elem.m_Element;
-		}
-
 		// Compute cutoff for the requested percentage
-		iCutoff = GetTotalWeight() * iPercent / 100;
+		int iCutoff = GetTotalWeight() * iPercent / 100;
 
 		// Create a new weighted vector for this decision
 		CvWeightedVector<T, L, bPODType> tempVector;
@@ -174,7 +164,7 @@ public:
 		// Loop through until adding each item that is above threshold
 		for (unsigned int i = 0; i < m_pItems.size(); i++)
 		{
-			elem = m_pItems[i];
+			WeightedElement elem = m_pItems[i];
 			if (elem.m_iWeight >= iCutoff)
 			{
 				tempVector.push_back (elem.m_Element, elem.m_iWeight);
@@ -197,53 +187,29 @@ public:
 	/// Return a random entry (ignoring weight)
 	T ChooseAtRandom(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
-		// Random roll up to total weight
-		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
-		{
-			WeightedElement elem = m_pItems[0];
-			return elem.m_Element;
-		}
-
-		int iChoice;
-
 		// Based on the number of elements we have, pick one at random
-		iChoice = (*rndFcn)(m_pItems.size(), szRollName);
-		WeightedElement elem = m_pItems[iChoice];
-
-		return elem.m_Element;
+		int iChoice = (*rndFcn)(m_pItems.size(), szRollName);
+		return m_pItems[iChoice].m_Element;
 	};
 
 	/// Choose by weight (even considering unlikely candidates)
 	T ChooseByWeight(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
-		WeightedElement elem;
-		int iChoice;
-
 		// Random roll up to total weight
-		iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
-
-		// Random roll up to total weight
-		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
-		{
-			elem = m_pItems[0];
-			return elem.m_Element;
-		}
+		int iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
 
 		// Loop through until we find the item that is in the range for this roll
 		for (unsigned int i = 0; i < m_pItems.size(); i++)
 		{
-			elem = m_pItems[i];
+			WeightedElement elem = m_pItems[i];
 			iChoice -= elem.m_iWeight;
 			if (iChoice < 0)
-			{
 				return elem.m_Element;
-			}
 		}
 
 		// We should have found something, so reaching here is an error
-		//    Just return last thing accessed
-		FAssertMsg (true, "Internal error in CvWeightedVector.");
-		return elem.m_Element;
+		assert(false);
+		return T();
 	};
 
 	/// Pick an element from the top iNumChoices
@@ -251,45 +217,43 @@ public:
 	{
 		// Loop through the top choices, or the total vector size, whichever is smaller
 		if (iNumChoices > (int) m_pItems.size())
-		{
 			iNumChoices = (int) m_pItems.size();
-		}
 
-		WeightedElement elem;
-		int i;
-		int iChoice;
-		int iTotalTopChoicesWeight = 0;
+		assert(iNumChoices > 0);
 
-		// Get the total weight
-		for (i = 0; i < iNumChoices; i++)
+		// Get the total weight (as long as the weights are in a similar range)
+		int iTotalTopChoicesWeight = m_pItems[0].m_iWeight;
+		for (int i = 1; i < iNumChoices; i++)
 		{
-			elem = m_pItems[i];
-			iTotalTopChoicesWeight += elem.m_iWeight;
+			if (m_pItems[i].m_iWeight*2 < m_pItems[i-1].m_iWeight)
+			{
+				//ignore the rest
+				iNumChoices = i;
+				break;
+			}
+
+			iTotalTopChoicesWeight += m_pItems[i].m_iWeight;
 		}
 
-		// Random roll up to total weight
-		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())
-		{
-			elem = m_pItems[0];
-			return elem.m_Element;
-		}
-		iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
+		// the easy case
+		if (iNumChoices == 1)
+			return m_pItems[0].m_Element;
+
+		int iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
 
 		// Find out which element was chosen
-		for (i = 0; i < iNumChoices; i++)
+		for (int i = 0; i < iNumChoices; i++)
 		{
-			elem = m_pItems[i];
+			WeightedElement elem = m_pItems[i];
 			iChoice -= elem.m_iWeight;
+
 			if (iChoice < 0)
-			{
 				return elem.m_Element;
-			}
 		}
 
 		// We should have found something, so reaching here is an error
-		//    Just return last thing accessed
-		CvAssertMsg (false, "Internal error in CvWeightedVector.");
-		return elem.m_Element;
+		assert(false);
+		return T();
 	};
 
 private:
