@@ -1196,8 +1196,10 @@ namespace TacticalAIHelpers
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bLowDangerOnly=false, bool bConsiderSwap=false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
-	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
-	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0);
+	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, CvPlot* pDefenderPlot, CvPlot* pAttackerPlot, int& iAttackerDamage, 
+									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
+	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, CvPlot* pAttackerPlot, int& iAttackerDamage, 
+									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	CvPlot* GetFirstTargetInRange(CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 

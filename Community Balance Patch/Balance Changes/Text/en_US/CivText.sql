@@ -353,7 +353,7 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDIN
 -- France
 --------------------
 UPDATE Language_en_US
-SET Text = '+10% Damage for every attack against a single target during a turn. When you conquer a city, gain [ICON_GREAT_WORK] Great Writer/Artist/Musician Points in [ICON_CAPITAL] Capital and a temporary boost to [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities.'
+SET Text = '+10% Damage for each subsequent attack against a single target during a turn. When you conquer a city, gain [ICON_GREAT_WORK] Great Writer/Artist/Musician Points in [ICON_CAPITAL] Capital and a temporary boost to [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -836,7 +836,7 @@ SET Text = 'Unique Polish Stable replacement. 1 free [ICON_RES_HORSE] Horse, +50
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Starting in the Classical Era, gain a free Social Policy every other Era, and gain two additional free Tenets when you adopt an Ideology for the first time.'
+SET Text = 'Gain a free Social Policy in the Classical Era, and every other Era after. Gain two additional free Tenets when you adopt an Ideology for the first time.'
 WHERE Tag = 'TXT_KEY_TRAIT_SOLIDARITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 

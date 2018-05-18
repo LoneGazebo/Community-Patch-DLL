@@ -119,24 +119,22 @@ public:
 	bool isAdjacentToArea(const CvArea* pArea) const;
 	bool shareAdjacentArea(const CvPlot* pPlot) const;
 	bool isAdjacent(const CvPlot* pPlot) const;
-	bool isAdjacentToLand() const;
-	bool isAdjacentToLand_Cached() const { return m_bIsAdjacentToLand; }
 	bool isDeepWater() const;
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isAdjacentToIce() const;
 #endif
-	bool isCoastalLand(int iMinWaterSize = -1) const;
 	int GetSizeLargestAdjacentWater() const;
 
 	bool isVisibleWorked() const;
 	bool isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer = NO_PLAYER) const;
 
-	bool isLake() const;
-	bool isFreshWater_cached() const;
-	bool isFreshWater();
-	void updateFreshwater();
+	bool isLake(bool bUseCachedValue=true) const;
+	bool isFreshWater(bool bUseCachedValue=true) const;
+	bool isCoastalLand(int iMinWaterSize = -1, bool bUseCachedValue = true) const;
+	bool isAdjacentToLand(bool bUseCachedValue = true) const;
+	void updateWaterFlags() const;
 
 	bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
 	bool isRiverSide() const;
@@ -178,6 +176,9 @@ public:
 	CvUnit* getBestGarrison(PlayerTypes eOwner) const;
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
+
+	int GetInterceptorCount(PlayerTypes ePlayer, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
+	CvUnit* GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
 
 	bool isFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
@@ -563,9 +564,9 @@ public:
 
 	void setFeatureType(FeatureTypes eNewValue, int iVariety = -1);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
-	bool IsNaturalWonder(bool orPseudoNatural = false) const;
+	bool IsNaturalWonder(bool orPseudoNatural = true) const;
 #else
-	bool IsNaturalWonder() const;
+	bool IsNaturalWonder(bool orPseudoNatural = false) const;
 #endif
 
 	ResourceTypes getResourceType(TeamTypes eTeam = NO_TEAM) const;
@@ -651,12 +652,12 @@ public:
 
 	void setPlotCity(CvCity* pNewValue);
 
-	int getWorkingCityID() const;
-	CvCity* getWorkingCity() const;
-	void updateWorkingCity();
+	int getOwningCityID() const;
+	CvCity* getOwningCity() const;
+	void updateOwningCity();
 
-	CvCity* getWorkingCityOverride() const;
-	void setWorkingCityOverride(const CvCity* pNewValue);
+	CvCity* getOwningCityOverride() const;
+	void setOwningCityOverride(const CvCity* pNewValue);
 
 	int getReconCount() const;
 	void changeReconCount(int iChange);
@@ -665,13 +666,21 @@ public:
 	void changeRiverCrossingCount(int iChange);
 
 	int getYield(YieldTypes eIndex) const;
+
 	int calculateNatureYield(YieldTypes eIndex, PlayerTypes ePlayer, bool bIgnoreFeature = false) const;
+	int calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
+
 	int calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const;
 	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
+
 	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
+	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
+
 	bool hasYield() const;
+
 	void updateYield();
+	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
 
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
 
@@ -778,6 +787,10 @@ public:
 	const CvUnit* getCenterUnit() const;
 	const CvUnit* getDebugCenterUnit() const;
 	void setCenterUnit(CvUnit* pNewValue);
+
+	int getInvisibleVisibilityCountUnit(TeamTypes eTeam) const;
+	bool isInvisibleVisibleUnit(TeamTypes eTeam) const;
+	void changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange);
 
 	int getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const;
@@ -1023,8 +1036,8 @@ protected:
 	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
 	IDInfo m_plotCity;
-	IDInfo m_workingCity;
-	IDInfo m_workingCityOverride;
+	IDInfo m_owningCity;
+	IDInfo m_owningCityOverride;
 	IDInfo m_ResourceLinkedCity;
 	IDInfo m_purchaseCity;
 
@@ -1043,7 +1056,7 @@ protected:
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
 
-	int m_iLastTurnBuildChanged;
+	short m_iLastTurnBuildChanged;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1058,10 +1071,12 @@ protected:
 	short* m_paiBuildProgress;
 	CvUnit* m_pCenterUnit;
 
-	short m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
+	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
 
-	int m_iArea;
-	int m_iLandmass;
+	unsigned char m_paiInvisibleVisibilityUnitCount[MAX_TEAMS];
+
+	short m_iArea;
+	short m_iLandmass;
 
 	// This is a variable that you can use for whatever nefarious deeds you need to do
 	// it will not be saved or loaded - you should assume that it is filled with garbage
@@ -1070,7 +1085,7 @@ protected:
 	char m_cBuilderAIScratchPadPlayer;
 	short m_sBuilderAIScratchPadTurn;
 	short m_sBuilderAIScratchPadValue;
-	RouteTypes m_eBuilderAIScratchPadRoute;
+	char /*RouteTypes*/ m_eBuilderAIScratchPadRoute;
 
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
@@ -1132,9 +1147,12 @@ protected:
 	bool m_bRoughFeature:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
-	bool m_bIsAdjacentToLand:1;				// Cached value, do not serialize
 	bool m_bIsImpassable:1;
-	bool m_bIsFreshwater:1;
+
+	mutable bool m_bIsFreshwater:1;						// Cached value, do not serialize
+	mutable bool m_bIsAdjacentToLand:1;					// Cached value, do not serialize
+	mutable bool m_bIsAdjacentToOcean:1;				// Cached value, do not serialize
+	mutable bool m_bIsLake:1;							// Cached value, do not serialize
 
 	CvArchaeologyData m_kArchaeologyData;
 

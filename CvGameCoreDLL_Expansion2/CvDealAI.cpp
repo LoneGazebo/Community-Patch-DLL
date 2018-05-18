@@ -1280,7 +1280,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 		}
 		if(iItemValue != INT_MAX)
 		{
-			iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, bUseEvenValue, pDeal);
+			iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, bUseEvenValue, pDeal, bLogging);
 			it->m_iValue = iItemValue;
 			it->m_bValueIsEven = bUseEvenValue;
 		}
@@ -1345,7 +1345,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 }
 
 /// What is a particular item worth?
-int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bUseEvenValue, CvDeal* pDeal)
+int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bUseEvenValue, CvDeal* pDeal, bool bLogging)
 {
 	CvAssert(eOtherPlayer >= 0);
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
@@ -1357,7 +1357,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	if(eItem == TRADE_ITEM_GOLD)
 		iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false);
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
-		iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false);
+		iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false, bLogging);
 	else if (eItem == TRADE_ITEM_RESOURCES)
 	{
 		// precalculate, it's expensive
@@ -1380,9 +1380,9 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	else if(eItem == TRADE_ITEM_PEACE_TREATY)
 		iItemValue = GetPeaceTreatyValue(eOtherPlayer);
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
-		iItemValue = GetThirdPartyPeaceValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes) iData1);
+		iItemValue = GetThirdPartyPeaceValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes)iData1, bLogging);
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_WAR)
-		iItemValue = GetThirdPartyWarValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes) iData1);
+		iItemValue = GetThirdPartyWarValue(bFromMe, eOtherPlayer, /*eWithTeam*/ (TeamTypes)iData1, bLogging);
 	else if(eItem == TRADE_ITEM_VOTE_COMMITMENT)
 		iItemValue = GetVoteCommitmentValue(bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, bUseEvenValue);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1496,7 +1496,7 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 }
 
 /// How much GPT should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bRoundUp)
+int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, bool bRoundUp, bool bLogging)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of GPT with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -1515,7 +1515,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	}
 	else
 	{
-		if (bFromMe && iGPTorValue > (GetPlayer()->calculateGoldRate() - 2))
+		if (!bLogging && bFromMe && iGPTorValue > (GetPlayer()->calculateGoldRate() - 2))
 			return MAX_INT;
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
@@ -3378,7 +3378,7 @@ int CvDealAI::GetPeaceTreatyValue(PlayerTypes eOtherPlayer)
 }
 
 /// What is the value of peace with eWithTeam? NOTE: This deal item should be disabled if eWithTeam doesn't want to go to peace
-int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam)
+int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party Peace with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -3387,6 +3387,9 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 #else
 	int iItemValue = 0;
 #endif
+
+	if (bLogging)
+		return iItemValue;
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 
@@ -3694,7 +3697,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 }
 
 /// What is the value of war with eWithPlayer?
-int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam)
+int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -3703,6 +3706,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 #else
 	int iItemValue = 0;
 #endif
+
+	if (bLogging)
+		return iItemValue;
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 
@@ -3946,8 +3952,10 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 100;
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 200;
-			else if (eWarProjection <= WAR_PROJECTION_UNKNOWN && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
-				return INT_MAX;			
+			else if (eWarProjection >= WAR_PROJECTION_STALEMATE && pDiploAI->GetBiggestCompetitor() == eWithPlayer)
+				iItemValue += 400;
+			else
+				return INT_MAX;
 		}
 		else
 		{
@@ -3957,7 +3965,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue += 200;
 			else if(eWarProjection >= WAR_PROJECTION_STALEMATE)
 				iItemValue += 300;
-			else if (eWarProjection < WAR_PROJECTION_STALEMATE && pDiploAI->GetBiggestCompetitor() != eWithPlayer)
+			else if (eWarProjection >= WAR_PROJECTION_DEFEAT && pDiploAI->GetBiggestCompetitor() == eWithPlayer)
+				iItemValue += 400;
+			else
 				return INT_MAX;
 		}
 		
@@ -8503,11 +8513,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		iPlotValue /= 100;
 
 		// Is there a Natural Wonder here? 500% of plot.
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if(pPlot->IsNaturalWonder(true))
-#else
 		if(pPlot->IsNaturalWonder())
-#endif
 		{
 			iPlotValue *= 500;
 			iPlotValue /= 100;

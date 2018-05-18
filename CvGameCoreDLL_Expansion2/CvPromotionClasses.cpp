@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -226,27 +226,39 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bPostCombatPromotionsExclusive(false),
 	m_bSapper(false),
 #if defined(MOD_BALANCE_CORE)
-	m_bIsNearbyCityPromotion(false),
-	m_bIsNearbyFriendlyCityPromotion(false),
-	m_bIsNearbyEnemyCityPromotion(false),
+	m_iNearbyCityCombatMod(0),
+	m_iNearbyFriendlyCityCombatMod(0),
+	m_iNearbyEnemyCityCombatMod(0),
 	m_bIsNearbyPromotion(false),
 	m_bIsFriendlyLands(false),
-	m_bEnemyLands(false),
 	m_iNearbyRange(0),
-	m_eAddedFromNearbyPromotion(NO_PROMOTION),
 	m_eRequiredUnit(NO_UNIT),
-	m_eConvertDomainUnit(NO_UNIT),
-	m_eConvertDomain(NO_DOMAIN),
+	m_iConvertDomainUnit(NO_UNIT),
+	m_iConvertDomain(NO_DOMAIN),
+	m_bIsConvertUnit(false),
+	m_bIsConvertEnemyUnitToBarbarian(false),
+	m_bIsConvertOnFullHP(false),
+	m_bIsConvertOnDamage(false),
+	m_iDamageThreshold(0),
+	m_iConvertDamageOrFullHPUnit(NO_UNIT),
 	m_iStackedGreatGeneralExperience(0),
 	m_iPillageBonusStrength(0),
 	m_iReligiousPressureModifier(0),
 	m_iAdjacentCityDefesneMod(0),
 	m_iNearbyEnemyDamage(0),
-	m_eAdjacentSameType(NO_PROMOTION),
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
 	m_piYieldChange(NULL),
 	m_bHighSeaRaider(false),
+	m_iGeneralGoldenAgeExpPercent(0),
+	m_iGiveCombatMod(0),
+	m_iGiveHPHealedIfEnemyKilled(0),
+	m_iGiveExperiencePercent(0),
+	m_iGiveOutsideFriendlyLandsModifier(0),
+	m_eGiveDomain(NO_DOMAIN),
+	m_iGiveExtraAttacks(0),
+	m_iGiveDefenseMod(0),
+	m_bGiveInvisibility(false),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -470,30 +482,42 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bPostCombatPromotionsExclusive = kResults.GetBool("PostCombatPromotionsExclusive");
 	m_bSapper = kResults.GetBool("Sapper");
 #if defined(MOD_BALANCE_CORE)
-	m_bIsNearbyCityPromotion = kResults.GetBool("IsNearbyCityPromotion");
-	m_bIsNearbyFriendlyCityPromotion = kResults.GetBool("IsNearbyFriendlyCityPromotion");
-	m_bIsNearbyEnemyCityPromotion = kResults.GetBool("IsNearbyEnemyCityPromotion");
+	m_iNearbyCityCombatMod = kResults.GetInt("NearbyCityCombatMod");
+	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
+	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
-	m_bEnemyLands = kResults.GetBool("EnemyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
-	const char* szAddedFromNearbyPromotion = kResults.GetText("AddedFromNearbyPromotion");
-	m_eAddedFromNearbyPromotion = (PromotionTypes)GC.getInfoTypeForString(szAddedFromNearbyPromotion, true);
 	const char* szUnitType = kResults.GetText("RequiredUnit");
 	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
-	m_eConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
+	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
-	m_eConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_iConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_bIsConvertUnit = kResults.GetBool("IsConvertUnit");
+	m_bIsConvertEnemyUnitToBarbarian = kResults.GetBool("IsConvertEnemyUnitToBarbarian");
+	m_bIsConvertOnFullHP = kResults.GetBool("IsConvertOnFullHP");
+	m_bIsConvertOnDamage = kResults.GetBool("IsConvertOnDamage");
+	m_iDamageThreshold = kResults.GetInt("DamageThreshold");
+	const char* szConvertDamageOrFullHPUnit = kResults.GetText("ConvertDamageOrFullHPUnit");
+	m_iConvertDamageOrFullHPUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDamageOrFullHPUnit, true);
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 	m_iAdjacentCityDefesneMod = kResults.GetInt("AdjacentCityDefenseMod");
 	m_iNearbyEnemyDamage = kResults.GetInt("NearbyEnemyDamage");
-	const char* szAdjacentSameType = kResults.GetText("AdjacentSameType");
-	m_eAdjacentSameType = (PromotionTypes)GC.getInfoTypeForString(szAdjacentSameType, true);
 	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
 	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
+	m_iGeneralGoldenAgeExpPercent = kResults.GetInt("GeneralGoldenAgeExpPercent");
+	m_iGiveCombatMod = kResults.GetInt("GiveCombatMod");
+	m_iGiveHPHealedIfEnemyKilled = kResults.GetInt("GiveHPHealedIfEnemyKilled");
+	m_iGiveExperiencePercent = kResults.GetInt("GiveExperiencePercent");
+	m_iGiveOutsideFriendlyLandsModifier = kResults.GetInt("GiveOutsideFriendlyLandsModifier");
+	const char* szGiveDomain = kResults.GetText("GiveDomain");
+	m_eGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
+	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
+	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
+	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -2199,17 +2223,17 @@ bool CvPromotionEntry::IsSapper() const
 }
 
 #if defined(MOD_BALANCE_CORE)
-bool CvPromotionEntry::IsNearbyCityPromotion() const
+int CvPromotionEntry::GetNearbyCityCombatMod() const
 {
-	return m_bIsNearbyCityPromotion;
+	return m_iNearbyCityCombatMod;
 }
-bool CvPromotionEntry::IsNearbyFriendlyCityPromotion() const
+int CvPromotionEntry::GetNearbyFriendlyCityCombatMod() const
 {
-	return m_bIsNearbyFriendlyCityPromotion;
+	return m_iNearbyFriendlyCityCombatMod;
 }
-bool CvPromotionEntry::IsNearbyEnemyCityPromotion() const
+int CvPromotionEntry::GetNearbyEnemyCityCombatMod() const
 {
-	return m_bIsNearbyEnemyCityPromotion;
+	return m_iNearbyEnemyCityCombatMod;
 }
 bool CvPromotionEntry::IsNearbyPromotion() const
 {
@@ -2219,10 +2243,6 @@ bool CvPromotionEntry::IsFriendlyLands() const
 {
 	return m_bIsFriendlyLands;
 }
-bool CvPromotionEntry::IsEnemyLands() const
-{
-	return m_bEnemyLands;
-}
 int CvPromotionEntry::GetNearbyRange() const
 {
 	return m_iNearbyRange;
@@ -2231,21 +2251,37 @@ UnitTypes CvPromotionEntry::getRequiredUnit() const
 {
 	return m_eRequiredUnit;
 }
-PromotionTypes CvPromotionEntry::GetAdjacentSameType() const
+bool CvPromotionEntry::IsConvertEnemyUnitToBarbarian() const
 {
-	return m_eAdjacentSameType;
+	return m_bIsConvertEnemyUnitToBarbarian;
 }
-UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
+bool CvPromotionEntry::IsConvertOnFullHP() const
 {
-	return m_eConvertDomainUnit;
+	return m_bIsConvertOnFullHP;
 }
-DomainTypes CvPromotionEntry::GetConvertDomain() const
+bool CvPromotionEntry::IsConvertOnDamage() const
 {
-	return m_eConvertDomain;
+	return m_bIsConvertOnDamage;
 }
-PromotionTypes CvPromotionEntry::AddedFromNearbyPromotion() const
+int CvPromotionEntry::GetDamageThreshold() const
 {
-	return m_eAddedFromNearbyPromotion;
+	return m_iDamageThreshold;
+}
+int CvPromotionEntry::GetConvertDamageOrFullHPUnit() const
+{
+	return m_iConvertDamageOrFullHPUnit;
+}
+bool CvPromotionEntry::IsConvertUnit() const
+{
+	return m_bIsConvertUnit;
+}
+int CvPromotionEntry::GetConvertDomainUnit() const
+{
+	return m_iConvertDomainUnit;
+}
+int CvPromotionEntry::GetConvertDomain() const
+{
+	return m_iConvertDomain;
 }
 int CvPromotionEntry::GetStackedGreatGeneralExperience() const
 {
@@ -2274,6 +2310,42 @@ int CvPromotionEntry::GetMilitaryProductionModifier() const
 bool CvPromotionEntry::IsHighSeaRaider() const
 {
 	return m_bHighSeaRaider;
+}
+int CvPromotionEntry::GetGeneralGoldenAgeExpPercent() const
+{
+	return m_iGeneralGoldenAgeExpPercent;
+}
+int CvPromotionEntry::GetGiveCombatMod() const
+{
+	return m_iGiveCombatMod;
+}
+int CvPromotionEntry::GetGiveHPIfEnemyKilled() const
+{
+	return m_iGiveHPHealedIfEnemyKilled;
+}
+int CvPromotionEntry::GetGiveExperiencePercent() const
+{
+	return m_iGiveExperiencePercent;
+}
+int CvPromotionEntry::GetGiveOutsideFriendlyLandsModifier() const
+{
+	return m_iGiveOutsideFriendlyLandsModifier;
+}
+DomainTypes CvPromotionEntry::GetGiveDomain() const
+{
+	return m_eGiveDomain;
+}
+int CvPromotionEntry::GetGiveExtraAttacks() const
+{
+	return m_iGiveExtraAttacks;
+}
+int CvPromotionEntry::GetGiveDefenseMod() const
+{
+	return m_iGiveDefenseMod;
+}
+bool CvPromotionEntry::IsGiveInvisibility() const
+{
+	return m_bGiveInvisibility;
 }
 #endif
 

@@ -1596,7 +1596,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW_CITY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
 			}
-			pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
+			pkAttacker->changeMoves(-1 * std::max(GC.getMOVE_DENOMINATOR(), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
 
 			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
 		}
@@ -1642,7 +1642,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	//////////////////////////////////////////////////////////////////////
 
 	// Any interception to be done?
-	CvUnit* pInterceptor = kAttacker.GetBestInterceptor(plot, pkDefender);
+	CvUnit* pInterceptor = plot.GetBestInterceptor(kAttacker.getOwner(), &kAttacker);
 	int iInterceptionDamage = 0;
 
 	if(pInterceptor != NULL && pInterceptor != pkDefender)
@@ -2877,14 +2877,14 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if(iDamageLevel == 1)
 					{
 						iBaseDamage = /*30*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), pkCity->getPopulation());
-						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), pkCity->GetPower());
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), pkCity->getPopulation() + i);
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_2(), pkCity->GetPower() +i);
 					}
 					else
 					{
 						iBaseDamage = /*60*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_BASE();
-						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), pkCity->getPopulation());
-						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), pkCity->GetPower());
+						iRandDamage1 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_1(), pkCity->getPopulation() + i);
+						iRandDamage2 = GC.getGame().getSmallFakeRandNum(/*20*/ GC.getNUKE_LEVEL2_POPULATION_DEATH_RAND_2(), pkCity->GetPower() + i);
 					}
 
 					int iNukedPopulation = pkCity->getPopulation() * (iBaseDamage + iRandDamage1 + iRandDamage2) / 100;
@@ -2987,7 +2987,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								// How much destruction is unleashed on nearby Units?
 								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
-									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), *pLoopPlot) + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), pLoopUnit->GetID()));
+									iNukeDamage = (/*3*/ GC.getNUKE_UNIT_DAMAGE_BASE() + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_1(), *pLoopPlot) + /*4*/ GC.getGame().getSmallFakeRandNum(GC.getNUKE_UNIT_DAMAGE_RAND_2(), pLoopUnit->GetID() + iDX + iDY));
 								}
 								// Wipe everything out
 								else
@@ -3186,7 +3186,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 	CvAssert(paraUnit.getCombatTimer() == 0);
 
 	// Any interception to be done?
-	CvUnit* pInterceptor = paraUnit.GetBestInterceptor(dropPlot, NULL);
+	CvUnit* pInterceptor = dropPlot.GetBestInterceptor(paraUnit.getOwner(), &paraUnit);
 	if (pInterceptor) {
 		uint uiParentEventID = 0;
 		int iInterceptionDamage = 0;
@@ -4074,7 +4074,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		return eResult;
 	}
 
-	CvUnit* pInterceptor = kAttacker.GetBestInterceptor(targetPlot);
+	CvUnit* pInterceptor = targetPlot.GetBestInterceptor(kAttacker.getOwner(), &kAttacker);
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 
 	// Any interceptor to sweep for?
@@ -4546,9 +4546,12 @@ void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo &
 				pkUnit->changeDamage(kEntry.GetDamage(), pkAttacker->getOwner());
 				if (pkUnit->IsDead())
 				{
-					//unit kill is delayed. in case of multiple attacks this turn we remove the garrison manually
+					//unit kill is delayed. in case of multiple attacks this turn we remove / switch the garrison manually
 					if (pkUnit->IsGarrisoned())
-						pkUnit->GetGarrisonedCity()->SetGarrison(NULL);
+					{
+						CvCity* pCity = pkUnit->GetGarrisonedCity();
+						pCity->SetGarrison( pCity->plot()->getBestGarrison(pCity->getOwner()) );
+					}
 
 					CvString strBuffer;
 					int iActivePlayerID = GC.getGame().getActivePlayer();

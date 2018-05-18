@@ -206,14 +206,8 @@ public:
 	int GetLocalFaithCooldown() const;
 	bool IsMounted() const;
 	bool IsCultureFromExperienceDisbandUpgrade() const;
-	bool IsConvertUnit() const;
 	bool IsUnitEraUpgrade() const;
-	bool IsConvertOnDamage() const;
-	int GetDamageThreshold() const;
-	UnitTypes GetConvertUnit() const;
-	bool IsConvertOnFullHP() const;
 	bool IsWarOnly() const;
-	bool IsConvertEnemyUnitToBarbarian() const;
 	bool IsWLTKDFromBirth() const;
 	bool IsGoldenAgeFromBirth() const;
 	bool IsCultureBoost() const;
@@ -399,12 +393,7 @@ private:
 	bool m_bCultureFromExperienceOnDisband;
 	bool m_bIsConvertUnit;
 	bool m_bUnitEraUpgrade;
-	bool m_bIsConvertOnDamage;
-	int m_iDamageThreshold;
-	UnitTypes m_eConvertUnit;
-	bool m_bIsConvertOnFullHP;
 	bool m_bWarOnly;
-	bool m_bConvertEnemyUnitToBarbarian;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;
 	bool m_bCultureBoost;

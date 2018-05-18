@@ -521,6 +521,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
 	Method(GetNearbyUnitClassModifierFromUnitClass);
+	Method(GetSapperAreaEffectBonus);
+	Method(GetGiveCombatModToUnit);
+	Method(GetNearbyCityBonusCombatMod);
 #endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
@@ -2942,9 +2945,7 @@ int CvLuaUnit::lGetBestInterceptor(lua_State* L)
 
 	CvUnit* pkBestUnit = 0;
 	if(pkPlot)
-	{
-		pkBestUnit = pkUnit->GetBestInterceptor(*pkPlot, pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
-	}
+		pkBestUnit = pkPlot->GetBestInterceptor(pkUnit->getOwner(), pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
 
 	CvLuaUnit::Push(L, pkBestUnit);
 	return 1;
@@ -2961,9 +2962,7 @@ int CvLuaUnit::lGetInterceptorCount(lua_State* L)
 
 	int iCount  = 0;
 	if(pkPlot)
-	{
-		iCount = pkUnit->GetInterceptorCount(*pkPlot, pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
-	}
+		iCount = pkPlot->GetInterceptorCount(pkUnit->getOwner(), pkDefender, bLandInterceptorsOnly, bVisibleInterceptorsOnly);
 
 	lua_pushinteger(L, iCount);
 	return 1;
@@ -2977,9 +2976,7 @@ int CvLuaUnit::lGetBestSeaPillageInterceptor(lua_State* L)
 
 	CvUnit* pkBestUnit = 0;
 	if(pkPlot)
-	{
-		pkBestUnit = pkUnit->GetBestInterceptor(*pkPlot);
-	}
+		pkBestUnit = pkPlot->GetBestInterceptor(pkUnit->getOwner());
 
 	CvLuaUnit::Push(L, pkBestUnit);
 	return 1;
@@ -5030,33 +5027,22 @@ int CvLuaUnit::lSetLeaderUnitType(lua_State* L)
 int CvLuaUnit::lIsNearGreatGeneral(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
-#if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	int iAuraEffectChange = 0;
-	const bool bResult = pkUnit->IsNearGreatGeneral(iAuraEffectChange);
-	lua_pushboolean(L, bResult);
-	lua_pushinteger(L, iAuraEffectChange);
-	return 2;
-#else
 	const bool bResult = pkUnit->IsNearGreatGeneral();
 	lua_pushboolean(L, bResult);
 	return 1;
-#endif
 }
 //------------------------------------------------------------------------------
-//bool IsNearGreatGeneral();
 int CvLuaUnit::lGetGreatGeneralAuraBonus(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
-	int iAuraEffectChange = 0;
-	pkUnit->IsNearGreatGeneral(iAuraEffectChange);
-	lua_pushinteger(L, iAuraEffectChange);
+	int iActualBonus = pkUnit->GetAreaEffectBonus(AE_GREAT_GENERAL);
+	int iDefaultBonus = GET_PLAYER(pkUnit->getOwner()).GetGreatGeneralCombatBonus() + GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetGreatGeneralExtraBonus();
+	lua_pushinteger(L, iActualBonus-iDefaultBonus);
 	return 1;
 #else
-	const bool bResult = pkUnit->IsNearGreatGeneral();
-	lua_pushboolean(L, bResult);
+	lua_pushboolean(L, 0);
 	return 1;
 #endif
 }
@@ -5131,11 +5117,43 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
 
-	const bool bResult = pkUnit->IsNearSapper(pkCity);
-	lua_pushboolean(L, bResult);
+	if (!pkCity)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	int iBonus = pkUnit->GetAreaEffectBonus(AE_SAPPER, NULL, pkCity);
+	lua_pushboolean(L, iBonus == GC.getSAPPED_CITY_ATTACK_MODIFIER());
 	return 1;
 }
+
 #if defined(MOD_BALANCE_CORE)
+int CvLuaUnit::lGetSapperAreaEffectBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
+	const int bResult = pkUnit->GetAreaEffectBonus(AE_SAPPER, pkUnit->plot(), pkCity);
+	lua_pushinteger(L, bResult);
+
+	return 1;
+}
+int CvLuaUnit::lGetGiveCombatModToUnit(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int bResult = pkUnit->GetGiveCombatModToUnit();
+	lua_pushinteger(L, bResult);
+
+	return 1;
+}
+int CvLuaUnit::lGetNearbyCityBonusCombatMod(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int bResult = pkUnit->GetNearbyCityBonusCombatMod();
+	lua_pushinteger(L, bResult);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 //bool IsHalfNearSapper(CvCity* pTargetCity);
 int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
@@ -5143,8 +5161,14 @@ int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2, false);
 
-	const bool bResult = pkUnit->IsHalfNearSapper(pkCity);
-	lua_pushboolean(L, bResult);
+	if (!pkCity)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	int iBonus = pkUnit->GetAreaEffectBonus(AE_SAPPER, NULL, pkCity);
+	lua_pushboolean(L, iBonus > 0 && iBonus < GC.getSAPPED_CITY_ATTACK_MODIFIER());
 	return 1;
 }
 //bool GetNearbyUnitClassModifierFromUnitClass();

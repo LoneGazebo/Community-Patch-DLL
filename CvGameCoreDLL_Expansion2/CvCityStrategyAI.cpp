@@ -1913,8 +1913,8 @@ void CvCityStrategyAI::UpdateBestYields()
 			continue;
 		}
 
-		CvCity* pWorkingCity = pPlot->getWorkingCity();
-		if(!pWorkingCity || pWorkingCity->GetID() != m_pCity->GetID())
+		CvCity* pOwningCity = pPlot->getOwningCity();
+		if(!pOwningCity || pOwningCity->GetID() != m_pCity->GetID())
 		{
 			continue;
 		}

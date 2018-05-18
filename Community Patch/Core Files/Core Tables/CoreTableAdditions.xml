@@ -781,6 +781,14 @@
 		<Column name="DomainType" type="text" reference="Domains(Type)"/>
 		<Column name="Modifier" type="integer"/>
 	</Table>
+
+	<!-- TRAIT: Yield for every improvement you have built. Can be set to capital only, or to scale with era. Intended for use with Great Person Tile Improvements (works with normal, will be OP). Affected by IsOddEraScaler, IsCapitalOnly. -->
+	<Table name="Trait_YieldChangesPerImprovementBuilt">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">

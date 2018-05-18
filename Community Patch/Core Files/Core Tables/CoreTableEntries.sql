@@ -143,7 +143,10 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
--- Abnormal scaler for Specialist yields in cities UA. +specialist yield in medieval/industrial/atomic eras.
+-- Abnormal scaler. Works for:
+---- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)
+---- FreeSocialPoliciesPerEra column in Traits
+---- Trait_YieldChangesPerImprovementBuilt (x2/x3/x4 of the bonus in Medieval/Industrial/Atomic)
 
 ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
@@ -817,6 +820,46 @@ ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 -- Promotion grants the same bonus as the Japan UA
 ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 
+-- Great General gives extra XP% during a golden age (Persia)
+ALTER TABLE UnitPromotions ADD COLUMN 'GeneralGoldenAgeExpPercent' INTEGER DEFAULT 0;
+
+-- The Following Promotions Require IsNearbyPromotion and NearbyRange to be set. IsNearbyPromotion is an "m_unitsAreaEffectPromotion" Unit
+ALTER TABLE UnitPromotions ADD IsNearbyPromotion BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD NearbyRange INTEGER DEFAULT 0;
+-- Set the Domain that Gets the Bonus
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveDomain' TEXT DEFAULT NULL REFERENCES Domains(Type);
+
+-- Unit gives additional combat strength to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveCombatMod' INTEGER DEFAULT 0;
+
+-- Unit Gives HP to additional units if they kill an enemy units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveHPHealedIfEnemyKilled' INTEGER DEFAULT 0;
+
+-- Unit Gives additional XP in combat to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveExperiencePercent' INTEGER DEFAULT 0;
+
+-- Unit Gives a bonus to outside friendly lands unis? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveOutsideFriendlyLandsModifier' INTEGER DEFAULT 0;
+
+-- Unit Gives extra attacks to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveExtraAttacks' INTEGER DEFAULT 0;
+
+-- Unit Gives extra defense to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveDefenseMod' INTEGER DEFAULT 0;
+
+-- Unit gives Invisibility to another Unit? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'GiveInvisibility' BOOLEAN DEFAULT 0;
+
+-- Unit gains Combat modifier when near cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD NearbyCityCombatMod INTEGER DEFAULT 0;
+
+-- Unit gains Combat modifier when near friendly cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD NearbyFriendlyCityCombatMod INTEGER DEFAULT 0;
+
+-- Unit gains Combat modifier when near enemy cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+ALTER TABLE UnitPromotions ADD NearbyEnemyCityCombatMod INTEGER DEFAULT 0;
+-- End
+
 -- Double Movement on Mountains
 ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
 
@@ -835,16 +878,7 @@ ALTER TABLE UnitPromotions ADD CombatBonusFromNearbyUnitClass INTEGER DEFAULT -1
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonusRange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonus INTEGER DEFAULT 0;
 
--- Requres some Explanation: Unit A has X promotion, Unit B gains promotion by adding these Values to a Promotion that it wishes to gain when near some distance
--- AddedFromNearbyPromotion = 'Unit A's promotion' IsNearbyPromotion must be set to 1 or true, and NearbyRange is distance in which the promotion triggers.
-ALTER TABLE UnitPromotions ADD AddedFromNearbyPromotion INTEGER DEFAULT -1;
-ALTER TABLE UnitPromotions ADD IsNearbyPromotion BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD NearbyRange INTEGER DEFAULT 0;
-
 -- A unit gains a promotion if "NearbyRange" is set to a distance from City, RequiredUnit must be set to the unit that you wish to give the promotion to.
-ALTER TABLE UnitPromotions ADD IsNearbyCityPromotion BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD IsNearbyFriendlyCityPromotion BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD IsNearbyEnemyCityPromotion BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD IsFriendlyLands BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD RequiredUnit TEXT DEFAULT NULL REFERENCES Units(Type);
 
@@ -1124,20 +1158,23 @@ ALTER TABLE UnitPromotions ADD COLUMN 'DamageReductionCityAssault' INTEGER DEFAU
 
 -- Note: The below entries are used, e.g. mounting or dismounting a unit, say a Lancer gets below 50 HP "DamageThreshold", and can "dismount" and fortify as an Infantry type unit.
 
--- Unit will convert to another UnitType. Must define a "DamageThreshold" and the "ConvertUnit" Type
-ALTER TABLE Units ADD ConvertOnDamage BOOLEAN DEFAULT 0;
+-- Unit will convert to another UnitType. Must define a "DamageThreshold" and the "ConvertDamageOrFullHPUnit" Type
+ALTER TABLE UnitPromotions ADD IsConvertOnDamage BOOLEAN DEFAULT 0;
 
--- Unit will convert to another UnitType if "ConvertOnDamage" and "DamageThreshold" are defined.
-ALTER TABLE Units ADD ConvertUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+-- Unit will convert to the original UnitType when Max Hit Points are restored. Must define "ConvertDamageOrFullHPUnit" Type to the original Unit.
+ALTER TABLE UnitPromotions ADD IsConvertOnFullHP BOOLEAN DEFAULT 0;
+
+-- Unit will convert to another UnitType if "IsConvertOnDamage" and "DamageThreshold" are defined. If used to convert back to the original unit when full HP is restored, "IsConvertOnFullHp" must be defined.
+ALTER TABLE UnitPromotions ADD ConvertDamageOrFullHPUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+
+-- Unit will convert to another UnitType. Must define a "IsConvertOnDamage" and the "ConvertDamageOrFullHPUnit" Type. Or Can be set with IsConvertEnemyUnitToBarbarian
+ALTER TABLE UnitPromotions ADD DamageThreshold INTEGER DEFAULT 0;
+
+-- Can this unit convert an enemy unit into a barbarian? Must set DamageThreshold to a value you want enemy to convert.
+ALTER TABLE UnitPromotions ADD IsConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
 
 -- Special Units that have a different Special rating can be modified here to load on to ships (e.g. Great People).
 ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialUnits(Type);
-
--- Unit will convert to another UnitType. Must define a "ConvertOnDamage" and the "ConvertUnit" Type
-ALTER TABLE Units ADD DamageThreshold INTEGER DEFAULT 0;
-
--- Unit will convert to the original UnitType when Max Hip Points are restored. Must define "ConvertUnit" Type to the original Unit.
-ALTER TABLE Units ADD ConvertOnFullHP BOOLEAN DEFAULT 0;
 
 -- Does this Civ get a GG/GA Rate Modifier bonus from denunciations and wars?
 ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT 0;
@@ -1147,9 +1184,6 @@ ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Typ
 
 -- Can this unit only be trained during War?
 ALTER TABLE Units ADD WarOnly BOOLEAN DEFAULT 0;
-
--- Can this unit convert an enemy unit into a barbarian? Must set as well DamageThreshold to a value you want enemy to convert.
-ALTER TABLE Units ADD ConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
 
 -- Civ gets an influence boost and Great Admiral Points when sending a Trade Route to a minor Civ.
 ALTER TABLE Traits ADD COLUMN 'TradeRouteMinorInfluenceAP' BOOLEAN DEFAULT 0;
@@ -1187,6 +1221,9 @@ ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
 -- Define a modifier for all great work tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
+-- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
+ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
+
 -- Promotion grants additional religious pressure when this unit is garrisoned in the city (if the player has a religion).
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
 
@@ -1211,14 +1248,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentCityDefenseMod' INTEGER DEFAULT 0
 -- Traveling Citadel.
 ALTER TABLE UnitPromotions ADD COLUMN 'NearbyEnemyDamage' INTEGER DEFAULT 0;
 
--- Enemy Units gain the "EnemyLands" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyLands" promotion type for this to work (see below).
+-- Enemy Units gain the "EnemyWarSawPactPromotion" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyWarSawPactPromotion" promotion type for this to work (see below).
 ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;
-
--- Units gain this promotion when "WarsawPact" Player is set.
-ALTER TABLE UnitPromotions ADD COLUMN 'EnemyLands' BOOLEAN DEFAULT 0;
-
--- Unit gains this promotion when adjacent when adjacent to a unit and both units have this Prereq Promotion defined as AdjacentSameType = 'PROMOTION_X'
-ALTER TABLE UnitPromotions ADD AdjacentSameType TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
+ALTER TABLE Traits ADD EnemyWarSawPactPromotion TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 
 -- Build adds an instant yield of culture to Player's culture pool.
 ALTER TABLE Builds ADD CultureBoost BOOLEAN DEFAULT 0;

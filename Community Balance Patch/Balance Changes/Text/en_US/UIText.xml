@@ -431,7 +431,7 @@
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
-			<Text>{1_Happiness} from Luxuries (based on Population)</Text>
+			<Text>{1_Happiness} from Luxuries (Bonus)</Text>
 		</Row>
 
 		<!-- Tooltips for EU Panel -->
@@ -1049,8 +1049,17 @@
 
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>Based on your current [ICON_CITIZEN] Population ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]), acquiring a new Luxury Resource will increase your [ICON_HAPPINESS_1] Happiness by [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]. To increase the [ICON_HAPPINESS_1] Happiness you gain from all owned Luxuries, raise your total [ICON_CITIZEN] Population to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+			<Text>To increase Bonus [ICON_HAPPINESS_1] Happiness from Luxuries (currently {3_Num}), raise your [ICON_CITIZEN] Population to [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (currently {2_Num}). The bonus diminishes with the number of owned cities, whereas each new goal scales based on your total Population.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_LUXURY_BONUS_HAPPINESS">
+			<Text>Your Luxury Bonus rank is now {2_Num}. Increase your Population to {1_Num} to increase this rank further.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LUXURY_BONUS_HAPPINESS_S">
+			<Text>Luxury Bonus Happiness Increased!</Text>
+		</Row>
+
+		
 
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
 			<Text>[COLOR_POSITIVE_TEXT]Connected[ENDCOLOR]</Text>

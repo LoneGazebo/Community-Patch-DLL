@@ -7,6 +7,7 @@ UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_EMISSARY';
 UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_ENVOY';
 UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET PurchaseCooldown =     5  WHERE Type = 'UNIT_AMBASSADOR';
+UPDATE Units SET PurchaseCooldown =		1  WHERE Type = 'UNIT_GREAT_DIPLOMAT';
 
 UPDATE Units SET Cost = '110' WHERE Type = 'UNIT_EMISSARY';
 UPDATE Units SET Cost = '200' WHERE Type = 'UNIT_ENVOY';
@@ -14,6 +15,7 @@ UPDATE Units SET Cost = '700' WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET Cost = '1200' WHERE Type = 'UNIT_AMBASSADOR';
 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
+
 
 UPDATE Buildings SET PrereqTech = 'TECH_EDUCATION' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET PrereqTech = 'TECH_REPLACEABLE_PARTS' WHERE Type = 'BUILDING_WIRE_SERVICE';

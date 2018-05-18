@@ -1209,6 +1209,10 @@ public:
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
+	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL);
+	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
+	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
+	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -2242,6 +2246,11 @@ public:
 	int getImprovementCount(ImprovementTypes eIndex) const;
 	void changeImprovementCount(ImprovementTypes eIndex, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int getTotalImprovementsBuilt(ImprovementTypes eIndex) const;
+	void changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange);
+#endif
+
 	int getGreatPersonImprovementCount();
 
 	int getFreeBuildingCount(BuildingTypes eIndex) const;
@@ -2546,8 +2555,10 @@ public:
 	void UpdateAreaEffectUnits();
 	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
+	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
+	const std::vector< std::pair<int,int> >& GetPossibleInterceptors() const;
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
@@ -2864,6 +2875,9 @@ public:
 	int GetVassalGoldMaintenanceMod() const;
 	void SetVassalGoldMaintenanceMod(int iValue);
 	void ChangeVassalGoldMaintenanceMod(int iChange);
+
+	void DoVassalLevy();
+	void SetVassalLevy(bool bValue);
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -3273,6 +3287,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
+	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantGreatPersonProgress;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abActiveContract;
 	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;
 	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldownRate;
@@ -3509,6 +3524,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceFromMinors;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourcesSiphoned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiImprovementCount;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiTotalImprovementsBuilt;
+#endif
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreeBuildingCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiFreePromotionCount;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitCombatProductionModifiers;
@@ -3522,6 +3540,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiHurryModifier;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	FAutoVariable<bool, CvPlayer> m_bVassalLevy;
 	FAutoVariable<int, CvPlayer> m_iVassalGoldMaintenanceMod;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -3715,10 +3734,15 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAvgUnitExp100;
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
+	std::vector< std::pair<int,int> > m_unitsAreaEffectPromotion; //unit / plot
+	std::vector< std::pair<int,int> > m_unitsWhichCanIntercept; //unit / plot
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
 #endif
+
+	mutable int m_iNumUnitsSuppliedCached; //not serialized
+
 #if defined(MOD_BATTLE_ROYALE)
 	FAutoVariable<int, CvPlayer> m_iNumMilitarySeaUnits;
 	FAutoVariable<int, CvPlayer> m_iNumMilitaryAirUnits;
