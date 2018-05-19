@@ -1277,7 +1277,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 		return false;
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eTeam).IsVassalOfSomeone() && (GET_TEAM(eTeam).GetMaster() != GetID()))
+	if(MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
 	{
 		return false;
 	}
@@ -9884,7 +9884,7 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 		bAbleToEndVassalage = true;
 	}
 	// We have more than 300% of our original population (We don't need his protection anymore)
-	else if(iPopPercent > (/*300*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD()))
+	else if(iPopPercent >= (/*300*/GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD()))
 	{
 		bAbleToEndVassalage = true;
 	}

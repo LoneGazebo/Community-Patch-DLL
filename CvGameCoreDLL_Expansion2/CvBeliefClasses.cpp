@@ -99,6 +99,8 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iMissionaryInfluenceCS(0),
 	m_iHappinessPerPantheon(0),
 	m_iExtraVotes(0),
+	m_iCityScalerLimiter(0),
+	m_iFollowerScalerLimiter(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
 	m_piMaxYieldPerFollower(NULL),
 	m_piMaxYieldPerFollowerHalved(NULL),
@@ -679,6 +681,16 @@ int CvBeliefEntry::GetExtraVotes() const
 {
 	return m_iExtraVotes;
 }
+
+int CvBeliefEntry::GetCityScalerLimiter() const
+{
+	return m_iCityScalerLimiter;
+}
+
+int CvBeliefEntry::GetFollowerScalerLimiter() const
+{
+	return m_iFollowerScalerLimiter;
+}
 /// Accessor: Extra Policy Reduction Wonder X Follower Cities
 int CvBeliefEntry::GetPolicyReductionWonderXFollowerCities() const
 {
@@ -1139,6 +1151,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMissionaryInfluenceCS = kResults.GetInt("MissionaryInfluenceCS");
 	m_iHappinessPerPantheon = kResults.GetInt("HappinessPerPantheon");
 	m_iExtraVotes = kResults.GetInt("ExtraVotes");
+	m_iCityScalerLimiter = kResults.GetInt("CityScalerLimiter");
+	m_iFollowerScalerLimiter = kResults.GetInt("FollowerScalerLimiter");
 	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2422,6 +2436,52 @@ int CvReligionBeliefs::GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlay
 
 	return rtnValue;
 }
+
+int CvReligionBeliefs::GetCityScalerLimiter(int iCap) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	int iBiggestValue = 0;
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetCityScalerLimiter();
+		if (iValue != 0)
+		{
+			if (iValue > iBiggestValue)
+			{
+				iBiggestValue = iValue;
+			}
+		}
+	}
+	if (iBiggestValue == 0)
+		return iCap;
+
+	return min(iCap, iBiggestValue);
+}
+
+int CvReligionBeliefs::GetFollowerScalerLimiter(int iCap) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	int iBiggestValue = 0;
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetFollowerScalerLimiter();
+		if (iValue != 0)
+		{
+			if (iValue > iBiggestValue)
+			{
+				iBiggestValue = iValue;
+			}
+		}
+	}
+
+	if (iBiggestValue == 0)
+		return iCap;
+
+	return min(iCap, iBiggestValue);
+}
+
 EraTypes CvReligionBeliefs::GetObsoleteEra(PlayerTypes ePlayer, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
