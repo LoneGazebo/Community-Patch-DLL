@@ -164,6 +164,9 @@ public:
 	int GetPuppetPenaltyReduction() const;
 	int GetSharedReligionTourismModifier() const;
 	int GetExtraMissionaryStrength() const;
+	bool IsCanGoldInternalTradeRoutes() const;
+	int GetExtraTradeRoutesPerXOwnedCities() const;
+	int GetExtraTradeRoutesPerXOwnedVassals() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -499,6 +502,9 @@ protected:
 	int m_iPuppetPenaltyReduction;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
+	bool m_bCanGoldInternalTradeRoutes;
+	int m_iExtraTradeRoutesPerXOwnedCities;
+	int m_iExtraTradeRoutesPerXOwnedVassals;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1221,6 +1227,18 @@ public:
 	int GetExtraMissionaryStrength() const
 	{
 		return m_iExtraMissionaryStrength;
+	};
+	bool IsCanGoldInternalTradeRoutes() const
+	{
+		return m_bCanGoldInternalTradeRoutes;
+	};
+	int GetExtraTradeRoutesPerXOwnedCities() const
+	{
+		return m_iExtraTradeRoutesPerXOwnedCities;
+	};
+	int GetExtraTradeRoutesPerXOwnedVassals() const
+	{
+		return m_iExtraTradeRoutesPerXOwnedVassals;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1966,6 +1984,9 @@ private:
 	int m_iPuppetPenaltyReduction;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
+	bool m_bCanGoldInternalTradeRoutes;
+	int m_iExtraTradeRoutesPerXOwnedCities;
+	int m_iExtraTradeRoutesPerXOwnedVassals;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

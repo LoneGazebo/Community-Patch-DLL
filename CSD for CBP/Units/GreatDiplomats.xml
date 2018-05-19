@@ -4,8 +4,10 @@
 	<GreatPersons>
 		<Row>
 			<Type>GREATPERSON_DIPLOMAT</Type>
+			<Description>TXT_KEY_UNIT_GREAT_DIPLOMAT</Description>
 			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
 			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
+			<IconString>[ICON_DIPLOMAT]</IconString>
 		</Row>
 	</GreatPersons>
 	<Language_en_US>

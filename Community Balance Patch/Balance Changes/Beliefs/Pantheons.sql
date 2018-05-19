@@ -285,7 +285,8 @@ INSERT INTO Belief_YieldPerBirth
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_GODDESS_LOVE', 'YIELD_FAITH', 15),
-	('BELIEF_GODDESS_LOVE', 'YIELD_GOLDEN_AGE_POINTS', 15);
+	('BELIEF_GODDESS_LOVE', 'YIELD_GOLDEN_AGE_POINTS', 10),
+	('BELIEF_GODDESS_LOVE', 'YIELD_GOLD', 5);
 
 INSERT INTO Belief_YieldChangeTradeRoute
 	(BeliefType, YieldType, Yield)
@@ -338,7 +339,8 @@ INSERT INTO Belief_CityYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_FORMAL_LITURGY', 'YIELD_FAITH', 1),
-	('BELIEF_FORMAL_LITURGY', 'YIELD_SCIENCE', 2);
+	('BELIEF_FORMAL_LITURGY', 'YIELD_SCIENCE', 1),
+	('BELIEF_FORMAL_LITURGY', 'YIELD_GOLDEN_AGE_POINTS', 1);
 
 INSERT INTO Belief_TerrainYieldChanges
 	(BeliefType, TerrainType, YieldType, Yield)

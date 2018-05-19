@@ -348,11 +348,29 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_3_HELP">
 			<Text>Spend {1_YieldCost} to receive 1 [ICON_RES_OIL] Oil.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE">
+			<Text>Bearing the Smoke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_HELP">
+			<Text>Underbrush in a nearby Forest has set ablaze, forcing workers out of the Forest until the fires abate.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_1">
-			<Text>Forest Fire</Text>
+			<Text>There's nothing we can do but wait this out. Those mens' lives are more important than our logging operation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_1_HELP">
-			<Text>Underbrush in a nearby Forest has set ablaze, forcing workers out of the Forest until the fires abate. Up to two Lumbermills near the City are pillaged.</Text>
+			<Text>Up to two Lumbermills near the City are pillaged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_2">
+			<Text>Send in firefighters with water and axes, protect our infrastructure at all costs!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_2_HELP">
+			<Text>{1_YieldCost} worth of men succumb to the flames.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_3">
+			<Text>Call in our reserve aircraft to water-bomb the fires and spread retardent fertilizer from the air.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_3_HELP">
+			<Text>Expend {1_YieldCost}. Lush growth burgeons where the fire once raged, nearby Forests yield +1 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_AVALANCHE_CHOICE_1">
 			<Text>Avalanche</Text>

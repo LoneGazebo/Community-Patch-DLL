@@ -38,7 +38,7 @@ const int iChancetoIdentifyNoCounterSpy = 275;
 const int iChancetoDetectNoCounterSpy = 175;
 const int iChancetoKillAA = 250;
 const int iChancetoIdentifyAA = 150;
-const int iSpyRankPower = 75;
+const int iSpyRankPower = 125;
 PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 
 //=====================================
@@ -4472,7 +4472,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 			{
 				uiMaxTechCostAdjusted *= 100;
-				uiMaxTechCostAdjusted /= (100 + (GET_PLAYER(ePlayer).GetCurrentEra() * GET_PLAYER(ePlayer).GetCurrentEra()));
+				uiMaxTechCostAdjusted /= (100 + (GET_PLAYER(ePlayer).GetCurrentEra() + 1 * GET_PLAYER(ePlayer).GetCurrentEra() + 1));
 			}
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
