@@ -11514,7 +11514,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			return result;
 
 		//don't do it if it's a death trap
-		if (currentPlot.getNumAdjacentEnemies()>3)
+		if (currentPlot.getNumAdjacentEnemies()>3 || (assumedPosition.getUnitNumberRatio()<1 && currentPlot.getNumAdjacentEnemies()==3) )
 			return result;
 
 		//lookup by unit strategy / plot type
@@ -11873,30 +11873,27 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 
 void CvTacticalPlot::friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat)
 {
+	//no more enemies here
 	bBlockedByEnemyCombatUnit = false;
 	bBlockedByEnemyCity = false;
 	bEnemyCivilianPresent = false;
 
 	if (bFriendlyUnitIsCombat)
 		bBlockedByFriendlyCombatUnit = true;
+	else
+		bSupportUnitPresent = true; //multiple support units per plot should not happen ...
 
-	if (!bFriendlyUnitIsCombat) //multiple support units per plot should not happen ...
-	{
-		bSupportUnitPresent = true;
-		changeNeighboringUnitCount(currentPosition, false, +1);
-	}
+	changeNeighboringUnitCount(currentPosition, bFriendlyUnitIsCombat, +1);
 }
 
 void CvTacticalPlot::friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat)
 {
 	if (bFriendlyUnitIsCombat)
 		bBlockedByFriendlyCombatUnit = false;
-
-	if (!bFriendlyUnitIsCombat)
-	{
+	else
 		bSupportUnitPresent = false;
-		changeNeighboringUnitCount(currentPosition, false, -1);
-	}
+
+	changeNeighboringUnitCount(currentPosition, bFriendlyUnitIsCombat, -1);
 }
 
 void CvTacticalPlot::enemyUnitRangeKill()
@@ -12907,11 +12904,12 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		}
 	}
 
+	//find out which plot is frontline, second line etc
+	initialPosition->updateTacticalPlotTypes();
+
 	//this influences how daring we'll be
 	initialPosition->updateUnitNumberRatio();
 
-	//find out which plot is frontline, second line etc
-	initialPosition->updateTacticalPlotTypes();
 	if (gTacticalCombatDebugOutput)
 		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
 
