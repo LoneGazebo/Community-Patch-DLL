@@ -1185,6 +1185,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	RegisterEnum(TRADE_CONNECTION_WONDER_RESOURCE);
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	RegisterEnum(TRADE_CONNECTION_GOLD_INTERNAL);
+#endif
 	RegisterEnum(NUM_TRADE_CONNECTION_TYPES);
 	EnumEnd(L);
 #endif

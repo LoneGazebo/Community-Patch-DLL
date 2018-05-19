@@ -76,7 +76,7 @@ public:
 	bool canBeSelected() const;
 	void updateSelectedCity();
 #if defined(MOD_BALANCE_CORE)
-	void updateYield(bool bSkipCity = false);
+	void updateYield(bool bRecalcPlotYields = true);
 	void ResetGreatWorkYieldCache();
 #else
 	void updateYield();

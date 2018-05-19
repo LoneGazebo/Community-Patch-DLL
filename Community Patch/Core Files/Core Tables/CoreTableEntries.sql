@@ -591,6 +591,9 @@ ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' INTEGER DEFAULT 0;
 -- Extra Votes from Belief
 ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' INTEGER DEFAULT 0;
 
+ALTER TABLE Beliefs ADD COLUMN 'CityScalerLimiter' INTEGER DEFAULT 0;
+ALTER TABLE Beliefs ADD COLUMN 'FollowerScalerLimiter' INTEGER DEFAULT 0;
+
 -- Ignore Policy Requirements (number) for wonders up to a set era
 ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirementsUpToEra' BOOLEAN DEFAULT 0;
 
@@ -1275,6 +1278,16 @@ ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 
 -- Missionaries gain % more strength
 ALTER TABLE Traits ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
+
+-- Can send gold internal trade routes; gold yield calculated as if international, culture and science calculated as if allied city state. Only sender city gets the yields.
+-- Note: Requires BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES in CustomModOptions to be set to 1 (0 by default for performance).
+ALTER TABLE Traits ADD COLUMN 'CanGoldInternalTradeRoutes' BOOLEAN DEFAULT 0;
+
+-- Additional trade routes based on the number of owned cities
+ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedCities' INTEGER DEFAULT 0;
+
+-- Additional trade routes based on the number of owned vassals
+ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedVassals' INTEGER DEFAULT 0;
 
 -- CSD
 

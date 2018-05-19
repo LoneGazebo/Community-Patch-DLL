@@ -3453,7 +3453,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 
 			//Delta is the % of pressure we get.
 			int iDelta = (iNumFollowersOtherReligions * 100);
-			iDelta /= iCitySize;
+			iDelta /= max(1, iCitySize);
 
 			iPressure *= iDelta;
 			iPressure /= 100;

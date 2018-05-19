@@ -260,12 +260,20 @@ public:
 		int iChoice;
 		int iTotalTopChoicesWeight = 0;
 
+		int iTopChoiceWeightThreshold = 0;
 		// Get the total weight
 		for (i = 0; i < iNumChoices; i++)
 		{
 			elem = m_pItems[i];
 			iTotalTopChoicesWeight += elem.m_iWeight;
+			if (i > 0)
+				iTopChoiceWeightThreshold += elem.m_iWeight;
 		}
+
+		//if our top option is worth more than all other potential options combined, take it!
+		elem = m_pItems[0];
+		if (elem.m_iWeight >= iTopChoiceWeightThreshold)
+			return elem.m_Element;
 
 		// Random roll up to total weight
 		if (GC.getGame().isNetworkMultiPlayer() || GC.getGame().isReallyNetworkMultiPlayer())

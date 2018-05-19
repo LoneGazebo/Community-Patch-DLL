@@ -3591,12 +3591,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 
 	int iNumWorkersHere = 0;
 	int iCanImprove = 0;
-	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+	for (int iCityPlotLoop = 0; iCityPlotLoop < RING5_PLOTS; iCityPlotLoop++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
 
 		// Invalid plot or not owned by this player
-		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner)
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner || pLoopPlot->getOwningCity() != pCity)
 		{
 			continue;
 		}
@@ -5308,12 +5308,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		//And here's what the value represents.
 		//Era = higher era, less valuable in game.
-		iActualIncrease = (iFlatYield * (100 - (iEra * 5)));
-		iActualIncrease /= 100; // fix for #3870
+		iActualIncrease = (iFlatYield * (100 - (iEra * 3)));
+		iActualIncrease /= 100;
 		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
-
 	}
 
 	if (iInstant > 0)
@@ -5325,7 +5324,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//We divide, since we are getting this sporadically, not all the time.
 		iDelta = max(10, (iInstant / max(1, iYieldRate)));
 
-		iYieldValue += (iDelta * iEra * 2);
+		iYieldValue += iDelta;
 
 	}
 	if (iModifier > 0)
@@ -5338,7 +5337,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//We don't need to do this again as this shows us the actual bonus earned here.
 		iActualIncrease = ((iModifier * iYieldRate) / 100);
 
-		iYieldValue += (iActualIncrease * iEra * 2);
+		iYieldValue += iActualIncrease;
 	}
 	
 	AICityStrategyTypes eNeedCulture = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_CULTURE_BUILDING");
