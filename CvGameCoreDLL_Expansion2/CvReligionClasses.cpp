@@ -1233,6 +1233,8 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * pLoopCity->getPopulation() * 2);
 	}
 
+	UpdateAllCitiesThisReligion(newReligion.m_eReligion);
+
 	// Send out messaging
 	CvReligionEntry* pEntry = GC.getReligionInfo(newReligion.m_eReligion);
 	CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
@@ -3453,7 +3455,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 
 			//Delta is the % of pressure we get.
 			int iDelta = (iNumFollowersOtherReligions * 100);
-			iDelta /= iCitySize;
+			iDelta /= max(1, iCitySize);
 
 			iPressure *= iDelta;
 			iPressure /= 100;
@@ -3811,7 +3813,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight());
+				iTempWeight += theGame.getSmallFakeRandNum(15, kPlayer.GetEconomicMight() + iLoop);
 
 				if(iTempWeight > iBestWeight)
 				{

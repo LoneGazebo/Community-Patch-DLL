@@ -156,6 +156,7 @@ public:
 	bool IsConquestOfTheWorld() const;
 	bool IsFreeUpgrade() const;
 	bool IsWarsawPact() const;
+	PromotionTypes GetEnemyWarSawPactPromotion() const;
 	bool IsFreeZuluPikemanToImpi() const;
 	bool IsPermanentYieldsDecreaseEveryEra() const;
 	bool IsImportsCountTowardsMonopolies() const;
@@ -163,6 +164,9 @@ public:
 	int GetPuppetPenaltyReduction() const;
 	int GetSharedReligionTourismModifier() const;
 	int GetExtraMissionaryStrength() const;
+	bool IsCanGoldInternalTradeRoutes() const;
+	int GetExtraTradeRoutesPerXOwnedCities() const;
+	int GetExtraTradeRoutesPerXOwnedVassals() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -490,6 +494,7 @@ protected:
 	bool m_bConquestOfTheWorld;
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
+	int m_iEnemyWarSawPactPromotion;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
@@ -497,6 +502,9 @@ protected:
 	int m_iPuppetPenaltyReduction;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
+	bool m_bCanGoldInternalTradeRoutes;
+	int m_iExtraTradeRoutesPerXOwnedCities;
+	int m_iExtraTradeRoutesPerXOwnedVassals;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1208,6 +1216,10 @@ public:
 	{
 		return m_bWarsawPact;
 	};
+	PromotionTypes GetEnemyWarSawPactPromotion() const
+	{
+		return (PromotionTypes)m_iEnemyWarSawPactPromotion;
+	};
 	int GetSharedReligionTourismModifier() const
 	{
 		return m_iSharedReligionTourismModifier;
@@ -1215,6 +1227,18 @@ public:
 	int GetExtraMissionaryStrength() const
 	{
 		return m_iExtraMissionaryStrength;
+	};
+	bool IsCanGoldInternalTradeRoutes() const
+	{
+		return m_bCanGoldInternalTradeRoutes;
+	};
+	int GetExtraTradeRoutesPerXOwnedCities() const
+	{
+		return m_iExtraTradeRoutesPerXOwnedCities;
+	};
+	int GetExtraTradeRoutesPerXOwnedVassals() const
+	{
+		return m_iExtraTradeRoutesPerXOwnedVassals;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1952,6 +1976,7 @@ private:
 	bool m_bConquestOfTheWorld;
 	bool m_bFreeUpgrade;
 	bool m_bWarsawPact;
+	int m_iEnemyWarSawPactPromotion;
 	bool m_bFreeZuluPikemanToImpi;
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
@@ -1959,6 +1984,9 @@ private:
 	int m_iPuppetPenaltyReduction;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
+	bool m_bCanGoldInternalTradeRoutes;
+	int m_iExtraTradeRoutesPerXOwnedCities;
+	int m_iExtraTradeRoutesPerXOwnedVassals;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

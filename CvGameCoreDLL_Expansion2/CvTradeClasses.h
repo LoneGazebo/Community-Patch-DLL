@@ -367,6 +367,9 @@ public:
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	int ScoreWonderTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 #endif
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	std::vector<int> ScoreGoldInternalTR(const TradeConnection& kTradeConnection);
+#endif
 
 	int m_iRemovableValue;
 

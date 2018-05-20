@@ -1651,7 +1651,7 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	const RouteTypes eRoute = (RouteTypes)luaL_optint(L, 5, NUM_ROUTE_TYPES);
 #endif
 
-	const int iResult = pkPlot->calculateImprovementYieldChange(eImprovement, eYield, ePlayer, bOptional, eRoute);
+	const int iResult = pkPlot->calculateImprovementYield(eImprovement, eYield, ePlayer, bOptional, eRoute);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1671,7 +1671,30 @@ int CvLuaPlot::lHasYield(lua_State* L)
 //bool GetYieldWithBuild();
 int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::getYieldWithBuild);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 3);
+	const bool bUpgrade = luaL_optbool(L, 4, false);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 5);
+
+	const CvCity* pOwningCity = pkPlot->getOwningCity();
+	if (pOwningCity)
+	{
+		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = pOwningCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+
+		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
+		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
+		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pReligion, pBelief);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+	else
+	{
+		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, NULL, NULL, NULL);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
 }
 //------------------------------------------------------------------------------
 //int countNumAirUnits(TeamTypes ePlayer);

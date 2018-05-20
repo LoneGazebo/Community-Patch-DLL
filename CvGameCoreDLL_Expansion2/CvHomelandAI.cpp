@@ -6944,6 +6944,11 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 						strLogString.Format("Establishing wonder trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
 						break;
 #endif
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+					case TRADE_CONNECTION_GOLD_INTERNAL:
+						strLogString.Format("Establishing gold trade route (internal) from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
+						break;
+#endif
 					}
 
 					LogHomelandMessage(strLogString);

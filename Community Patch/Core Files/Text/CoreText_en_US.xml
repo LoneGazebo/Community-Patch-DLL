@@ -2694,6 +2694,18 @@
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DISTANCE_MOD">
 			<Text>Proximity Penalty: {1_Num}%</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_MINOR_CS_TT_BONUS">
+			<Text>Gold bonus from trading within your Empire: {2_Num}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN">
+			<Text>Total: {1_Num} [ICON_RESEARCH] Science (due to trading within your Empire)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_GOLD_INTERNAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN">
+			<Text>Total: {1_Num} [ICON_CULTURE] Culture (due to trading within your Empire)</Text>
+		</Row>
 	
 		<!-- LUA for CBP -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">

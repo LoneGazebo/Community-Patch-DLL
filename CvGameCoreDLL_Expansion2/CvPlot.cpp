@@ -5721,7 +5721,7 @@ int CvPlot::ComputeYieldFromAdjacentPlot(CvImprovementEntry& kImprovement, Yield
 		PlotTypes ePlot = (PlotTypes)iJ;
 		if(ePlot != NO_PLOT)
 		{
-			if(kImprovement.GetAdjacentPlotYieldChanges(ePlot, eYield) > 0)
+			if (kImprovement.GetAdjacentPlotYieldChanges(ePlot, eYield) > 0)
 			{
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
@@ -7832,42 +7832,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #endif
 
 			// If this improvement can add culture to nearby improvements, update them as well
-#if defined(MOD_API_UNIFIED_YIELDS)
-			for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-					break;
-
-				if(oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iI) > 0)
-#else
-				if(oldImprovementEntry.GetCultureAdjacentSameType() > 0)
-#endif
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-					{
-						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
-						{
-							pAdjacentPlot->updateYield();
-						}
-					}
-				}
-#if defined(MOD_API_UNIFIED_YIELDS)
-				if(oldImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes) iI) > 0)
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-					{
-						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
-						{
-							pAdjacentPlot->updateYield();
-						}
-					}
-				}
-			}
-#endif
-
 			if(area())
 			{
 				area()->changeNumImprovements(eOldImprovement, -1);
@@ -7977,6 +7941,29 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		calculateAdditionalUnitsFromImprovement();
 #endif
+
+		if (eOldImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
+			for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
+				if (oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes)iI) > 0 || oldImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes)iI) > 0)
+				{
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+						if (pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
 
 		if(getImprovementType() == NO_IMPROVEMENT)
 		{
@@ -8111,33 +8098,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 #endif
 			// If this improvement can add culture to nearby improvements, update them as well
-#if defined(MOD_API_UNIFIED_YIELDS)
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
 				//Simplification - errata yields not worth considering.
 				if ((YieldTypes)iYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 					break;
 
-				if(newImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iYield) > 0)
-#else
-				if(newImprovementEntry.GetCultureAdjacentSameType() > 0)
-#endif
+				if (newImprovementEntry.GetYieldAdjacentSameType((YieldTypes)iYield) > 0 || newImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes)iYield) > 0)
 				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
 					{
-						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eNewValue)
-						{
-							pAdjacentPlot->updateYield();
-						}
-					}
-				}
-#if defined(MOD_API_UNIFIED_YIELDS)
-				if(newImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes) iYield) > 0)
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-					{
-						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
 						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eNewValue)
 						{
 							pAdjacentPlot->updateYield();
@@ -8145,7 +8116,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 			}
-#endif
 
 			if(area())
 			{
@@ -8856,6 +8826,27 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			else if (!bPillaged && iMoves > 0 && getOwner() == GET_PLAYER(getOwner()).GetID())
 			{
 				ChangePlotMovesChange(iMoves);
+			}
+
+			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(getImprovementType());
+
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+					break;
+
+				if (oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes)iI) > 0 || oldImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes)iI) > 0)
+				{
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+						if (pAdjacentPlot && pAdjacentPlot->getImprovementType() == getImprovementType())
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
 			}
 		}
 #endif
@@ -9679,26 +9670,7 @@ int CvPlot::getYield(YieldTypes eIndex) const
 	return (int)(m_aiYield[eIndex]);
 }
 
-
-//	--------------------------------------------------------------------------------
 int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature) const
-{
-	const CvCity* pOwningCity = getOwningCity();
-	if(pOwningCity)
-	{
-		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = pOwningCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-
-		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
-		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
-
-		return calculateNatureYieldFast(eYield,ePlayer,bIgnoreFeature,pOwningCity,pReligion,pBelief);
-	}
-
-	return calculateNatureYieldFast(eYield,ePlayer,bIgnoreFeature,NULL,NULL,NULL);
-}
-
-int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, const CvCity* pOwningCity, const CvReligion* pReligion, const CvBeliefEntry* pPantheon) const
 {
 	ResourceTypes eResource;
 	int iYield;
@@ -9723,175 +9695,12 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 		}
 	}
 
-#if defined(MOD_API_PLOT_YIELDS)
-	if (MOD_API_PLOT_YIELDS) {
+	if (MOD_API_PLOT_YIELDS) 
+	{
 		iYield += GC.getPlotInfo(getPlotType())->getYield(eYield);
 	}
-#endif
 
-	// Extra yield for religion on this terrain
-	if(pReligion)
-	{
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-		//Change for improvement/resource
-		int iReligionChange = 0;
-		bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement(ePlayer);
-		bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement(ePlayer);
-		bool bRequiresResource = pReligion->m_Beliefs.RequiresResource(ePlayer);
-		bool bRequiresNoFeature = pReligion->m_Beliefs.RequiresNoFeature(ePlayer);
-		bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
-		bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
-		int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, ePlayer, pOwningCity);
-		if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
-		{	
-			if(bRequiresBoth)
-			{
-				if(getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
-				{
-					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
-					{
-						iReligionChange += iValue;
-					}
-				}
-			}
-			else if(bRequiresImprovement)
-			{
-				if(getImprovementType() != NO_IMPROVEMENT)
-				{
-					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
-					{
-						iReligionChange += iValue;
-					}
-				}
-			}
-			else if(bRequiresResource)
-			{
-				if(getResourceType(eTeam) != NO_RESOURCE)
-				{
-					iReligionChange += iValue;
-				}
-			}
-			else if(bRequiresEmptyTile)
-			{
-				if(getImprovementType() == NO_IMPROVEMENT && getFeatureType() == NO_FEATURE)
-				{
-					iReligionChange += iValue;
-				}
-			}
-			else if(bRequiresNoImprovement)
-			{
-				if(getImprovementType() == NO_IMPROVEMENT)
-				{
-					iReligionChange += iValue;
-				}
-			}
-			else if(bRequiresNoFeature)
-			{
-				if(getFeatureType() == NO_FEATURE)
-				{
-					iReligionChange += iValue;
-				}
-			}
-			if(iReligionChange > iValue)
-			{
-				iReligionChange = iValue;
-			}
-		}
-		else
-		{
-			iReligionChange = iValue;
-		}
-#else
-		int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-#endif
-		if (pPantheon)
-		{
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-			//Change for improvement/resource
-			int iReligionChange = 0;
-			bool bRequiresImprovement = pPantheon->RequiresImprovement();
-			bool bRequiresNoImprovement = pPantheon->RequiresNoImprovement();
-			bool bRequiresResource = pPantheon->RequiresResource();
-			bool bRequiresNoFeature = pPantheon->RequiresNoFeature();
-			bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
-			bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
-			int iValue = pPantheon->GetTerrainYieldChange(getTerrainType(), eYield);
-			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
-			{	
-				if(bRequiresBoth)
-				{
-					if(getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
-					{
-						if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
-						{
-							iReligionChange += iValue;
-						}
-					}
-				}
-				else if(bRequiresImprovement)
-				{
-					if(getImprovementType() != NO_IMPROVEMENT)
-					{
-						if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
-						{
-							iReligionChange += iValue;
-						}
-					}
-				}
-				else if(bRequiresResource)
-				{
-					if(getResourceType(eTeam) != NO_RESOURCE)
-					{
-						iReligionChange += iValue;
-					}
-				}
-				else if(bRequiresEmptyTile)
-				{
-					if(getImprovementType() == NO_IMPROVEMENT && getFeatureType() == NO_FEATURE)
-					{
-						iReligionChange += iValue;
-					}
-				}
-				else if(bRequiresNoImprovement)
-				{
-					if(getImprovementType() == NO_IMPROVEMENT)
-					{
-						iReligionChange += iValue;
-					}
-				}
-				else if(bRequiresNoFeature)
-				{
-					if(getFeatureType() == NO_FEATURE)
-					{
-						iReligionChange += iValue;
-					}
-				}
-				if(iReligionChange > iValue)
-				{
-					iReligionChange = iValue;
-				}
-			}
-			else
-			{
-				iReligionChange = iValue;
-			}
-#else
-			iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
-#endif
-		}
-			
-#if defined(MOD_RELIGION_PLOT_YIELDS)
-		if (MOD_RELIGION_PLOT_YIELDS) {
-			iReligionChange += pReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
-			if (pPantheon)
-			{
-				iReligionChange += pPantheon->GetPlotYieldChange(getPlotType(), eYield);
-			}
-		}
-#endif
-
-		iYield += iReligionChange;
-	}
+	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
 
 	if(isHills())
 	{
@@ -9901,35 +9710,11 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 	if(isMountain())
 	{
 		iYield += kYield.getMountainChange();
-#if defined(MOD_BALANCE_CORE)
-		if(ePlayer != NO_PLAYER && !IsNaturalWonder())
-		{
-			int iRangeYield = GET_PLAYER(ePlayer).GetPlayerTraits()->GetMountainRangeYield(eYield);
-			int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
-			if (iEra <= 0)
-			{
-				iEra = 1;
-			}
-			iRangeYield *= iEra;
-			iYield += iRangeYield;
-		}
-#endif
 	}
 
 	if(isLake())
 	{
 		iYield += kYield.getLakeChange();
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(pReligion && getOwner()==ePlayer)
-		{
-			int iReligionChange = pReligion->m_Beliefs.GetLakePlotYieldChange(eYield, ePlayer, pOwningCity);
-			if (pPantheon)
-			{
-				iReligionChange += pPantheon->GetLakePlotYieldChange(eYield);
-			}
-			iYield += iReligionChange;
-		}
-#endif
 	}
 	if(!bIgnoreFeature)
 	{
@@ -9939,128 +9724,6 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 
 			// Some Features REPLACE the Yield of the Plot instead of adding to it
 			int iYieldChange = pFeatureInfo->getYieldChange(eYield);
-
-			// Player Trait
-			if(m_eOwner != NO_PLAYER && getImprovementType() == NO_IMPROVEMENT)
-			{
-				iYieldChange +=  GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
-#if defined(MOD_API_UNIFIED_YIELDS)
-				iYieldChange +=  GET_PLAYER((PlayerTypes)m_eOwner).getUnimprovedFeatureYieldChange(getFeatureType(), eYield);
-
-				if(pReligion && getOwner()==ePlayer)
-				{
-					int iReligionChange = pReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
-					if (pPantheon)
-					{
-						iReligionChange += pPantheon->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
-					}
-					iYieldChange += iReligionChange;
-				}
-#endif
-			}
-
-			// Leagues
-			if(getOwner()==ePlayer)
-			{
-				iYieldChange += GC.getGame().GetGameLeagues()->GetFeatureYieldChange(ePlayer, getFeatureType(), eYield);
-			}
-
-			// Religion
-			if(pReligion && getOwner()==ePlayer)
-			{
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-				//Change for improvement/resource
-				int iReligionChange = 0;
-				bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement(ePlayer);
-				bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement(ePlayer);
-				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
-				{		
-					iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
-				}
-				else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT)
-				{		
-					iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);						
-				}
-				else
-				{
-					iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
-				}
-#else
-				int iReligionChange = pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
-#endif
-				if (pPantheon)
-				{
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-					//Change for improvement/resource
-					int iReligionChange = 0;
-					bool bRequiresNoImprovement = pPantheon->RequiresNoImprovement();
-					bool bRequiresImprovement = pPantheon->RequiresImprovement();
-					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
-					{		
-						iReligionChange += pPantheon->GetFeatureYieldChange(getFeatureType(), eYield);
-					}
-					else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT)
-					{		
-						iReligionChange += pPantheon->GetFeatureYieldChange(getFeatureType(), eYield);
-					}
-					else
-					{
-						iReligionChange += pPantheon->GetFeatureYieldChange(getFeatureType(), eYield);
-					}
-#else
-					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
-#endif
-				}
-				iYieldChange += iReligionChange;
-			}
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-			if(m_eOwner != NO_PLAYER)
-			{
-				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).getFeatureYieldChange(getFeatureType(), eYield);
-				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetFeatureYieldChange(getFeatureType(), eYield);
-			}
-#endif
-
-			// Natural Wonders
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-			if(m_eOwner != NO_PLAYER && pFeatureInfo->IsNaturalWonder(true))
-#else
-			if(m_eOwner != NO_PLAYER && pFeatureInfo->IsNaturalWonder())
-#endif
-			{
-				int iMod = 0;
-
-				// Boost from religion in nearby city?
-				if(pReligion && getOwner()==ePlayer)
-				{
-					int iReligionChange = pReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, ePlayer, pOwningCity);
-					if (pPantheon)
-					{
-						iReligionChange += pPantheon->GetYieldChangeNaturalWonder(eYield);
-					}
-					iYieldChange += iReligionChange;
-
-					int iReligionMod = pReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield, ePlayer, pOwningCity);
-					if (pPantheon)
-					{
-						iReligionMod += pPantheon->GetYieldModifierNaturalWonder(eYield);
-					}
-					iMod += iReligionMod;
-				}
-
-				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetYieldChangeNaturalWonder(eYield);
-#if defined(MOD_API_UNIFIED_YIELDS)
-				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).GetYieldChangesNaturalWonder(eYield);
-#endif
-
-				iMod += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetNaturalWonderYieldModifier();
-				if(iMod > 0)
-				{
-					iYieldChange *= (100 + iMod);
-					iYieldChange /= 100;
-				}
-			}
 
 			if(pFeatureInfo->isYieldNotAdditive())
 			{
@@ -10072,27 +9735,7 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(pOwningCity)
-	{
-		if(getFeatureType() != NO_FEATURE)
-		{
-			iYield += pOwningCity->GetEventFeatureYield(getFeatureType(), eYield);
-		}
-		if(getTerrainType() != NO_TERRAIN)
-		{
-			iYield += pOwningCity->GetEventTerrainYield(getTerrainType(), eYield);
-		}
-		if(getImprovementType() != NO_IMPROVEMENT)
-		{
-			iYield += pOwningCity->GetEventImprovementYield(getImprovementType(), eYield);
-		}
-		if(getResourceType(pOwningCity->getTeam()) != NO_RESOURCE)
-		{
-			iYield += pOwningCity->GetEventResourceYield(getResourceType(), eYield);
-		}
-	}
-#endif
+
 	if(eTeam != NO_TEAM)
 	{
 		eResource = getResourceType(eTeam);
@@ -10100,35 +9743,6 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 		if(eResource != NO_RESOURCE)
 		{
 			iYield += GC.getResourceInfo(eResource)->getYieldChange(eYield);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && getOwner()==ePlayer && GET_PLAYER(ePlayer).HasGlobalMonopoly(eResource))
-			{
-				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
-				if(iTemp > 0)
-				{
-					iTemp += GET_PLAYER(ePlayer).GetMonopolyModFlat();
-					iYield += iTemp;
-				}
-			}
-#endif
-			// Extra yield for religion
-			if(pReligion)
-			{
-				int iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield, ePlayer, pOwningCity);
-				if (pPantheon)
-				{
-					iReligionChange += pPantheon->GetResourceYieldChange(eResource, eYield);
-				}
-				iYield += iReligionChange;
-			}
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-			if(m_eOwner != NO_PLAYER)
-			{
-				iYield += GET_PLAYER((PlayerTypes)m_eOwner).getResourceYieldChange(eResource, eYield);
-				iYield += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetResourceYieldChange(eResource, eYield);
-			}
-#endif
 		}
 	}
 
@@ -10142,7 +9756,6 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getHillsYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getHillsYieldChange(eYield));
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
 	if(isFreshWater())
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getFreshWaterYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getFreshWaterYieldChange(eYield));
@@ -10153,25 +9766,251 @@ int CvPlot::calculateNatureYieldFast(YieldTypes eYield, PlayerTypes ePlayer, boo
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
 	}
 
-	if(eTeam != NO_TEAM)
-	{
-		int iBonusYield = ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GET_TEAM(eTeam).getTerrainYieldChange(getTerrainType(), eYield) : GET_TEAM(eTeam).getFeatureYieldChange(getFeatureType(), eYield));
-		if(IsNaturalWonder() && !bIgnoreFeature && m_eOwner != NO_PLAYER)
-		{
-			int iMod = GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetNaturalWonderYieldModifier();
-			if(iMod > 0)
-			{
-				iBonusYield *= (100 + iMod);
-				iBonusYield /= 100;
-			}
-		}
-		iYield += iBonusYield;
-	}
-#endif
-
 	return std::max(0, iYield);
 }
 
+int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
+{
+	if (!pMajorityReligion)
+		return 0;
+
+	if (ePlayer == NO_PLAYER)
+		return 0;
+
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	int iYield = 0;
+
+	//Change for improvement/resource
+	int iReligionChange = 0;
+	bool bRequiresImprovement = pMajorityReligion->m_Beliefs.RequiresImprovement(ePlayer);
+	bool bRequiresNoImprovement = pMajorityReligion->m_Beliefs.RequiresNoImprovement(ePlayer);
+	bool bRequiresResource = pMajorityReligion->m_Beliefs.RequiresResource(ePlayer);
+	bool bRequiresNoFeature = pMajorityReligion->m_Beliefs.RequiresNoFeature(ePlayer);
+	bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
+	bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
+	int iValue = pMajorityReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, ePlayer, pOwningCity);
+	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
+	{
+		if (bRequiresBoth)
+		{
+			if (getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
+			{
+				if (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+				{
+					iReligionChange += iValue;
+				}
+			}
+		}
+		else if (bRequiresImprovement)
+		{
+			if (getImprovementType() != NO_IMPROVEMENT)
+			{
+				if (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+				{
+					iReligionChange += iValue;
+				}
+			}
+		}
+		else if (bRequiresResource)
+		{
+			if (getResourceType(eTeam) != NO_RESOURCE)
+			{
+				iReligionChange += iValue;
+			}
+		}
+		else if (bRequiresEmptyTile)
+		{
+			if (getImprovementType() == NO_IMPROVEMENT && getFeatureType() == NO_FEATURE)
+			{
+				iReligionChange += iValue;
+			}
+		}
+		else if (bRequiresNoImprovement)
+		{
+			if (getImprovementType() == NO_IMPROVEMENT)
+			{
+				iReligionChange += iValue;
+			}
+		}
+		else if (bRequiresNoFeature)
+		{
+			if (getFeatureType() == NO_FEATURE)
+			{
+				iReligionChange += iValue;
+			}
+		}
+		if (iReligionChange > iValue)
+		{
+			iReligionChange = iValue;
+		}
+	}
+	else
+	{
+		iReligionChange = iValue;
+	}
+
+	iYield += iReligionChange;
+
+	if (pSecondaryPantheon)
+	{
+		//Change for improvement/resource
+		iReligionChange = 0;
+		bool bRequiresImprovement = pSecondaryPantheon->RequiresImprovement();
+		bool bRequiresNoImprovement = pSecondaryPantheon->RequiresNoImprovement();
+		bool bRequiresResource = pSecondaryPantheon->RequiresResource();
+		bool bRequiresNoFeature = pSecondaryPantheon->RequiresNoFeature();
+		bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
+		bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
+		int iValue = pSecondaryPantheon->GetTerrainYieldChange(getTerrainType(), eYield);
+		if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
+		{
+			if (bRequiresBoth)
+			{
+				if (getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
+				{
+					if (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					{
+						iReligionChange += iValue;
+					}
+				}
+			}
+			else if (bRequiresImprovement)
+			{
+				if (getImprovementType() != NO_IMPROVEMENT)
+				{
+					if (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(eTeam)) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					{
+						iReligionChange += iValue;
+					}
+				}
+			}
+			else if (bRequiresResource)
+			{
+				if (getResourceType(eTeam) != NO_RESOURCE)
+				{
+					iReligionChange += iValue;
+				}
+			}
+			else if (bRequiresEmptyTile)
+			{
+				if (getImprovementType() == NO_IMPROVEMENT && getFeatureType() == NO_FEATURE)
+				{
+					iReligionChange += iValue;
+				}
+			}
+			else if (bRequiresNoImprovement)
+			{
+				if (getImprovementType() == NO_IMPROVEMENT)
+				{
+					iReligionChange += iValue;
+				}
+			}
+			else if (bRequiresNoFeature)
+			{
+				if (getFeatureType() == NO_FEATURE)
+				{
+					iReligionChange += iValue;
+				}
+			}
+			if (iReligionChange > iValue)
+			{
+				iReligionChange = iValue;
+			}
+		}
+		else
+		{
+			iReligionChange = iValue;
+		}
+
+		iYield += iReligionChange;
+	}
+
+	if (MOD_RELIGION_PLOT_YIELDS) 
+	{
+		iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
+		if (pSecondaryPantheon)
+		{
+			iYield += pSecondaryPantheon->GetPlotYieldChange(getPlotType(), eYield);
+		}
+	}
+
+	if (isLake())
+	{
+		iYield += pMajorityReligion->m_Beliefs.GetLakePlotYieldChange(eYield, ePlayer, pOwningCity);
+		if (pSecondaryPantheon)
+		{
+			iYield += pSecondaryPantheon->GetLakePlotYieldChange(eYield);
+		}
+	}
+
+	if (getFeatureType() != NO_FEATURE)
+	{
+		iYield += pMajorityReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
+		if (pSecondaryPantheon)
+		{
+			iYield += pSecondaryPantheon->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+		}
+
+		//Change for improvement/resource
+		iReligionChange = 0;
+		bool bRequiresNoImprovement = pMajorityReligion->m_Beliefs.RequiresNoImprovement(ePlayer);
+		bool bRequiresImprovement = pMajorityReligion->m_Beliefs.RequiresImprovement(ePlayer);
+		if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
+		{
+			iReligionChange += pMajorityReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
+		}
+		else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT)
+		{
+			iReligionChange += pMajorityReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
+		}
+		else
+		{
+			iReligionChange += pMajorityReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, ePlayer, pOwningCity);
+		}
+
+		iYield += iReligionChange;
+
+		if (pSecondaryPantheon)
+		{
+			//Change for improvement/resource
+			iReligionChange = 0;
+			bool bRequiresNoImprovement = pSecondaryPantheon->RequiresNoImprovement();
+			bool bRequiresImprovement = pSecondaryPantheon->RequiresImprovement();
+			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
+			{
+				iReligionChange += pSecondaryPantheon->GetFeatureYieldChange(getFeatureType(), eYield);
+			}
+			else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT)
+			{
+				iReligionChange += pSecondaryPantheon->GetFeatureYieldChange(getFeatureType(), eYield);
+			}
+			else
+			{
+				iReligionChange += pSecondaryPantheon->GetFeatureYieldChange(getFeatureType(), eYield);
+			}
+
+			iYield += iReligionChange;
+		}
+	}
+
+	iYield += pMajorityReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, ePlayer, pOwningCity);
+	if (pSecondaryPantheon)
+	{
+		iYield += pSecondaryPantheon->GetYieldChangeNaturalWonder(eYield);
+	}
+
+	if (getResourceType(eTeam) != NO_RESOURCE)
+	{
+		iYield += pMajorityReligion->m_Beliefs.GetResourceYieldChange(getResourceType(eTeam), eYield, ePlayer, pOwningCity);
+		if (pSecondaryPantheon)
+		{
+			iYield += pSecondaryPantheon->GetResourceYieldChange(getResourceType(eTeam), eYield);
+		}
+	}
+
+	return iYield;
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlot::calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const
@@ -10186,32 +10025,179 @@ int CvPlot::calculateTotalBestNatureYield(PlayerTypes ePlayer) const
 	return (calculateBestNatureYield(YIELD_FOOD, ePlayer) + calculateBestNatureYield(YIELD_PRODUCTION, ePlayer) + calculateBestNatureYield(YIELD_GOLD, ePlayer));
 }
 
+int CvPlot::calculateReligionImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
+{
+	if (!pOwningCity || !pMajorityReligion || ePlayer == NO_PLAYER)
+		return 0;
 
+	if (eImprovement == NO_IMPROVEMENT || IsImprovementPillaged())
+		return 0;
+
+	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+	if (!pImprovement)
+		return 0;
+
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+	int iReligionChange = 0;
+	bool bRequiresResource = pMajorityReligion->m_Beliefs.RequiresResource(pOwningCity->getOwner());
+	if (pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
+	{
+		bRequiresResource = false;
+	}
+	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+	{
+		if (bRequiresResource && (getResourceType(kPlayer.getTeam()) != NO_RESOURCE) && pImprovement->IsImprovementResourceMakesValid(getResourceType(kPlayer.getTeam())))
+		{
+			iReligionChange += pMajorityReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pOwningCity->getOwner(), pOwningCity);
+		}
+	}
+	else
+	{
+		iReligionChange += pMajorityReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pOwningCity->getOwner(), pOwningCity);
+	}
+	
+	if (!pSecondaryPantheon)
+		return iReligionChange;
+
+	bRequiresResource = pSecondaryPantheon->RequiresResource();
+	if (pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
+	{
+		bRequiresResource = false;
+	}
+	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+	{
+		if (bRequiresResource && (getResourceType(kPlayer.getTeam()) != NO_RESOURCE && pImprovement->IsImprovementResourceMakesValid(getResourceType(kPlayer.getTeam()))))
+		{
+			iReligionChange += pSecondaryPantheon->GetImprovementYieldChange(eImprovement, eYield);
+		}
+	}
+	else
+	{
+		iReligionChange += pSecondaryPantheon->GetImprovementYieldChange(eImprovement, eYield);
+	}
+
+	return iReligionChange;
+}
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal, RouteTypes eAssumeThisRoute) const
+int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal, RouteTypes eAssumeThisRoute) const
 {
 	ResourceTypes eResource;
 	int iBestYield;
 	int iYield;
 	int iI;
 
+	if (eImprovement == NO_IMPROVEMENT || IsImprovementPillaged())
+		return 0;
+
 	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
 	if (!pImprovement)
 		return 0;
 
+	bool bIsFreshWater = isFreshWater();
+
 	iYield = pImprovement->GetYieldChange(eYield);
 
-	int iYieldChangePerEra = pImprovement->GetYieldChangePerEra(eYield);
-	if (ePlayer != NO_PLAYER && iYieldChangePerEra > 0)
+	if (ePlayer != NO_PLAYER)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
-		int iPlotEra = GetArchaeologicalRecord().m_eEra;
-		int iNumEras = kPlayer.GetCurrentEra() - iPlotEra;
-
-		if (iPlotEra != NO_ERA && iNumEras > 0)
+		if (iYield > 0)
 		{
-			iYield += (iNumEras * iYieldChangePerEra);
+			int iAdjacentYield = pImprovement->GetYieldAdjacentSameType(eYield);
+			if (iAdjacentYield > 0)
+			{
+				iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+			}
+
+			int iTwoAdjacentYield = pImprovement->GetYieldAdjacentTwoSameType(eYield);
+			if (iTwoAdjacentYield > 0)
+			{
+				iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
+			}
+
+			if (eYield == YIELD_CULTURE)
+			{
+				iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+				iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+			}
+		}
+
+		if (getTerrainType() != NO_TERRAIN)
+		{
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+				{
+					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
+					{
+						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+					}
+				}
+			}
+		}
+		if (getPlotType() != NO_PLOT)
+		{
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+				{
+					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+					if (pImprovement2 && pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield) > 0)
+					{
+						iYield += pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield);
+					}
+				}
+			}
+		}
+
+		int iYieldChangePerEra = pImprovement->GetYieldChangePerEra(eYield);
+		if (iYieldChangePerEra > 0)
+		{
+			int iPlotEra = GetArchaeologicalRecord().m_eEra;
+			int iNumEras = kPlayer.GetCurrentEra() - iPlotEra;
+
+			if (iPlotEra != NO_ERA && iNumEras > 0)
+			{
+				iYield += (iNumEras * iYieldChangePerEra);
+			}
+		}
+
+		if (getOwner() == ePlayer)
+		{
+			for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot == NULL)
+					continue;
+
+				if(pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+				{
+					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+					if (pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+					{
+						iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+					}
+				}
+
+				if(pAdjacentPlot->getResourceType() != NO_RESOURCE)
+				{
+					iYield += pImprovement->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), eYield);
+				}
+			}
+		}
+
+		eResource = getResourceType(kPlayer.getTeam());
+
+		if (eResource != NO_RESOURCE)
+		{
+			iYield += pImprovement->GetImprovementResourceYield(eResource, eYield);
 		}
 	}
 
@@ -10254,11 +10240,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 						iYield += pImprovement->GetAdjacentCityYieldChange(eYield);
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(pAdjacentPlot->isMountain())
-#else
-				else if(pAdjacentPlot->isMountain())
-#endif
 				{
 					iYield += pImprovement->GetAdjacentMountainYieldChange(eYield);
 				}
@@ -10266,11 +10248,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		}
 	}
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	if(isFreshWater() || bOptimal)
-#else
-	if(bOptimal)
-#endif
+	if (bIsFreshWater || bOptimal)
 	{
 		iYield += pImprovement->GetFreshWaterYieldChange(eYield);
 	}
@@ -10297,7 +10275,6 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		{
 			eRouteType = getRouteType();
 		}
-#if defined(MOD_BALANCE_CORE_YIELDS)
 		if(ePlayer != NO_PLAYER)
 		{
 			if(IsTradeUnitRoute())
@@ -10311,72 +10288,39 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
 				}
 			}
-		}
-#else
-#endif
-		if(eRouteType != NO_ROUTE)
-		{
-#if defined(MOD_BALANCE_CORE_YIELDS)
-			if(ePlayer != NO_PLAYER)
+
+			if (eRouteType != NO_ROUTE)
 			{
-				if(MOD_BALANCE_YIELD_SCALE_ERA)
+				if (MOD_BALANCE_YIELD_SCALE_ERA)
 				{
-					if(IsCityConnection(ePlayer))
+					if (IsCityConnection(ePlayer))
 					{
-						if(IsRouteRailroad())
+						if (IsRouteRailroad())
 						{
 							iYield += pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
 						}
-						else if(IsRouteRoad())
+						else if (IsRouteRoad())
 						{
 							iYield += pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield);
 						}
 					}
 				}
-			}
-			if(!MOD_BALANCE_YIELD_SCALE_ERA)
-			{
-#endif
-			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
-#if defined(MOD_BALANCE_CORE_YIELDS)
-			}
-#else
-				}
-			}
-#endif
-		}
-	}
-#if defined(MOD_BALANCE_CORE)
-	if(ePlayer != NO_PLAYER && eImprovement != NO_IMPROVEMENT && getOwner() == ePlayer)
-	{
-		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-			if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-			{
-				CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-				if(pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
+				else
 				{
-					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+					iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
+				}
+
+				if (!IsRoutePillaged())
+				{
+					CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRouteType);
+					if (pkRouteInfo)
+					{
+						iYield += pkRouteInfo->getYieldChange(eYield);
+					}
 				}
 			}
 		}
 	}
-	if(ePlayer != NO_PLAYER && getOwner() == ePlayer)
-	{
-		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-			if(pAdjacentPlot != NULL && pAdjacentPlot->getResourceType() != NO_RESOURCE)
-			{
-				iYield += pImprovement->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), eYield);
-			}
-		}
-	}
-#endif
-
-	bool bIsFreshWater = isFreshWater();
 
 	if(bOptimal || ePlayer == NO_PLAYER)
 	{
@@ -10404,96 +10348,447 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			}
 		}
 	}
-	else
+
+	return iYield;
+}
+
+int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
+{
+	if (ePlayer == NO_PLAYER)
+		return 0;
+
+	int iYield = 0;
+
+	bool bCity = false;
+	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+	CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+
+	//plot yields
+	iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
+	iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
+
+	if (isMountain())
 	{
-		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-
-		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
-		if(!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (!IsNaturalWonder(true))
+#else
+		if (!IsNaturalWonder())
+#endif
 		{
-			iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
-		}
-		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
-
-		if(bIsFreshWater)
-		{
-			iYield += kTeam.getImprovementFreshWaterYieldChange(eImprovement, eYield);
+			int iRangeYield = GET_PLAYER(ePlayer).GetPlayerTraits()->GetMountainRangeYield(eYield);
+			int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
+			if (iEra <= 0)
+			{
+				iEra = 1;
+			}
+			iRangeYield *= iEra;
+			iYield += iRangeYield;
 		}
 		else
 		{
-			iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
-		}
-	}
+			iYield += kPlayer.GetPlayerTraits()->GetYieldChangeNaturalWonder(eYield);
+			iYield += kPlayer.GetYieldChangesNaturalWonder(eYield);
 
-	if(ePlayer != NO_PLAYER)
-	{
-		eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
-
-		if(eResource != NO_RESOURCE)
-		{
-			iYield += pImprovement->GetImprovementResourceYield(eResource, eYield);
-		}
-	}
-
-	// Working city
-	CvCity* pOwningCity = getOwningCity();
-	if(pOwningCity)
-	{
-		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
-		if(eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner());
-			if(pReligion)
+			if (getFeatureType() != NO_FEATURE)
 			{
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-				int iReligionChange = 0;
-				bool bRequiresResource = pReligion->m_Beliefs.RequiresResource(pOwningCity->getOwner());
-				if(pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
+				CvFeatureInfo* pFeatureInfo = GC.getFeatureInfo(getFeatureType());
 				{
-					bRequiresResource = false;
-				}
-				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
-				{	
-					if(bRequiresResource && (getResourceType(GET_PLAYER(pOwningCity->getOwner()).getTeam()) != NO_RESOURCE) && pImprovement->IsImprovementResourceMakesValid(getResourceType(GET_PLAYER(pOwningCity->getOwner()).getTeam())))
-					{		
-						iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pOwningCity->getOwner(), pOwningCity);
-					}
-				}
-				else
-				{
-					iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pOwningCity->getOwner(), pOwningCity);
-				}
-#else
-				int iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
-#endif			
-				BeliefTypes eSecondaryPantheon = pOwningCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF)
-				{
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-					bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
-					if(pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
+					int iNWYieldChange = pFeatureInfo->getYieldChange(eYield);
+
+					int iMod = 0;
+					iMod += kPlayer.GetPlayerTraits()->GetNaturalWonderYieldModifier();
+
+					//we only do this here because we need the natural yield right away.
+					if (pMajorityReligion)
 					{
-						bRequiresResource = false;
+						iMod += pMajorityReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield, ePlayer, pOwningCity);
+						if (pSecondaryPantheon)
+						{
+							iMod += pSecondaryPantheon->GetYieldModifierNaturalWonder(eYield);
+						}
 					}
-					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
-					{	
-						if(bRequiresResource && (getResourceType(GET_PLAYER(pOwningCity->getOwner()).getTeam()) != NO_RESOURCE && pImprovement->IsImprovementResourceMakesValid(getResourceType(GET_PLAYER(pOwningCity->getOwner()).getTeam()))))
-						{		
-							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
+
+					if (iMod != 0)
+					{
+						iNWYieldChange *= iMod;
+						iNWYieldChange /= 100;
+
+						iYield += iNWYieldChange;
+					}
+				}
+			}
+		}
+	}
+
+	FeatureTypes eFeature = getFeatureType();
+
+	if (kPlayer.GetPlayerTraits()->IsTradeRouteOnly() && getOwner() == kPlayer.GetID())
+	{
+		if (eFeature == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
+		{
+			int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			if (iBonus > 0)
+			{
+				if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
+				{
+					int iScale = 0;
+					int iEra = (kPlayer.GetCurrentEra() + 1);
+
+					iScale = ((iBonus * iEra) / 4);
+
+					if (iScale <= 0)
+					{
+						iScale = 1;
+					}
+					iYield += iScale;
+				}
+			}
+		}
+		else
+		{
+			int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			if (iBonus > 0)
+			{
+				if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
+				{
+					int iScale = 0;
+					int iEra = (kPlayer.GetCurrentEra() + 1);
+
+					iScale = ((iBonus * iEra) / 4);
+
+					if (iScale <= 0)
+					{
+						iScale = 1;
+					}
+					iYield += iScale;
+				}
+			}
+		}
+		if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+		{
+			int iBonus2 = kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+			if (iBonus2 > 0)
+			{
+				if (IsCityConnection(ePlayer) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
+				{
+					int iScale = 0;
+					int iEra = (kPlayer.GetCurrentEra() + 1);
+
+					iScale = ((iBonus2 * iEra) / 2);
+
+					if (iScale <= 0)
+					{
+						iScale = 1;
+					}
+					iYield += iScale;
+				}
+			}
+
+			CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+
+			iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
+
+			if (!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+			{
+				iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+			}
+			iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
+
+			if (isFreshWater())
+			{
+				iYield += kTeam.getImprovementFreshWaterYieldChange(eImprovement, eYield);
+			}
+			else
+			{
+				iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
+			}
+		}
+	}
+	else
+	{
+		iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+	}
+
+	iYield += kPlayer.getTerrainYieldChange(getTerrainType(), eYield);
+
+	if (kPlayer.getExtraYieldThreshold(eYield) > 0)
+	{
+		if (iYield >= kPlayer.getExtraYieldThreshold(eYield))
+		{
+			iYield += GC.getEXTRA_YIELD();
+		}
+	}
+
+	if (kPlayer.isGoldenAge())
+	{
+		if (iYield >= kYield.getGoldenAgeYieldThreshold())
+		{
+			iYield += kYield.getGoldenAgeYield();
+		}
+	}
+
+	int iBonusYield = eFeature == NO_FEATURE ? kTeam.getTerrainYieldChange(getTerrainType(), eYield) : kTeam.getFeatureYieldChange(eFeature, eYield);
+	if (IsNaturalWonder())
+	{
+		int iMod = kPlayer.GetPlayerTraits()->GetNaturalWonderYieldModifier();
+		if (iMod > 0)
+		{
+			iBonusYield *= (100 + iMod);
+			iBonusYield /= 100;
+		}
+	}
+	iYield += iBonusYield;
+
+	CvCity* pCity = getPlotCity();
+
+	if (pCity != NULL)
+	{
+		if (!bDisplay || pCity->isRevealed(GC.getGame().getActiveTeam(), false))
+		{
+			iYield += kYield.getCityChange();
+
+			if (kYield.getPopulationChangeDivisor() != 0)
+			{
+				iYield += (pCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
+			}
+			bCity = true;
+		}
+	}
+
+	if (pOwningCity != NULL)
+	{
+		if (isValidMovePlot(ePlayer))
+		{
+			if (isWater())
+			{
+				iYield += kPlayer.getSeaPlotYield(eYield);
+
+				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+				{
+					int iCityYield = 0;
+					if (isLake())
+					{
+						if (pOwningCity->getLakePlotYield(eYield) > 0)
+						{
+							iCityYield = pOwningCity->getLakePlotYield(eYield);
 						}
 					}
 					else
 					{
-						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
+						iCityYield = pOwningCity->getSeaPlotYield(eYield);
 					}
-#else
-					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
-#endif					
+					iYield += iCityYield;
 				}
-				iYield += iReligionChange;
+
+				if (getResourceType(kPlayer.getTeam()) != NO_RESOURCE)
+				{
+					if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+					{
+						iYield += pOwningCity->getSeaResourceYield(eYield);
+					}
+				}
+			}
+			else if (isRiver())
+			{
+				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+				{
+					iYield += pOwningCity->getRiverPlotYield(eYield);
+				}
+			}
+
+			// Extra yield for terrain
+			if (getTerrainType() != NO_TERRAIN)
+			{
+				iYield += pOwningCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
 		}
+
+		if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+		{
+			if (pImprovement->IsCreatedByGreatPerson())
+			{
+				if (pOwningCity->GetWeLoveTheKingDayCounter() > 0)
+				{
+					if (kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() > 0)
+					{
+						int iBoon = kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier();
+						iYield *= (100 + iBoon);
+						iYield /= 100;
+					}
+				}
+			}
+
+			// Extra yield for improvements
+			iYield += pOwningCity->GetImprovementExtraYield(eImprovement, eYield);
+			iYield += kPlayer.GetImprovementExtraYield(eImprovement, eYield);
+		}
+
+
+		// Extra yield for features
+		if (eFeature != NO_FEATURE)
+		{
+			iYield += pOwningCity->GetFeatureExtraYield(eFeature, eYield);
+
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				if (pImprovement)
+				{
+					iYield += pImprovement->GetFeatureYieldChanges(eFeature, eYield);
+				}
+			}
+		}
+		
+		iYield += pOwningCity->GetPlotExtraYield(getPlotType(), eYield);
+
+		ResourceTypes eResource = getResourceType(kPlayer.getTeam());
+		if (eResource != NO_RESOURCE)
+		{
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo != NULL && kTeam.GetTeamTechs()->HasTech((TechTypes)pkResourceInfo->getTechReveal()))
+			{
+				if (pkResourceInfo->getPolicyReveal() == NO_POLICY || kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
+				{
+					// Extra yield from resources
+					iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
+
+					// Extra yield from Trait
+					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					{
+						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
+					}
+				}
+			}
+
+			iYield += pOwningCity->GetEventResourceYield(getResourceType(), eYield);
+			iYield += kPlayer.getResourceYieldChange(eResource, eYield);
+			iYield += kPlayer.GetPlayerTraits()->GetResourceYieldChange(eResource, eYield);
+
+			if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
+			{
+				int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+				if (iTemp > 0)
+				{
+					iTemp += GET_PLAYER(ePlayer).GetMonopolyModFlat();
+					iYield += iTemp;
+				}
+			}
+		}
+
+		if (eFeature != NO_FEATURE)
+		{
+			iYield += pOwningCity->GetEventFeatureYield(eFeature, eYield);
+		}
+		if (getTerrainType() != NO_TERRAIN)
+		{
+			iYield += pOwningCity->GetEventTerrainYield(getTerrainType(), eYield);
+		}
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			iYield += pOwningCity->GetEventImprovementYield(eImprovement, eYield);
+		}
+	}
+
+	if (bCity)
+	{
+		iYield = std::max(iYield, kYield.getMinCity());
+
+		// Mod for Player; used for Policies and such
+
+
+		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
+
+		iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
+
+
+		// Coastal City Mod
+		if (pCity->isCoastal())
+		{
+			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
+
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
+
+		}
+
+		if (MOD_BALANCE_YIELD_SCALE_ERA && pCity->plot() == this)
+		{
+			//Flatland City Fresh Water yields
+			if (!isHills() && !isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityFlatFreshWater();
+			}
+			//Flatland City No Fresh Water yields
+			if (!isHills() && !isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityFlatNoFreshWater();
+			}
+			// Hill City Fresh Water yields
+			if (isHills() && isFreshWater())
+			{
+				iYield += kYield.getMinCityHillFreshWater();
+			}
+			// Hill City No Fresh Water yields
+			if (isHills() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityHillNoFreshWater();
+			}
+			// Mountain City Fresh Water yields
+			if (isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainFreshWater();
+			}
+			// Mountain City No Fresh Water yields
+			if (isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainNoFreshWater();
+			}
+			if (pCity->HasGarrison())
+			{
+				CvUnit* pUnit = pCity->GetGarrisonedUnit();
+				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
+				{
+					int igarrisonstrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * igarrisonstrength) / 8);
+				}
+			}
+		}
+
+		// Capital Mod
+		if (pCity->isCapital())
+		{
+			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
+
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
+
+			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
+			iPerPopYield /= 100;
+			iYield += iPerPopYield;
+
+			if (GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
+			{
+				int iPerPopYieldEmpire = GET_PLAYER(getOwner()).getCurrentTotalPop() / GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield);
+				iYield += iPerPopYieldEmpire;
+			}
+		}
+
+		iYield += (iTemp / 100);
+	}
+
+	if (eFeature != NO_FEATURE)
+	{
+		// Player Trait
+		if (eImprovement == NO_IMPROVEMENT)
+		{
+			iYield += kPlayer.GetPlayerTraits()->GetUnimprovedFeatureYieldChange(eFeature, eYield);
+			iYield += kPlayer.getUnimprovedFeatureYieldChange(eFeature, eYield);
+		}
+
+		// Leagues
+		iYield += GC.getGame().GetGameLeagues()->GetFeatureYieldChange(ePlayer, eFeature, eYield);
+
+		iYield += kPlayer.getFeatureYieldChange(eFeature, eYield);
+		iYield += kPlayer.GetPlayerTraits()->GetFeatureYieldChange(eFeature, eYield);
 	}
 
 	return iYield;
@@ -10510,7 +10805,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-		return calculateYieldFast(eYield,bDisplay,pOwningCity,pReligion,pBelief);
+		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief);
 	}
 
 	return calculateYieldFast(eYield, bDisplay, NULL, NULL, NULL);
@@ -10519,14 +10814,9 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 //	--------------------------------------------------------------------------------
 int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
 {
-	CvCity* pCity = 0;
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	RouteTypes eRoute = NO_ROUTE;
 	PlayerTypes ePlayer = NO_PLAYER;
-	bool bCity = false;
-	int iYield = 0;
-
-	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 
 	if(bDisplay && GC.getGame().isDebugMode())
 	{
@@ -10552,8 +10842,6 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		return 0;
 	}
 
-	bCity = false;
-
 	if(bDisplay)
 	{
 		ePlayer = getRevealedOwner(GC.getGame().getActiveTeam());
@@ -10572,459 +10860,13 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		eRoute = getRouteType();
 	}
 
-	iYield = calculateNatureYieldFast(eYield, ePlayer, false, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+	int iYield = calculateNatureYield(eYield, ePlayer, false);
+	iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, eRoute);
 
-#if defined(MOD_API_UNIFIED_YIELDS)
-	if (ePlayer != NO_PLAYER) 
-	{
-		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-#if defined(MOD_API_PLOT_YIELDS)
-		iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
-		iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
-		{
-			if(getOwner() == kPlayer.GetID())
-			{
-#if defined(MOD_USE_TRADE_FEATURES)
-				if(getFeatureType() == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
-#endif
-				{
-					int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-					if(iBonus > 0)
-					{
-						if (IsCityConnection(ePlayer) || IsTradeUnitRoute())
-						{
-							int iScale = 0;
-							int iEra = (kPlayer.GetCurrentEra() + 1);
-
-							iScale = ((iBonus * iEra) / 4);
-
-							if(iScale <= 0)
-							{
-								iScale = 1;
-							}
-							iYield += iScale;
-						}
-					}
-				}
-#if defined(MOD_USE_TRADE_FEATURES)
-				else if(MOD_USE_TRADE_FEATURES)
-#endif
-				{
-					int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-					if(iBonus > 0)
-					{
-						if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
-						{
-							int iScale = 0;
-							int iEra = (kPlayer.GetCurrentEra() + 1);
-
-							iScale = ((iBonus * iEra) / 4);
-
-							if(iScale <= 0)
-							{
-								iScale = 1;
-							}
-							iYield += iScale;
-						}
-					}
-				}
-				if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
-				{
-					int iBonus2 = kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
-					if(iBonus2 > 0)
-					{
-						if(IsCityConnection(ePlayer) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
-						{
-							int iScale = 0;
-							int iEra = (kPlayer.GetCurrentEra() + 1);
-
-							iScale = ((iBonus2 * iEra) / 2);
-
-							if(iScale <= 0)
-							{
-								iScale = 1;
-							}
-							iYield += iScale;
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-#endif
-			iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-		iYield += kPlayer.getTerrainYieldChange(getTerrainType(), eYield);
-	}
-#endif
-
-	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
-	{
-		int iCultureBoost = calculateImprovementYieldChange(eImprovement, eYield, ePlayer);
-		iYield += iCultureBoost;
-
-#if !defined(MOD_API_UNIFIED_YIELDS)
-		if(eYield == YIELD_CULTURE)
-#endif
-		{
-			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-#if defined(MOD_API_UNIFIED_YIELDS)
-			if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
-#else
-			if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
-#endif
-			{
-#if defined(MOD_API_UNIFIED_YIELDS)
-				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
-				iAdjacentCulture += pImprovement->GetYieldAdjacentTwoSameType(eYield);
-#else
-				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-#endif
-				if(iAdjacentCulture > 0)
-				{
-#if defined(MOD_API_UNIFIED_YIELDS)
-					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-					iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
-#else
-					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
-#endif
-				}
-			}
-#if defined(MOD_API_UNIFIED_YIELDS)
-			if(eYield == YIELD_CULTURE && getOwner() != NO_PLAYER)
-#else
-			if(getOwner() != NO_PLAYER)
-#endif
-			{
-				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
-			}
-		}
-	}
-	if(eRoute != NO_ROUTE && !IsRoutePillaged())
-	{
-		CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-		if(pkRouteInfo)
-		{
-			iYield += pkRouteInfo->getYieldChange(eYield);
-		}
-	}
-
-	if(ePlayer != NO_PLAYER)
-	{
-		pCity = getPlotCity();
-
-		if(pCity != NULL)
-		{
-			if(!bDisplay || pCity->isRevealed(GC.getGame().getActiveTeam(), false))
-			{
-				iYield += kYield.getCityChange();
-
-				if(kYield.getPopulationChangeDivisor() != 0)
-				{
-					iYield += (pCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
-				}
-				bCity = true;
-			}
-		}
-
-		pOwningCity = getOwningCity();
-
-		if(isWater())
-		{
-			if(isValidMovePlot(ePlayer))
-			{
-				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
-
-				if(pOwningCity != NULL)
-				{
-					if(!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
-					{
-						int iCityYield = 0;
-						if (isLake())
-						{
-							if (pOwningCity->getLakePlotYield(eYield) > 0)
-							{
-								iCityYield = pOwningCity->getLakePlotYield(eYield);
-							}
-						}
-						else
-						{
-							iCityYield = pOwningCity->getSeaPlotYield(eYield);
-						}
-						iYield += iCityYield;
-					}
-				}
-
-				if(getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
-				{
-					if(pOwningCity != NULL)
-					{
-						if(!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
-						{
-							iYield += pOwningCity->getSeaResourceYield(eYield);
-						}
-					}
-				}
-
-			}
-		}
-
-		if(isRiver())
-		{
-			if(isValidMovePlot(ePlayer))
-			{
-				if(NULL != pOwningCity)
-				{
-					if(!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
-					{
-						iYield += pOwningCity->getRiverPlotYield(eYield);
-					}
-				}
-			}
-		}
-
-		// Extra yield for features
-		if(getFeatureType() != NO_FEATURE)
-		{
-			if(pOwningCity != NULL)
-			{
-				iYield += pOwningCity->GetFeatureExtraYield(getFeatureType(), eYield);
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (getImprovementType() != NO_IMPROVEMENT)
-			{
-				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement)
-				{
-					iYield += pImprovement->GetFeatureYieldChanges(getFeatureType(), eYield);
-				}
-			}
-#endif
-		}
-#if defined(MOD_BALANCE_CORE)
-		// Extra yield for improvements
-		if(getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
-		{
-			if(pOwningCity != NULL && pOwningCity->getOwner() != NO_PLAYER)
-			{
-				iYield += pOwningCity->GetImprovementExtraYield(getImprovementType(), eYield);
-				iYield += GET_PLAYER(pOwningCity->getOwner()).GetImprovementExtraYield(getImprovementType(), eYield);
-			}
-		}
-#endif
-
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-		// Extra yield for plot
-		if(pOwningCity != NULL)
-		{
-			iYield += pOwningCity->GetPlotExtraYield(getPlotType(), eYield);
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if(pOwningCity != NULL)
-		{
-			if(ePlayer != NO_PLAYER && getTerrainType() != NO_TERRAIN && getOwner() == ePlayer)
-			{
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-					{
-						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-						if(pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
-						{
-							iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
-						}
-					}
-				}
-			}
-			if(ePlayer != NO_PLAYER && getPlotType() != NO_PLOT && getOwner() == ePlayer)
-			{
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-					{
-						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-						if(pImprovement2 && pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield) > 0)
-						{
-							iYield += pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield);
-						}
-					}
-				}
-			}
-		}
-#endif
-		// Extra yield for terrain
-		if(getTerrainType() != NO_TERRAIN)
-		{
-			if(pOwningCity != NULL && isValidMovePlot(pOwningCity->getOwner()))
-			{
-				iYield += pOwningCity->GetTerrainExtraYield(getTerrainType(), eYield);
-			}
-		}
-
-		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
-		if(eResource != NO_RESOURCE)
-		{
-			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if(pkResourceInfo != NULL && eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes) pkResourceInfo->getTechReveal()))
-			{
-				if (pkResourceInfo->getPolicyReveal() == NO_POLICY || GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
-				{
-					// Extra yield from resources
-					if(pOwningCity != NULL)
-						iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
-
-					// Extra yield from Trait
-					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-					{
-						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
-					}
-				}
-			}
-		}
-	}
-
-	if(bCity)
-	{
-		iYield = std::max(iYield, kYield.getMinCity());
-
-		// Mod for Player; used for Policies and such
-#if defined(MOD_BUGFIX_MINOR)
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
-#else
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChange(eYield);	// In hundreds - will be added to capitalYieldChange below
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-		iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
-#endif
-
-		// Coastal City Mod
-		if(pCity->isCoastal())
-		{
-			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
-#if defined(MOD_API_UNIFIED_YIELDS)
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
-#endif
-		}
-#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
-		if(MOD_BALANCE_YIELD_SCALE_ERA && pCity->plot() == this)
-		{
-			//Flatland City Fresh Water yields
-			if(!isHills() && !isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatFreshWater();
-			}
-			//Flatland City No Fresh Water yields
-			if(!isHills() && !isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatNoFreshWater();
-			}
-			// Hill City Fresh Water yields
-			if(isHills() && isFreshWater())
-			{
-				iYield +=kYield.getMinCityHillFreshWater();
-			}
-			// Hill City No Fresh Water yields
-			if(isHills() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityHillNoFreshWater();
-			}
-			// Mountain City Fresh Water yields
-			if(isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainFreshWater();
-			}
-			// Mountain City No Fresh Water yields
-			if(isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainNoFreshWater();
-			}
-			if(pCity->HasGarrison())
-			{
-				CvUnit* pUnit = pCity->GetGarrisonedUnit();
-				if(pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
-				{
-					int igarrisonstrength = pUnit->GetBaseCombatStrength();
-					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * igarrisonstrength) / 8);
-				}
-			}
-		}
-#endif
-		// Capital Mod
-		if(pCity->isCapital())
-		{
-#if defined(MOD_BUGFIX_MINOR)
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
-#else
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChange(eYield);
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
-#endif
-
-			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
-			iPerPopYield /= 100;
-			iYield += iPerPopYield;
-
-			if (GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
-			{
-				int iPerPopYieldEmpire = GET_PLAYER(getOwner()).getCurrentTotalPop() / GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield);
-				iYield += iPerPopYieldEmpire;
-			}
-		}
-
-		iYield += (iTemp / 100);
-	}
-
-	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
-
-	if(ePlayer != NO_PLAYER)
-	{
-		if(GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield) > 0)
-		{
-			if(iYield >= GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield))
-			{
-				iYield += GC.getEXTRA_YIELD();
-			}
-		}
-
-		if(GET_PLAYER(ePlayer).isGoldenAge())
-		{
-			if(iYield >= kYield.getGoldenAgeYieldThreshold())
-			{
-				iYield += kYield.getGoldenAgeYield();
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
-		if (getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
-		{
-			if (GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
-			{
-				if (pOwningCity != NULL && pOwningCity->GetWeLoveTheKingDayCounter() > 0)
-				{
-					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetWLTKDGPImprovementModifier() > 0)
-					{
-						int iBoon = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDGPImprovementModifier();
-						iYield *= (100 + iBoon);
-						iYield /= 100;
-					}
-				}
-			}
-		}
-#endif
-	}
+	iYield += calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
+	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+	
 
 	return std::max(0, iYield);
 }
@@ -11064,6 +10906,7 @@ void CvPlot::updateYield()
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
 		updateYieldFast(pOwningCity, pReligion, pBelief);
+		return;
 	}
 
 	updateYieldFast(NULL, NULL, NULL);
@@ -11080,14 +10923,14 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 		YieldTypes eYield = (YieldTypes)iI;
 		//Simplification - errata yields not worth considering.
 		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-			break;
+			continue;
 
 		int iNewYield = calculateYieldFast(eYield,false,pOwningCity,pMajorityReligion,pSecondaryPantheon);
 
 		if(getYield(eYield) != iNewYield)
 		{
 			int iOldYield = getYield(eYield);
-			m_aiYield[iI] = (uint8) min(0xFF,max(0,iNewYield));
+			m_aiYield[iI] = max(0, iNewYield);
 
 			if(pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
@@ -12439,7 +12282,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 								{
 									if(thisResourceInfo->isFeature(newImprovementEntry.GetCreatedFeature()) && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
 									{
-										if(GC.getGame().getSmallFakeRandNum(10, eBuild) == 5)
+										if(GC.getGame().getSmallFakeRandNum(10, eBuild + iI) == 5)
 										{
 											// Good we passed. Now let's add a resource.
 											iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
@@ -13945,20 +13788,15 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const
+int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
 {
 	int iYield;
-
-	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	if(getTerrainType() == NO_TERRAIN)
 		return 0;
 
 	if(!isPotentialCityWork())
 		return 0;
-
-	bool bCity = false;
 
 	// Will the build remove the feature?
 	bool bIgnoreFeature = false;
@@ -13968,10 +13806,12 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			bIgnoreFeature = true;
 	}
 
-	// Nature yield
-	iYield = calculateNatureYield(eYield, getOwner(), bIgnoreFeature);
-
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+
+	// Nature yield
+	iYield = calculateNatureYield(eYield, ePlayer, bIgnoreFeature)
+		+ calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon)
+		+ calculatePlayerYield(eYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 
 	// If we're not changing the improvement that's here, use the improvement that's here already
 	if(eImprovement == NO_IMPROVEMENT)
@@ -14008,48 +13848,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 
-		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer, false);
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-		if (getOwner() != NO_PLAYER)
-#else
-		if (eYield == YIELD_CULTURE && getOwner() != NO_PLAYER)
-#endif
-		{
-			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-#if defined(MOD_API_UNIFIED_YIELDS)
-			if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
-#else
-			if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
-#endif
-			{
-#if defined(MOD_API_UNIFIED_YIELDS)
-				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
-				iAdjacentCulture += pImprovement->GetYieldAdjacentTwoSameType(eYield);
-#else
-				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-#endif
-				if(iAdjacentCulture > 0)
-				{
-#if defined(MOD_API_UNIFIED_YIELDS)
-					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-					iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
-#else
-					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
-#endif
-				}
-			}
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-			if (eYield == YIELD_CULTURE)
-			{
-#endif
-				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
-#if defined(MOD_API_UNIFIED_YIELDS)
-			}
-#endif
-		}
+		iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	}
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 
@@ -14067,7 +13866,6 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		eImprovement = getImprovementType();
 		if(eImprovement != NO_IMPROVEMENT)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(ePlayer != NO_PLAYER)
 			{
 				int iRouteYield = 0;
@@ -14169,263 +13967,6 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				{
 					iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 				}
-			}
-#else
-			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(eRoute, iI);
-				if(getRouteType() != NO_ROUTE)
-				{
-					iYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(getRouteType(), iI);
-				}
-			}
-#endif
-		}
-	}
-
-	CvCity* pCity = getPlotCity();
-
-	if(ePlayer != NO_PLAYER)
-	{
-		// City plot yield
-		if(pCity != NULL)
-		{
-			if(pCity->isRevealed(eTeam, false))
-			{
-				iYield += kYield.getCityChange();
-
-				if(kYield.getPopulationChangeDivisor() != 0)
-					iYield += (pCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
-
-				bCity = true;
-			}
-		}
-
-		CvCity* pOwningCity = getOwningCity();
-
-		// Water plots
-		if(isWater())
-		{
-			if(isValidMovePlot(ePlayer))
-			{
-				// Player sea plot yield
-				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
-
-				if(pOwningCity != NULL)
-				{
-					if(pOwningCity->isRevealed(eTeam, false))
-					{
-						int iCityYield;
-
-						// Worked lake plot
-						if(pOwningCity->getLakePlotYield(eYield) > 0 && isLake())
-							iCityYield = pOwningCity->getLakePlotYield(eYield);
-						// Worked sea plot
-						else
-							iCityYield = pOwningCity->getSeaPlotYield(eYield);
-
-						iYield += iCityYield;
-					}
-				}
-
-				// Worked water resources
-				if(getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
-				{
-					if(pOwningCity != NULL)
-					{
-						if(pOwningCity->isRevealed(eTeam, false))
-							iYield += pOwningCity->getSeaResourceYield(eYield);
-					}
-				}
-
-			}
-		}
-
-		// Worked river plot
-		if(isRiver())
-		{
-			if(isValidMovePlot(ePlayer))
-			{
-				if(NULL != pOwningCity)
-				{
-					if(pOwningCity->isRevealed(eTeam, false))
-					{
-						iYield += pOwningCity->getRiverPlotYield(eYield);
-					}
-				}
-			}
-		}
-
-		// Worked Feature extra yield (e.g. University bonus)
-		if(getFeatureType() != NO_FEATURE)
-		{
-			if(pOwningCity != NULL)
-				iYield += pOwningCity->GetFeatureExtraYield(getFeatureType(), eYield);
-		}
-#if defined(MOD_BALANCE_CORE)
-		if(getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
-		{
-			if(pOwningCity != NULL && pOwningCity->getOwner() != NO_PLAYER)
-			{
-				iYield += pOwningCity->GetImprovementExtraYield(getImprovementType(), eYield);
-				iYield += GET_PLAYER(pOwningCity->getOwner()).GetImprovementExtraYield(getImprovementType(), eYield);
-			}
-		}
-#endif
-
-
-#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-		// Extra yield for plot
-		if(pOwningCity != NULL)
-		{
-			iYield += pOwningCity->GetPlotExtraYield(getPlotType(), eYield);
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if(pOwningCity != NULL)
-		{
-			if(ePlayer != NO_PLAYER && getTerrainType() != NO_TERRAIN && getOwner() == ePlayer)
-			{
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-					{
-						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-						if(pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
-						{
-							iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
-						}
-					}
-				}
-			}
-			if(ePlayer != NO_PLAYER && getPlotType() != NO_PLOT && getOwner() == ePlayer)
-			{
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-					{
-						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-						if(pImprovement2 && pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield) > 0)
-						{
-							iYield += pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield);
-						}
-					}
-				}
-			}
-		}
-		if(pOwningCity != NULL)
-		{
-			if(ePlayer != NO_PLAYER && getResourceType() != NO_RESOURCE && getOwner() == ePlayer)
-			{
-				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-					{
-						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-						if(pImprovement2 && pImprovement2->GetAdjacentResourceYieldChanges(getResourceType(), eYield) > 0)
-						{
-							iYield += pImprovement2->GetAdjacentResourceYieldChanges(getResourceType(), eYield);
-						}
-					}
-				}
-			}
-		}
-#endif
-		// Extra yield for terrain
-		if(getTerrainType() != NO_TERRAIN)
-		{
-			if(pOwningCity != NULL && isValidMovePlot(pOwningCity->getOwner()))
-			{
-				iYield += pOwningCity->GetTerrainExtraYield(getTerrainType(), eYield);
-			}
-		}
-
-		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
-		if(eResource != NO_RESOURCE)
-		{
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if(pkResourceInfo != NULL && eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes) pkResourceInfo->getTechReveal()))
-			{
-				if (pkResourceInfo->getPolicyReveal() == NO_POLICY || GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
-				{
-					// Extra yield from resources
-					if(pOwningCity != NULL)
-						iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
-
-					// Extra yield from Resources with Trait
-					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
-				}
-			}
-		}
-	}
-
-	if(bCity)
-	{
-		iYield = std::max(iYield, kYield.getMinCity());
-
-		// Mod for Player; used for Policies and such
-#if defined(MOD_BUGFIX_MINOR)
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
-#else
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChange(eYield);	// In hundreds - will be added to capitalYieldChange below
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-		iTemp += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
-#endif
-
-		// Coastal City Mod
-		if(pCity->isCoastal())
-		{
-			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
-#if defined(MOD_API_UNIFIED_YIELDS)
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
-#endif
-		}
-
-		// Capital Mod
-		if(pCity->isCapital())
-		{
-#if defined(MOD_BUGFIX_MINOR)
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
-#else
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChange(eYield);
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS)
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
-#endif
-
-			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
-			iPerPopYield /= 100;
-			iYield += iPerPopYield;
-		}
-
-		iYield += (iTemp / 100);
-	}
-
-	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
-
-	if(ePlayer != NO_PLAYER)
-	{
-		if(GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield) > 0)
-		{
-			if(iYield >= GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield))
-			{
-				iYield += GC.getEXTRA_YIELD();
-			}
-		}
-
-		if(GET_PLAYER(ePlayer).isGoldenAge())
-		{
-			if(iYield >= kYield.getGoldenAgeYieldThreshold())
-			{
-				iYield += kYield.getGoldenAgeYield();
 			}
 		}
 	}

@@ -110,6 +110,8 @@ public:
 	int GetMissionaryInfluenceCS()const;
 	int GetHappinessPerPantheon() const;
 	int GetExtraVotes() const;
+	int GetCityScalerLimiter() const;
+	int GetFollowerScalerLimiter() const;
 	int GetPolicyReductionWonderXFollowerCities() const;
 	int GetMaxYieldPerFollower(int i) const;
 	int GetMaxYieldPerFollowerHalved(int i) const;
@@ -339,6 +341,8 @@ protected:
 	int m_iMissionaryInfluenceCS;
 	int m_iHappinessPerPantheon;
 	int m_iExtraVotes;
+	int m_iCityScalerLimiter;
+	int m_iFollowerScalerLimiter;
 	int m_iPolicyReductionWonderXFollowerCities;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -439,6 +443,8 @@ public:
 	int GetHappinessPerPantheon(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetExtraVotes(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCityScalerLimiter(int iCap = 0) const;
+	int GetFollowerScalerLimiter(int iCap = 0) const;
 #endif
 	EraTypes GetObsoleteEra(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	ResourceTypes GetResourceRevealed(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;

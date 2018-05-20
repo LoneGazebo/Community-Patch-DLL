@@ -591,6 +591,9 @@ ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' INTEGER DEFAULT 0;
 -- Extra Votes from Belief
 ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' INTEGER DEFAULT 0;
 
+ALTER TABLE Beliefs ADD COLUMN 'CityScalerLimiter' INTEGER DEFAULT 0;
+ALTER TABLE Beliefs ADD COLUMN 'FollowerScalerLimiter' INTEGER DEFAULT 0;
+
 -- Ignore Policy Requirements (number) for wonders up to a set era
 ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirementsUpToEra' BOOLEAN DEFAULT 0;
 
@@ -1221,6 +1224,9 @@ ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
 -- Define a modifier for all great work tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
+-- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
+ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
+
 -- Promotion grants additional religious pressure when this unit is garrisoned in the city (if the player has a religion).
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
 
@@ -1245,11 +1251,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentCityDefenseMod' INTEGER DEFAULT 0
 -- Traveling Citadel.
 ALTER TABLE UnitPromotions ADD COLUMN 'NearbyEnemyDamage' INTEGER DEFAULT 0;
 
--- Enemy Units gain the "EnemyLands" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyLands" promotion type for this to work (see below).
+-- Enemy Units gain the "EnemyWarSawPactPromotion" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyWarSawPactPromotion" promotion type for this to work (see below).
 ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;
-
--- Units gain this promotion when "WarsawPact" Player is set.
-ALTER TABLE UnitPromotions ADD COLUMN 'EnemyLands' BOOLEAN DEFAULT 0;
+ALTER TABLE Traits ADD EnemyWarSawPactPromotion TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 
 -- Build adds an instant yield of culture to Player's culture pool.
 ALTER TABLE Builds ADD CultureBoost BOOLEAN DEFAULT 0;
@@ -1274,6 +1278,16 @@ ALTER TABLE Improvements ADD COLUMN 'OwnerOnly' BOOLEAN DEFAULT 1;
 
 -- Missionaries gain % more strength
 ALTER TABLE Traits ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
+
+-- Can send gold internal trade routes; gold yield calculated as if international, culture and science calculated as if allied city state. Only sender city gets the yields.
+-- Note: Requires BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES in CustomModOptions to be set to 1 (0 by default for performance).
+ALTER TABLE Traits ADD COLUMN 'CanGoldInternalTradeRoutes' BOOLEAN DEFAULT 0;
+
+-- Additional trade routes based on the number of owned cities
+ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedCities' INTEGER DEFAULT 0;
+
+-- Additional trade routes based on the number of owned vassals
+ALTER TABLE Traits ADD COLUMN 'TradeRoutesPerXOwnedVassals' INTEGER DEFAULT 0;
 
 -- CSD
 

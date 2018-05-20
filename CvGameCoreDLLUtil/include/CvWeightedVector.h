@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef CIV5_WEIGHTED_VECTOR_H
 #define CIV5_WEIGHTED_VECTOR_H

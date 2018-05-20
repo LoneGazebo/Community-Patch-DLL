@@ -304,7 +304,7 @@ function RefreshData()
 -- END		
 -- EDITED tradeRoute.Bonuses = myBonuses .. theirBonuses;
 		tradeRoute.TargetPlayerId = pTargetPlayer:GetID();
-		tradeRoute.ToolTip = BuildTradeRouteToolTipString(pPlayer, pOriginCity, pTargetCity, eDomain);
+		tradeRoute.ToolTip = BuildTradeRouteToolTipString(pPlayer, pOriginCity, pTargetCity, eDomain, v.TradeConnectionType);
 		tradeRoute.eDomain = eDomain;
 		
 		if (v.OldTradeRoute) then

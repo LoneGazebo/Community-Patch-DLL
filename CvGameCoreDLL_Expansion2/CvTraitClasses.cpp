@@ -130,6 +130,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bConquestOfTheWorld(false),
 	m_bFreeUpgrade(false),
 	m_bWarsawPact(false),
+	m_iEnemyWarSawPactPromotion(NO_PROMOTION),
 	m_bFreeZuluPikemanToImpi(false),
 	m_bPermanentYieldsDecreaseEveryEra(false),
 	m_bImportsCountTowardsMonopolies(false),
@@ -137,6 +138,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iPuppetPenaltyReduction(0),
 	m_iSharedReligionTourismModifier(0),
 	m_iExtraMissionaryStrength(0),
+	m_bCanGoldInternalTradeRoutes(false),
+	m_iExtraTradeRoutesPerXOwnedCities(0),
+	m_iExtraTradeRoutesPerXOwnedVassals(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -821,6 +825,10 @@ bool CvTraitEntry::IsWarsawPact() const
 {
 	return m_bWarsawPact;
 }
+PromotionTypes CvTraitEntry::GetEnemyWarSawPactPromotion() const
+{
+	return (PromotionTypes)m_iEnemyWarSawPactPromotion;
+}
 bool CvTraitEntry::IsFreeZuluPikemanToImpi() const
 {
 	return m_bFreeZuluPikemanToImpi;
@@ -850,6 +858,19 @@ int CvTraitEntry::GetSharedReligionTourismModifier() const
 int CvTraitEntry::GetExtraMissionaryStrength() const
 {
 	return m_iExtraMissionaryStrength;
+}
+/// Can send internal trade routes which are calculated as if international (yields gold)
+bool CvTraitEntry::IsCanGoldInternalTradeRoutes() const
+{
+	return m_bCanGoldInternalTradeRoutes;
+}
+int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
+{
+	return m_iExtraTradeRoutesPerXOwnedCities;
+}
+int CvTraitEntry::GetExtraTradeRoutesPerXOwnedVassals() const
+{
+	return m_iExtraTradeRoutesPerXOwnedVassals;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2102,6 +2123,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iPuppetPenaltyReduction				= kResults.GetInt("ReducePuppetPenalties");
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
 	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
+	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
+	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
+	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2160,6 +2184,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("EnemyWarSawPactPromotion");
+	if (szTextVal)
+	{
+		m_iEnemyWarSawPactPromotion = (PromotionTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
 	szTextVal = kResults.GetText("BestUnitImprovement");
 	if(szTextVal)
 	{
@@ -3491,6 +3520,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iNearbyImprovementBonusRange += trait->GetNearbyImprovementBonusRange();
 			m_iCultureBuildingYieldChange += trait->GetCultureBuildingYieldChange();
 #if defined(MOD_BALANCE_CORE)
+			m_iEnemyWarSawPactPromotion = trait->GetEnemyWarSawPactPromotion();
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
 			if(trait->IsBuyOwnedTiles())
 			{
@@ -3632,6 +3662,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iConquestOfTheWorldCityAttack += trait->GetConquestOfTheWorldCityAttack();
 			m_iSharedReligionTourismModifier += trait->GetSharedReligionTourismModifier();
 			m_iExtraMissionaryStrength += trait->GetExtraMissionaryStrength();
+			if (trait->IsCanGoldInternalTradeRoutes())
+			{
+				m_bCanGoldInternalTradeRoutes = true;
+			}
+			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
+			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -4270,6 +4306,7 @@ void CvPlayerTraits::Reset()
 	m_bConquestOfTheWorld = false;
 	m_bFreeUpgrade = false;
 	m_bWarsawPact = false;
+	m_iEnemyWarSawPactPromotion = NO_PROMOTION;
 	m_bFreeZuluPikemanToImpi = false;
 	m_bPermanentYieldsDecreaseEveryEra = false;
 	m_bImportsCountTowardsMonopolies = false;
@@ -4277,6 +4314,9 @@ void CvPlayerTraits::Reset()
 	m_iPuppetPenaltyReduction = 0;
 	m_iSharedReligionTourismModifier = 0;
 	m_iExtraMissionaryStrength = 0;
+	m_bCanGoldInternalTradeRoutes = false;
+	m_iExtraTradeRoutesPerXOwnedCities = 0;
+	m_iExtraTradeRoutesPerXOwnedVassals = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -6243,6 +6283,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_bConquestOfTheWorld, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeUpgrade, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bWarsawPact, false);
+	MOD_SERIALIZE_READ(88, kStream, m_iEnemyWarSawPactPromotion, NO_PROMOTION);
 	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bPermanentYieldsDecreaseEveryEra, false);
 	MOD_SERIALIZE_READ(88, kStream, m_bImportsCountTowardsMonopolies, false);
@@ -6250,6 +6291,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_iPuppetPenaltyReduction, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iSharedReligionTourismModifier, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraMissionaryStrength, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_bCanGoldInternalTradeRoutes, false);
+	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedCities, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedVassals, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6640,8 +6684,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_eGPFaithPurchaseEra, NO_ERA);
 	MOD_SERIALIZE_READ(66, kStream, m_iFaithCostModifier, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
-	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -6835,6 +6879,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bConquestOfTheWorld);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeUpgrade);
 	MOD_SERIALIZE_WRITE(kStream, m_bWarsawPact);
+	MOD_SERIALIZE_WRITE(kStream, m_iEnemyWarSawPactPromotion);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
 	MOD_SERIALIZE_WRITE(kStream, m_bPermanentYieldsDecreaseEveryEra);
 	MOD_SERIALIZE_WRITE(kStream, m_bImportsCountTowardsMonopolies);
@@ -6842,6 +6887,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iPuppetPenaltyReduction);
 	MOD_SERIALIZE_WRITE(kStream, m_iSharedReligionTourismModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraMissionaryStrength);
+	MOD_SERIALIZE_WRITE(kStream, m_bCanGoldInternalTradeRoutes);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedCities);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedVassals);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

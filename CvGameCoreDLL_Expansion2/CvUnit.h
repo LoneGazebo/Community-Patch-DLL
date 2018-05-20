@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -706,9 +706,6 @@ public:
 	void ChangeIsFriendlyLands(int iValue);
 	int GetIsFriendlyLands() const;
 	bool isFriendlyLands() const;
-	void ChangeIsEnemyLands(int iValue);
-	int GetIsEnemyLands() const;
-	bool isEnemyLands() const;
 	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
 	int getStackedGreatGeneralExperience() const;
@@ -2044,7 +2041,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
-	FAutoVariable<int, CvUnit> m_bIsEnemyLands;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;

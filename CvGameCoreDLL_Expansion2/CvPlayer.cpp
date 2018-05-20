@@ -4416,7 +4416,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								// here would be a good place to put additional checks (for example, influence)
-								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GetEconomicMight());
+								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID() + iI) + GC.getGame().getSmallFakeRandNum(32, GetEconomicMight() + iI);
 #if defined(MOD_BALANCE_CORE)
 								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (iConquestChance <= pkLoopBuildingInfo->GetConquestProbability()))
 #else
@@ -9818,7 +9818,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isHasMet(getTeam()))
 				{
 #if defined(MOD_CONFIG_AI_IN_XML)
-					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital(), pNewCity, GetID(), true);
+					int iWarmongerOffset = CvDiplomacyAIHelpers::GetPlayerCaresValue(GetID(), ePlayer, pNewCity->isCapital() ? true : false, pNewCity, GetID(), true);
 					GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset);
 #else
 					int iNumCities = max(GET_PLAYER(ePlayer).getNumCities(), 1);
@@ -10087,7 +10087,7 @@ void CvPlayer::disbandUnit(bool)
 				if(pLoopUnit->getUnitInfo().GetProductionCost() > 0)
 				{
 					{
-						iValue = (10000 + GC.getGame().getSmallFakeRandNum(10, pLoopUnit->GetID()) * 100);
+						iValue = (10000 + GC.getGame().getSmallFakeRandNum(10, pLoopUnit->GetID() + iLoop) * 100);
 
 						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
 
@@ -26371,7 +26371,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if(pReligion)
 					{
 						
-						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
+						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 					}
 					break;
 				}
@@ -26387,7 +26387,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true) * iNumFollowers;
+						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
 					}
 					
 					break;
@@ -26530,7 +26530,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * iNumFollowerCities;
+							iValue += (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 						}
 					}
 					if(eYield == YIELD_FAITH)
@@ -26639,7 +26639,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true) * iNumFollowerCities;
+					int iBaseValue = pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity, true);
+					if (iBaseValue != 0)
+					{
+						int iTempValue = iBaseValue;
+						iTempValue *= (100 + pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities));
+						iTempValue /= 100;
+
+						iBaseValue += iTempValue;
+					}
+
+					iValue += iBaseValue;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_DEATH:
@@ -28942,7 +28952,7 @@ CvCity* CvPlayer::GetGreatPersonSpawnCity(UnitTypes eUnit)
 				continue;
 			}
 
-			int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight());
+			int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight() + iLoop);
 
 			for(int i = 0; i < NUM_YIELD_TYPES; i++)
 			{
@@ -32715,7 +32725,7 @@ void CvPlayer::setCombatExperience(int iExperience)
 					int iLoop;
 					for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight());
+						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight() + iLoop);
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -32927,7 +32937,7 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 							continue;
 						}
 
-						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight());
+						int iValue = 4 * GC.getGame().getSmallFakeRandNum(getNumCities(), GetEconomicMight() + iLoop);
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -42928,7 +42938,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 							{
-								int iChance = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+								int iChance = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight() + iUnitLoop) * 10;
 								if(iChance < 50)
 								{
 									continue;
@@ -44505,7 +44515,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		if(pLoopCity2 != NULL)
 		{
-			pLoopCity2->UpdateReligion(pLoopCity2->GetCityReligions()->GetReligiousMajority(), true);		
+			pLoopCity2->UpdateReligion(pLoopCity2->GetCityReligions()->GetReligiousMajority());		
 		}
 	}
 #endif

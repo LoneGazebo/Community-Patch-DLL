@@ -1059,6 +1059,8 @@
 	<Row Class="6" Name="BALANCE_CORE_CITY_DEFENSE_SWITCH" Value="0"/>
 	<!-- Gather archaeological data from planting a GP -->
 	<Row Class="6" Name="BALANCE_CORE_ARCHAEOLOGY_FROM_GP" Value="0"/>
+	<!-- Enables the possibility of gold internal trade routes (still needs the appropriate traits, etc) -->
+	<Row Class="6" Name="BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES" Value="0"/>
 
 	  <!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>

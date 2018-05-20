@@ -3177,7 +3177,7 @@ void CvCity::doTurn()
 				}
 			}
 #if defined(MOD_BALANCE_CORE)
-			updateYield(true);
+			updateYield();
 #endif
 			m_bRouteToCapitalConnectedLastTurn = m_bRouteToCapitalConnectedThisTurn;
 		}
@@ -3276,7 +3276,7 @@ bool CvCity::canBeSelected() const
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-void CvCity::updateYield(bool bSkipCity)
+void CvCity::updateYield(bool bRecalcPlotYields)
 #else
 void CvCity::updateYield()
 #endif
@@ -3288,27 +3288,27 @@ void CvCity::updateYield()
 	const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner()) : 0;
 	const CvBeliefEntry* pPantheon = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-	int iI;
-	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
+	if (bRecalcPlotYields)
 	{
-		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-		if(pLoopPlot != NULL && GetCityCitizens()->IsWorkingPlot(iI))
+		int iI;
+		for (iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
-			pLoopPlot->updateYieldFast(this,pReligion,pPantheon);
+			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+			if(pLoopPlot != NULL && GetCityCitizens()->IsWorkingPlot(iI))
+			{
+				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
+			}
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(!bSkipCity)
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			const YieldTypes eYield = static_cast<YieldTypes>(iI);
-			UpdateCityYields(eYield);
-		}
-		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		GetCityCulture()->CalculateBaseTourism();
+		const YieldTypes eYield = static_cast<YieldTypes>(iI);
+		UpdateCityYields(eYield);
 	}
+	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	GetCityCulture()->CalculateBaseTourism();
 #endif
 }
 #if defined(MOD_BALANCE_CORE)
@@ -3520,7 +3520,7 @@ void CvCity::ChangeEventCityYield(YieldTypes eYield, int iValue)
 	if(iValue != 0)
 	{
 		m_aiEventCityYield.setAt(eYield, m_aiEventCityYield[eYield] + iValue);
-		updateYield();
+		updateYield(false);
 	}
 }
 int CvCity::GetEventCityYield(YieldTypes eYield) const
@@ -3550,7 +3550,7 @@ void CvCity::ChangeEventBuildingClassYield(BuildingClassTypes eIndex1, YieldType
 	if(iChange != 0)
 	{
 		m_ppaiEventBuildingClassYield[eIndex1][eIndex2] += iChange;
-		updateYield();
+		updateYield(false);
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -3573,7 +3573,7 @@ void CvCity::ChangeEventBuildingClassYieldModifier(BuildingClassTypes eIndex1, Y
 	if(iChange != 0)
 	{
 		m_ppaiEventBuildingClassYieldModifier[eIndex1][eIndex2] += iChange;
-		updateYield();
+		updateYield(false);
 	}
 }
 
@@ -3644,7 +3644,7 @@ void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes 
 	if(iChange != 0)
 	{
 		m_ppaiEventSpecialistYield[eSpecialist][eIndex2] += iChange;
-		updateYield();
+		updateYield(false);
 	}
 }
 
@@ -6934,7 +6934,7 @@ void CvCity::SetRouteToCapitalConnected(bool bValue)
 	if(bUpdateReligion)
 	{
 #if defined(MOD_BALANCE_CORE)
-		UpdateReligion(GetCityReligions()->GetReligiousMajority(), false);
+		UpdateReligion(GetCityReligions()->GetReligiousMajority());
 #else
 		UpdateReligion(GetCityReligions()->GetReligiousMajority());
 #endif
@@ -14685,21 +14685,9 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Process the majority religion changing for a city
-#if defined(MOD_BALANCE_CORE)
 void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 {
-	//avoid this expensive call if only a specialist was added/removed
-	if (bRecalcPlotYields)
-#if defined(MOD_BALANCE_CORE)
-		updateYield(true);
-#else
-		updateYield();
-#endif
-#else
-void CvCity::UpdateReligion(ReligionTypes eNewMajority)
-{
-	updateYield();
-#endif
+	updateYield(bRecalcPlotYields);
 
 	// Reset city level yields
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)

@@ -465,7 +465,7 @@ function DisplayData()
 			print("v.ToCity is nil");
 		end
 		
-		local strTT = BuildTradeRouteToolTipString(Players[v.FromID], v.FromCity, v.ToCity, v.Domain);
+		local strTT = BuildTradeRouteToolTipString(Players[v.FromID], v.FromCity, v.ToCity, v.Domain, v.TradeConnectionType);
 		
 		if (v.Domain == DomainTypes.DOMAIN_LAND) then
 			instance.Domain_Land:SetHide(false);
@@ -550,7 +550,7 @@ function DisplayData()
 		local fromCulture = "";
 		local toCulture = "";
 		
-		if (v.FromID ~= v.ToID) then
+		if ((v.FromID ~= v.ToID) or (v.TradeConnectionType == TradeConnectionTypes.TRADE_CONNECTION_GOLD_INTERNAL)) then
 		
 			if(v.FromScience ~= 0) then
 				fromScience = v.FromScience / 100;

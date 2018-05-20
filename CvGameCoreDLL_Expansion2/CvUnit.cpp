@@ -422,7 +422,6 @@ CvUnit::CvUnit() :
 	, m_inearbyFriendlyCityCombatMod("CvUnit::m_inearbyFriendlyCityCombatMod", m_syncArchive)
 	, m_inearbyEnemyCityCombatMod("CvUnit::m_inearbyEnemyCityCombatMod", m_syncArchive)
 	, m_bIsFriendlyLands("CvUnit::m_bIsFriendlyLands", m_syncArchive)
-	, m_bIsEnemyLands("CvUnit::m_bIsEnemyLands", m_syncArchive)
 	, m_iPillageBonusStrengthPercent("CvUnit::m_iPillageBonusStrengthPercent", m_syncArchive)
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
@@ -1510,7 +1509,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_inearbyFriendlyCityCombatMod = 0;
 	m_inearbyEnemyCityCombatMod = 0;
 	m_bIsFriendlyLands = false;
-	m_bIsEnemyLands = false;
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
 	m_bIsHighSeaRaider = false;
@@ -3163,7 +3161,7 @@ void CvUnit::doTurn()
 	DoImprovementExperience(plot());
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
-	DoNearbyUnitPromotion(plot());
+	DoNearbyUnitPromotion();
 	DoConvertEnemyUnitToBarbarian(plot());
 	DoConvertReligiousUnitsToMilitary();
 #endif
@@ -18055,21 +18053,6 @@ bool CvUnit::isFriendlyLands() const
 	VALIDATE_OBJECT
 	return GetIsFriendlyLands() > 0;
 }
-void CvUnit::ChangeIsEnemyLands(int iValue)
-{
-	VALIDATE_OBJECT
-	m_bIsEnemyLands += iValue;
-}
-int CvUnit::GetIsEnemyLands() const
-{
-	VALIDATE_OBJECT
-	return	m_bIsEnemyLands;
-}
-bool CvUnit::isEnemyLands() const
-{
-	VALIDATE_OBJECT
-	return GetIsEnemyLands() > 0;
-}
 int CvUnit::getPillageBonusStrengthPercent() const
 {
 	VALIDATE_OBJECT
@@ -24006,33 +23989,27 @@ void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 						setHasPromotion(eLoopPromotion, false);
 					}
 				}
-				if(pkPromotionInfo->IsEnemyLands())
+			}
+		}
+		CvPlayer& pUnitPlayer = GET_PLAYER(getOwner());
+		const std::vector<PlayerTypes>& vEnemies = pUnitPlayer.GetPlayersAtWarWith();
+		for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+		{
+			CvPlayer& kPlayer = GET_PLAYER(*it);
+			if (kPlayer.GetPlayerTraits()->IsWarsawPact())
+			{
+				const PromotionTypes eWarSawPactPromotion = kPlayer.GetPlayerTraits()->GetEnemyWarSawPactPromotion();
+				if ((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID())
+					|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1)
+					|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
 				{
-					for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
-					{
-						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iJ);
-						if(kPlayer.GetPlayerTraits()->IsWarsawPact())
-						{
-							if(GET_TEAM(getTeam()).isAtWar(GET_TEAM(kPlayer.getTeam()).GetID()))
-							{
-								if((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
-								{
-									setHasPromotion(eLoopPromotion, true);
-								}
-								else
-								{
-									setHasPromotion(eLoopPromotion, false);
-								}
-							}
-							else
-							{
-								if(HasPromotion(eLoopPromotion))
-								{
-									setHasPromotion(eLoopPromotion, false);
-								}
-							}
-						}
-					}
+					if(eWarSawPactPromotion != NO_PROMOTION && !isHasPromotion(eWarSawPactPromotion))
+						setHasPromotion(eWarSawPactPromotion, true);
+				}
+				else
+				{
+					if (eWarSawPactPromotion != NO_PROMOTION && isHasPromotion(eWarSawPactPromotion))
+						setHasPromotion(kPlayer.GetPlayerTraits()->GetEnemyWarSawPactPromotion(), false);
 				}
 			}
 		}
@@ -26817,7 +26794,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNearbyFriendlyCityCombatMod((thisPromotion.GetNearbyFriendlyCityCombatMod()) * iChange);
 		ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
 		ChangeIsFriendlyLands((thisPromotion.IsFriendlyLands()) ? iChange : 0);
-		ChangeIsEnemyLands((thisPromotion.IsEnemyLands()) ? iChange : 0);
 		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
 		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
 		ChangeIsHighSeaRaider((thisPromotion.IsHighSeaRaider()) ? iChange : 0);

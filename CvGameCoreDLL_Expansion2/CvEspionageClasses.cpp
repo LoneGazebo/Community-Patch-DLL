@@ -38,7 +38,7 @@ const int iChancetoIdentifyNoCounterSpy = 275;
 const int iChancetoDetectNoCounterSpy = 175;
 const int iChancetoKillAA = 250;
 const int iChancetoIdentifyAA = 150;
-const int iSpyRankPower = 75;
+const int iSpyRankPower = 125;
 PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 
 //=====================================
@@ -4472,7 +4472,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 			{
 				uiMaxTechCostAdjusted *= 100;
-				uiMaxTechCostAdjusted /= (100 + (GET_PLAYER(ePlayer).GetCurrentEra() * GET_PLAYER(ePlayer).GetCurrentEra()));
+				uiMaxTechCostAdjusted /= (100 + (GET_PLAYER(ePlayer).GetCurrentEra() + 1 * GET_PLAYER(ePlayer).GetCurrentEra() + 1));
 			}
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
@@ -9113,7 +9113,7 @@ void CvEspionageAI::StealGreatWork()
 			// steal a tech
 			CvAssertMsg(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size() > 0, "pEspionage->m_aPlayerStealableGWList[uiPlayer] list is empty. Not good");
 			
-			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->GetEconomicMight());
+			int iGrab = GC.getGame().getSmallFakeRandNum(pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer].size(), m_pPlayer->GetEconomicMight() + uiDefendingPlayer);
 			int iCityLoop;
 			CvCity* pPlayerCity = NULL;
 			int iGreatWorkIndex;
@@ -9353,7 +9353,7 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+		int iRoll = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + uiSpy) * 10;
 		if (iRoll < iChanceOfSuccess)
 		{
 			pEspionage->AttemptCoup(uiSpy);

@@ -787,7 +787,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 		--Add Faith Buildings first
 		local tableid = 1;
 		sortedList[CategoryBuildings][sectionID] = {};	
-		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.Cost == -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.ShowInPedia == 1 and Buildings.Cost == -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 			AddArticle(sectionID, tableid, building); -- FIXED Infixo changed 0 to sectionID
 			tableid = tableid + 1;
 		end
@@ -798,7 +798,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 	--Add Corporation Buildings Second
 	local tableid = 1;
 	sortedList[CategoryBuildings][sectionID] = {};
-	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation > 0 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation > 0 and Buildings.ShowInPedia == 1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 		AddArticle(sectionID, tableid, building); -- FIXED Infixo changed 1 to sectionID
 		tableid = tableid + 1;
 	end
@@ -809,7 +809,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 		FROM Buildings 
 		INNER JOIN BuildingClasses ON Buildings.BuildingClass = BuildingClasses.Type 
 		INNER JOIN Technologies ON Buildings.PrereqTech = Technologies.Type 
-		WHERE (FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation == 0 AND BuildingClasses.MaxGlobalInstances < 0 AND BuildingClasses.MaxPlayerInstances <> 1 AND BuildingClasses.MaxTeamInstances < 0 AND Technologies.Era = ?;]];
+		WHERE (FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation == 0 AND Buildings.ShowInPedia == 1 AND BuildingClasses.MaxGlobalInstances < 0 AND BuildingClasses.MaxPlayerInstances <> 1 AND BuildingClasses.MaxTeamInstances < 0 AND Technologies.Era = ?;]];
 	
 	local BuildingsByEra = DB.CreateQuery(sql);
 	
@@ -836,7 +836,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 				SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas 
 				FROM Buildings 
 				INNER JOIN BuildingClasses ON Buildings.BuildingClass = BuildingClasses.Type 
-				WHERE Buildings.PrereqTech IS NULL AND (Buildings.FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation == 0 AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0;]];
+				WHERE Buildings.PrereqTech IS NULL AND (Buildings.FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.ShowInPedia == 1 AND Buildings.IsCorporation == 0 AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0;]];
 		
 			for building in DB.Query(sql) do
 				AddArticle(eraID, tableid, building);
@@ -2603,7 +2603,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_MOVEMENT", GameInfo.Routes[row.RouteType].Description);
 			numAbilities = numAbilities + 1;
 		end
-
+		
 		for row in GameInfo.Build_TechTimeChanges( condition ) do
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
@@ -3202,7 +3202,6 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("SupplyCapBoost");
 		AnalyzeUnit("NumFreeLux", "");
 		AnalyzeUnit("GPExtra");
-		AnalyzeUnit("IsConvertUnit");
 		AnalyzeUnit("MinorCivGift", "");
 		AnalyzeUnit("NoMinorCivGift", "");
 		AnalyzeUnit("PurchaseCooldown", "");
@@ -3559,17 +3558,17 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("CombatBonusFromNearbyUnitClass");
 		AnalyzePromotion("NearbyUnitClassBonusRange");
 		AnalyzePromotion("NearbyUnitClassBonus");
-		AnalyzePromotion("AddedFromNearbyPromotion");
 		AnalyzePromotion("IsNearbyPromotion");
 		AnalyzePromotion("NearbyRange");
-		AnalyzePromotion("IsNearbyCityPromotion");
-		AnalyzePromotion("IsNearbyFriendlyCityPromotion");
-		AnalyzePromotion("IsNearbyEnemyCityPromotion");
+		AnalyzePromotion("NearbyCityCombatMod");
+		AnalyzePromotion("NearbyFriendlyCityCombatMod");
+		AnalyzePromotion("NearbyEnemyCityCombatMod");
 		AnalyzePromotion("IsFriendlyLands");
 		AnalyzePromotion("RequiredUnit");
 		AnalyzePromotion("AirInterceptRangeChange", "");
 		AnalyzePromotion("ConvertDomainUnit");
 		AnalyzePromotion("ConvertDomain");
+		AnalyzePromotion("IsConvertUnit");
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
 		AnalyzePromotion("PlagueChance");
@@ -3588,8 +3587,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("ReligiousPressureModifier");
 		AnalyzePromotion("AdjacentCityDefenseMod");
 		AnalyzePromotion("NearbyEnemyDamage", "");
-		AnalyzePromotion("EnemyLands");
-		AnalyzePromotion("AdjacentSameType");
 		AnalyzePromotion("MilitaryProductionModifier");
 		AnalyzePromotion("HighSeaRaider");
 		AnalyzePromotion("AuraRangeChange", "");

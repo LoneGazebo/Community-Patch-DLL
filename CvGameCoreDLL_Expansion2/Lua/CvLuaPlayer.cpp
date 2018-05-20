@@ -3111,7 +3111,16 @@ int CvLuaPlayer::lGetInfluenceTradeRouteGoldBonus(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	int iResult = 0;
+	PlayerTypes ePlayer = pkPlayer->GetID();
+	if (ePlayer != eOtherPlayer)
+	{
+		iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
+	}
+#else
 	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3237,7 +3246,16 @@ int CvLuaPlayer::lGetInfluenceTradeRouteScienceBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	int iResult = 0;
+	PlayerTypes ePlayer = pkPlayer->GetID();
+	if (ePlayer != eOtherPlayer)
+	{
+		iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
+	}
+#else
 	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteScienceBonus(eOtherPlayer);
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4405,6 +4423,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteBaseBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
+
 	int iResult = pPlayerTrade->GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
 
@@ -4426,6 +4451,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteGPTBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
+
 	int iResult = pPlayerTrade->GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, true, bOrigin);
 	lua_pushinteger(L, iResult);
 
@@ -4443,6 +4475,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteResourceBonus(lua_State* L)
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4531,6 +4570,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteYourBuildingBonus(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
+
 	int iResult = pPlayerTrade->GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
 	return 1;	
@@ -4549,6 +4595,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteTheirBuildingBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4569,6 +4622,13 @@ int CvLuaPlayer::lGetInternationalTradeRoutePolicyBonus(lua_State* L)
 	kTradeConnection.m_eDomain = eDomain;
 	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
+
 	int iResult = pPlayerTrade->GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -4588,6 +4648,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteOtherTraitBonus(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4626,6 +4693,13 @@ int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 	lua_pushinteger(L, iResult);
@@ -4675,6 +4749,13 @@ int CvLuaPlayer::lGetTradeConnectionOpenBordersModifierTimes100(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
+
 	int iResult = pPlayerTrade->GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
 	return 1;	
@@ -4706,6 +4787,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifierScience(lua_State
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4822,6 +4910,12 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4847,6 +4941,12 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4872,6 +4972,12 @@ int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_CULTURE, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4945,6 +5051,13 @@ int CvLuaPlayer::lGetMinorCivGoldBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
+
+#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
+	{
+		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
+	}
+#endif
 
 	int iResult = pPlayerTrade->GetMinorCivGoldBonus(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
