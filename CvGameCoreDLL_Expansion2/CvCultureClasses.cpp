@@ -6869,11 +6869,9 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent() + GET_PLAYER(m_pCity->getOwner()).GetLandmarksTourismPercentGlobal();
 	if (iPercent != 0)
 	{
-		int iFromWonders = GetCultureFromWonders();
-		int iFromNaturalWonders = GetCultureFromNaturalWonders();
-		int iFromImprovements = GetYieldFromImprovements(YIELD_CULTURE);
+		int iFromCity = m_pCity->getYieldRate(YIELD_CULTURE, false);
 
-		iBase += ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
+		iBase += iFromCity * iPercent / 100;
 	}
 
 	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
@@ -7076,11 +7074,10 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
 #if defined(MOD_API_UNIFIED_YIELDS)
-		int iFromImprovements = GetYieldFromImprovements(YIELD_CULTURE);
+		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
 #else
 		int iFromImprovements = GetCultureFromImprovements();
 #endif
-
 		iBase += ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
 	}
 
@@ -7467,7 +7464,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
 #if defined(MOD_API_UNIFIED_YIELDS)
-		int iFromImprovements = GetYieldFromImprovements(YIELD_CULTURE);
+		int iFromImprovements = m_pCity->GetBaseYieldRateFromTerrain(YIELD_CULTURE);
 #else
 		int iFromImprovements = GetCultureFromImprovements();
 #endif
@@ -8563,48 +8560,6 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 			iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
 		}
 	}
-	return iRtnValue;
-}
-
-/// City's current culture from improvements
-#if defined(MOD_API_UNIFIED_YIELDS)
-int CvCityCulture::GetYieldFromImprovements(YieldTypes eYield) const
-#else
-int CvCityCulture::GetCultureFromImprovements() const
-#endif
-{
-	int iRtnValue = 0;
-	
-	// Look at all workable Plots
-	const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
-	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
-		ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			iRtnValue += pLoopPlot->calculateYield(eYield);
-
-			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if(pImprovement && pImprovement->GetYieldChange(eYield) != 0)
-			{
-#if defined(MOD_API_UNIFIED_YIELDS)
-				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
-#else
-				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-#endif
-				if(iAdjacentCulture != 0)
-				{
-#if defined(MOD_API_UNIFIED_YIELDS)
-					iRtnValue += pLoopPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-#else
-					iRtnValue += pLoopPlot->ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
-#endif
-				}
-			}
-		}
-	}
-
 	return iRtnValue;
 }
 

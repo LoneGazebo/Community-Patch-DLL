@@ -773,21 +773,6 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 
 		m_adYieldAvg[iI] = iYield;
 #endif
-#if !defined(MOD_BALANCE_CORE)
-		int iTilesWorked = 0;
-		int iYieldAmount = 0;
-		const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
-		for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
-		{
-			CvPlot* pPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
-			iTilesWorked++;
-			iYieldAmount += pPlot->calculateYield(eYield);
-		}
-		if(iTilesWorked > 0)
-			m_adYieldAvg[iI] = iYieldAmount / (double)iTilesWorked;
-		else
-			m_adYieldAvg[iI] = 0;
-#endif
 	}
 }
 
@@ -4507,13 +4492,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedCultureBuilding(CvCity *pCity
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity)
 {
 	int iTourismValue = 0;
-	iTourismValue += pCity->GetCityCulture()->GetCultureFromWonders();
-	iTourismValue += pCity->GetCityCulture()->GetCultureFromNaturalWonders();
-#if defined(MOD_API_UNIFIED_YIELDS)
-	iTourismValue += pCity->GetCityCulture()->GetYieldFromImprovements(YIELD_CULTURE);
-#else
-	iTourismValue += pCity->GetCityCulture()->GetCultureFromImprovements();
-#endif
+	iTourismValue += pCity->getYieldRate(YIELD_CULTURE, false);
 #if defined(MOD_BALANCE_CORE)
 	iTourismValue += pCity->GetBaseTourism() / 100;
 #else
@@ -5734,11 +5713,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 
 	if(pCity != NULL && (pkBuildingInfo->GetLandmarksTourismPercent() > 0 || pkBuildingInfo->GetLandmarksTourismPercentGlobal() > 0))
 	{
-		int iFromWonders = pCity->GetCityCulture()->GetCultureFromWonders();
-		int iFromNaturalWonders = pCity->GetCityCulture()->GetCultureFromNaturalWonders();
-		int iFromImprovements = pCity->GetCityCulture()->GetYieldFromImprovements(YIELD_CULTURE);
-
-		int iTest = (iFromWonders + iFromNaturalWonders + iFromImprovements);
+		int iTest = pCity->getYieldRate(YIELD_CULTURE, false);
 
 		iCultureValue += (iTest / max(1, (pkBuildingInfo->GetLandmarksTourismPercent() + pkBuildingInfo->GetLandmarksTourismPercentGlobal())));
 	}
