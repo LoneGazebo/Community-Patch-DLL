@@ -3072,7 +3072,7 @@ void CvCity::doTurn()
 				{
 					if(pLoopPlot->getOwningCityID() == GetID())
 					{
-						if(GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+						if(GetCityCitizens()->IsWorkingPlot(iI))
 						{
 							pLoopPlot->doImprovement();
 						}
@@ -3293,7 +3293,7 @@ void CvCity::updateYield()
 	{
 		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-		if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL && GetCityCitizens()->IsWorkingPlot(iI))
 		{
 			pLoopPlot->updateYieldFast(this,pReligion,pPantheon);
 		}
@@ -7384,9 +7384,7 @@ int CvCity::GetNumWorkablePlots(int iChange) const
 void CvCity::clearWorkingOverride(int iIndex)
 {
 	VALIDATE_OBJECT
-	CvPlot* pPlot;
-
-	pPlot = GetCityCitizens()->GetCityPlotFromIndex(iIndex);
+	CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iIndex);
 
 	if(pPlot != NULL)
 	{
@@ -7400,14 +7398,10 @@ int CvCity::countNumImprovedPlots(ImprovementTypes eImprovement, bool bPotential
 {
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot;
-	int iCount;
+	int iCount = 0;
 	int iI;
 
-	iCount = 0;
-
 	CvCityCitizens* pCityCitizens = GetCityCitizens();
-
-
 	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		pLoopPlot = pCityCitizens->GetCityPlotFromIndex(iI);
@@ -32457,7 +32451,7 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 			continue;
 		}
 
-		if(!GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+		if(!GetCityCitizens()->IsWorkingPlot(iCityPlotLoop))
 		{
 			continue;
 		}

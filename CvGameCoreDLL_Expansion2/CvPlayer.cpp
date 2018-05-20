@@ -9912,7 +9912,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 		return CanLiberatePlayer(ePlayer);
 	}
 
-	return true;
+	return IsAtPeaceWith(ePlayer);
 }
 
 //	--------------------------------------------------------------------------------
@@ -20908,15 +20908,13 @@ void CvPlayer::DoUprising()
 	CvCity* pBestCity = NULL;
 	int iBestWeight = 0;
 
-	int iTempWeight;
-
 	CvCity* pLoopCity;
 	int iLoop;
 	CvGame& theGame = GC.getGame();
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iTempWeight = pLoopCity->getPopulation();
-		iTempWeight += theGame.getSmallFakeRandNum(10, GetEconomicMight());
+		int iTempWeight = pLoopCity->getPopulation();
+		iTempWeight += theGame.getSmallFakeRandNum(10, GetEconomicMight()+pLoopCity->plot()->GetPlotIndex());
 
 		if(iTempWeight > iBestWeight)
 		{
@@ -20959,7 +20957,7 @@ void CvPlayer::DoUprising()
 			if(pPlot->getNumUnits() > 0)
 				continue;
 
-			iTempWeight = theGame.getSmallFakeRandNum(10, GetEconomicMight());
+			int iTempWeight = theGame.getSmallFakeRandNum(10, GetEconomicMight()+iPlotLoop);
 
 			// Add weight if there's an improvement here!
 			if(pPlot->getImprovementType() != NO_IMPROVEMENT)

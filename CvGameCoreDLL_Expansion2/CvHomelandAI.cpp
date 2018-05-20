@@ -3880,22 +3880,15 @@ void CvHomelandAI::ExecuteHeals()
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(pUnit)
-		{
-			if (pUnit->GetDanger()>0)
-			{
-				CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
-				if (pBestPlot)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-					UnitProcessed(pUnit->GetID());
-					continue;
-				}
-			}
+		if (!pUnit)
+			continue;
 
+		CvPlot* pBestPlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit,true) : TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
+		if (pBestPlot!=pUnit->plot())
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+		if (pUnit->canMove())
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			UnitProcessed(pUnit->GetID());
-		}
+		UnitProcessed(pUnit->GetID());
 	}
 }
 
@@ -4658,6 +4651,8 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 void CvHomelandAI::ExecuteMessengerMoves()
 {
 	MoveUnitsArray::iterator it;
+	vector<int> vIgnoreCities;
+
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -4667,7 +4662,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		}
 		
 		//Do trade mission
-		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit);
+		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit,&vIgnoreCities);
 		if(pTarget)
 		{
 			if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))

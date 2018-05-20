@@ -4394,7 +4394,12 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	//don't get sidetracked
 	if (iMinDist>3 || pClosestEnemyPlot ==NULL)
 		return;
-	
+
+	//do we have additional units around?
+	if (FindUnitsWithinStrikingDistance(pClosestEnemyPlot))
+		for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
+			vUnits.push_back( m_CurrentMoveUnits.getUnit(i) );
+
 	int iPositionsToCheck = GC.getGame().getHandicapType() < 2 ? 12 : 23;
 	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
 	vector<STacticalAssignment> vAssignments;
@@ -6522,11 +6527,9 @@ void CvTacticalAI::ExecuteHeals()
 						LogTacticalMessage(strLogString);
 					}
 				}
-				else //flee
-				{
-					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
-				}
 			}
+
+			pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
 		}
 		else if (pUnit->getDomainType()==DOMAIN_SEA)
 		{
@@ -6544,10 +6547,8 @@ void CvTacticalAI::ExecuteHeals()
 						LogTacticalMessage(strLogString);
 					}
 				}
-				else //flee
-				{
-					pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
-				}
+
+				pBetterPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit);
 			}
 		}
 
@@ -12039,10 +12040,10 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		//in case we need to stay here after attacking
 		SUnitStats unitAfterAttack(unit);
 		unitAfterAttack.iMovesLeft = 0;
-		ReachablePlots::iterator it = reachablePlots.find(unit.iPlotIndex);
+		ReachablePlots::iterator itCurPlot = reachablePlots.find(unit.iPlotIndex);
 
 		//this should definitely not happen
-		if (it == reachablePlots.end())
+		if (itCurPlot == reachablePlots.end())
 			return vector<STacticalAssignment>();
 
 		set<int> rangeAttackPlots;
@@ -12071,12 +12072,12 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 
 				int endTurnMoveScore = 0;
 				if (move.eType == STacticalAssignment::A_RANGEATTACK)
-					endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, *it, *this, true).iScore;
+					endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, *itCurPlot, *this, true).iScore;
 				else if (move.eType == STacticalAssignment::A_RANGEKILL)
 				{
 					CvTacticalPosition newPos(*this);
 					newPos.addAssignment(move);
-					endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, *it, newPos, true).iScore;
+					endTurnMoveScore = ScorePlotForCombatUnit(unitAfterAttack, *itCurPlot, newPos, true).iScore;
 				}
 
 				//if we would need to stay here but it's a bad idea, then don't do the attack
@@ -12287,28 +12288,48 @@ bool CvTacticalPosition::isComplete() const
 //check that we're not just shuffling around units
 bool CvTacticalPosition::isOffensive() const
 { 
+	bool bDoingDamage = false;
+	bool bGoodCover = true;
+	bool bHaveFinishedUnit = false;
+
 	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
 	{
+		//note: a pillage move alone does not count as offensive!
 		if (it->eType == STacticalAssignment::A_MELEEATTACK ||
 			it->eType == STacticalAssignment::A_MELEEKILL ||
 			it->eType == STacticalAssignment::A_RANGEATTACK ||
 			it->eType == STacticalAssignment::A_RANGEKILL ||
 			it->eType == STacticalAssignment::A_CAPTURE)
-			return true;
+			bDoingDamage = true;
 
-		//consider positions where melee units engage the enemy for ZOC as offensive too
+		//check unit positioning for red flags (note: this only works if we have a lot of units to work with)
 		if (it->eType == STacticalAssignment::A_FINISH)
 		{
+			bHaveFinishedUnit = true; //need to track this in case this is a "blocked" position
+
 			const CvTacticalPlot& plot = getTactPlot(it->iToPlotIndex);
-			if (plot.getType() == CvTacticalPlot::TP_FRONTLINE &&
-				plot.getNumAdjacentFirstlineFriendlies() > 0 &&
-				!GET_PLAYER(ePlayer).getUnit(it->iUnitID)->isRanged())
-				return true;
+			if (plot.getType() == CvTacticalPlot::TP_FRONTLINE)
+			{
+				//isolated firstline unit? avoid that
+				if (plot.getNumAdjacentFirstlineFriendlies() == 0 && !plot.isChokepoint())
+					bGoodCover = false;
+
+				//ranged unit directly engaging the enemy? not good
+				if (GET_PLAYER(ePlayer).getUnit(it->iUnitID)->isRanged())
+					bGoodCover = false;
+			}
+
+			if (plot.getType() == CvTacticalPlot::TP_SECONDLINE)
+			{
+				//ranged unit on its own? bad
+				if ( GET_PLAYER(ePlayer).getUnit(it->iUnitID)->isRanged() && plot.getNumAdjacentFirstlineFriendlies() == 0)
+					bGoodCover = false;
+			}
 		}
 	}
 
-	//note: a pillage move alone does not count as offensive!
-	return false;
+	//if we're not doing damage but have good cover, it's also fine
+	return bDoingDamage | (bGoodCover && bHaveFinishedUnit);
 }
 
 void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
