@@ -10493,11 +10493,12 @@ CvLeagueAI::VoteConsideration::VoteConsideration()
 {
 }
 
-CvLeagueAI::VoteConsideration::VoteConsideration(bool enact, int id, int choice)
+CvLeagueAI::VoteConsideration::VoteConsideration(bool enact, int id, int choice, int allocated)
 {
 	bEnact = enact;
 	iID = id;
 	iChoice = choice;
+	iNumAllocated = allocated;
 }
 
 CvLeagueAI::VoteConsideration::~VoteConsideration()
@@ -10609,6 +10610,22 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		return;
 
 	int iVotes = pLeague->GetRemainingVotesForMember(GetPlayer()->GetID());
+	int iVotesAllOthersCombined = 0;
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+		if (ePlayer == NO_PLAYER || !pLeague->IsMember(ePlayer))
+			continue;
+
+		if (GetPlayer()->GetID() == ePlayer)
+			continue;
+
+		iVotesAllOthersCombined += pLeague->GetRemainingVotesForMember(ePlayer);
+	}
+
+	//how confident are we
+	iVotesAllOthersCombined -= GetPlayer()->GetDiplomacyAI()->GetBoldness();
+
 	VoteConsiderationList vConsiderations;
 	int iFocusResolutionID = -1;
 
@@ -10679,6 +10696,23 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			else
 			{
 				pLeague->DoVoteRepeal(chosen.iID, GetPlayer()->GetID(), 1, chosen.iChoice);
+			}
+
+			chosen.iNumAllocated++;
+
+			if (chosen.iNumAllocated >= iVotesAllOthersCombined)
+			{
+				// Zero out weight of any other choices that were considered for this proposal, since we can only allocate to one choice
+				for (int j = 0; j < vConsiderations.size(); j++)
+				{
+					if (vConsiderations.GetWeight(j) > 0)
+					{
+						if (vConsiderations.GetElement(j).bEnact == chosen.bEnact && vConsiderations.GetElement(j).iID == chosen.iID)
+						{
+							vConsiderations.SetWeight(j, 0);
+						}
+					}
+				}
 			}
 
 			// Zero out weight of any other choices that were considered for this proposal, since we can only allocate to one choice
@@ -10776,7 +10810,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 	std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetVoterDecision()->GetType(), GetPlayer()->GetID());
 	for (uint i = 0; i < vChoices.size(); i++)
 	{
-		VoteConsideration consideration(/*bEnact*/ true, pProposal->GetID(), vChoices[i]);
+		VoteConsideration consideration(/*bEnact*/ true, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(HasVoteCommitment())
@@ -10843,7 +10877,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 	std::vector<int> vChoices = pLeague->GetChoicesForDecision(pProposal->GetRepealDecision()->GetType(), GetPlayer()->GetID());
 	for (uint i = 0; i < vChoices.size(); i++)
 	{
-		VoteConsideration consideration(/*bEnact*/ false, pProposal->GetID(), vChoices[i]);
+		VoteConsideration consideration(/*bEnact*/ false, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i]);
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(HasVoteCommitment())

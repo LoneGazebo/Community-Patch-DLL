@@ -661,6 +661,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		LogTradeMsg(strMsg);
 	}
 #if defined(MOD_BALANCE_CORE)
+	 CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	 if (pTrade)
+	 {
+		 pTrade->UpdateTradePlots();
+	 }
 	 if(m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() > 0)
 	 {
 		for (uint ui = 0; ui < m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(); ui++)
@@ -676,11 +681,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				}
 			}
 		}
-	}
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	if(pTrade)
-	{
-		pTrade->UpdateTradePlots();
 	}
 #endif
 	

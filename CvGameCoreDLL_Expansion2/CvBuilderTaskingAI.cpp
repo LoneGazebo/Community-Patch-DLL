@@ -2498,169 +2498,6 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 	return iWeight;
 }
 
-/// Determine if an improvement will increase any of the outputs of the plot
-bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInfo& kBuild, YieldTypes eYield, bool bIsBreakEvenOK)
-{
-	const ImprovementTypes eImprovement = (ImprovementTypes)kBuild.getImprovement();
-
-	const FeatureTypes eFeature = pPlot->getFeatureType();
-
-	bool bFeatureNeedsRemove = false;
-
-	if(eFeature != NO_FEATURE)
-	{
-		if(kBuild.isFeatureRemove(eFeature))
-		{
-			bFeatureNeedsRemove = true;
-		}
-	}
-
-	CvImprovementEntry* pkImprovementInfo = NULL;
-	if(eImprovement != NO_IMPROVEMENT)
-	{
-		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	}
-	CvAssert(pkImprovementInfo);
-
-	//This can technically happen if a build as passed in that doesn't contain an improvement..
-	//Returning false isn't the ideal error approach, but there's nothing better to do atm.
-	if(pkImprovementInfo == NULL)
-	{
-		return false;
-	}
-
-	CvRouteInfo* pkPlotRouteInfo = NULL;
-	if(pPlot->getRouteType() != NO_ROUTE)
-	{
-		pkPlotRouteInfo = GC.getRouteInfo(pPlot->getRouteType());
-	}
-
-
-	int aiNaturalYieldTypes[NUM_YIELD_TYPES];
-	int aiImprovedYieldTypes[NUM_YIELD_TYPES];
-
-	// hacky solution for the great artist's landmark.
-	// if an improvement generates culture, then it is beneficial
-	if(pkImprovementInfo->GetYieldChange(YIELD_CULTURE) > 0)
-	{
-		return true;
-	}
-#if defined(MOD_BALANCE_CORE)
-	//If a unique improvement, then yes, always.
-	if(MOD_BALANCE_CORE && pkImprovementInfo->IsSpecificCivRequired())
-	{
-		CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
-		if(eCiv == m_pPlayer->getCivilizationType())
-		{
-			const ImprovementTypes eOldImprovement = pPlot->getImprovementType();
-			if(eOldImprovement == NO_IMPROVEMENT)
-			{
-				return true;
-			}
-			else
-			{
-				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-				if(pkOldImprovementInfo && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
-				{
-					return true;
-				}
-			}
-		}
-	}
-	//If great person, yes, but only if not replacing a GP improvement or unique improvement.
-	if(MOD_BALANCE_CORE && pkImprovementInfo->IsCreatedByGreatPerson())
-	{
-		const ImprovementTypes eOldImprovement = pPlot->getImprovementType();
-		if(eOldImprovement == NO_IMPROVEMENT)
-		{
-			if (!m_bNoPermanentsAdjacentCity || pPlot->GetAdjacentCity() == NULL)
-				return true;
-		}
-		else
-		{
-			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-			bool bResourceAlreadyLinked = false;
-			if (pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
-			{
-				if (pkOldImprovementInfo && pkOldImprovementInfo->IsImprovementResourceMakesValid(pPlot->getResourceType(m_pPlayer->getTeam())))
-				{
-					bResourceAlreadyLinked = true;
-				}
-			}
-			if (pkOldImprovementInfo && !bResourceAlreadyLinked && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
-			{
-				if (!m_bNoPermanentsAdjacentCity || pPlot->GetAdjacentCity() == NULL)
-					return true;
-			}
-		}
-	}
-#endif
-
-	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-	{
-		// calculate natural yields
-		aiNaturalYieldTypes[ui] = 0;
-		aiNaturalYieldTypes[ui] = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID());
-
-		// calculate improvement yields
-		aiImprovedYieldTypes[ui] = 0;
-
-		bool bIgnoreFeature = false;
-		if(bFeatureNeedsRemove)
-		{
-			bIgnoreFeature = true;
-		}
-
-		aiImprovedYieldTypes[ui] = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), bIgnoreFeature);
-		if(pkPlotRouteInfo)
-		{
-			aiImprovedYieldTypes[ui] += pkPlotRouteInfo->getYieldChange(ui);
-		}
-		aiImprovedYieldTypes[ui] += pPlot->calculateImprovementYieldChange(eImprovement, (YieldTypes)ui, m_pPlayer->GetID(), false /*bOptimal*/);
-	}
-
-	if(eYield == NO_YIELD)
-	{
-		// if any of the yields are increased from their natural state, then the improvement is considered a success
-		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-		{
-			if(bIsBreakEvenOK)
-			{
-				if(aiImprovedYieldTypes[ui] >= aiNaturalYieldTypes[ui])
-				{
-					return true;
-				}
-			}
-			else
-			{
-				if(aiImprovedYieldTypes[ui] > aiNaturalYieldTypes[ui])
-				{
-					return true;
-				}
-			}
-		}
-	}
-	else
-	{
-		if(bIsBreakEvenOK)
-		{
-			if(aiImprovedYieldTypes[eYield] >= aiNaturalYieldTypes[eYield])
-			{
-				return true;
-			}
-		}
-		else
-		{
-			if(aiImprovedYieldTypes[eYield] > aiNaturalYieldTypes[eYield])
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 /// Get this city that can interact with this plot
 CvCity* CvBuilderTaskingAI::getOwningCity(CvPlot* pPlot)
 {
@@ -3622,26 +3459,61 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 		UpdateCurrentPlotYields(pPlot);
 	}
 
-	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+	const CvCity* pOwningCity = getOwningCity(pPlot);
+	if (pOwningCity)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if((YieldTypes)ui <= YIELD_FAITH)
-		{
-#endif
-		m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID());
-		m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = pOwningCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
-		if(m_bLogging){
-			CvString strLog;
-			YieldTypes yield = (YieldTypes) ui;
-			strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
-			LogYieldInfo(strLog, m_pPlayer);
-		}
+		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
+		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
+
+		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		{
 #if defined(MOD_BALANCE_CORE)
-		}
-		else
-			//zero it!
-			m_aiProjectedPlotYields[ui] = 0;
+			if ((YieldTypes)ui <= YIELD_FAITH)
+			{
 #endif
+				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
+				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+
+				if (m_bLogging){
+					CvString strLog;
+					YieldTypes yield = (YieldTypes)ui;
+					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
+					LogYieldInfo(strLog, m_pPlayer);
+				}
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+				//zero it!
+				m_aiProjectedPlotYields[ui] = 0;
+#endif
+		}
+	}
+	else
+	{
+		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		{
+#if defined(MOD_BALANCE_CORE)
+			if ((YieldTypes)ui <= YIELD_FAITH)
+			{
+#endif
+				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), NULL, NULL, NULL);
+				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+
+				if (m_bLogging){
+					CvString strLog;
+					YieldTypes yield = (YieldTypes)ui;
+					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
+					LogYieldInfo(strLog, m_pPlayer);
+				}
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+				//zero it!
+				m_aiProjectedPlotYields[ui] = 0;
+#endif
+		}
 	}
 }
