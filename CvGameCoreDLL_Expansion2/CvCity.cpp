@@ -3295,7 +3295,7 @@ void CvCity::updateYield()
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-			if (pLoopPlot != NULL)
+			if (pLoopPlot != NULL && pLoopPlot->getOwningCity() == this)
 			{
 				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
 			}
