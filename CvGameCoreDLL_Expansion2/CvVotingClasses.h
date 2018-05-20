@@ -868,12 +868,13 @@ public:
 
 	struct VoteConsideration {
 		VoteConsideration(void);
-		VoteConsideration(bool enact, int id, int choice);
+		VoteConsideration(bool enact, int id, int choice, int iallocated);
 		~VoteConsideration(void);
 
 		bool bEnact;
 		int iID;
 		int iChoice;
+		int iNumAllocated;
 	};
 	typedef CvWeightedVector<VoteConsideration, 32, false> VoteConsiderationList;
 
