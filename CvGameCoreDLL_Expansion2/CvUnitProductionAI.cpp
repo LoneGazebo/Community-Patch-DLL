@@ -1376,7 +1376,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
-			iBonus += (3000 * iUnimprovedAround);
+			iBonus += (3000 * iUnimprovedAround * (kPlayer.GetCurrentEra()+1));
 		}
 	}
 	//Make sure we need workers in this city.

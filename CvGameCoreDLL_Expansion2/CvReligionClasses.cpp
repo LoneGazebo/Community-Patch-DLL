@@ -1233,6 +1233,8 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_PANTHEON_FOUNDED, newReligion.m_eReligion, GC.getRELIGION_ATHEISM_PRESSURE_PER_POP() * pLoopCity->getPopulation() * 2);
 	}
 
+	UpdateAllCitiesThisReligion(newReligion.m_eReligion);
+
 	// Send out messaging
 	CvReligionEntry* pEntry = GC.getReligionInfo(newReligion.m_eReligion);
 	CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
