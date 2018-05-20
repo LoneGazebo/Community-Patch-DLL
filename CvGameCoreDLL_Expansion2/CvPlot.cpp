@@ -10906,6 +10906,7 @@ void CvPlot::updateYield()
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
 		updateYieldFast(pOwningCity, pReligion, pBelief);
+		return;
 	}
 
 	updateYieldFast(NULL, NULL, NULL);
