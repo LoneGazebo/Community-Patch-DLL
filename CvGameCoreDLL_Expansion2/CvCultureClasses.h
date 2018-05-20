@@ -407,11 +407,7 @@ public:
 
 	int GetCultureFromWonders() const;
 	int GetCultureFromNaturalWonders() const;
-#if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldFromImprovements(YieldTypes eYield) const;
-#else
-	int GetCultureFromImprovements() const;
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	void UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass);
 #endif
