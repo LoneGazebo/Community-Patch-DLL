@@ -2445,8 +2445,8 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 				if (pLoopPlot->getOwningCityID() == GetCity()->GetID())
 				{
 					// Working the Plot and wanting to work it, or Not working it and wanting to find one to work?
-					if ((IsWorkingPlot(pLoopPlot) && bWantWorked) ||
-						(!IsWorkingPlot(pLoopPlot) && !bWantWorked))
+					if ((IsWorkingPlot(iPlotLoop) && bWantWorked) ||
+						(!IsWorkingPlot(iPlotLoop) && !bWantWorked))
 					{
 						// Working the Plot or CAN work the Plot?
 						if (bWantWorked || IsCanWork(pLoopPlot))
@@ -2725,7 +2725,10 @@ void CvCityCitizens::DoReallocateCitizens()
 // Worked Plots
 ///////////////////////////////////////////////////
 
-
+bool CvCityCitizens::IsWorkingPlot(int iIndex) const
+{
+	return iIndex>=0 ? m_pabWorkingPlot[iIndex] : false;
+}
 
 /// Is our City working a CvPlot?
 bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
@@ -3235,7 +3238,7 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
 
-		if (pPlot && IsWorkingPlot(pPlot))
+		if (pPlot && IsWorkingPlot(iI))
 		{
 			if (!IsCanWork(pPlot))
 			{
