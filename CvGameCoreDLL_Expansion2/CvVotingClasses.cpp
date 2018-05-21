@@ -10625,6 +10625,9 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 	//how confident are we
 	iVotesAllOthersCombined -= GetPlayer()->GetDiplomacyAI()->GetBoldness();
+	
+	if (iVotesAllOthersCombined <= pLeague->GetNumMembers())
+		iVotesAllOthersCombined = pLeague->GetNumMembers();
 
 	VoteConsiderationList vConsiderations;
 	int iFocusResolutionID = -1;

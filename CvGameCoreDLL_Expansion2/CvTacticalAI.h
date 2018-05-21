@@ -1041,6 +1041,7 @@ public:
 	CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer);
 
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
+	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
 	eTactPlotType getType() const { return eType; }
 	int getNumAdjacentEnemies() const { return nEnemyCombatUnitsAdjacent; }
 	int getNumAdjacentFriendlies() const { return nFriendlyCombatUnitsAdjacent; }

@@ -241,7 +241,7 @@ SET Text = 'The Castle is a Medieval-era building which increases Defensive Stre
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have Walls. +1 [ICON_PRODUCTION] Production for Quarries worked by this City. Military Units supplied by this City''s population increased by 5%. Contains 1 slot for a Great Work of Art or Artifact.'
+SET Text = 'City must have Walls. +1 [ICON_PRODUCTION] Production for Quarries worked by this City. Military Units supplied by this City''s population increased by 10%. Contains 1 slot for a Great Work of Art or Artifact.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
