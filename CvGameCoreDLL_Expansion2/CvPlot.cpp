@@ -9926,7 +9926,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		iYield += iReligionChange;
 	}
 
-	if (MOD_RELIGION_PLOT_YIELDS) 
+	if (MOD_RELIGION_PLOT_YIELDS)
 	{
 		iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
 		if (pSecondaryPantheon)
@@ -9992,12 +9992,15 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 
 			iYield += iReligionChange;
 		}
-	}
 
-	iYield += pMajorityReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, ePlayer, pOwningCity);
-	if (pSecondaryPantheon)
-	{
-		iYield += pSecondaryPantheon->GetYieldChangeNaturalWonder(eYield);
+		if (IsNaturalWonder())
+		{
+			iYield += pMajorityReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, ePlayer, pOwningCity);
+			if (pSecondaryPantheon)
+			{
+				iYield += pSecondaryPantheon->GetYieldChangeNaturalWonder(eYield);
+			}
+		}
 	}
 
 	if (getResourceType(eTeam) != NO_RESOURCE)
