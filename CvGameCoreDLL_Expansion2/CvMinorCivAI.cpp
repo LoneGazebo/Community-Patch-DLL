@@ -15119,34 +15119,11 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			return;
 #endif
 		}
+
 #if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
 		CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
-		CvCity* pSpawnCity = NULL;
-		if (pMajorCapital == NULL)
-		{
-			pSpawnCity = pMinorCapital;
-		}
-		else
-		{
-			pSpawnCity = pMajorCapital;
-		}
+		CvCity* pSpawnCity = pMajorCapital ? pMajorCapital : pMinorCapital;
 #endif
-		int iX = pSpawnCity->getX();
-		int iY = pSpawnCity->getY();
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByEstimatedTurns(pMinorCapitalPlot);
-#if defined(MOD_GLOBAL_CS_GIFTS)
-		if(!bLocal && pMajorCity != NULL)
-#else
-		if(pMajorCity != NULL)
-#endif
-		{
-			iX = pMajorCity->getX();
-			iY = pMajorCity->getY();
-			
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-			pSpawnCity = pMajorCity;
-#endif
-		}
 
 		// Pick Unit type
 		UnitTypes eUnit = NO_UNIT;
@@ -15220,6 +15197,34 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #endif
 		}
 
+		//where to put the unit?
+		int iX = pSpawnCity->getX();
+		int iY = pSpawnCity->getY();
+		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByEstimatedTurns(pMinorCapitalPlot);
+
+#if defined(MOD_GLOBAL_CS_GIFTS)
+		if(!bLocal && pMajorCity != NULL)
+#else
+		if(pMajorCity != NULL)
+#endif
+		{
+			CvPlot* pUnitPlot = pMajorCity->GetPlotForNewUnit(eUnit);
+			if (pUnitPlot)
+			{
+				iX = pUnitPlot->getX();
+				iY = pUnitPlot->getY();
+			}
+			else
+			{
+				iX = pMajorCity->getX();
+				iY = pMajorCity->getY();
+			}
+			
+#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
+			pSpawnCity = pMajorCity;
+#endif
+		}
+
 		// Spawn Unit
 		if(eUnit != NO_UNIT)
 		{
@@ -15235,7 +15240,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #endif
 			}
 
-			if (pNewUnit->jumpToNearestValidPlot())
+			if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
 			{
 #if defined(MOD_BUGFIX_MINOR)
 				// We tested for "GetPlayer()->getCapitalCity() != NULL" way, way up there!!!
