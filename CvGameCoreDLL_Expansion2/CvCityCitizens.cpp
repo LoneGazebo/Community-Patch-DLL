@@ -392,9 +392,7 @@ void CvCityCitizens::DoTurn()
 
 		if ((m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType) 
 			|| bWonder 
-			|| (pkUnitInfo != NULL && pkUnitInfo->IsFound())
-			|| (m_pCity->getPopulation() < 10 && !m_pCity->isCapital())
-			|| (m_pCity->getPopulation() < 8 && m_pCity->isCapital()))
+			|| (pkUnitInfo != NULL && pkUnitInfo->IsFound()))
 		{
 			if (GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
 			{
