@@ -9926,7 +9926,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		iYield += iReligionChange;
 	}
 
-	if (MOD_RELIGION_PLOT_YIELDS) 
+	if (MOD_RELIGION_PLOT_YIELDS)
 	{
 		iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
 		if (pSecondaryPantheon)
@@ -9992,12 +9992,15 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 
 			iYield += iReligionChange;
 		}
-	}
 
-	iYield += pMajorityReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, ePlayer, pOwningCity);
-	if (pSecondaryPantheon)
-	{
-		iYield += pSecondaryPantheon->GetYieldChangeNaturalWonder(eYield);
+		if (IsNaturalWonder())
+		{
+			iYield += pMajorityReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, ePlayer, pOwningCity);
+			if (pSecondaryPantheon)
+			{
+				iYield += pSecondaryPantheon->GetYieldChangeNaturalWonder(eYield);
+			}
+		}
 	}
 
 	if (getResourceType(eTeam) != NO_RESOURCE)
@@ -10860,10 +10863,12 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		eRoute = getRouteType();
 	}
 
-	int iYield = calculateNatureYield(eYield, ePlayer, false);
+	int iYield = calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
+	if (!isCity())
+	{
+		iYield += calculateNatureYield(eYield, ePlayer, false);
+	}
 	iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, eRoute);
-
-	iYield += calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
 	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	
