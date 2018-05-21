@@ -445,6 +445,7 @@ CvUnit::CvUnit() :
 	, m_bconvertOnDamage("CvUnit::m_bconvertOnDamage", m_syncArchive)
 	, m_idamageThreshold("CvUnit::m_idamageThreshold", m_syncArchive)
 	, m_econvertDamageOrFullHPUnit("CvUnit::m_econvertDamageOrFullHPUnit", m_syncArchive)
+	, m_inumberOfCultureBombs("CvUnit::m_inumberOfCultureBombs", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -768,6 +769,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		setBuilderStrength(ibuildercharges);
 	}
 #endif
+	if (getUnitInfo().GetNumberOfCultureBombs() > 0)
+	{
+		setNumberOfCultureBombs(getUnitInfo().GetNumberOfCultureBombs());
+	}
 #if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
 	if(MOD_BALANCE_CORE_SETTLER_RESET_FOOD && getUnitInfo().IsFound())
 	{
@@ -1531,6 +1536,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bconvertOnDamage = false;
 	m_idamageThreshold = 0;
 	m_econvertDamageOrFullHPUnit = NO_UNIT;
+	m_inumberOfCultureBombs = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -12619,7 +12625,11 @@ bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
 
 	return true;
 }
-
+bool CvUnit::isCultureBomb() const
+{
+	VALIDATE_OBJECT
+	return	m_pUnitInfo->GetCultureBombRadius() > 0;
+}
 //	--------------------------------------------------------------------------------
 bool CvUnit::DoCultureBomb()
 {
@@ -12637,7 +12647,7 @@ bool CvUnit::DoCultureBomb()
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 		kPlayer.changeCultureBombTimer(iCooldown);
 
-		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius());
+		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius() + GET_PLAYER(getOwner()).GetCultureBombBoost());
 
 		if(pThisPlot->isActiveVisible(false))
 		{
@@ -12645,17 +12655,19 @@ bool CvUnit::DoCultureBomb()
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
 
-		if(IsGreatPerson())
+		setNumberOfCultureBombs(getNumberOfCultureBombs() - 1);
+		if (getNumberOfCultureBombs() <= 0)
 		{
+			if (IsGreatPerson())
+			{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-			kPlayer.DoGreatPersonExpended(getUnitType(), this);
+				kPlayer.DoGreatPersonExpended(getUnitType(), this);
 #else
-			kPlayer.DoGreatPersonExpended(getUnitType());
+				kPlayer.DoGreatPersonExpended(getUnitType());
 #endif
+			}
+			kill(true);
 		}
-
-		kill(true);
-
 		return true;
 	}
 
@@ -13463,7 +13475,12 @@ bool CvUnit::build(BuildTypes eBuild)
 
 		// wipe out all build progress also
 		pPlot->SilentlyResetAllBuildProgress();
+#if defined(MOD_CIV6_WORKER)
+		if(!MOD_CIV6_WORKER)
+			bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
+#else
 		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
+#endif
 		NewBuild = true;
 
 #if defined(MOD_BALANCE_CORE)
@@ -13736,9 +13753,15 @@ bool CvUnit::build(BuildTypes eBuild)
 				{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
 #if defined(MOD_CIV6_WORKER)
-					if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
+					if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 					{
-						kPlayer.DoGreatPersonExpended(getUnitType(), this);
+						int iBuildCost = pkBuildInfo->getBuilderCost();
+						setBuilderStrength(getBuilderStrength() - iBuildCost);
+						if (getBuilderStrength() <= 0)
+						{
+							kPlayer.DoGreatPersonExpended(getUnitType(), this);
+							kill(true);
+						}
 					}
 					else
 #endif
@@ -13752,10 +13775,6 @@ bool CvUnit::build(BuildTypes eBuild)
 				if (MOD_CIV6_WORKER)
 				{
 					if ((!pkBuildInfo->isKillOnlyCivilian() && !IsGreatPerson()) || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit() && !IsGreatPerson()))
-					{
-						kill(true);
-					}
-					else if (IsGreatPerson() && getBuilderStrength() <= 0)
 					{
 						kill(true);
 					}
@@ -13776,7 +13795,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 #if defined(MOD_CIV6_WORKER)
 			//if we are a builder (something with builderstrength)
-			if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
+			if (MOD_CIV6_WORKER && getBuilderStrength() > 0 && ((AI_getUnitAIType() == UNITAI_WORKER_SEA) || (AI_getUnitAIType() == UNITAI_WORKER)))
 			{
 				//check the amount of work done
 				int iBuildCost = pkBuildInfo->getBuilderCost();
@@ -13784,14 +13803,8 @@ bool CvUnit::build(BuildTypes eBuild)
 				setBuilderStrength(getBuilderStrength() - iBuildCost);
 				if (getBuilderStrength() <= 0)
 				{
-					UnitTypes eArchaeologist = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
-					// We won't kill Combat Units and we won't kill great people that are combat units unless they run out of build charges. We'll kill Arcaeologists somewhere else.
-					if (!IsCombatUnit() && (getUnitType() != eArchaeologist))
-					{
-						//delete unit
-						kill(true);
-					}
-					
+					//delete unit
+					kill(true);
 				}
 			}
 #endif
@@ -13875,8 +13888,19 @@ void CvUnit::setBuilderStrength(const int newPower)
 	if (m_iBuilderStrength < 0) m_iBuilderStrength = 0;
 
 }
+#if defined(MOD_BALANCE_CORE)
+int CvUnit::getNumberOfCultureBombs() const
+{
+	return m_inumberOfCultureBombs;
+}
+void CvUnit::setNumberOfCultureBombs(const int iBombs)
+{
+	m_inumberOfCultureBombs = iBombs;
 
-
+	if (m_inumberOfCultureBombs < 0)
+		m_inumberOfCultureBombs = 0;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 {
@@ -15250,7 +15274,7 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 #if defined(MOD_CIV6_WORKER)
 	if (MOD_CIV6_WORKER)
 	{
-		iRate = 100;
+		iRate = 1;
 	}
 #endif
 	return iRate;
@@ -19988,31 +20012,6 @@ if (!bDoEvade)
 	if(pOldPlot != NULL)
 	{
 		pOldPlot->removeUnit(this, bUpdate);
-		if (isGiveInvisibility())
-		{
-			int iRange = GetNearbyUnitPromotionsRange();
-			int iMax = maxMoves();
-			int iLoop;
-			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-			{
-				if (!pLoopUnit->IsCombatUnit())
-					continue;
-
-				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
-					continue;
-				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax + 1))
-					continue;
-				if (pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
-				{
-					pLoopUnit->plot()->updateVisibility();
-				}
-				else if (pLoopUnit->getInvisibleType() == NO_INVISIBLE)
-				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
-					gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
-				}
-			}
-		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{

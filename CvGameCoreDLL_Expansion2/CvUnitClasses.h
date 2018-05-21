@@ -159,6 +159,7 @@ public:
 	int GetSupplyCapBoost() const;
 #endif
 	int GetCultureBombRadius() const;
+	int GetNumberOfCultureBombs() const;
 	int GetGoldenAgeTurns() const;
 	int GetFreePolicies() const;
 	int GetOneShotTourism() const;
@@ -401,6 +402,7 @@ private:
 	bool m_bHighSeaRaider;
 #endif
 	int m_iCultureBombRadius;
+	int m_iNumberOfCultureBombs;
 	int m_iGoldenAgeTurns;
 	int m_iFreePolicies;
 	int m_iOneShotTourism;

@@ -146,6 +146,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iSupplyCapBoost(0),
 #endif
 	m_iCultureBombRadius(0),
+	m_iNumberOfCultureBombs(0),
 	m_iGoldenAgeTurns(0),
 	m_iFreePolicies(0),
 	m_iOneShotTourism(0),
@@ -354,6 +355,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iSupplyCapBoost = kResults.GetInt("SupplyCapBoost");
 #endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
+	m_iNumberOfCultureBombs = kResults.GetInt("NumberOfCultureBombs");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
 	m_iFreePolicies = kResults.GetInt("FreePolicies");
 	m_iOneShotTourism = kResults.GetInt("OneShotTourism");
@@ -1272,6 +1274,10 @@ int CvUnitEntry::GetSupplyCapBoost() const
 int CvUnitEntry::GetCultureBombRadius() const
 {
 	return m_iCultureBombRadius;
+}
+int CvUnitEntry::GetNumberOfCultureBombs() const
+{
+	return m_iNumberOfCultureBombs;
 }
 
 /// Number of GA turns this Unit can give us

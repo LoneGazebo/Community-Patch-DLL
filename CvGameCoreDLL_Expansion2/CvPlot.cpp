@@ -3021,7 +3021,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 #if defined(MOD_CIV6_WORKER)
 	if (MOD_CIV6_WORKER)
 	{
-		iTime = GC.getBuildInfo(eBuild)->getBuilderCost() * 100;
+		iTime = 0;
 	}
 #endif
 	return iTime;
@@ -12331,75 +12331,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 					}
 				}
 				// If we want to prompt the user about archaeology, let's record that
-#if defined(MOD_CIV6_WORKER)
-				if (MOD_CIV6_WORKER && newImprovementEntry.IsPromptWhenComplete() && bNewBuild)
-				{
-					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
-					{
-						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
-						kPlayer.GetCulture()->AddDigCompletePlot(this);
-
-						if (kPlayer.isHuman())
-						{
-							CvNotifications* pNotifications;
-							Localization::String locString;
-							Localization::String locSummary;
-							pNotifications = kPlayer.GetNotifications();
-							if (pNotifications)
-							{
-								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
-								CancelActivePlayerEndTurn();
-							}
-
-#if !defined(NO_ACHIEVEMENTS)
-							// Raiders of the Lost Ark achievement
-							const char* szCivKey = kPlayer.getCivilizationTypeKey();
-							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
-							{
-								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-								szCivKey = kPlotOwner.getCivilizationTypeKey();
-								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
-								{
-									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-									{
-										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
-										{
-											szCivKey = kLoopPlayer.getCivilizationTypeKey();
-											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
-											{
-												CvUnit *pLoopUnit;
-												int iUnitLoop;
-												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
-												{
-													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
-													{
-														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
-														{
-															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-#endif
-						}
-						else
-						{
-							ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
-							kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
-						}
-					}
-				}
-				else if (!MOD_CIV6_WORKER && newImprovementEntry.IsPromptWhenComplete())
-#else
 				if (newImprovementEntry.IsPromptWhenComplete())
-#endif
 				{
 					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{

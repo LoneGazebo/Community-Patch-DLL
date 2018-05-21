@@ -459,6 +459,7 @@ public:
 	bool DoBuildSpaceship();
 
 	bool CanCultureBomb(const CvPlot* pPlot, bool bTestVisible = false) const;
+	bool isCultureBomb() const;
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
 
@@ -481,7 +482,10 @@ public:
 	int getBuilderStrength() const;
 	void setBuilderStrength(const int newPower);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int getNumberOfCultureBombs() const;
+	void setNumberOfCultureBombs(const int iBombs);
+#endif
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
 
@@ -2064,6 +2068,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
 	FAutoVariable<int, CvUnit> m_idamageThreshold;
 	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
+	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

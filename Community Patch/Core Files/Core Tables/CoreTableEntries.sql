@@ -897,6 +897,8 @@ ALTER TABLE Units ADD IsConvertUnit BOOLEAN DEFAULT 0;
 ALTER TABLE Units ADD 'ScaleFromNumGWs' INTEGER DEFAULT 0;
 ALTER TABLE Units ADD 'ScaleFromNumThemes' INTEGER DEFAULT 0;
 
+-- How many culture bombs can this unit do, must have set CultureBombRadius to a number.
+ALTER TABLE Units ADD 'NumberOfCultureBombs' INTEGER DEFAULT 0;
 
 -- City Gains Wonder Production Modifier while this Unit is stationed in this City
 ALTER TABLE UnitPromotions ADD WonderProductionModifier INTEGER DEFAULT 0;
