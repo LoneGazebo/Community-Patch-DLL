@@ -5620,6 +5620,10 @@ bool CvUnit::jumpToNearestValidPlot()
 				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
 					iValue += 12;
 
+				//avoid embarkation
+				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+					iValue += 6;
+
 				if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 				{
 					iBestValue = iValue;
@@ -5690,6 +5694,10 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 				//avoid putting ships on lakes etc
 				if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
 					iValue += 12;
+
+				//avoid embarkation
+				if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
+					iValue += 6;
 
 				//try to stay within the same area
 				if(pLoopPlot->area() != area())

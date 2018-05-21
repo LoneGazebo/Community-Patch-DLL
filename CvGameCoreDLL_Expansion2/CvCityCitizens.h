@@ -97,6 +97,7 @@ public:
 #endif
 
 	// Worked Plots
+	bool IsWorkingPlot(int iRelativeIndex) const;
 	bool IsWorkingPlot(const CvPlot* pPlot) const;
 #if defined(MOD_BALANCE_CORE)
 	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool = true, bool bUpdateNow = true);

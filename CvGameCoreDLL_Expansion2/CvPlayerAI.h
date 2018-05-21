@@ -80,9 +80,9 @@ public:
 	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
 	int ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit);
 	//And for messengers
-	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit);
+	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
-	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit);
+	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
 #endif
 
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);

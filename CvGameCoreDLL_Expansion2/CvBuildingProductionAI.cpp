@@ -578,7 +578,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iPoverty *= -1;
 				bTested = true;
-				iBonus += (iUnhappyGold * iPoverty * iPoverty/2);
+				iBonus += (iUnhappyGold * iPoverty * iPoverty);
 				bGoodforHappiness = true;
 				bGoodforGPT = true;
 			}
@@ -590,7 +590,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iCrime *= -1;
 				bTested = true;
-				iBonus += (iUnhappyDefense * iCrime * iCrime/2);
+				iBonus += (iUnhappyDefense * iCrime * iCrime);
 				bGoodforHappiness = true;
 			}
 		}
@@ -601,7 +601,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iReligion *= -1;
 				bTested = true;
-				iBonus += (iUnhappyReligion * iReligion * iReligion/2);
+				iBonus += (iUnhappyReligion * iReligion * iReligion);
 				bGoodforHappiness = true;
 			}
 		}
@@ -612,7 +612,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iBoredom *= -1;
 				bTested = true;
-				iBonus += (iUnhappyCulture * iBoredom * iBoredom/2);
+				iBonus += (iUnhappyCulture * iBoredom * iBoredom);
 				bGoodforHappiness = true;
 			}
 		}
@@ -623,7 +623,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iIlliteracy *= -1;
 				bTested = true;
-				iBonus += (iUnhappyScience * iIlliteracy * iIlliteracy/2);
+				iBonus += (iUnhappyScience * iIlliteracy * iIlliteracy);
 				bGoodforHappiness = true;
 			}
 		}
@@ -1036,7 +1036,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////
 	///Maintenance
 	/////////////////////
-	if ((pkBuildingInfo->GetGoldMaintenance() > 0 || !bGoodforGPT) && iGPT <= pkBuildingInfo->GetGoldMaintenance())
+	if ((pkBuildingInfo->GetGoldMaintenance() > 0 || !bGoodforGPT) && iGPT <= pkBuildingInfo->GetGoldMaintenance() && !kPlayer.IsEmpireVeryUnhappy())
 	{
 		//Maintenace getting close to our GPT? Let's minimize this.
 		if (iGPT <= pkBuildingInfo->GetGoldMaintenance())
@@ -1119,7 +1119,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
 	int WarPenalty = 0;
-	if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding)
+	if (iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0 && !m_pCity->IsPuppet() && !bFreeBuilding && !kPlayer.IsEmpireVeryUnhappy())
 	{
 		if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatRank() != -1)
 		{

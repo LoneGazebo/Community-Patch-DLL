@@ -1975,7 +1975,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 	return NULL;
 }
 
-CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit)
+CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities)
 {
 	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
 
@@ -1993,6 +1993,10 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit)
 				//want to have at least on revealed plot as target for pathfinding
 				if(pLoopCity && pLoopCity->plot()->isAdjacentRevealed(pUnit->getTeam()))
 				{
+					//we often have multiple messengers active at the same time, don't all go to the same target
+					if (std::find(vIgnoreCities.begin(), vIgnoreCities.end(), pLoopCity->GetID()) != vIgnoreCities.end())
+						continue;
+
 					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
 					if(iScore > 0)
 					{
@@ -2529,32 +2533,30 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 	return pBestTarget;
 }
 
-CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit)
+CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities)
 {
 	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
 	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
 	{
 		return NULL;
 	}
-	CvCity* pCity = FindBestMessengerTargetCity(pUnit);
+
+	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
 	CvPlot* pBestTarget = NULL;
 	if(pCity == NULL)
 	{
 		return NULL;
 	}
+
 	// Find adjacent plot with no units (that aren't our own)
-	CvPlot* pLoopPlot;
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+		CvPlot* pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
 		if(pLoopPlot == NULL)
-		{
 			continue;
-		}
+
 		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
-		{
 			continue;
-		}
 
 #if defined(MOD_BALANCE_CORE)
 		if(pUnit->GetDanger(pLoopPlot)>0)
@@ -2580,6 +2582,10 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit)
 		}
 #endif
 	}
+
+	//remember this city
+	if (pBestTarget && pvIgnoreCities)
+		pvIgnoreCities->push_back(pCity->GetID());
 
 	return pBestTarget;
 }
