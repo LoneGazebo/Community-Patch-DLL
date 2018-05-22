@@ -9670,7 +9670,7 @@ int CvPlot::getYield(YieldTypes eIndex) const
 	return (int)(m_aiYield[eIndex]);
 }
 
-int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature) const
+int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, bool bDisplay) const
 {
 	ResourceTypes eResource;
 	int iYield;
@@ -9764,6 +9764,99 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	if(isCoastalLand())
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
+	}
+
+	const CvCity* pPlotCity = getPlotCity();
+	if (pPlotCity != NULL && ePlayer != NO_PLAYER)
+	{
+		iYield = std::max(iYield, kYield.getMinCity());
+
+		if (!bDisplay || pPlotCity->isRevealed(GC.getGame().getActiveTeam(), false))
+		{
+			iYield += kYield.getCityChange();
+
+			if (kYield.getPopulationChangeDivisor() != 0)
+			{
+				iYield += (pPlotCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
+			}
+		}
+
+		// Mod for Player; used for Policies and such
+		iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityYieldChanges(eYield);
+
+		// Coastal City Mod
+		if (pPlotCity->isCoastal())
+		{
+			iYield += GET_PLAYER(ePlayer).GetCoastalCityYieldChange(eYield);
+
+			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
+
+		}
+
+		if (MOD_BALANCE_YIELD_SCALE_ERA)
+		{
+			//Flatland City Fresh Water yields
+			if (!isHills() && !isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityFlatFreshWater();
+			}
+			//Flatland City No Fresh Water yields
+			if (!isHills() && !isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityFlatNoFreshWater();
+			}
+			// Hill City Fresh Water yields
+			if (isHills() && isFreshWater())
+			{
+				iYield += kYield.getMinCityHillFreshWater();
+			}
+			// Hill City No Fresh Water yields
+			if (isHills() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityHillNoFreshWater();
+			}
+			// Mountain City Fresh Water yields
+			if (isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainFreshWater();
+			}
+			// Mountain City No Fresh Water yields
+			if (isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainNoFreshWater();
+			}
+			if (pPlotCity->HasGarrison())
+			{
+				CvUnit* pUnit = pPlotCity->GetGarrisonedUnit();
+				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
+				{
+					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonstrength) / 8);
+				}
+			}
+		}
+
+		int iTemp = GET_PLAYER(ePlayer).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
+
+																				// Capital Mod
+		if (pPlotCity->isCapital())
+		{
+			iTemp += GET_PLAYER(ePlayer).GetCapitalYieldChangeTimes100(eYield);
+
+			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
+
+			int iPerPopYield = pPlotCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
+			iPerPopYield /= 100;
+			iYield += iPerPopYield;
+
+			if (GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
+			{
+				int iPerPopYieldEmpire = GET_PLAYER(ePlayer).getCurrentTotalPop() / GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield);
+				iYield += iPerPopYieldEmpire;
+			}
+		}
+
+		iYield += (iTemp / 100);
 	}
 
 	return std::max(0, iYield);
@@ -10355,7 +10448,7 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 	return iYield;
 }
 
-int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay, const CvCity* pPlotCity) const
+int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
 {
 	if (ePlayer == NO_PLAYER)
 		return 0;
@@ -10423,9 +10516,34 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 			}
 		}
 	}
+	if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+	{
+		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+		// Policy improvement yield changes
+		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
 
+		if (!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+		{
+			// Trait player improvement yield changes that don't require a trade route connection
+			iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+		}
+		// Team Tech Yield Changes
+		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
+
+		if (isFreshWater())
+		{
+			// Team Tech Yield Changes
+			iYield += kTeam.getImprovementFreshWaterYieldChange(eImprovement, eYield);
+		}
+		else
+		{
+			// Team Tech Yield Changes
+			iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
+		}
+	}
+	
 	FeatureTypes eFeature = getFeatureType();
-
+	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
 	if (kPlayer.GetPlayerTraits()->IsTradeRouteOnly() && getOwner() == kPlayer.GetID())
 	{
 		if (eFeature == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
@@ -10486,25 +10604,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 					}
 					iYield += iScale;
 				}
-			}
-
-			CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-
-			iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
-
-			if (!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
-			{
-				iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
-			}
-			iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
-
-			if (isFreshWater())
-			{
-				iYield += kTeam.getImprovementFreshWaterYieldChange(eImprovement, eYield);
-			}
-			else
-			{
-				iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
 			}
 		}
 	}
@@ -10692,100 +10791,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 		iYield += kPlayer.GetPlayerTraits()->GetFeatureYieldChange(eFeature, eYield);
 	}
 
-	if (pPlotCity != NULL)
-	{
-		iYield = std::max(iYield, kYield.getMinCity());
-
-		if (!bDisplay || pPlotCity->isRevealed(GC.getGame().getActiveTeam(), false))
-		{
-			iYield += kYield.getCityChange();
-
-			if (kYield.getPopulationChangeDivisor() != 0)
-			{
-				iYield += (pPlotCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
-			}
-		}
-
-		// Mod for Player; used for Policies and such
-		iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
-
-		// Coastal City Mod
-		if (pPlotCity->isCoastal())
-		{
-			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
-
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
-
-		}
-
-		if (MOD_BALANCE_YIELD_SCALE_ERA)
-		{
-			//Flatland City Fresh Water yields
-			if (!isHills() && !isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatFreshWater();
-			}
-			//Flatland City No Fresh Water yields
-			if (!isHills() && !isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatNoFreshWater();
-			}
-			// Hill City Fresh Water yields
-			if (isHills() && isFreshWater())
-			{
-				iYield += kYield.getMinCityHillFreshWater();
-			}
-			// Hill City No Fresh Water yields
-			if (isHills() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityHillNoFreshWater();
-			}
-			// Mountain City Fresh Water yields
-			if (isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainFreshWater();
-			}
-			// Mountain City No Fresh Water yields
-			if (isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainNoFreshWater();
-			}
-			if (pPlotCity->HasGarrison())
-			{
-				CvUnit* pUnit = pPlotCity->GetGarrisonedUnit();
-				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
-				{
-					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
-					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonstrength) / 8);
-				}
-			}
-		}
-
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
-
-		// Capital Mod
-		if (pPlotCity->isCapital())
-		{
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
-
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
-
-			int iPerPopYield = pPlotCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
-			iPerPopYield /= 100;
-			iYield += iPerPopYield;
-
-			if (GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
-			{
-				int iPerPopYieldEmpire = GET_PLAYER(getOwner()).getCurrentTotalPop() / GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield);
-				iYield += iPerPopYieldEmpire;
-			}
-		}
-
-		iYield += (iTemp / 100);
-
-		
-	}
-
 	return iYield;
 }
 
@@ -10850,20 +10855,14 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	}
 	else
 	{
-		ePlayer = getOwner();
-		eImprovement = getImprovementType();
-		eRoute = getRouteType();
+		ePlayer = getOwner() != NO_PLAYER ? getOwner() : NO_PLAYER;
+		eImprovement = getImprovementType() != NO_IMPROVEMENT ? getImprovementType() : NO_IMPROVEMENT;
+		eRoute = getRouteType() != NO_ROUTE ? getRouteType() : NO_ROUTE;
 	}
 
-	const CvCity* pPlotCity = (pOwningCity != NULL && pOwningCity->plot() == this) ? pOwningCity : NULL;
-
-	int iYield = calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay, pPlotCity);
-
-	if (pPlotCity == NULL)
-		iYield += calculateNatureYield(eYield, ePlayer, false);
-
+	int iYield = calculateNatureYield(eYield, ePlayer, false, bDisplay);
+	iYield += calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
 	iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, eRoute);
-	
 	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	
@@ -13740,12 +13739,10 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
 
-	const CvCity* pPlotCity = (pOwningCity != NULL && pOwningCity->plot() == this) ? pOwningCity : NULL;
-
 	// Nature yield
 	iYield = calculateNatureYield(eYield, ePlayer, bIgnoreFeature)
 		+ calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon)
-		+ calculatePlayerYield(eYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false, pPlotCity);
+		+ calculatePlayerYield(eYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 
 	// If we're not changing the improvement that's here, use the improvement that's here already
 	if(eImprovement == NO_IMPROVEMENT)
