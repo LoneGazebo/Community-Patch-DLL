@@ -2972,25 +2972,9 @@ void CvTacticalAI::PlotHealMoves()
 		CvPlot* pUnitPlot = pUnit->plot();
 		if (pUnitPlot == NULL)
 			continue;
-		int iAcceptableDamage = 20;
 
 		//allow some more damage outside of our borders
-		if (pUnitPlot->getOwner() != pUnit->getOwner())
-		{
-			iAcceptableDamage = 40;
-			if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1)
-			{
-				if (pUnit->pillage())
-				{
-					if (!pUnit->canMove())
-					{
-						UnitProcessed(pUnit->GetID());
-						continue;
-					}
-				}
-			}
-		}
-
+		int iAcceptableDamage = (pUnitPlot->getOwner() == pUnit->getOwner()) ? 20 : 40;
 
 		if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
 			m_HealingUnits.insert(pUnit->GetID());
@@ -3011,9 +2995,7 @@ void CvTacticalAI::PlotHealMoves()
 		UnitProcessed(*it);
 
 	if(m_HealingUnits.size() > 0)
-	{
 		ExecuteHeals();
-	}
 }
 
 /// Assigns a barbarian to go protect an undefended camp

@@ -21869,18 +21869,15 @@ int CvPlayer::GetHappinessFromResources() const
 /// Amount of Happiness from having a variety of Luxuries
 int CvPlayer::GetHappinessFromResourceVariety() const
 {
-	int iHappiness = 0;
-
 	int iMultipleLuxuriesBonus = /*1*/ GC.getHAPPINESS_PER_EXTRA_LUXURY();
+	if (iMultipleLuxuriesBonus == 0)
+		return 0;
 
 	// Check all connected Resources
 	int iNumHappinessResources = 0;
-
-	ResourceTypes eResource;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
-
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 		if(GetHappinessFromLuxury(eResource) > 0)
 		{
 			iNumHappinessResources++;
@@ -21889,10 +21886,10 @@ int CvPlayer::GetHappinessFromResourceVariety() const
 
 	if(iNumHappinessResources > 1)
 	{
-		iHappiness += (--iNumHappinessResources * iMultipleLuxuriesBonus);
+		return (iNumHappinessResources-1) * iMultipleLuxuriesBonus;
 	}
 
-	return iHappiness;
+	return 0;
 }
 
 
@@ -22253,16 +22250,12 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 {
+	if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
+		return 0;
+
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if(pkResourceInfo)
 	{
-		int iBaseHappiness = pkResourceInfo->getHappiness();
-
-		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
-		{
-			iBaseHappiness = 0;
-		}
-
 		// Only look at Luxuries
 		if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 		{
@@ -22272,14 +22265,14 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 		// Any extras?
 		else if(getNumResourceAvailable(eResource, /*bIncludeImport*/ true) > 0)
 		{
-			return iBaseHappiness;
+			return pkResourceInfo->getHappiness();
 		}
 
 		else if(GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
 		{
 			if(getResourceExport(eResource) > 0)
 			{
-				return ((iBaseHappiness * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100);
+				return ((pkResourceInfo->getHappiness() * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100);
 			}
 		}
 	}
