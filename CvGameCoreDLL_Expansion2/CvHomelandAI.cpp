@@ -3545,18 +3545,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(pEvalPlot->needsEmbarkation(pUnit))
 				continue;
 
-			if (pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pEvalPlot))
-			{
-				pUnit->pillage();
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("%s pillaged a plot because we get XP, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-
 			//see if we can make an easy kill
 			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
 			if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit,pEnemyUnit))
@@ -3702,6 +3690,18 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 
 				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,
 				false, false, MISSIONAI_EXPLORE, pBestPlot);
+
+			if (pUnit->canMove() && pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s pillaged a plot because we get XP, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
 
 			// Only mark as done if out of movement - we'll do a second pass later
 			if (!pUnit->canMove())

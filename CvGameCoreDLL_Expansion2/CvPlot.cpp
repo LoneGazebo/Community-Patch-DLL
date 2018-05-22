@@ -9766,18 +9766,18 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
 	}
 
-	const CvCity* pPlotCity = getPlotCity();
-	if (pPlotCity != NULL && ePlayer != NO_PLAYER)
+	const CvCity* pOwningCity = getOwningCity();
+	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
 	{
 		iYield = std::max(iYield, kYield.getMinCity());
 
-		if (!bDisplay || pPlotCity->isRevealed(GC.getGame().getActiveTeam(), false))
+		if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
 		{
 			iYield += kYield.getCityChange();
 
 			if (kYield.getPopulationChangeDivisor() != 0)
 			{
-				iYield += (pPlotCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
+				iYield += (pOwningCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
 			}
 		}
 
@@ -9785,7 +9785,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityYieldChanges(eYield);
 
 		// Coastal City Mod
-		if (pPlotCity->isCoastal())
+		if (pOwningCity->isCoastal())
 		{
 			iYield += GET_PLAYER(ePlayer).GetCoastalCityYieldChange(eYield);
 
@@ -9825,9 +9825,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			{
 				iYield += kYield.getMinCityMountainNoFreshWater();
 			}
-			if (pPlotCity->HasGarrison())
+			if (pOwningCity->HasGarrison())
 			{
-				CvUnit* pUnit = pPlotCity->GetGarrisonedUnit();
+				CvUnit* pUnit = pOwningCity->GetGarrisonedUnit();
 				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
 				{
 					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
@@ -9839,13 +9839,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		int iTemp = GET_PLAYER(ePlayer).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
 
 																				// Capital Mod
-		if (pPlotCity->isCapital())
+		if (pOwningCity->isCapital())
 		{
 			iTemp += GET_PLAYER(ePlayer).GetCapitalYieldChangeTimes100(eYield);
 
 			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
 
-			int iPerPopYield = pPlotCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
+			int iPerPopYield = pOwningCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
 			iPerPopYield /= 100;
 			iYield += iPerPopYield;
 
