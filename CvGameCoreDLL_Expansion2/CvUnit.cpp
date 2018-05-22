@@ -6729,19 +6729,15 @@ bool CvUnit::IsCityAttackSupport() const
 {
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_CORE)
-	//city attack support units are civilians with a sapper bonus
+	//In VP city attack support units are civilians with a sapper bonus
 	//sapper is a separate promotion that can theoretically apply to combat units as well
-	if (IsCombatUnit())
-		return false;
-
-	return getUnitInfo().IsCityAttackSupport();
+	return (getUnitInfo().IsCityAttackSupport() || m_iCityAttackOnlyCount > 0);
 #else
 	return m_iCityAttackOnlyCount > 0;
 #endif
 }
 
 //	--------------------------------------------------------------------------------
-//this is no longer used
 void CvUnit::ChangeCityAttackOnlyCount(int iChange)
 {
 	VALIDATE_OBJECT
