@@ -47077,15 +47077,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
 			continue;
 
-		if(pPlot->getNumUnits() > 0)
+		if (pPlot->getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
-			IDInfo* pUnitNode = pPlot->headUnitNode();
-			while(pUnitNode != NULL)
-			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+			vBadPlots.push_back(pPlot);
+			continue;
+		}
 
-				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==DOMAIN_LAND && pLoopUnit->isEnemy(getTeam()))
+		IDInfo* pUnitNode = pPlot->headUnitNode();
+		while(pUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			{
+				if (pLoopUnit->isEnemy(getTeam()) || pLoopUnit->isHuman()) //extra careful with those sneaky humans
 				{
 					vBadPlots.push_back(pPlot);
 					break;
@@ -47134,6 +47140,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			//also consider distance to settler here in case of re-targeting an operation
 			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
 				isDangerous = true;
+
+			//closer to enemy than to us?
+			if (GetClosestCityByEstimatedTurns(pTestPlot) != GC.getGame().GetClosestCityByEstimatedTurns(pTestPlot))
+				isDangerous = true;
+
 		}
 
 		if (bNeedSafePlot)

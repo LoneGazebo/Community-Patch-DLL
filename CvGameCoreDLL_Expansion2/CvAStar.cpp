@@ -1919,6 +1919,12 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 				ePlotRoute = ROUTE_ROAD;
 	}
 
+	if(ePlotRoute == NO_ROUTE)
+	{
+		return FALSE;
+	}
+
+	//before we check the route type, check plot ownership
 	if(!pNewPlot->IsFriendlyTerritory(ePlayer))
 	{
 		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
@@ -1947,11 +1953,6 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 				return FALSE;
 			}
 		}
-	}
-
-	if(ePlotRoute == NO_ROUTE)
-	{
-		return FALSE;
 	}
 
 	//which route types are allowed?
