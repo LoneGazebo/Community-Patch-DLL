@@ -1849,7 +1849,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 //	--------------------------------------------------------------------------------
 // Route - Return the x, y plot of the node that we want to access
-int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
+int CityConnectionGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
 {
 	iX = -1;
 	iY = -1;
@@ -1894,7 +1894,7 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 
 //	---------------------------------------------------------------------------
 /// Route path finder - check validity of a coordinate
-int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL || data.ePlayer==NO_PLAYER)
 		return TRUE;
@@ -1974,7 +1974,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFi
 //	---------------------------------------------------------------------------
 // Route - find the number of additional children. 
 // In this case, count the (pre-computed!) harbor connections from the city.
-int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
+int CityConnectionGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 {
 	PlayerTypes ePlayer = finder->GetData().ePlayer;
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -2003,7 +2003,7 @@ int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 
 //	--------------------------------------------------------------------------------
 /// Water route valid finder - check the validity of a coordinate
-int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL)
 		return TRUE;
@@ -2409,15 +2409,15 @@ bool CvStepFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_WATER:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionWaterValid, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_MIXED:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RouteValid, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, CityConnectionGetNumExtraChildren, CityConnectionGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AIR_REBASE:
