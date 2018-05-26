@@ -8198,10 +8198,10 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,set<int>());
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer());
 }
 
-int CvUnit::GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
@@ -29725,7 +29725,7 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 		plot()->GetPlotIndex()==m_lastReachablePlotsStart && getMoves()==m_lastReachablePlotsMoves)
 		return m_lastReachablePlots;
 
-	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, set<int>());
+	ReachablePlots result = TacticalAIHelpers::GetAllPlotsInReach(this, plot(), iFlags, iMinMovesLeft, -1, PlotIndexContainer());
 
 	m_lastReachablePlots = result;
 	m_lastReachablePlotsFlags = iFlags;

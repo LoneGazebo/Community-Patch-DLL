@@ -70,7 +70,7 @@ void CvDangerPlots::Uninit()
 	m_knownUnits.clear();
 }
 
-bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnoreVisibility, const set<int>& plotsToIgnoreForZOC)
+bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnoreVisibility, const PlotIndexContainer& plotsToIgnoreForZOC)
 {
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
@@ -127,7 +127,7 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 		return;
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
-	set<int> plotsWithOwnedUnitsLikelyToBeKilled;
+	PlotIndexContainer plotsWithOwnedUnitsLikelyToBeKilled;
 
 	//first pass
 	UpdateDangerInternal(true, plotsWithOwnedUnitsLikelyToBeKilled);
@@ -137,7 +137,7 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 	for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 	{
 		if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
-			plotsWithOwnedUnitsLikelyToBeKilled.insert( pLoopUnit->plot()->GetPlotIndex() );
+			plotsWithOwnedUnitsLikelyToBeKilled.push_back( pLoopUnit->plot()->GetPlotIndex() );
 	}
 
 	//second pass
@@ -173,7 +173,7 @@ void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eTeam)
 	}
 }
 
-void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const set<int>& plotsToIgnoreForZOC)
+void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexContainer& plotsToIgnoreForZOC)
 {
 	// danger plots have not been initialized yet, so no need to update
 	if(!m_bArrayAllocated)
@@ -367,7 +367,7 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pP
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
 	if(!m_bArrayAllocated)
 		return 0;
@@ -414,7 +414,7 @@ void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 
 	if (!IsKnownAttacker(pUnit))
 	{
-		UpdateDangerSingleUnit(pUnit, false, set<int>()); //for simplicity, assume no ZOC by owned units
+		UpdateDangerSingleUnit(pUnit, false, PlotIndexContainer()); //for simplicity, assume no ZOC by owned units
 		m_knownUnits.insert(std::make_pair(pUnit->getOwner(), pUnit->GetID()));
 
 		ResetDangerCache(pUnit->plot(), 3);
@@ -774,7 +774,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 #define DANGER_MAX_CACHE_SIZE 9
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -929,7 +929,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const set<int>& unitsTo
 		if (!pAttacker || pAttacker->isDelayedDeath() || pAttacker->IsDead())
 			continue;
 
-		if (unitsToIgnore.find(it->second) != unitsToIgnore.end())
+		//there should be only very few of these, if any
+		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) == unitsToIgnore.end())
 			continue;
 
 		int iAttackerDamage = 0; //ignore this

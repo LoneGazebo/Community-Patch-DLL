@@ -882,8 +882,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	{
 		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
 		{
-			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
-			bPlotOccupancyOverride = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+			const PlotIndexContainer& ignorePlots = finder->GetData().plotsToIgnoreForZOC;
+			bPlotOccupancyOverride = ( std::find(ignorePlots.begin(),ignorePlots.end(),pPlot->GetPlotIndex()) != ignorePlots.end());
 		}
 
 		if (!bPlotOccupancyOverride)

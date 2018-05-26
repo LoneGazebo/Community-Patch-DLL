@@ -1107,8 +1107,8 @@ protected:
 	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
 	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
-	set<int> freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
-	set<int> killedEnemies; //enemy units which were killed, to be ignored for danger 
+	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
+	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger 
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -1169,7 +1169,7 @@ public:
 	const CvTacticalPosition* getParent() const { return parentPosition; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
-	const set<int>& getKilledEnemies() const { return killedEnemies; }
+	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }
@@ -1186,7 +1186,7 @@ namespace TacticalAIHelpers
 	bool SortBlockingUnitByDistanceAscending(const CvBlockingUnit& obj1, const CvBlockingUnit& obj2);
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
-	ReachablePlots GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const set<int>& plotsToIgnoreForZOC=set<int>());
+	ReachablePlots GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const PlotIndexContainer& plotsToIgnoreForZOC=PlotIndexContainer());
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 

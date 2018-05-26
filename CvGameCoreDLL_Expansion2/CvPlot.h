@@ -47,7 +47,6 @@ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
 
 typedef FFastVector<IDInfo, true, c_eCiv5GameplayDLL, 0> IDInfoVector;
 
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  STRUCT: CvArchaeologyData
 //!  \brief All the archaeological data stored for a plot

@@ -2685,7 +2685,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		return NULL;
 
 	// loop through plots and wipe out ones that are invalid
-	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)

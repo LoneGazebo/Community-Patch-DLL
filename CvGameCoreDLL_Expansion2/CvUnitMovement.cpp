@@ -293,7 +293,7 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, const set<int>& plotsToIgnore)
+int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, const PlotIndexContainer& plotsToIgnore)
 {
 	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot, plotsToIgnore))
 		return iMovesRemaining;
@@ -316,7 +316,7 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const set<int>& plotsToIgnore)
+bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const PlotIndexContainer& plotsToIgnore)
 {
 	if (pUnit->IsIgnoreZOC())
 		return false;
@@ -343,7 +343,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			continue;
 
 		//this is the only difference to the regular version below
-		if (plotsToIgnore.find(pAdjPlot->GetPlotIndex()) != plotsToIgnore.end())
+		if ( std::find(plotsToIgnore.begin(),plotsToIgnore.end(),pAdjPlot->GetPlotIndex()) != plotsToIgnore.end() )
 			continue;
 
 		// check city zone of control

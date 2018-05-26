@@ -17701,9 +17701,9 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 
 	// Must own an improveable plot
 	bool bHasValidPlot = false;
-	const set<int>& aiPlots = GetPlayer()->GetPlots();
+	const PlotIndexContainer& aiPlots = GetPlayer()->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -17752,9 +17752,9 @@ CvPlot* CvMinorCivAI::GetMajorGiftTileImprovement(PlayerTypes eMajor)
 	CvPlot* pBestPlot = NULL;
 	// Must own an improveable plot
 	bool bHasValidPlot = false;
-	const set<int>& aiPlots = GetPlayer()->GetPlots();
+	const PlotIndexContainer& aiPlots = GetPlayer()->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)

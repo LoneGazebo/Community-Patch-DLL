@@ -8236,7 +8236,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		{
 			bool bHas = false;
 			// go through all the plots the player has under their control
-			for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+			for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 				if (!pPlot)
@@ -38343,7 +38343,7 @@ int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 	int iCount = 0;
 
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (pPlot && pPlot->getResourceType(getTeam()) == eIndex)
@@ -44958,19 +44958,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_aUnitExtraCosts;
 
 	// reading plot values
-	{
-		m_aiPlots.clear();
-
-		// trying to cut down how big saves are
-		int iSize;
-		kStream >> iSize;
-		for(int i = 0; i < iSize; i++)
-		{
-			int iTemp;
-			kStream >> iTemp;
-			m_aiPlots.insert(iTemp);
-		}
-	}
+	kStream >> m_aiPlots;
 
 	if(!isBarbarian())
 	{
@@ -45154,14 +45142,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aVote;
 	kStream << m_aUnitExtraCosts;
 
-	// writing out plot values
-	{
-		kStream << m_aiPlots.size();
-		for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
-		{
-			kStream << *it;
-		}
-	}
+	kStream << m_aiPlots;
 
 	// writing out
 	{
@@ -45872,7 +45853,7 @@ void CvPlayer::UpdatePlots(void)
 		//somebody might have plundered an improvement
 		pLoopPlot->updateWaterFlags();
 
-		m_aiPlots.insert(iI);
+		m_aiPlots.push_back(iI);
 	}
 }
 
@@ -45883,12 +45864,12 @@ void CvPlayer::AddAPlot(CvPlot* pPlot)
 	if(!pPlot)
 		return;
 
-	m_aiPlots.insert(pPlot->GetPlotIndex());
+	m_aiPlots.push_back(pPlot->GetPlotIndex());
 }
 
 //	--------------------------------------------------------------------------------
 /// Returns the list of the plots the player owns
-const set<int>& CvPlayer::GetPlots(void) const
+const PlotIndexContainer& CvPlayer::GetPlots(void) const
 {
 	return m_aiPlots;
 }
@@ -46202,7 +46183,7 @@ bool CvPlayer::isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) 
 }
 
 
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
@@ -46681,7 +46662,7 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 {
 	int iValue = 0;
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
@@ -48366,7 +48347,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		int iWorkedTiles = 0;
 		int iImprovedTiles = 0;
 		// go through all the plots the player has under their control
-		for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+		for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 			if (!pPlot)

@@ -10428,7 +10428,7 @@ bool CvTacticalAI::IsUnitHealing(int iUnitID) const
 	return m_HealingUnits.find(iUnitID) != m_HealingUnits.end();
 }
 
-ReachablePlots TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC)
+ReachablePlots TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const PlotIndexContainer& plotsToIgnoreForZOC)
 {
 	if (!pStartPlot)
 		return ReachablePlots();
@@ -12525,8 +12525,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
 		if (pEnemy)
 		{
-			freedPlots.insert(newAssignment.iToPlotIndex);
-			killedEnemies.insert(pEnemy->GetID());
+			freedPlots.push_back(newAssignment.iToPlotIndex);
+			killedEnemies.push_back(pEnemy->GetID());
 		}
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
@@ -12541,11 +12541,11 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
 		if (newTactPlot.isEnemyCity() && !pEnemy)
-			killedEnemies.insert(0); //put an invalid unit ID as a placeholder so that isComplete() works
+			killedEnemies.push_back(0); //put an invalid unit ID as a placeholder so that isComplete() works
 		else if (pEnemy) //should always be true, else we wouldn't be here
 		{
-			freedPlots.insert(newAssignment.iToPlotIndex);
-			killedEnemies.insert(pEnemy->GetID());
+			freedPlots.push_back(newAssignment.iToPlotIndex);
+			killedEnemies.push_back(pEnemy->GetID());
 		}
 
 		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());

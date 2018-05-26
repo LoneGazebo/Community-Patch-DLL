@@ -38,6 +38,7 @@ class CvPathNode;
 class CvTacticalMove;
 #endif
 
+typedef std::vector<int> UnitIdContainer; //use a vector as most of the time this will be empty
 typedef FFastSmallFixedList< MissionData, 12, true, c_eCiv5GameplayDLL > MissionQueue;
 
 struct CvUnitCaptureDefinition
@@ -342,7 +343,7 @@ public:
 	void doHeal();
 	void DoAttrition();
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
-	int GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const;
+	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;

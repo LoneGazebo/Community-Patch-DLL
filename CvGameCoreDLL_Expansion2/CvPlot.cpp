@@ -3522,27 +3522,29 @@ bool CvPlot::IsAllowsWalkWater() const
 
 bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-    if (pUnit==NULL)
-        return isWater() && !isIce() && !IsAllowsWalkWater();
-    else
-    {
+	//embarkation only on water plots
+	if (!isWater() || isIce() || !IsAllowsWalkWater())
+		return false;
+
+    if (!pUnit)
+        return true;
+
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-        if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
-        {
-            return isDeepWater() && !isIce();
-        }
-        else if (pUnit->getDomainType()==DOMAIN_LAND)
-        {
-#else       
-        //only land units need to embark
-        if (pUnit->getDomainType()==DOMAIN_LAND)
-        {
-#endif      
-            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this) && !pUnit->isConvertUnit();
-        }
-        else
-            return false;
+    if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
+    {
+        return isDeepWater();
     }
+    else if (pUnit->getDomainType()==DOMAIN_LAND)
+    {
+#else       
+    //only land units need to embark
+    if (pUnit->getDomainType()==DOMAIN_LAND)
+    {
+#endif      
+        return !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this) && !pUnit->isConvertUnit();
+    }
+    else
+        return false;
 }
 
 //	--------------------------------------------------------------------------------
