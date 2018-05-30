@@ -167,6 +167,7 @@ public:
 	bool IsCanGoldInternalTradeRoutes() const;
 	int GetExtraTradeRoutesPerXOwnedCities() const;
 	int GetExtraTradeRoutesPerXOwnedVassals() const;
+	bool IsCapitalOnly() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -505,6 +506,7 @@ protected:
 	bool m_bCanGoldInternalTradeRoutes;
 	int m_iExtraTradeRoutesPerXOwnedCities;
 	int m_iExtraTradeRoutesPerXOwnedVassals;
+	bool m_bIsCapitalOnly;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1239,6 +1241,10 @@ public:
 	int GetExtraTradeRoutesPerXOwnedVassals() const
 	{
 		return m_iExtraTradeRoutesPerXOwnedVassals;
+	};
+	bool IsCapitalOnly() const
+	{
+		return m_bIsCapitalOnly;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1987,6 +1993,7 @@ private:
 	bool m_bCanGoldInternalTradeRoutes;
 	int m_iExtraTradeRoutesPerXOwnedCities;
 	int m_iExtraTradeRoutesPerXOwnedVassals;
+	bool m_bIsCapitalOnly;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
