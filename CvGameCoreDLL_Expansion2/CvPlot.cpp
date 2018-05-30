@@ -904,13 +904,9 @@ void CvPlot::nukeExplosion(int iDamageLevel, CvUnit*)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentToArea(int iAreaID) const
 {
-
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -972,14 +968,11 @@ bool CvPlot::isAdjacent(const CvPlot* pPlot) const
 		return false;
 	}
 
-	CvPlot* pAdjacentPlot;
-	int iI;
-
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 #else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
@@ -1025,27 +1018,23 @@ bool CvPlot::isShallowWater() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentToShallowWater() const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
+	//the result of this check should be cached (see updateWaterFlags)
+	//but right now it is called only rarely, so the inefficiency doesn't matter much
 	TerrainTypes eShallowWater = (TerrainTypes) GC.getSHALLOW_WATER_TERRAIN();
 
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
-		pAdjacentPlot = aPlotsToCheck[iI];
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 #else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 #endif
-		if(pAdjacentPlot != NULL)
+		if(pAdjacentPlot && pAdjacentPlot->getTerrainType() == eShallowWater)
 		{
-			if(pAdjacentPlot->getTerrainType() == eShallowWater)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -1057,12 +1046,9 @@ bool CvPlot::isAdjacentToShallowWater() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentToIce() const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -1080,8 +1066,6 @@ bool CvPlot::isAdjacentToIce() const
 //	--------------------------------------------------------------------------------
 int CvPlot::GetSizeLargestAdjacentWater() const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
 	int iRtnValue = 0;
 
 	if(isWater())
@@ -1089,9 +1073,9 @@ int CvPlot::GetSizeLargestAdjacentWater() const
 		return iRtnValue;
 	}
 
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -1127,9 +1111,7 @@ bool CvPlot::isVisibleWorked() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer) const
 {
-	int iI;
-
-	for(iI = 0; iI < MAX_PLAYERS; ++iI)
+	for(int iI = 0; iI < MAX_PLAYERS; ++iI)
 	{
 		if(GET_PLAYER((PlayerTypes)iI).isAlive())
 		{
@@ -1211,7 +1193,8 @@ void CvPlot::updateWaterFlags() const
 	{
 		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
 		m_bIsLake = pLandmass ? pLandmass->isLake() : false;
-		m_bIsAdjacentToOcean = false;
+		m_bIsAdjacentToOcean = !m_bIsLake;
+		m_bIsAdjacentToLand = false;
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -1227,7 +1210,8 @@ void CvPlot::updateWaterFlags() const
 	else //land plots
 	{
 		m_bIsLake = false;
-		m_bIsAdjacentToLand = false;
+		m_bIsAdjacentToOcean = false;
+		m_bIsAdjacentToLand = true;
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
