@@ -432,7 +432,7 @@ CvUnit::CvUnit() :
 	, m_iGiveHPIfEnemyKilled("CvUnit::m_iGiveHPIfEnemyKilled", m_syncArchive)
 	, m_iGiveExperiencePercent("CvUnit::m_iGiveExperiencePercent", m_syncArchive)
 	, m_igiveOutsideFriendlyLandsModifier("CvUnit::m_igiveOutsideFriendlyLandsModifier", m_syncArchive)
-	, m_pabGiveDomainBonus("CvUnit::m_pabGiveDomainBonus", m_syncArchive)
+	, m_eGiveDomain("CvUnit::m_eGiveDomain", m_syncArchive)
 	, m_igiveExtraAttacks("CvUnit::m_igiveExtraAttacks", m_syncArchive)
 	, m_igiveDefenseMod("CvUnit::m_igiveDefenseMod", m_syncArchive)
 	, m_bgiveInvisibility("CvUnit::m_bgiveInvisibility", m_syncArchive)
@@ -755,15 +755,19 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//get builder strength
 	if (getUnitInfo().GetBuilderStrength() > 0)
 	{
-		// use speed modifier to increase the work count.
+		// use speed modifier to increase the work count, but not for archaeologists since they are killed anyways after dig site build.
 		int ibuildercharges = getUnitInfo().GetBuilderStrength();
-		const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
-		if (0 != iworkerspeedmodifier)
+		UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+		if (getUnitClassType() != eArchaeologistClass)
 		{
-			float fTemp = (float)ibuildercharges;
-			fTemp *= (100 + iworkerspeedmodifier);
-			fTemp /= 100;
-			ibuildercharges = (int)ceil(fTemp); // Round up
+			const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
+			if (0 != iworkerspeedmodifier)
+			{
+				float fTemp = (float)ibuildercharges;
+				fTemp *= (100 + iworkerspeedmodifier);
+				fTemp /= 100;
+				ibuildercharges = (int)ceil(fTemp); // Round up
+			}
 		}
 		setBuilderStrength(ibuildercharges);
 	}
@@ -1519,6 +1523,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
 	m_iGGGAXPPercent = 0;
+	m_eGiveDomain = NO_DOMAIN;
 	m_iGiveCombatMod = 0;
 	m_iGiveHPIfEnemyKilled = 0;
 	m_iGiveExperiencePercent = 0;
@@ -1675,7 +1680,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_combatUnit.reset();
 	m_transportUnit.reset();
 	m_extraDomainModifiers.clear();
-	m_pabGiveDomainBonus.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
@@ -1769,8 +1773,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
-		m_pabGiveDomainBonus.clear();
-		m_pabGiveDomainBonus.resize(NUM_DOMAIN_TYPES, false);
 #endif
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
@@ -2706,7 +2708,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			if (!pLoopUnit->IsCombatUnit())
 				continue;
 
-			if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+			if (getGiveDomain() != NO_DOMAIN && (getGiveDomain() != pLoopUnit->getDomainType()))
 				continue;
 
 			if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iRange)
@@ -18191,17 +18193,15 @@ void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 	VALIDATE_OBJECT
 	m_igiveOutsideFriendlyLandsModifier += iValue;
 }
-const bool CvUnit::IsGiveDomainBonus(DomainTypes eDomain) const
+const DomainTypes CvUnit::getGiveDomain() const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
-	CvAssertMsg(eDomain > -1, "Index out of bounds");
-	return m_pabGiveDomainBonus[eDomain];
+	return (DomainTypes)(int)m_eGiveDomain;
 }
-void CvUnit::ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue)
+void CvUnit::ChangeGiveDomain(DomainTypes eDomain)
 {
 	VALIDATE_OBJECT
-	m_pabGiveDomainBonus.setAt(eDomain, bValue);
+	m_eGiveDomain = eDomain;
 }
 int CvUnit::getGiveExtraAttacks() const
 {
@@ -20119,7 +20119,7 @@ if (!bDoEvade)
 				if (!pLoopUnit->IsCombatUnit())
 					continue;
 
-				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+				if (getGiveDomain() != NO_DOMAIN && (getGiveDomain() != pLoopUnit->getDomainType()))
 					continue;
 
 				if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax +1))
@@ -23312,7 +23312,7 @@ int CvUnit::GetGiveExperiencePercentToUnit() const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iExperience = pUnit->getGiveExperiencePercent();
 				}
@@ -23347,7 +23347,7 @@ int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iMod = pUnit->getGiveCombatMod();
 				}
@@ -23380,7 +23380,7 @@ int CvUnit::GetGiveDefenseModToUnit() const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iMod = pUnit->getGiveDefenseMod();
 				}
@@ -23434,6 +23434,9 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 			return false;
 	}
 
+	if (!IsCombatUnit())
+		return false;
+
 	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
@@ -23443,7 +23446,7 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit() && pUnit->getTeam() == getTeam())
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()) && (pUnit->getTeam() == getTeam()))
 				{
 					return true;
 				}
@@ -23477,7 +23480,7 @@ int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
 				// Only Giving it out to a specific domain?
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iMod = pUnit->getGiveOutsideFriendlyLandsModifier();
 				}
@@ -23511,7 +23514,7 @@ int CvUnit::GetGiveExtraAttacksToUnit() const
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
 				// Only Giving it out to a specific domain?
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iExtraAttacks = pUnit->getGiveExtraAttacks();
 				}
@@ -23544,7 +23547,7 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && !isRanged())
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()) && !isRanged())
 				{
 					iHP = pUnit->getGiveHPIfEnemyKilled();
 				}
@@ -27083,14 +27086,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
-			const DomainTypes eDomain = static_cast<DomainTypes>(iI);
-			if (eDomain != NULL)
-			{
-				if (thisPromotion.GetGiveDomain() == eDomain)
-				{
-					ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
-				}
-			}
+		}
+		if (getGiveDomain() == NO_DOMAIN && thisPromotion.GetGiveDomain() != NO_DOMAIN)
+		{
+			ChangeGiveDomain((DomainTypes)thisPromotion.GetGiveDomain());
 		}
 		if (getConvertDomain() == NO_DOMAIN && thisPromotion.GetConvertDomain() != NO_DOMAIN)
 		{

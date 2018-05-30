@@ -278,7 +278,7 @@ public:
 	int GetGiveHPIfEnemyKilled() const;
 	int GetGiveExperiencePercent() const;
 	int GetGiveOutsideFriendlyLandsModifier() const;
-	DomainTypes GetGiveDomain() const;
+	int GetGiveDomain() const;
 	int GetGiveExtraAttacks() const;
 	int GetGiveDefenseMod() const;
 	bool IsGiveInvisibility() const;
@@ -579,7 +579,7 @@ protected:
 	int m_iGiveHPHealedIfEnemyKilled;
 	int m_iGiveExperiencePercent;
 	int m_iGiveOutsideFriendlyLandsModifier;
-	DomainTypes m_eGiveDomain;
+	int m_iGiveDomain;
 	int m_iGiveExtraAttacks;
 	int m_iGiveDefenseMod;
 	bool m_bGiveInvisibility;

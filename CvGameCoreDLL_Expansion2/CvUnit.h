@@ -730,8 +730,8 @@ public:
 	void ChangeGiveExperiencePercent(int iValue);
 	int getGiveOutsideFriendlyLandsModifier() const;
 	void ChangeGiveOutsideFriendlyLandsModifier(int iValue);
-	const bool IsGiveDomainBonus(DomainTypes eDomain) const;
-	void ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue);
+	const DomainTypes getGiveDomain() const;
+	void ChangeGiveDomain(DomainTypes eDomain);
 	int getGiveExtraAttacks() const;
 	void ChangeGiveExtraAttacks(int iValue);
 	int getGiveDefenseMod() const;
@@ -2052,7 +2052,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
 	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
 	FAutoVariable<int, CvUnit> m_igiveOutsideFriendlyLandsModifier;
-	FAutoVariable<std::vector<int>, CvUnit> m_pabGiveDomainBonus;
+	FAutoVariable<int, CvUnit> m_eGiveDomain;
 	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
 	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
