@@ -676,7 +676,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		if(eBuilding != NO_BUILDING)
 		{
-			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass) || GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass))
+			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0
+				|| GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass)
+				|| GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass)
+				|| (GET_PLAYER(getOwner()).IsFreeBuildingNewFoundCity(eBuildingClass) && bInitialFounding))
 			{		
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if(pkBuildingInfo)
@@ -700,6 +703,40 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 							chooseProduction();
 							// Send a notification to the user that what they were building was given to them, and they need to produce something else.
 						}
+					}
+				}
+			}
+		}
+	}
+	if (bInitialFounding)
+	{
+		for (int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
+		{
+			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iUnitClassLoop);
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+			if (!pkUnitClassInfo)
+			{
+				continue;
+			}
+			UnitTypes eUnit = ((UnitTypes)(thisCiv.getCivilizationUnits(eUnitClass)));
+			if (eUnit != NO_UNIT)
+			{
+				if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
+				{
+					CvUnit* pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+					bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+					if (bJumpSuccess)
+					{
+						addProductionExperience(pFreeUnit);
+						if (getFirstUnitOrder(eUnit) == 0)
+						{
+							clearOrderQueue();
+							chooseProduction();
+						}
+					}
+					else
+					{
+						pFreeUnit->kill(false);
 					}
 				}
 			}

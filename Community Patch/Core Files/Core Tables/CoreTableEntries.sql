@@ -881,9 +881,8 @@ ALTER TABLE UnitPromotions ADD CombatBonusFromNearbyUnitClass INTEGER DEFAULT -1
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonusRange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyUnitClassBonus INTEGER DEFAULT 0;
 
--- A unit gains a promotion if "NearbyRange" is set to a distance from City, RequiredUnit must be set to the unit that you wish to give the promotion to.
-ALTER TABLE UnitPromotions ADD IsFriendlyLands BOOLEAN DEFAULT 0;
-ALTER TABLE UnitPromotions ADD RequiredUnit TEXT DEFAULT NULL REFERENCES Units(Type);
+-- Unit gains this promotion in Friendly Lands.
+ALTER TABLE Units ADD COLUMN 'FriendlyLandsPromotion' TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 
 -- Changes the intercept range against air units (NEW)
 ALTER TABLE UnitPromotions ADD AirInterceptRangeChange INTEGER DEFAULT 0;
@@ -897,6 +896,8 @@ ALTER TABLE Units ADD IsConvertUnit BOOLEAN DEFAULT 0;
 ALTER TABLE Units ADD 'ScaleFromNumGWs' INTEGER DEFAULT 0;
 ALTER TABLE Units ADD 'ScaleFromNumThemes' INTEGER DEFAULT 0;
 
+-- How many culture bombs can this unit do, must have set CultureBombRadius to a number.
+ALTER TABLE Units ADD 'NumberOfCultureBombs' INTEGER DEFAULT 0;
 
 -- City Gains Wonder Production Modifier while this Unit is stationed in this City
 ALTER TABLE UnitPromotions ADD WonderProductionModifier INTEGER DEFAULT 0;
@@ -1146,6 +1147,12 @@ ALTER TABLE Policies ADD NewCityFreeBuilding TEXT DEFAULT NULL REFERENCES Buildi
 
 -- Grants a free building to all existing and future cities
 ALTER TABLE Policies ADD AllCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
+
+-- Grants a free building to newly founded cities
+ALTER TABLE Policies ADD NewFoundCityFreeBuilding TEXT DEFAULT NULL REFERENCES BuildingClasses(Type);
+
+-- Grants a free unit to newly founded cities
+ALTER TABLE Policies ADD NewFoundCityFreeUnit TEXT DEFAULT NULL REFERENCES UnitClasses(Type);
 
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD COLUMN 'StackedGreatGeneralXP' INTEGER DEFAULT 0;

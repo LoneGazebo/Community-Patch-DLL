@@ -257,9 +257,7 @@ public:
 	int GetNearbyFriendlyCityCombatMod() const;
 	int GetNearbyEnemyCityCombatMod() const;
 	bool IsNearbyPromotion() const;
-	bool IsFriendlyLands() const;
 	int GetNearbyRange() const;
-	UnitTypes getRequiredUnit() const;
 	bool IsConvertEnemyUnitToBarbarian() const;
 	bool IsConvertOnFullHP() const;
 	bool IsConvertOnDamage() const;
@@ -280,7 +278,7 @@ public:
 	int GetGiveHPIfEnemyKilled() const;
 	int GetGiveExperiencePercent() const;
 	int GetGiveOutsideFriendlyLandsModifier() const;
-	DomainTypes GetGiveDomain() const;
+	int GetGiveDomain() const;
 	int GetGiveExtraAttacks() const;
 	int GetGiveDefenseMod() const;
 	bool IsGiveInvisibility() const;
@@ -559,7 +557,6 @@ protected:
 	int m_iNearbyFriendlyCityCombatMod;
 	int m_iNearbyEnemyCityCombatMod;
 	bool m_bIsNearbyPromotion;
-	bool m_bIsFriendlyLands;
 	int m_iNearbyRange;
 	UnitTypes m_eRequiredUnit;
 	int m_iConvertDomainUnit;
@@ -582,7 +579,7 @@ protected:
 	int m_iGiveHPHealedIfEnemyKilled;
 	int m_iGiveExperiencePercent;
 	int m_iGiveOutsideFriendlyLandsModifier;
-	DomainTypes m_eGiveDomain;
+	int m_iGiveDomain;
 	int m_iGiveExtraAttacks;
 	int m_iGiveDefenseMod;
 	bool m_bGiveInvisibility;

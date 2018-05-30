@@ -421,7 +421,6 @@ CvUnit::CvUnit() :
 	, m_inearbyCityCombatMod("CvUnit::m_inearbyCityCombatMod", m_syncArchive)
 	, m_inearbyFriendlyCityCombatMod("CvUnit::m_inearbyFriendlyCityCombatMod", m_syncArchive)
 	, m_inearbyEnemyCityCombatMod("CvUnit::m_inearbyEnemyCityCombatMod", m_syncArchive)
-	, m_bIsFriendlyLands("CvUnit::m_bIsFriendlyLands", m_syncArchive)
 	, m_iPillageBonusStrengthPercent("CvUnit::m_iPillageBonusStrengthPercent", m_syncArchive)
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
@@ -433,7 +432,7 @@ CvUnit::CvUnit() :
 	, m_iGiveHPIfEnemyKilled("CvUnit::m_iGiveHPIfEnemyKilled", m_syncArchive)
 	, m_iGiveExperiencePercent("CvUnit::m_iGiveExperiencePercent", m_syncArchive)
 	, m_igiveOutsideFriendlyLandsModifier("CvUnit::m_igiveOutsideFriendlyLandsModifier", m_syncArchive)
-	, m_pabGiveDomainBonus("CvUnit::m_pabGiveDomainBonus", m_syncArchive)
+	, m_eGiveDomain("CvUnit::m_eGiveDomain", m_syncArchive)
 	, m_igiveExtraAttacks("CvUnit::m_igiveExtraAttacks", m_syncArchive)
 	, m_igiveDefenseMod("CvUnit::m_igiveDefenseMod", m_syncArchive)
 	, m_bgiveInvisibility("CvUnit::m_bgiveInvisibility", m_syncArchive)
@@ -445,6 +444,7 @@ CvUnit::CvUnit() :
 	, m_bconvertOnDamage("CvUnit::m_bconvertOnDamage", m_syncArchive)
 	, m_idamageThreshold("CvUnit::m_idamageThreshold", m_syncArchive)
 	, m_econvertDamageOrFullHPUnit("CvUnit::m_econvertDamageOrFullHPUnit", m_syncArchive)
+	, m_inumberOfCultureBombs("CvUnit::m_inumberOfCultureBombs", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -755,19 +755,27 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//get builder strength
 	if (getUnitInfo().GetBuilderStrength() > 0)
 	{
-		// use speed modifier to increase the work count.
+		// use speed modifier to increase the work count, but not for archaeologists since they are killed anyways after dig site build.
 		int ibuildercharges = getUnitInfo().GetBuilderStrength();
-		const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
-		if (0 != iworkerspeedmodifier)
+		UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+		if (getUnitClassType() != eArchaeologistClass)
 		{
-			float fTemp = (float)ibuildercharges;
-			fTemp *= (100 + iworkerspeedmodifier);
-			fTemp /= 100;
-			ibuildercharges = (int)ceil(fTemp); // Round up
+			const int iworkerspeedmodifier = kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
+			if (0 != iworkerspeedmodifier)
+			{
+				float fTemp = (float)ibuildercharges;
+				fTemp *= (100 + iworkerspeedmodifier);
+				fTemp /= 100;
+				ibuildercharges = (int)ceil(fTemp); // Round up
+			}
 		}
 		setBuilderStrength(ibuildercharges);
 	}
 #endif
+	if (getUnitInfo().GetNumberOfCultureBombs() > 0)
+	{
+		setNumberOfCultureBombs(getUnitInfo().GetNumberOfCultureBombs());
+	}
 #if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
 	if(MOD_BALANCE_CORE_SETTLER_RESET_FOOD && getUnitInfo().IsFound())
 	{
@@ -1508,7 +1516,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_inearbyCityCombatMod = 0;
 	m_inearbyFriendlyCityCombatMod = 0;
 	m_inearbyEnemyCityCombatMod = 0;
-	m_bIsFriendlyLands = false;
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
 	m_bIsHighSeaRaider = false;
@@ -1516,6 +1523,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iUnitProductionModifier = 0;
 	m_iNearbyEnemyDamage = 0;
 	m_iGGGAXPPercent = 0;
+	m_eGiveDomain = NO_DOMAIN;
 	m_iGiveCombatMod = 0;
 	m_iGiveHPIfEnemyKilled = 0;
 	m_iGiveExperiencePercent = 0;
@@ -1531,6 +1539,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bconvertOnDamage = false;
 	m_idamageThreshold = 0;
 	m_econvertDamageOrFullHPUnit = NO_UNIT;
+	m_inumberOfCultureBombs = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -1671,7 +1680,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_combatUnit.reset();
 	m_transportUnit.reset();
 	m_extraDomainModifiers.clear();
-	m_pabGiveDomainBonus.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
@@ -1765,8 +1773,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
-		m_pabGiveDomainBonus.clear();
-		m_pabGiveDomainBonus.resize(NUM_DOMAIN_TYPES, false);
 #endif
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
@@ -2471,7 +2477,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				int iExperience = getExperienceTimes100() / 100;
 				if(iExperience > 0)
 				{
+					float fDelay = 0.5f;
 					GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
+					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = { 0 };
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+					}
 				}
 			}
 		}
@@ -2695,7 +2709,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 			if (!pLoopUnit->IsCombatUnit())
 				continue;
 
-			if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+			if (getGiveDomain() != NO_DOMAIN && (getGiveDomain() != pLoopUnit->getDomainType()))
 				continue;
 
 			if (plotDistance(getX(), getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iRange)
@@ -12624,7 +12638,11 @@ bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
 
 	return true;
 }
-
+bool CvUnit::isCultureBomb() const
+{
+	VALIDATE_OBJECT
+	return	m_pUnitInfo->GetCultureBombRadius() > 0;
+}
 //	--------------------------------------------------------------------------------
 bool CvUnit::DoCultureBomb()
 {
@@ -12642,7 +12660,7 @@ bool CvUnit::DoCultureBomb()
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 		kPlayer.changeCultureBombTimer(iCooldown);
 
-		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius());
+		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius() + GET_PLAYER(getOwner()).GetCultureBombBoost());
 
 		if(pThisPlot->isActiveVisible(false))
 		{
@@ -12650,17 +12668,19 @@ bool CvUnit::DoCultureBomb()
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
 
-		if(IsGreatPerson())
+		setNumberOfCultureBombs(getNumberOfCultureBombs() - 1);
+		if (getNumberOfCultureBombs() <= 0)
 		{
+			if (IsGreatPerson())
+			{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-			kPlayer.DoGreatPersonExpended(getUnitType(), this);
+				kPlayer.DoGreatPersonExpended(getUnitType(), this);
 #else
-			kPlayer.DoGreatPersonExpended(getUnitType());
+				kPlayer.DoGreatPersonExpended(getUnitType());
 #endif
+			}
+			kill(true);
 		}
-
-		kill(true);
-
 		return true;
 	}
 
@@ -13468,7 +13488,12 @@ bool CvUnit::build(BuildTypes eBuild)
 
 		// wipe out all build progress also
 		pPlot->SilentlyResetAllBuildProgress();
+#if defined(MOD_CIV6_WORKER)
+		if(!MOD_CIV6_WORKER)
+			bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
+#else
 		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
+#endif
 		NewBuild = true;
 
 #if defined(MOD_BALANCE_CORE)
@@ -13741,9 +13766,15 @@ bool CvUnit::build(BuildTypes eBuild)
 				{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
 #if defined(MOD_CIV6_WORKER)
-					if (MOD_CIV6_WORKER && getBuilderStrength() <= 0)
+					if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 					{
-						kPlayer.DoGreatPersonExpended(getUnitType(), this);
+						int iBuildCost = pkBuildInfo->getBuilderCost();
+						setBuilderStrength(getBuilderStrength() - iBuildCost);
+						if (getBuilderStrength() <= 0)
+						{
+							kPlayer.DoGreatPersonExpended(getUnitType(), this);
+							kill(true);
+						}
 					}
 					else
 #endif
@@ -13757,10 +13788,6 @@ bool CvUnit::build(BuildTypes eBuild)
 				if (MOD_CIV6_WORKER)
 				{
 					if ((!pkBuildInfo->isKillOnlyCivilian() && !IsGreatPerson()) || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit() && !IsGreatPerson()))
-					{
-						kill(true);
-					}
-					else if (IsGreatPerson() && getBuilderStrength() <= 0)
 					{
 						kill(true);
 					}
@@ -13781,7 +13808,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 #if defined(MOD_CIV6_WORKER)
 			//if we are a builder (something with builderstrength)
-			if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
+			if (MOD_CIV6_WORKER && getBuilderStrength() > 0 && ((AI_getUnitAIType() == UNITAI_WORKER_SEA) || (AI_getUnitAIType() == UNITAI_WORKER)))
 			{
 				//check the amount of work done
 				int iBuildCost = pkBuildInfo->getBuilderCost();
@@ -13789,14 +13816,8 @@ bool CvUnit::build(BuildTypes eBuild)
 				setBuilderStrength(getBuilderStrength() - iBuildCost);
 				if (getBuilderStrength() <= 0)
 				{
-					UnitTypes eArchaeologist = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
-					// We won't kill Combat Units and we won't kill great people that are combat units unless they run out of build charges. We'll kill Arcaeologists somewhere else.
-					if (!IsCombatUnit() && (getUnitType() != eArchaeologist))
-					{
-						//delete unit
-						kill(true);
-					}
-					
+					//delete unit
+					kill(true);
 				}
 			}
 #endif
@@ -13880,8 +13901,19 @@ void CvUnit::setBuilderStrength(const int newPower)
 	if (m_iBuilderStrength < 0) m_iBuilderStrength = 0;
 
 }
+#if defined(MOD_BALANCE_CORE)
+int CvUnit::getNumberOfCultureBombs() const
+{
+	return m_inumberOfCultureBombs;
+}
+void CvUnit::setNumberOfCultureBombs(const int iBombs)
+{
+	m_inumberOfCultureBombs = iBombs;
 
-
+	if (m_inumberOfCultureBombs < 0)
+		m_inumberOfCultureBombs = 0;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 {
@@ -14653,7 +14685,15 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			int iExperience = getExperienceTimes100() / 100;
 			if(iExperience > 0)
 			{
+				float fDelay = 0.5f;
 				GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
+				if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = { 0 };
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+					DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+				}
 			}
 		}
 #endif
@@ -15255,7 +15295,7 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 #if defined(MOD_CIV6_WORKER)
 	if (MOD_CIV6_WORKER)
 	{
-		iRate = 100;
+		iRate = 1;
 	}
 #endif
 	return iRate;
@@ -18035,21 +18075,6 @@ int CvUnit::getNearbyEnemyCityCombatMod() const
 	VALIDATE_OBJECT
 	return m_inearbyEnemyCityCombatMod;
 }
-void CvUnit::ChangeIsFriendlyLands(int iValue)
-{
-	VALIDATE_OBJECT
-	m_bIsFriendlyLands += iValue;
-}
-int CvUnit::GetIsFriendlyLands() const
-{
-	VALIDATE_OBJECT
-	return	m_bIsFriendlyLands;
-}
-bool CvUnit::isFriendlyLands() const
-{
-	VALIDATE_OBJECT
-	return GetIsFriendlyLands() > 0;
-}
 int CvUnit::getPillageBonusStrengthPercent() const
 {
 	VALIDATE_OBJECT
@@ -18165,17 +18190,15 @@ void CvUnit::ChangeGiveOutsideFriendlyLandsModifier(int iValue)
 	VALIDATE_OBJECT
 	m_igiveOutsideFriendlyLandsModifier += iValue;
 }
-const bool CvUnit::IsGiveDomainBonus(DomainTypes eDomain) const
+const DomainTypes CvUnit::getGiveDomain() const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
-	CvAssertMsg(eDomain > -1, "Index out of bounds");
-	return m_pabGiveDomainBonus[eDomain];
+	return (DomainTypes)(int)m_eGiveDomain;
 }
-void CvUnit::ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue)
+void CvUnit::ChangeGiveDomain(DomainTypes eDomain)
 {
 	VALIDATE_OBJECT
-	m_pabGiveDomainBonus.setAt(eDomain, bValue);
+	m_eGiveDomain = eDomain;
 }
 int CvUnit::getGiveExtraAttacks() const
 {
@@ -20093,7 +20116,7 @@ if (!bDoEvade)
 				if (!pLoopUnit->IsCombatUnit())
 					continue;
 
-				if (!IsGiveDomainBonus(pLoopUnit->getDomainType()))
+				if (getGiveDomain() != NO_DOMAIN && (getGiveDomain() != pLoopUnit->getDomainType()))
 					continue;
 
 				if (plotDistance(pNewPlot->getX(), pNewPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY()) > (iRange + iMax +1))
@@ -23296,7 +23319,7 @@ int CvUnit::GetGiveExperiencePercentToUnit() const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iExperience = pUnit->getGiveExperiencePercent();
 				}
@@ -23331,7 +23354,7 @@ int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iMod = pUnit->getGiveCombatMod();
 				}
@@ -23364,7 +23387,7 @@ int CvUnit::GetGiveDefenseModToUnit() const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iMod = pUnit->getGiveDefenseMod();
 				}
@@ -23418,6 +23441,9 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 			return false;
 	}
 
+	if (!IsCombatUnit())
+		return false;
+
 	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
@@ -23427,7 +23453,7 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && IsCombatUnit() && pUnit->getTeam() == getTeam())
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()) && (pUnit->getTeam() == getTeam()))
 				{
 					return true;
 				}
@@ -23461,7 +23487,7 @@ int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
 				// Only Giving it out to a specific domain?
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iMod = pUnit->getGiveOutsideFriendlyLandsModifier();
 				}
@@ -23495,7 +23521,7 @@ int CvUnit::GetGiveExtraAttacksToUnit() const
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
 				// Only Giving it out to a specific domain?
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL)
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 				{
 					iExtraAttacks = pUnit->getGiveExtraAttacks();
 				}
@@ -23528,7 +23554,7 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 			iRange = pUnit->GetNearbyUnitPromotionsRange();
 			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
 			{
-				if (pUnit->IsGiveDomainBonus(getDomainType()) != NULL && !isRanged())
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()) && !isRanged())
 				{
 					iHP = pUnit->getGiveHPIfEnemyKilled();
 				}
@@ -23950,26 +23976,23 @@ void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 	}
 	if(pPlot != NULL)
 	{
-		
-		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		if (m_pUnitInfo->GetFriendlyLandsPromotion() != NO_PROMOTION)
 		{
-			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-			if(pkPromotionInfo != NULL)
+			const PromotionTypes eFriendlyLandsPromotion = m_pUnitInfo->GetFriendlyLandsPromotion();
+			if (pPlot->IsFriendlyTerritory(getOwner())
+				|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(getTeam())))
+
 			{
-				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == getUnitType())
+				if (!isHasPromotion(eFriendlyLandsPromotion))
 				{
-					if(pPlot->IsFriendlyTerritory(getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(getTeam())))
-					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
-						{
-							setHasPromotion(eLoopPromotion, true);
-						}
-					}
-					else
-					{
-						setHasPromotion(eLoopPromotion, false);
-					}
+					setHasPromotion(eFriendlyLandsPromotion, true);
+				}
+			}
+			else
+			{
+				if (isHasPromotion(eFriendlyLandsPromotion))
+				{
+					setHasPromotion(eFriendlyLandsPromotion, false);
 				}
 			}
 		}
@@ -26772,7 +26795,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
 		ChangeNearbyFriendlyCityCombatMod((thisPromotion.GetNearbyFriendlyCityCombatMod()) * iChange);
 		ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
-		ChangeIsFriendlyLands((thisPromotion.IsFriendlyLands()) ? iChange : 0);
 		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
 		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
 		ChangeIsHighSeaRaider((thisPromotion.IsHighSeaRaider()) ? iChange : 0);
@@ -27068,14 +27090,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
-			const DomainTypes eDomain = static_cast<DomainTypes>(iI);
-			if (eDomain != NULL)
-			{
-				if (thisPromotion.GetGiveDomain() == eDomain)
-				{
-					ChangeGiveDomainBonus(thisPromotion.GetGiveDomain(), iChange);
-				}
-			}
+		}
+		if (getGiveDomain() == NO_DOMAIN && thisPromotion.GetGiveDomain() != NO_DOMAIN)
+		{
+			ChangeGiveDomain((DomainTypes)thisPromotion.GetGiveDomain());
 		}
 		if (getConvertDomain() == NO_DOMAIN && thisPromotion.GetConvertDomain() != NO_DOMAIN)
 		{

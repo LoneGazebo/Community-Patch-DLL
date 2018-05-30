@@ -459,6 +459,7 @@ public:
 	bool DoBuildSpaceship();
 
 	bool CanCultureBomb(const CvPlot* pPlot, bool bTestVisible = false) const;
+	bool isCultureBomb() const;
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
 
@@ -481,7 +482,10 @@ public:
 	int getBuilderStrength() const;
 	void setBuilderStrength(const int newPower);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int getNumberOfCultureBombs() const;
+	void setNumberOfCultureBombs(const int iBombs);
+#endif
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
 
@@ -703,9 +707,6 @@ public:
 	int getNearbyFriendlyCityCombatMod() const;
 	void ChangeNearbyEnemyCityCombatMod(int iValue);
 	int getNearbyEnemyCityCombatMod() const;
-	void ChangeIsFriendlyLands(int iValue);
-	int GetIsFriendlyLands() const;
-	bool isFriendlyLands() const;
 	int getPillageBonusStrengthPercent() const;
 	void ChangePillageBonusStrengthPercent(int iBonus);
 	int getStackedGreatGeneralExperience() const;
@@ -729,8 +730,8 @@ public:
 	void ChangeGiveExperiencePercent(int iValue);
 	int getGiveOutsideFriendlyLandsModifier() const;
 	void ChangeGiveOutsideFriendlyLandsModifier(int iValue);
-	const bool IsGiveDomainBonus(DomainTypes eDomain) const;
-	void ChangeGiveDomainBonus(DomainTypes eDomain, bool bValue);
+	const DomainTypes getGiveDomain() const;
+	void ChangeGiveDomain(DomainTypes eDomain);
 	int getGiveExtraAttacks() const;
 	void ChangeGiveExtraAttacks(int iValue);
 	int getGiveDefenseMod() const;
@@ -2040,7 +2041,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_inearbyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyFriendlyCityCombatMod;
 	FAutoVariable<int, CvUnit> m_inearbyEnemyCityCombatMod;
-	FAutoVariable<int, CvUnit> m_bIsFriendlyLands;
 	FAutoVariable<int, CvUnit> m_iPillageBonusStrengthPercent;
 	FAutoVariable<int, CvUnit> m_iStackedGreatGeneralExperience;
 	FAutoVariable<int, CvUnit> m_bIsHighSeaRaider;
@@ -2052,7 +2052,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGiveHPIfEnemyKilled;
 	FAutoVariable<int, CvUnit> m_iGiveExperiencePercent;
 	FAutoVariable<int, CvUnit> m_igiveOutsideFriendlyLandsModifier;
-	FAutoVariable<std::vector<int>, CvUnit> m_pabGiveDomainBonus;
+	FAutoVariable<int, CvUnit> m_eGiveDomain;
 	FAutoVariable<int, CvUnit> m_igiveExtraAttacks;
 	FAutoVariable<int, CvUnit> m_igiveDefenseMod;
 	FAutoVariable<int, CvUnit> m_bgiveInvisibility;
@@ -2064,6 +2064,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_bconvertOnDamage;
 	FAutoVariable<int, CvUnit> m_idamageThreshold;
 	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
+	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

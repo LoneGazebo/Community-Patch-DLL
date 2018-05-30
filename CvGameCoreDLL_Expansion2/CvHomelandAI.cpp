@@ -5048,7 +5048,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eCitadel, vPlotsToAvoid, false);
-			if(pTargetPlot)
+			CvPlot* pTargetPlot2 = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombExpend(pUnit, vPlotsToAvoid);
+			if(!pUnit->isCultureBomb() && pTargetPlot)
 			{
 				if(pUnit->plot() == pTargetPlot)
 				{
@@ -5114,9 +5115,44 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 			}
 #if defined(MOD_BALANCE_CORE)
+			else if (pUnit->isCultureBomb() && pTargetPlot2)
+			{
+				if (pUnit->plot() == pTargetPlot2)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_CULTURE_BOMB());
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Great General culture bombed at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+					UnitProcessed(pUnit->GetID());
+				}
+				else
+				{
+					//continue moving to target
+					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot2, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
+					{
+						vPlotsToAvoid.push_back(pTargetPlot2);
+						UnitProcessed(pUnit->GetID());
+
+						pUnit->SetMissionAI(MISSIONAI_HOMEMOVE, pTargetPlot2, NULL);
+
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Great general moving to culture bomb at, X: %d, Y: %d, current location, X: %d, Y: %d",
+								pTargetPlot2->getX(), pTargetPlot2->getY(), pUnit->getX(), pUnit->getY());
+							LogHomelandMessage(strLogString);
+						}
+					}
+					else
+						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+				}
+			}
 			else
 			{
-				//no target for citadel
+				//no target for citadel or culture bombs
 				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 			}
 #endif
