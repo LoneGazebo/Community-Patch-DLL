@@ -17515,23 +17515,22 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		if (eImprovement != NULL)
 		{
 			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
-			if (iYieldChangePerImprovementBuilt != 0)
+			if (iYieldChangePerImprovementBuilt == 0 || (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly() && !isCapital()))
+				continue;
+			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
 			{
-				iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler() && iYieldChangePerImprovementBuilt > 0)
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
 				{
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				}
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+				{
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				}
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
+				{
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
 				}
 			}
 		}

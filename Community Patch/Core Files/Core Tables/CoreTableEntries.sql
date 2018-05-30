@@ -150,6 +150,11 @@ ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
+-- Trait affects capital only. Works for:
+---- Trait_YieldChangesPerImprovementBuilt (yield only shows up in capital)
+
+ALTER TABLE Traits ADD COLUMN 'IsCapitalOnly' BOOLEAN DEFAULT 0;
+
 -- No natural religion spread to/from unowned cities
 
 ALTER TABLE Traits ADD COLUMN 'NoNaturalReligionSpread' BOOLEAN DEFAULT 0;
