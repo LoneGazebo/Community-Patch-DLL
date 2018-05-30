@@ -205,6 +205,7 @@ public:
 	int GetCooldown() const;
 	int GetGlobalFaithCooldown() const;
 	int GetLocalFaithCooldown() const;
+	PromotionTypes GetFriendlyLandsPromotion() const;
 	bool IsMounted() const;
 	bool IsCultureFromExperienceDisbandUpgrade() const;
 	bool IsUnitEraUpgrade() const;
@@ -390,6 +391,7 @@ private:
 	int m_iCooldown;
 	int m_iGlobalFaithCooldown;
 	int m_iLocalFaithCooldown;
+	int m_iFriendlyLandsPromotion;
 	int m_iBeliefUnlock;
 	bool m_bCultureFromExperienceOnDisband;
 	bool m_bIsConvertUnit;

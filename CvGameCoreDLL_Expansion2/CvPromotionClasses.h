@@ -257,9 +257,7 @@ public:
 	int GetNearbyFriendlyCityCombatMod() const;
 	int GetNearbyEnemyCityCombatMod() const;
 	bool IsNearbyPromotion() const;
-	bool IsFriendlyLands() const;
 	int GetNearbyRange() const;
-	UnitTypes getRequiredUnit() const;
 	bool IsConvertEnemyUnitToBarbarian() const;
 	bool IsConvertOnFullHP() const;
 	bool IsConvertOnDamage() const;
@@ -559,7 +557,6 @@ protected:
 	int m_iNearbyFriendlyCityCombatMod;
 	int m_iNearbyEnemyCityCombatMod;
 	bool m_bIsNearbyPromotion;
-	bool m_bIsFriendlyLands;
 	int m_iNearbyRange;
 	UnitTypes m_eRequiredUnit;
 	int m_iConvertDomainUnit;

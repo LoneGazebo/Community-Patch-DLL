@@ -230,9 +230,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyFriendlyCityCombatMod(0),
 	m_iNearbyEnemyCityCombatMod(0),
 	m_bIsNearbyPromotion(false),
-	m_bIsFriendlyLands(false),
 	m_iNearbyRange(0),
-	m_eRequiredUnit(NO_UNIT),
 	m_iConvertDomainUnit(NO_UNIT),
 	m_iConvertDomain(NO_DOMAIN),
 	m_bIsConvertUnit(false),
@@ -486,10 +484,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
 	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
-	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
-	const char* szUnitType = kResults.GetText("RequiredUnit");
-	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
 	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
@@ -2239,17 +2234,9 @@ bool CvPromotionEntry::IsNearbyPromotion() const
 {
 	return m_bIsNearbyPromotion;
 }
-bool CvPromotionEntry::IsFriendlyLands() const
-{
-	return m_bIsFriendlyLands;
-}
 int CvPromotionEntry::GetNearbyRange() const
 {
 	return m_iNearbyRange;
-}
-UnitTypes CvPromotionEntry::getRequiredUnit() const
-{
-	return m_eRequiredUnit;
 }
 bool CvPromotionEntry::IsConvertEnemyUnitToBarbarian() const
 {

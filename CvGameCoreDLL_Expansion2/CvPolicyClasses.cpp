@@ -216,6 +216,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iDefenseBoost(0),
 	m_eNewCityFreeBuilding(NO_BUILDINGCLASS),
 	m_eAllCityFreeBuilding(NO_BUILDINGCLASS),
+	m_eNewFoundCityFreeUnit(NO_UNITCLASS),
+	m_eNewFoundCityFreeBuilding(NO_BUILDINGCLASS),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -764,6 +766,16 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	if (szAllCityFreeBuilding)
 	{
 		m_eAllCityFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szAllCityFreeBuilding, true);
+	}
+	const char* szNewFoundCityFreeUnit = kResults.GetText("NewFoundCityFreeUnit");
+	if (szNewFoundCityFreeUnit)
+	{
+		m_eNewFoundCityFreeUnit = (UnitClassTypes)GC.getInfoTypeForString(szNewFoundCityFreeUnit, true);
+	}
+	const char* szNewFoundCityFreeBuilding = kResults.GetText("NewFoundCityFreeBuilding");
+	if (szNewFoundCityFreeBuilding)
+	{
+		m_eNewFoundCityFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szNewFoundCityFreeBuilding, true);
 	}
 #endif
 	//Arrays
@@ -1908,6 +1920,14 @@ int CvPolicyEntry::GetNewCityExtraPopulation() const
 	return m_iNewCityExtraPopulation;
 }
 #if defined(MOD_BALANCE_CORE)
+BuildingClassTypes CvPolicyEntry::GetNewFoundCityFreeBuilding() const
+{
+	return m_eNewFoundCityFreeBuilding;
+}
+UnitClassTypes CvPolicyEntry::GetNewFoundCityFreeUnit() const
+{
+	return m_eNewFoundCityFreeUnit;
+}
 BuildingClassTypes CvPolicyEntry::GetNewCityFreeBuilding() const
 {
 	return m_eNewCityFreeBuilding;

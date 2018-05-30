@@ -726,6 +726,8 @@ CvPlayer::CvPlayer() :
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
 	, m_pabFreeChosenBuildingNewCity("CvPlayer::m_pabFreeChosenBuildingNewCity", m_syncArchive)
 	, m_pabAllCityFreeBuilding("CvPlayer::m_pabAllCityFreeBuilding", m_syncArchive)
+	, m_pabNewFoundCityFreeUnit("CvPlayer::m_pabNewFoundCityFreeUnit", m_syncArchive)
+	, m_pabNewFoundCityFreeBuilding("CvPlayer::m_pabNewFoundCityFreeBuilding", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_pabHasGlobalMonopoly("CvPlayer::m_pabHasGlobalMonopoly", m_syncArchive)
@@ -1234,6 +1236,8 @@ void CvPlayer::uninit()
 	m_paiNumCivsConstructingWonder.clear();
 	m_pabFreeChosenBuildingNewCity.clear();
 	m_pabAllCityFreeBuilding.clear();
+	m_pabNewFoundCityFreeUnit.clear();
+	m_pabNewFoundCityFreeBuilding.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_pabHasGlobalMonopoly.clear();
@@ -2142,6 +2146,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_pabAllCityFreeBuilding.clear();
 		m_pabAllCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), false);
+
+		m_pabNewFoundCityFreeUnit.clear();
+		m_pabNewFoundCityFreeUnit.resize(GC.getNumUnitClassInfos(), false);
+
+		m_pabNewFoundCityFreeBuilding.clear();
+		m_pabNewFoundCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), false);
 
 		m_paiNumCivsConstructingWonder.clear();
 		m_paiNumCivsConstructingWonder.resize(GC.getNumBuildingInfos(), 0);
@@ -19001,7 +19011,32 @@ void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingCla
 {
 	m_paiNumCitiesFreeChosenBuilding.setAt(eBuildingClass, (m_paiNumCitiesFreeChosenBuilding[eBuildingClass] + iChange));
 }
-
+/// New Founded City waiting to get a free unit?
+bool CvPlayer::IsFreeUnitNewFoundCity(UnitClassTypes eUnitClass) const
+{
+	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitClass > -1, "Index out of bounds");
+	return m_pabNewFoundCityFreeUnit[eUnitClass];
+}
+//	--------------------------------------------------------------------------------
+/// Changes number of newly founded cities to get a free building
+void CvPlayer::ChangeNewFoundCityFreeUnit(UnitClassTypes eUnitClass, bool bValue)
+{
+	m_pabNewFoundCityFreeUnit.setAt(eUnitClass, bValue);
+}
+/// New Founded City waiting to get a free building?
+bool CvPlayer::IsFreeBuildingNewFoundCity(BuildingClassTypes eBuildingClass) const
+{
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingClass > -1, "Index out of bounds");
+	return m_pabNewFoundCityFreeBuilding[eBuildingClass];
+}
+//	--------------------------------------------------------------------------------
+/// Changes number of newly founded cities to get a free building
+void CvPlayer::ChangeNewFoundCityFreeBuilding(BuildingClassTypes eBuildingClass, bool bValue)
+{
+	m_pabNewFoundCityFreeBuilding.setAt(eBuildingClass, bValue);
+}
 /// Cities remaining to get a free building
 bool CvPlayer::IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const
 {
@@ -43611,6 +43646,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
 		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), iChange);
+	}
+	if (pPolicy->GetNewFoundCityFreeBuilding() != NO_BUILDINGCLASS)
+	{
+		ChangeNewFoundCityFreeBuilding(pPolicy->GetNewFoundCityFreeBuilding(), iChange);
+	}
+	if (pPolicy->GetNewFoundCityFreeUnit() != NO_UNITCLASS)
+	{
+		ChangeNewFoundCityFreeUnit(pPolicy->GetNewFoundCityFreeUnit(), iChange);
 	}
 #endif
 

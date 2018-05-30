@@ -421,7 +421,6 @@ CvUnit::CvUnit() :
 	, m_inearbyCityCombatMod("CvUnit::m_inearbyCityCombatMod", m_syncArchive)
 	, m_inearbyFriendlyCityCombatMod("CvUnit::m_inearbyFriendlyCityCombatMod", m_syncArchive)
 	, m_inearbyEnemyCityCombatMod("CvUnit::m_inearbyEnemyCityCombatMod", m_syncArchive)
-	, m_bIsFriendlyLands("CvUnit::m_bIsFriendlyLands", m_syncArchive)
 	, m_iPillageBonusStrengthPercent("CvUnit::m_iPillageBonusStrengthPercent", m_syncArchive)
 	, m_iStackedGreatGeneralExperience("CvUnit::m_iStackedGreatGeneralExperience", m_syncArchive)
 	, m_bIsHighSeaRaider("CvUnit::m_bIsHighSeaRaider", m_syncArchive)
@@ -1513,7 +1512,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_inearbyCityCombatMod = 0;
 	m_inearbyFriendlyCityCombatMod = 0;
 	m_inearbyEnemyCityCombatMod = 0;
-	m_bIsFriendlyLands = false;
 	m_iPillageBonusStrengthPercent = 0;
 	m_iStackedGreatGeneralExperience = 0;
 	m_bIsHighSeaRaider = false;
@@ -2477,7 +2475,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				int iExperience = getExperienceTimes100() / 100;
 				if(iExperience > 0)
 				{
+					float fDelay = 0.5f;
 					GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
+					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = { 0 };
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+					}
 				}
 			}
 		}
@@ -14680,7 +14686,15 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			int iExperience = getExperienceTimes100() / 100;
 			if(iExperience > 0)
 			{
+				float fDelay = 0.5f;
 				GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
+				if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = { 0 };
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+					DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+				}
 			}
 		}
 #endif
@@ -18061,21 +18075,6 @@ int CvUnit::getNearbyEnemyCityCombatMod() const
 {
 	VALIDATE_OBJECT
 	return m_inearbyEnemyCityCombatMod;
-}
-void CvUnit::ChangeIsFriendlyLands(int iValue)
-{
-	VALIDATE_OBJECT
-	m_bIsFriendlyLands += iValue;
-}
-int CvUnit::GetIsFriendlyLands() const
-{
-	VALIDATE_OBJECT
-	return	m_bIsFriendlyLands;
-}
-bool CvUnit::isFriendlyLands() const
-{
-	VALIDATE_OBJECT
-	return GetIsFriendlyLands() > 0;
 }
 int CvUnit::getPillageBonusStrengthPercent() const
 {
@@ -23967,26 +23966,23 @@ void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
 	}
 	if(pPlot != NULL)
 	{
-		
-		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		if (m_pUnitInfo->GetFriendlyLandsPromotion() != NO_PROMOTION)
 		{
-			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
-			if(pkPromotionInfo != NULL)
+			const PromotionTypes eFriendlyLandsPromotion = m_pUnitInfo->GetFriendlyLandsPromotion();
+			if (pPlot->IsFriendlyTerritory(getOwner())
+				|| (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(getTeam())))
+
 			{
-				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == getUnitType())
+				if (!isHasPromotion(eFriendlyLandsPromotion))
 				{
-					if(pPlot->IsFriendlyTerritory(getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(getTeam())))
-					{
-						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
-						{
-							setHasPromotion(eLoopPromotion, true);
-						}
-					}
-					else
-					{
-						setHasPromotion(eLoopPromotion, false);
-					}
+					setHasPromotion(eFriendlyLandsPromotion, true);
+				}
+			}
+			else
+			{
+				if (isHasPromotion(eFriendlyLandsPromotion))
+				{
+					setHasPromotion(eFriendlyLandsPromotion, false);
 				}
 			}
 		}
@@ -26792,7 +26788,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
 		ChangeNearbyFriendlyCityCombatMod((thisPromotion.GetNearbyFriendlyCityCombatMod()) * iChange);
 		ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
-		ChangeIsFriendlyLands((thisPromotion.IsFriendlyLands()) ? iChange : 0);
 		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
 		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
 		ChangeIsHighSeaRaider((thisPromotion.IsHighSeaRaider()) ? iChange : 0);
