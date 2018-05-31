@@ -23249,15 +23249,15 @@ void CvUnit::changeExtraAttacks(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-// Citadel
-bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot) const
+// Citadel (no longer used)
+bool CvUnit::IsNearEnemyCitadel(const CvPlot* pInPlot) const
 {
 	VALIDATE_OBJECT
 
 	if (pInPlot == NULL)
 		pInPlot = plot();
 
-	return pInPlot->IsNearEnemyCitadel( getOwner(), &iCitadelDamage);
+	return pInPlot->IsNearEnemyCitadel(getOwner());
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------

@@ -2464,7 +2464,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0))
+			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID()))
 				bHarmful = true;
 
 			//makes us slow

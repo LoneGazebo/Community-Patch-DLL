@@ -14356,10 +14356,18 @@ bool CvPlot::HasWrittenArtifact() const
 	}
 	return bRtnValue;
 }
-
+// Citadel
+bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+	if (GetDangerPlotDamage(ePlayer) > 0)
+		return true;
+	else
+		return false;
+}
 //	--------------------------------------------------------------------------------
 // Citadel
-bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
+int CvPlot::GetDangerPlotDamage(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
 
@@ -14367,8 +14375,9 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 	CvPlot* pLoopPlot;
 
 	ImprovementTypes eImprovement;
-	int iDamage;
-
+	int iDamage = 0;
+	int iTemp;
+	int iTemp2;
 	// Look around this Unit to see if there's an adjacent Citadel
 	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
 	{
@@ -14383,36 +14392,34 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 				// Citadel here?
 				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
 				{
-					iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+					iTemp = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
 					if(pLoopPlot->getOwner() != NO_PLAYER)
 					{
 						if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
 						{
-							if(piCitadelDamage)
-								*piCitadelDamage = iDamage;
-							return true;
+							if (iTemp > iDamage)
+								iDamage = iTemp;
 						}
 					}
 				}
 				// Unit here that acts like a citadel?
-				else if (pLoopPlot->getNumUnits() != 0)
+				if (pLoopPlot->getNumUnits() != 0)
 				{
 					for (int iZ = 0; iZ < pLoopPlot->getNumUnits(); iZ++)
 					{
 						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
 						if (pLoopUnit != NULL && pLoopUnit->getNearbyEnemyDamage() != 0 && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
 						{
-							iDamage = pLoopUnit->getNearbyEnemyDamage();
-							if (piCitadelDamage)
-								*piCitadelDamage = iDamage;
-							return true;
+							iTemp2 = pLoopUnit->getNearbyEnemyDamage();
+							if (iTemp2 > iDamage)
+								iDamage = iTemp2;
 						}
 					}
 				}
 			}
 		}
 	}
-	return false;
+	return iDamage;
 }
 
 //	---------------------------------------------------------------------------

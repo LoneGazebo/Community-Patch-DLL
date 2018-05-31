@@ -11520,9 +11520,10 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// then damage it again
-		int iCitadelDamage;
-		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
+		int iCitadelDamage = pLoopUnit->plot()->GetDangerPlotDamage(pLoopUnit->getOwner());
+		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
+			
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
