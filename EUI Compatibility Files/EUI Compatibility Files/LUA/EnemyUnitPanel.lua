@@ -2102,7 +2102,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local myCityMaxHP = myCity:GetMaxHitPoints();
 	local myCityCurHP = myCity:GetDamage();
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
-	local myCityStrength = myCity:GetStrengthValue();
+	local myCityStrength = myCity:GetStrengthValue(true);
 	
 	local theirUnitMaxHP = GameDefines["MAX_HIT_POINTS"];
 	local theirUnitCurHP = theirUnit:GetDamage();
