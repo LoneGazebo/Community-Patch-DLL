@@ -1902,6 +1902,28 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += PolicyInfo->GetUnitPurchaseCostModifier() * 2;
 		}
 	}
+	if (PolicyInfo->GetNewFoundCityFreeBuilding() != NO_BUILDINGCLASS)
+	{
+		if (pPlayerTraits->IsExpansionist())
+		{
+			yield[YIELD_GOLD] += 100;
+		}
+		else
+		{
+			yield[YIELD_GOLD] += 50;
+		}
+	}
+	if (PolicyInfo->GetNewFoundCityFreeUnit() != NO_UNITCLASS)
+	{
+		if (pPlayerTraits->IsExpansionist())
+		{
+			yield[YIELD_GOLD] += 100;
+		}
+		else
+		{
+			yield[YIELD_GOLD] += 50;
+		}
+	}
 	if (PolicyInfo->GetBuildingPurchaseCostModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())

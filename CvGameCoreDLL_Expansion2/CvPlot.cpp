@@ -3001,7 +3001,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 #if defined(MOD_CIV6_WORKER)
 	if (MOD_CIV6_WORKER)
 	{
-		iTime = GC.getBuildInfo(eBuild)->getBuilderCost() * 100;
+		iTime = 0;
 	}
 #endif
 	return iTime;
@@ -9652,7 +9652,7 @@ int CvPlot::getYield(YieldTypes eIndex) const
 	return (int)(m_aiYield[eIndex]);
 }
 
-int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature) const
+int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, bool bDisplay) const
 {
 	ResourceTypes eResource;
 	int iYield;
@@ -9746,6 +9746,99 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	if(isCoastalLand())
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
+	}
+
+	const CvCity* pOwningCity = getOwningCity();
+	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
+	{
+		iYield = std::max(iYield, kYield.getMinCity());
+
+		if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
+		{
+			iYield += kYield.getCityChange();
+
+			if (kYield.getPopulationChangeDivisor() != 0)
+			{
+				iYield += (pOwningCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
+			}
+		}
+
+		// Mod for Player; used for Policies and such
+		iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityYieldChanges(eYield);
+
+		// Coastal City Mod
+		if (pOwningCity->isCoastal())
+		{
+			iYield += GET_PLAYER(ePlayer).GetCoastalCityYieldChange(eYield);
+
+			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
+
+		}
+
+		if (MOD_BALANCE_YIELD_SCALE_ERA)
+		{
+			//Flatland City Fresh Water yields
+			if (!isHills() && !isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityFlatFreshWater();
+			}
+			//Flatland City No Fresh Water yields
+			if (!isHills() && !isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityFlatNoFreshWater();
+			}
+			// Hill City Fresh Water yields
+			if (isHills() && isFreshWater())
+			{
+				iYield += kYield.getMinCityHillFreshWater();
+			}
+			// Hill City No Fresh Water yields
+			if (isHills() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityHillNoFreshWater();
+			}
+			// Mountain City Fresh Water yields
+			if (isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainFreshWater();
+			}
+			// Mountain City No Fresh Water yields
+			if (isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainNoFreshWater();
+			}
+			if (pOwningCity->HasGarrison())
+			{
+				CvUnit* pUnit = pOwningCity->GetGarrisonedUnit();
+				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
+				{
+					int iGarrisonstrength = pUnit->GetBaseCombatStrength();
+					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * iGarrisonstrength) / 8);
+				}
+			}
+		}
+
+		int iTemp = GET_PLAYER(ePlayer).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
+
+																				// Capital Mod
+		if (pOwningCity->isCapital())
+		{
+			iTemp += GET_PLAYER(ePlayer).GetCapitalYieldChangeTimes100(eYield);
+
+			iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
+
+			int iPerPopYield = pOwningCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
+			iPerPopYield /= 100;
+			iYield += iPerPopYield;
+
+			if (GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
+			{
+				int iPerPopYieldEmpire = GET_PLAYER(ePlayer).getCurrentTotalPop() / GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield);
+				iYield += iPerPopYieldEmpire;
+			}
+		}
+
+		iYield += (iTemp / 100);
 	}
 
 	return std::max(0, iYield);
@@ -10344,7 +10437,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 
 	int iYield = 0;
 
-	bool bCity = false;
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -10406,9 +10498,34 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 			}
 		}
 	}
+	if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+	{
+		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+		// Policy improvement yield changes
+		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
 
+		if (!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+		{
+			// Trait player improvement yield changes that don't require a trade route connection
+			iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+		}
+		// Team Tech Yield Changes
+		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
+
+		if (isFreshWater())
+		{
+			// Team Tech Yield Changes
+			iYield += kTeam.getImprovementFreshWaterYieldChange(eImprovement, eYield);
+		}
+		else
+		{
+			// Team Tech Yield Changes
+			iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
+		}
+	}
+	
 	FeatureTypes eFeature = getFeatureType();
-
+	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
 	if (kPlayer.GetPlayerTraits()->IsTradeRouteOnly() && getOwner() == kPlayer.GetID())
 	{
 		if (eFeature == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
@@ -10470,25 +10587,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 					iYield += iScale;
 				}
 			}
-
-			CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-
-			iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
-
-			if (!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
-			{
-				iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
-			}
-			iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
-
-			if (isFreshWater())
-			{
-				iYield += kTeam.getImprovementFreshWaterYieldChange(eImprovement, eYield);
-			}
-			else
-			{
-				iYield += kTeam.getImprovementNoFreshWaterYieldChange(eImprovement, eYield);
-			}
 		}
 	}
 	else
@@ -10525,22 +10623,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 		}
 	}
 	iYield += iBonusYield;
-
-	CvCity* pCity = getPlotCity();
-
-	if (pCity != NULL)
-	{
-		if (!bDisplay || pCity->isRevealed(GC.getGame().getActiveTeam(), false))
-		{
-			iYield += kYield.getCityChange();
-
-			if (kYield.getPopulationChangeDivisor() != 0)
-			{
-				iYield += (pCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
-			}
-			bCity = true;
-		}
-	}
 
 	if (pOwningCity != NULL)
 	{
@@ -10675,91 +10757,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 		}
 	}
 
-	if (bCity)
-	{
-		iYield = std::max(iYield, kYield.getMinCity());
-
-		// Mod for Player; used for Policies and such
-
-
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
-
-		iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
-
-
-		// Coastal City Mod
-		if (pCity->isCoastal())
-		{
-			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
-
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
-
-		}
-
-		if (MOD_BALANCE_YIELD_SCALE_ERA && pCity->plot() == this)
-		{
-			//Flatland City Fresh Water yields
-			if (!isHills() && !isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatFreshWater();
-			}
-			//Flatland City No Fresh Water yields
-			if (!isHills() && !isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityFlatNoFreshWater();
-			}
-			// Hill City Fresh Water yields
-			if (isHills() && isFreshWater())
-			{
-				iYield += kYield.getMinCityHillFreshWater();
-			}
-			// Hill City No Fresh Water yields
-			if (isHills() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityHillNoFreshWater();
-			}
-			// Mountain City Fresh Water yields
-			if (isMountain() && isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainFreshWater();
-			}
-			// Mountain City No Fresh Water yields
-			if (isMountain() && !isFreshWater())
-			{
-				iYield += kYield.getMinCityMountainNoFreshWater();
-			}
-			if (pCity->HasGarrison())
-			{
-				CvUnit* pUnit = pCity->GetGarrisonedUnit();
-				if (pUnit != NULL && pUnit->GetGarrisonYieldChange(eYield) > 0)
-				{
-					int igarrisonstrength = pUnit->GetBaseCombatStrength();
-					iYield += ((pUnit->GetGarrisonYieldChange(eYield) * igarrisonstrength) / 8);
-				}
-			}
-		}
-
-		// Capital Mod
-		if (pCity->isCapital())
-		{
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
-
-			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
-
-			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
-			iPerPopYield /= 100;
-			iYield += iPerPopYield;
-
-			if (GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
-			{
-				int iPerPopYieldEmpire = GET_PLAYER(getOwner()).getCurrentTotalPop() / GET_PLAYER(getOwner()).GetCapitalYieldPerPopChangeEmpire(eYield);
-				iYield += iPerPopYieldEmpire;
-			}
-		}
-
-		iYield += (iTemp / 100);
-	}
-
 	if (eFeature != NO_FEATURE)
 	{
 		// Player Trait
@@ -10840,16 +10837,13 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	}
 	else
 	{
-		ePlayer = getOwner();
-		eImprovement = getImprovementType();
-		eRoute = getRouteType();
+		ePlayer = getOwner() != NO_PLAYER ? getOwner() : NO_PLAYER;
+		eImprovement = getImprovementType() != NO_IMPROVEMENT ? getImprovementType() : NO_IMPROVEMENT;
+		eRoute = getRouteType() != NO_ROUTE ? getRouteType() : NO_ROUTE;
 	}
 
-	int iYield = calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
-	if (!isCity())
-	{
-		iYield += calculateNatureYield(eYield, ePlayer, false);
-	}
+	int iYield = calculateNatureYield(eYield, ePlayer, false, bDisplay);
+	iYield += calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
 	iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, eRoute);
 	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
@@ -12302,75 +12296,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 					}
 				}
 				// If we want to prompt the user about archaeology, let's record that
-#if defined(MOD_CIV6_WORKER)
-				if (MOD_CIV6_WORKER && newImprovementEntry.IsPromptWhenComplete() && bNewBuild)
-				{
-					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
-					{
-						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
-						kPlayer.GetCulture()->AddDigCompletePlot(this);
-
-						if (kPlayer.isHuman())
-						{
-							CvNotifications* pNotifications;
-							Localization::String locString;
-							Localization::String locSummary;
-							pNotifications = kPlayer.GetNotifications();
-							if (pNotifications)
-							{
-								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
-								CancelActivePlayerEndTurn();
-							}
-
-#if !defined(NO_ACHIEVEMENTS)
-							// Raiders of the Lost Ark achievement
-							const char* szCivKey = kPlayer.getCivilizationTypeKey();
-							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
-							{
-								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-								szCivKey = kPlotOwner.getCivilizationTypeKey();
-								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
-								{
-									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-									{
-										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
-										{
-											szCivKey = kLoopPlayer.getCivilizationTypeKey();
-											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
-											{
-												CvUnit *pLoopUnit;
-												int iUnitLoop;
-												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
-												{
-													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
-													{
-														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
-														{
-															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-#endif
-						}
-						else
-						{
-							ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
-							kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
-						}
-					}
-				}
-				else if (!MOD_CIV6_WORKER && newImprovementEntry.IsPromptWhenComplete())
-#else
 				if (newImprovementEntry.IsPromptWhenComplete())
-#endif
 				{
 					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{

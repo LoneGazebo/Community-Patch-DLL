@@ -182,6 +182,8 @@ public:
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	int GetTradeRouteYieldModifierCapital() const;
+	BuildingClassTypes GetNewFoundCityFreeBuilding() const;
+	UnitClassTypes GetNewFoundCityFreeUnit() const;
 	BuildingClassTypes GetNewCityFreeBuilding() const;
 	BuildingClassTypes GetAllCityFreeBuilding() const;
 	
@@ -579,9 +581,12 @@ private:
 	int m_iPositiveWarScoreTourismMod;
 	int m_iInternalTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifierCapital;
+#if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eNewCityFreeBuilding;
 	BuildingClassTypes m_eAllCityFreeBuilding;
-
+	UnitClassTypes m_eNewFoundCityFreeUnit;
+	BuildingClassTypes m_eNewFoundCityFreeBuilding;
+#endif
 	bool m_bNoCSDecayAtWar;
 	bool m_bBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;

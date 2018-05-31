@@ -559,6 +559,12 @@ public:
 	int GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const;
 	void ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange);
 
+	bool IsFreeUnitNewFoundCity(UnitClassTypes eUnitClass) const;
+	void ChangeNewFoundCityFreeUnit(UnitClassTypes eUnitClass, bool bValue);
+
+	bool IsFreeBuildingNewFoundCity(BuildingClassTypes eBuildingClass) const;
+	void ChangeNewFoundCityFreeBuilding(BuildingClassTypes eBuildingClass, bool bValue);
+
 	bool IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const;
 	void ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass, bool bValue);
 
@@ -3547,6 +3553,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCitiesFreeChosenBuilding;
 	FAutoVariable<std::vector<int>, CvPlayer> m_pabFreeChosenBuildingNewCity;
 	FAutoVariable<std::vector<int>, CvPlayer> m_pabAllCityFreeBuilding;
+	FAutoVariable<std::vector<int>, CvPlayer> m_pabNewFoundCityFreeUnit;
+	FAutoVariable<std::vector<int>, CvPlayer> m_pabNewFoundCityFreeBuilding;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
