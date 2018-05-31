@@ -783,12 +783,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	if (pUnit->getDomainType() == DOMAIN_AIR)
 		return GetAirUnitDamage(pUnit, iAirAction);
 
-	//simple caching for speedup
-	SUnitInfo unitStats(pUnit, unitsToIgnore);
-	for (size_t i=0; i<m_lastResults.size(); i++)
-		if (unitStats == m_lastResults[i].first)
-			return m_lastResults[i].second;
-
 	//otherwise calculate from scratch
 	int iPlotDamage = 0;
 
@@ -818,42 +812,20 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 						return m_bEnemyCanCapture ? MAX_INT : 0;
 					}
 				}
-				// Look for a possible plot defender
 				else 
 				{
-					IDInfo* pUnitNode = m_pPlot->headUnitNode();
-					CvUnit* pBestDefender = NULL;
-					while (pUnitNode != NULL)
-					{
-						pBestDefender = ::getUnit(*pUnitNode);
-						pUnitNode = m_pPlot->nextUnitNode(pUnitNode);
-
-						if (pBestDefender && pBestDefender->getOwner() == pUnit->getOwner())
-						{
-							//fix endless recursion with stacked embarked civilians: defender must also be able to attack
-							if (pBestDefender->IsCanDefend() && pBestDefender->IsCanAttack())
-							{
-								if (pBestDefender != pUnit)
-								{
-									if (pBestDefender->isWaiting() || !(pBestDefender->canMove()))
-									{
-										break;
-									}
-								}
-							}
-						}
-						pBestDefender = NULL;
-					}
+					//this only works because the civilian is not embarked!
+					CvUnit* pBestDefender = m_pPlot->getBestDefender(pUnit->getOwner());
 
 					// If there is a defender and it might be killed, high danger
-					if (pBestDefender && (pBestDefender->isWaiting() || !pBestDefender->canMove()))
+					if (pBestDefender)
 					{
 						if (GetDanger(pBestDefender,unitsToIgnore,iAirAction) > pBestDefender->GetCurrHitPoints())
 						{
 							return m_bEnemyCanCapture ? MAX_INT : 0;
 						}
 					}
-					else if (pBestDefender==NULL)
+					else
 					{
 						//Civilian could be captured on this tile
 						if (m_bEnemyCanCapture && pAttacker->isNativeDomain(m_pPlot))
@@ -889,13 +861,15 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
 		}
 
-		//update cache
-		m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
-		if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
-			m_lastResults.erase(m_lastResults.begin());
-
 		return iPlotDamage;
 	}
+
+	//simple caching for speedup
+	//only for combat units - civilian danger depends on cover from other units, hard to cache that
+	SUnitInfo unitStats(pUnit, unitsToIgnore);
+	for (size_t i=0; i<m_lastResults.size(); i++)
+		if (unitStats == m_lastResults[i].first)
+			return m_lastResults[i].second;
 
 	// Capturing a city with a garrisoned unit destroys the garrisoned unit
 	if (pFriendlyCity)

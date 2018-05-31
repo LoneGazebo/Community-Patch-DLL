@@ -49503,7 +49503,7 @@ void CvPlayer::computeAveragePlotFoundValue()
 	OutputDebugString(CvString::format("Average city site value for player %d is %d\n", m_eID.get(), iAvg).c_str());
 
 	//assuming a normal distribution, this should allow all but the worst plots
-	m_iReferenceFoundValue = iAvg - iAvg / 4;
+	m_iReferenceFoundValue = iAvg - iAvg / 3;
 }
 
 void CvPlayer::updatePlotFoundValues()

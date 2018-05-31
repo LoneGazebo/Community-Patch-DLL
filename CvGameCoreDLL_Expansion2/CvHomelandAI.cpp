@@ -3253,7 +3253,7 @@ void CvHomelandAI::ExecuteUnassignedUnitMoves()
 
 		if (pUnit->IsCivilianUnit())
 		{
-			MoveCivilianToSafety(pUnit, true, false);
+			MoveCivilianToSafety(pUnit);
 			continue;
 		}
 
@@ -3803,13 +3803,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			AI_PERF_FORMAT("Homeland-ExecuteWorkerMoves-perf.csv", ("ExecuteWorkerMoves, Turn %03d, %s, Unit %d, at x=%d, y=%d", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), pUnit->GetID(), pUnit->getX(), pUnit->getY()) );
 
 			//fallout also counts as danger, so set the threshold a bit higher
-			if(pPlot && pUnit->GetDanger(pPlot)>pUnit->GetCurrHitPoints()/2 && !pPlot->getBestDefender(m_pPlayer->GetID()))
+			if(pPlot && pUnit->GetDanger(pPlot)>pUnit->GetCurrHitPoints()/2)
 			{
-#if defined(MOD_AI_SECONDARY_WORKERS)
-				if(MoveCivilianToSafety(pUnit, false, bSecondary))
-#else
 				if(MoveCivilianToSafety(pUnit))
-#endif
 				{
 					if(GC.getLogging() && GC.GetBuilderAILogging())
 					{
@@ -3863,7 +3859,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			// if there's nothing else to do, move to the safest spot nearby
 			if (pUnit->GetDanger()>0)
-				MoveCivilianToSafety(pUnit, true /*bIgnoreUnits*/);
+				MoveCivilianToSafety(pUnit);
 			else
 				MoveCivilianToGarrison(pUnit);
 
@@ -6657,114 +6653,12 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 	return false;
 }
 #endif
+
 /// Fleeing to safety for civilian units
-#if defined(MOD_AI_SECONDARY_WORKERS)
-bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool bSecondary)
-#else
-bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
-#endif
+bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 {
-	WeightedPlotVector aBestPlotList;
-	ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn();
-	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
-	{
-		{
-			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-
-			if(!pLoopPlot->isValidMovePlot(pUnit->getOwner(),!pUnit->isRivalTerritory()))
-			{
-				continue;
-			}
-
-			if(pLoopPlot->isVisibleEnemyUnit(pUnit))
-			{
-				continue;
-			}
-
-			int iValue = 0;
-			if(pLoopPlot->getOwner() != NO_PLAYER && GET_PLAYER(pLoopPlot->getOwner()).getTeam() == m_pPlayer->getTeam())
-			{
-				// if this is within our territory, provide a minor benefit
-				iValue += 5;
-			}
-
-#if defined(MOD_AI_SECONDARY_WORKERS)
-			if (bSecondary && pUnit->getDomainType() == DOMAIN_LAND && pLoopPlot->isWater()) {
-				// being embarked is NOT safe!
-				iValue -= 125;
-			}
-#endif
-
-			CvCity* pCity = pLoopPlot->getPlotCity();
-			if(pCity && pCity->getTeam() == pUnit->getTeam())
-			{
-				iValue += pCity->getStrengthValue();
-
-				if(pCity->getDamage() <= 0)
-				{
-					//We should always hide in cities if we can.
-					iValue *= 1000;
-				}
-			}
-			else if(!bIgnoreUnits)
-			{
-				IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-				while(pUnitNode != NULL)
-				{
-					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-					if(pLoopUnit && pLoopUnit->getOwner() == pUnit->getOwner())
-					{
-						if(pLoopUnit->IsCanDefend())
-						{
-							if(pLoopUnit != pUnit)
-							{
-								if(pLoopUnit->isWaiting() || !(pLoopUnit->canMove()))
-								{
-									iValue += pLoopUnit->GetMaxDefenseStrength(pLoopPlot, NULL) * pLoopUnit->GetCurrHitPoints();
-								}
-							}
-						}
-					}
-				}
-			}
-
-			int iDanger = pUnit->GetDanger(pLoopPlot);
-			if (iDanger==INT_MAX)
-				iDanger=10000;
-
-			iValue -= iDanger;
-
-			//tiebreaker ...
-			if (GET_PLAYER(pUnit->getOwner()).isEnemyCombatUnitAdjacent(pLoopPlot,false))
-				iValue-=5;
-			//when in doubt move as far as possible
-			if (it->iMovesLeft==0)
-				iValue++;
-			//don't risk it
-			if (pLoopPlot->isVisible(pUnit->getTeam()))
-				iValue++;
-			//enemy territory is bad
-			if (pLoopPlot->isOwned() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
-				iValue-=3;
-			//try to hide
-			if (pLoopPlot->isVisibleToEnemy(pUnit->getOwner()))
-				iDanger+=10;
-
-			aBestPlotList.push_back(pLoopPlot, iValue);
-		}
-	}
-
 	// Now loop through the sorted score list and go to the best one we can reach in one turn.
-	CvPlot* pBestPlot = NULL;
-	//we already know that the plot is in reach
-	if (aBestPlotList.size()>0)
-	{
-		aBestPlotList.SortItems(); //highest score will be first
-		pBestPlot=aBestPlotList.GetElement(0);
-	}
-
+	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
 	if(pBestPlot != NULL)
 	{
 		if(pUnit->atPlot(*pBestPlot))
@@ -6807,7 +6701,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToTargetButDontEndTurn(pUnit, pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+			MoveToTargetButDontEndTurn(pUnit, pBestPlot, 0);
 			return true;
 		}
 	}

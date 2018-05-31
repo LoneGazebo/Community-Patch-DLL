@@ -4451,10 +4451,7 @@ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bT
 		break;
 
 	case COMMAND_WAKE:
-		if(!IsAutomated() && isWaiting())
-		{
-			return true;
-		}
+		return false; //don't really need this since fortification is automatic now
 		break;
 
 	case COMMAND_CANCEL:
@@ -6654,11 +6651,6 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 		}
 	}
 
-	if(isWaiting())
-	{
-		return false;
-	}
-
 	return true;
 }
 
@@ -6688,11 +6680,6 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
 	}
 
 	if(!canAirDefend(pPlot))
-	{
-		return false;
-	}
-
-	if(isWaiting())
 	{
 		return false;
 	}
@@ -7705,11 +7692,6 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 	}
 
 	if(!IsCanDefend(pPlot))
-	{
-		return false;
-	}
-
-	if(isWaiting())
 	{
 		return false;
 	}
@@ -28114,15 +28096,12 @@ ActivityTypes CvUnit::GetActivityType() const
 void CvUnit::SetActivityType(ActivityTypes eNewValue)
 {
 	VALIDATE_OBJECT
-	CvPlot* pPlot;
-
 	CvAssert(getOwner() != NO_PLAYER);
-
 	ActivityTypes eOldActivity = GetActivityType();
 
 	if(eOldActivity != eNewValue)
 	{
-		pPlot = plot();
+		CvPlot* pPlot = plot();
 
 		m_eActivityType = eNewValue;
 

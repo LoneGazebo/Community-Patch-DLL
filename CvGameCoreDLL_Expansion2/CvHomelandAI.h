@@ -262,11 +262,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool MoveCivilianToGarrison(CvUnit* pUnit);
 #endif
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
-#else
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false);
-#endif
+	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 private:
 
