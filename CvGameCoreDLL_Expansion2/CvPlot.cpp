@@ -10886,14 +10886,14 @@ void CvPlot::updateYield()
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-		updateYieldFast(pOwningCity, pReligion, pBelief);
+		updateYieldFast(pOwningCity, pReligion, pBelief, true);
 		return;
 	}
 
-	updateYieldFast(NULL, NULL, NULL);
+	updateYieldFast(NULL, NULL, NULL, false);
 }
 
-void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon)
+void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bUpdateOwningCity)
 {
 	bool bChange = false;
 	if(getArea() == -1)
@@ -10913,7 +10913,7 @@ void CvPlot::updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityRel
 			int iOldYield = getYield(eYield);
 			m_aiYield[iI] = max(0, iNewYield);
 
-			if(pOwningCity != NULL && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
+			if(pOwningCity != NULL && bUpdateOwningCity)
 			{
 				pOwningCity->ChangeBaseYieldRateFromTerrain(eYield, getYield(eYield) - iOldYield);
 

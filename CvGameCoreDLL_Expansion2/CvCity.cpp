@@ -3327,15 +3327,20 @@ void CvCity::updateYield()
 
 	if (bRecalcPlotYields)
 	{
-		int iI;
-		for (iI = 0; iI < GetNumWorkablePlots(); iI++)
+		//note: since cities' workable areas can overlap, we may process some plots multiple times
+		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+			if(!pLoopPlot || pLoopPlot->getOwner()!=getOwner())
+				continue;
+			
+			//we're trying to avoid CvPlot::GetWorkingCity() for each plot as it's rather slow and this gets called a lot
+			bool bWeAreWorkingIt = GetCityCitizens()->IsWorkingPlot(iI);
+			bool bSomeOtherCityIsWorkingIt = !bWeAreWorkingIt && pLoopPlot->isBeingWorked();
 
-			if(pLoopPlot != NULL && GetCityCitizens()->IsWorkingPlot(iI))
-			{
-				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
-			}
+			//each city updates the plots it is working plus unworked plots
+			if (!bSomeOtherCityIsWorkingIt)
+				pLoopPlot->updateYieldFast(this, pReligion, pPantheon, bWeAreWorkingIt);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
