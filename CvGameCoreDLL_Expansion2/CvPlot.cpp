@@ -583,6 +583,7 @@ void CvPlot::updateFog(bool bDefer)
 
 	if(!bDefer)
 	{
+		//apparently this hides/reveals any units as well. no need to touch them manually. in fact it can lead to infinity recursion?
 		gDLL->GameplayFOWChanged(getX(), getY(), eFOWMode, false);
 	}
 	else
@@ -695,14 +696,11 @@ void CvPlot::updateCenterUnit()
 	// okay, all of the other checks failed - if there is any unit here, make it the center unit
 	if(!getCenterUnit())
 	{
-		IDInfo* pUnitNode;
-		CvUnit* pLoopUnit;
-
-		pUnitNode = headUnitNode();
+		IDInfo* pUnitNode = headUnitNode();
 
 		if(pUnitNode != NULL)
 		{
-			pLoopUnit = GetPlayerUnit(*pUnitNode);
+			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			if(pLoopUnit && !pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType() != DOMAIN_AIR && !pLoopUnit->isInvisible(eActiveTeam,false))
 			{
 				setCenterUnit(pLoopUnit);
@@ -710,13 +708,11 @@ void CvPlot::updateCenterUnit()
 		}
 	}
 
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
 	CvUnit* pCenterUnit = getCenterUnit();
-	pUnitNode = headUnitNode();
+	IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
 		if(pLoopUnit)
@@ -2544,7 +2540,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			break;
 
 #if defined(MOD_BALANCE_CORE)
-		if(pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer) < pkImprovementInfo->GetPrereqNatureYield(iI))
+		if (pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer, NULL) < pkImprovementInfo->GetPrereqNatureYield(iI))
 #else
 		if(calculateNatureYield(((YieldTypes)iI), eTeam) < pkImprovementInfo->GetPrereqNatureYield(iI))
 #endif
@@ -3234,19 +3230,19 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetInterceptorCount(PlayerTypes ePlayer, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+int CvPlot::GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	int iCount = 0;
-	GetBestInterceptor(ePlayer, pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
+	GetBestInterceptor(eAttackingPlayer, pAttackingUnit,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
 	return iCount;
 }
 
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender /* = NULL */, 
+CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit /* = NULL */, 
 	bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
-	if (ePlayer == NO_PLAYER)
+	if (eAttackingPlayer == NO_PLAYER)
 		return NULL;
 
 	VALIDATE_OBJECT
@@ -3255,7 +3251,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eAttackingPlayer).GetPlayersAtWarWith();
 
 	for(size_t iI = 0; iI < vEnemies.size(); iI++)
 	{
@@ -3263,37 +3259,37 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
 
 		//stealth unit? no intercept
-		if(pkDefender && pkDefender->isInvisible(eLoopTeam, false, false))
+		if(pAttackingUnit && pAttackingUnit->isInvisible(eLoopTeam, false, false))
 			continue;
 
 		const std::vector<std::pair<int, int>>& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
-			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(it->first);
+			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
 
-			if (!pUnit || pUnit->isDelayedDeath())
+			if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
 				continue;
 
 			// Must not have already intercepted this turn
-			if (pUnit->isOutOfInterceptions())
+			if (pInterceptorUnit->isOutOfInterceptions())
 				continue;
 
 			// Check input booleans
-			if (bLandInterceptorsOnly && pUnit->getDomainType() != DOMAIN_LAND)
+			if (bLandInterceptorsOnly && pInterceptorUnit->getDomainType() != DOMAIN_LAND)
 				continue;
-			if (bVisibleInterceptorsOnly && !pUnit->plot()->isVisible(getTeam()))
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
 				continue;
 
 			// Test range
-			int iDistance = plotDistance(*pUnitPlot, *this);
-			if( iDistance <= pUnit->getUnitInfo().GetAirInterceptRange() + pUnit->GetExtraAirInterceptRange())
+			int iDistance = plotDistance(*pInterceptorPlot, *this);
+			if( iDistance <= pInterceptorUnit->GetAirInterceptRange())
 			{
-				//do not violate third players' airspace
-				if (isOwned() && !IsFriendlyTerritory(pUnit->getOwner()))
+				//do not violate neutral players' airspace
+				if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
 					continue;
 
-				int iValue = pUnit->currInterceptionProbability();
+				int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBaseCombatStrengthConsideringDamage();
 
 				if (iValue>0 && piNumPossibleInterceptors)
 					(*piNumPossibleInterceptors)++;
@@ -3302,7 +3298,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 				{
 					iBestDistance = iDistance;
 					iBestValue = iValue;
-					pBestUnit = pUnit;
+					pBestUnit = pInterceptorUnit;
 				}
 			}
 		}
@@ -3522,27 +3518,29 @@ bool CvPlot::IsAllowsWalkWater() const
 
 bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-    if (pUnit==NULL)
-        return isWater() && !isIce() && !IsAllowsWalkWater();
-    else
-    {
+	//embarkation only on water plots
+	if (!isWater() || isIce() || IsAllowsWalkWater())
+		return false;
+
+    if (!pUnit)
+        return true;
+
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-        if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
-        {
-            return isDeepWater() && !isIce();
-        }
-        else if (pUnit->getDomainType()==DOMAIN_LAND)
-        {
-#else       
-        //only land units need to embark
-        if (pUnit->getDomainType()==DOMAIN_LAND)
-        {
-#endif      
-            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this) && !pUnit->isConvertUnit();
-        }
-        else
-            return false;
+    if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
+    {
+        return isDeepWater();
     }
+    else if (pUnit->getDomainType()==DOMAIN_LAND)
+    {
+#else       
+    //only land units need to embark
+    if (pUnit->getDomainType()==DOMAIN_LAND)
+    {
+#endif      
+        return !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this) && !pUnit->isConvertUnit();
+    }
+    else
+        return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9654,7 +9652,7 @@ int CvPlot::getYield(YieldTypes eIndex) const
 	return (int)(m_aiYield[eIndex]);
 }
 
-int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bIgnoreFeature, bool bDisplay) const
+int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, bool bIgnoreFeature, bool bDisplay) const
 {
 	ResourceTypes eResource;
 	int iYield;
@@ -9750,7 +9748,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
 	}
 
-	const CvCity* pOwningCity = getOwningCity();
 	if (pOwningCity != NULL && pOwningCity->plot() == this && ePlayer != NO_PLAYER)
 	{
 		iYield = std::max(iYield, kYield.getMinCity());
@@ -10095,7 +10092,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 //	--------------------------------------------------------------------------------
 int CvPlot::calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const
 {
-	return std::max(calculateNatureYield(eIndex, ePlayer, false), calculateNatureYield(eIndex, ePlayer, true));
+	return std::max(calculateNatureYield(eIndex, ePlayer, NULL, false), calculateNatureYield(eIndex, ePlayer, NULL, true));
 }
 
 
@@ -10160,7 +10157,7 @@ int CvPlot::calculateReligionImprovementYield(ImprovementTypes eImprovement, Yie
 	return iReligionChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal, RouteTypes eAssumeThisRoute) const
+int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, bool bOptimal, RouteTypes eAssumeThisRoute) const
 {
 	ResourceTypes eResource;
 	int iBestYield;
@@ -10181,22 +10178,25 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 	if (ePlayer != NO_PLAYER)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		int iAdjacentYield = pImprovement->GetYieldAdjacentSameType(eYield);
-		if (iAdjacentYield > 0)
+		if (iYield > 0 || iCurrentYield > 0)
 		{
-			iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-		}
-
-		int iTwoAdjacentYield = pImprovement->GetYieldAdjacentTwoSameType(eYield);
-		if (iTwoAdjacentYield > 0)
-		{
-			iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
-		}
-
-		if (eYield == YIELD_CULTURE)
-		{
-			iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-			iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+			int iAdjacentYield = pImprovement->GetYieldAdjacentSameType(eYield);
+			if (iAdjacentYield > 0)
+			{
+				iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+			}
+	
+			int iTwoAdjacentYield = pImprovement->GetYieldAdjacentTwoSameType(eYield);
+			if (iTwoAdjacentYield > 0)
+			{
+				iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
+			}
+	
+			if (eYield == YIELD_CULTURE)
+			{
+				iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+				iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+			}
 		}
 
 		if (getTerrainType() != NO_TERRAIN)
@@ -10428,7 +10428,7 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 	return iYield;
 }
 
-int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
+int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, bool bDisplay) const
 {
 	if (ePlayer == NO_PLAYER)
 		return 0;
@@ -10604,7 +10604,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 
 	if (kPlayer.isGoldenAge())
 	{
-		if (iYield >= kYield.getGoldenAgeYieldThreshold())
+		if (iCurrentYield >= kYield.getGoldenAgeYieldThreshold())
 		{
 			iYield += kYield.getGoldenAgeYield();
 		}
@@ -10840,12 +10840,11 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		eRoute = getRouteType() != NO_ROUTE ? getRouteType() : NO_ROUTE;
 	}
 
-	int iYield = calculateNatureYield(eYield, ePlayer, false, bDisplay);
-	iYield += calculatePlayerYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
-	iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, eRoute);
+	int iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, false, bDisplay);
 	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-	
+	iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, eRoute);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, bDisplay);
 
 	return std::max(0, iYield);
 }
@@ -13704,9 +13703,9 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
 
 	// Nature yield
-	iYield = calculateNatureYield(eYield, ePlayer, bIgnoreFeature)
-		+ calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon)
-		+ calculatePlayerYield(eYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
+	iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, bIgnoreFeature);
+	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+	iYield += + calculatePlayerYield(eYield, iYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 
 	// If we're not changing the improvement that's here, use the improvement that's here already
 	if(eImprovement == NO_IMPROVEMENT)
@@ -13743,7 +13742,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 
-		iYield += calculateImprovementYield(eImprovement, eYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+		iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	}
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 
@@ -13987,27 +13986,6 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam, bool bNoSuicide) const
 
 	return iCount;
 }
-
-//	--------------------------------------------------------------------------------
-int CvPlot::countNumAntiAirUnits(TeamTypes eTeam) const
-{
-	int iCount = 0;
-
-	const IDInfo* pUnitNode = headUnitNode();
-	while (pUnitNode != NULL)
-	{
-		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
-		pUnitNode = nextUnitNode(pUnitNode);
-
-		if (pLoopUnit && DOMAIN_LAND == pLoopUnit->getDomainType() && pLoopUnit->getExtraIntercept() > 0 && pLoopUnit->getTeam() == eTeam)
-		{
-			iCount++;
-		}
-	}
-
-	return iCount;
-}
-
 
 //	--------------------------------------------------------------------------------
 PlayerTypes CvPlot::GetBuilderAIScratchPadPlayer() const

@@ -1302,7 +1302,7 @@ if civ5_mode then
 
 			--------------
 			-- Unhappiness
-			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation()
+			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
 			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
 --CBP
 		--local unhappinessFromPop = g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - unhappinessFromPupetCities

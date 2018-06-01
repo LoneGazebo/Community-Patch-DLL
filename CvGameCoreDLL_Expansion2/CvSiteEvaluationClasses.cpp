@@ -912,11 +912,11 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, NO_PLAYER);
+		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, NO_PLAYER, NULL);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, pPlayer->GetID());
+		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, pPlayer->GetID(), NULL);
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -996,11 +996,11 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, NO_PLAYER);
+		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, NO_PLAYER, NULL);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer->GetID());
+		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer->GetID(), NULL);
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -1038,11 +1038,11 @@ int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, NO_PLAYER);
+		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, NO_PLAYER, NULL);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, pPlayer->GetID());
+		rtnValue += pPlot->calculateNatureYield(YIELD_GOLD, pPlayer->GetID(), NULL);
 	}
 
 	// From resource
@@ -1079,11 +1079,11 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPla
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, NO_PLAYER);
+		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, NO_PLAYER, NULL);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer->GetID());
+		rtnValue += pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer->GetID(), NULL);
 	}
 
 	// From resource
@@ -1120,11 +1120,11 @@ int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlaye
 	// From tile yield
 	if(pPlayer == NULL)
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, NO_PLAYER);
+		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, NO_PLAYER, NULL);
 	}
 	else
 	{
-		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, pPlayer->GetID());
+		rtnValue += pPlot->calculateNatureYield(YIELD_FAITH, pPlayer->GetID(), NULL);
 	}
 
 	// From resource

@@ -38,6 +38,7 @@ class CvPathNode;
 class CvTacticalMove;
 #endif
 
+typedef std::vector<int> UnitIdContainer; //use a vector as most of the time this will be empty
 typedef FFastSmallFixedList< MissionData, 12, true, c_eCiv5GameplayDLL > MissionQueue;
 
 struct CvUnitCaptureDefinition
@@ -342,7 +343,7 @@ public:
 	void doHeal();
 	void DoAttrition();
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
-	int GetDanger(const CvPlot* pAtPlot, const set<int>& unitsToIgnore) const;
+	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore) const;
 
 #if defined(MOD_GLOBAL_RELOCATION)
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
@@ -759,6 +760,8 @@ public:
 	void ChangeDamageThreshold(int iValue);
 	const UnitTypes getConvertDamageOrFullHPUnit() const;
 	void ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit);
+	bool canIntercept() const;
+	int GetAirInterceptRange() const;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
@@ -869,8 +872,7 @@ public:
 	void changeNukeImmuneCount(int iValue);
 	int getNukeImmuneCount() const;
 
-	int maxInterceptionProbability() const;
-	int currInterceptionProbability() const;
+	int interceptionProbability() const;
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
@@ -1134,8 +1136,8 @@ public:
 	int getExtraRange() const;
 	void changeExtraRange(int iChange);
 
-	int getExtraIntercept() const;
-	void changeExtraIntercept(int iChange);
+	int getInterceptChance() const;
+	void changeInterceptChance(int iChange);
 
 	int getExtraEvasion() const;
 	void changeExtraEvasion(int iChange);
@@ -1958,7 +1960,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraMoves;
 	FAutoVariable<int, CvUnit> m_iExtraMoveDiscount;
 	FAutoVariable<int, CvUnit> m_iExtraRange;
-	FAutoVariable<int, CvUnit> m_iExtraIntercept;
+	FAutoVariable<int, CvUnit> m_iInterceptChance;
 	FAutoVariable<int, CvUnit> m_iExtraEvasion;
 	FAutoVariable<int, CvUnit> m_iExtraFirstStrikes;
 	FAutoVariable<int, CvUnit> m_iExtraChanceFirstStrikes;

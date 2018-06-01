@@ -2676,14 +2676,14 @@ CvPlot* CvPlayerAI::FindBestCultureBombExpend(CvUnit* pUnit, const std::vector<C
 		return NULL;
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
-	std::set<int> setCandidates;
+	PlotIndexContainer setCandidates;
 
 	CvUnitEntry * pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
 	if (!pkUnitEntry)
 		return NULL;
 
 	// loop through plots and wipe out ones that are invalid
-	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -2759,7 +2759,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombExpend(CvUnit* pUnit, const std::vector<C
 
 		//a set guarantees uniqueness
 		if (bGoodCandidate)
-			setCandidates.insert(vPossibleTiles.begin(), vPossibleTiles.end());
+			setCandidates.insert(setCandidates.end(), vPossibleTiles.begin(), vPossibleTiles.end());
 	}
 
 	std::priority_queue<SPlotWithScore> goodPlots;
@@ -2767,7 +2767,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombExpend(CvUnit* pUnit, const std::vector<C
 	iRange = range(iRange, 1, 5);
 
 	//now that we have a number of possible plots, score each
-	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
+	for (PlotIndexContainer::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
 		int iScore = 0;
@@ -2962,7 +2962,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		return NULL;
 
 	// loop through plots and wipe out ones that are invalid
-	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)

@@ -3204,9 +3204,8 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					m_iNumRangedLandUnits++;
 				}
-				else if(pLoopUnit->getExtraIntercept() > 0)
+				else if(pLoopUnit->canIntercept())
 				{
-					// I'm an anti-air unit
 					m_iNumAntiAirUnits++;
 				}
 				else if(pLoopUnit->getUnitInfo().GetMoves() > 2)

@@ -19,7 +19,10 @@
 #define		CVASTARNODE_H
 #pragma		once
 
+#include <vector>
 #include <unordered_map>
+
+typedef std::vector<int> PlotIndexContainer; //no good place to put this
 
 enum CvAStarNodeAddOp
 {
@@ -158,7 +161,7 @@ struct SPathFinderUserData
 	int			iMaxNormalizedDistance;
 	int			iMinMovesLeft;
 	int			iStartMoves;
-	set<int>	plotsToIgnoreForZOC;
+	PlotIndexContainer plotsToIgnoreForZOC;
 };
 
 //-------------------------------------------------------------------------------------------------

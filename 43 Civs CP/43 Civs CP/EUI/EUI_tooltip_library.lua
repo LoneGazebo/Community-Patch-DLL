@@ -2351,7 +2351,7 @@ local function GetCultureTooltip( city )
 	end
 
 	-- Puppet modifier
-	if (city:IsPuppet()) then
+	if (city:IsPuppet() and culturePerTurn > 0) then
 		local puppetMod = Players[city:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_CULTURE)		
 		if (puppetMod ~= 0) then
 			tips:append( L( "TXT_KEY_PRODMOD_PUPPET", puppetMod ) )

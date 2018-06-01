@@ -882,8 +882,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	{
 		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
 		{
-			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
-			bPlotOccupancyOverride = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+			const PlotIndexContainer& ignorePlots = finder->GetData().plotsToIgnoreForZOC;
+			bPlotOccupancyOverride = ( std::find(ignorePlots.begin(),ignorePlots.end(),pPlot->GetPlotIndex()) != ignorePlots.end());
 		}
 
 		if (!bPlotOccupancyOverride)
@@ -1923,50 +1923,21 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 	{
 		return FALSE;
 	}
-
-	//before we check the route type, check plot ownership
-	if(!pNewPlot->IsFriendlyTerritory(ePlayer))
+	else if ( eRoute == ROUTE_ANY || ePlotRoute >= eRoute ) //a railroad is also a road!
 	{
+		//finally check plot ownership
 		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
-		if(ePlotOwnerPlayer != NO_PLAYER)
+		if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
 		{
-			PlayerTypes eMajorPlayer = NO_PLAYER;
-			PlayerTypes eMinorPlayer = NO_PLAYER;
-			CvPlayer& kPlotOwner = GET_PLAYER(ePlotOwnerPlayer);
-			if(kPlayer.isMinorCiv() && !kPlotOwner.isMinorCiv())
-			{
-				eMajorPlayer = ePlotOwnerPlayer;
-				eMinorPlayer = ePlayer;
-			}
-			else if(kPlotOwner.isMinorCiv() && !kPlayer.isMinorCiv())
-			{
-				eMajorPlayer = ePlayer;
-				eMinorPlayer = ePlotOwnerPlayer;
-			}
+			if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+				//major player without open borders is not ok
+				return pNewPlot->IsFriendlyTerritory(ePlayer);
 			else
-			{
-				return FALSE;
-			}
-
-			if(!GET_PLAYER(eMinorPlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMajorPlayer, MINOR_CIV_QUEST_ROUTE))
-			{
-				return FALSE;
-			}
+				//minor player is ok as long as no war
+				return kPlayer.IsAtPeaceWith(ePlotOwnerPlayer);
 		}
-	}
 
-	//which route types are allowed?
-	if ( eRoute == ROUTE_ANY )
-	{
 		return TRUE;
-	}
-	else
-	{
-		//a railroad is also a road!
-		if(ePlotRoute >= eRoute)
-		{
-			return TRUE;
-		}
 	}
 
 	return FALSE;
@@ -2017,17 +1988,28 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
-	if(pNewPlot->getOwner()!=NO_PLAYER && !pNewPlot->IsFriendlyTerritory(ePlayer))
+	if (!pNewPlot->isWater() && !pNewPlot->isCityOrPassableImprovement(ePlayer,true))
 		return FALSE;
 
-	CvCity* pCity = pNewPlot->getPlotCity();
-	if(pCity && pCity->getTeam() == eTeam)
-		return TRUE;
+	//finally check plot ownership
+	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
+	if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
+	{
+		if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+		{
+			//major player without open borders is not ok
+			if (!pNewPlot->IsFriendlyTerritory(ePlayer))
+				return FALSE;
+		}
+		else
+		{
+			//minor player is ok as long as no war
+			if (GET_PLAYER(ePlayer).IsAtWarWith(ePlotOwnerPlayer))
+				return FALSE;
+		}
+	}
 
-	if(pNewPlot->isWater())
-		return TRUE;
-
-	return FALSE;
+	return TRUE;
 }
 
 //	--------------------------------------------------------------------------------

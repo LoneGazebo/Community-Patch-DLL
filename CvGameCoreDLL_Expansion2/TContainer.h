@@ -10,6 +10,20 @@
 #define		TCONTAINER_H
 #pragma		once
 
+#if (defined(_MSC_VER) && (_MSC_VER >= 1300))
+#  if !defined(_SECURE_SCL)
+#    define _SECURE_SCL 0
+#  endif
+#  if !defined(_HAS_ITERATOR_DEBUGGING)
+#    define _HAS_ITERATOR_DEBUGGING 0
+#  endif
+
+// Safety check. If _SECURE_SCL is off, and _HAS_ITERATOR_DEBUGGING is on, you will crash.
+#  if (_SECURE_SCL == 0) && (_HAS_ITERATOR_DEBUGGING == 1 )
+#    error "_SECURE_SCL == 0 and _HAS_ITERATOR_DEBUGGING == 1. This combination settings can cause crashes."
+#  endif
+#endif
+
 #include <unordered_map>
 #include <vector>
 
