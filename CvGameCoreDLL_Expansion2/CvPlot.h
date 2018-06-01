@@ -176,8 +176,8 @@ public:
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
-	int GetInterceptorCount(PlayerTypes ePlayer, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
-	CvUnit* GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
+	int GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
+	CvUnit* GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
 
 	bool isFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
@@ -689,7 +689,6 @@ public:
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
-	int countNumAntiAirUnits(TeamTypes eTeam) const;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit);

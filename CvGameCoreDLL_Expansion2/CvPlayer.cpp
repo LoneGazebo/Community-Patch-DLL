@@ -46449,24 +46449,20 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	}
 
 	// Must be able to intercept
-	if (pUnit->maxInterceptionProbability() > 0 && !pUnit->isEmbarked())
+	if (pUnit->canIntercept())
 	{
-		// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-		if ((pUnit->getDomainType() != DOMAIN_AIR) || (!pUnit->hasMoved() && pUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+		bool bFound = false;
+		for (size_t i = 0; i < m_unitsWhichCanIntercept.size(); i++)
 		{
-			bool bFound = false;
-			for (size_t i = 0; i < m_unitsWhichCanIntercept.size(); i++)
+			if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
 			{
-				if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
-				{
-					m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
-					bFound = true;
-					break;
-				}
-
-				if (!bFound)
-					m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+				m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
+				break;
 			}
+
+			if (!bFound)
+				m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
 	}
 }
@@ -46495,11 +46491,8 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->isNearbyPromotion())
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
-		// Must be able to intercept
-		if (pLoopUnit->maxInterceptionProbability() > 0 && !pLoopUnit->isEmbarked())
-			// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-			if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || (!pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-				m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+		if (pLoopUnit->canIntercept())
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 	}
 }
 

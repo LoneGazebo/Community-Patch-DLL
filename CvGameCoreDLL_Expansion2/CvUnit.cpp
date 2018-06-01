@@ -182,7 +182,7 @@ CvUnit::CvUnit() :
 	, m_iExtraMoves("CvUnit::m_iExtraMoves", m_syncArchive)
 	, m_iExtraMoveDiscount("CvUnit::m_iExtraMoveDiscount", m_syncArchive)
 	, m_iExtraRange("CvUnit::m_iExtraRange", m_syncArchive)
-	, m_iExtraIntercept("CvUnit::m_iExtraIntercept", m_syncArchive)
+	, m_iInterceptChance("CvUnit::m_iInterceptChance", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iExtraAirInterceptRange("CvUnit::m_iExtraAirInterceptRange", m_syncArchive) // JJ: This is new
 #endif
@@ -1436,7 +1436,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraMoves = 0;
 	m_iExtraMoveDiscount = 0;
 	m_iExtraRange = 0;
-	m_iExtraIntercept = 0;
+	m_iInterceptChance = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iExtraAirInterceptRange = 0; // JJ: This is new
 #endif
@@ -4341,9 +4341,9 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	if(NULL == pAttacker)
 	{
-		if(pDefender->currInterceptionProbability() > 0)
+		if(pDefender->interceptionProbability() > 0)
 		{
-			iOurDefense *= (100 + pDefender->currInterceptionProbability());
+			iOurDefense *= (100 + pDefender->interceptionProbability());
 			iOurDefense /= 100;
 		}
 	}
@@ -4378,9 +4378,9 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	if(NULL == pAttacker)
 	{
-		if(currInterceptionProbability() > 0)
+		if(interceptionProbability() > 0)
 		{
-			iTheirDefense *= (100 + currInterceptionProbability());
+			iTheirDefense *= (100 + interceptionProbability());
 			iTheirDefense /= 100;
 		}
 	}
@@ -16998,7 +16998,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 		pPlot = plot();
 	}
 
-	if(maxInterceptionProbability() == 0)
+	if(getInterceptChance() == 0)
 	{
 		return false;
 	}
@@ -18312,10 +18312,27 @@ const UnitTypes CvUnit::getConvertDamageOrFullHPUnit() const
 	VALIDATE_OBJECT
 	return m_econvertDamageOrFullHPUnit;
 }
+
 void CvUnit::ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit)
 {
 	VALIDATE_OBJECT
 	m_econvertDamageOrFullHPUnit = eUnit;
+}
+
+int CvUnit::GetAirInterceptRange() const
+{
+	return m_pUnitInfo->GetAirInterceptRange() + GetExtraAirInterceptRange();
+}
+
+bool CvUnit::canIntercept() const
+{
+	if (GetAirInterceptRange() > 0 && GetNumInterceptions() > 0 && getInterceptChance() > 0 && !isEmbarked())
+	{
+		// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
+		return getDomainType() != DOMAIN_AIR || (!hasMoved() && GetActivityType() == ACTIVITY_INTERCEPT);
+	}
+
+	return false;
 }
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
@@ -19014,27 +19031,10 @@ int CvUnit::getNoRevealMapCount() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::maxInterceptionProbability() const
+int CvUnit::interceptionProbability() const
 {
-	VALIDATE_OBJECT
-	return std::max(0, getExtraIntercept());
+	return (getInterceptChance() * GetCurrHitPoints()) / GetMaxHitPoints();
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::currInterceptionProbability() const
-{
-	VALIDATE_OBJECT
-	if(getDomainType() != DOMAIN_AIR)
-	{
-		return maxInterceptionProbability();
-	}
-	else
-	{
-		return ((maxInterceptionProbability() * GetCurrHitPoints()) / GetMaxHitPoints());
-	}
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::evasionProbability() const
@@ -19042,7 +19042,6 @@ int CvUnit::evasionProbability() const
 	VALIDATE_OBJECT
 	return std::max(0, getExtraEvasion());
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::withdrawalProbability() const
@@ -22507,18 +22506,18 @@ void CvUnit::changeExtraRange(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getExtraIntercept() const
+int CvUnit::getInterceptChance() const
 {
 	VALIDATE_OBJECT
-	return m_iExtraIntercept;
+	return m_iInterceptChance;
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeExtraIntercept(int iChange)
+void CvUnit::changeInterceptChance(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iExtraIntercept += iChange;
+	m_iInterceptChance += iChange;
 }
 
 
@@ -26631,7 +26630,7 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 	// Max Interception
 	if(promotionInfo->GetInterceptChanceChange() > 0)
 	{
-		if(promotionInfo->GetInterceptChanceChange() + maxInterceptionProbability() > GC.getMAX_INTERCEPTION_PROBABILITY())
+		if(promotionInfo->GetInterceptChanceChange() + getInterceptChance() > GC.getMAX_INTERCEPTION_PROBABILITY())
 			return false;
 	}
 
@@ -26924,7 +26923,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeInterceptionCombatModifier(thisPromotion.GetInterceptionCombatModifier() * iChange);
 		ChangeInterceptionDefenseDamageModifier(thisPromotion.GetInterceptionDefenseDamageModifier() * iChange);
 		ChangeAirSweepCombatModifier(thisPromotion.GetAirSweepCombatModifier() * iChange);
-		changeExtraIntercept(thisPromotion.GetInterceptChanceChange() * iChange);
+		changeInterceptChance(thisPromotion.GetInterceptChanceChange() * iChange);
 		changeExtraEvasion(thisPromotion.GetEvasionChange() * iChange);
 		changeExtraEnemyHeal(thisPromotion.GetEnemyHealChange() * iChange);
 		changeExtraNeutralHeal(thisPromotion.GetNeutralHealChange() * iChange);

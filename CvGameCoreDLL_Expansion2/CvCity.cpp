@@ -30941,9 +30941,6 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		iBaseValue = GetCityAirStrikeDefense();
 
-	iBaseValue += plot()->countNumAirUnits(getTeam(), true);
-	iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
-
 	if (bIncludeRand)
 		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());
 	else

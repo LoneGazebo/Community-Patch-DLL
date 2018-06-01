@@ -885,12 +885,9 @@ private:
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bEscortedUnits);
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
-public:
-	int SamePlotFound(vector<CvPlot*> plotData, CvPlot* plotXy);
-private:
 	void FindAirUnitsToAirSweep(CvPlot* pTarget);
-	CvUnit* GetProbableInterceptor(CvPlot* pTarget) const;
 #endif
+
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
 	int ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget);
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);

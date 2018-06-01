@@ -1649,10 +1649,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
 		// Does the attacker evade?
-		if(GC.getGame().getSmallFakeRandNum(10, plot) * 10 >= kAttacker.evasionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, plot.GetPlotIndex()+kAttacker.GetID()) * 10 >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if (GC.getGame().getSmallFakeRandNum(10, pInterceptor->GetID()) * 10 < pInterceptor->currInterceptionProbability())
+			if (GC.getGame().getSmallFakeRandNum(10, plot.GetPlotIndex()+pInterceptor->GetID()) * 10 < pInterceptor->interceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
 			}
@@ -3192,7 +3192,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 		int iInterceptionDamage = 0;
 
 		// Is the interception successful?
-		if(GC.getGame().getSmallFakeRandNum(10, dropPlot) * 10 < pInterceptor->currInterceptionProbability())
+		if(GC.getGame().getSmallFakeRandNum(10, dropPlot.GetPlotIndex()+pInterceptor->GetID()) * 10 < pInterceptor->interceptionProbability())
 		{
 			iInterceptionDamage = pInterceptor->GetParadropInterceptionDamage(&paraUnit);
 		}

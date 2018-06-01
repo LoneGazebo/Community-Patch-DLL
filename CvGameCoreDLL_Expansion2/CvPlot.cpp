@@ -3230,19 +3230,19 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetInterceptorCount(PlayerTypes ePlayer, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+int CvPlot::GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	int iCount = 0;
-	GetBestInterceptor(ePlayer, pkDefender,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
+	GetBestInterceptor(eAttackingPlayer, pAttackingUnit,bLandInterceptorsOnly,bVisibleInterceptorsOnly,&iCount);
 	return iCount;
 }
 
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender /* = NULL */, 
+CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit /* = NULL */, 
 	bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
-	if (ePlayer == NO_PLAYER)
+	if (eAttackingPlayer == NO_PLAYER)
 		return NULL;
 
 	VALIDATE_OBJECT
@@ -3251,7 +3251,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eAttackingPlayer).GetPlayersAtWarWith();
 
 	for(size_t iI = 0; iI < vEnemies.size(); iI++)
 	{
@@ -3259,37 +3259,37 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
 
 		//stealth unit? no intercept
-		if(pkDefender && pkDefender->isInvisible(eLoopTeam, false, false))
+		if(pAttackingUnit && pAttackingUnit->isInvisible(eLoopTeam, false, false))
 			continue;
 
 		const std::vector<std::pair<int, int>>& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
-			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			CvUnit* pUnit = kLoopPlayer.getUnit(it->first);
+			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
 
-			if (!pUnit || pUnit->isDelayedDeath())
+			if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
 				continue;
 
 			// Must not have already intercepted this turn
-			if (pUnit->isOutOfInterceptions())
+			if (pInterceptorUnit->isOutOfInterceptions())
 				continue;
 
 			// Check input booleans
-			if (bLandInterceptorsOnly && pUnit->getDomainType() != DOMAIN_LAND)
+			if (bLandInterceptorsOnly && pInterceptorUnit->getDomainType() != DOMAIN_LAND)
 				continue;
-			if (bVisibleInterceptorsOnly && !pUnitPlot->isVisible(getTeam()))
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
 				continue;
 
 			// Test range
-			int iDistance = plotDistance(*pUnitPlot, *this);
-			if( iDistance <= pUnit->getUnitInfo().GetAirInterceptRange() + pUnit->GetExtraAirInterceptRange())
+			int iDistance = plotDistance(*pInterceptorPlot, *this);
+			if( iDistance <= pInterceptorUnit->GetAirInterceptRange())
 			{
 				//do not violate neutral players' airspace
 				if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
 					continue;
 
-				int iValue = pUnit->currInterceptionProbability();
+				int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBaseCombatStrengthConsideringDamage();
 
 				if (iValue>0 && piNumPossibleInterceptors)
 					(*piNumPossibleInterceptors)++;
@@ -3298,7 +3298,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 				{
 					iBestDistance = iDistance;
 					iBestValue = iValue;
-					pBestUnit = pUnit;
+					pBestUnit = pInterceptorUnit;
 				}
 			}
 		}
@@ -13989,27 +13989,6 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam, bool bNoSuicide) const
 
 	return iCount;
 }
-
-//	--------------------------------------------------------------------------------
-int CvPlot::countNumAntiAirUnits(TeamTypes eTeam) const
-{
-	int iCount = 0;
-
-	const IDInfo* pUnitNode = headUnitNode();
-	while (pUnitNode != NULL)
-	{
-		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
-		pUnitNode = nextUnitNode(pUnitNode);
-
-		if (pLoopUnit && DOMAIN_LAND == pLoopUnit->getDomainType() && pLoopUnit->getExtraIntercept() > 0 && pLoopUnit->getTeam() == eTeam)
-		{
-			iCount++;
-		}
-	}
-
-	return iCount;
-}
-
 
 //	--------------------------------------------------------------------------------
 PlayerTypes CvPlot::GetBuilderAIScratchPadPlayer() const
