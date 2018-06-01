@@ -3266,7 +3266,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
 			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(it->first);
+			CvUnit* pUnit = kLoopPlayer.getUnit(it->first);
 
 			if (!pUnit || pUnit->isDelayedDeath())
 				continue;
@@ -3278,15 +3278,15 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes ePlayer, const CvUnit* pkDefender
 			// Check input booleans
 			if (bLandInterceptorsOnly && pUnit->getDomainType() != DOMAIN_LAND)
 				continue;
-			if (bVisibleInterceptorsOnly && !pUnit->plot()->isVisible(getTeam()))
+			if (bVisibleInterceptorsOnly && !pUnitPlot->isVisible(getTeam()))
 				continue;
 
 			// Test range
 			int iDistance = plotDistance(*pUnitPlot, *this);
 			if( iDistance <= pUnit->getUnitInfo().GetAirInterceptRange() + pUnit->GetExtraAirInterceptRange())
 			{
-				//do not violate third players' airspace
-				if (isOwned() && !IsFriendlyTerritory(pUnit->getOwner()))
+				//do not violate neutral players' airspace
+				if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
 					continue;
 
 				int iValue = pUnit->currInterceptionProbability();
