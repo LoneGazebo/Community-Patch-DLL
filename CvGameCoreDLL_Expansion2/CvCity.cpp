@@ -3327,25 +3327,31 @@ void CvCity::updateYield()
 
 	if (bRecalcPlotYields)
 	{
-		int iI;
-		for (iI = 0; iI < GetNumWorkablePlots(); iI++)
+		//note: since cities' workable areas can overlap, we may process some plots multiple times
+		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+			if (!pLoopPlot || pLoopPlot->getOwner() != getOwner())
+				continue;
 
-			if(pLoopPlot != NULL && GetCityCitizens()->IsWorkingPlot(iI))
-			{
+			//we're trying to avoid CvPlot::GetWorkingCity() for each plot as it's rather slow and this gets called a lot
+			bool bWeAreWorkingIt = GetCityCitizens()->IsWorkingPlot(iI);
+			bool bSomeOtherCityIsWorkingIt = !bWeAreWorkingIt && pLoopPlot->isBeingWorked();
+
+			//each city updates the plots it is working plus unworked plots
+			if (!bSomeOtherCityIsWorkingIt)
 				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
-			}
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		const YieldTypes eYield = static_cast<YieldTypes>(iI);
-		UpdateCityYields(eYield);
-	}
-	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	GetCityCulture()->CalculateBaseTourism();
+	else
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			const YieldTypes eYield = static_cast<YieldTypes>(iI);
+			UpdateCityYields(eYield);
+		}
+		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		GetCityCulture()->CalculateBaseTourism();
 #endif
 }
 #if defined(MOD_BALANCE_CORE)

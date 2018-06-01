@@ -1211,7 +1211,7 @@ void CvPlot::updateWaterFlags() const
 	{
 		m_bIsLake = false;
 		m_bIsAdjacentToOcean = false;
-		m_bIsAdjacentToLand = true;
+		m_bIsAdjacentToLand = false;
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -10181,26 +10181,22 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 	if (ePlayer != NO_PLAYER)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-
-		if (iYield > 0)
+		int iAdjacentYield = pImprovement->GetYieldAdjacentSameType(eYield);
+		if (iAdjacentYield > 0)
 		{
-			int iAdjacentYield = pImprovement->GetYieldAdjacentSameType(eYield);
-			if (iAdjacentYield > 0)
-			{
-				iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
-			}
+			iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+		}
 
-			int iTwoAdjacentYield = pImprovement->GetYieldAdjacentTwoSameType(eYield);
-			if (iTwoAdjacentYield > 0)
-			{
-				iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
-			}
+		int iTwoAdjacentYield = pImprovement->GetYieldAdjacentTwoSameType(eYield);
+		if (iTwoAdjacentYield > 0)
+		{
+			iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
+		}
 
-			if (eYield == YIELD_CULTURE)
-			{
-				iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-				iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
-			}
+		if (eYield == YIELD_CULTURE)
+		{
+			iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+			iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
 		}
 
 		if (getTerrainType() != NO_TERRAIN)
@@ -11111,17 +11107,12 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	{
 		eResult = VISIBILITY_CHANGE_TO_VISIBLE;
 
-#if defined(MOD_BUGFIX_EXPLORE_REVEALED_PLOT)
-		bool alreadyRevealed = isRevealed(eTeam); // result from setRevealed is not just a simple "we revealed a new plot to the player" and was causing all sorts of issues (poor ai explore decisions, desyncs, etc).
-#endif
-
 #if defined(MOD_API_EXTENSIONS)
 		if (setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
 #else
 		if (setRevealed(eTeam, true))	// Change to revealed, returns true if the visibility was changed
 #endif
 		{
-#if !defined(MOD_BUGFIX_EXPLORE_REVEALED_PLOT)		
 			//we are seeing this plot for the first time
 			if (bInformExplorationTracking)
 			{
@@ -11129,7 +11120,6 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				for (size_t i = 0; i < vPlayers.size(); i++)
 					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 			}
-#endif
 		}
 		else
 		{
@@ -11142,16 +11132,6 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				updateVisibility();
 			}
 		}
-
-#if defined(MOD_BUGFIX_EXPLORE_REVEALED_PLOT)
-		// this team is seeing this plot for the first time		
-		if (bInformExplorationTracking && !alreadyRevealed && isRevealed(eTeam))
-		{
-			vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
-			for (size_t i = 0; i < vPlayers.size(); i++)
-				GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
-		}
-#endif
 
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
