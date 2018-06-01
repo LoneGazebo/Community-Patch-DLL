@@ -2464,7 +2464,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID(), 0))
+			if (pLoopPlot->IsNearEnemyCitadel(GetPlayer()->GetID()))
 				bHarmful = true;
 
 			//makes us slow
@@ -3204,9 +3204,8 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					m_iNumRangedLandUnits++;
 				}
-				else if(pLoopUnit->getExtraIntercept() > 0)
+				else if(pLoopUnit->canIntercept())
 				{
-					// I'm an anti-air unit
 					m_iNumAntiAirUnits++;
 				}
 				else if(pLoopUnit->getUnitInfo().GetMoves() > 2)

@@ -676,7 +676,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 		if(eBuilding != NO_BUILDING)
 		{
-			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass) || GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass))
+			if (GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0
+				|| GET_PLAYER(getOwner()).IsFreeChosenBuildingNewCity(eBuildingClass)
+				|| GET_PLAYER(getOwner()).IsFreeBuildingAllCity(eBuildingClass)
+				|| (GET_PLAYER(getOwner()).IsFreeBuildingNewFoundCity(eBuildingClass) && bInitialFounding))
 			{		
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 				if(pkBuildingInfo)
@@ -700,6 +703,40 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 							chooseProduction();
 							// Send a notification to the user that what they were building was given to them, and they need to produce something else.
 						}
+					}
+				}
+			}
+		}
+	}
+	if (bInitialFounding)
+	{
+		for (int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
+		{
+			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iUnitClassLoop);
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+			if (!pkUnitClassInfo)
+			{
+				continue;
+			}
+			UnitTypes eUnit = ((UnitTypes)(thisCiv.getCivilizationUnits(eUnitClass)));
+			if (eUnit != NO_UNIT)
+			{
+				if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
+				{
+					CvUnit* pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+					bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+					if (bJumpSuccess)
+					{
+						addProductionExperience(pFreeUnit);
+						if (getFirstUnitOrder(eUnit) == 0)
+						{
+							clearOrderQueue();
+							chooseProduction();
+						}
+					}
+					else
+					{
+						pFreeUnit->kill(false);
 					}
 				}
 			}
@@ -3290,15 +3327,20 @@ void CvCity::updateYield()
 
 	if (bRecalcPlotYields)
 	{
-		int iI;
-		for (iI = 0; iI < GetNumWorkablePlots(); iI++)
+		//note: since cities' workable areas can overlap, we may process some plots multiple times
+		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+			if (!pLoopPlot || pLoopPlot->getOwner() != getOwner())
+				continue;
 
-			if(pLoopPlot != NULL && GetCityCitizens()->IsWorkingPlot(iI))
-			{
+			//we're trying to avoid CvPlot::GetWorkingCity() for each plot as it's rather slow and this gets called a lot
+			bool bWeAreWorkingIt = GetCityCitizens()->IsWorkingPlot(iI);
+			bool bSomeOtherCityIsWorkingIt = !bWeAreWorkingIt && pLoopPlot->isBeingWorked();
+
+			//each city updates the plots it is working plus unworked plots
+			if (!bSomeOtherCityIsWorkingIt)
 				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
-			}
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -17515,23 +17557,22 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		if (eImprovement != NULL)
 		{
 			int iYieldChangePerImprovementBuilt = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eImprovement, eYield);
-			if (iYieldChangePerImprovementBuilt != 0)
+			if (iYieldChangePerImprovementBuilt == 0 || (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly() && !isCapital()))
+				continue;
+			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
 			{
-				iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler() && iYieldChangePerImprovementBuilt > 0)
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
 				{
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
-					if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
-					{
-						iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-					}
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				}
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+				{
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+				}
+				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
+				{
+					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
 				}
 			}
 		}
@@ -19984,7 +20025,7 @@ int CvCity::GetLocalHappiness() const
 	if(iHappinessPerGarrison > 0)
 	{
 		CvUnit* pDefender = plot()->getBestDefender(getOwner());
-		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
+		if(pDefender)
 		{
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
@@ -20368,12 +20409,7 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 {
 	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
-	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
-	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	iTech /= max(1, GC.getNumTechInfos());
-	
-	iModifier += iTech;
+	iModifier += GET_PLAYER(getOwner()).GetTechDeviation();
 
 	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
 	int iPopMod = getPopulation() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER();
@@ -26689,7 +26725,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		YieldTypes eYield = (YieldTypes) iI;
 
-		int iYield = pPlot->calculateNatureYield(eYield, getOwner());
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), NULL);
 
 		iTempValue = 0;
 
@@ -29492,9 +29528,19 @@ bool CvCity::doCheckProduction()
 
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
-							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-							localizedText << getNameKey() << pkExpiredBuildingInfo->GetTextKey() << iProductionGold;
-							DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
+							// Notification
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
+								strText << getNameKey();
+								strText << pkExpiredBuildingInfo->GetTextKey();
+								strText << iProductionGold;
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S");
+								strSummary << getNameKey();
+								strSummary << pkExpiredBuildingInfo->GetTextKey();
+								pNotifications->Add(NOTIFICATION_WONDER_BEATEN, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID());
+							}
 						}
 					}
 
@@ -30899,9 +30945,6 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		iBaseValue = GetCityAirStrikeDefense();
-
-	iBaseValue += plot()->countNumAirUnits(getTeam(), true);
-	iBaseValue += (plot()->countNumAntiAirUnits(getTeam()) * 5);
 
 	if (bIncludeRand)
 		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation());

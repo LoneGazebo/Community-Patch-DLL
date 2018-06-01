@@ -2972,25 +2972,9 @@ void CvTacticalAI::PlotHealMoves()
 		CvPlot* pUnitPlot = pUnit->plot();
 		if (pUnitPlot == NULL)
 			continue;
-		int iAcceptableDamage = 20;
 
 		//allow some more damage outside of our borders
-		if (pUnitPlot->getOwner() != pUnit->getOwner())
-		{
-			iAcceptableDamage = 40;
-			if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1)
-			{
-				if (pUnit->pillage())
-				{
-					if (!pUnit->canMove())
-					{
-						UnitProcessed(pUnit->GetID());
-						continue;
-					}
-				}
-			}
-		}
-
+		int iAcceptableDamage = (pUnitPlot->getOwner() == pUnit->getOwner()) ? 20 : 40;
 
 		if (pUnit->getDamage() > iAcceptableDamage && pUnit->getArmyID() == -1 && FindNearbyTarget(pUnit, 5) == NULL)
 			m_HealingUnits.insert(pUnit->GetID());
@@ -3011,9 +2995,7 @@ void CvTacticalAI::PlotHealMoves()
 		UnitProcessed(*it);
 
 	if(m_HealingUnits.size() > 0)
-	{
 		ExecuteHeals();
-	}
 }
 
 /// Assigns a barbarian to go protect an undefended camp
@@ -3244,7 +3226,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 				{
 					int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), false/*bCountFighters*/, true/*bCountBombers*/);
 					int iNumNearbyFighters = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, pUnit->GetRange(), true/*bCountFighters*/, false/*bCountBombers*/);
-					int iNumPlotNumAlreadySet = SamePlotFound(checkedPlotList, pUnitPlot);
+					int iNumPlotNumAlreadySet = std::count(checkedPlotList.begin(), checkedPlotList.end(), pUnitPlot);
 
 					if (iNumNearbyBombers == 1)
 					{
@@ -5945,7 +5927,7 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot
 					else if (pDefender != NULL)
 						iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false) * 3;
 
-					if (GetProbableInterceptor(pTargetPlot) != NULL)
+					if (pTargetPlot->GetBestInterceptor(pUnit->getOwner(),NULL,false,true) != NULL)
 						iValue /= 2;
 				}
 
@@ -7707,8 +7689,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 				// Is able to sweep at target
 				if (pLoopUnit->canAirSweepAt(pTarget->getX(), pTarget->getY()))
 				{
-
-					int iAttackStrength = pLoopUnit->GetMaxAttackStrength(pLoopUnit->plot(), pTarget, GetProbableInterceptor(pTarget));
+					int iAttackStrength = pLoopUnit->GetMaxAttackStrength(pLoopUnit->plot(), pTarget, pTarget->GetBestInterceptor(pLoopUnit->getOwner(),pLoopUnit,false,true));
 					// Mod to air sweep strength
 					iAttackStrength *= (100 + pLoopUnit->GetAirSweepCombatModifier());
 					iAttackStrength /= 100;
@@ -7719,82 +7700,12 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 					m_CurrentAirSweepUnits.push_back(unit);
 
 					interceptionsOnPlot--;
-
-					// We also remove the unit from m_CurrentMoveUnits
-					std::vector<CvTacticalUnit>::iterator itM;
-
-					for (itM = m_CurrentMoveUnits.begin(); itM != m_CurrentMoveUnits.end(); itM++)
-					{
-						if ((*itM).GetID() == pLoopUnit->GetID())
-						{
-							m_CurrentMoveUnits.erase(itM);
-							break;
-						}
-					}
 				}
 			}
 		}
 	}
 
 	std::stable_sort(m_CurrentAirSweepUnits.begin(), m_CurrentAirSweepUnits.end());
-}
-
-CvUnit* CvTacticalAI::GetProbableInterceptor(CvPlot* pTargetPlot) const
-{
-	int iLoopUnit;
-	CvUnit* pBestUnit = NULL;
-	CvUnit* pLoopUnit;
-
-	// Loop through all the players
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-
-		if (kPlayer.isAlive() && kPlayer.GetID() != m_pPlayer->GetID())
-		{
-			if (atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
-			{
-				// Loop through their units looking for intercept capable units
-				iLoopUnit = 0;
-				for (pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
-				{
-					// Must be able to intercept this turn
-					if (!pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat() && !pLoopUnit->isOutOfInterceptions())
-					{
-						// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-						if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-						{
-							// Test range
-							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= (pLoopUnit->getUnitInfo().GetAirInterceptRange() + pLoopUnit->GetExtraAirInterceptRange())) // JJ: Added consideration for extra intercept range from promotions
-							{
-								if (pLoopUnit->currInterceptionProbability() > 0)
-								{
-									if (pBestUnit)
-									{
-										if (pLoopUnit->currInterceptionProbability() > pBestUnit->currInterceptionProbability())
-										{
-											pBestUnit = pLoopUnit;
-										}
-										else if (pLoopUnit->currInterceptionProbability() == pBestUnit->currInterceptionProbability() &&
-											pLoopUnit->GetBaseCombatStrengthConsideringDamage() > pBestUnit->GetBaseCombatStrengthConsideringDamage())
-										{
-											pBestUnit = pLoopUnit;
-										}
-									}
-									else
-									{
-										pBestUnit = pLoopUnit;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return pBestUnit;
 }
 #endif
 
@@ -8354,26 +8265,6 @@ bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, const std::map
 
 	return rtnValue;
 }
-
-#if defined(MOD_AI_SMART_AIR_TACTICS)
-
-// helper function to iterate vector that is of CvPlot Type.
-int CvTacticalAI::SamePlotFound(vector<CvPlot*> plotData, CvPlot* plotXy)
-{
-	int methodResult = 0;
-	std::vector<CvPlot*>::iterator it;
-
-	for (it = plotData.begin(); it != plotData.end(); it++)
-	{
-		if (((*it)->getX() == plotXy->getX()) && ((*it)->getY() == plotXy->getY()))
-		{
-			methodResult++;
-		}
-	}
-
-	return methodResult;
-}
-#endif
 
 /// Estimates the damage we can apply to a target
 int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* pTargetPlot)
@@ -10446,7 +10337,7 @@ bool CvTacticalAI::IsUnitHealing(int iUnitID) const
 	return m_HealingUnits.find(iUnitID) != m_HealingUnits.end();
 }
 
-ReachablePlots TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC)
+ReachablePlots TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const PlotIndexContainer& plotsToIgnoreForZOC)
 {
 	if (!pStartPlot)
 		return ReachablePlots();
@@ -12543,8 +12434,8 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
 		if (pEnemy)
 		{
-			freedPlots.insert(newAssignment.iToPlotIndex);
-			killedEnemies.insert(pEnemy->GetID());
+			freedPlots.push_back(newAssignment.iToPlotIndex);
+			killedEnemies.push_back(pEnemy->GetID());
 		}
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iFromPlotIndex;
@@ -12559,11 +12450,11 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 
 		pEnemy = GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->getVisibleEnemyDefender(ePlayer);
 		if (newTactPlot.isEnemyCity() && !pEnemy)
-			killedEnemies.insert(0); //put an invalid unit ID as a placeholder so that isComplete() works
+			killedEnemies.push_back(0); //put an invalid unit ID as a placeholder so that isComplete() works
 		else if (pEnemy) //should always be true, else we wouldn't be here
 		{
-			freedPlots.insert(newAssignment.iToPlotIndex);
-			killedEnemies.insert(pEnemy->GetID());
+			freedPlots.push_back(newAssignment.iToPlotIndex);
+			killedEnemies.push_back(pEnemy->GetID());
 		}
 
 		oldTactPlot.friendlyUnitMovingOut(*this, itUnit->isCombatUnit());

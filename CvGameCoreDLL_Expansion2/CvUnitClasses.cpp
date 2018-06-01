@@ -146,6 +146,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iSupplyCapBoost(0),
 #endif
 	m_iCultureBombRadius(0),
+	m_iNumberOfCultureBombs(0),
 	m_iGoldenAgeTurns(0),
 	m_iFreePolicies(0),
 	m_iOneShotTourism(0),
@@ -177,6 +178,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iCooldown(0),
 	m_iGlobalFaithCooldown(0),
 	m_iLocalFaithCooldown(0),
+	m_iFriendlyLandsPromotion(NO_PROMOTION),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -354,6 +356,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iSupplyCapBoost = kResults.GetInt("SupplyCapBoost");
 #endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
+	m_iNumberOfCultureBombs = kResults.GetInt("NumberOfCultureBombs");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
 	m_iFreePolicies = kResults.GetInt("FreePolicies");
 	m_iOneShotTourism = kResults.GetInt("OneShotTourism");
@@ -417,6 +420,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iCooldown = kResults.GetInt("PurchaseCooldown");
 	m_iGlobalFaithCooldown = kResults.GetInt("GlobalFaithPurchaseCooldown");
 	m_iLocalFaithCooldown = kResults.GetInt("LocalFaithPurchaseCooldown");
+
+	szTextVal = kResults.GetText("FriendlyLandsPromotion");
+	m_iFriendlyLandsPromotion = (PromotionTypes)GC.getInfoTypeForString(szTextVal, true);
 
 	m_bIsMounted = kResults.GetBool("IsMounted");
 
@@ -1273,6 +1279,10 @@ int CvUnitEntry::GetCultureBombRadius() const
 {
 	return m_iCultureBombRadius;
 }
+int CvUnitEntry::GetNumberOfCultureBombs() const
+{
+	return m_iNumberOfCultureBombs;
+}
 
 /// Number of GA turns this Unit can give us
 int CvUnitEntry::GetGoldenAgeTurns() const
@@ -1723,6 +1733,10 @@ int CvUnitEntry::GetGlobalFaithCooldown() const
 int CvUnitEntry::GetLocalFaithCooldown() const
 {
 	return m_iLocalFaithCooldown;
+}
+PromotionTypes CvUnitEntry::GetFriendlyLandsPromotion() const
+{
+	return (PromotionTypes)m_iFriendlyLandsPromotion;
 }
 #endif
 /// What flag icon to use

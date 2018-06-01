@@ -726,6 +726,8 @@ CvPlayer::CvPlayer() :
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
 	, m_pabFreeChosenBuildingNewCity("CvPlayer::m_pabFreeChosenBuildingNewCity", m_syncArchive)
 	, m_pabAllCityFreeBuilding("CvPlayer::m_pabAllCityFreeBuilding", m_syncArchive)
+	, m_pabNewFoundCityFreeUnit("CvPlayer::m_pabNewFoundCityFreeUnit", m_syncArchive)
+	, m_pabNewFoundCityFreeBuilding("CvPlayer::m_pabNewFoundCityFreeBuilding", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_pabHasGlobalMonopoly("CvPlayer::m_pabHasGlobalMonopoly", m_syncArchive)
@@ -1234,6 +1236,8 @@ void CvPlayer::uninit()
 	m_paiNumCivsConstructingWonder.clear();
 	m_pabFreeChosenBuildingNewCity.clear();
 	m_pabAllCityFreeBuilding.clear();
+	m_pabNewFoundCityFreeUnit.clear();
+	m_pabNewFoundCityFreeBuilding.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_pabHasGlobalMonopoly.clear();
@@ -2142,6 +2146,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_pabAllCityFreeBuilding.clear();
 		m_pabAllCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), false);
+
+		m_pabNewFoundCityFreeUnit.clear();
+		m_pabNewFoundCityFreeUnit.resize(GC.getNumUnitClassInfos(), false);
+
+		m_pabNewFoundCityFreeBuilding.clear();
+		m_pabNewFoundCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), false);
 
 		m_paiNumCivsConstructingWonder.clear();
 		m_paiNumCivsConstructingWonder.resize(GC.getNumBuildingInfos(), 0);
@@ -8236,7 +8246,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		{
 			bool bHas = false;
 			// go through all the plots the player has under their control
-			for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+			for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 				if (!pPlot)
@@ -11510,9 +11520,10 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// then damage it again
-		int iCitadelDamage;
-		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
+		int iCitadelDamage = pLoopUnit->plot()->GetDangerPlotDamage(pLoopUnit->getOwner());
+		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
+			
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
@@ -19001,7 +19012,32 @@ void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingCla
 {
 	m_paiNumCitiesFreeChosenBuilding.setAt(eBuildingClass, (m_paiNumCitiesFreeChosenBuilding[eBuildingClass] + iChange));
 }
-
+/// New Founded City waiting to get a free unit?
+bool CvPlayer::IsFreeUnitNewFoundCity(UnitClassTypes eUnitClass) const
+{
+	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
+	CvAssertMsg(eUnitClass > -1, "Index out of bounds");
+	return m_pabNewFoundCityFreeUnit[eUnitClass];
+}
+//	--------------------------------------------------------------------------------
+/// Changes number of newly founded cities to get a free building
+void CvPlayer::ChangeNewFoundCityFreeUnit(UnitClassTypes eUnitClass, bool bValue)
+{
+	m_pabNewFoundCityFreeUnit.setAt(eUnitClass, bValue);
+}
+/// New Founded City waiting to get a free building?
+bool CvPlayer::IsFreeBuildingNewFoundCity(BuildingClassTypes eBuildingClass) const
+{
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(eBuildingClass > -1, "Index out of bounds");
+	return m_pabNewFoundCityFreeBuilding[eBuildingClass];
+}
+//	--------------------------------------------------------------------------------
+/// Changes number of newly founded cities to get a free building
+void CvPlayer::ChangeNewFoundCityFreeBuilding(BuildingClassTypes eBuildingClass, bool bValue)
+{
+	m_pabNewFoundCityFreeBuilding.setAt(eBuildingClass, bValue);
+}
 /// Cities remaining to get a free building
 bool CvPlayer::IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const
 {
@@ -21869,18 +21905,15 @@ int CvPlayer::GetHappinessFromResources() const
 /// Amount of Happiness from having a variety of Luxuries
 int CvPlayer::GetHappinessFromResourceVariety() const
 {
-	int iHappiness = 0;
-
 	int iMultipleLuxuriesBonus = /*1*/ GC.getHAPPINESS_PER_EXTRA_LUXURY();
+	if (iMultipleLuxuriesBonus == 0)
+		return 0;
 
 	// Check all connected Resources
 	int iNumHappinessResources = 0;
-
-	ResourceTypes eResource;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
-
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 		if(GetHappinessFromLuxury(eResource) > 0)
 		{
 			iNumHappinessResources++;
@@ -21889,10 +21922,10 @@ int CvPlayer::GetHappinessFromResourceVariety() const
 
 	if(iNumHappinessResources > 1)
 	{
-		iHappiness += (--iNumHappinessResources * iMultipleLuxuriesBonus);
+		return (iNumHappinessResources-1) * iMultipleLuxuriesBonus;
 	}
 
-	return iHappiness;
+	return 0;
 }
 
 
@@ -22253,16 +22286,12 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 {
+	if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
+		return 0;
+
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if(pkResourceInfo)
 	{
-		int iBaseHappiness = pkResourceInfo->getHappiness();
-
-		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
-		{
-			iBaseHappiness = 0;
-		}
-
 		// Only look at Luxuries
 		if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 		{
@@ -22272,14 +22301,14 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 		// Any extras?
 		else if(getNumResourceAvailable(eResource, /*bIncludeImport*/ true) > 0)
 		{
-			return iBaseHappiness;
+			return pkResourceInfo->getHappiness();
 		}
 
 		else if(GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
 		{
 			if(getResourceExport(eResource) > 0)
 			{
-				return ((iBaseHappiness * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100);
+				return ((pkResourceInfo->getHappiness() * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100);
 			}
 		}
 	}
@@ -31525,6 +31554,25 @@ void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 	m_iNoUnhappfromXSpecialists += iChange;
 }
 
+int CvPlayer::GetTechDeviation() const
+{
+	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
+	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / max(1, GC.getNumTechInfos());
+	int iMedianTech = GC.getGame().GetGlobalTechMedian();
+
+	int iTechDeviation = (iOurTech * 100) / max(1, iMedianTech);
+
+	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
+	int iTech = (int)(iTechDeviation * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+
+	if (iTech > 100)
+		iTech = 100;
+	if (iTech <= -100)
+		iTech = -100;
+
+	return iTech;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetHappfromXSpecialists() const
@@ -38350,7 +38398,7 @@ int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 	int iCount = 0;
 
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (pPlot && pPlot->getResourceType(getTeam()) == eIndex)
@@ -43619,6 +43667,14 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), iChange);
 	}
+	if (pPolicy->GetNewFoundCityFreeBuilding() != NO_BUILDINGCLASS)
+	{
+		ChangeNewFoundCityFreeBuilding(pPolicy->GetNewFoundCityFreeBuilding(), iChange);
+	}
+	if (pPolicy->GetNewFoundCityFreeUnit() != NO_UNITCLASS)
+	{
+		ChangeNewFoundCityFreeUnit(pPolicy->GetNewFoundCityFreeUnit(), iChange);
+	}
 #endif
 
 	// Store off number of newly built cities that will get a free building
@@ -44965,19 +45021,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_aUnitExtraCosts;
 
 	// reading plot values
-	{
-		m_aiPlots.clear();
-
-		// trying to cut down how big saves are
-		int iSize;
-		kStream >> iSize;
-		for(int i = 0; i < iSize; i++)
-		{
-			int iTemp;
-			kStream >> iTemp;
-			m_aiPlots.insert(iTemp);
-		}
-	}
+	kStream >> m_aiPlots;
 
 	if(!isBarbarian())
 	{
@@ -45161,14 +45205,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aVote;
 	kStream << m_aUnitExtraCosts;
 
-	// writing out plot values
-	{
-		kStream << m_aiPlots.size();
-		for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
-		{
-			kStream << *it;
-		}
-	}
+	kStream << m_aiPlots;
 
 	// writing out
 	{
@@ -45879,7 +45916,7 @@ void CvPlayer::UpdatePlots(void)
 		//somebody might have plundered an improvement
 		pLoopPlot->updateWaterFlags();
 
-		m_aiPlots.insert(iI);
+		m_aiPlots.push_back(iI);
 	}
 }
 
@@ -45890,12 +45927,12 @@ void CvPlayer::AddAPlot(CvPlot* pPlot)
 	if(!pPlot)
 		return;
 
-	m_aiPlots.insert(pPlot->GetPlotIndex());
+	m_aiPlots.push_back(pPlot->GetPlotIndex());
 }
 
 //	--------------------------------------------------------------------------------
 /// Returns the list of the plots the player owns
-const set<int>& CvPlayer::GetPlots(void) const
+const PlotIndexContainer& CvPlayer::GetPlots(void) const
 {
 	return m_aiPlots;
 }
@@ -46209,7 +46246,7 @@ bool CvPlayer::isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) 
 }
 
 
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
@@ -46432,24 +46469,20 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	}
 
 	// Must be able to intercept
-	if (pUnit->maxInterceptionProbability() > 0 && !pUnit->isEmbarked())
+	if (pUnit->canIntercept())
 	{
-		// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-		if ((pUnit->getDomainType() != DOMAIN_AIR) || (!pUnit->hasMoved() && pUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+		bool bFound = false;
+		for (size_t i = 0; i < m_unitsWhichCanIntercept.size(); i++)
 		{
-			bool bFound = false;
-			for (size_t i = 0; i < m_unitsWhichCanIntercept.size(); i++)
+			if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
 			{
-				if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
-				{
-					m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
-					bFound = true;
-					break;
-				}
-
-				if (!bFound)
-					m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
+				m_unitsWhichCanIntercept[i].second = pUnit->plot()->GetPlotIndex();
+				bFound = true;
+				break;
 			}
+
+			if (!bFound)
+				m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
 	}
 }
@@ -46478,11 +46511,8 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->isNearbyPromotion())
 			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 
-		// Must be able to intercept
-		if (pLoopUnit->maxInterceptionProbability() > 0 && !pLoopUnit->isEmbarked())
-			// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
-			if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || (!pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
-				m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
+		if (pLoopUnit->canIntercept())
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pLoopUnit->plot()->GetPlotIndex()));
 	}
 }
 
@@ -46688,7 +46718,7 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 {
 	int iValue = 0;
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
@@ -47084,15 +47114,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 		if(iTargetArea!=-1 && pPlot->getArea()!=iTargetArea)
 			continue;
 
-		if(pPlot->getNumUnits() > 0)
+		if (pPlot->getRevealedImprovementType(getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
-			IDInfo* pUnitNode = pPlot->headUnitNode();
-			while(pUnitNode != NULL)
-			{
-				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+			vBadPlots.push_back(pPlot);
+			continue;
+		}
 
-				if(pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType()==DOMAIN_LAND && pLoopUnit->isEnemy(getTeam()))
+		IDInfo* pUnitNode = pPlot->headUnitNode();
+		while(pUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			{
+				if (pLoopUnit->isEnemy(getTeam()) || pLoopUnit->isHuman()) //extra careful with those sneaky humans
 				{
 					vBadPlots.push_back(pPlot);
 					break;
@@ -47141,6 +47177,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool b
 			//also consider distance to settler here in case of re-targeting an operation
 			if (iDistanceToCity>4 && !bCanReachThisTurn && pTestPlot->getOwner()!=m_eID)
 				isDangerous = true;
+
+			//closer to enemy than to us?
+			if (GetClosestCityByEstimatedTurns(pTestPlot) != GC.getGame().GetClosestCityByEstimatedTurns(pTestPlot))
+				isDangerous = true;
+
 		}
 
 		if (bNeedSafePlot)
@@ -48362,7 +48403,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		int iWorkedTiles = 0;
 		int iImprovedTiles = 0;
 		// go through all the plots the player has under their control
-		for (set<int>::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+		for (PlotIndexContainer::const_iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 			if (!pPlot)
@@ -49518,7 +49559,7 @@ void CvPlayer::computeAveragePlotFoundValue()
 	OutputDebugString(CvString::format("Average city site value for player %d is %d\n", m_eID.get(), iAvg).c_str());
 
 	//assuming a normal distribution, this should allow all but the worst plots
-	m_iReferenceFoundValue = iAvg - iAvg / 4;
+	m_iReferenceFoundValue = iAvg - iAvg / 3;
 }
 
 void CvPlayer::updatePlotFoundValues()

@@ -334,7 +334,7 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 		return 0;
 	}
 
-	return pPlot->calculateNatureYield(eYield, NO_PLAYER);
+	return pPlot->calculateNatureYield(eYield, NO_PLAYER, NULL);
 }
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100)
@@ -695,7 +695,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 	//reset this each turn, as our improvements may change
 	m_aiPlots = m_pPlayer->GetPlots();
-	for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		pPlot->SetStrategicRoute(m_pPlayer->getTeam(), false);
@@ -888,7 +888,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		// can't build on plots others own
 		PlayerTypes eOwner = pUnit->plot()->getOwner();
 		if(eOwner == m_pPlayer->GetID())
-			m_aiPlots.insert(pUnit->plot()->GetPlotIndex());
+			m_aiPlots.push_back(pUnit->plot()->GetPlotIndex());
 	}
 	else
 	{
@@ -908,7 +908,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	}
 
 	// go through all the plots the player has under their control
-	for(set<int>::iterator it=m_aiPlots.begin(); it!=m_aiPlots.end(); ++it)
+	for(PlotIndexContainer::iterator it=m_aiPlots.begin(); it!=m_aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 
@@ -1048,12 +1048,12 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	// we need to evaluate the tiles adjacent to our territory 
 	if(m_bEvaluateAdjacent)
 	{
-		std::set<int> plotsToCheck;
+		PlotIndexContainer plotsToCheck;
 		if (bOnlyEvaluateWorkersPlot && pUnit->plot()->isAdjacentPlayer(m_pPlayer->GetID()))
-			plotsToCheck.insert(pUnit->plot()->GetPlotIndex());
+			plotsToCheck.push_back(pUnit->plot()->GetPlotIndex());
 		else
 		{
-			for (set<int>::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
+			for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 				if (!pPlot)
@@ -1065,12 +1065,12 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 					CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iDirectionLoop));
 
 					if (pAdjacentPlot && pAdjacentPlot->getOwner() != m_pPlayer->GetID())
-						plotsToCheck.insert(pAdjacentPlot->GetPlotIndex());
+						plotsToCheck.push_back(pAdjacentPlot->GetPlotIndex());
 				}
 			}
 		}
 
-		for (set<int>::iterator it = plotsToCheck.begin(); it != plotsToCheck.end(); ++it)
+		for (PlotIndexContainer::iterator it = plotsToCheck.begin(); it != plotsToCheck.end(); ++it)
 		{
 			CvPlot* pAdjacentPlot = GC.getMap().plotByIndex(*it);
 			if (!pAdjacentPlot)
@@ -1917,8 +1917,8 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
 		// calculate natural yields
-		int iPreviousYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID());
-		int iNewYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), true /*bIgnoreFeature*/);
+		int iPreviousYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), NULL);
+		int iNewYield = pPlot->calculateNatureYield((YieldTypes)ui, m_pPlayer->GetID(), NULL, true /*bIgnoreFeature*/);
 		int iDeltaYield = iNewYield - iPreviousYield;
 
 		if(iDeltaYield == 0)

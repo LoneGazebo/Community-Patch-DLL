@@ -3392,7 +3392,7 @@ int CvLuaUnit::lMaxInterceptionProbability(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->maxInterceptionProbability();
+	const int iResult = pkUnit->getInterceptChance();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3402,7 +3402,7 @@ int CvLuaUnit::lCurrInterceptionProbability(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->currInterceptionProbability();
+	const int iResult = pkUnit->interceptionProbability();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4581,7 +4581,7 @@ int CvLuaUnit::lGetExtraIntercept(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	const int iResult = pkUnit->getExtraIntercept();
+	const int iResult = pkUnit->getInterceptChance();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

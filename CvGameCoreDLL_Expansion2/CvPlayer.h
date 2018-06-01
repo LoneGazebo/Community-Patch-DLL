@@ -559,6 +559,12 @@ public:
 	int GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const;
 	void ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange);
 
+	bool IsFreeUnitNewFoundCity(UnitClassTypes eUnitClass) const;
+	void ChangeNewFoundCityFreeUnit(UnitClassTypes eUnitClass, bool bValue);
+
+	bool IsFreeBuildingNewFoundCity(BuildingClassTypes eBuildingClass) const;
+	void ChangeNewFoundCityFreeBuilding(BuildingClassTypes eBuildingClass, bool bValue);
+
 	bool IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const;
 	void ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass, bool bValue);
 
@@ -1667,6 +1673,8 @@ public:
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
+	int GetTechDeviation() const;
+
 	int GetHappfromXSpecialists() const;
 	void ChangeHappfromXSpecialists(int iChange);
 
@@ -2499,7 +2507,7 @@ public:
 
 	void UpdatePlots();  // Refreshes the list of plots and sets which ones the player owns
 	void AddAPlot(CvPlot* pPlot); // adds an owned plot
-	const set<int>& GetPlots() const;  // gets the list of plots the player owns
+	const PlotIndexContainer& GetPlots() const;  // gets the list of plots the player owns
 	int GetNumPlots() const;
 
 	int GetNumPlotsBought() const;
@@ -2532,7 +2540,7 @@ public:
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
 	bool isEnemyCombatUnitAdjacent(const CvPlot* pPlot, bool bSameDomain) const;
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const set<int>& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER);
 	void ResetDangerCache(const CvPlot& Plot, int iRange);
@@ -3547,6 +3555,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCitiesFreeChosenBuilding;
 	FAutoVariable<std::vector<int>, CvPlayer> m_pabFreeChosenBuildingNewCity;
 	FAutoVariable<std::vector<int>, CvPlayer> m_pabAllCityFreeBuilding;
+	FAutoVariable<std::vector<int>, CvPlayer> m_pabNewFoundCityFreeUnit;
+	FAutoVariable<std::vector<int>, CvPlayer> m_pabNewFoundCityFreeBuilding;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
@@ -3698,7 +3708,7 @@ protected:
 	CvNotifications* m_pNotifications;
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
-	set<int> m_aiPlots;
+	PlotIndexContainer m_aiPlots;
 
 	// Treasury
 	CvTreasury* m_pTreasury;
@@ -3754,7 +3764,7 @@ protected:
 
 };
 
-extern bool CancelActivePlayerEndTurn();
+bool CancelActivePlayerEndTurn();
 
 namespace FSerialization
 {

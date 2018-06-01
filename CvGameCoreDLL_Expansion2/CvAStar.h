@@ -421,10 +421,10 @@ int StepValidWide(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 int StepValidWideAnyArea(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int StepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
 
-int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
-int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder);
-int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder);
-int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
+int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
+int CityConnectionGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder);
+int CityConnectionGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder);
+int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 
 int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);

@@ -1676,16 +1676,16 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				-- NearbyPromotion Unit Bonus
 				if (pTheirUnit:GetGiveCombatModToUnit() ~= 0) then
 					iModifier = pTheirUnit:GetGiveCombatModToUnit();
-					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 				--NearbyPromtoion Unit that gets a bonus near cities?
 				if (pTheirUnit:GetNearbyCityBonusCombatMod() ~= 0) then
 					iModifier = pTheirUnit:GetNearbyCityBonusCombatMod();
-					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 				-- Great General bonus
 				if (pTheirUnit:IsNearGreatGeneral()) then
@@ -1735,7 +1735,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					iModifier = pTheirUnit:GetNearbyUnitClassModifierFromUnitClass(pToPlot);
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_UNITCLASS_NEAR" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				end
 				
 				-- Flanking bonus
@@ -2102,7 +2102,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local myCityMaxHP = myCity:GetMaxHitPoints();
 	local myCityCurHP = myCity:GetDamage();
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
-	local myCityStrength = myCity:GetStrengthValue();
+	local myCityStrength = myCity:GetStrengthValue(true);
 	
 	local theirUnitMaxHP = GameDefines["MAX_HIT_POINTS"];
 	local theirUnitCurHP = theirUnit:GetDamage();

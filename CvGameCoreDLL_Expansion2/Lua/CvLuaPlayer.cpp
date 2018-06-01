@@ -11365,9 +11365,9 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 
 	CvPlot* pResultPlot = NULL;
 
-	const set<int>& aiPlots = pkPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = pkPlayer->GetPlots();
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if (!pPlot)
@@ -11476,11 +11476,11 @@ int CvLuaPlayer::lIsAnyPlotImproved(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const set<int>& aiPlots = pkPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = pkPlayer->GetPlots();
 
 	bool bResult = false;
 
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)
@@ -11511,10 +11511,10 @@ int CvLuaPlayer::lGetPlayerVisiblePlot(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlayerAI* pkPlayer2 = CvLuaPlayer::GetInstance(L, 2);
 
-	const set<int>& aiPlots = pkPlayer->GetPlots();
+	const PlotIndexContainer& aiPlots = pkPlayer->GetPlots();
 
 	// go through all the plots the player has under their control
-	for (set<int>::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
+	for (PlotIndexContainer::const_iterator it = aiPlots.begin(); it != aiPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
 		if(!pPlot)

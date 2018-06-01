@@ -882,8 +882,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	{
 		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
 		{
-			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
-			bPlotOccupancyOverride = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+			const PlotIndexContainer& ignorePlots = finder->GetData().plotsToIgnoreForZOC;
+			bPlotOccupancyOverride = ( std::find(ignorePlots.begin(),ignorePlots.end(),pPlot->GetPlotIndex()) != ignorePlots.end());
 		}
 
 		if (!bPlotOccupancyOverride)
@@ -1849,7 +1849,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 //	--------------------------------------------------------------------------------
 // Route - Return the x, y plot of the node that we want to access
-int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
+int CityConnectionGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder)
 {
 	iX = -1;
 	iY = -1;
@@ -1894,7 +1894,7 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 
 //	---------------------------------------------------------------------------
 /// Route path finder - check validity of a coordinate
-int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL || data.ePlayer==NO_PLAYER)
 		return TRUE;
@@ -1919,53 +1919,25 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFi
 				ePlotRoute = ROUTE_ROAD;
 	}
 
-	if(!pNewPlot->IsFriendlyTerritory(ePlayer))
-	{
-		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
-		if(ePlotOwnerPlayer != NO_PLAYER)
-		{
-			PlayerTypes eMajorPlayer = NO_PLAYER;
-			PlayerTypes eMinorPlayer = NO_PLAYER;
-			CvPlayer& kPlotOwner = GET_PLAYER(ePlotOwnerPlayer);
-			if(kPlayer.isMinorCiv() && !kPlotOwner.isMinorCiv())
-			{
-				eMajorPlayer = ePlotOwnerPlayer;
-				eMinorPlayer = ePlayer;
-			}
-			else if(kPlotOwner.isMinorCiv() && !kPlayer.isMinorCiv())
-			{
-				eMajorPlayer = ePlayer;
-				eMinorPlayer = ePlotOwnerPlayer;
-			}
-			else
-			{
-				return FALSE;
-			}
-
-			if(!GET_PLAYER(eMinorPlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMajorPlayer, MINOR_CIV_QUEST_ROUTE))
-			{
-				return FALSE;
-			}
-		}
-	}
-
 	if(ePlotRoute == NO_ROUTE)
 	{
 		return FALSE;
 	}
-
-	//which route types are allowed?
-	if ( eRoute == ROUTE_ANY )
+	else if ( eRoute == ROUTE_ANY || ePlotRoute >= eRoute ) //a railroad is also a road!
 	{
-		return TRUE;
-	}
-	else
-	{
-		//a railroad is also a road!
-		if(ePlotRoute >= eRoute)
+		//finally check plot ownership
+		PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
+		if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
 		{
-			return TRUE;
+			if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+				//major player without open borders is not ok
+				return pNewPlot->IsFriendlyTerritory(ePlayer);
+			else
+				//minor player is ok as long as no war
+				return kPlayer.IsAtPeaceWith(ePlotOwnerPlayer);
 		}
+
+		return TRUE;
 	}
 
 	return FALSE;
@@ -1974,7 +1946,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFi
 //	---------------------------------------------------------------------------
 // Route - find the number of additional children. 
 // In this case, count the (pre-computed!) harbor connections from the city.
-int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
+int CityConnectionGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 {
 	PlayerTypes ePlayer = finder->GetData().ePlayer;
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -2003,7 +1975,7 @@ int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 
 //	--------------------------------------------------------------------------------
 /// Water route valid finder - check the validity of a coordinate
-int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL)
 		return TRUE;
@@ -2016,17 +1988,28 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
-	if(pNewPlot->getOwner()!=NO_PLAYER && !pNewPlot->IsFriendlyTerritory(ePlayer))
+	if (!pNewPlot->isWater() && !pNewPlot->isCityOrPassableImprovement(ePlayer,true))
 		return FALSE;
 
-	CvCity* pCity = pNewPlot->getPlotCity();
-	if(pCity && pCity->getTeam() == eTeam)
-		return TRUE;
+	//finally check plot ownership
+	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
+	if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != data.ePlayer)
+	{
+		if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv())
+		{
+			//major player without open borders is not ok
+			if (!pNewPlot->IsFriendlyTerritory(ePlayer))
+				return FALSE;
+		}
+		else
+		{
+			//minor player is ok as long as no war
+			if (GET_PLAYER(ePlayer).IsAtWarWith(ePlotOwnerPlayer))
+				return FALSE;
+		}
+	}
 
-	if(pNewPlot->isWater())
-		return TRUE;
-
-	return FALSE;
+	return TRUE;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2409,15 +2392,15 @@ bool CvStepFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_WATER:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionWaterValid, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_MIXED:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, RouteValid, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, CityConnectionLandValid, CityConnectionGetNumExtraChildren, CityConnectionGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AIR_REBASE:

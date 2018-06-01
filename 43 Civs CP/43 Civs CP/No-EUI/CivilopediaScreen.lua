@@ -3611,8 +3611,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("NearbyCityCombatMod");
 		AnalyzePromotion("NearbyFriendlyCityCombatMod");
 		AnalyzePromotion("NearbyEnemyCityCombatMod");
-		AnalyzePromotion("IsFriendlyLands");
-		AnalyzePromotion("RequiredUnit");
 		AnalyzePromotion("AirInterceptRangeChange", "");
 		AnalyzePromotion("ConvertDomainUnit");
 		AnalyzePromotion("ConvertDomain");

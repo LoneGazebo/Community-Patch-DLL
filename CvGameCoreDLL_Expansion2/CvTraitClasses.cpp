@@ -141,6 +141,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCanGoldInternalTradeRoutes(false),
 	m_iExtraTradeRoutesPerXOwnedCities(0),
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
+	m_bIsCapitalOnly(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -871,6 +872,10 @@ int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
 int CvTraitEntry::GetExtraTradeRoutesPerXOwnedVassals() const
 {
 	return m_iExtraTradeRoutesPerXOwnedVassals;
+}
+bool CvTraitEntry::IsCapitalOnly() const
+{
+	return m_bIsCapitalOnly;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2126,6 +2131,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
 	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
+	m_bIsCapitalOnly						= kResults.GetBool("IsCapitalOnly");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -3668,6 +3674,11 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
 			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
+			if (trait->IsCapitalOnly())
+			{
+				m_bIsCapitalOnly = true;
+			}
+
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -4317,6 +4328,7 @@ void CvPlayerTraits::Reset()
 	m_bCanGoldInternalTradeRoutes = false;
 	m_iExtraTradeRoutesPerXOwnedCities = 0;
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
+	m_bIsCapitalOnly = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -6294,6 +6306,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(88, kStream, m_bCanGoldInternalTradeRoutes, false);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedCities, 0);
 	MOD_SERIALIZE_READ(88, kStream, m_iExtraTradeRoutesPerXOwnedVassals, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_bIsCapitalOnly, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -6684,8 +6697,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iFreePolicyPerXTechs, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_eGPFaithPurchaseEra, NO_ERA);
 	MOD_SERIALIZE_READ(66, kStream, m_iFaithCostModifier, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
-	MOD_SERIALIZE_READ(66, kStream, m_iChanceToConvertReligiousUnits, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -6890,6 +6903,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bCanGoldInternalTradeRoutes);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedCities);
 	MOD_SERIALIZE_WRITE(kStream, m_iExtraTradeRoutesPerXOwnedVassals);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsCapitalOnly);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

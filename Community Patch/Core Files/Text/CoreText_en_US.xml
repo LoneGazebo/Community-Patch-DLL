@@ -5275,10 +5275,10 @@
 		<Row Tag="TXT_KEY_DIPLO_DP_WITH_CBP">
 			<Text>[COLOR_POSITIVE_TEXT]Defensive Pact with {1_CivName:textkey}[ENDCOLOR]</Text>
 		</Row>
-		
+
 		<!-- Brazil LUA-->
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD">
-			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +20% [ICON_CULTURE] Culture in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
+			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +25% [ICON_CULTURE] Culture in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD_S">
 			<Text>Carnaval begins!</Text>

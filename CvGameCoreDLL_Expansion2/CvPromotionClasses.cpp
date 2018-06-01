@@ -230,9 +230,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyFriendlyCityCombatMod(0),
 	m_iNearbyEnemyCityCombatMod(0),
 	m_bIsNearbyPromotion(false),
-	m_bIsFriendlyLands(false),
 	m_iNearbyRange(0),
-	m_eRequiredUnit(NO_UNIT),
 	m_iConvertDomainUnit(NO_UNIT),
 	m_iConvertDomain(NO_DOMAIN),
 	m_bIsConvertUnit(false),
@@ -255,7 +253,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGiveHPHealedIfEnemyKilled(0),
 	m_iGiveExperiencePercent(0),
 	m_iGiveOutsideFriendlyLandsModifier(0),
-	m_eGiveDomain(NO_DOMAIN),
+	m_iGiveDomain(NO_DOMAIN),
 	m_iGiveExtraAttacks(0),
 	m_iGiveDefenseMod(0),
 	m_bGiveInvisibility(false),
@@ -486,10 +484,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
 	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
-	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
-	const char* szUnitType = kResults.GetText("RequiredUnit");
-	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
 	m_iConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
@@ -514,7 +509,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGiveExperiencePercent = kResults.GetInt("GiveExperiencePercent");
 	m_iGiveOutsideFriendlyLandsModifier = kResults.GetInt("GiveOutsideFriendlyLandsModifier");
 	const char* szGiveDomain = kResults.GetText("GiveDomain");
-	m_eGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
+	m_iGiveDomain = (DomainTypes)GC.getInfoTypeForString(szGiveDomain, true);
 	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
 	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
 	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
@@ -2239,17 +2234,9 @@ bool CvPromotionEntry::IsNearbyPromotion() const
 {
 	return m_bIsNearbyPromotion;
 }
-bool CvPromotionEntry::IsFriendlyLands() const
-{
-	return m_bIsFriendlyLands;
-}
 int CvPromotionEntry::GetNearbyRange() const
 {
 	return m_iNearbyRange;
-}
-UnitTypes CvPromotionEntry::getRequiredUnit() const
-{
-	return m_eRequiredUnit;
 }
 bool CvPromotionEntry::IsConvertEnemyUnitToBarbarian() const
 {
@@ -2331,9 +2318,9 @@ int CvPromotionEntry::GetGiveOutsideFriendlyLandsModifier() const
 {
 	return m_iGiveOutsideFriendlyLandsModifier;
 }
-DomainTypes CvPromotionEntry::GetGiveDomain() const
+int CvPromotionEntry::GetGiveDomain() const
 {
-	return m_eGiveDomain;
+	return m_iGiveDomain;
 }
 int CvPromotionEntry::GetGiveExtraAttacks() const
 {

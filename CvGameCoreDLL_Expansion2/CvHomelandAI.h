@@ -262,11 +262,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool MoveCivilianToGarrison(CvUnit* pUnit);
 #endif
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
-#else
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false);
-#endif
+	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 private:
 
@@ -294,12 +290,9 @@ private:
 #endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
-#else
-	void PlotWorkerMoves();
-#endif
-#if defined(MOD_BALANCE_CORE)
 	void PlotWorkerSeaMoves(bool bSecondary = false);
 #else
+	void PlotWorkerMoves();
 	void PlotWorkerSeaMoves();
 #endif
 	void PlotPatrolMoves();
