@@ -789,7 +789,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	
+
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>

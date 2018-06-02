@@ -10632,7 +10632,15 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, PlayerTypes ePlayer, Improve
 		{
 			if (isWater())
 			{
+#if defined(MOD_API_UNIFIED_YIELDS)
+				if (!isLake())
+				{
+					iYield += kPlayer.getSeaPlotYield(eYield);
+					iYield += kPlayer.GetPlayerTraits()->GetSeaPlotYieldChanges(eYield);
+				}
+#else
 				iYield += kPlayer.getSeaPlotYield(eYield);
+#endif
 
 				if (!bDisplay || pOwningCity->isRevealed(GC.getGame().getActiveTeam(), false))
 				{
