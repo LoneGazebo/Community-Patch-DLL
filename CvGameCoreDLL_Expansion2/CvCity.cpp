@@ -3331,16 +3331,16 @@ void CvCity::updateYield()
 		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-			if(!pLoopPlot || pLoopPlot->getOwner()!=getOwner())
+			if (!pLoopPlot || pLoopPlot->getOwner() != getOwner())
 				continue;
-			
+
 			//we're trying to avoid CvPlot::GetWorkingCity() for each plot as it's rather slow and this gets called a lot
 			bool bWeAreWorkingIt = GetCityCitizens()->IsWorkingPlot(iI);
 			bool bSomeOtherCityIsWorkingIt = !bWeAreWorkingIt && pLoopPlot->isBeingWorked();
 
 			//each city updates the plots it is working plus unworked plots
 			if (!bSomeOtherCityIsWorkingIt)
-				pLoopPlot->updateYieldFast(this, pReligion, pPantheon, bWeAreWorkingIt);
+				pLoopPlot->updateYieldFast(this, pReligion, pPantheon);
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -20025,7 +20025,7 @@ int CvCity::GetLocalHappiness() const
 	if(iHappinessPerGarrison > 0)
 	{
 		CvUnit* pDefender = plot()->getBestDefender(getOwner());
-		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
+		if(pDefender)
 		{
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
@@ -20409,12 +20409,7 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 {
 	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
-	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (int)(GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
-	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	iTech /= max(1, GC.getNumTechInfos());
-	
-	iModifier += iTech;
+	iModifier += GET_PLAYER(getOwner()).GetTechDeviation();
 
 	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
 	int iPopMod = getPopulation() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER();
@@ -26730,7 +26725,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		YieldTypes eYield = (YieldTypes) iI;
 
-		int iYield = pPlot->calculateNatureYield(eYield, getOwner());
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), NULL);
 
 		iTempValue = 0;
 
@@ -29533,9 +29528,19 @@ bool CvCity::doCheckProduction()
 
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
-							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-							localizedText << getNameKey() << pkExpiredBuildingInfo->GetTextKey() << iProductionGold;
-							DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
+							// Notification
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
+								strText << getNameKey();
+								strText << pkExpiredBuildingInfo->GetTextKey();
+								strText << iProductionGold;
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S");
+								strSummary << getNameKey();
+								strSummary << pkExpiredBuildingInfo->GetTextKey();
+								pNotifications->Add(NOTIFICATION_WONDER_BEATEN, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID());
+							}
 						}
 					}
 

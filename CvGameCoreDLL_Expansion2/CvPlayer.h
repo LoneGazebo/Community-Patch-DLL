@@ -1673,6 +1673,8 @@ public:
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
+	int GetTechDeviation() const;
+
 	int GetHappfromXSpecialists() const;
 	void ChangeHappfromXSpecialists(int iChange);
 

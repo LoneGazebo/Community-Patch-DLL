@@ -1260,7 +1260,7 @@ public:
 	void changeExtraAttacks(int iChange);
 
 	// Citadel
-	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
+	bool IsNearEnemyCitadel(const CvPlot* pInPlot = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;

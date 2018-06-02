@@ -11520,9 +11520,10 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->doHeal();
 
 		// then damage it again
-		int iCitadelDamage;
-		if (pLoopUnit->IsNearEnemyCitadel(iCitadelDamage, NULL) && !pLoopUnit->isInvisible(NO_TEAM, false, false))
+		int iCitadelDamage = pLoopUnit->plot()->GetDangerPlotDamage(pLoopUnit->getOwner());
+		if (iCitadelDamage != 0 && !pLoopUnit->isInvisible(NO_TEAM, false, false))
 		{
+			
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 			pLoopUnit->addDamageReceivedThisTurn(iCitadelDamage);
@@ -31551,6 +31552,25 @@ int CvPlayer::GetNoUnhappfromXSpecialists() const
 void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 {
 	m_iNoUnhappfromXSpecialists += iChange;
+}
+
+int CvPlayer::GetTechDeviation() const
+{
+	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
+	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / max(1, GC.getNumTechInfos());
+	int iMedianTech = GC.getGame().GetGlobalTechMedian();
+
+	int iTechDeviation = (iOurTech * 100) / max(1, iMedianTech);
+
+	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
+	int iTech = (int)(iTechDeviation * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+
+	if (iTech > 100)
+		iTech = 100;
+	if (iTech <= -100)
+		iTech = -100;
+
+	return iTech;
 }
 
 

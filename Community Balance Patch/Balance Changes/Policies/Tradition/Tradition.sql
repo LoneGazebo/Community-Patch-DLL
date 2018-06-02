@@ -212,6 +212,11 @@ VALUES
 	('BUILDING_PALACE_COURT_CHAPEL', 'YIELD_FAITH', 3),
 	('BUILDING_PALACE_ASTROLOGER', 'YIELD_SCIENCE', 3);
 
+INSERT INTO Policy_CityYieldChanges
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_ARISTOCRACY', 'YIELD_PRODUCTION', 1);
+
 INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
 VALUES

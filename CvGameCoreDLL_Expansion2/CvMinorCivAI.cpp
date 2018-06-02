@@ -1001,8 +1001,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 				iBonus *= 125;
 				iBonus /= 100;
 			}
-			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iBonus /= 100;
+
 			SetExperience(iBonus);
 		}
 		if(pkSmallAwardInfo->GetFaith() > 0)
