@@ -281,6 +281,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piArtYieldChanges(NULL),
 	m_piLitYieldChanges(NULL),
 	m_piMusicYieldChanges(NULL),
+	m_piSeaPlotYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
 	m_ppiTerrainYieldChanges(NULL),
@@ -1579,6 +1580,12 @@ int CvTraitEntry::GetMusicYieldChanges(int i) const
 {
 	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : -1;
 }
+int CvTraitEntry::GetSeaPlotYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piSeaPlotYieldChanges ? m_piSeaPlotYieldChanges[i] : 0;
+}
 int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2724,6 +2731,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piArtYieldChanges, "Trait_ArtYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piLitYieldChanges, "Trait_LitYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piMusicYieldChanges, "Trait_MusicYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piSeaPlotYieldChanges, "Trait_SeaPlotYieldChanges", "TraitType", szTraitType);
 
 	//FeatureYieldChanges
 	if (MOD_API_UNIFIED_YIELDS)
@@ -3988,6 +3996,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iArtYieldChanges[iYield] = trait->GetArtYieldChanges(iYield);
 				m_iLitYieldChanges[iYield] = trait->GetLitYieldChanges(iYield);
 				m_iMusicYieldChanges[iYield] = trait->GetMusicYieldChanges(iYield);
+				m_iSeaPlotYieldChanges[iYield] = trait->GetSeaPlotYieldChanges(iYield);
 #if defined(MOD_BALANCE_CORE)
 				m_iGAPToYield[iYield] = trait->GetGAPToYield(iYield);
 				m_iMountainRangeYield[iYield] = trait->GetMountainRangeYield(iYield);
@@ -4526,6 +4535,7 @@ void CvPlayerTraits::Reset()
 		m_iArtYieldChanges[iYield] = 0;
 		m_iLitYieldChanges[iYield] = 0;
 		m_iMusicYieldChanges[iYield] = 0;
+		m_iSeaPlotYieldChanges[iYield] = 0;
 #if defined(MOD_BALANCE_CORE)
 		m_iGAPToYield[iYield] = 0;
 		m_iMountainRangeYield[iYield] = 0;
@@ -6731,6 +6741,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	ArrayWrapper<int> kMusicYieldChangesWrapper(NUM_YIELD_TYPES, m_iMusicYieldChanges);
 	kStream >> kMusicYieldChangesWrapper;
 
+	ArrayWrapper<int> kSeaPlotYieldChangesWrapper(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
+	kStream >> kSeaPlotYieldChangesWrapper;
+
 	kStream >> m_ppiFeatureYieldChange;
 	kStream >> m_ppiResourceYieldChange;
 	kStream >> m_ppiTerrainYieldChange;
@@ -7108,6 +7121,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iArtYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iLitYieldChanges);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMusicYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iSeaPlotYieldChanges);
 	kStream << m_ppiFeatureYieldChange;
 	kStream << m_ppiResourceYieldChange;
 	kStream << m_ppiTerrainYieldChange;
