@@ -10191,30 +10191,8 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 			{
 				iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
 			}
-	
-			if (eYield == YIELD_CULTURE)
-			{
-				iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-				iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
-			}
 		}
 
-		if (getTerrainType() != NO_TERRAIN)
-		{
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-				{
-					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
-					{
-						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
-					}
-				}
-			}
-		}
 		if (getPlotType() != NO_PLOT)
 		{
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -10602,14 +10580,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 	}
 
-	if (kPlayer.isGoldenAge())
-	{
-		if (iCurrentYield >= kYield.getGoldenAgeYieldThreshold())
-		{
-			iYield += kYield.getGoldenAgeYield();
-		}
-	}
-
 	int iBonusYield = eFeature == NO_FEATURE ? kTeam.getTerrainYieldChange(getTerrainType(), eYield) : kTeam.getFeatureYieldChange(eFeature, eYield);
 	if (IsNaturalWonder())
 	{
@@ -10756,6 +10726,20 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		if (getTerrainType() != NO_TERRAIN)
 		{
 			iYield += pOwningCity->GetEventTerrainYield(getTerrainType(), eYield);
+
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+				{
+					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
+					{
+						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+					}
+				}
+			}
 		}
 		if (eImprovement != NO_IMPROVEMENT)
 		{
@@ -10777,6 +10761,20 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 		iYield += kPlayer.getFeatureYieldChange(eFeature, eYield);
 		iYield += kPlayer.GetPlayerTraits()->GetFeatureYieldChange(eFeature, eYield);
+	}
+
+	if (eImprovement != NO_IMPROVEMENT && eYield == YIELD_CULTURE && (iYield > 0 || iCurrentYield > 0))
+	{
+		iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+		iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+	}
+
+	if (kPlayer.isGoldenAge())
+	{
+		if ((iYield + iCurrentYield) >= kYield.getGoldenAgeYieldThreshold())
+		{
+			iYield += kYield.getGoldenAgeYield();
+		}
 	}
 
 	return iYield;

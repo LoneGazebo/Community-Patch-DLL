@@ -1,7 +1,7 @@
 
 -- Scaler for bonus happiness from luxuies. Sets the base value, and the base 'jump' from tier to tier.
 	UPDATE Defines
-	SET Value = '10'
+	SET Value = '12'
 	WHERE Name = 'BALANCE_HAPPINESS_LUXURY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
 
 	-- Scaler defines how many cities count against the bonus pop - higher = you can expand more.

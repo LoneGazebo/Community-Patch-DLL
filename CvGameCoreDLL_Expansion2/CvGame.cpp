@@ -10725,6 +10725,7 @@ void CvGame::updateGlobalAverage()
 	
 	//Select n-th percentile of each category
 	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
+	size_t n2 = (viTechMedian.size() * 50) / 100;
 
 	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
@@ -10739,7 +10740,7 @@ void CvGame::updateGlobalAverage()
 	SetDefenseAverage((int)vfDefenseYield[n]);
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
-	m_iGlobalTechMedian = viTechMedian[n];
+	m_iGlobalTechMedian = viTechMedian[n2];
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)

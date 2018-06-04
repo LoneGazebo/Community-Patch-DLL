@@ -20409,17 +20409,18 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 {
 	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
-	iModifier += GET_PLAYER(getOwner()).GetTechDeviation();
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	iModifier += kPlayer.GetTechDeviation();
 
-	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
-	int iPopMod = getPopulation() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER();
+	//Increase threshold based on # of citizens and cities. Makes larger cities more and more difficult to maintain.
+	int iPopMod = (getPopulation() + kPlayer.getNumCities()) * GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
 	iPopMod /= 100;
 
 	iModifier += iPopMod;
 
 	if(isCapital())
 	{
-		iModifier += GET_PLAYER(getOwner()).GetCapitalUnhappinessModCBP();
+		iModifier += kPlayer.GetCapitalUnhappinessModCBP();
 	}
 
 	switch (eYield)

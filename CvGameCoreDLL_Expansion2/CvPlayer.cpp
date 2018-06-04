@@ -9838,6 +9838,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				}
 			}
 		}
+
+		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() / 4);
 	}
 
 	// Move Units from player that don't belong here
@@ -31561,6 +31563,7 @@ int CvPlayer::GetTechDeviation() const
 	int iMedianTech = GC.getGame().GetGlobalTechMedian();
 
 	int iTechDeviation = (iOurTech * 100) / max(1, iMedianTech);
+	iTechDeviation -= 100;
 
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
 	int iTech = (int)(iTechDeviation * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());

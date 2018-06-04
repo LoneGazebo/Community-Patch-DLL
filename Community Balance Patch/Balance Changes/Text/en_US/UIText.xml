@@ -1053,7 +1053,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_LUXURY_BONUS_HAPPINESS">
-			<Text>Your Luxury Bonus rank is now {2_Num}. Increase your Population to {1_Num} to increase this rank further.</Text>
+			<Text>Your Luxury Bonus rank is now {2_Num}. This increases the potential [ICON_HAPPINESS_1] Happiness value of all Luxuries by 1! Increase your Population to {1_Num} to increase this rank further.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LUXURY_BONUS_HAPPINESS_S">
 			<Text>Luxury Bonus Happiness Increased!</Text>
