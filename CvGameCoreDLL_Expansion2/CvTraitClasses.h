@@ -345,6 +345,7 @@ public:
 	int GetArtYieldChanges(int i) const;
 	int GetLitYieldChanges(int i) const;
 	int GetMusicYieldChanges(int i) const;
+	int GetSeaPlotYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -676,6 +677,7 @@ protected:
 	int* m_piArtYieldChanges;
 	int* m_piLitYieldChanges;
 	int* m_piMusicYieldChanges;
+	int* m_piSeaPlotYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
 	int** m_ppiTerrainYieldChanges;
@@ -1758,6 +1760,10 @@ public:
 	{
 		return m_iMusicYieldChanges[(int)eYield];
 	};
+	int GetSeaPlotYieldChanges(YieldTypes eYield) const
+	{
+		return m_iSeaPlotYieldChanges[(int)eYield];
+	};
 
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
@@ -2165,6 +2171,7 @@ private:
 	int m_iArtYieldChanges[NUM_YIELD_TYPES];
 	int m_iLitYieldChanges[NUM_YIELD_TYPES];
 	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
+	int m_iSeaPlotYieldChanges[NUM_YIELD_TYPES];
 #if defined(MOD_BALANCE_CORE)
 	int m_iGAPToYield[NUM_YIELD_TYPES];
 	int m_iMountainRangeYield[NUM_YIELD_TYPES];

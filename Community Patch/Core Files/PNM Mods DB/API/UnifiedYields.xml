@@ -453,6 +453,12 @@
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="Value" type="integer" default="0"/>
 	</Table>
+	<Table name="Trait_SeaPlotYieldChanges">
+		<!-- TRAIT: Trait counterpart to Building_SeaPlotYieldChanges -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<GreatPersons>
 		<Row>
 			<ID>0</ID>
