@@ -46445,10 +46445,10 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 				bFound = true;
 				break;
 			}
-
-			if (!bFound)
-				m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
+
+		if (!bFound)
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 
 	if (pUnit->isNearbyPromotion())
@@ -46480,10 +46480,10 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 				bFound = true;
 				break;
 			}
-
-			if (!bFound)
-				m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
+
+		if (!bFound)
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 }
 

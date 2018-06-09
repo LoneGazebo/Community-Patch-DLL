@@ -12338,7 +12338,7 @@ bool CvUnit::canBuyCityState(const CvPlot* pPlot, bool bTestVisible) const
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner, pPlot->getOwner()) == GAMEEVENTRETURN_FALSE) {
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuyOut, m_eOwner.get(), pPlot->getOwner()) == GAMEEVENTRETURN_FALSE) {
 				return false;
 			}
 		}

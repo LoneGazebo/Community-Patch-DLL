@@ -7271,7 +7271,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType, -1, -1);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType.get(), -1, -1);
 		}
 #endif
 
