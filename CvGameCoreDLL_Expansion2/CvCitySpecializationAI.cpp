@@ -374,7 +374,7 @@ void CvCitySpecializationAI::DoTurn()
 	}
 
 	int iSiegeTotal = iNumCitiesUnderSiege * 100 / max(1, m_pPlayer->getNumCities());
-	if (iSiegeTotal >= 20)
+	if (iSiegeTotal >= 25)
 		SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
 
 	// See if need to update assignments
@@ -402,7 +402,7 @@ void CvCitySpecializationAI::DoTurn()
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
-				if(!pLoopCity->IsBuildingUnitForOperation())
+				if(pLoopCity->isProductionBuilding())
 				{
 #if defined(MOD_BALANCE_CORE)
 					pLoopCity->AI_chooseProduction(m_bInterruptWonders, m_bInterruptBuildings);
@@ -433,11 +433,16 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 		switch(eUpdateType)
 		{
 		case SPECIALIZATION_UPDATE_NOW_AT_WAR:
+			m_bInterruptBuildings = true;
+			break;
 		case SPECIALIZATION_UPDATE_MY_CITY_CAPTURED:
-		case SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE:
+			m_bInterruptBuildings = true;
 			m_bInterruptWonders = true;
+			break;
+		case SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE:
 #if defined(MOD_BALANCE_CORE)
 			m_bInterruptBuildings = true;
+			m_bInterruptWonders = true;
 #endif
 			break;
 		default:

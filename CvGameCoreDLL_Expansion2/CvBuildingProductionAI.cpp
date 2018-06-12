@@ -1041,7 +1041,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		//Maintenace getting close to our GPT? Let's minimize this.
 		if (iGPT <= pkBuildingInfo->GetGoldMaintenance())
 		{
-			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * 100);
+			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * pkBuildingInfo->GetGoldMaintenance() * 100);
+
+			if(iBonus <= 0)
+				iBonus = 1;
 		}
 	}
 

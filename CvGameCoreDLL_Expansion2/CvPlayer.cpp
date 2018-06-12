@@ -22883,22 +22883,16 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 		{
 			iPopulation = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
 
-			// No Unhappiness from Specialist Pop? (Policies, etc.)
-			if(isHalfSpecialistUnhappiness())
-			{
-				iPopulation++; // Round up
-				iPopulation /= 2;
-			}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			//Less unhappiness from specialists....
-			if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			{
 				iUnhappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
 				int iNoHappinessSpecialists = 0;
-				if(iPopulation > 0)
+				if (iPopulation > 0)
 				{
 					//...in capital?
-					if(pLoopCity->isCapital())
+					if (pLoopCity->isCapital())
 					{
 						iNoHappinessSpecialists += GetNoUnhappfromXSpecialistsCapital();
 					}
@@ -22906,16 +22900,23 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 					iNoHappinessSpecialists += GetNoUnhappfromXSpecialists();
 				}
 				//Can't give more free happiness than specialists.
-				if(iNoHappinessSpecialists > iPopulation)
+				if (iNoHappinessSpecialists > iPopulation)
 				{
 					iNoHappinessSpecialists = iPopulation;
 				}
-				if(iNoHappinessSpecialists > 0)
+				if (iNoHappinessSpecialists > 0)
 				{
 					iPopulation -= iNoHappinessSpecialists;
 				}
 			}
 #endif
+
+			// No Unhappiness from Specialist Pop? (Policies, etc.)
+			if(isHalfSpecialistUnhappiness())
+			{
+				iPopulation++; // Round up
+				iPopulation /= 2;
+			}
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
@@ -31559,19 +31560,18 @@ void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 int CvPlayer::GetTechDeviation() const
 {
 	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / max(1, GC.getNumTechInfos());
-	int iMedianTech = GC.getGame().GetGlobalTechMedian();
+	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
+	int iAvgTech = GC.getGame().GetGlobalTechAvg();
 
-	int iTechDeviation = (iOurTech * 100) / max(1, iMedianTech);
-	iTechDeviation -= 100;
+	int iTechDeviation = iOurTech - iAvgTech;
 
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	int iTech = (int)(iTechDeviation * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+	int iTech = (int)((iTechDeviation * iTechDeviation * iTechDeviation) * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 
-	if (iTech > 100)
-		iTech = 100;
-	if (iTech <= -100)
-		iTech = -100;
+	if (iTech > 0 && iTech > (iTechDeviation * 10))
+		iTech = (iTechDeviation * 10);
+	else if (iTech < 0 && iTech <= (iTechDeviation * 10))
+		iTech = (iTechDeviation * 10);
 
 	return iTech;
 }
@@ -46448,10 +46448,10 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 				bFound = true;
 				break;
 			}
-
-			if (!bFound)
-				m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
+
+		if (!bFound)
+			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 
 	if (pUnit->isNearbyPromotion())
@@ -46483,10 +46483,10 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 				bFound = true;
 				break;
 			}
-
-			if (!bFound)
-				m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 		}
+
+		if (!bFound)
+			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pUnit->plot()->GetPlotIndex()));
 	}
 }
 
@@ -47276,36 +47276,28 @@ void CvPlayer::SetBestWonderCities()
 		if (!::isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) && !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 			continue;
 
-		//Already making it? We can ignore the construction test.
-		if (!getBuildingClassMaking((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
-		{
-			//Can't construct?
-			if (!canConstruct(eBuilding))
-				continue;
-		}
-
-		if (pkeBuildingInfo->IsReformation())
-		{
-			if(GetReligions()->GetCurrentReligion(false) == NO_RELIGION)
-				continue;
-		}
-
-		if (pkeBuildingInfo->IsCorp() && !GET_TEAM(getTeam()).IsCorporationsEnabled())
-		{
-			continue;
-		}
-
+		bool bCapitalCanConstruct = false;
 		int iLoopCity;
 		CvCity* pLoopCity = NULL;
 		// Look at all of our Cities to see which is the best.
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
+			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
+
 			//We've already started? We can bail out here, then.
-			if (pLoopCity->getProductionBuilding() == eBuilding)
-				return;
+			if (pLoopCity->getProductionBuilding() == eBuilding || bAlreadyStarted)
+			{
+				pBestCity = pLoopCity;
+				break;
+			}
 
 			if (!pLoopCity->canConstruct(eBuilding))
+			{
+				pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
 				continue;
+			}
+			else if (pLoopCity->isCapital())
+				bCapitalCanConstruct = true;
 
 			//stats to decide whether to disband a unit
 			int iWaterPriority = pLoopCity->GetTradePrioritySea();
@@ -47337,7 +47329,7 @@ void CvPlayer::SetBestWonderCities()
 		}
 
 		//default to capital if no other option (for world wonders only if we have a chance)
-		if (!pBestCity && (bIsCapitalCompetitive || ::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo())) )
+		if (!pBestCity && bCapitalCanConstruct && (bIsCapitalCompetitive || ::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo())))
 			pBestCity = getCapitalCity();
 
 		if (pBestCity)

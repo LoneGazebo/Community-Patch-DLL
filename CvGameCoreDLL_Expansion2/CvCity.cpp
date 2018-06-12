@@ -16486,7 +16486,7 @@ bool CvCity::HasGarrison() const
 	{
 		if (m_hGarrison>-1 && GetGarrisonedUnit()==NULL)
 		{
-			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison,getName().c_str()).c_str());
+			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison.get(),getName().c_str()).c_str());
 			(const_cast<CvCity*>(this))->m_hGarrison = -1;
 			return false;
 		}
@@ -20033,7 +20033,7 @@ int CvCity::GetLocalHappiness() const
 
 	if (kPlayer.GetHappfromXSpecialists() > 0)
 	{
-		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount() * 100;
+		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount();
 		if (iSpecialistPopulation > 0)
 		{
 			int iHappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
@@ -20413,7 +20413,7 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 	iModifier += kPlayer.GetTechDeviation();
 
 	//Increase threshold based on # of citizens and cities. Makes larger cities more and more difficult to maintain.
-	int iPopMod = (getPopulation() + kPlayer.getNumCities()) * GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
+	int iPopMod = (getPopulation() * getPopulation()) * GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
 	iPopMod /= 100;
 
 	iModifier += iPopMod;

@@ -900,7 +900,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	for(iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{	
 		// Make sure this unit can be built now
-		if((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop))
+		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
@@ -937,7 +937,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			continue;
 
 		// Make sure this building can be built now
-		if((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding,vTotalBuildingCount))
+		if ((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding, vTotalBuildingCount, (m_pCity->isProductionBuilding() && (BuildingTypes)iBldgLoop == m_pCity->getProductionBuilding())))
 		{
 			buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 			buildable.m_iIndex = iBldgLoop;
@@ -956,7 +956,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	// Loop through adding the available projects
 	for(iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		if(m_pCity->canCreate((ProjectTypes)iProjectLoop))
+		if (m_pCity->canCreate((ProjectTypes)iProjectLoop, (m_pCity->isProductionProject() && (ProjectTypes)iProjectLoop == m_pCity->getProductionProject())))
 		{
 			int iTempWeight = m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop);
 			if(iTempWeight > 0)
@@ -983,7 +983,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		{
 			ProcessTypes eProcess = (ProcessTypes)iProcessLoop;
 			
-			if (m_pCity->canMaintain(eProcess))
+			if (m_pCity->canMaintain(eProcess, (m_pCity->isProductionProcess() && eProcess == m_pCity->getProductionProcess())))
 			{		
 				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
 				if (eProcess == GC.getInfoTypeForString("PROCESS_DEFENSE"))
@@ -1145,14 +1145,62 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		iRushIfMoreThanXTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iRushIfMoreThanXTurns /= 100;
 
-		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-		if (m_pCity->isBarbarian())
+		bool bContinueSelection = false;
+		for (int i = 0; i < m_Buildables.size(); i++)
 		{
-			selection = m_Buildables.GetElement(0);
+			if (bContinueSelection)
+				break;
+
+			switch (m_Buildables.GetElement(i).m_eBuildableType)
+			{
+				case CITY_BUILDABLE_UNIT:
+				case CITY_BUILDABLE_UNIT_FOR_ARMY:
+				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+				{
+					UnitTypes eUnitType = (UnitTypes)m_Buildables.GetElement(i).m_iIndex;
+					if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnitType)
+					{
+						selection = m_Buildables.GetElement(i);
+						bContinueSelection = true;
+					}
+					break;
+				}
+
+				case CITY_BUILDABLE_BUILDING:
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)m_Buildables.GetElement(i).m_iIndex;
+					if (m_pCity->isProductionBuilding() && !bInterruptBuildings && m_pCity->getProductionBuilding() == eBuildingType)
+					{
+						selection = m_Buildables.GetElement(i);
+						bContinueSelection = true;
+					}
+					break;
+				}
+
+				case CITY_BUILDABLE_PROJECT:
+				{
+					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
+					if (m_pCity->isProductionProject() && m_pCity->getProductionProject() == eProjectType)
+					{
+						selection = m_Buildables.GetElement(i);
+						bContinueSelection = true;
+					}
+					break;
+				}
+			}
 		}
-		else
+
+		if (!bContinueSelection)
 		{
-			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top 2 Choices");
+			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
+			if (m_pCity->isBarbarian())
+			{
+				selection = m_Buildables.GetElement(0);
+			}
+			else
+			{
+				selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top 2 Choices");
+			}
 		}
 
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
