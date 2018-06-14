@@ -20414,29 +20414,31 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 
 	//Increase threshold based on # of citizens and cities. Makes larger cities more and more difficult to maintain.
 	int iPopMod = (getPopulation() * getPopulation()) * GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
-	iPopMod /= 100;
+
+	int iDivisor = 100;
+	switch (eYield)
+	{
+	case YIELD_CULTURE:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
+		break;
+	case YIELD_SCIENCE:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
+		break;
+	case YIELD_GOLD:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
+		break;
+	case YIELD_PRODUCTION:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
+		break;
+	}
+
+	iPopMod /= max(1, iDivisor);
 
 	iModifier += iPopMod;
 
 	if(isCapital())
 	{
 		iModifier += kPlayer.GetCapitalUnhappinessModCBP();
-	}
-
-	switch (eYield)
-	{
-		case YIELD_CULTURE:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
-			break;
-		case YIELD_SCIENCE:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
-			break;
-		case YIELD_GOLD:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
-			break;
-		case YIELD_PRODUCTION:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
-			break;
 	}
 	
 	return iModifier;

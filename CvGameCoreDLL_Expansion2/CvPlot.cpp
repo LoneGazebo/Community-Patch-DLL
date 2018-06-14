@@ -10763,7 +10763,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		iYield += kPlayer.GetPlayerTraits()->GetFeatureYieldChange(eFeature, eYield);
 	}
 
-	if (eImprovement != NO_IMPROVEMENT && eYield == YIELD_CULTURE && (iYield > 0 || iCurrentYield > 0))
+	if (eImprovement != NO_IMPROVEMENT && eYield == YIELD_CULTURE)
 	{
 		iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
 		iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
