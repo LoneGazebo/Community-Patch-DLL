@@ -31568,10 +31568,10 @@ int CvPlayer::GetTechDeviation() const
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
 	int iTech = (int)((iTechDeviation * iTechDeviation * iTechDeviation) * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 
-	if (iTech > 0 && iTech > (iTechDeviation * 10))
-		iTech = (iTechDeviation * 10);
-	else if (iTech < 0 && iTech <= (iTechDeviation * 10))
-		iTech = (iTechDeviation * 10);
+	if (iTech > 0 && iTech > (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100))
+		iTech = ((int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100);
+	else if (iTech < 0 && iTech <= (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * -100))
+		iTech = ((int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * -100);
 
 	return iTech;
 }

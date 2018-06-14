@@ -10675,17 +10675,19 @@ void CvGame::updateGlobalAverage()
 	std::vector<float> vfDefenseYield;
 	std::vector<float> vfGoldYield;
 
-	int iTechAvg = 0;
-	int iNumTechAverage = 0;
+	std::vector<int> viTechMedian;
+
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
 		{
-			int iTechProgress = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+			if (GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+			{
+				int iTechProgress = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
 
-			iTechAvg += iTechProgress;
-			iNumTechAverage++;
+				viTechMedian.push_back(iTechProgress);
+			}
 
 			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 			{
@@ -10719,21 +10721,22 @@ void CvGame::updateGlobalAverage()
 		}
 	}
 	//Cannot define median if calculations are at zero.
-	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty())
+	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty() || viTechMedian.empty())
 	{	
 		return;
 	}
 	
 	//Select n-th percentile of each category
 	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
-	if (iNumTechAverage > 0)
-		iTechAvg /= iNumTechAverage;
+	
+	size_t nt = (viTechMedian.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
 
 	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
+	std::nth_element(viTechMedian.begin(), viTechMedian.begin() + nt, viTechMedian.end());
 	
 	//And set it.
 	SetCultureAverage((int)vfCultureYield[n]);
@@ -10741,7 +10744,7 @@ void CvGame::updateGlobalAverage()
 	SetDefenseAverage((int)vfDefenseYield[n]);
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
-	m_iGlobalTechAvg = iTechAvg;
+	m_iGlobalTechAvg = (int)viTechMedian[nt];
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)
