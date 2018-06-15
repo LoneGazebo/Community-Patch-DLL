@@ -257,7 +257,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, pkDefender);
 		}
 
-		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBackFromMelee(kAttacker,false))
+		if (kAttacker.IsCanHeavyCharge() && !pkDefender->CanFallBack(kAttacker,false))
 		{
 			iAttackerStrength = (iAttackerStrength * 150) / 100;
 		}
@@ -659,7 +659,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			{
 				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && bAttackerDidMoreDamage)
 				{
-					pkDefender->DoFallBackFromMelee(*pkAttacker);
+					pkDefender->DoFallBack(*pkAttacker);
+					//no notifications?
 				}
 
 				bool bCanAdvance = kCombatInfo.getAttackerAdvances() && pkTargetPlot->getNumVisibleEnemyDefenders(pkAttacker) == 0;
@@ -793,7 +794,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBackFromRanged(kAttacker))
+		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBack(kAttacker,false))
 		{
 			iDamage = (iDamage * 150) / 100;
 		}
@@ -1203,12 +1204,33 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							pkDefender->SetActivityType(ACTIVITY_AWAKE);
 						}
-						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath())
+						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
 						{
-							int iRand = GC.getGame().getSmallFakeRandNum(10, pkDefender->GetID()) * 10;
+							int iRand = GC.getGame().getSmallFakeRandNum(10, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex()) * 10;
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
-								pkDefender->DoFallBackFromRanged(*pkAttacker);
+								pkDefender->DoFallBack(*pkAttacker);
+
+								CvNotifications* pNotifications = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
+								if(pNotifications)
+								{
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK");
+									strMessage << pkAttacker->getUnitInfo().GetTextKey();
+									strMessage << pkDefender->getUnitInfo().GetTextKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
+									strSummary << pkDefender->getUnitInfo().GetTextKey();
+									pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int) pkDefender->getUnitType(), pkDefender->getOwner());
+								}
+								CvNotifications* pNotificationsOther = GET_PLAYER(pkAttacker->getOwner()).GetNotifications();
+								if(pNotificationsOther)
+								{
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_THEM");
+									strMessage << pkAttacker->getUnitInfo().GetTextKey();
+									strMessage << pkDefender->getUnitInfo().GetTextKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
+									strSummary << pkDefender->getUnitInfo().GetTextKey();
+									pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int) pkDefender->getUnitType(), pkDefender->getOwner());
+								}
 							}
 						}
 #endif
@@ -3674,9 +3696,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
-	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanFallBackFromMelee(kAttacker,true))
+	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanFallBack(kAttacker,true))
 	{
-		pDefender->DoFallBackFromMelee(kAttacker);
+		pDefender->DoFallBack(kAttacker);
 
 		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{

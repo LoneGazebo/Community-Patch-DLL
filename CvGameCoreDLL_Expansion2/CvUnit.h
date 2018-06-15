@@ -2301,13 +2301,9 @@ protected:
 	void DoCargoPromotions(CvUnit& cargounit);
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
-	// these are do to a unit using Heavy Charge against you
-	bool CanFallBackFromMelee(CvUnit& pAttacker, bool bCheckChances);
-	bool DoFallBackFromMelee(CvUnit& pAttacker);
-#if defined(MOD_BALANCE_CORE)
-	bool CanFallBackFromRanged(CvUnit& pAttacker);
-	bool DoFallBackFromRanged(CvUnit& pAttacker);
-#endif
+
+	bool CanFallBack(CvUnit& pAttacker, bool bCheckChances);
+	bool DoFallBack(CvUnit& pAttacker);
 
 private:
 
