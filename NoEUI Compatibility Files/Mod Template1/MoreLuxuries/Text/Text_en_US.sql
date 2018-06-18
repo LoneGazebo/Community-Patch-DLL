@@ -8,15 +8,15 @@ SET Text = '+1 [ICON_PEACE] Faith for every 2 [ICON_CITIZEN] Citizens in the Cit
 WHERE Tag = 'TXT_KEY_BUILDING_BASILICA_HELP';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.'
+SET Text = '+33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city. Increases the Great Writer Rate in the City, and all Writers'' Guilds produce extra Gold. Grants bonuses to all nearby [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, and [ICON_RES_LAPIS] Lapis Lazuli resources, speeding the growth of the territory of the city and the acquisition of Social Policies. Contains 1 slot for a Great Work of Writing.'
+SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city. Increases the Great Writer Rate in the City, and all Writers'' Guilds produce extra Gold. Grants bonuses to all nearby [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, and [ICON_RES_LAPIS] Lapis Lazuli resources, speeding the growth of the territory of the city and the acquisition of Social Policies. Contains 2 slots for Great Works of Writing.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.'
+SET Text = '+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_ODEON_HELP';
 
 UPDATE Language_en_US

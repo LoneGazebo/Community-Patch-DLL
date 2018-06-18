@@ -426,5 +426,3 @@
 	UPDATE Language_en_US
 	SET Text = 'Another religion has impressed {1_MinorCivName:textkey} with its faith.  Your faith growth was not enough, and your [ICON_INFLUENCE] Influence remains the same as before.  Civilizations that succeeded (ties are allowed):[NEWLINE]'
 	WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	

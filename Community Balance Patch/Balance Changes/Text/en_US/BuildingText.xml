@@ -591,7 +591,7 @@
 			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
+			<Text>+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Whenever you destroy an enemy unit, receive +5 [ICON_CULTURE] Culture in the City, scaling with Era.[NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if Themed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
 			<Text>Unique Greek replacement for the Amphitheater. Build Acropoli to boost your city's Defense, Culture, and Tourism, especially while at war for the latter two. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds. Produces +3 [ICON_TOURISM] Tourism.</Text>
@@ -649,6 +649,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_STRATEGY">
 			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, the Smithsonian boosts Culture and Tourism in the City greatly. The Smithsonian also boosts the Culture and Science output of all Museums and Broadcast Towers in your Empire. The Smithsonian is available slightly later than the Hermitage, however. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL">
+			<Text>National Epics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL">
+			<Text>Global Epics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AMPHITHEATER_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Writings either from your own Civilization, or from Civilizations other than your own.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MISSION">

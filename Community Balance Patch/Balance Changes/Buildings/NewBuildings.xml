@@ -459,13 +459,14 @@
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<Description>TXT_KEY_BUILDING_ODEON</Description>
 			<GoldMaintenance>1</GoldMaintenance>
+			<ThemingBonusHelp>TXT_KEY_AMPHITHEATER_THEMING_BONUS_HELP</ThemingBonusHelp>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_ODEON_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<Defense>1000</Defense>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
+			<GreatWorkCount>2</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
 			<MinAreaSize>-1</MinAreaSize>
 			<HurryCostModifier>25</HurryCostModifier>

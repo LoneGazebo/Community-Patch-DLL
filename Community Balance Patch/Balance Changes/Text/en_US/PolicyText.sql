@@ -396,7 +396,7 @@ WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS_TEXT' AND EXISTS (SELECT * FROM COM
 
 -- Fine Arts
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Refinement[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness from all Guilds, and for every 2 [ICON_GREAT_WORK] Great Works in a City. +10% [ICON_CULTURE] Culture in all Cities during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Refinement[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness from all Guilds, and for every 3 [ICON_GREAT_WORK] Great Works in a City. +10% [ICON_CULTURE] Culture in all Cities during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -435,7 +435,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_TEXT' AND EXISTS (SELECT * FROM COMM
 
 -- Cultural Exchange
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE]The [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations is increased by 20%. +3 [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production from Amphitheaters.'
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE]The [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations is increased by 20%. +2 [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production from Amphitheaters and Opera Houses.'
 WHERE Tag = 'TXT_KEY_POLICY_ETHICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 
@@ -499,7 +499,7 @@ WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Entrepreneurship
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]Great Merchants are earned 50% faster. +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every Mine, Quarry, and Lumbermill.'
+SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]Great Merchants are earned 50% faster. +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every Mine, Quarry, and Lumbermill, and +1 [ICON_HAPPINESS_1] Happiness from Workshops.'
 WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --Protectionism
@@ -852,7 +852,7 @@ SET Text = 'Exchange Markets'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE]Resources from City-States count towards Monopolies. +1 [ICON_INTERNATIONAL_TRADE] Trade Route, and +2 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE]Resources from City-States count towards Monopolies. +1 [ICON_INTERNATIONAL_TRADE] Trade Route, and +1 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -976,7 +976,7 @@ SET Text = 'Enlightenment'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE]A [ICON_GOLDEN_AGE] Golden Age begins. +5% [ICON_RESEARCH] Science and [ICON_FOOD] Growth in all Cities during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE]A [ICON_GOLDEN_AGE] Golden Age begins. +5% [ICON_RESEARCH] Science and [ICON_FOOD] Growth in all Cities during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_HAPPINESS_1] Happiness from Universities.'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

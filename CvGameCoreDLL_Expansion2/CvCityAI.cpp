@@ -90,77 +90,39 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 	CvCitySpecializationAI* pSpecializationAI = kOwner.GetCitySpecializationAI();
 	bool bBuildWonder = false;
 
-	// See if this is the one AI city that is supposed to be building wonders
-	if(pSpecializationAI->GetWonderBuildCity() == this)
+	// Is it still working on that wonder and we don't want to interrupt it?
+	if (!bInterruptWonders)
 	{
-		// Is it still working on that wonder and we don't want to interrupt it?
-		if(!bInterruptWonders)
+		const BuildingTypes eBuilding = getProductionBuilding();
+		CvBuildingEntry* pkBuilding = (eBuilding != NO_BUILDING) ? GC.getBuildingInfo(eBuilding) : NULL;
+		if (pkBuilding && kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
 		{
-			const BuildingTypes eBuilding = getProductionBuilding();
-			CvBuildingEntry* pkBuilding = (eBuilding != NO_BUILDING)? GC.getBuildingInfo(eBuilding) : NULL;
-			if(pkBuilding && kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
-			{
-				return;  // Stay the course
-			}
+			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
+				return;
 		}
+	}
 
-		// So we're the wonder building city but it is not underway yet...
-
-		// Has the designated wonder been poached by another civ?
-		BuildingTypes eNextWonder = pSpecializationAI->GetNextWonderDesired();
-		if(!canConstruct(eNextWonder))
+	// Has the designated wonder been poached by another civ?
+	BuildingTypes eNextWonder = pSpecializationAI->GetNextWonderDesired();
+	if(!canConstruct(eNextWonder))
+	{
+		// Reset city specialization
+		kOwner.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
+	}
+	else
+	{
+		CvBuildingEntry* pkBuilding = (eNextWonder != NO_BUILDING) ? GC.getBuildingInfo(eNextWonder) : NULL;
+		if (pkBuilding)
 		{
-			// Reset city specialization
-			kOwner.GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL);
-		}
-		else
-		{
-#if defined(MOD_AI_SMART_V3)
-			bool checkBuildWonder = true;
-			
-			// All of this only has sense if the AI is able to expand...
-			if (MOD_AI_SMART_V3 && !GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			if (IsBestForWonder((BuildingClassTypes)pkBuilding->GetBuildingClassType()))
 			{
-				int cityExpansionFlavor = m_pCityStrategyAI->GetLatestFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-				int cityWonderFlavor = m_pCityStrategyAI->GetLatestFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-				// Check if at city, the player has more desire to expand than to build wonders.
-				if ((cityExpansionFlavor - cityWonderFlavor) > 0)
-				{
-					int currentCityProd	 = 0;
-					int allOthercitiesProd = 0;
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-					// Lets check production of wonder city vs production in all cities.
-					for(pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
-					{
-						int cityProd = pLoopCity->getCurrentProductionDifference(true, false);
-						if (pLoopCity == this)
-						{
-							currentCityProd = cityProd;
-						}
-						else
-						{
-							allOthercitiesProd += cityProd;
-						}
-					}
-					bool bMostProductionInCity = (currentCityProd - (allOthercitiesProd * 2)) > 0;
-					// If the production of city equals 66% all empire production, lets stop wonder choose.
-					checkBuildWonder = !bMostProductionInCity;
-				}			
+				// to prevent us from continuously locking into building wonders in one city when there are other high priority items to build
+				int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+				int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
+				int iFlavor = (iFlavorWonder > iFlavorGP) ? iFlavorWonder : iFlavorGP;
+				if (GC.getGame().getSmallFakeRandNum(9, plot()->GetPlotIndex() + getPopulation()) <= iFlavor)
+					bBuildWonder = true;
 			}
-			
-			if (checkBuildWonder)
-			{
-#endif
-			// to prevent us from continuously locking into building wonders in one city when there are other high priority items to build
-			int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-			int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
-			int iFlavor = (iFlavorWonder > iFlavorGP ) ? iFlavorWonder : iFlavorGP;
-			if (GC.getGame().getSmallFakeRandNum(8, plot()->GetPlotIndex() + getPopulation()) <= iFlavor)
-				bBuildWonder = true;
-#if defined(MOD_AI_SMART_V3)
-			}
-#endif
 		}
 	}
 
@@ -190,7 +152,6 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 			pLog->Msg(strBaseString);
 		}
 	}
-
 	else
 	{
 #if defined(MOD_BALANCE_CORE)

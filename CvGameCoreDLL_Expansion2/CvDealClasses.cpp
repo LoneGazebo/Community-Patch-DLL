@@ -3428,7 +3428,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE)
 			{
-				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
+				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 				{
 					int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
 					if(iTurns > 0)
@@ -3503,7 +3503,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					}
 					bDone = true;
 				}
-				else if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
+				else if (GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 				{
 					int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
 					if(iTurns > 0)

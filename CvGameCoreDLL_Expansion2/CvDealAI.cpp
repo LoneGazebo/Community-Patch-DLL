@@ -2179,7 +2179,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 /// How much is a City worth - that is: how much would the buyer pay?
-int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, CvDeal* pDeal)
+int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue, CvDeal* pDeal, bool bSurrender)
 {
 	CvCity* pCity = GC.getMap().plot(iX, iY)->getPlotCity();
 	if (!pCity)
@@ -2282,7 +2282,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			return INT_MAX;
 		}
 	}
-	if(bFromMe && pCity->GetCityReligions()->IsHolyCityAnyReligion())
+	if (bFromMe && pCity->GetCityReligions()->IsHolyCityAnyReligion() && !bSurrender)
 	{
 		return INT_MAX;
 	}
@@ -2320,7 +2320,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		{
 			iItemValue /= 4;
 		}
-		if (bFromMe && bGood)
+		if (bFromMe && bGood && !bSurrender)
 		{
 			return MAX_INT;
 		}
@@ -2408,7 +2408,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	// Opinion also matters - but not if we're doing this for a peace settlement
-	if (bFromMe && sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
+	if (bFromMe && !bSurrender && sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{
 		//brainfuck. we do this from the buyer's perspective and assume he knows the seller's opinion of him
 		//so the less the seller likes the buyer, the more we offer for the city
@@ -2434,7 +2434,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	//note: cannot use GetCityDistanceInEstimatedTurns() here, as the city itself is included in the map result would be zero
-	if (!bOurs)
+	if (!bOurs && !bSurrender)
 	{
 		CvCity* pClosestCity = NULL;
 		int iBuyerDistance = INT_MAX;
@@ -6554,7 +6554,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			if (pLoopCity->isCapital())
 				continue;
 
-			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ false, NULL);
+			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ false, NULL, true);
 			if (iCurrentCityValue == INT_MAX)
 				continue;
 
@@ -6592,7 +6592,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
 			pLoopCity = pLosingPlayer->getCity(iSortedCityID);
 
-			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ false, NULL);
+			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ false, NULL, true);
 			if (iCurrentCityValue == INT_MAX)
 				continue;
 

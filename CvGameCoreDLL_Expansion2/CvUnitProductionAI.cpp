@@ -211,7 +211,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 			}
 #endif
 			// Make sure this unit can be built now
-			if(m_pCity->canTrain(eUnit))
+			if(m_pCity->canTrain(eUnit, (m_pCity->isProductionUnit() && eUnit == m_pCity->getProductionUnit())))
 			{
 				// Make sure it matches the requested unit AI type
 				if(eUnitAIType == NO_UNITAI || pkUnitInfo->GetUnitAIType(eUnitAIType))
@@ -999,7 +999,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(iGPT <= 0)
 			{
-				iBonus += (iGPT * -50);
+				iBonus += (iGPT * iGPT * -100);
 			}
 			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
 			if (iUnhappyGold > 0)
@@ -1009,7 +1009,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//Less often if at war.
 			if (bAtWar && iGPT > 0)
 			{
-				iBonus /= (iGPT * 2);
+				iBonus /= 10;
 			}
 
 			if (kPlayer.GetPlayerTraits()->IsDiplomat())
@@ -1654,34 +1654,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	if (!kPlayer.isMinorCiv())
-	{
-		//Debt is worth considering.
-		bool bCloseToDebt = false;
-		int iAverageGoldPerUnit = 0;
-
-		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
-		{
-			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
-			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
-
-			if (iGPT < iAverageGoldPerUnit * 2 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 10)
-			{
-				bCloseToDebt = true;
-			}
-		}
-		//Every -1 GPT = -400 penalty.
-		if ((!bAtWar || bCloseToDebt) && iAverageGoldPerUnit != 0)
-		{
-			iBonus += iAverageGoldPerUnit * -400;
-			//At zero? Even more negative!
-			if (kPlayer.GetTreasury()->GetGold() <= 0)
-			{
-				iBonus += -1000;
-			}
-		}
-	}
-
 	if (bCombat)
 	{
 		if (m_pCity->IsPuppet())
@@ -1735,6 +1707,36 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
 	{
 		iBonus /= max(1, 10 - m_pCity->getProductionTurnsLeft());
+	}
+
+	if (!kPlayer.isMinorCiv())
+	{
+		//Debt is worth considering.
+		bool bCloseToDebt = false;
+		int iAverageGoldPerUnit = 0;
+
+		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
+		{
+			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
+			iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
+
+			if (iGPT < iAverageGoldPerUnit * 2 && kPlayer.GetTreasury()->GetGold() <= iAverageGoldPerUnit * 10)
+			{
+				bCloseToDebt = true;
+			}
+		}
+		//Every -1 GPT = -400 penalty.
+		if ((!bAtWar || bCloseToDebt) && iAverageGoldPerUnit != 0)
+		{
+			iBonus += iAverageGoldPerUnit * -1000;
+			//At zero? Even more negative!
+			if (kPlayer.GetTreasury()->GetGold() <= 0)
+			{
+				iBonus += -5000;
+			}
+			if (iBonus <= 0)
+				iBonus = 0;
+		}
 	}
 
 	/////

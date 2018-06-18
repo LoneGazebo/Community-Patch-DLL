@@ -1189,8 +1189,8 @@ void CvPlot::updateWaterFlags() const
 	{
 		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
 		m_bIsLake = pLandmass ? pLandmass->isLake() : false;
-		m_bIsAdjacentToOcean = !m_bIsLake;
-		m_bIsAdjacentToLand = false;
+		m_bIsAdjacentToOcean = !m_bIsLake; //always false for ocean plots (by definition)
+		m_bIsAdjacentToLand = false; //may be set to true later
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -1206,8 +1206,8 @@ void CvPlot::updateWaterFlags() const
 	else //land plots
 	{
 		m_bIsLake = false;
-		m_bIsAdjacentToOcean = false;
-		m_bIsAdjacentToLand = false;
+		m_bIsAdjacentToOcean = false; //maybe set to true later
+		m_bIsAdjacentToLand = false; //always false for land plots (by definition)
 
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -7271,7 +7271,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType, -1, -1);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_FEATURE, m_iX, m_iY, 0, eNewValue, m_eFeatureType.get(), -1, -1);
 		}
 #endif
 
@@ -10191,30 +10191,8 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 			{
 				iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
 			}
-	
-			if (eYield == YIELD_CULTURE)
-			{
-				iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-				iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
-			}
 		}
 
-		if (getTerrainType() != NO_TERRAIN)
-		{
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-				{
-					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
-					{
-						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
-					}
-				}
-			}
-		}
 		if (getPlotType() != NO_PLOT)
 		{
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -10602,14 +10580,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		}
 	}
 
-	if (kPlayer.isGoldenAge())
-	{
-		if (iCurrentYield >= kYield.getGoldenAgeYieldThreshold())
-		{
-			iYield += kYield.getGoldenAgeYield();
-		}
-	}
-
 	int iBonusYield = eFeature == NO_FEATURE ? kTeam.getTerrainYieldChange(getTerrainType(), eYield) : kTeam.getFeatureYieldChange(eFeature, eYield);
 	if (IsNaturalWonder())
 	{
@@ -10756,6 +10726,20 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		if (getTerrainType() != NO_TERRAIN)
 		{
 			iYield += pOwningCity->GetEventTerrainYield(getTerrainType(), eYield);
+
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if (pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+				{
+					CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+					if (pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
+					{
+						iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+					}
+				}
+			}
 		}
 		if (eImprovement != NO_IMPROVEMENT)
 		{
@@ -10777,6 +10761,20 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 		iYield += kPlayer.getFeatureYieldChange(eFeature, eYield);
 		iYield += kPlayer.GetPlayerTraits()->GetFeatureYieldChange(eFeature, eYield);
+	}
+
+	if (eImprovement != NO_IMPROVEMENT && eYield == YIELD_CULTURE)
+	{
+		iYield += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+		iYield += kPlayer.GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+	}
+
+	if (kPlayer.isGoldenAge())
+	{
+		if ((iYield + iCurrentYield) >= kYield.getGoldenAgeYieldThreshold())
+		{
+			iYield += kYield.getGoldenAgeYield();
+		}
 	}
 
 	return iYield;
@@ -13713,7 +13711,6 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	// Nature yield
 	iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, bIgnoreFeature);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-	iYield += + calculatePlayerYield(eYield, iYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 
 	// If we're not changing the improvement that's here, use the improvement that's here already
 	if(eImprovement == NO_IMPROVEMENT)
@@ -13752,6 +13749,9 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 
 		iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	}
+
+	iYield += +calculatePlayerYield(eYield, iYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
+
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 
 	// If we're not changing the route that's here, use the route that's here already

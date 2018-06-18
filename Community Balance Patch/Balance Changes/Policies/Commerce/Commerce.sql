@@ -122,6 +122,11 @@ INSERT INTO Policy_SpecialistExtraYields
 VALUES
 	('POLICY_COMMERCE_FINISHER', 'YIELD_PRODUCTION', 2);
 
+INSERT INTO Policy_BuildingClassHappiness
+	(PolicyType, BuildingClassType, Happiness)
+VALUES
+	('POLICY_ENTREPRENEURSHIP', 'BUILDINGCLASS_WORKSHOP', 1);
+
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
 VALUES

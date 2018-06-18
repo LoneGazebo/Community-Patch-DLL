@@ -16486,7 +16486,7 @@ bool CvCity::HasGarrison() const
 	{
 		if (m_hGarrison>-1 && GetGarrisonedUnit()==NULL)
 		{
-			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison,getName().c_str()).c_str());
+			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison.get(),getName().c_str()).c_str());
 			(const_cast<CvCity*>(this))->m_hGarrison = -1;
 			return false;
 		}
@@ -20033,7 +20033,7 @@ int CvCity::GetLocalHappiness() const
 
 	if (kPlayer.GetHappfromXSpecialists() > 0)
 	{
-		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount() * 100;
+		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount();
 		if (iSpecialistPopulation > 0)
 		{
 			int iHappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
@@ -20409,33 +20409,36 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 {
 	int iModifier = GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 
-	iModifier += GET_PLAYER(getOwner()).GetTechDeviation();
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	iModifier += kPlayer.GetTechDeviation();
 
-	//Increase threshold based on # of citizens. Is slight, but makes larger cities more and more difficult to maintain.
-	int iPopMod = getPopulation() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER();
-	iPopMod /= 100;
+	//Increase threshold based on # of citizens and cities. Makes larger cities more and more difficult to maintain.
+	int iPopMod = (getPopulation() * getPopulation()) * GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
+
+	int iDivisor = 100;
+	switch (eYield)
+	{
+	case YIELD_CULTURE:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
+		break;
+	case YIELD_SCIENCE:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
+		break;
+	case YIELD_GOLD:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
+		break;
+	case YIELD_PRODUCTION:
+		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
+		break;
+	}
+
+	iPopMod /= max(1, iDivisor);
 
 	iModifier += iPopMod;
 
 	if(isCapital())
 	{
-		iModifier += GET_PLAYER(getOwner()).GetCapitalUnhappinessModCBP();
-	}
-
-	switch (eYield)
-	{
-		case YIELD_CULTURE:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
-			break;
-		case YIELD_SCIENCE:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
-			break;
-		case YIELD_GOLD:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
-			break;
-		case YIELD_PRODUCTION:
-			iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
-			break;
+		iModifier += kPlayer.GetCapitalUnhappinessModCBP();
 	}
 	
 	return iModifier;
