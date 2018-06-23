@@ -5044,50 +5044,9 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eCitadel, vPlotsToAvoid, false);
-			CvPlot* pTargetPlot2 = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombExpend(pUnit, vPlotsToAvoid);
-			if(!pUnit->isCultureBomb() && pTargetPlot)
+			if(pTargetPlot)
 			{
-				if(pUnit->plot() == pTargetPlot)
-				{
-					// find the great general improvement
-					BuildTypes eSelectedBuildType = NO_BUILD;
-					BuildTypes eBuild;
-					int iBuildIndex;
-					for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
-					{
-						eBuild = (BuildTypes)iBuildIndex;
-						CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-						if(pkBuild == NULL)
-							continue;
-						
-						if(!pUnit->canBuild(pTargetPlot, eBuild))
-						{
-							continue;
-						}
-	
-						eSelectedBuildType = eBuild;
-						break;
-					}
-
-					CvAssertMsg(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
-					if (eSelectedBuildType != NO_BUILD)
-					{
-						pUnit->PushMission(CvTypes::getMISSION_BUILD(), eSelectedBuildType, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTargetPlot);
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Great General culture bombed/citadel'd at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-						}
-						UnitProcessed(pUnit->GetID());
-					}
-					else
-					{
-						//give up
-						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
-					}
-				}
-				else
+				if(pUnit->plot() != pTargetPlot)
 				{
 					//continue moving to target
 					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
@@ -5109,51 +5068,64 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					else
 						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 				}
-			}
-#if defined(MOD_BALANCE_CORE)
-			else if (pUnit->isCultureBomb() && pTargetPlot2)
-			{
-				if (pUnit->plot() == pTargetPlot2)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_CULTURE_BOMB());
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Great General culture bombed at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-					UnitProcessed(pUnit->GetID());
-				}
-				else
-				{
-					//continue moving to target
-					if (MoveToTargetButDontEndTurn(pUnit, pTargetPlot2, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY))
-					{
-						vPlotsToAvoid.push_back(pTargetPlot2);
-						UnitProcessed(pUnit->GetID());
 
-						pUnit->SetMissionAI(MISSIONAI_HOMEMOVE, pTargetPlot2, NULL);
-
+				if(pUnit->plot() == pTargetPlot && pUnit->canMove())
+				{
+					if (pUnit->isCultureBomb())
+					{
+						//nothing to build
+						pUnit->PushMission(CvTypes::getMISSION_CULTURE_BOMB());
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Great general moving to culture bomb at, X: %d, Y: %d, current location, X: %d, Y: %d",
-								pTargetPlot2->getX(), pTargetPlot2->getY(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Great General culture bombed at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
+						UnitProcessed(pUnit->GetID());
 					}
 					else
-						pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+					{
+						// find the great general improvement
+						BuildTypes eSelectedBuildType = NO_BUILD;
+						BuildTypes eBuild;
+						int iBuildIndex;
+						for (iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+						{
+							eBuild = (BuildTypes)iBuildIndex;
+							CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+							if (pkBuild == NULL)
+								continue;
+
+							if (!pUnit->canBuild(pTargetPlot, eBuild))
+							{
+								continue;
+							}
+
+							eSelectedBuildType = eBuild;
+							break;
+						}
+
+						CvAssertMsg(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
+						if (eSelectedBuildType != NO_BUILD)
+						{
+							pUnit->PushMission(CvTypes::getMISSION_BUILD(), eSelectedBuildType, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTargetPlot);
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Great General citadel'd at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+								LogHomelandMessage(strLogString);
+							}
+							UnitProcessed(pUnit->GetID());
+						}
+						else
+						{
+							//give up
+							pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
+						}
+					}
 				}
 			}
-			else
-			{
-				//no target for citadel or culture bombs
-				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
-			}
-#endif
 		}
-
 
 		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE)
 		{
