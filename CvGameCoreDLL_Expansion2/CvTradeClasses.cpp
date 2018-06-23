@@ -2524,8 +2524,8 @@ void CvPlayerTrade::MoveUnits (void)
 
 												char text[256] = { 0 };
 												sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
-												float fDelay = 3.0f;
-												DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+												SHOW_PLOT_POPUP(pDestCity->plot(), pOriginCity->getOwner(), text);
+
 												CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
 												if (pNotification)
 												{
@@ -2582,8 +2582,7 @@ void CvPlayerTrade::MoveUnits (void)
 
 												char text[256] = { 0 };
 												sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
-												float fDelay = 4.0f;
-												DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+												SHOW_PLOT_POPUP(pDestCity->plot(), pOriginCity->getOwner(), text);
 
 												CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
 												if (pNotification)
@@ -5059,14 +5058,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	{
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iPlunderGoldValue);
-#if defined(SHOW_PLOT_POPUP)
-		SHOW_PLOT_POPUP(pPlunderPlot, m_pPlayer->GetID(), text, 0.0f);
-#else
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(pPlunderPlot->getX(), pPlunderPlot->getY(), text, fDelay);
-#endif
-		CvString strBuffer;
+		SHOW_PLOT_POPUP(pPlunderPlot, m_pPlayer->GetID(), text);
 
+		CvString strBuffer;
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPlunderGoldValue, GC.getUnitInfo(GetTradeUnit(eDomain, m_pPlayer))->GetDescriptionKey());
 #else

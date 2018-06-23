@@ -3486,9 +3486,10 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 							if(pCity != NULL)
 							{
 								char text[256] = {0};
-								float fDelay = 0.5f;
+		
 								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+								SHOW_PLOT_POPUP(pCity->plot(), pCity->getOwner(), text);
+
 								CvNotifications* pNotification = GET_PLAYER(eAcceptedToPlayer).GetNotifications();
 								if(pNotification)
 								{
@@ -3561,9 +3562,10 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 							if(pCity != NULL)
 							{
 								char text[256] = {0};
-								float fDelay = 0.5f;
+		
 								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+								SHOW_PLOT_POPUP(pCity->plot(), pCity->getOwner(), text);
+
 								CvNotifications* pNotification = GET_PLAYER(eAcceptedFromPlayer).GetNotifications();
 								if(pNotification)
 								{

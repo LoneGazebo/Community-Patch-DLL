@@ -830,9 +830,7 @@ public:
 	CvString getScriptData() const;
 	void setScriptData(const char* szNewValue);
 
-#if defined(SHOW_PLOT_POPUP)
 	void showPopupText(PlayerTypes ePlayer, const char* szMessage);
-#endif
 
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 

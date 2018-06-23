@@ -1067,7 +1067,7 @@ enum BattleTypeTypes
 #define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
 #define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, pUnit->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
 #define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, pPlot->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage, fDelay)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
+#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
 
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name

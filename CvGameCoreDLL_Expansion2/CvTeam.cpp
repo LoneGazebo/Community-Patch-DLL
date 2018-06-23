@@ -6930,9 +6930,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									if(pCity != NULL)
 									{
 										char text[256] = {0};
-										float fDelay = 0.5f;
+				
 										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-										DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+										SHOW_PLOT_POPUP(pCity->plot(), eLoopPlayer, text);
 										CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
 										if(pNotification)
 										{
@@ -6956,7 +6956,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								{
 									for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 									{
-										float fDelay = 0.0f;
+		
 										if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
 											continue;
 
@@ -6982,12 +6982,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												if (pYieldInfo)
 												{
 													char text[256] = { 0 };
-													fDelay += 0.5f;
-
 													CvString yieldString = "";
 													yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
 													sprintf_s(text, yieldString, -iValue);
-													DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+													SHOW_PLOT_POPUP(pLoopCity->plot(), NO_PLAYER,  text);
 												}
 											}
 											bChange = true;
@@ -7097,9 +7095,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												if(pCity != NULL)
 												{
 													char text[256] = {0};
-													float fDelay = 0.5f;
+							
 													sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-													DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+													SHOW_PLOT_POPUP(pCity->plot(), eLoopPlayer, text);
 													CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
 													if(pNotification)
 													{
@@ -7126,7 +7124,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
 														continue;
 
-													float fDelay = 0.0f;
+					
 
 													iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
 													iValue /= 2;
@@ -7149,11 +7147,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 															if (pYieldInfo)
 															{
 																char text[256] = { 0 };
-																fDelay += 0.5f;
+																
 																CvString yieldString = "";
 																yieldString.Format("%s%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
 																sprintf_s(text, yieldString, -iValue);
-																DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+																SHOW_PLOT_POPUP(pLoopCity->plot(), NO_PLAYER,  text);
 															}
 														}
 														bChange = true;

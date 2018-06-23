@@ -576,26 +576,26 @@ public:
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY);
 #if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #else
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #endif
 #else
-	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
+	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #else
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #endif
 #endif
 #if defined(MOD_API_EXTENSIONS)
-	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY);
 #else
-	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY);
 #endif
-	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
+	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)

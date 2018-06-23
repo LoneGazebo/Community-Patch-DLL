@@ -1255,9 +1255,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				float fDelay = 0.5f;
 				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				SHOW_PLOT_POPUP(plot(), kPlayer.GetID(), text);
+
 				CvNotifications* pNotification = kPlayer.GetNotifications();
 				if(pNotification)
 				{
@@ -2477,14 +2477,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				int iExperience = getExperienceTimes100() / 100;
 				if(iExperience > 0)
 				{
-					float fDelay = 0.5f;
 					GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
-					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+					if (getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = { 0 };
-						fDelay += 0.5f;
+						
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(),getOwner(), text);
 					}
 				}
 			}
@@ -2508,12 +2507,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 				{
 					GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(iSupply);
-					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+					if (getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = { 0 };
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(),getOwner(), text);
+
 						CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotification)
 						{
@@ -8003,9 +8003,8 @@ void CvUnit::doHeal()
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
-							float fDelay = 0.0f;
 							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity)* iEra);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+							SHOW_PLOT_POPUP(plot(),getOwner(), text);
 						}
 					}
 					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -8017,9 +8016,9 @@ void CvUnit::doHeal()
 							if(getOwner() == GC.getGame().getActivePlayer())
 							{
 								char text[256] = {0};
-								float fDelay = 0.0f;
+
 								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) * iEra);
-								DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+								SHOW_PLOT_POPUP(plot(),getOwner(), text);
 							}
 						}
 					}
@@ -8173,12 +8172,7 @@ void CvUnit::DoAttrition()
 
 						char text[256];
 						sprintf_s (text, "%s [COLOR_WHITE]-%d [ICON_PEACE][ENDCOLOR]", string.toUTF8(), iStrengthLoss);
-#if defined(SHOW_PLOT_POPUP)
-						SHOW_PLOT_POPUP(plot(), getOwner(), text, 0.0f);
-#else
-						float fDelay = 0.0f;
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
-#endif
+						SHOW_PLOT_POPUP(plot(), getOwner(), text);
 					}
 				}
 			}
@@ -9773,12 +9767,7 @@ bool CvUnit::sellExoticGoods()
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-#if defined(SHOW_PLOT_POPUP)
-		SHOW_PLOT_POPUP(plot(), getOwner(), text, 0.0f);
-#else
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(getX(), getY(), text, fDelay);
-#endif
+		SHOW_PLOT_POPUP(plot(), getOwner(), text);
 
 		changeNumExoticGoods(-1);
 #if defined(MOD_BALANCE_CORE)
@@ -11305,12 +11294,7 @@ bool CvUnit::DoSpreadReligion()
 				sprintf_s(text, "[COLOR_WHITE]%s: %d [ICON_PEACE][ENDCOLOR]",
 					strReligionName.toUTF8(),
 					iConversionStrength / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER());
-#if defined(SHOW_PLOT_POPUP)
-				SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text, 0.0f);
-#else
-				float fDelay = 0.0f;
-				DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-#endif
+				SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text);
 			}
 
 #if !defined(MOD_API_UNIFIED_YIELDS)
@@ -11334,11 +11318,7 @@ bool CvUnit::DoSpreadReligion()
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
 					float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-#if defined(SHOW_PLOT_POPUP)
-					SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text, fDelay);
-#else
-					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-#endif
+					SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text);
 				}
 			}
 #endif
@@ -11353,8 +11333,7 @@ bool CvUnit::DoSpreadReligion()
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iCSInfluence);
-						float fDelay = 3.0f;
-						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pCity->plot(),getOwner(), text);
 					}
 				}
 			}
@@ -13281,12 +13260,7 @@ bool CvUnit::blastTourism()
 
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlast, strInfluenceText.c_str());
-#if defined(SHOW_PLOT_POPUP)
-		SHOW_PLOT_POPUP(pPlot, getOwner(), text, 0.0f);
-#else
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
-#endif
+		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
 	}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -13672,7 +13646,6 @@ bool CvUnit::build(BuildTypes eBuild)
 				}
 				if(pkBuildInfo->IsCultureBoost())
 				{
-					float fDelay = 0.5f;
 					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
 					kPlayer.changeJONSCulture(iValue);
 					if(kPlayer.getCapitalCity() != NULL)
@@ -13682,9 +13655,8 @@ bool CvUnit::build(BuildTypes eBuild)
 					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
-						fDelay += 0.5f;
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(),kPlayer.GetID(), text);
 					}
 				}
 #endif
@@ -14667,14 +14639,12 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			int iExperience = getExperienceTimes100() / 100;
 			if(iExperience > 0)
 			{
-				float fDelay = 0.5f;
 				GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
-				if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+				if (getOwner() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = { 0 };
-					fDelay += 0.5f;
 					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-					DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+					SHOW_PLOT_POPUP(plot(),getOwner(),text);
 				}
 			}
 		}
@@ -19846,9 +19816,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 									else
 									{
 #if defined(MOD_API_UNIFIED_YIELDS)
-										kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY, 0);
+										kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY);
 #else
-										kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian(), 0);
+										kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian());
 #endif
 										pLoopUnit->kill(false, getOwner());
 									}
@@ -19941,9 +19911,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-											kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY, 0);
+											kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY);
 #else
-											kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian(), 0);
+											kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian());
 #endif
 #if defined(MOD_API_EXTENSIONS)
 											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
@@ -20666,7 +20636,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 #if defined(MOD_BALANCE_CORE_POLICIES)
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
-							float fDelay = 0.5f;
+	
 							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
@@ -20684,12 +20654,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								{
 									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
 								}
-								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									char text[256] = {0};
-									fDelay += 0.5f;
+									
 									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+									SHOW_PLOT_POPUP(pNewPlot,getOwner(), text);
 								}
 							}
 						}
@@ -20746,7 +20716,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					{
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
-							float fDelay = 0.5f;
+	
 							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
@@ -20759,12 +20729,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								{
 									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
 								}
-								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									char text[256] = {0};
-									fDelay += 0.5f;
+									
 									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+									SHOW_PLOT_POPUP(pNewPlot,getOwner(), text);
 								}
 							}
 						}
@@ -21237,11 +21207,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 				}
 
 				if (!isSuicide())	// Show the HP lost, except if it is a suicide unit (missile, etc.)
-#if defined(SHOW_PLOT_POPUP)
-					SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), text.c_str(), fDelay);
-#else
-					DLLUI->AddPopupText(iX, iY, text.c_str(), fDelay);
-#endif
+					SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), text.c_str());
 			}
 		}
 	}
@@ -21550,9 +21516,6 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 #else
 				localizedText << iExperienceChange;
 #endif
-#if !defined(SHOW_PLOT_POPUP)
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY();
-#endif
 
 				int iX = m_iX;
 				int iY = m_iY;
@@ -21574,12 +21537,8 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 					}
 				}
 
-#if defined(SHOW_PLOT_POPUP)
 				//possibly iX and iY are invalid if the unit is not initialized yet, but the macro catches this
-				SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), localizedText.toUTF8(), 0.0f);
-#else
-				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), fDelay);
-#endif
+				SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), localizedText.toUTF8());
 
 				if(IsSelected())
 				{
@@ -21655,12 +21614,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 						{
 							CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
 							Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
-#if defined(SHOW_PLOT_POPUP)
-							SHOW_PLOT_POPUP(plot(), getOwner(), localizedText.toUTF8(), 0.0f);
-#else
-							float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-							DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
-#endif
+							SHOW_PLOT_POPUP(plot(), getOwner(), localizedText.toUTF8());
 						}
 					}
 				}
