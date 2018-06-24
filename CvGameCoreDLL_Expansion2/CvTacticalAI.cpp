@@ -4261,6 +4261,14 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			return;
 		}
 
+		//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
+		if (!m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
+		{
+			m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
+			ClearEnemiesNearArmy(pThisArmy);
+			return;
+		}
+
 		// Request moves for all units
 		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 		{

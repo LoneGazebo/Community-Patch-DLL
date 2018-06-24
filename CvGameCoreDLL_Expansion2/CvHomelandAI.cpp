@@ -5043,7 +5043,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		// this is for the citadel/culture bomb
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
-			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, eCitadel, vPlotsToAvoid, false);
+			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestCultureBombPlot(pUnit, pUnit->isCultureBomb() ? NO_BUILD : eCitadel, vPlotsToAvoid, false);
 			if(pTargetPlot)
 			{
 				if(pUnit->plot() != pTargetPlot)
@@ -5125,12 +5125,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					}
 				}
 			}
-		}
-
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE)
-		{
-			ExecuteGoldenAgeMove(pUnit);
-			continue;
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)

@@ -2668,20 +2668,35 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 }
 CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
 {
-	if(!pUnit)
+	if (!pUnit)
 		return NULL;
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
 	std::set<int> setCandidates;
-	
-	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-	if(!pkBuildInfo)
-		return NULL;
+	CvImprovementEntry* pkImprovementInfo = NULL;
+	int iRange = 0;
 
-	ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-	if (!pkImprovementInfo)
-		return NULL;
+	if (eBuild == NO_BUILD)
+	{
+		CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
+		if (!pkUnitEntry || !pUnit->isCultureBomb())
+			return NULL;
+
+		iRange = range(pkUnitEntry->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
+	}
+	else
+	{
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (!pkBuildInfo)
+			return NULL;
+
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo)
+			return NULL;
+
+		iRange = range(pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
+	}
 
 	// loop through plots and wipe out ones that are invalid
 	for (PlotIndexContainer::iterator it = m_aiPlots.begin(); it != m_aiPlots.end(); ++it)
@@ -2730,7 +2745,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				continue;
 
 			//citadel special
-			if (pkImprovementInfo->GetDefenseModifier() > 0)
+			if (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0)
 			{
 				//we want to steal at least one plot
 				if (!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
@@ -2744,8 +2759,8 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
-				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-				if(pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson())
+				CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
+				if(pkImprovementInfo2 && pkImprovementInfo2->IsCreatedByGreatPerson())
 					continue;
 			}
 
@@ -2789,14 +2804,12 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 	}
 
 	std::priority_queue<SPlotWithScore> goodPlots;
-	int iRange = pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost();
-	iRange = range(iRange, 1, 5);
 
 	//now that we have a number of possible plots, score each
 	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		int iScore = pkImprovementInfo->GetDefenseModifier() > 0 ? pPlot->GetDefenseBuildValue(GetID()) : 0;
+		int iScore = (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0) ? pPlot->GetDefenseBuildValue(GetID()) : 0;
 
 		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 		{
@@ -2827,8 +2840,8 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				ImprovementTypes eExistingImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
 				if (eExistingImprovement != NO_IMPROVEMENT)
 				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eExistingImprovement);
-					if (pkImprovementInfo && pkImprovementInfo->GetCultureBombRadius() > 1)
+					CvImprovementEntry* pkImprovementInfo2 = GC.getImprovementInfo(eExistingImprovement);
+					if (pkImprovementInfo2 && pkImprovementInfo2->GetCultureBombRadius() > 1)
 					{
 						iScore = 0;
 						break;
