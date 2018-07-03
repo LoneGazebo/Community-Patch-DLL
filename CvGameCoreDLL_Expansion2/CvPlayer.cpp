@@ -3593,7 +3593,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				iScaler = 1;
 			}
-			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler);
+			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, false, true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pOldCity);
 
 			if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !isMinorCiv() && !isBarbarian() && (GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 			{
@@ -26241,7 +26241,7 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData)
+void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData, CvCity* pOtherCity)
 {
 	//No minors or barbs here, please!
 	if(isMinorCiv() || isBarbarian())
@@ -26601,6 +26601,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						iValue *= iPassYield;
 					}
+
+					if (pLoopCity->isCapital() && pOtherCity != NULL)
+					{
+						for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+						{
+							eTerrain = (TerrainTypes)iI;
+
+							if (eTerrain != NO_TERRAIN)
+							{
+								int iTraitValue = GetPlayerTraits()->GetYieldChangeFromTileConquest(eTerrain, eYield);
+
+								if (iTraitValue <= 0)
+									continue;
+
+								int iNumTiles = pOtherCity->CountTerrain(eTerrain);
+								if (iNumTiles > 0)
+								{
+									iValue += (iTraitValue * iNumTiles);
+								}
+							}
+						}
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_VICTORY:
@@ -26645,12 +26667,41 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_TILE_PURCHASE:
 				{
 					iValue += GetPlayerTraits()->GetYieldFromTilePurchase(eYield);
+					for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+					{
+						eTerrain = (TerrainTypes)iI;
+
+						if (eTerrain == NO_TERRAIN)
+							continue;
+						if (eTerrain == ePassTerrain)
+						{
+							iValue += GetPlayerTraits()->GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield);
+						}
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_FOUND:
 				{
 					iValue += GetPlayerTraits()->GetYieldFromSettle(eYield);
 					iValue += getFounderYield(eYield);
+					for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+					{
+						eTerrain = (TerrainTypes)iI;
+
+						if (eTerrain != NO_TERRAIN && pCity != NULL)
+						{
+							int iTraitValue = GetPlayerTraits()->GetYieldChangeFromTileSettle(eTerrain, eYield);
+
+							if (iTraitValue <= 0)
+								continue;
+
+							int iNumTiles = pCity->CountTerrain(eTerrain);
+							if (iNumTiles > 0)
+							{
+								iValue += (iTraitValue * iNumTiles);
+							}
+						}
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_TR_END:
@@ -26804,6 +26855,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 						iValue += iMetric;
 					}
+					break;
+				}
+				case INSTANT_YIELD_TYPE_CULTURE_BOMB:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue += iPassYield;
+
 					break;
 				}
 				
@@ -27600,7 +27660,25 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						break;
 					}
 				}
-			}		
+			}	
+			case INSTANT_YIELD_TYPE_CULTURE_BOMB:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CULTURE_BOMB");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
 		}
 		if(pCity == NULL)
 		{

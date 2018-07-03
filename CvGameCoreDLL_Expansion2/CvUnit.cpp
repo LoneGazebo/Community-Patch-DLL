@@ -12750,7 +12750,45 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				}
 				vePlayersBombed[pLoopPlot->getOwner()] = true;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Instant yield from tiles gained by culture bombing
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
 
+				int iPassYield = 0;
+
+				if (eYield == NO_YIELD)
+					continue;
+
+				TerrainTypes eTerrain = pLoopPlot->getTerrainType();
+
+				// Stole foreign tiles
+				if (pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
+				}
+				// Obtained neutral tiles
+				else
+				{
+					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
+				}
+
+				CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+				if (pBestCity == NULL)
+				{
+					CvCity* pCapitalCity = kPlayer.getCapitalCity();
+					if (pCapitalCity != NULL)
+					{
+						pBestCity = pCapitalCity;
+					}
+				}
+				if (pBestCity != NULL)
+				{
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
+				}
+			}
+#endif
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -12804,6 +12842,9 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+
+#endif
 }
 
 //	--------------------------------------------------------------------------------

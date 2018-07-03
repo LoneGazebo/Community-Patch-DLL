@@ -26522,7 +26522,12 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_TILE_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+	TerrainTypes eTerrain = NO_TERRAIN;
+	if (pPlot != NULL)
+	{
+		eTerrain = pPlot->getTerrainType();
+	}
+	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_TILE_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, eTerrain);
 #endif
 	if(GC.getLogging() && GC.getAILogging())
 	{
