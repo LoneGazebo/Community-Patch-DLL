@@ -3012,8 +3012,12 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
+#elif defined(MOD_API_EXTENSIONS)
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName)
+#elif defined(MOD_BALANCE_CORE)
+CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding, CvUnitEntry* pkSettlerUnitEntry)
 #else
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
@@ -3024,8 +3028,12 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 	if(pNewCity != NULL)
 	{
 		CvAssertMsg(!(GC.getMap().plot(iX, iY)->isCity()), "No city is expected at this plot when initializing new city");
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
+#elif defined(MOD_API_EXTENSIONS)
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName);
+#elif defined(MOD_BALANCE_CORE)
+		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, pkSettlerUnitEntry);
 #else
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding);
 #endif
@@ -14407,8 +14415,12 @@ bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bo
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
+void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 void CvPlayer::found(int iX, int iY, ReligionTypes eReligion, bool bForce)
+#elif defined(MOD_BALANCE_CORE)
+void CvPlayer::found(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL)
 #else
 void CvPlayer::found(int iX, int iY)
 #endif
@@ -14420,8 +14432,12 @@ void CvPlayer::found(int iX, int iY)
 
 	SetTurnsSinceSettledLastCity(0);
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
+#elif defined(MOD_BALANCE_CORE)
+	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
 #else
 	CvCity* pCity = initCity(iX, iY);
 #endif
@@ -26615,7 +26631,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								if (iTraitValue <= 0)
 									continue;
 
-								int iNumTiles = pOtherCity->CountTerrain(eTerrain);
+								int iNumTiles = pOtherCity->CountAllOwnedTerrain(eTerrain);
 								if (iNumTiles > 0)
 								{
 									iValue += (iTraitValue * iNumTiles);

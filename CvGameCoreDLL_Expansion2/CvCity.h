@@ -42,8 +42,12 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_API_EXTENSIONS)
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
+#elif defined(MOD_BALANCE_CORE)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
@@ -1565,6 +1569,7 @@ public:
 	int CountWorkedResource(ResourceTypes iResourceType) const;
 	int CountTerrain(TerrainTypes iTerrainType) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
+	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
