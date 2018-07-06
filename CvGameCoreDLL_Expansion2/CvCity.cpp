@@ -26770,6 +26770,23 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		else if (pCityStrategyAI->IsYieldDeficient(eYield))
 			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER() / 2;
 
+#if defined(MOD_BALANCE_CORE)
+		TerrainTypes eTerrain = pPlot->getTerrainType();
+
+		int iTraitValue = GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield);
+
+		if (iTraitValue > 0)
+		{
+			if (eYield == eSpecializationYield)
+			{
+				iTempValue += iTraitValue * GC.getAI_PLOT_VALUE_SPECIALIZATION_MULTIPLIER() / 10; // Dividing by 10 because this is an instant yield
+			}
+			else
+			{
+				iTempValue += iTraitValue * GC.getAI_PLOT_VALUE_YIELD_MULTIPLIER() / 10;
+			}
+		}
+#endif
 		iYieldValue += iTempValue;
 	}
 
