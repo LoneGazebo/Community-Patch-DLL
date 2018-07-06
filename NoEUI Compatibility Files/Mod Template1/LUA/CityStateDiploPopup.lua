@@ -287,7 +287,7 @@ function OnDisplay()
 	Controls.AllyText:SetHide(bHideText);
 	
 	-- Vox Populi - Contender info
-	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, minorPlayerID) )
+	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, g_iMinorCivID) )
 	
 	-- Protected by anyone?
 	local sProtectingPlayers = getProtectingPlayers(g_iMinorCivID);
