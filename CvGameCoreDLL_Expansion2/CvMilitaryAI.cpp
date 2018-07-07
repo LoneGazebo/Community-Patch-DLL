@@ -2323,6 +2323,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		fDesirability *= 1 + ( m_pPlayer->GetCityDistanceInPlots(pTargetPlot) / float(iDistToCapital) );
 	}
 
+#if defined(MOD_BALANCE_CORE)
 	//If we get instant yields from conquering specific terrain types, look for cities with those
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
@@ -2349,6 +2350,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 		}
 	}
+#endif
 
 	//Muster already targeted by operation? De-emphasize.
 	if (m_pPlayer->IsMusterCityAlreadyTargeted(target.m_pMusterCity, eDomain, 0, -1))

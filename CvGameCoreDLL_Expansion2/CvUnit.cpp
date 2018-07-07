@@ -12758,6 +12758,9 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 				TerrainTypes eTerrain = pLoopPlot->getTerrainType();
 
+				if (eTerrain == NO_TERRAIN)
+					continue;
+
 				// Stole foreign tiles
 				if (pLoopPlot->getOwner() != NO_PLAYER)
 				{
@@ -12837,9 +12840,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-
-#endif
 }
 
 //	--------------------------------------------------------------------------------
