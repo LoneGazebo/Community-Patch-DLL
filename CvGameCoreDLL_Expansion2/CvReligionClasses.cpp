@@ -6436,11 +6436,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
-#if defined(SHOW_PLOT_POPUP)
-						SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text, 0.5f);
-#else
-						GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
-#endif
+						SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text);
 					}
 				}
 #if defined(MOD_BALANCE_CORE_BELIEFS)

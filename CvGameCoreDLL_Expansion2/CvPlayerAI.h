@@ -88,8 +88,6 @@ public:
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant);
 
-	CvPlot * FindBestCultureBombExpend(CvUnit * pUnit, const std::vector<CvPlot*>& vPlotsToAvoid);
-
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster);
 	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(CvCity* pCity);

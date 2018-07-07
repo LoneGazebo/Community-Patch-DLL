@@ -8805,7 +8805,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			{
 				ChangePlotMovesChange(iMoves * -1);
 			}
-			else if (!bPillaged && iMoves > 0 && getOwner() == GET_PLAYER(getOwner()).GetID())
+			else if (!bPillaged && iMoves > 0 && getOwner() == getOwner())
 			{
 				ChangePlotMovesChange(iMoves);
 			}
@@ -11669,16 +11669,8 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 								if(eTeam == eActiveTeam)
 								{
 									char text[256] = {0};
-#if !defined(SHOW_PLOT_POPUP)
-									float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
-#endif
-									text[0] = NULL;
 									sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iFinderGold);
-#if defined(SHOW_PLOT_POPUP)
-									SHOW_PLOT_POPUP(this, NO_PLAYER, text, 0.0f);
-#else
-									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, fDelay);
-#endif
+									SHOW_PLOT_POPUP(this, NO_PLAYER, text);
 								}
 #if !defined(MOD_BUGFIX_MINOR)
 							}
@@ -12954,7 +12946,6 @@ void CvPlot::setScriptData(const char* szNewValue)
 	m_szScriptData = _strdup(szNewValue);
 }
 
-#if defined(SHOW_PLOT_POPUP)
 void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 {
 	if (ePlayer == NO_PLAYER || isVisible(GET_PLAYER(ePlayer).getTeam()))
@@ -12967,7 +12958,6 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 		}
 	}
 }
-#endif
 
 // Protected Functions...
 

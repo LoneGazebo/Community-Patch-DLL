@@ -12773,9 +12773,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(), m_eOwner, text);
+
 						CvNotifications* pNotification = owningPlayer.GetNotifications();
 						if(pNotification)
 						{
@@ -17018,9 +17019,9 @@ int CvCity::getGreatPeopleRateModifier() const
 		{
 			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
 
-			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			if (eMinor != getOwner() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
+				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
 				{
 					iNumMarried++;
 				}
@@ -25839,11 +25840,7 @@ void CvCity::setDamage(int iValue, bool noMessage)
 				sprintf_s(text, "[COLOR_RED]%d[ENDCOLOR]", iDiff);
 			}
 
-#if defined(SHOW_PLOT_POPUP)
-			SHOW_PLOT_POPUP(plot(), NO_PLAYER, text, fDelay);
-#else
-			DLLUI->AddPopupText(m_iX, m_iY, text, fDelay);
-#endif
+			SHOW_PLOT_POPUP(plot(), NO_PLAYER, text);
 		}
 		m_iDamage = iValue;
 	}

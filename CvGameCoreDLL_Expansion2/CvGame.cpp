@@ -13427,8 +13427,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
 
 			// Erase that writing from future consideration
-			vector<GreatWorkType>::const_iterator it;
-			it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
+			vector<GreatWorkType>::const_iterator it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
 			aWorksWriting.erase(it);
 
 			// One less writing to give out

@@ -3436,9 +3436,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				float fDelay = 0.5f;
 				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-				DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+				SHOW_PLOT_POPUP(pPlot, m_pPlayer->GetID(), text);
+
 				CvNotifications* pNotification = m_pPlayer->GetNotifications();
 				if(pNotification)
 				{
