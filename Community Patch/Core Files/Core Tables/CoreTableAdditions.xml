@@ -728,6 +728,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you buy a tile of a specific terrain type -->
+	<Table name="Trait_YieldFromTilePurchaseTerrainType">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile -->
 	<Table name="Trait_YieldFromTileEarn">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -736,6 +743,34 @@
 	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile on a specific terrain type -->
 	<Table name="Trait_YieldFromTileEarnTerrainType">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you conquer a city for the first time, scaling with the number of tiles of a specific terrain type -->
+	<Table name="Trait_YieldFromTileConquest">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile of a specific terrain type by culture bombing -->
+	<Table name="Trait_YieldFromTileCultureBomb">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile of a specific terrain type from another civilization or city state by culture bombing -->
+	<Table name="Trait_YieldFromTileStealCultureBomb">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile of a specific terrain type when settling -->
+	<Table name="Trait_YieldFromTileSettle">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>

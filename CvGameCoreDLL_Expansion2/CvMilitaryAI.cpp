@@ -2323,6 +2323,35 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		fDesirability *= 1 + ( m_pPlayer->GetCityDistanceInPlots(pTargetPlot) / float(iDistToCapital) );
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//If we get instant yields from conquering specific terrain types, look for cities with those
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+
+		if (eYield == NO_YIELD)
+			continue;
+
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+
+			if (eTerrain == NO_TERRAIN)
+				continue;
+
+			if (m_pPlayer->GetPlayerTraits()->GetYieldChangeFromTileConquest(eTerrain, eYield) > 0)
+			{
+				int iNumTerrain = target.m_pTargetCity->CountTerrain(eTerrain); // not using CountAllOwnedTerrain to save performance
+				if (iNumTerrain > 0)
+				{
+					fDesirability *= 100 + (3 * iNumTerrain);
+					fDesirability /= 100;
+				}
+			}
+		}
+	}
+#endif
+
 	//Muster already targeted by operation? De-emphasize.
 	if (m_pPlayer->IsMusterCityAlreadyTargeted(target.m_pMusterCity, eDomain, 0, -1))
 	{

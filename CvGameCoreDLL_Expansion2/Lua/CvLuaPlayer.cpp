@@ -2101,7 +2101,13 @@ int CvLuaPlayer::lCanFound(lua_State* L)
 //void found(int iX, int iY);
 int CvLuaPlayer::lFound(lua_State* L)
 {
-	return BasicLuaMethod<int,int>(L, &CvPlayerAI::found);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iX = lua_tointeger(L, 2);
+	const int iY = lua_tointeger(L, 3);
+
+	pkPlayer->found(iX, iY);
+
+	return 0;
 }
 
 //------------------------------------------------------------------------------

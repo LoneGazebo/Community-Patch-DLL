@@ -268,6 +268,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_piFreeUnitClassesDOW(NULL),
 	m_piDomainFreeExperienceModifier(NULL),
 	m_ppiYieldFromTileEarnTerrainType(NULL),
+	m_ppiYieldFromTilePurchaseTerrainType(NULL),
+	m_ppiYieldFromTileConquest(NULL),
+	m_ppiYieldFromTileCultureBomb(NULL),
+	m_ppiYieldFromTileStealCultureBomb(NULL),
+	m_ppiYieldFromTileSettle(NULL),
 	m_ppiYieldChangePerImprovementBuilt(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -332,6 +337,11 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
 #if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileEarnTerrainType);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTilePurchaseTerrainType);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileConquest);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileCultureBomb);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileStealCultureBomb);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileSettle);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldChangePerImprovementBuilt);
 #endif
 }
@@ -1402,6 +1412,51 @@ int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTyp
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileEarnTerrainType ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTilePurchaseTerrainType ? m_ppiYieldFromTilePurchaseTerrainType[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileConquest(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileConquest ? m_ppiYieldFromTileConquest[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileCultureBomb ? m_ppiYieldFromTileCultureBomb[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileStealCultureBomb ? m_ppiYieldFromTileStealCultureBomb[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileSettle ? m_ppiYieldFromTileSettle[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const
@@ -2490,6 +2545,116 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiYieldFromTileEarnTerrainType[TerrainID][YieldID] = yield;
 		}
 	}
+	//Populate m_ppiYieldFromTilePurchaseTerrainType
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTilePurchaseTerrainType, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTilePurchaseTerrainType");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTilePurchaseTerrainType inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTilePurchaseTerrainType[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileConquest
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileConquest, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileConquest");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileConquest inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileConquest[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileCultureBomb
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileCultureBomb, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileCultureBomb");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileCultureBomb inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileCultureBomb[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileStealCultureBomb
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileStealCultureBomb, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileStealCultureBomb");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileStealCultureBomb inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileStealCultureBomb[TerrainID][YieldID] = yield;
+		}
+	}
+	//Populate m_ppiYieldFromTileSettle
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileSettle, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileSettle");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileSettle inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileSettle[TerrainID][YieldID] = yield;
+		}
+	}
 	//Populate m_ppiYieldChangePerImprovementBuilt
 	{
 		kUtility.Initialize2DArray(m_ppiYieldChangePerImprovementBuilt, "Improvements", "Yields");
@@ -3168,6 +3333,18 @@ void CvPlayerTraits::SetIsWarmonger()
 			m_bIsWarmonger = true;
 			return;
 		}
+
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+			if (GetYieldChangeFromTileConquest(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTileCultureBomb(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield) > 0)
+			{
+				m_bIsWarmonger = true;
+				return;
+			}
+		}
 	}
 
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -3388,6 +3565,18 @@ void CvPlayerTraits::SetIsExpansionist()
 		{
 			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
 			if (GetYieldChangePerImprovementBuilt(eImprovement, eYield) != 0)
+			{
+				m_bIsExpansionist = true;
+				return;
+			}
+		}
+
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
+			if (GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield) > 0 ||
+				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0)
 			{
 				m_bIsExpansionist = true;
 				return;
@@ -3927,6 +4116,41 @@ void CvPlayerTraits::InitPlayerTraits()
 						yields[iYield] = (m_ppiYieldFromTileEarnTerrainType[iTerrainLoop][iYield] + iChange);
 						m_ppiYieldFromTileEarnTerrainType[iTerrainLoop] = yields;
 					}
+					iChange = trait->GetYieldFromTilePurchaseTerrainType((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileConquest((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileConquest[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileConquest[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileConquest[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileCultureBomb((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileCultureBomb[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileCultureBomb[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileCultureBomb[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileStealCultureBomb((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileStealCultureBomb[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileStealCultureBomb[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileStealCultureBomb[iTerrainLoop] = yields;
+					}
+					iChange = trait->GetYieldFromTileSettle((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if (iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileSettle[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileSettle[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileSettle[iTerrainLoop] = yields;
+					}
 				}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -4175,6 +4399,11 @@ void CvPlayerTraits::Uninit()
 	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
 	m_ppiYieldFromTileEarnTerrainType.clear();
+	m_ppiYieldFromTilePurchaseTerrainType.clear();
+	m_ppiYieldFromTileConquest.clear();
+	m_ppiYieldFromTileCultureBomb.clear();
+	m_ppiYieldFromTileStealCultureBomb.clear();
+	m_ppiYieldFromTileSettle.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
@@ -4435,6 +4664,16 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_ppiYieldFromTileEarnTerrainType.clear();
 	m_ppiYieldFromTileEarnTerrainType.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTilePurchaseTerrainType.clear();
+	m_ppiYieldFromTilePurchaseTerrainType.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileConquest.clear();
+	m_ppiYieldFromTileConquest.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileCultureBomb.clear();
+	m_ppiYieldFromTileCultureBomb.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileStealCultureBomb.clear();
+	m_ppiYieldFromTileStealCultureBomb.resize(GC.getNumTerrainInfos());
+	m_ppiYieldFromTileSettle.clear();
+	m_ppiYieldFromTileSettle.resize(GC.getNumTerrainInfos());
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
 #endif
@@ -4552,6 +4791,13 @@ void CvPlayerTraits::Reset()
 		{
 			m_ppiTerrainYieldChange[iTerrain] = yield;
 			m_ppiYieldFromTileEarnTerrainType[iTerrain] = yield;
+#if defined(MOD_BALANCE_CORE)
+			m_ppiYieldFromTilePurchaseTerrainType[iTerrain] = yield;
+			m_ppiYieldFromTileConquest[iTerrain] = yield;
+			m_ppiYieldFromTileCultureBomb[iTerrain] = yield;
+			m_ppiYieldFromTileStealCultureBomb[iTerrain] = yield;
+			m_ppiYieldFromTileSettle[iTerrain] = yield;
+#endif
 		}
 		m_iYieldFromKills[iYield] = 0;
 		m_iYieldFromBarbarianKills[iYield] = 0;
@@ -4821,6 +5067,61 @@ int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain,
 	return m_ppiYieldFromTileEarnTerrainType[(int)eTerrain][(int)eYield];
 }
 #if defined(MOD_BALANCE_CORE)
+int CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTilePurchaseTerrainType[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileConquest(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileConquest[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileCultureBomb[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileStealCultureBomb[(int)eTerrain][(int)eYield];
+}
+int CvPlayerTraits::GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+
+	if (eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileSettle[(int)eTerrain][(int)eYield];
+}
 int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
 	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
@@ -6623,6 +6924,11 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiFreeUnitClassesDOW;
 	kStream >> m_aiDomainFreeExperienceModifier;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
+	kStream >> m_ppiYieldFromTilePurchaseTerrainType;
+	kStream >> m_ppiYieldFromTileConquest;
+	kStream >> m_ppiYieldFromTileCultureBomb;
+	kStream >> m_ppiYieldFromTileStealCultureBomb;
+	kStream >> m_ppiYieldFromTileSettle;
 	kStream >> m_ppaaiYieldChangePerImprovementBuilt;
 
 	kStream >> iNumEntries;
@@ -7054,6 +7360,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiFreeUnitClassesDOW;
 	kStream << m_aiDomainFreeExperienceModifier;
 	kStream << m_ppiYieldFromTileEarnTerrainType;
+	kStream << m_ppiYieldFromTilePurchaseTerrainType;
+	kStream << m_ppiYieldFromTileConquest;
+	kStream << m_ppiYieldFromTileCultureBomb;
+	kStream << m_ppiYieldFromTileStealCultureBomb;
+	kStream << m_ppiYieldFromTileSettle;
 	kStream << m_ppaaiYieldChangePerImprovementBuilt;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();

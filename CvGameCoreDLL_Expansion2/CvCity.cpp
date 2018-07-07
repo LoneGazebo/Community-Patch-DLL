@@ -500,8 +500,12 @@ CvCity::~CvCity()
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
+#elif defined(MOD_API_EXTENSIONS)
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName)
+#elif defined(MOD_BALANCE_CORE)
+void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, CvUnitEntry* pkSettlerUnitEntry)
 #else
 void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
@@ -1165,6 +1169,24 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetTextKey(), iProduction, getNameKey());
 					GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED) && defined(MOD_BALANCE_CORE)
+	// Stuff for Pioneers and Colonists
+	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && bInitialFounding && pkSettlerUnitEntry != NULL)
+	{
+		if (pkSettlerUnitEntry->IsFound())
+		{
+			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, 0, 1, 1);
+		}
+		if (pkSettlerUnitEntry->IsFoundMid())
+		{
+			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
+		}
+		if (pkSettlerUnitEntry->IsFoundLate())
+		{
+			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
 		}
 	}
 #endif
@@ -26522,7 +26544,12 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_TILE_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+	TerrainTypes eTerrain = NO_TERRAIN;
+	if (pPlot != NULL)
+	{
+		eTerrain = pPlot->getTerrainType();
+	}
+	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_TILE_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, eTerrain);
 #endif
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -26743,6 +26770,23 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		else if (pCityStrategyAI->IsYieldDeficient(eYield))
 			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER() / 2;
 
+#if defined(MOD_BALANCE_CORE)
+		TerrainTypes eTerrain = pPlot->getTerrainType();
+
+		int iTraitValue = GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield);
+
+		if (iTraitValue > 0)
+		{
+			if (eYield == eSpecializationYield)
+			{
+				iTempValue += iTraitValue * GC.getAI_PLOT_VALUE_SPECIALIZATION_MULTIPLIER() / 10; // Dividing by 10 because this is an instant yield
+			}
+			else
+			{
+				iTempValue += iTraitValue * GC.getAI_PLOT_VALUE_YIELD_MULTIPLIER() / 10;
+			}
+		}
+#endif
 		iYieldValue += iTempValue;
 	}
 
@@ -32849,6 +32893,32 @@ int CvCity::CountWorkedTerrain(TerrainTypes iTerrainType) const
 		if (pLoopPlot->getOwningCityID() != GetID() || !GetCityCitizens()->IsWorkingPlot(pLoopPlot)) {
 			continue;
 		}
+
+		if (pLoopPlot->HasTerrain(iTerrainType)) {
+			++iCount;
+		}
+	}
+
+	return iCount;
+}
+
+int CvCity::CountAllOwnedTerrain(TerrainTypes iTerrainType) const
+{
+	int iCount = 0;
+	int iOwner = getOwner();
+
+	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++) // Loop through all plots in a map, rather than count x number of rings around the city (to cover niche cases such as someone making a citadel snake)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
+			continue;
+		}
+
+		// Not owned by this city
+		if (pLoopPlot->getOwningCityID() != GetID())
+			continue;
 
 		if (pLoopPlot->HasTerrain(iTerrainType)) {
 			++iCount;
