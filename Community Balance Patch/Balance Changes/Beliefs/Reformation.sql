@@ -54,6 +54,16 @@ UPDATE Beliefs
 SET FaithBuildingTourism = '3'
 WHERE Type = 'BELIEF_SACRED_SITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
+INSERT INTO Belief_YieldChangeWorldWonder
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_SACRED_SITES', 'YIELD_TOURISM', 4);
+
+INSERT INTO Belief_YieldChangeNaturalWonder
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_SACRED_SITES', 'YIELD_TOURISM', 4);
+
 -- Glory of God
 
 -- Underground Sect (Now Faith of the  Masses)

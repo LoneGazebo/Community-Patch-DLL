@@ -97,8 +97,12 @@ public:
 	void addFreeUnitAI(UnitAITypes eUnitAI, int iCount);
 	CvPlot* addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI = NO_UNITAI);
 
-#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_API_EXTENSIONS)
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
+#elif defined(MOD_BALANCE_CORE)
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
@@ -346,8 +350,12 @@ public:
 	bool canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const;
 	bool canFound(int iX, int iY) const;
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
+	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false);
+#elif defined(MOD_BALANCE_CORE)
+	void found(int iX, int iY, CvUnitEntry* pkSettlerUnitEntry = NULL);
 #else
 	void found(int iX, int iY);
 #endif
@@ -576,26 +584,26 @@ public:
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY);
 #if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #else
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #endif
 #else
-	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
+	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #if defined(MOD_API_EXTENSIONS)
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #else
-	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian);
 #endif
 #endif
 #if defined(MOD_API_EXTENSIONS)
-	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+	void DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY);
 #else
-	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
+	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY);
 #endif
-	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
+	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)
@@ -1209,7 +1217,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;

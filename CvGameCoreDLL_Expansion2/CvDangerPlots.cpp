@@ -904,7 +904,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			continue;
 
 		//there should be only very few of these, if any
-		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) == unitsToIgnore.end())
+		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) != unitsToIgnore.end())
 			continue;
 
 		int iAttackerDamage = 0; //ignore this

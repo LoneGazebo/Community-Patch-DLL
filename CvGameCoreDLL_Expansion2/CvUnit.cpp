@@ -1255,9 +1255,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				float fDelay = 0.5f;
 				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				SHOW_PLOT_POPUP(plot(), kPlayer.GetID(), text);
+
 				CvNotifications* pNotification = kPlayer.GetNotifications();
 				if(pNotification)
 				{
@@ -2477,14 +2477,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				int iExperience = getExperienceTimes100() / 100;
 				if(iExperience > 0)
 				{
-					float fDelay = 0.5f;
 					GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
-					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+					if (getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = { 0 };
-						fDelay += 0.5f;
+						
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(),getOwner(), text);
 					}
 				}
 			}
@@ -2508,12 +2507,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 				if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 				{
 					GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(iSupply);
-					if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+					if (getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = { 0 };
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(),getOwner(), text);
+
 						CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotification)
 						{
@@ -5468,7 +5468,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		iRoll = /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
+		iRoll = /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
@@ -5526,7 +5526,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 		//we take even less damage from cities when attacking them.
 		if (GetDamageReductionCityAssault() != 0)
 		{
-			iDamage *= (100 - GetDamageReductionCityAssault());
+			iDamage *= (100 - min(90, GetDamageReductionCityAssault()));
 			iDamage /= 100;
 		}
 	}
@@ -8003,9 +8003,8 @@ void CvUnit::doHeal()
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
-							float fDelay = 0.0f;
 							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity)* iEra);
-							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+							SHOW_PLOT_POPUP(plot(),getOwner(), text);
 						}
 					}
 					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -8017,9 +8016,9 @@ void CvUnit::doHeal()
 							if(getOwner() == GC.getGame().getActivePlayer())
 							{
 								char text[256] = {0};
-								float fDelay = 0.0f;
+
 								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) * iEra);
-								DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+								SHOW_PLOT_POPUP(plot(),getOwner(), text);
 							}
 						}
 					}
@@ -8045,7 +8044,7 @@ void CvUnit::DoAttrition()
 	{
 		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < getEnemyDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8054,7 +8053,7 @@ void CvUnit::DoAttrition()
 #if defined(MOD_BALANCE_CORE)
 		else if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 <= getEnemyDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8063,7 +8062,7 @@ void CvUnit::DoAttrition()
 #endif
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if(GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < getNeutralDamageChance())
+			if(GC.getGame().getSmallFakeRandNum(100, *pPlot) < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8173,12 +8172,7 @@ void CvUnit::DoAttrition()
 
 						char text[256];
 						sprintf_s (text, "%s [COLOR_WHITE]-%d [ICON_PEACE][ENDCOLOR]", string.toUTF8(), iStrengthLoss);
-#if defined(SHOW_PLOT_POPUP)
-						SHOW_PLOT_POPUP(plot(), getOwner(), text, 0.0f);
-#else
-						float fDelay = 0.0f;
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
-#endif
+						SHOW_PLOT_POPUP(plot(), getOwner(), text);
 					}
 				}
 			}
@@ -9554,7 +9548,7 @@ bool CvUnit::createFreeLuxury()
 			{
 				if(GC.getMap().getNumResources(eResource) <= 0)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9576,7 +9570,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9598,7 +9592,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
 					if(iRandomFlavor > iBestFlavor)
 					{
 						eResourceToGive = eResource;
@@ -9773,12 +9767,7 @@ bool CvUnit::sellExoticGoods()
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-#if defined(SHOW_PLOT_POPUP)
-		SHOW_PLOT_POPUP(plot(), getOwner(), text, 0.0f);
-#else
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(getX(), getY(), text, fDelay);
-#endif
+		SHOW_PLOT_POPUP(plot(), getOwner(), text);
 
 		changeNumExoticGoods(-1);
 #if defined(MOD_BALANCE_CORE)
@@ -10427,8 +10416,20 @@ bool CvUnit::pillage()
 					}
 				}
 #endif
-				iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
-				iPillageGold += (getPillageChange() * iPillageGold) / 100;
+				if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+				{
+					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+					if (iEra <= 0)
+						iEra = 1;
+
+					iPillageGold = 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + GC.getGame().getSmallFakeRandNum(50, *plot())) / 100)));
+					iPillageGold += (getPillageChange() * iPillageGold) / 100;
+				}
+				else
+				{
+					iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
+					iPillageGold += (getPillageChange() * iPillageGold) / 100;
+				}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 				if (pPlot->getOwner() != NO_PLAYER)
 				{
@@ -10632,14 +10633,24 @@ bool CvUnit::found()
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 #endif
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
 	{
-		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion());
+		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
 	} 
 	else 
 	{
+		kPlayer.found(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
+	{
+		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion());
+	}
+	else
+	{
 		kPlayer.found(getX(), getY(), NO_RELIGION, true);
+#elif defined(MOD_BALANCE_CORE)
+		kPlayer.found(getX(), getY(), m_pUnitInfo);
 #else
 		kPlayer.found(getX(), getY());
 #endif
@@ -10666,21 +10677,6 @@ bool CvUnit::found()
 		}
 #endif
 	}
-
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFound())
-	{
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, 0, 1, 1);
-	}
-	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundMid())
-	{
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
-	}
-	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundLate())
-	{
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -11305,12 +11301,7 @@ bool CvUnit::DoSpreadReligion()
 				sprintf_s(text, "[COLOR_WHITE]%s: %d [ICON_PEACE][ENDCOLOR]",
 					strReligionName.toUTF8(),
 					iConversionStrength / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER());
-#if defined(SHOW_PLOT_POPUP)
-				SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text, 0.0f);
-#else
-				float fDelay = 0.0f;
-				DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-#endif
+				SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text);
 			}
 
 #if !defined(MOD_API_UNIFIED_YIELDS)
@@ -11334,11 +11325,7 @@ bool CvUnit::DoSpreadReligion()
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
 					float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-#if defined(SHOW_PLOT_POPUP)
-					SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text, fDelay);
-#else
-					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-#endif
+					SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text);
 				}
 			}
 #endif
@@ -11353,8 +11340,7 @@ bool CvUnit::DoSpreadReligion()
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iCSInfluence);
-						float fDelay = 3.0f;
-						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pCity->plot(),getOwner(), text);
 					}
 				}
 			}
@@ -12750,7 +12736,48 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				}
 				vePlayersBombed[pLoopPlot->getOwner()] = true;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Instant yield from tiles gained by culture bombing
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
 
+				int iPassYield = 0;
+
+				if (eYield == NO_YIELD)
+					continue;
+
+				TerrainTypes eTerrain = pLoopPlot->getTerrainType();
+
+				if (eTerrain == NO_TERRAIN)
+					continue;
+
+				// Stole foreign tiles
+				if (pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
+				}
+				// Obtained neutral tiles
+				else
+				{
+					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
+				}
+
+				CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+				if (pBestCity == NULL)
+				{
+					CvCity* pCapitalCity = kPlayer.getCapitalCity();
+					if (pCapitalCity != NULL)
+					{
+						pBestCity = pCapitalCity;
+					}
+				}
+				if (pBestCity != NULL)
+				{
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
+				}
+			}
+#endif
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -13281,12 +13308,7 @@ bool CvUnit::blastTourism()
 
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourismBlast, strInfluenceText.c_str());
-#if defined(SHOW_PLOT_POPUP)
-		SHOW_PLOT_POPUP(pPlot, getOwner(), text, 0.0f);
-#else
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
-#endif
+		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
 	}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -13672,7 +13694,6 @@ bool CvUnit::build(BuildTypes eBuild)
 				}
 				if(pkBuildInfo->IsCultureBoost())
 				{
-					float fDelay = 0.5f;
 					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
 					kPlayer.changeJONSCulture(iValue);
 					if(kPlayer.getCapitalCity() != NULL)
@@ -13682,9 +13703,8 @@ bool CvUnit::build(BuildTypes eBuild)
 					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
-						fDelay += 0.5f;
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(),kPlayer.GetID(), text);
 					}
 				}
 #endif
@@ -14667,14 +14687,12 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			int iExperience = getExperienceTimes100() / 100;
 			if(iExperience > 0)
 			{
-				float fDelay = 0.5f;
 				GET_PLAYER(getOwner()).changeJONSCulture(iExperience);
-				if (GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+				if (getOwner() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = { 0 };
-					fDelay += 0.5f;
 					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-					DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+					SHOW_PLOT_POPUP(plot(),getOwner(),text);
 				}
 			}
 		}
@@ -17234,7 +17252,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE()/ 100, *plot()) * 100;
+		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -17472,7 +17490,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
-		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
+		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iInterceptorRoll *= iInterceptorDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iInterceptorRoll /= GetMaxHitPoints();
@@ -17571,7 +17589,7 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
-		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot()) * 100;
+		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iInterceptorRoll *= iInterceptorDamageRatio;
 		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -19846,9 +19864,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 									else
 									{
 #if defined(MOD_API_UNIFIED_YIELDS)
-										kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY, 0);
+										kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY);
 #else
-										kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian(), 0);
+										kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian());
 #endif
 										pLoopUnit->kill(false, getOwner());
 									}
@@ -19877,36 +19895,37 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 									if (!bDisplaced)
 									{
-										Localization::String strMessage;
-										Localization::String strSummary;
-
 										bool bDoCapture = false;
 #if defined(MOD_BALANCE_CORE)
 										bool bDoEvade = false;
-										if(pLoopUnit->IsCivilianUnit() && pLoopUnit->getExtraWithdrawal() > 0 && pLoopUnit->CanFallBackFromMelee(*this,true))
+										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->getExtraWithdrawal() > 0 && pLoopUnit->CanFallBack(*this, true))
 										{
 											bDoEvade = true;
-											pLoopUnit->DoFallBackFromMelee(*this);
-											strMessage = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_DETAILED_PIONEER");
-											strMessage << pLoopUnit->getUnitInfo().GetTextKey();
-											strSummary = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_PIONEER");
+											pLoopUnit->DoFallBack(*this);
 
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
-											if(pNotification)
-											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int) pLoopUnit->getUnitType(), pLoopUnit->getOwner());
+											if (pNotification)
+											{
+												Localization::String strMessage;
+												Localization::String strSummary;
+												strMessage = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_DETAILED_PIONEER");
+												strMessage << pLoopUnit->getUnitInfo().GetTextKey();
+												strSummary = Localization::Lookup("TXT_KEY_UNIT_WITHDREW_PIONEER");
+												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int)pLoopUnit->getUnitType(), pLoopUnit->getOwner());
+											}
 										}
 #endif
 										// Some units can't capture civilians. Embarked units are also not captured, they're simply killed. And some aren't a type that gets captured.
 										// slewis - removed the capture clause so that helicopter gunships could capture workers. The promotion says that No Capture only effects cities.
 										//if(!isNoCapture() && (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT)
-										if((!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT
-#if defined(MOD_BALANCE_CORE)
-&& !bDoEvade
-#endif
-											)
+										if( (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && 
+											pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT && 
+											!bDoEvade )
 										{
 											bDoCapture = true;
 
+											Localization::String strMessage;
+											Localization::String strSummary;
 											if(isBarbarian())
 											{
 												strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_BARBS_DETAILED");
@@ -19927,10 +19946,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
 										}
 #endif
-										else
-#if defined(MOD_BALANCE_CORE)
-if (!bDoEvade)
-#endif
+										else if (!bDoEvade)
 										{
 											if(pLoopUnit->isEmbarked())
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -19942,45 +19958,39 @@ if (!bDoEvade)
 											CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
 											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 
-											strMessage = Localization::Lookup("TXT_KEY_UNIT_LOST");
-											strSummary = strMessage;
-
 #if defined(MOD_API_UNIFIED_YIELDS)
-											kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY, 0);
+											kPlayer.DoYieldsFromKill(this, pLoopUnit, iX, iY);
 #else
-											kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian(), 0);
+											kPlayer.DoYieldsFromKill(getUnitType(), pLoopUnit->getUnitType(), iX, iY, pLoopUnit->isBarbarian());
 #endif
 #if defined(MOD_API_EXTENSIONS)
 											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
 #else
 											kPlayer.DoUnitKilledCombat(pLoopUnit->getOwner(), pLoopUnit->getUnitType());
 #endif
-										}
-#if defined(MOD_BALANCE_CORE)
-										if (!bDoEvade)
-										{
-#endif
-										CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
-										if(pNotification)
-											pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int) pLoopUnit->getUnitType(), pLoopUnit->getOwner());
+											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
+											if (pNotification)
+											{
+												Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_LOST");
+												Localization::String strSummary = strMessage;
+												pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int)pLoopUnit->getUnitType(), pLoopUnit->getOwner());
+											}
 
-										if(pLoopUnit->isEmbarked())
-											setMadeAttack(true);
+											if(pLoopUnit->isEmbarked())
+												setMadeAttack(true);
 
-										// If we're capturing the unit, we want to delay the capture, else as the unit is converted to our side, it will be the first unit on our
-										// side in the plot and can end up taking over a city, rather than the advancing unit
-										CvUnitCaptureDefinition kCaptureDef;
-										if(bDoCapture)
-										{
-											if(pLoopUnit->getCaptureDefinition(&kCaptureDef, getOwner()))
-												kCaptureUnitList.push_back(kCaptureDef);
-											pLoopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
-										}
+											// If we're capturing the unit, we want to delay the capture, else as the unit is converted to our side, it will be the first unit on our
+											// side in the plot and can end up taking over a city, rather than the advancing unit
+											CvUnitCaptureDefinition kCaptureDef;
+											if(bDoCapture)
+											{
+												if(pLoopUnit->getCaptureDefinition(&kCaptureDef, getOwner()))
+													kCaptureUnitList.push_back(kCaptureDef);
+												pLoopUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
+											}
 
-										pLoopUnit->kill(false, getOwner());
-#if defined(MOD_BALANCE_CORE)
+											pLoopUnit->kill(false, getOwner());
 										}
-#endif
 									}
 								}
 							}
@@ -20674,7 +20684,7 @@ if (!bDoEvade)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
-							float fDelay = 0.5f;
+	
 							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
@@ -20692,12 +20702,12 @@ if (!bDoEvade)
 								{
 									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
 								}
-								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									char text[256] = {0};
-									fDelay += 0.5f;
+									
 									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+									SHOW_PLOT_POPUP(pNewPlot,getOwner(), text);
 								}
 							}
 						}
@@ -20754,7 +20764,7 @@ if (!bDoEvade)
 					{
 						if(MOD_BALANCE_CORE_POLICIES)
 						{
-							float fDelay = 0.5f;
+	
 							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0 || GET_PLAYER(getOwner()).GetBarbarianCombatBonus() > 0)
 							{	
 								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
@@ -20767,12 +20777,12 @@ if (!bDoEvade)
 								{
 									kPlayer.getCapitalCity()->ChangeJONSCultureStored(iCulturePoints);
 								}
-								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								if(getOwner() == GC.getGame().getActivePlayer())
 								{
 									char text[256] = {0};
-									fDelay += 0.5f;
+									
 									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+									SHOW_PLOT_POPUP(pNewPlot,getOwner(), text);
 								}
 							}
 						}
@@ -21245,11 +21255,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 				}
 
 				if (!isSuicide())	// Show the HP lost, except if it is a suicide unit (missile, etc.)
-#if defined(SHOW_PLOT_POPUP)
-					SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), text.c_str(), fDelay);
-#else
-					DLLUI->AddPopupText(iX, iY, text.c_str(), fDelay);
-#endif
+					SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), text.c_str());
 			}
 		}
 	}
@@ -21558,9 +21564,6 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 #else
 				localizedText << iExperienceChange;
 #endif
-#if !defined(SHOW_PLOT_POPUP)
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY();
-#endif
 
 				int iX = m_iX;
 				int iY = m_iY;
@@ -21582,12 +21585,8 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 					}
 				}
 
-#if defined(SHOW_PLOT_POPUP)
 				//possibly iX and iY are invalid if the unit is not initialized yet, but the macro catches this
-				SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), localizedText.toUTF8(), 0.0f);
-#else
-				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), fDelay);
-#endif
+				SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), localizedText.toUTF8());
 
 				if(IsSelected())
 				{
@@ -21663,12 +21662,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 						{
 							CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
 							Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
-#if defined(SHOW_PLOT_POPUP)
-							SHOW_PLOT_POPUP(plot(), getOwner(), localizedText.toUTF8(), 0.0f);
-#else
-							float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-							DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
-#endif
+							SHOW_PLOT_POPUP(plot(), getOwner(), localizedText.toUTF8());
 						}
 					}
 				}
@@ -24217,7 +24211,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 		if (getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 		{
 			CvUnit* pConvertUnit = NULL;
-			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 <= iChanceToConvertReligiousUnit)
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= iChanceToConvertReligiousUnit)
 			{
 				UnitTypes eBestLandUnit = NO_UNIT;
 				int iStrengthBestLandCombat = 0;
@@ -29910,7 +29904,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 	int iPlagueChance = getPlagueChance();
 
-	int iRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 10;
+	int iRoll = GC.getGame().getSmallFakeRandNum(100, *plot());
 
 	if(iRoll > iPlagueChance)
 	{
@@ -29979,7 +29973,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 //	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanFallBackFromMelee(CvUnit& attacker, bool bCheckChances)
+bool CvUnit::CanFallBack(CvUnit& attacker, bool bCheckChances)
 {
 	VALIDATE_OBJECT
 
@@ -29988,16 +29982,13 @@ bool CvUnit::CanFallBackFromMelee(CvUnit& attacker, bool bCheckChances)
 
 	// Are some of the retreat hexes away from the attacker blocked?
 	int iBlockedHexes = 0;
-	CvPlot* pAttackerFromPlot = attacker.plot();
-	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
+	DirectionTypes eAttackDirection = directionXY(attacker.plot(), plot());
 	int iBiases[3] = {0,-1,1};
-	int x = plot()->getX();
-	int y = plot()->getY();
 
 	for(int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
+		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
 
 		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
 		{
@@ -30015,14 +30006,15 @@ bool CvUnit::CanFallBackFromMelee(CvUnit& attacker, bool bCheckChances)
 	{
 		int iWithdrawChance = getExtraWithdrawal();
 		// Does attacker have a speed greater than 1?
-		int iAttackerMovementRange = attacker.maxMoves() / GC.getMOVE_DENOMINATOR();
-		if(iAttackerMovementRange > 0)
+		int iAttackerMovementRange = attacker.baseMoves();
+		if(iAttackerMovementRange > 2)
 		{
 			iWithdrawChance += (GC.getWITHDRAW_MOD_ENEMY_MOVES() * (iAttackerMovementRange - 2));
 		}
 		iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
 
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 10;
+		//include damage so the result changes for each attack
+		int iRoll = GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex()+GetID()+getDamage());
 		return iRoll < iWithdrawChance;
 	}
 	else
@@ -30030,114 +30022,30 @@ bool CvUnit::CanFallBackFromMelee(CvUnit& attacker, bool bCheckChances)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
+bool CvUnit::DoFallBack(CvUnit& attacker)
 {
 	VALIDATE_OBJECT
 
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
-	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, *plot()) < 5) ? 1 : -1;
-	int iBiases[5] = {0,-1,1,-2,2};
-	int x = plot()->getX();
-	int y = plot()->getY();
-
-	// try to retreat as close to away from the attacker as possible
-	for(int i = 0; i < 5; i++)
-	{
-		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
-
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isMatchingDomain(pDestPlot))
-		{
-			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
-			return true;
-		}
-	}
-	return false;
-}
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-bool CvUnit::CanFallBackFromRanged(CvUnit& attacker)
-{
-	VALIDATE_OBJECT
-	// Are some of the retreat hexes away from the attacker blocked?
-	int iBlockedHexes = 0;
-	CvPlot* pAttackerFromPlot = attacker.plot();
-	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
+	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) < 5) ? 1 : -1;
 	int iBiases[3] = {0,-1,1};
-	int x = plot()->getX();
-	int y = plot()->getY();
-
+	
 	for(int i = 0; i < 3; i++)
 	{
-		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
-
-		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK))
-		{
-			iBlockedHexes++;
-		}
-	}
-
-	// If all three hexes away from attacker blocked, we can't withdraw
-	if(iBlockedHexes >= 3)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBackFromRanged(CvUnit& attacker)
-{
-	VALIDATE_OBJECT
-
-	CvPlot* pAttackerFromPlot = attacker.plot();
-	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
-
-	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, *plot()) < 5) ? 1 : -1;
-	int iBiases[5] = {0,-1,1,-2,2};
-	int x = plot()->getX();
-	int y = plot()->getY();
-
-	// try to retreat as close to away from the attacker as possible
-	for(int i = 0; i < 5; i++)
-	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
+		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
 
 		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isMatchingDomain(pDestPlot))
 		{
 			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
-			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-			if(pNotifications)
-			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK");
-				strMessage << attacker.getUnitInfo().GetTextKey();
-				strMessage << getUnitInfo().GetTextKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
-				strSummary << getUnitInfo().GetTextKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
-			}
-			CvNotifications* pNotificationsOther = GET_PLAYER(attacker.getOwner()).GetNotifications();
-			if(pNotificationsOther)
-			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_THEM");
-				strMessage << attacker.getUnitInfo().GetTextKey();
-				strMessage << getUnitInfo().GetTextKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
-				strSummary << getUnitInfo().GetTextKey();
-
-				pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
-			}
 			return true;
 		}
 	}
 	return false;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 UnitAITypes CvUnit::AI_getUnitAIType() const
 {
@@ -31038,7 +30946,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iValue > 0)
 	{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		iValue += GC.getGame().getSmallFakeRandNum(10, iValue) * 10;
+		iValue += GC.getGame().getSmallFakeRandNum(100, iValue);
 #else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
 #endif

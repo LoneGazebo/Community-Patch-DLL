@@ -4261,6 +4261,14 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			return;
 		}
 
+		//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
+		if (!m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
+		{
+			m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
+			ClearEnemiesNearArmy(pThisArmy);
+			return;
+		}
+
 		// Request moves for all units
 		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 		{
@@ -12179,9 +12187,9 @@ bool CvTacticalPosition::isComplete() const
 //check that we're not just shuffling around units
 bool CvTacticalPosition::isOffensive() const
 { 
-	bool bDoingDamage = false;
 	bool bGoodCover = true;
 	bool bHaveFinishedUnit = false;
+	bool bHaveRangedUnit = false;
 
 	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
 	{
@@ -12191,7 +12199,10 @@ bool CvTacticalPosition::isOffensive() const
 			it->eType == STacticalAssignment::A_RANGEATTACK ||
 			it->eType == STacticalAssignment::A_RANGEKILL ||
 			it->eType == STacticalAssignment::A_CAPTURE)
-			bDoingDamage = true;
+		{
+			//if we're hurting the enemy, it's good enough
+			return true;
+		}
 
 		//check unit positioning for red flags (note: this only works if we have a lot of units to work with)
 		if (it->eType == STacticalAssignment::A_FINISH)
@@ -12212,15 +12223,22 @@ bool CvTacticalPosition::isOffensive() const
 
 			if (plot.getType() == CvTacticalPlot::TP_SECONDLINE)
 			{
-				//ranged unit on its own? bad
-				if ( GET_PLAYER(ePlayer).getUnit(it->iUnitID)->isRanged() && plot.getNumAdjacentFirstlineFriendlies() == 0)
-					bGoodCover = false;
+				CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(it->iUnitID);
+
+				if (pUnit->isRanged())
+				{
+					bHaveRangedUnit = true;
+
+					//ranged unit on its own? bad
+					if (plot.getNumAdjacentFirstlineFriendlies() == 0)
+						bGoodCover = false;
+				}
 			}
 		}
 	}
-
+	
 	//if we're not doing damage but have good cover, it's also fine
-	return bDoingDamage | (bGoodCover && bHaveFinishedUnit);
+	return bGoodCover && bHaveFinishedUnit && bHaveRangedUnit;
 }
 
 void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)

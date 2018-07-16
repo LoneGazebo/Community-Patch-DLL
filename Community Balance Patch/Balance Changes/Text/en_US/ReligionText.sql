@@ -219,7 +219,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Sacred Sites
 UPDATE Language_en_US
-SET Text = 'Hotels and all buildings purchased with Faith provide +3 [ICON_TOURISM] Tourism each. Hermitage provides +10 [ICON_CULTURE] Culture and +10 [ICON_TOURISM] Tourism.'
+SET Text = 'Hotels and all buildings purchased with Faith provide +3 [ICON_TOURISM] Tourism each. World and Natural Wonders gain +4 [ICON_TOURISM] Tourism each. Hermitage provides +10 [ICON_CULTURE] Culture and +10 [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Glory of God
@@ -271,7 +271,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Reliquary (Now Tithes)
 UPDATE Language_en_US
-SET Text = 'When a city adopts your Religion for the first time, Holy City gains 10 [ICON_GOLD] Gold for every City following your Religion (max 20 Cities). +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy city for every 8 followers of this Religion in Foreign Cities.'
+SET Text = 'When a city adopts your Religion for the first time, Holy City gains 10 [ICON_GOLD] Gold, plus additional [ICON_GOLD] scaling exponentially for every City following your Religion (max 20 Cities). +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy city for every 8 followers of this Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

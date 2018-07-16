@@ -697,8 +697,10 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 			}
 		}
 
+		if (iValueDemanded == 0)
+			eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
 		// No illegal items in the demand
-		if(eResponse == NO_DEAL_RESPONSE_TYPE)
+		else if (eResponse == NO_DEAL_RESPONSE_TYPE)
 		{
 			if(iValueDemanded <= iValueWillingToGiveUp)
 				eResponse = DEMAND_RESPONSE_ACCEPT;
@@ -1366,7 +1368,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	}
 	else if(eItem == TRADE_ITEM_CITIES)
 		//Don't even out city values ...
-		iItemValue = GetCityValue(/*iX*/ iData1, /*iY*/ iData2, bFromMe, eOtherPlayer, false, pDeal);
+		iItemValue = GetCityValue(/*iX*/ iData1, /*iY*/ iData2, bFromMe, eOtherPlayer, false, pDeal, GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()));
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
 		iItemValue = GetEmbassyValue(bFromMe, eOtherPlayer, bUseEvenValue);
 	else if(eItem == TRADE_ITEM_OPEN_BORDERS)
@@ -4601,7 +4603,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 			}
 			// Adjust based on LeagueAI
-			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			CvLeagueAI::DesireLevels eDesire = GET_PLAYER(eOtherPlayer).GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 			switch(eDesire)
 			{
 				case CvLeagueAI::DESIRE_NEVER:
@@ -7172,7 +7174,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 #if defined(MOD_BALANCE_CORE)
-	int iIdealValue = 200 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int iIdealValue = 10 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
 	if (Value > 0)
 	{
@@ -7225,9 +7227,12 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		return true;
 	}
 	DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
-	if (iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
+	if (pDeal->m_TradedItems.size() > 0)
 	{
-		return true;
+		if (iValueTheyreOffering >= iIdealValue/2)
+		{
+			return true;
+		}
 	}
 #else
 	int iGold = pDeal->GetGoldAvailable(eOtherPlayer, TRADE_ITEM_GOLD);
@@ -9146,7 +9151,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		//War? Refuse if we're not losing badly.
 		if(bWar)
 		{
-			if(m_pDiploAI->GetWarScore(eOtherPlayer) >= -90)
+			if(m_pDiploAI->GetWarScore(eOtherPlayer) >= -85)
 			{
 				return INT_MAX;
 			}

@@ -261,7 +261,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			elseif(city:IsResistance()) then
 				iResistanceUnhappiness = (city:GetPopulation() / 2);
 			elseif(city:IsPuppet()) then
-				iPuppetUnhappiness = (pCity:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
+				iPuppetUnhappiness = (city:GetPopulation() / GameDefines.BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD);
 			elseif(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance()) then
 				iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 			end

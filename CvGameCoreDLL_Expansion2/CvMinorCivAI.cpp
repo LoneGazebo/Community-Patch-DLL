@@ -363,7 +363,6 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	{
 		return;
 	}
-	float fDelay = 1.0f;
 	if(IsPartialQuest())
 	{
 		SetInfluence(GetInfluence() / 2);
@@ -390,9 +389,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", GetInfluence());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetAdmiralPoints() > 0)
@@ -401,9 +399,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", GetAdmiralPoints());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetGeneralPoints() > 0)
@@ -412,9 +409,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GetGeneralPoints());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetCulture() > 0)
@@ -423,9 +419,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GetCulture());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetExperience() > 0)
@@ -450,9 +445,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GetFaith());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetFood() > 0)
@@ -461,9 +455,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GetFood());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetGoldenAgePoints() > 0)
@@ -473,9 +466,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GetGoldenAgePoints());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetGold() > 0)
@@ -484,9 +476,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GetGold());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetGP() > 0)
@@ -508,9 +499,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGP());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetGPGlobal() > 0)
@@ -541,9 +531,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGPGlobal());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetHappiness() > 0)
@@ -552,9 +541,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_HAPPINESS_1]", GetHappiness());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetTourism() > 0)
@@ -563,9 +551,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (m_eAssignedPlayer == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			float fDelay = 0.5f;
 			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", GetTourism());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetProduction() > 0)
@@ -574,9 +561,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GetProduction());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 	if (GetScience() > 0)
@@ -585,9 +571,8 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = { 0 };
-			fDelay += 0.5f;
 			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GetScience());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
 		}
 	}
 
@@ -2195,7 +2180,8 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 		if(pPlot != NULL && pPlot->isCity())
 		{
-			if(pPlot->getOwner() == pAssignedPlayer->GetID())
+			CvCity* pCity = pPlot->getPlotCity();
+			if (pCity->getOwner() == pAssignedPlayer->GetID() || pCity->getPreviousOwner() == pAssignedPlayer->GetID())
 			{
 				return true;
 			}
@@ -3751,80 +3737,12 @@ bool CvMinorCivQuest::DoFinishQuest()
 	bool bWasFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
 	bool bWasAllies = pMinor->GetMinorCivAI()->IsAllies(m_eAssignedPlayer);
 	PlayerTypes eOldAlly = pMinor->GetMinorCivAI()->GetAlly();
-#if !defined(MOD_BALANCE_CORE)
-	int iOldInf = pMinor->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_eAssignedPlayer);
-#endif
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	DoRewards(m_eAssignedPlayer);
-#if !defined(MOD_BALANCE_CORE)
-	//Already got our global bonus from a global quest this round?
-	if(bGlobal && GET_PLAYER(m_eAssignedPlayer).GlobalTourismAlreadyReceived(m_eType))
-	{
-		bGlobal = false;
-	}
-	else if(bGlobal)
-	{
-		GET_PLAYER(m_eAssignedPlayer).SetGlobalTourismAlreadyReceived(m_eType, true);
-	}
-	if(iInfluence > 0 && bGlobal && GET_PLAYER(m_eAssignedPlayer).GetEventTourism() > 0)
-	{
-		int iTourism = GET_PLAYER(m_eAssignedPlayer).GetEventTourism();
-		GET_PLAYER(m_eAssignedPlayer).ChangeNumHistoricEvents(1);
-		// Culture boost based on previous turns
-		int iPreviousTurnsToCount = 10;
-		// Calculate boost
-		iTourism *= GET_PLAYER(m_eAssignedPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-		iTourism /= 100;
-		if(iTourism > 0)
-		{
-			GET_PLAYER(m_eAssignedPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-			if(m_eAssignedPlayer == GC.getGame().getActivePlayer() && GET_PLAYER(m_eAssignedPlayer).getCapitalCity() != NULL)
-			{
-				char text[256] = {0};
-				float fDelay = 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-				DLLUI->AddPopupText(GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getX(),GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getY(), text, fDelay);
-				CvNotifications* pNotification = GET_PLAYER(m_eAssignedPlayer).GetNotifications();
-				if(pNotification)
-				{
-					CvString strMessage;
-					CvString strSummary;
-					strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_CS", iTourism);
-					strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-					pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getX(), GET_PLAYER(m_eAssignedPlayer).getCapitalCity()->getY(), m_eAssignedPlayer);
-				}
-			}
-		}
-	}
-	if(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
-	{
-		iInfluence *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
-		iInfluence /= 100;
-	}
-	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, iInfluence, /*bFromQuest*/ true);
-#endif
-#else
-#if defined(MOD_BALANCE_CORE)
-	int iInfluence = GetInfluenceReward();
-	if(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
-	{
-		iInfluence *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
-		iInfluence /= 100;
-	}
-	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, iInfluence, /*bFromQuest*/ true);
-#else
-	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluenceReward(), /*bFromQuest*/ true);
-#endif
-#endif
 	
 	bool bNowFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
 	bool bNowAllies = pMinor->GetMinorCivAI()->IsAllies(m_eAssignedPlayer);
 	PlayerTypes eNewAlly = pMinor->GetMinorCivAI()->GetAlly();
-#if !defined(MOD_BALANCE_CORE)
-	int iNewInf = pMinor->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_eAssignedPlayer);
-	int iInfChange = iNewInf - iOldInf;
-#endif
 
 	Localization::String strMessage;
 	Localization::String strSummary;
@@ -5665,7 +5583,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 							if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC) {
 								if (iUnitGift > 0) {
-									if (GC.getGame().getSmallFakeRandNum(10, pPlayer->GetEconomicMight()) * 10 < iUnitGift) {
+									if (GC.getGame().getSmallFakeRandNum(100, pPlayer->GetEconomicMight()) < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -10592,6 +10510,8 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 			{
 				if(pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
 				{
+					if (pLoopCity->getPreviousOwner() == ePlayer)
+						continue;
 
 					bool bBad = false;
 					//Check for other minors that are currently targeting this city
@@ -10623,7 +10543,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue += GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iLoopCity) * 10;
+					iValue += GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetEconomicMight() + iLoopCity);
 					iValue -= pLoopCity->getStrengthValue() / 100;
 					if(iValue <= 0)
 					{
@@ -11609,14 +11529,14 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 // What is the level of Friendship between this Minor and the requested Major Civ?
 // Takes things like war status into account
 // NOTE: Not const because of need to check war status
-int CvMinorCivAI::GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer)
+int CvMinorCivAI::GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer, bool bIgnoreWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
 
 	// Are we at war?
-	if(IsAtWarWithPlayersTeam(ePlayer))
+	if (!bIgnoreWar && IsAtWarWithPlayersTeam(ePlayer))
 		return (100 * /*-60*/GC.getMINOR_FRIENDSHIP_AT_WAR());
 
 	return GetBaseFriendshipWithMajorTimes100(ePlayer);
@@ -11633,13 +11553,13 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup)
+void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup, bool bFromWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
 	m_aiFriendshipWithMajorTimes100[ePlayer] = iNum;
 
@@ -11647,7 +11567,7 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 	if(GetBaseFriendshipWithMajor(ePlayer) < iMinimumFriendship)
 		m_aiFriendshipWithMajorTimes100[ePlayer] = iMinimumFriendship * 100;
 
-	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
 	// Has the friendship in effect changed?
 	if(iOldEffectiveFriendship != iNewEffectiveFriendship)
@@ -11700,9 +11620,9 @@ int CvMinorCivAI::GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest)
+void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromWar)
 {
-	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest);
+	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest, false, bFromWar);
 }
 
 /// Changes the base level of Friendship between this Minor and the specified Major Civ
@@ -16833,9 +16753,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					if(eBully == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
-						float fDelay = 0.5f;
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAge);
-						DLLUI->AddPopupText(GetPlayer()->getCapitalCity()->getX(),GetPlayer()->getCapitalCity()->getY(), text, fDelay);
+						SHOW_PLOT_POPUP( GetPlayer()->getCapitalCity()->plot(), GetPlayer()->GetID(), text );
 					}
 					if(GC.getLogging() && GC.getAILogging())
 					{			
@@ -16857,16 +16776,16 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		// Minor must have Capital
 		if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
-			CvCity* pCapital = GetPlayer()->getCapitalCity();
-			if(pCapital == NULL)
+			CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+			if(pMinorCapital == NULL)
 			{
 				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
 				return;
 			}
-			CvCity* pCapitalCity = GET_PLAYER(eBully).getCapitalCity();
+			CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
 			int iValue = 0;
 			float fDelay = 0.0f;
-			if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+			if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
 				iValue = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
 				if(iValue > 0)
@@ -16885,16 +16804,16 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 						{
 							char text[256] = {0};
-							fDelay += 0.5f;
+							
 							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
 						}
 						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
 						{
 							char text[256] = {0};
 							fDelay += 1.5f;
 							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 						}
 					}
 				}	
@@ -16912,28 +16831,28 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 			{
 				iValue = GetYieldTheftAmount(eBully, YIELD_CULTURE);
 				if(iValue > 0)
 				{
 					GET_PLAYER(eBully).changeJONSCulture(iValue);
-					pCapitalCity->ChangeJONSCultureStored(iValue);
+					pBullyCapital->ChangeJONSCultureStored(iValue);
 					if(GC.getGame().getActivePlayer() != NULL)
 					{
 						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 						{
 							char text[256] = {0};
-							fDelay += 0.5f;
+							
 							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
-							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
 						}
 						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
 						{
 							char text[256] = {0};
 							fDelay += 1.5f;
 							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_CULTURE]", iValue);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 						}
 					}
 				}			
@@ -16951,27 +16870,27 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 			{
 				iValue = GetYieldTheftAmount(eBully, YIELD_PRODUCTION);
 				if(iValue > 0)
 				{
-					pCapitalCity->changeProduction(iValue);
+					pBullyCapital->changeProduction(iValue);
 					if(GC.getGame().getActivePlayer() != NULL)
 					{
 						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 						{
 							char text[256] = {0};
-							fDelay += 0.5f;
+							
 							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
 						}
 						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
 						{
 							char text[256] = {0};
 							fDelay += 1.5f;
 							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 						}
 					}
 				}
@@ -16989,7 +16908,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 			{
 				iValue = GetYieldTheftAmount(eBully, YIELD_FAITH);
 				if(iValue > 0)
@@ -17000,16 +16919,16 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 						{
 							char text[256] = {0};
-							fDelay += 0.5f;
+							
 							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
-							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
 						}
 						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
 						{
 							char text[256] = {0};
 							fDelay += 1.5f;
 							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PEACE]", iValue);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 						}
 					}
 				}
@@ -17027,27 +16946,27 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+			else if(pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 			{
 				iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
 				if(iValue > 0)
 				{
-					pCapitalCity->changeFood(iValue);
+					pBullyCapital->changeFood(iValue);
 					if(GC.getGame().getActivePlayer() != NULL)
 					{
 						if(GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 						{
 							char text[256] = {0};
-							fDelay += 0.5f;
+							
 							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iValue);
-							DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
 						}
 						if(GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
 						{
 							char text[256] = {0};
 							fDelay += 1.5f;
 							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_FOOD]", iValue);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 						}
 					}
 				}		
@@ -17073,14 +16992,14 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					return;
 				}
 				// Minor must have Capital
-				CvCity* pCapital = GetPlayer()->getCapitalCity();
-				if(pCapital == NULL)
+				CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+				if(pMinorCapital == NULL)
 				{
 					CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
 					return;
 				}
-				int iX = pCapital->getX();
-				int iY = pCapital->getY();
+				int iX = pMinorCapital->getX();
+				int iY = pMinorCapital->getY();
 
 				CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
 				if (pNewUnit->jumpToNearestValidPlot())
@@ -17110,14 +17029,14 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			return;
 		}
 		// Minor must have Capital
-		CvCity* pCapital = GetPlayer()->getCapitalCity();
-		if(pCapital == NULL)
+		CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+		if(pMinorCapital == NULL)
 		{
 			CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
 			return;
 		}
-		int iX = pCapital->getX();
-		int iY = pCapital->getY();
+		int iX = pMinorCapital->getX();
+		int iY = pMinorCapital->getY();
 
 		CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
 		if (pNewUnit->jumpToNearestValidPlot())
@@ -18072,7 +17991,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 
 		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
-		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR());
+		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR(), false, true);
 #if defined(MOD_BALANCE_CORE)
 		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
 		if(GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
@@ -18097,7 +18016,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	// Minor Civ Aggressor - chance of permanent war
 	else if(pEnemyTeam->IsMinorCivAggressor())
 	{
-		iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+		iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetEconomicMight());
 
 		if(iRand < /*50*/ GC.getPERMANENT_WAR_AGGRESSOR_CHANCE())
 		{
@@ -18200,7 +18119,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*50*/ GC.getPERMANENT_WAR_OTHER_AT_WAR();
 
-			iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iMinorCivLoop) * 10;
+			iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetEconomicMight() + iMinorCivLoop);
 			if(iRand < iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))

@@ -361,6 +361,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetTheoreticalUnhappinessDecrease);
 	Method(getHappinessDelta);
+	Method(getHappinessThresholdMod);
 	Method(getThresholdSubtractions);
 	Method(getThresholdAdditions);
 	Method(GetUnhappinessFromCultureYield);
@@ -3729,6 +3730,27 @@ int CvLuaCity::lgetHappinessDelta(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getHappinessDelta());
+	return 1;
+}
+//int getHappinessThresholdMod();
+int CvLuaCity::lgetHappinessThresholdMod(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	int iResult = pkCity->getHappinessThresholdMod(eYield);
+
+	int iPuppetMod = 0;
+	if (pkCity->IsPuppet())
+		iPuppetMod = GET_PLAYER(pkCity->getOwner()).GetPuppetUnhappinessMod();
+
+	int iCapitalMod = 0;
+	if (pkCity->isCapital())
+		iCapitalMod = GET_PLAYER(pkCity->getOwner()).GetCapitalUnhappinessModCBP();
+
+	iResult += iCapitalMod;
+	iResult += (iPuppetMod * -1);
+
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //int getThresholdSubtractions();

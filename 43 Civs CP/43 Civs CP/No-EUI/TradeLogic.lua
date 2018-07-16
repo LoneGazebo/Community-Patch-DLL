@@ -1477,7 +1477,7 @@ function ResetDisplay()
 		Controls.ThemPocketOpenBorders:SetDisabled(true);
 		Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Gray_Black");
 
-		if (g_pUsTeam:IsAllowsOpenBordersToTeam(g_iThemTeam)) then
+		if (g_pThemTeam:IsAllowsOpenBordersToTeam(g_iUsTeam)) then
 			strTheirTooltip = strTheirTooltip .. " " .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_OPEN_BORDERS_THEY_HAVE" );
 		elseif (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
 			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";

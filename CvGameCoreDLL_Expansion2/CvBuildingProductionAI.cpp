@@ -290,9 +290,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				return 0;
 			}
 		}
-		if (iValue > 650)
+		if (iValue > 1000)
 		{
-			iValue = 650;
+			iValue = 1000;
 		}
 
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding)
@@ -914,7 +914,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Acts as modifier for value.
 	int iGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(m_pCity, eBuilding, kPlayer.GetID());
 
-	iBonus += iGSValue;
+	iBonus += iGSValue * (kPlayer.GetCurrentEra() + kPlayer.GetCurrentEra() + 1);
 
 	//////////////////////
 	///POLICY BONUSES
@@ -955,52 +955,79 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 			case YIELD_GOLD:
 				if (bSmall)
+				{
 					iYieldValue /= 2;
+					iYieldTrait /= 2;
+				}
 				if (iGPT <= 10)
 				{
 					iYieldValue += (iGPT * -25);
+					iYieldTrait += (iGPT * -25);
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
 				if (iPoverty > 0)
 				{
 					iYieldValue += (iPoverty * 100);
+					iYieldTrait += (iPoverty * 100);
 					bGoodforHappiness = true;
 					bGoodforGPT = true;
 				}
 				break;
 			case YIELD_SCIENCE:
 				if (bSmall)
+				{
 					iYieldValue /= 2;
+					iYieldTrait /= 2;
+				}
 				if (iIlliteracy > 0)
 				{
 					iYieldValue += (iIlliteracy * 100);
+					iYieldTrait += (iIlliteracy * 100);
 					bGoodforHappiness = true;
 				}
 				iYieldValue *= ((kPlayer.GetCurrentEra() / 2) + 1);
 				break;
 			case YIELD_FAITH:
 				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
+				{
 					iYieldValue /= 2;
+					iYieldTrait /= 2;
+				}
 				if (iReligion > 0)
 				{
 					iYieldValue += (iReligion * 100);
+					iYieldTrait += (iReligion * 100);
 					bGoodforHappiness = true;
 				}
 				break;
 			case YIELD_CULTURE:
 				if (bSmall)
+				{
 					iYieldValue /= 2;
+					iYieldTrait /= 2;
+				}
 				if (iBoredom > 0)
 				{
 					iYieldValue += (iBoredom * 100);
+					iYieldTrait += (iBoredom * 100);
 					bGoodforHappiness = true;
 				}
 				iYieldValue *= ((kPlayer.GetCurrentEra() / 2) + 1);
 				break;
 			case YIELD_PRODUCTION:
 				if (bSmall)
+				{
 					iYieldValue *= 10;
+					iYieldTrait *= 10;
+				}
+
+				if (iCrime > 0)
+				{
+					iYieldValue += (iCrime * 50);
+					iYieldTrait += (iCrime * 50);
+					bGoodforHappiness = true;
+				}
 				break;
 			case YIELD_FOOD:
 				if (m_pCity->GetCityCitizens()->IsAvoidGrowth())
@@ -1010,14 +1037,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				else if (bSmall)
 					iYieldValue *= 10;
+
+				if (iCrime > 0)
+				{
+					iYieldValue += (iCrime * 50);
+					iYieldTrait += (iCrime * 50);
+					bGoodforHappiness = true;
+				}
 				break;
 			case YIELD_TOURISM:
 				if (bSmall)
+				{
 					iYieldValue /= 5;
+					iYieldTrait /= 5;
+				}
 				break;
 			case YIELD_GOLDEN_AGE_POINTS:
 				if (bSmall)
+				{
 					iYieldValue /= 5;
+					iYieldTrait /= 5;
+				}
 				break;
 			}
 			
@@ -1238,7 +1278,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (m_pCity->isProductionBuilding() && m_pCity->getProductionBuilding() == eBuilding)
 	{
-		iBonus /= max(1, 10 - m_pCity->getProductionTurnsLeft());
+		iBonus *= max(1, 10 - m_pCity->getProductionTurnsLeft());
 	}
 
 	/////
