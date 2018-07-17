@@ -820,7 +820,7 @@ private:
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
-	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
+	bool ClearEnemiesNearArmy(CvArmyAI* pArmy);
 	void MoveWithFormation(CvUnit* pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
 	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);

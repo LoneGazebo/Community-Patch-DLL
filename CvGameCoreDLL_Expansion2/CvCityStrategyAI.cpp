@@ -5337,7 +5337,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//Era = higher era, less valuable in game.
 		iActualIncrease = (iFlatYield * (100 - (iEra * 3)));
 		iActualIncrease /= 100;
-		iActualIncrease /= max(1, iDelta);
 
 		iYieldValue += iActualIncrease;
 	}

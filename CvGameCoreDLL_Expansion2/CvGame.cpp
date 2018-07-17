@@ -10113,7 +10113,7 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isConquest())
 			continue;
 
-		int iScore = getSmallFakeRandNum(10, GC.getGame().GetGameCulture()->GetNumGreatWorks()+ iVictoryLoop) * 10;
+		int iScore = getSmallFakeRandNum(100, GC.getGame().GetGameCulture()->GetNumGreatWorks()+ iVictoryLoop);
 		
 		if (pkVictoryInfo->isDiploVote())
 		{
@@ -10708,7 +10708,7 @@ void CvGame::updateGlobalAverage()
 					vfScienceYield.push_back((float)iScienceAvg);
 					
 					//Disorder
-					iDefenseYield = pLoopCity->getStrengthValue(false);
+					iDefenseYield = (pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true)) / 2;
 					float iDefenseAvg = iDefenseYield / (float)iPopulation;
 					vfDefenseYield.push_back((float)iDefenseAvg);
 
@@ -13390,7 +13390,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
 
 		// Hidden site?
-		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < GC.getPERCENT_SITES_HIDDEN();
+		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(100, *pPlot)  < GC.getPERCENT_SITES_HIDDEN();
 		if (bHiddenSite)
 		{
 			pPlot->setResourceType(eHiddenArtifactResourceType, 1);

@@ -3451,7 +3451,7 @@
 			<Text>I find it hard to speak freely with tyrants such as yourself.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_HARUN_GREETING_HOSTILE_HELLO_2">
-			<Text>You are a fool to by my enemy. Do you not see what I do to my enemies?</Text>
+			<Text>You are a fool to be my enemy. Do you not see what I do to my enemies?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_GREETING_HOSTILE_HELLO_2">
 			<Text>The blood of my enemies flows from this shrine. Shall I add yours to the mix?</Text>
@@ -6568,6 +6568,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_MINOR_QUEST">
 			<Text>[ICON_CITY_STATE] City-State Quest ({1_Data}):[NEWLINE]{2_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
+			<Text>Expanding [ICON_CULTURE] Borders by Culture Bomb:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		
 		<!-- Quest Data -->

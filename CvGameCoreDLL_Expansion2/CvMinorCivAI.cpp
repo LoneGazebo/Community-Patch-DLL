@@ -2180,7 +2180,8 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 		if(pPlot != NULL && pPlot->isCity())
 		{
-			if(pPlot->getOwner() == pAssignedPlayer->GetID())
+			CvCity* pCity = pPlot->getPlotCity();
+			if (pCity->getOwner() == pAssignedPlayer->GetID() || pCity->getPreviousOwner() == pAssignedPlayer->GetID())
 			{
 				return true;
 			}
@@ -5582,7 +5583,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 							if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC) {
 								if (iUnitGift > 0) {
-									if (GC.getGame().getSmallFakeRandNum(10, pPlayer->GetEconomicMight()) * 10 < iUnitGift) {
+									if (GC.getGame().getSmallFakeRandNum(100, pPlayer->GetEconomicMight()) < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -10509,6 +10510,8 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 			{
 				if(pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
 				{
+					if (pLoopCity->getPreviousOwner() == ePlayer)
+						continue;
 
 					bool bBad = false;
 					//Check for other minors that are currently targeting this city
@@ -10540,7 +10543,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue += GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iLoopCity) * 10;
+					iValue += GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetEconomicMight() + iLoopCity);
 					iValue -= pLoopCity->getStrengthValue() / 100;
 					if(iValue <= 0)
 					{
@@ -11526,14 +11529,14 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 // What is the level of Friendship between this Minor and the requested Major Civ?
 // Takes things like war status into account
 // NOTE: Not const because of need to check war status
-int CvMinorCivAI::GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer)
+int CvMinorCivAI::GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer, bool bIgnoreWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
 
 	// Are we at war?
-	if(IsAtWarWithPlayersTeam(ePlayer))
+	if (!bIgnoreWar && IsAtWarWithPlayersTeam(ePlayer))
 		return (100 * /*-60*/GC.getMINOR_FRIENDSHIP_AT_WAR());
 
 	return GetBaseFriendshipWithMajorTimes100(ePlayer);
@@ -11550,13 +11553,13 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup)
+void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup, bool bFromWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
 	m_aiFriendshipWithMajorTimes100[ePlayer] = iNum;
 
@@ -11564,7 +11567,7 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 	if(GetBaseFriendshipWithMajor(ePlayer) < iMinimumFriendship)
 		m_aiFriendshipWithMajorTimes100[ePlayer] = iMinimumFriendship * 100;
 
-	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
 	// Has the friendship in effect changed?
 	if(iOldEffectiveFriendship != iNewEffectiveFriendship)
@@ -11617,9 +11620,9 @@ int CvMinorCivAI::GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest)
+void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromWar)
 {
-	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest);
+	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest, false, bFromWar);
 }
 
 /// Changes the base level of Friendship between this Minor and the specified Major Civ
@@ -17988,7 +17991,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 
 		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
 		
-		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR());
+		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR(), false, true);
 #if defined(MOD_BALANCE_CORE)
 		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
 		if(GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
@@ -18013,7 +18016,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	// Minor Civ Aggressor - chance of permanent war
 	else if(pEnemyTeam->IsMinorCivAggressor())
 	{
-		iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight()) * 10;
+		iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetEconomicMight());
 
 		if(iRand < /*50*/ GC.getPERMANENT_WAR_AGGRESSOR_CHANCE())
 		{
@@ -18116,7 +18119,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*50*/ GC.getPERMANENT_WAR_OTHER_AT_WAR();
 
-			iRand = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetEconomicMight() + iMinorCivLoop) * 10;
+			iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetEconomicMight() + iMinorCivLoop);
 			if(iRand < iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))

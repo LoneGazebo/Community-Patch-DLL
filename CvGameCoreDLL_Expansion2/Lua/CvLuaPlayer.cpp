@@ -2101,7 +2101,13 @@ int CvLuaPlayer::lCanFound(lua_State* L)
 //void found(int iX, int iY);
 int CvLuaPlayer::lFound(lua_State* L)
 {
-	return BasicLuaMethod<int,int>(L, &CvPlayerAI::found);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iX = lua_tointeger(L, 2);
+	const int iY = lua_tointeger(L, 3);
+
+	pkPlayer->found(iX, iY);
+
+	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -8980,19 +8986,7 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
 int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	int iNumHappinessResources = 0;
-	ResourceTypes eResource;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		eResource = (ResourceTypes)iResourceLoop;
-
-		if (eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
-		{
-			iNumHappinessResources++;
-		}
-	}
-	const int iResult = (iNumHappinessResources * pkPlayer->GetBaseLuxuryHappiness()) / max(1, (pkPlayer->getNumCities() / max(1, GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())));
+	const int iResult = pkPlayer->GetBonusHappinessFromLuxuries();
 
 	lua_pushinteger(L, iResult);
 	return 1;

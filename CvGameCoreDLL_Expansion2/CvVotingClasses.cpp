@@ -5100,6 +5100,10 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 				CvAssert(eEmbargoedMajor != NO_PLAYER);
 				if (eEmbargoedMajor == eTrader || eEmbargoedMajor == eRecipient)
 				{
+					//does not affect vassals
+					if (GET_TEAM(GET_PLAYER(eEmbargoedMajor).getTeam()).IsVassal(GET_PLAYER(eRecipient).getTeam()) || GET_TEAM(GET_PLAYER(eRecipient).getTeam()).IsVassal(GET_PLAYER(eEmbargoedMajor).getTeam()))
+						continue;
+
 					return true;
 				}
 			}
@@ -11755,58 +11759,71 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 												iScore += 60;
 												break;
 										}
-									}
-									//And the Vassals
-									if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(eLoopTeam))
-									{
-										bValid = true;
-										switch(eOpinion)
+
+										PlayerTypes eLoopPlayer2;
+										for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
 										{
-											case MAJOR_CIV_OPINION_ALLY:
-												iScore += 50;
-												break;
-											case MAJOR_CIV_OPINION_FRIEND:
-												iScore += 25;
-												break;
-											case MAJOR_CIV_OPINION_FAVORABLE:
-												iScore += 10;
-												break;
-											case MAJOR_CIV_OPINION_NEUTRAL:
-												iScore += 0;
-												break;
-											case MAJOR_CIV_OPINION_COMPETITOR:
-												iScore += -10;
-												break;
-											case MAJOR_CIV_OPINION_ENEMY:
-												iScore += -25;
-												break;
-											case MAJOR_CIV_OPINION_UNFORGIVABLE:
-												iScore += -50;
-												break;
-										}
-										switch(eApproach)
-										{
-											case MAJOR_CIV_APPROACH_AFRAID:
-												iScore += -50;
-												break;
-											case MAJOR_CIV_APPROACH_FRIENDLY:
-												iScore += 25;
-												break;
-											case MAJOR_CIV_APPROACH_NEUTRAL:
-												iScore += 0;
-												break;
-											case MAJOR_CIV_APPROACH_GUARDED:
-												iScore += -10;
-												break;
-											case MAJOR_CIV_APPROACH_DECEPTIVE:
-												iScore += -20;
-												break;
-											case MAJOR_CIV_APPROACH_HOSTILE:
-												iScore += -40;
-												break;
-											case MAJOR_CIV_APPROACH_WAR:
-												iScore += 60;
-												break;
+											eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
+											if (GET_PLAYER(eLoopPlayer2).isAlive() && GET_TEAM(GET_PLAYER(eLoopPlayer2).getTeam()).GetMaster() == eLoopPlayer)
+											{
+												//The Master
+												MajorCivOpinionTypes eOpinion2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer2);
+												MajorCivApproachTypes eApproach2 = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer2, /*bHideTrueFeelings*/ true);
+												int iTempScore = 0;
+												switch (eOpinion2)
+												{
+												case MAJOR_CIV_OPINION_ALLY:
+													iTempScore += 50;
+													break;
+												case MAJOR_CIV_OPINION_FRIEND:
+													iTempScore += 25;
+													break;
+												case MAJOR_CIV_OPINION_FAVORABLE:
+													iTempScore += 10;
+													break;
+												case MAJOR_CIV_OPINION_NEUTRAL:
+													iTempScore += 0;
+													break;
+												case MAJOR_CIV_OPINION_COMPETITOR:
+													iTempScore += -10;
+													break;
+												case MAJOR_CIV_OPINION_ENEMY:
+													iTempScore += -25;
+													break;
+												case MAJOR_CIV_OPINION_UNFORGIVABLE:
+													iTempScore += -50;
+													break;
+												}
+												switch (eApproach2)
+												{
+												case MAJOR_CIV_APPROACH_AFRAID:
+													iTempScore += -50;
+													break;
+												case MAJOR_CIV_APPROACH_FRIENDLY:
+													iTempScore += 25;
+													break;
+												case MAJOR_CIV_APPROACH_NEUTRAL:
+													iTempScore += 0;
+													break;
+												case MAJOR_CIV_APPROACH_GUARDED:
+													iTempScore += -10;
+													break;
+												case MAJOR_CIV_APPROACH_DECEPTIVE:
+													iTempScore += -20;
+													break;
+												case MAJOR_CIV_APPROACH_HOSTILE:
+													iTempScore += -40;
+													break;
+												case MAJOR_CIV_APPROACH_WAR:
+													iTempScore += 60;
+													break;
+												}
+												if (iTempScore != 0)
+												{
+													iScore += iTempScore;
+													bValid = true;
+												}
+											}
 										}
 									}
 								}

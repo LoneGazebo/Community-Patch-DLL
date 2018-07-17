@@ -122,8 +122,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, NULL);
 		int iDefenderStrength = pkCity->getStrengthValue();
 
-		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
-		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, pkCity->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
+		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, pkCity->getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
 
 #if defined(MOD_BALANCE_CORE)
 		if(kAttacker.getForcedDamageValue() != 0)
@@ -262,8 +263,10 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iAttackerStrength = (iAttackerStrength * 150) / 100;
 		}
 
-		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+
+		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 		if(kAttacker.getDomainType() == DOMAIN_AIR && pkDefender->getDomainType() != DOMAIN_AIR)
 		{
@@ -341,8 +344,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_DEFENDER, iDefenderDamageInflicted);
 
 		// Fear Damage
-		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), true, false, true));
-		//	pkCombatInfo->setFearDamageInflicted( BATTLE_UNIT_DEFENDER, getCombatDamage(iDefenderStrength, iAttackerStrength, pDefender->getDamage(), true, false, true) );
+		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), bIncludeRand, false, true));
+		//	pkCombatInfo->setFearDamageInflicted( BATTLE_UNIT_DEFENDER, getCombatDamage(iDefenderStrength, iAttackerStrength, pDefender->getDamage(), bIncludeRand, false, true) );
 
 #if defined(MOD_UNITS_MAX_HP)
 		int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
@@ -415,7 +418,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
 #endif
 		{
-			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(10, plot) * 10;
+			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(100, plot);
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -1671,10 +1674,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, pInterceptor);
 		// Does the attacker evade?
-		if(GC.getGame().getSmallFakeRandNum(10, plot.GetPlotIndex()+kAttacker.GetID()) * 10 >= kAttacker.evasionProbability())
+		if(GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+kAttacker.GetID()) >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if (GC.getGame().getSmallFakeRandNum(10, plot.GetPlotIndex()+pInterceptor->GetID()) * 10 < pInterceptor->interceptionProbability())
+			if (GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex()+pInterceptor->GetID()) <= pInterceptor->interceptionProbability())
 			{
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker);
 			}
@@ -1835,7 +1838,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		{
 #if defined(MOD_BUGFIX_MINOR)
 			// Surely!!!
-			iDefenderDamageInflicted = pCity->GetMaxHitPoints() - kAttacker.getDamage();
+			iDefenderDamageInflicted = kAttacker.GetMaxHitPoints() - kAttacker.getDamage();
 #else
 			iDefenderDamageInflicted = GC.getMAX_HIT_POINTS() - kAttacker.getDamage();
 #endif
@@ -2326,8 +2329,10 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
 #endif
 
-		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
-		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
+
+		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
+		int iDefenderDamageInflicted = pkDefender->getCombatDamage(iDefenderStrength, iAttackerStrength, pkDefender->getDamage(), /*bIncludeRand*/ bIncludeRand, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ false);
 
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -2830,7 +2835,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
 							if(pkFeatureInfo && !pkFeatureInfo->isNukeImmune())
 							{
-								if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < GC.getNUKE_FALLOUT_PROB())
+								if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < GC.getNUKE_FALLOUT_PROB())
 								{
 									if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
@@ -2842,7 +2847,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 						else
 						{
-							if(pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < GC.getNUKE_FALLOUT_PROB())
+							if(pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < GC.getNUKE_FALLOUT_PROB())
 							{
 								if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -2853,7 +2858,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 #if defined(MOD_GLOBAL_NUKES_MELT_ICE)
 					} else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE) {
-						if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < GC.getNUKE_FALLOUT_PROB()) {
+						if (pLoopPlot == pkTargetPlot || GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < GC.getNUKE_FALLOUT_PROB()) {
 							pLoopPlot->setFeatureType(NO_FEATURE);
 						}
 #endif

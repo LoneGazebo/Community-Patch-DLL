@@ -805,6 +805,7 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 		{
 			pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
 		}
+		pCity1->ResetGreatWorkYieldCache();
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
@@ -822,6 +823,7 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 		{
 			pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
 		}
+		pCity2->ResetGreatWorkYieldCache();
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
@@ -1451,12 +1453,29 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	bool bUpdate = false;
 #endif
 
-	// First building that are not endangered
+	// First building that are not endangered and not puppets
 	// CUSTOMLOG("  ... theming safe buildings");
 	vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 	{
-		if (!itBuilding->m_bEndangered)
+		if (!itBuilding->m_bEndangered && !itBuilding->m_bPuppet)
+		{
+			itBuilding->m_bThemed = false;
+			if (ThemeBuilding(itBuilding, works1, works2, false /*bConsiderOtherPlayers*/))
+			{
+				itBuilding->m_bThemed = true;
+#if defined(MOD_BALANCE_CORE)
+				bUpdate = true;
+#endif
+			}
+		}
+	}
+
+	// Next building that are not endangered and are puppets
+	// CUSTOMLOG("  ... theming safe buildings");
+	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	{
+		if (!itBuilding->m_bEndangered && itBuilding->m_bPuppet)
 		{
 			itBuilding->m_bThemed = false;
 			if (ThemeBuilding(itBuilding, works1, works2, false /*bConsiderOtherPlayers*/))
@@ -4956,12 +4975,11 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	else
 	{
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_VASSAL", GetTourismModifierVassal()) + "[ENDCOLOR]";
 	}
-#endif
+
 	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 	{
 		if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(ePlayer))
@@ -5086,6 +5104,11 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		{
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", GC.getTOURISM_MODIFIER_DIFFERENT_IDEOLOGIES()) + "[ENDCOLOR]";
 		}
+	}
+
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+	{
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_VASSAL", GetTourismModifierVassal()) + "[ENDCOLOR]";
 	}
 #endif
 

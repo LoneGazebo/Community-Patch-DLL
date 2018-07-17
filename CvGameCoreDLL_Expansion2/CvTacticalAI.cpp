@@ -4196,7 +4196,8 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
 
-	ClearEnemiesNearArmy(pThisArmy);
+	if (ClearEnemiesNearArmy(pThisArmy))
+		return;
 
 	// RECRUITING
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || 
@@ -4262,11 +4263,11 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		}
 
 		//sneak attack about to move into soon-to-be-enemy territory? can happen with open borders ...
-		if (!m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
+		if (!m_pPlayer->IsAtWarWith(pOperation->GetEnemy()) && pOperation->GetEnemy()!=NO_PLAYER && pThisTurnTarget->getTeam() == GET_PLAYER(pOperation->GetEnemy()).getTeam())
 		{
 			m_pPlayer->GetDiplomacyAI()->DeclareWar(pOperation->GetEnemy());
-			ClearEnemiesNearArmy(pThisArmy);
-			return;
+			if (ClearEnemiesNearArmy(pThisArmy))
+				return;
 		}
 
 		// Request moves for all units
@@ -4333,10 +4334,10 @@ void CvTacticalAI::AddCurrentTurnUnit(CvUnit * pUnit)
 }
 
 /// Queues up attacks on enemy units on or adjacent to army's desired center
-void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
+bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 {
 	if (!pArmy)
-		return;
+		return false;
 
 	//make a unique set of enemy units
 	set<CvPlot*> allEnemyPlots;
@@ -4383,7 +4384,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 
 	//don't get sidetracked
 	if (iMinDist>3 || pClosestEnemyPlot ==NULL)
-		return;
+		return false;
 
 	//do we have additional units around?
 	if (FindUnitsWithinStrikingDistance(pClosestEnemyPlot))
@@ -4400,6 +4401,8 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		iCount++;
 	}
 	while (!vAssignments.empty() && !TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
+
+	return !vAssignments.empty() && iCount < 4;
 }
 
 /// Store off a new unit that needs to move as part of an operational AI formation

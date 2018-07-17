@@ -596,7 +596,7 @@ INSERT INTO Building_YieldChangesPerPop
 VALUES
 	('BUILDING_SKOLA', 'YIELD_SCIENCE', 100),
 	('BUILDING_SKOLA', 'YIELD_CULTURE', 34),
-	('BUILDING_BASILICA', 'YIELD_FAITH', 50);
+	('BUILDING_BASILICA', 'YIELD_FAITH', 34);
 
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)

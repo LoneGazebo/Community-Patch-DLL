@@ -1391,7 +1391,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 	if(!isBarbarian())
 	{
@@ -1643,251 +1642,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	// Meet the team if we haven't already
 	meet(eTeam, false);
 
-#else
-
-	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
-	if(!isBarbarian())
-	{
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			// We declared war on our vassal!
-			if(GET_TEAM(eTeam).GetMaster() == GetID())
-			{
-				// this guy is no longer our vassal
-				GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
-
-				// to-do: ??? diplo hit for attacking a vassal?
-			}
-		}
-#endif
-
-		// Since we declared war, all of OUR Defensive Pacts are nullified
-#if defined(MOD_BALANCE_CORE)
-		if(!bDefensivePact)
-		{
-#endif
-		cancelDefensivePacts();
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-		GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
-		GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (!bDefensivePact || (MOD_DIPLOMACY_CIV4_FEATURES && !bVassal))
-#else
-		if (!bDefensivePact)
-#endif
-		{
-			for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
-			{
-				PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-				CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-				if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
-				{
-					for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
-					{
-						PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-						CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-						if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
-						{
-							// Forget any of that liberation crud!
-							int iNumCitiesLiberated = kDefendingPlayer.GetDiplomacyAI()->GetNumCitiesLiberated(eAttackingPlayer);
-							kDefendingPlayer.GetDiplomacyAI()->ChangeNumCitiesLiberated(eAttackingPlayer, -iNumCitiesLiberated);
-
-#if defined(MOD_DIPLOMACY_AUTO_DENOUNCE)
-							if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
-							{
-								CvDiplomacyAI* pDiplomacy = kAttackingPlayer.GetDiplomacyAI();
-
-								if (!pDiplomacy->IsDenouncedPlayer(eDefendingPlayer)) {
-									pDiplomacy->DoDenouncePlayer(eDefendingPlayer);
-								}
-							}
-#endif
-						}
-					}
-				}
-			}
-		}
-
-		// Auto War for Defensive Pacts
-#if defined(MOD_BALANCE_CORE)
-		if(bAggressor)
-		{
-#endif
-		for(iI = 0; iI < MAX_TEAMS; iI++)
-		{
-			if(GET_TEAM((TeamTypes)iI).isAlive())
-			{
-				if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
-				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
-#else
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
-#endif
-				}
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (!bDefensivePact && MOD_DIPLOMACY_CIV4_FEATURES) 
-		{
-			for(iI = 0; iI < MAX_TEAMS; iI++)
-			{
-				if(GET_TEAM((TeamTypes)iI).isAlive())
-				{
-					if(GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
-					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
-#else
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
-#endif
-					}
-					else if(GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
-					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
-#else
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
-#endif
-					}
-				}
-			}
-		}
-#endif
-	}
-	// Cancel Trade Deals, RAs, diplomats
-	if(!isBarbarian())
-	{
-		GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
-		CloseEmbassyAtTeam(eTeam);
-		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
-		CancelResearchAgreement(eTeam);
-		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
-		EvacuateDiplomatsAtTeam(eTeam);
-		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
-	}
-
-#if !defined(MOD_GLOBAL_STACKING_RULES)
-	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
-#endif
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	setAtWar(eTeam, true, bAggressor);
-	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
-#else
-	setAtWar(eTeam, true);
-	GET_TEAM(eTeam).setAtWar(GetID(), true);
-#endif
-
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	// Bump Units out of places they shouldn't be
-	GC.getMap().verifyUnitValidPlot();
-#endif
-
-#if defined(MOD_GLOBAL_EARLY_COOP_WAR_LOCK)
-	/*
-	 * There is an interesting edge case.  If player A agrees to a co-op war in X turns with B against C,
-	 * and then immediately declares war on C, A can make peace with C before the X turn limit.
-	 * When B shows up after X turns to start the war, A can agree and, despite having a peace treaty with C, will immediately declare war!
-	 *
-	 * The simple fix for this is to lock player A into war for at least X turns, if any co-op war agreements include A warring against C
-	 */
-	if (MOD_GLOBAL_EARLY_COOP_WAR_LOCK)
-	{
-		for (int iCoopPlayer = 0; iCoopPlayer < MAX_MAJOR_CIVS; iCoopPlayer++)
-		{
-			CvPlayer& kCoopPlayer = GET_PLAYER((PlayerTypes)iCoopPlayer);
-			TeamTypes eCoopTeam = kCoopPlayer.getTeam();
-
-			if (kCoopPlayer.isAlive() && eCoopTeam != m_eID && eCoopTeam != eTeam)
-			{
-				for (int iTheirPlayer = 0; iTheirPlayer < MAX_MAJOR_CIVS; iTheirPlayer++)
-				{
-					if (GET_PLAYER((PlayerTypes)iTheirPlayer).getTeam() == eTeam)
-					{
-						for (int iMyPlayer = 0; iMyPlayer < MAX_MAJOR_CIVS; iMyPlayer++)
-						{
-							if (GET_PLAYER((PlayerTypes)iMyPlayer).getTeam() == m_eID)
-							{
-								if (kCoopPlayer.GetDiplomacyAI()->GetCoopWarAcceptedState((PlayerTypes)iMyPlayer, (PlayerTypes)iTheirPlayer) == COOP_WAR_STATE_SOON)
-								{
-									CUSTOMLOG("Locking team %i into a co-op war against team %i - early start to agreement between player %i with player %i", m_eID, eTeam, iMyPlayer, iCoopPlayer);
-									ChangeNumTurnsLockedIntoWar(eTeam, GC.getCOOP_WAR_LOCKED_LENGTH());
-									goto done; // Cannot use break here, as we need to exit from three loops
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		done: __noop;
-	}
-#endif
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (MOD_EVENTS_WAR_AND_PEACE) 
-	{
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
-	} 
-	else 
-	{
-#endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(GetID());
-			args->Push(eTeam);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
-		}
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	}
-#endif
-
-	// One shot things
-	DoNowAtWarOrPeace(eTeam, true);
-	GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), true);
-
-	// Meet the team if we haven't already
-	meet(eTeam, false);
-
-	// Update the ATTACKED players' Diplo AI
-	if(!isBarbarian())
-	{
-		for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-		{
-			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
-			if(kPlayer.isAlive() && kPlayer.getTeam() == eTeam)
-				kPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
-		}
-
-		// If we've made a peace treaty before, this is bad news (no minors though)
-		if(!GET_TEAM(eTeam).isMinorCiv())
-		{
-			int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eTeam);
-			if(iPeaceTreatyTurn != -1)
-			{
-				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-				if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
-				{
-					SetHasBrokenPeaceTreaty(true);
-				}
-			}
-		}
-	}
-#endif
 	// Update interface stuff
 	if((GetID() == GC.getGame().getActiveTeam()) || (eTeam == GC.getGame().getActiveTeam()))
 	{
@@ -1950,7 +1704,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	int iMajorCivLoop;
 
 	// Minor Civs declaring war
-	if(isMinorCiv())
+	if (isMinorCiv())
 	{
 
 	}
@@ -1960,37 +1714,37 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		int iMajorCivLoop2;
 
 		// Update what every Major Civ sees
-		for(iMajorCivLoop = 0; iMajorCivLoop < MAX_MAJOR_CIVS; iMajorCivLoop++)
+		for (iMajorCivLoop = 0; iMajorCivLoop < MAX_MAJOR_CIVS; iMajorCivLoop++)
 		{
-			if(GET_PLAYER((PlayerTypes) iMajorCivLoop).getTeam() == GetID())
+			if (GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam() == GetID())
 			{
-				if(GET_PLAYER((PlayerTypes) iMajorCivLoop).isAlive())
+				if (GET_PLAYER((PlayerTypes)iMajorCivLoop).isAlive())
 				{
 					// Alter Grand Strategy stats for all Majors in the game whove met this declaring war Major
-					for(iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
+					for (iMajorCivLoop2 = 0; iMajorCivLoop2 < MAX_MAJOR_CIVS; iMajorCivLoop2++)
 					{
 						// I don't care if it's me
-						if(iMajorCivLoop != iMajorCivLoop2)
+						if (iMajorCivLoop != iMajorCivLoop2)
 						{
 							// Have I actually met this player declaring war?
-							if(GET_TEAM(GET_PLAYER((PlayerTypes) iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes) iMajorCivLoop).getTeam()))
+							if (GET_TEAM(GET_PLAYER((PlayerTypes)iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iMajorCivLoop).getTeam()))
 							{
 #if defined(MOD_BALANCE_CORE)
-								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam, bDefensivePact);
+								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam, bDefensivePact);
 #else
-								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam);
+								GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes)iMajorCivLoop, eTeam);
 #endif
-								if(!bDefensivePact)
+								if (!bDefensivePact)
 								{
 									// Major declaring war on Minor
-									if(GET_TEAM(eTeam).isMinorCiv())
+									if (GET_TEAM(eTeam).isMinorCiv())
 									{
-										GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMinorsAttacked((PlayerTypes) iMajorCivLoop, 1);
+										GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMinorsAttacked((PlayerTypes)iMajorCivLoop, 1);
 									}
 									// Major declaring war on Major
 									else
 									{
-										GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMajorsAttacked((PlayerTypes) iMajorCivLoop, 1, eTeam);
+										GET_PLAYER((PlayerTypes)iMajorCivLoop2).GetDiplomacyAI()->ChangeOtherPlayerNumMajorsAttacked((PlayerTypes)iMajorCivLoop, 1, eTeam);
 									}
 								}
 							}
@@ -1998,25 +1752,25 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					}
 
 					// Declaring war on Minor
-					for(iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+					for (iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 					{
 						// Now loop through all players on this team to nullify Quests for them
-						if(GET_PLAYER((PlayerTypes) iMinorCivLoop).getTeam() == eTeam)
+						if (GET_PLAYER((PlayerTypes)iMinorCivLoop).getTeam() == eTeam)
 						{
-							if(GET_PLAYER((PlayerTypes) iMinorCivLoop).isAlive())
+							if (GET_PLAYER((PlayerTypes)iMinorCivLoop).isAlive())
 							{
 								// Increment # of Minors this player has attacked - note that this will be called EACH time a team declares war on a Minor,
 								// even the same Minor multiple times.  The current design assumes that once a player is at war with a Minor it's forever, so this is fine
 								//antonjs: consider: this statement is no longer valid, since current design allows peace to be made; update the implementation
 #if defined(MOD_BALANCE_CORE)
-								if(!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
+								if (!isMinorCiv() && !bDefensivePact && bAggressor && isAtWar(eTeam))
 #else
-								if(!isMinorCiv() && !bDefensivePact)
+								if (!isMinorCiv() && !bDefensivePact)
 #endif
 								{
 									ChangeNumMinorCivsAttacked(1);
 
-									GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->DoTeamDeclaredWarOnMe(GetID());
+									GET_PLAYER((PlayerTypes)iMinorCivLoop).GetMinorCivAI()->DoTeamDeclaredWarOnMe(GetID());
 								}
 							}
 						}
@@ -9809,6 +9563,17 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	if(!IsVassal(eTeam))
 	{
 		return false;
+	}
+
+	//blocks vassalage rebellion?
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+		{
+			if (GET_PLAYER(eLoopPlayer).IsVassalsNoRebel())
+				return false;
+		}
 	}
 
 	// can't end vassalage with ourselves

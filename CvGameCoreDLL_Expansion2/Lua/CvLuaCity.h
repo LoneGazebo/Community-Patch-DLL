@@ -350,6 +350,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
 	LUAAPIEXTN(getHappinessDelta, int);
+	LUAAPIEXTN(getHappinessThresholdMod, int);
 	LUAAPIEXTN(getThresholdSubtractions, int);
 	LUAAPIEXTN(getThresholdAdditions, int);
 	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);

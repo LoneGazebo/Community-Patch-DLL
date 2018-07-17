@@ -5468,7 +5468,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		iRoll = /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
+		iRoll = /*1200*/ GC.getGame().getSmallFakeRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
@@ -5526,7 +5526,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 		//we take even less damage from cities when attacking them.
 		if (GetDamageReductionCityAssault() != 0)
 		{
-			iDamage *= (100 - GetDamageReductionCityAssault());
+			iDamage *= (100 - min(90, GetDamageReductionCityAssault()));
 			iDamage /= 100;
 		}
 	}
@@ -8044,7 +8044,7 @@ void CvUnit::DoAttrition()
 	{
 		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < getEnemyDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8053,7 +8053,7 @@ void CvUnit::DoAttrition()
 #if defined(MOD_BALANCE_CORE)
 		else if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 <= getEnemyDamageChance())
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8062,7 +8062,7 @@ void CvUnit::DoAttrition()
 #endif
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if(GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 < getNeutralDamageChance())
+			if(GC.getGame().getSmallFakeRandNum(100, *pPlot) < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -9548,7 +9548,7 @@ bool CvUnit::createFreeLuxury()
 			{
 				if(GC.getMap().getNumResources(eResource) <= 0)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9570,7 +9570,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9592,7 +9592,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(10, iResourceLoop) * 10;
+					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
 					if(iRandomFlavor > iBestFlavor)
 					{
 						eResourceToGive = eResource;
@@ -10416,8 +10416,20 @@ bool CvUnit::pillage()
 					}
 				}
 #endif
-				iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
-				iPillageGold += (getPillageChange() * iPillageGold) / 100;
+				if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+				{
+					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+					if (iEra <= 0)
+						iEra = 1;
+
+					iPillageGold = 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + GC.getGame().getSmallFakeRandNum(50, *plot())) / 100)));
+					iPillageGold += (getPillageChange() * iPillageGold) / 100;
+				}
+				else
+				{
+					iPillageGold = GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
+					iPillageGold += (getPillageChange() * iPillageGold) / 100;
+				}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 				if (pPlot->getOwner() != NO_PLAYER)
 				{
@@ -10621,14 +10633,24 @@ bool CvUnit::found()
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 #endif
 
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
 	{
-		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion());
+		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion(), false, m_pUnitInfo);
 	} 
 	else 
 	{
+		kPlayer.found(getX(), getY(), NO_RELIGION, true, m_pUnitInfo);
+#elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
+	{
+		kPlayer.found(getX(), getY(), GetReligionData()->GetReligion());
+	}
+	else
+	{
 		kPlayer.found(getX(), getY(), NO_RELIGION, true);
+#elif defined(MOD_BALANCE_CORE)
+		kPlayer.found(getX(), getY(), m_pUnitInfo);
 #else
 		kPlayer.found(getX(), getY());
 #endif
@@ -10655,21 +10677,6 @@ bool CvUnit::found()
 		}
 #endif
 	}
-
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
-	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFound())
-	{
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, 0, 1, 1);
-	}
-	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundMid())
-	{
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
-	}
-	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundLate())
-	{
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
@@ -12729,7 +12736,48 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				}
 				vePlayersBombed[pLoopPlot->getOwner()] = true;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Instant yield from tiles gained by culture bombing
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
 
+				int iPassYield = 0;
+
+				if (eYield == NO_YIELD)
+					continue;
+
+				TerrainTypes eTerrain = pLoopPlot->getTerrainType();
+
+				if (eTerrain == NO_TERRAIN)
+					continue;
+
+				// Stole foreign tiles
+				if (pLoopPlot->getOwner() != NO_PLAYER)
+				{
+					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileStealCultureBomb(eTerrain, eYield);
+				}
+				// Obtained neutral tiles
+				else
+				{
+					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
+				}
+
+				CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+				if (pBestCity == NULL)
+				{
+					CvCity* pCapitalCity = kPlayer.getCapitalCity();
+					if (pCapitalCity != NULL)
+					{
+						pBestCity = pCapitalCity;
+					}
+				}
+				if (pBestCity != NULL)
+				{
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
+				}
+			}
+#endif
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -17204,7 +17252,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE()/ 100, *plot()) * 100;
+		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -17442,7 +17490,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
-		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
+		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iInterceptorRoll *= iInterceptorDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iInterceptorRoll /= GetMaxHitPoints();
@@ -17541,7 +17589,7 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
-		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot()) * 100;
+		iInterceptorRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 		iInterceptorRoll *= iInterceptorDamageRatio;
 		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -24163,7 +24211,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 		if (getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 		{
 			CvUnit* pConvertUnit = NULL;
-			if (GC.getGame().getSmallFakeRandNum(10, *pPlot) * 10 <= iChanceToConvertReligiousUnit)
+			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= iChanceToConvertReligiousUnit)
 			{
 				UnitTypes eBestLandUnit = NO_UNIT;
 				int iStrengthBestLandCombat = 0;
@@ -29856,7 +29904,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 	int iPlagueChance = getPlagueChance();
 
-	int iRoll = GC.getGame().getSmallFakeRandNum(10, *plot()) * 10;
+	int iRoll = GC.getGame().getSmallFakeRandNum(100, *plot());
 
 	if(iRoll > iPlagueChance)
 	{
@@ -30898,7 +30946,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iValue > 0)
 	{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		iValue += GC.getGame().getSmallFakeRandNum(10, iValue) * 10;
+		iValue += GC.getGame().getSmallFakeRandNum(100, iValue);
 #else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
 #endif

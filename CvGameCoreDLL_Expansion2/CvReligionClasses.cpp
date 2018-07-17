@@ -622,10 +622,10 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	return bWithinDistance;
 }
 
-EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
+EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer, bool bIgnorePlayer)
 {
 	EraTypes eGPEra = (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
-	EraTypes eSpecialEra = (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra();
+	EraTypes eSpecialEra = bIgnorePlayer ? NO_ERA : (EraTypes)pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra();
 	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
 	{
 		return eSpecialEra;
@@ -3700,7 +3700,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getSmallFakeRandNum(10, kPlayer.GetEconomicMight()) * 10;
+	int iRand = GC.getGame().getSmallFakeRandNum(100, kPlayer.GetEconomicMight());
 	if(iRand >= iChance)
 	{
 		return false;

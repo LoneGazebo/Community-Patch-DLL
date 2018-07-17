@@ -3283,23 +3283,23 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 
 			// Test range
 			int iDistance = plotDistance(*pInterceptorPlot, *this);
-			if( iDistance <= pInterceptorUnit->GetAirInterceptRange())
+			if (iDistance > pInterceptorUnit->GetAirInterceptRange())
+				continue;
+			
+			//do not violate neutral players' airspace
+			if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
+				continue;
+
+			int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBaseCombatStrengthConsideringDamage();
+
+			if (iValue>0 && piNumPossibleInterceptors)
+				(*piNumPossibleInterceptors)++;
+
+			if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
 			{
-				//do not violate neutral players' airspace
-				if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
-					continue;
-
-				int iValue = pInterceptorUnit->interceptionProbability() * pInterceptorUnit->GetBaseCombatStrengthConsideringDamage();
-
-				if (iValue>0 && piNumPossibleInterceptors)
-					(*piNumPossibleInterceptors)++;
-
-				if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
-				{
-					iBestDistance = iDistance;
-					iBestValue = iValue;
-					pBestUnit = pInterceptorUnit;
-				}
+				iBestDistance = iDistance;
+				iBestValue = iValue;
+				pBestUnit = pInterceptorUnit;
 			}
 		}
 	}
@@ -10118,7 +10118,7 @@ int CvPlot::calculateReligionImprovementYield(ImprovementTypes eImprovement, Yie
 
 	int iReligionChange = 0;
 	bool bRequiresResource = pMajorityReligion->m_Beliefs.RequiresResource(pOwningCity->getOwner());
-	if (pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
+	if (pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity() || pImprovement->IsIgnoreOwnership())
 	{
 		bRequiresResource = false;
 	}
@@ -12232,7 +12232,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 					if(getResourceType() == NO_RESOURCE)
 					{
 						int iSpeed = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent() / 67;
-						if ((GC.getGame().getSmallFakeRandNum(10, ePlayer) * 10 / iSpeed) < 10)
+						if ((GC.getGame().getSmallFakeRandNum(100, ePlayer) / iSpeed) < 10)
 						{
 							int iResourceNum = 0;
 							for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
@@ -13740,7 +13740,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	}
 
-	iYield += +calculatePlayerYield(eYield, iYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
+	iYield += calculatePlayerYield(eYield, iYield, ePlayer, getImprovementType(), pOwningCity, pMajorityReligion, pSecondaryPantheon, false);
 
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 

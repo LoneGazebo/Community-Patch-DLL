@@ -3262,7 +3262,8 @@
 			<OrderPriority>1</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_WOLFPACK_3</PromotionPrereqOr2>
-			<IgnoreZOC>true</IgnoreZOC>
+			<DefenseMod>25</DefenseMod>
+			<MaxHitPointsChange>25</MaxHitPointsChange>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -3288,6 +3289,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<CityAttackPlunderModifier>100</CityAttackPlunderModifier>
+			<DamageReductionCityAssault>20</DamageReductionCityAssault>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -3302,6 +3304,7 @@
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<FlankAttackModifier>50</FlankAttackModifier>
+			<IgnoreZOC>true</IgnoreZOC>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDING_PARTY_4</PediaEntry>
 		</Row>
@@ -3758,18 +3761,16 @@
 			<PediaEntry>TXT_KEY_PROMOTION_PRISONER_WAR</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_NAVAL_RANGE</Type>
-			<Description>TXT_KEY_PROMOTION_RANGE</Description>
-			<Help>TXT_KEY_PROMOTION_RANGE_HELP</Help>
+			<Type>PROMOTION_BETTER_BOMBARDMENT</Type>
+			<Description>TXT_KEY_PROMOTION_BETTER_BOMBARDMENT</Description>
+			<Help>TXT_KEY_PROMOTION_BETTER_BOMBARDMENT_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
-			<RangeChange>1</RangeChange>
-			<RangedAttackModifier>-20</RangedAttackModifier>
 			<PortraitIndex>34</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RANGE</PediaEntry>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BETTER_BOMBARDMENT</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_DEFENSE_BOOST</Type>
@@ -3821,6 +3822,17 @@
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SUPPLY_BOOST</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_NUCLEAR_SILO</Type>
+			<Description>TXT_KEY_PROMOTION_NUCLEAR_SILO</Description>
+			<Help>TXT_KEY_PROMOTION_NUCLEAR_SILO_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_NUCLEAR_SILO</PediaEntry>
 		</Row>
 	</UnitPromotions>
 </GameData>
