@@ -2031,7 +2031,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
-	if (!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
+	if (pPlot->getOwner() != pUnit->getOwner())
 	{
 		return;
 	}

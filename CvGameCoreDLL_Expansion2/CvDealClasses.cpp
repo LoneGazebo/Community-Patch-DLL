@@ -445,13 +445,29 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//	return false;
 	}
 	// Map
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	else if(!MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_MAPS)
-#else
 	else if(eItem == TRADE_ITEM_MAPS)
-#endif
 	{
-		return false;
+		if(!MOD_DIPLOMACY_CIV4_FEATURES)
+			return false;
+
+		// Does not have tech for Embassy trading
+		if (!pToTeam->isMapTrading())
+			return false;
+
+		CvPlot* pPlot;
+		// Look at every tile on map
+		bool unrevealed = false;
+		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+		{
+			pPlot = GC.getMap().plotByIndexUnchecked(iI);
+			if (pPlot && !pPlot->isRevealed(GET_PLAYER(eToPlayer).getTeam()))
+			{
+				unrevealed = true; 
+				break;
+			}
+		}
+		if (!unrevealed)
+			return false;
 	}
 	// Resource
 	else if(eItem == TRADE_ITEM_RESOURCES)
@@ -3430,152 +3446,12 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 			{
 				if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 				{
-					int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-					if(iTurns > 0)
-					{
-						if(iTurns < GC.getGame().goldenAgeLength())
-						{
-							iTurns = GC.getGame().goldenAgeLength();
-						}
-						// Player modifier
-						int iLengthModifier = GET_PLAYER(eAcceptedToPlayer).getGoldenAgeModifier();
-
-						// Trait modifier
-						iLengthModifier += GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						// Do we get increased Golden Ages from a resource monopoly?
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						{
-							for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-							{
-								ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-								if(eResourceLoop != NO_RESOURCE)
-								{
-									CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-									if (pInfo && pInfo->isMonopoly())
-									{
-										if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-										{
-											int iTemp = pInfo->getMonopolyGALength();
-											iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
-											iLengthModifier += iTemp;
-										}
-									}
-								}
-							}
-						}
-#endif
-						if(iLengthModifier != 0)
-						{
-							iTurns = iTurns * (100 + iLengthModifier) / 100;
-						}
-						int iValue = GET_PLAYER(eAcceptedToPlayer).GetGoldenAgeProgressMeter();
-						GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns, iValue);
-					}
-
-					int iTourism = GET_PLAYER(eAcceptedToPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-					GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
-					// Culture boost based on previous turns
-					if(iTourism > 0)
-					{
-						GET_PLAYER(eAcceptedToPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-						if(eAcceptedToPlayer == GC.getGame().getActivePlayer())
-						{
-							CvCity* pCity = GET_PLAYER(eAcceptedToPlayer).getCapitalCity();
-							if(pCity != NULL)
-							{
-								char text[256] = {0};
-								float fDelay = 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-								CvNotifications* pNotification = GET_PLAYER(eAcceptedToPlayer).GetNotifications();
-								if(pNotification)
-								{
-									CvString strMessage;
-									CvString strSummary;
-									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
-									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedToPlayer);
-								}
-							}
-						}
-					}
+					GET_PLAYER(eAcceptedToPlayer).DoWarVictoryBonuses();
 					bDone = true;
 				}
 				else if (GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 				{
-					int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-					if(iTurns > 0)
-					{
-						if(iTurns < GC.getGame().goldenAgeLength())
-						{
-							iTurns = GC.getGame().goldenAgeLength();
-						}
-						// Player modifier
-						int iLengthModifier = GET_PLAYER(eAcceptedFromPlayer).getGoldenAgeModifier();
-
-						// Trait modifier
-						iLengthModifier += GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						// Do we get increased Golden Ages from a resource monopoly?
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						{
-							for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-							{
-								ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-								if(eResourceLoop != NO_RESOURCE)
-								{
-									CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-									if (pInfo && pInfo->isMonopoly())
-									{
-										if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-										{
-											int iTemp = pInfo->getMonopolyGALength();
-											iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
-											iLengthModifier += iTemp;
-										}
-									}
-								}
-							}
-						}
-#endif
-						if(iLengthModifier != 0)
-						{
-							iTurns = iTurns * (100 + iLengthModifier) / 100;
-						}
-								
-						int iValue = GET_PLAYER(eAcceptedFromPlayer).GetGoldenAgeProgressMeter();
-						GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns, iValue);
-					}
-
-					int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetHistoricEventTourism(HISTORIC_EVENT_WAR);
-					GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_WAR, 1);
-					if(iTourism > 0)
-					{
-						GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-						if(eAcceptedFromPlayer == GC.getGame().getActivePlayer())
-						{
-							CvCity* pCity = GET_PLAYER(eAcceptedFromPlayer).getCapitalCity();
-							if(pCity != NULL)
-							{
-								char text[256] = {0};
-								float fDelay = 0.5f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-								DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-								CvNotifications* pNotification = GET_PLAYER(eAcceptedFromPlayer).GetNotifications();
-								if(pNotification)
-								{
-									CvString strMessage;
-									CvString strSummary;
-									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
-									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedFromPlayer);
-								}
-							}
-						}
-					}
+					GET_PLAYER(eAcceptedFromPlayer).DoWarVictoryBonuses();
 					bDone = true;
 				}
 			}

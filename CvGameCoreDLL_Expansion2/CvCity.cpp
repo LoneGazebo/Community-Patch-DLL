@@ -11140,7 +11140,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 
 					if(pReligion)
 					{
-						if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this))
+						if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this) && kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(&kPlayer, true))
 						{
 							bAllUnlockedByBelief = true;
 						}
@@ -12773,9 +12773,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						SHOW_PLOT_POPUP(plot(), m_eOwner, text);
+
 						CvNotifications* pNotification = owningPlayer.GetNotifications();
 						if(pNotification)
 						{
@@ -16747,7 +16748,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 										continue;
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
-										int iChance = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation() + iUnitLoop) * 10;
+										int iChance = GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex() + getPopulation() + iUnitLoop);
 										if(iChance < 50)
 										{
 											continue;
@@ -17018,9 +17019,9 @@ int CvCity::getGreatPeopleRateModifier() const
 		{
 			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
 
-			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			if (eMinor != getOwner() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
+				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(getOwner()))
 				{
 					iNumMarried++;
 				}
@@ -20293,10 +20294,10 @@ int CvCity::getUnhappinessAggregated() const
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iNegativeHappiness += iContribution;
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
 	iNegativeHappiness += iContribution;
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iNegativeHappiness += iContribution;
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
@@ -20310,7 +20311,6 @@ int CvCity::getUnhappinessAggregated() const
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromCultureRaw(iLimit);
 	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
 
 	return iNegativeHappiness;
 }
@@ -20435,38 +20435,47 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 	iModifier += kPlayer.GetTechDeviation();
 
 	//Increase threshold based on # of citizens and cities. Makes larger cities more and more difficult to maintain.
-	int iPopMod = (getPopulation() * getPopulation()) * GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
+	
+	iModifier += GC.getBALANCE_HAPPINESS_POP_MULTIPLIER();
 
-	int iDivisor = 100;
 	switch (eYield)
 	{
 	case YIELD_CULTURE:
-		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
+		iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
 		break;
 	case YIELD_SCIENCE:
-		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
+		iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
 		break;
 	case YIELD_GOLD:
-		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
+		iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
 		break;
 	case YIELD_PRODUCTION:
-		iDivisor += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
+		iModifier += GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
 		break;
 	}
 
-	iPopMod /= max(1, iDivisor);
-
-	iModifier += iPopMod;
-
-	if(isCapital())
+	if (isCapital())
 	{
 		iModifier += kPlayer.GetCapitalUnhappinessModCBP();
 	}
-	
+
 	return iModifier;
 }
+int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod) const
+{
+	int iModifier = getThresholdAdditions(eYield);
+	iModifier += getThresholdSubtractions(eYield);
+	iModifier += iMod;
+
+	int iPop = getPopulation();
+	int iThresholdMod = iPop;
+	iThresholdMod *= (iModifier + 100);
+	iThresholdMod /= (100 + iPop + (iPop/2));
+
+	return iThresholdMod;
+}
 //	--------------------------------------------------------------------------------
-int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
+int CvCity::getThresholdSubtractions(YieldTypes eYield) const
 {
 	int iModifier = 0;
 	if(IsPuppet())
@@ -20506,10 +20515,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 		{
 			iModifier += GetUnculturedUnhappiness();
 		}
-		if(iMod != 0)
-		{
-			iModifier += iMod;
-		}
 		if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessGlobal() != 0)
 		{
 			iModifier += GET_PLAYER(getOwner()).GetUnculturedUnhappinessGlobal();
@@ -20526,10 +20531,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() != 0)
 		{
 			iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessMod();
-		}
-		if(iMod != 0)
-		{
-			iModifier += iMod;
 		}
 		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
 		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() != 0)
@@ -20574,10 +20575,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 		{
 			iModifier += GetIlliteracyUnhappiness();
 		}
-		if(iMod != 0)
-		{
-			iModifier += iMod;
-		}
 		if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessGlobal() != 0)
 		{
 			iModifier += GET_PLAYER(getOwner()).GetIlliteracyUnhappinessGlobal();
@@ -20607,10 +20604,6 @@ int CvCity::getThresholdSubtractions(YieldTypes eYield, int iMod) const
 		if(GetDefenseUnhappiness() != 0)
 		{
 			iModifier += GetDefenseUnhappiness();
-		}
-		if(iMod != 0)
-		{
-			iModifier += iMod;
 		}
 		if(GET_PLAYER(getOwner()).GetDefenseUnhappinessGlobal() != 0)
 		{
@@ -20646,8 +20639,7 @@ int CvCity::getUnhappinessFromCultureNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
 
-	int iModifier = getThresholdAdditions(YIELD_CULTURE);
-	iModifier += getThresholdSubtractions(YIELD_CULTURE, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_CULTURE, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20699,9 +20691,9 @@ int CvCity::getUnhappinessFromCulture() const
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 	iLimit -= iContribution;
@@ -20733,8 +20725,7 @@ int CvCity::getUnhappinessFromScienceNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
-	int iModifier = getThresholdAdditions(YIELD_SCIENCE);
-	iModifier += getThresholdSubtractions(YIELD_SCIENCE, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_SCIENCE, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20786,9 +20777,9 @@ int CvCity::getUnhappinessFromScience() const
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 	iLimit -= iContribution;
@@ -20802,7 +20793,7 @@ int CvCity::getUnhappinessFromScience() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseYield() const
 {
-	int iDefenseYield = getStrengthValue(false);
+	int iDefenseYield = (getYieldRateTimes100(YIELD_FOOD, false) + getYieldRateTimes100(YIELD_PRODUCTION, false)) / 2;
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -20817,8 +20808,7 @@ int CvCity::getUnhappinessFromDefenseNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
 
-	int iModifier = getThresholdAdditions(YIELD_PRODUCTION);
-	iModifier += getThresholdSubtractions(YIELD_PRODUCTION, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20870,8 +20860,6 @@ int CvCity::getUnhappinessFromDefense() const
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit);
 
 	return iContribution;
@@ -20897,8 +20885,7 @@ int CvCity::getUnhappinessFromGoldNeeded(int iMod) const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
-	int iModifier = getThresholdAdditions(YIELD_GOLD);
-	iModifier += getThresholdSubtractions(YIELD_GOLD, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_GOLD, iMod);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20948,6 +20935,8 @@ int CvCity::getUnhappinessFromGold() const
 	iContribution = getUnhappinessFromStarvingRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromDefenseRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromGoldRaw(iLimit);
 
@@ -21049,9 +21038,9 @@ int CvCity::getUnhappinessFromConnection() const
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 
@@ -21268,9 +21257,9 @@ int CvCity::getUnhappinessFromReligion() const
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromPillagedRaw(iLimit);
 	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
 	iContribution = getUnhappinessFromDefenseRaw(iLimit);
+	iLimit -= iContribution;
+	iContribution = getUnhappinessFromGoldRaw(iLimit);
 	iLimit -= iContribution;
 	iContribution = getUnhappinessFromConnectionRaw(iLimit);
 	iLimit -= iContribution;
@@ -24311,7 +24300,7 @@ void CvCity::DoBarbIncursion()
 			return;
 
 		int iCityStrength = getStrengthValue(true);
-		iCityStrength += (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + getPopulation()) * 10);
+		iCityStrength += GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex() + getPopulation());
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -24326,7 +24315,7 @@ void CvCity::DoBarbIncursion()
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
 					//this can happen multiple times per turn, be sure to include the unit id or similar
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pLoopPlot->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 18;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(100, pLoopPlot->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 10;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
@@ -25839,11 +25828,7 @@ void CvCity::setDamage(int iValue, bool noMessage)
 				sprintf_s(text, "[COLOR_RED]%d[ENDCOLOR]", iDiff);
 			}
 
-#if defined(SHOW_PLOT_POPUP)
-			SHOW_PLOT_POPUP(plot(), NO_PLAYER, text, fDelay);
-#else
-			DLLUI->AddPopupText(m_iX, m_iY, text, fDelay);
-#endif
+			SHOW_PLOT_POPUP(plot(), NO_PLAYER, text);
 		}
 		m_iDamage = iValue;
 	}
@@ -30928,7 +30913,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 100, *plot()) * 100;
+		iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), *plot());
 	}
 	else
 	{

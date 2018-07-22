@@ -1,41 +1,124 @@
--- Civilized Jewelers
-  
+-- Text for NW Religion
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry, and [ICON_RES_AMBER] Amber provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS';
- 
--- Firaxite Materials
-  
+SET Text = 'Gain [ICON_PEACE] Faith when an owned unit is killed in battle. Bonus scales with Era. [NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_MAUSOLEUM_HELP';
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_JADE] Jade, and [ICON_RES_PORCELAIN] Porcelain provide +1 [ICON_RESEARCH] Science in all Cities with a Firaxite Materials Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_FIRAXITE_MATERIALS';
-  
--- Giorgio Armeier
- 
+SET Text = '+5 [ICON_TOURISM] Tourism from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.[NEWLINE][NEWLINE]Contains 4 slots for Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if Themed.'
+WHERE Tag = 'TXT_KEY_BUILDING_RELIQUARY_HELP';
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, and [ICON_RES_LAPIS] Lapis Lazuli provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER';
-  
--- Hexxon Refineries
-  
+SET Text = '+15% Military Unit [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_GREAT_ALTAR_HELP';
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, [ICON_RES_BRAZILWOOD] Brazilwood, [ICON_RES_PERFUME] Perfume, and [ICON_RES_GLASS] Glass provide +1 [ICON_PRODUCTION] Production in all Cities with a Hexxon Refineries Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY';
- 
--- LandSea Extractors
- 
+SET Text = '+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP';
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory, and [ICON_RES_CORAL] Coral provide +1 [ICON_PRODUCTION] Production in all Cities with a Centaurus Extractors Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS';
-  
--- Trader Sid's
- 
+SET Text = '+5 [ICON_GOLD] Gold from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_DIVINE_COURT_HELP';
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, and [ICON_RES_TOBACCO] Tobacco provide +1 [ICON_GOLD] Gold in all Cities with a Trader Sid''s Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_TRADER_SIDS';
-  
--- TwoKay Foods
- 
+SET Text = '+5 [ICON_FOOD] Food from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_SACRED_GARDEN_HELP';
+
 UPDATE Language_en_US
-SET Text = '[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffee, and [ICON_RES_TEA] Tea provide +1 [ICON_FOOD] Food in all Cities with a TwoKay Foods Office.'
-WHERE Tag = 'TXT_KEY_CORPORATION_RESOURCE_BONUS_TWOKAY_FOODS';
+SET Text = '+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_HOLY_COUNCIL_HELP';
+
+UPDATE Language_en_US
+SET Text = '+4 [ICON_GOLDEN_AGE] Golden Age points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP';
+
+UPDATE Language_en_US
+SET Text = '+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 10 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Artists increase a city''s cultural output and speed the creation of Great Artists.[NEWLINE][NEWLINE]Merchants increase a city''s gold output and speed the creation of Great Merchants.[NEWLINE][NEWLINE]Scientists increase a city''s science output and speed the creation of Great Scientists.[NEWLINE][NEWLINE]Engineers increase a city''s production output and speed the creation of Great Engineers.[NEWLINE][NEWLINE]Civil Servants provide a small amount of many yields and speed the creation of Great Diplomats.'
+WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_RES_PAPER] Paper, and 1 free Emissary. +10% [ICON_PRODUCTION] Production of Diplomatic Units. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +2 [ICON_PEACE] Faith for every Ally.'
+WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder gives a small production boost when building diplomatic units in the capital, and one [ICON_RES_PAPER] Paper resource. Build this building if you want to secure a city-state ally or two during the first few eras of the game. The additional yields from City-State Friends and Allies increases the value of early positive City-State relations.'
+WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder cannot be built unless the city has a Public School. Build this national wonder to receive additional Delegates in the World Congress based on the number of Defense Pacts and Vassals you currently have. You will also receive a large boost to the Culture and Science output of the city where it is built.'
+WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires Order. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. Receive one vote for every [COLOR_POSITIVE_TEXT]Defense Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have. [NEWLINE][NEWLINE]Must have built a Public School in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder cannot be built unless the city has a Military Academy. Build this national wonder to receive additional Delegates in the World Congress based on the number of enemy Capitals you have conquered. You will also receive a large boost to the Tourism and Production output of the city where it is built.'
+WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires Autocracy. +15 [ICON_TOURISM] Tourism and +10% [ICON_PRODUCTION] Production in the city where it is built. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder cannot be built unless the city has a Stock Exchange. Build this national wonder to receive additional Delegates in the World Congress based on the number of Declaration of Friendships you currently have with other players. You will also receive a large boost to the Food and Gold output of the city where it is built.'
+WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires Freedom. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_HELP';
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.'
+WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_HELP';
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder cannot be built unless the city has a Wire Service. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to send your Diplomatic Units through rival territory without an [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] agreement.'
+WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
+
+-- Grand Temple Help Text
+
+UPDATE Language_en_US
+SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. All Temples gain +2 [ICON_PEACE] Faith and [ICON_CULTURE] Culture. Must have built a Temple in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
+
+-- Merchant Mission
+
+UPDATE Language_en_US
+SET Text = 'If the unit is inside City-State territory that you are not at war with, this order will expend the unit.[COLOR_POSITIVE_TEXT] There are three units capable of this Mission, each with different abilities:[ENDCOLOR][NEWLINE][ICON_BULLET]   [COLOR_POSITIVE_TEXT]Diplomatic Units:[ENDCOLOR] Receive [ICON_INFLUENCE] Influence with the City-State based on the unit''s promotions.[NEWLINE][ICON_BULLET]   [COLOR_POSITIVE_TEXT]Great Diplomats:[ENDCOLOR] Receive a large amount of [ICON_INFLUENCE] Influence with the City-State and the [ICON_INFLUENCE] of all other major civilizations known to the City-State will be decreased with this City-State by the same amount. Gain 1 [ICON_RES_PAPER] Paper.[NEWLINE][ICON_BULLET]   [COLOR_POSITIVE_TEXT]Great Merchant:[ENDCOLOR] Receive a large amount of [ICON_GOLD] Gold and an instant ''We Love the King Day'' in all owned cities, scaling by 1 turn for every owned Town that you'' created. This action will consume the unit.'
+WHERE Tag = 'TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP';
+
+-- Philanthropy
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE]+1 of every Strategic Resource for every three City-State Alliances you maintain. Earn [ICON_DIPLOMAT] Great Diplomats 50% faster, and gain +50% Rewards from City-State Quests.'
+WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE]Resources from City-States count towards Global Monopolies. +1 [ICON_INTERNATIONAL_TRADE] Trade Route, and +1 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route. The [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR] is increased by 15%.'
+WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged and you have a [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] with them, this decay value will triple.'
+WHERE Tag = 'TXT_KEY_ALLIES_CSTATE_TT';
+
+UPDATE Language_en_US
+SET Text = 'Each turn, your [ICON_INFLUENCE] Influence with them will change by {1_InfluenceRate}.  It rests at {2_InfluenceAnchor}. If their Capital is damaged and you have a [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] with them, this decay value will triple.'
+WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
+
+-- Policy Changes
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Statecraft[ENDCOLOR] improves your ability to benefit from [ICON_INTERNATIONAL_TRADE] Trade Routes, [ICON_CITY_STATE] City-States, [ICON_SPY] Spies, and [ICON_DIPLOMAT] the World Congress.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Statecraft grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +1 of every Yield in [ICON_CAPITAL] Capital for every 15 [ICON_CITIZEN] Citizens in your Empire.[NEWLINE][ICON_BULLET] +1 [ICON_GOLD] Gold in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Statecraft policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+1 [ICON_GOLD] Gold in every City, and +10% [ICON_INFLUENCE] Influence from Trade Missions.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Statecraft grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_CYAN]Palace of Westminster[ENDCOLOR]. [NEWLINE][ICON_BULLET] Every World Congresss Session, gain [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold based on the number of [ICON_DIPLOMAT] Delegates you control, scaling with Era.[NEWLINE][ICON_BULLET] World Wonders require 1 less unlocked Policy for every 3 City-State alliances you maintain.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_DIPLOMAT] Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
+WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP';

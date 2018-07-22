@@ -1225,6 +1225,19 @@
 			<Image>Sarcophagus.dds</Image>
 		</Row>
 	</GreatWorks>
+	<IconFontTextures>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_CULTURE_LOCAL</IconFontTexture>
+			<IconFontTextureFile>CultureLocal</IconFontTextureFile>
+		</Row>
+	</IconFontTextures>
+	<IconFontMapping>
+		<Row>
+			<IconName>ICON_CULTURE_LOCAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_CULTURE_LOCAL</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+	</IconFontMapping>
 	<Yields>
 		<Row>
 			<ID>8</ID>
@@ -1258,7 +1271,7 @@
 			<ID>11</ID>
 			<Type>YIELD_CULTURE_LOCAL</Type>
 			<Description>TXT_KEY_YIELD_CULTURE_LOCAL</Description>
-			<IconString>[ICON_CULTURE]</IconString>
+			<IconString>[ICON_CULTURE_LOCAL]</IconString>
 			<ColorString>[COLOR_WHITE]</ColorString>
 			<ImageTexture>yieldatlas_128_culturelocal.dds</ImageTexture>
 			<MinCity>0</MinCity>

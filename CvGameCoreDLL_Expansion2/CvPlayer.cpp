@@ -3619,9 +3619,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					if(GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAge);
-						DLLUI->AddPopupText(pOldCity->getX(),pOldCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pOldCity->plot(), NO_PLAYER, text);
 					}
 				}
 			}
@@ -9221,7 +9221,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				int iTurns = pkEventChoiceInfo->getGoldenAgeTurns();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
-				changeGoldenAgeTurns(max(1, iTurns));
+				changeGoldenAgeTurns(max(1, iTurns), true);
 			}
 			if(pkEventChoiceInfo->getNumFreeGreatPeople() > 0)
 			{
@@ -10107,7 +10107,7 @@ void CvPlayer::disbandUnit(bool)
 				if(pLoopUnit->getUnitInfo().GetProductionCost() > 0)
 				{
 					{
-						iValue = (10000 + GC.getGame().getSmallFakeRandNum(10, pLoopUnit->GetID() + iLoop) * 100);
+						iValue = (10000 + GC.getGame().getSmallFakeRandNum(1000, pLoopUnit->GetID() + iLoop));
 
 						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
 
@@ -13724,7 +13724,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				{
 					if(plotDistance(pBestPlot->getX(), pBestPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
 					{
-						if(GC.getGame().getSmallFakeRandNum(10, *pLoopPlot) * 10 < kGoodyInfo.getMapProb())
+						if(GC.getGame().getSmallFakeRandNum(100, *pLoopPlot) < kGoodyInfo.getMapProb())
 						{
 							pLoopPlot->setRevealed(getTeam(), true);
 							iNumPlotsRevealed++;
@@ -16637,7 +16637,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			int iGoldenAgeTurns = getGoldenAgeLength();
 #if defined(MOD_BALANCE_CORE)
 			int iValue = GetGoldenAgeProgressMeter();
-			changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
 #else
 			changeGoldenAgeTurns(iGoldenAgeTurns);
 #endif
@@ -19100,20 +19100,19 @@ bool CvPlayer::IsReformation() const
 //	--------------------------------------------------------------------------------
 /// Handle earning yields from a combat win
 #if defined(MOD_API_UNIFIED_YIELDS)
-void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay)
+void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY)
 #else
-void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay)
+void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian)
 #endif
 {
 #if defined(MOD_API_UNIFIED_YIELDS)
 	UnitTypes eKilledUnitType = pDefendingUnit->getUnitType();
 #endif
 
-	int iNumBonuses = iExistingDelay; // Passed by reference below, incremented to stagger floating text in UI
 #if defined(MOD_API_EXTENSIONS)
-	DoUnresearchedTechBonusFromKill(pDefendingUnit, eKilledUnitType, iX, iY, iNumBonuses);
+	DoUnresearchedTechBonusFromKill(pDefendingUnit, eKilledUnitType, iX, iY);
 #else
-	DoUnresearchedTechBonusFromKill(eKilledUnitType, iX, iY, iNumBonuses);
+	DoUnresearchedTechBonusFromKill(eKilledUnitType, iX, iY);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	//Bonus resource in a city every time you win a battle. (Rome UB)
@@ -19131,15 +19130,15 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 	{
 #if defined(MOD_API_UNIFIED_YIELDS)
 #if defined(MOD_API_EXTENSIONS)
-		DoYieldBonusFromKill((YieldTypes)iYield, pAttackingUnit, pDefendingUnit, eKilledUnitType, iX, iY, pDefendingUnit->isBarbarian(), iNumBonuses);
+		DoYieldBonusFromKill((YieldTypes)iYield, pAttackingUnit, pDefendingUnit, eKilledUnitType, iX, iY, pDefendingUnit->isBarbarian());
 #else
-		DoYieldBonusFromKill((YieldTypes)iYield, pAttackingUnit, eKilledUnitType, iX, iY, pDefendingUnit->isBarbarian(), iNumBonuses);
+		DoYieldBonusFromKill((YieldTypes)iYield, pAttackingUnit, eKilledUnitType, iX, iY, pDefendingUnit->isBarbarian());
 #endif
 #else
 #if defined(MOD_API_EXTENSIONS)
-		DoYieldBonusFromKill((YieldTypes)iYield, eAttackingUnitType, pDefendingUnit, eKilledUnitType, iX, iY, bWasBarbarian, iNumBonuses);
+		DoYieldBonusFromKill((YieldTypes)iYield, eAttackingUnitType, pDefendingUnit, eKilledUnitType, iX, iY, bWasBarbarian);
 #else
-		DoYieldBonusFromKill((YieldTypes)iYield, eAttackingUnitType, eKilledUnitType, iX, iY, bWasBarbarian, iNumBonuses);
+		DoYieldBonusFromKill((YieldTypes)iYield, eAttackingUnitType, eKilledUnitType, iX, iY, bWasBarbarian);
 #endif
 #endif
 	}
@@ -19150,15 +19149,15 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 /// If a bonus is applied, iNumBonuses must be incremented to stagger the UI text with other bonuses
 #if defined(MOD_API_UNIFIED_YIELDS)
 #if defined(MOD_API_EXTENSIONS)
-void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
+void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian)
 #else
-void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
+void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian)
 #endif
 #else
 #if defined(MOD_API_EXTENSIONS)
-void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
+void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian)
 #else
-void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
+void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian)
 #endif
 #endif
 {
@@ -19350,8 +19349,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					}
 					break;
 				}
-				iNumBonuses++;
-				ReportYieldFromKill(eYield, iValue, iX, iY, iNumBonuses);
+				ReportYieldFromKill(eYield, iValue, iX, iY);
 			}
 		}
 	}
@@ -19361,9 +19359,9 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 /// Apply and show a bonus towards unresearched tech when we defeat a unit of that tech
 /// If a bonus is applied, iNumBonuses must be incremented to stagger the UI text with other bonuses
 #if defined(MOD_API_EXTENSIONS)
-void CvPlayer::DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses)
+void CvPlayer::DoUnresearchedTechBonusFromKill(CvUnit* pKilledUnit, UnitTypes eKilledUnitType, int iX, int iY)
 #else
-void CvPlayer::DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses)
+void CvPlayer::DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY)
 #endif
 {
 	CvAssertMsg(eKilledUnitType != NO_UNIT, "Killed unit's type is NO_TYPE. Please send Anton your save file and version.");
@@ -19404,8 +19402,7 @@ void CvPlayer::DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX
 						if (iValue > 0)
 						{
 							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(ePrereq, iValue, GetID());
-							iNumBonuses++;
-							ReportYieldFromKill(YIELD_SCIENCE, iValue, iX, iY, iNumBonuses);
+							ReportYieldFromKill(YIELD_SCIENCE, iValue, iX, iY);
 						}
 					}
 				}
@@ -19416,11 +19413,7 @@ void CvPlayer::DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX
 
 //	--------------------------------------------------------------------------------
 /// Show earning a yield from combat wins
-#if defined(SHOW_PLOT_POPUP)
-void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int)
-#else
-void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay)
-#endif
+void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY)
 {
 	CvString yieldString;
 	if(iValue > 0)
@@ -19459,18 +19452,8 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
-#if !defined(SHOW_PLOT_POPUP)
-			float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * (1 + ((float)iDelay * 0.5f)); // 1 is added to avoid overlapping with XP text
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			fDelay += GC.getPOST_COMBAT_TEXT_DELAY() * (1 + ((float)iDelay * 0.5f)); // 1 is added to avoid overlapping with XP text
-#endif
-#endif
 			sprintf_s(text, yieldString, iValue);
-#if defined(SHOW_PLOT_POPUP)
-			SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), NO_PLAYER, text, 0.0f);
-#else
-			GC.GetEngineUserInterface()->AddPopupText(iX, iY, text, fDelay);
-#endif
+			SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), NO_PLAYER, text);
 		}
 	}
 }
@@ -19818,7 +19801,7 @@ void CvPlayer::DoWarVictoryBonuses()
 			iTurns = iTurns * (100 + iLengthModifier) / 100;
 		}
 		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iTurns, iValue);
+		changeGoldenAgeTurns(iTurns, iValue, true);
 	}
 
 	int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_WAR);
@@ -19833,9 +19816,9 @@ void CvPlayer::DoWarVictoryBonuses()
 			if(pCity != NULL)
 			{
 				char text[256] = {0};
-				float fDelay = 0.5f;
 				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-				DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+				SHOW_PLOT_POPUP(pCity->plot(), GetID(), text);
+
 				CvNotifications* pNotification = GetNotifications();
 				if(pNotification)
 				{
@@ -22177,9 +22160,8 @@ int CvPlayer::getPopNeededForLux() const
 
 void CvPlayer::setPopNeededForLux()
 {
-	int iBaseValue = GC.getBALANCE_HAPPINESS_LUXURY_BASE();
-	iBaseValue *= max(1, GetBaseLuxuryHappiness());
-	iBaseValue *= (100 + getCurrentTotalPop());
+	int iBaseValue = GC.getBALANCE_HAPPINESS_LUXURY_BASE() * GetBaseLuxuryHappiness();
+	iBaseValue *= 100 + getCurrentTotalPop() * GC.getBALANCE_HAPPINESS_LUXURY_SCALER();
 	iBaseValue /= 100;
 
 	m_iPopNeededForLuxUpgrade = iBaseValue;
@@ -22243,7 +22225,13 @@ int CvPlayer::GetBonusHappinessFromLuxuries() const
 			iNumHappinessResources++;
 		}
 	}
-	return (iNumHappinessResources * GetBaseLuxuryHappiness()) / max(1, (getNumCities() / max(1, GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())));
+	int iHappiness = iNumHappinessResources * GetBaseLuxuryHappiness();
+	int iNumCityPenalty = 100 + (getNumCities() * GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR());
+
+	iHappiness *= 100;
+	iHappiness /= max(1, iNumCityPenalty);
+
+	return iHappiness;
 }
 int CvPlayer::GetBaseLuxuryHappiness() const
 {
@@ -25372,9 +25360,9 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 						if (pCapitalCity != NULL)
 						{
 							char text[256] = { 0 };
-							float fDelay = 0.5f;
 							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-							DLLUI->AddPopupText(pCapitalCity->getX(), pCapitalCity->getY(), text, fDelay);
+							SHOW_PLOT_POPUP(pCapitalCity->plot(), GetID(), text);
+
 							CvNotifications* pNotification = GetNotifications();
 							if (pNotification)
 							{
@@ -26315,7 +26303,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		CvString yieldString = "";
 		CvString cityyieldString = "";
 		CvString citynameString = "";
-		float fDelay = 0.0f;
 
 		//Get local faith if needed.
 		if(bCityFaith)
@@ -27018,8 +27005,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 									char text[256] = {0};
 									sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iValue, strInfluenceText.c_str());
-									fDelay += 1.0f;
-									DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+									SHOW_PLOT_POPUP(pPlot, GetID(), text);
 								}
 							}
 						}
@@ -27105,10 +27091,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				if(GetID() == GC.getGame().getActivePlayer() && iValue > 0)
 				{
 					char text[256] = {0};
-					fDelay += 0.5f;
+					
 					yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
 					sprintf_s(text, yieldString, iValue);
-					DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+					SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(), text);
+
 					if(citynameString == "")
 					{
 						citynameString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_CITY", pLoopCity->getNameKey());
@@ -27836,7 +27823,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 	int iValue = iPolicyGEorGM * iEra;
 	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-	int iRandom = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+	int iRandom = GC.getGame().getSmallFakeRandNum(100, GetEconomicMight());
 	if (iRandom <= 33)
 	{
 		eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
@@ -27897,32 +27884,32 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 					if (eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
 					{
 						char text[256] = { 0 };
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ENGINEER]", iGPThresholdString);
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 						char text2[256] = { 0 };
 						sprintf_s(text2, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PRODUCTION]", (iValue * 2 / 100));
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text2, fDelay + fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text2);
 					}
 					else if (eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
 					{
 						char text[256] = { 0 };
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_MERCHANT]", iGPThresholdString);
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 						char text2[256] = { 0 };
 						sprintf_s(text2, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLD]", (iValue * 4 / 100));
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text2, fDelay + fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text2);
 					}
 					else if (eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
 					{
 						char text[256] = { 0 };
-						float fDelay = 0.5f;
+
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_SCIENTIST]", iGPThresholdString);
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 						char text2[256] = { 0 };
 						sprintf_s(text2, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_RESEARCH]", (iValue / 100));
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text2, fDelay + fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text2);
 					}
 				}
 			} //end of for loop
@@ -27978,7 +27965,6 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		CvString gpString = "";
 		CvString citygpString = "";
 		CvString citynameString = "";
-		float fDelay = 0.0f;
 
 		SpecialistTypes eSpecialist;
 
@@ -28024,10 +28010,10 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					if (GetID() == GC.getGame().getActivePlayer() && iValue > 0)
 					{
 						char text[256] = { 0 };
-						fDelay += 0.5f;
+						
 						gpString.Format("%s+%%d[ENDCOLOR] %s", "[COLOR_WHITE]", pGreatPerson->GetIconString());
 						sprintf_s(text, gpString, iGPThresholdString);
-						DLLUI->AddPopupText(pLoopCity->getX(), pLoopCity->getY(), text, fDelay);
+						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 					}
 					if (citynameString == "")
 					{
@@ -28238,9 +28224,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					fDelay += 0.5f;
+					
 					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
 				}
 			}
 			int iFaith2 = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_FAITH) * iEra;
@@ -28250,9 +28236,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					fDelay += 0.5f;
+					
 					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith2);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
 				}
 			}
 			int iGold = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLD) * iEra;
@@ -28262,9 +28248,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					fDelay += 0.5f;
+					
 					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
 				}
 			}
 			int iScience = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_SCIENCE) * iEra;
@@ -28282,9 +28268,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					fDelay += 0.5f;
+					
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
 				}
 			}
 			int iGA = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLDEN_AGE_POINTS) * iEra;
@@ -28294,9 +28280,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					fDelay += 0.5f;
+					
 					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGA);
-					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text);
 				}
 			}
 #endif
@@ -28750,7 +28736,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			// No prophets
 			if(!pkUnitEntry->IsFoundReligion())
 			{
-				int iScore = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()+iX+iY) * 10;
+				int iScore = GC.getGame().getSmallFakeRandNum(100, GetEconomicMight()+iX+iY);
 
 				if(iScore > iBestScore)
 				{
@@ -29038,7 +29024,7 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 				if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != GetID())
 					continue;
 
-				iScore = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()+iMinorLoop) * 10;
+				iScore = GC.getGame().getSmallFakeRandNum(100, GetEconomicMight()+iMinorLoop);
 
 				// Best ally yet?
 				if(eBestMinor == NO_PLAYER || iScore > iBestScore)
@@ -31133,9 +31119,8 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 				{
 					iGPThreshold /= 100;
 					char text[256] = {0};
-					float fDelay = 0.5f;
 					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
+					SHOW_PLOT_POPUP(pCapital->plot(), GetID(), text);
 					CvNotifications* pNotification = GetNotifications();
 					if(pNotification)
 					{
@@ -31660,7 +31645,7 @@ int CvPlayer::GetTechDeviation() const
 	int iTechDeviation = iOurTech - iAvgTech;
 
 	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	int iTech = (int)((iTechDeviation * iTechDeviation * iTechDeviation) * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
+	int iTech = (int)((iTechDeviation * iTechDeviation * iTechDeviation) * /*.1*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 
 	if (iTech > 0 && iTech > (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100))
 		iTech = ((int)GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100);
@@ -36116,7 +36101,7 @@ void CvPlayer::DoDeficit()
 	if(iNumMilitaryUnits > getNumCities())
 #endif
 	{
-		int iRand = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10;
+		int iRand = GC.getGame().getSmallFakeRandNum(100, GetEconomicMight());
 		if (iRand < 50)
 		{
 			CvUnit* pLandUnit = NULL;
@@ -36799,7 +36784,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				iPercent = iPercent * std::min(150, std::max(75, iSmileRatio)) / 100;
 				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetMajorCivApproach(eToPlayer, false), GetDiplomacyAI()->GetMajorCivOpinion(eToPlayer));
 
-				if (GC.getGame().getSmallFakeRandNum(10, GetEconomicMight()) * 10 < iPercent) {
+				if (GC.getGame().getSmallFakeRandNum(100, GetEconomicMight()) < iPercent) {
 					if (GC.getGame().getActivePlayer() == GetID()) {
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_TEXT);
 						strcpy_s(kPopupInfo.szText, "TXT_KEY_GRATEFUL_SETTLERS");
@@ -43083,7 +43068,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 							if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 							{
-								int iChance = GC.getGame().getSmallFakeRandNum(10, GetEconomicMight() + iUnitLoop) * 10;
+								int iChance = GC.getGame().getSmallFakeRandNum(100, GetEconomicMight() + iUnitLoop);
 								if(iChance < 50)
 								{
 									continue;
@@ -47370,6 +47355,10 @@ void CvPlayer::SetBestWonderCities()
 		if (!::isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) && !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 			continue;
 
+		const CvBuildingClassInfo& kBuildingClassInfo = pkeBuildingInfo->GetBuildingClassInfo();
+
+		bool bCivUnique = kBuildingClassInfo.getDefaultBuildingIndex() != eBuilding;
+
 		bool bCapitalCanConstruct = false;
 		int iLoopCity;
 		CvCity* pLoopCity = NULL;
@@ -47384,6 +47373,10 @@ void CvPlayer::SetBestWonderCities()
 				pBestCity = pLoopCity;
 				break;
 			}
+
+			//is this a unique wonder that we can't build? Ignore it.
+			if (bCivUnique && !getCivilizationInfo().isCivilizationBuildingOverridden((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
+				continue;
 
 			if (!pLoopCity->canConstruct(eBuilding))
 			{

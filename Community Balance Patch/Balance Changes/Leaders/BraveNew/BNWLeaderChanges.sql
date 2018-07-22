@@ -447,7 +447,7 @@ VALUES
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresAnyButOwner, AIPriority)
 VALUES
-	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 2, 1, 2);
+	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 4, 1, 2);
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)

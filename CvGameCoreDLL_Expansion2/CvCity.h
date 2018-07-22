@@ -830,7 +830,8 @@ public:
 	int GetBuildingClassHappinessFromReligion() const;
 	void UpdateBuildingClassHappinessFromReligion();
 	int getHappinessDelta() const;
-	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
+	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0) const;
+	int getThresholdSubtractions(YieldTypes eYield) const;
 	int getThresholdAdditions(YieldTypes eYield = NO_YIELD) const;
 	int getUnhappyCitizenCount() const;
 

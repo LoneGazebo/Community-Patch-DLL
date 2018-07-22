@@ -8986,19 +8986,7 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
 int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	int iNumHappinessResources = 0;
-	ResourceTypes eResource;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		eResource = (ResourceTypes)iResourceLoop;
-
-		if (eResource != NO_RESOURCE && (pkPlayer->GetHappinessFromLuxury(eResource) > 0))
-		{
-			iNumHappinessResources++;
-		}
-	}
-	const int iResult = (iNumHappinessResources * pkPlayer->GetBaseLuxuryHappiness()) / max(1, (pkPlayer->getNumCities() / max(1, GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())));
+	const int iResult = pkPlayer->GetBonusHappinessFromLuxuries();
 
 	lua_pushinteger(L, iResult);
 	return 1;

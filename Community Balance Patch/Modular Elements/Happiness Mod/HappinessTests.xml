@@ -56,18 +56,13 @@
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
-			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>60</Flavor>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
-			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
