@@ -282,6 +282,9 @@ public:
 	int GetGiveExtraAttacks() const;
 	int GetGiveDefenseMod() const;
 	bool IsGiveInvisibility() const;
+	int GetNearbyHealEnemyTerritory() const;
+	int GetNearbyHealNeutralTerritory() const;
+	int GetNearbyHealFriendlyTerritory() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -583,6 +586,9 @@ protected:
 	int m_iGiveExtraAttacks;
 	int m_iGiveDefenseMod;
 	bool m_bGiveInvisibility;
+	int m_iNearbyHealEnemyTerritory;
+	int m_iNearbyHealNeutralTerritory;
+	int m_iNearbyHealFriendlyTerritory;
 #endif
 	bool m_bCanHeavyCharge;
 

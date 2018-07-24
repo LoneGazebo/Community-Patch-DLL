@@ -866,6 +866,11 @@ ALTER TABLE UnitPromotions ADD NearbyFriendlyCityCombatMod INTEGER DEFAULT 0;
 
 -- Unit gains Combat modifier when near enemy cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyEnemyCityCombatMod INTEGER DEFAULT 0;
+
+-- Unit Gives extra healing to nearby units? Must have set IsNearbyPromotion, NearbyRange, and GiveDomain for this promotion.
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealEnemyTerritory' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealNeutralTerritory' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyHealFriendlyTerritory' INTEGER DEFAULT 0;
 -- End
 
 -- Double Movement on Mountains
