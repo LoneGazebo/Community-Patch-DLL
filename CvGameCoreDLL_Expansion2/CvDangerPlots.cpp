@@ -412,6 +412,10 @@ void CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 	if (!m_bArrayAllocated  || !pUnit)
 		return;
 
+	//don't do this for human players - they have to remember on their own
+	if (GET_PLAYER(m_ePlayer).isHuman())
+		return;
+
 	if (!IsKnownAttacker(pUnit))
 	{
 		UpdateDangerSingleUnit(pUnit, false, PlotIndexContainer()); //for simplicity, assume no ZOC by owned units
@@ -553,7 +557,13 @@ void CvDangerPlots::AssignUnitDangerValue(const CvUnit* pUnit, CvPlot* pPlot)
 	if (!m_bArrayAllocated || !pUnit || !pPlot)
 		return;
 
-	m_DangerPlots[ pPlot->GetPlotIndex() ].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+	DangerUnitVector& v = m_DangerPlots[pPlot->GetPlotIndex()].m_apUnits;
+
+	//for (size_t i = 0; i < v.size(); i++)
+	//	if (v[i].second == pUnit->GetID())
+	//		OutputDebugString("problem!\n");
+
+	v.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
 }
 
 //	-----------------------------------------------------------------------------------------------
