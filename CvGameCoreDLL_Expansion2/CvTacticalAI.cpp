@@ -810,11 +810,11 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			if (pZone->GetEnemyMeleeStrength() > pZone->GetFriendlyMeleeStrength())
 			{
-				eChosenPosture = (eOverallDominance != TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_EXPLOIT_FLANKS : AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+				eChosenPosture = (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE : AI_TACTICAL_POSTURE_EXPLOIT_FLANKS;
 			}
 			else
 			{
-				eChosenPosture = (eOverallDominance != TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_STEAMROLL : AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
+				eChosenPosture = (eOverallDominance == TACTICAL_DOMINANCE_FRIENDLY) ? AI_TACTICAL_POSTURE_SURGICAL_CITY_STRIKE : AI_TACTICAL_POSTURE_STEAMROLL;
 			}
 		}
 		// Withdraw if enemy dominant overall or we are vulnerable to counterattacks
@@ -6061,6 +6061,15 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, eAggLvl, iMaxBranches, iPositionsToCheck, vAssignments);
 		if (vAssignments.empty())
 			break;
+
+		//careful with single units walking into traps
+		if (vUnits.size() == 1)
+		{
+			CvUnit* pUnit = vUnits[0];
+			CvPlot* pEndTurnPlot = TacticalAIHelpers::EndTurnPlot(vAssignments, pUnit->GetID());
+			if (pEndTurnPlot && pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() && !TacticalAIHelpers::IsEnemyKilled(vAssignments))
+				break;
+		}
 		
 		//true if everything went according to plan. if not, repeat!
 		bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments);
@@ -6380,7 +6389,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 					//try to do some damage if we have movement points to spare
-					if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+					if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike() && pUnit->canMoveAfterAttacking())
 						TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 					// Move to the lowest danger value found
@@ -13055,6 +13064,22 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 	}
 
 	return true;
+}
+bool TacticalAIHelpers::IsEnemyKilled(const vector<STacticalAssignment>& moves)
+{
+	for (size_t i = 0; i < moves.size(); i++)
+		if (moves[i].eType == STacticalAssignment::A_MELEEKILL || moves[i].eType == STacticalAssignment::A_RANGEKILL)
+			return true;
+
+	return false;
+}
+CvPlot * TacticalAIHelpers::EndTurnPlot(const vector<STacticalAssignment>& moves, int iUnitID)
+{
+	for (size_t i = 0; i < moves.size(); i++)
+		if (moves[i].iUnitID==iUnitID && moves[i].eType == STacticalAssignment::A_FINISH)
+			return GC.getMap().plotByIndexUnchecked(moves[i].iToPlotIndex);
+
+	return NULL;
 }
 #endif
 
