@@ -361,6 +361,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
 	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
 	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+#if defined(MOD_ISKA_HERITAGE)
+	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_HERITAGE();
+#endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
 		return;
@@ -729,6 +732,13 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	{
 		eChosenBranch = eOrderBranch;
 	}
+#if defined(MOD_ISKA_HERITAGE)
+	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	if (ePlayerReligion > RELIGION_PANTHEON)
+	{
+		eChosenBranch = eHeritageBranch;
+	}
+#endif
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
 #if defined(MOD_BALANCE_CORE)

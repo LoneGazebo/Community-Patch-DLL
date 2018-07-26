@@ -415,6 +415,9 @@
 #define MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_ARCHAEOLOGY_FROM_GP())
 #define MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES())
 #endif
+
+#define MOD_ISKA_HERITAGE							gCustomMods.isISKA_HERITAGE()
+
 // activate eureka for tech cost bonus 'quest'
 #define MOD_CIV6_EUREKA								gCustomMods.isCIV6_EUREKAS()
 // Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
@@ -1707,6 +1710,8 @@ public:
 	MOD_OPT_DECL(BUGFIX_EMBARKING_PATHFINDER);
 	MOD_OPT_DECL(BUGFIX_MINOR_CIV_STRATEGIES);
 	MOD_OPT_DECL(BUGFIX_EXTRA_MISSIONARY_SPREADS);
+
+	MOD_OPT_DECL(ISKA_HERITAGE);
 
 protected:
 	bool m_bInit;
