@@ -586,6 +586,8 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BUGFIX_MINOR_CIV_STRATEGIES);
 		MOD_OPT_CACHE(BUGFIX_EXTRA_MISSIONARY_SPREADS);
 
+		MOD_OPT_CACHE(ISKA_HERITAGE);
+
 		m_bInit = true;
 	}
 
