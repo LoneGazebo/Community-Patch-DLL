@@ -1863,14 +1863,6 @@ public:
 
 	// post defines
 
-#if defined(MOD_ISKA_HERITAGE)
-	inline int getPOLICY_BRANCH_HERITAGE()
-	{
-		return m_iPOLICY_BRANCH_HERITAGE;
-	}
-	int   m_iPOLICY_BRANCH_HERITAGE;
-#endif
-
 	inline int getLAND_TERRAIN() { return m_iLAND_TERRAIN; }
 	inline int getDEEP_WATER_TERRAIN() { return m_iDEEP_WATER_TERRAIN; }
 	inline int getSHALLOW_WATER_TERRAIN() { return m_iSHALLOW_WATER_TERRAIN; }
