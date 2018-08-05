@@ -31,6 +31,8 @@ bool gTacticalCombatDebugOutput = false;
 int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 3;
 #endif
 
+bool IsEnemyCitadel(CvPlot* pPlot, TeamTypes eMyTeam);
+
 CvTacticalUnit::CvTacticalUnit() :
 	m_iID(0)
 	, m_iAttackStrength(0)
@@ -7004,6 +7006,11 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,NULL,true))
 		{
+			//pillage if it makes sense and we have movement points to spare
+			if (pUnit->GetMovementPointsAtCachedTarget() >= GC.getMOVE_DENOMINATOR() && pUnit->canPillage(pUnit->plot()))
+				if (pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT() || IsEnemyCitadel(pUnit->plot(), pUnit->getTeam()))
+					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 			bResult = pUnit->at(pTarget->getX(), pTarget->getY());
 
@@ -8110,6 +8117,12 @@ bool CvTacticalAI::FindUnitsCloseToPlot(CvPlot* pTarget, int iNumTurnsAway, int 
 				continue;
 			}
 
+			if (pLoopUnit->IsGarrisoned())
+				continue;
+
+			if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+				continue;
+		
 			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
 				continue;
 
@@ -9892,7 +9905,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,Reachab
 				int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pPlot->getX(), pPlot->getY());
 
 				//don't know the unit here, so use the generic danger calculation
-				int	iScore = 10000 - m_pPlayer->GetPlotDanger(*pPlot);
+				int	iScore = 10000 - m_pPlayer->GetPlotDanger(*pPlot)*3;
 				
 				//we want to be close to the target 
 				iScore -= iDistance * 100;

@@ -1753,6 +1753,7 @@ public:
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
+	int GetMovementPointsAtCachedTarget() const;
 
 	bool IsIgnoringDangerWakeup() const;
 	void SetIgnoreDangerWakeup(bool bState);

@@ -29854,6 +29854,14 @@ CvPlot* CvUnit::GetPathLastPlot() const
 		return m_kLastPath.GetFinalPlot();
 }
 
+int CvUnit::GetMovementPointsAtCachedTarget() const
+{
+	if (!IsCachedPathValid() || m_kLastPath.empty())
+		return -1;
+
+	return m_kLastPath.back().m_iMoves;
+}
+
 // PRIVATE METHODS
 
 //	--------------------------------------------------------------------------------
