@@ -9773,9 +9773,8 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 	if (!pTarget)
 		return 0;
 
-	ReachablePlots distFromTarget;
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_REACHABLE_PLOTS, -1, m_iDeployRadius);
-	distFromTarget = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
+	ReachablePlots distFromTarget = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
 	//we want to be close to the target
 	for (ReachablePlots::iterator it = distFromTarget.begin(); it != distFromTarget.end(); ++it)
@@ -9799,7 +9798,10 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, const std::map<int,Reachabl
 
 		//we don't actually want to get too close to the enemy, fighting is for other moves
 		//don't know the unit here, so use the generic danger calculation (but danger is only a secondary factor)
-		iScore -= m_pPlayer->GetPlotDanger(*pPlot)*5;
+		int iDanger = m_pPlayer->GetPlotDanger(*pPlot);
+		if (iDanger > 200)
+			continue;
+		iScore -= iDanger*5;
 
 		//try to avoid isolated plots
 		int nBlockedNeighbors = 0;
@@ -9905,10 +9907,12 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,Reachab
 				int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pPlot->getX(), pPlot->getY());
 
 				//don't know the unit here, so use the generic danger calculation
-				int	iScore = 10000 - m_pPlayer->GetPlotDanger(*pPlot)*3;
-				
-				//we want to be close to the target 
-				iScore -= iDistance * 100;
+				int iDanger = m_pPlayer->GetPlotDanger(*pPlot);
+				if (iDanger > 200)
+					continue;
+
+				//we want to be close to the target but also safe
+				int iScore = 10000 - iDistance * 100 - iDanger * 3;
 
 				bool bMyCity = (pPlot->isCity() && pPlot->getOwner()==m_pPlayer->GetID());
 				if (bMyCity)
@@ -9924,19 +9928,18 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget, const std::map<int,Reachab
 				}
 				iScore -= iTurnsAway * 100;
 
-				//we want to be able to attack a lot of plots
-				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain())>0 && !bMyCity)
-				{
-					//good plot for melee
-					iScore += pPlot->countPassableNeighbors(pPlot->getDomain(), NULL) * 30;
-				}
-				else
+				if ( (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain())==0 && iDanger<100) || bMyCity  )
 				{
 					//good plot for ranged
 					bChoiceBombardSpot = true;
 
 					std::vector<CvPlot*> vAttackablePlots = GC.getMap().GetPlotsAtRange(pPlot, 2, true, true);
 					iScore += vAttackablePlots.size() * 30;
+				}
+				else
+				{
+					//good plot for melee
+					iScore += pPlot->countPassableNeighbors(pPlot->getDomain(), NULL) * 30;
 				}
 
 				pCell->SetSafeForDeployment(bChoiceBombardSpot);
@@ -11544,9 +11547,12 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
 						iDamageScore /= 4;
 				}
-				else if (currentPlot.getNumAdjacentEnemies()>0 || currentPlot.getNumAdjacentFirstlineFriendlies()==0)
+				else if (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0)
+				{
 					//ranged units don't like to park next to enemies at all if we cannot attack
-					iDamageScore = 0;
+					result.iScore = -1;
+					return result;
+				}
 			}
 			else //melee
 			{
