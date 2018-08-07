@@ -320,7 +320,7 @@ public:
 	int GetYieldGPExpend(int i) const;
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	int GetTradeReligionModifier() const;
-	int GetBestRangedUnitSpawnSettle() const;
+	int GetXPopulationConscription() const;
 	int GetBestNumberLandCombatUnitClass() const;
 	int GetBestNumberLandRangedUnitClass() const;
 	int GetBestNumberSeaCombatUnitClass() const;
@@ -331,6 +331,7 @@ public:
 	int GetReligionYieldMod(int i) const;
 	int GetGoldenAgeYieldMod(int i) const;
 	int GetFreePopulation() const;
+	int GetFreePopulationCapital() const;
 	int GetExtraMoves() const;
 	int GetMaxCorps() const;
 	int GetRazingSpeedBonus() const;
@@ -736,12 +737,13 @@ private:
 	int* m_piYieldGPExpend;
 	int m_iGarrisonsOccupiedUnhapppinessMod;
 	int m_iTradeReligionModifier;
-	int m_iBestRangedUnitSpawnSettle;
+	int m_iXPopulationConscription;
 	int m_iBestNumberLandCombatUnitClass;
 	int m_iBestNumberLandRangedUnitClass;
 	int m_iBestNumberSeaCombatUnitClass;
 	int m_iBestNumberSeaRangedUnitClass;
 	int m_iFreePopulation;
+	int m_iFreePopulationCapital;
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;

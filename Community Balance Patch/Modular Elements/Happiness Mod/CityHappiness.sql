@@ -41,11 +41,11 @@
 	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 10 is default.
+-- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 400 is default.
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '375'
+	SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '400'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is modified. Base value is 0%.

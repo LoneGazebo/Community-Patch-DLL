@@ -242,6 +242,9 @@ public:
 	int GetCitySupplyModifierGlobal() const;
 	int GetCitySupplyFlat() const;
 	int GetCitySupplyFlatGlobal() const;
+	int CityRangedStrikeRange() const;
+	int CityIndirectFire() const;
+	int CityRangedStrikeModifier() const;
 #endif
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPolicies() const;
@@ -662,6 +665,9 @@ private:
 	int m_iCitySupplyModifierGlobal;
 	int m_iCitySupplyFlat;
 	int m_iCitySupplyFlatGlobal;
+	int m_iCityRangedStrikeRange;
+	int m_iCityIndirectFire;
+	int m_iRangedStrikeModifier;
 #endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;

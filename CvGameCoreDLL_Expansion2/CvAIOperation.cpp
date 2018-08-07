@@ -1876,16 +1876,16 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			if(pCenterOfMass && pTarget && IsOffensive())
+			if (pCenterOfMass && pTarget && IsOffensive())
 			{
 				bool bInPlace = false;
-				if(plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
+				if (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange() && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) != WAR_GOAL_DEMAND)
 				{
 					bInPlace = true;
 				}
 
 				//check for nearby enemy (for sneak attacks)
-				if (!bInPlace && (GetOperationType()==AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType()==AI_OPERATION_CITY_SNEAK_ATTACK) ) 
+				if (!bInPlace && GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetWarGoal(GetEnemy()) != WAR_GOAL_DEMAND && (GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK))
 				{
 					int nVisible = 0;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit(pUnit))

@@ -1061,8 +1061,9 @@
 	<Row Class="6" Name="BALANCE_CORE_ARCHAEOLOGY_FROM_GP" Value="0"/>
 	<!-- Enables the possibility of gold internal trade routes (still needs the appropriate traits, etc) -->
 	<Row Class="6" Name="BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES" Value="0"/>
-
-	  <!-- Roads are built automatically when a trade route end. -->
+	<!-- Enables the possibility of gold internal trade routes (still needs the appropriate traits, etc) -->
+    <Row Class="6" Name="BALANCE_CORE_BOMBARD_RANGE_BUILDINGS" Value="0"/>
+	<!-- Roads are built automatically when a trade route end. -->
 	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->
 	<Row Class="6" Name="CIV6_WORKER" Value="0"/>
@@ -1070,7 +1071,9 @@
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->
 	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
-	
+
+	<Row Class="6" Name="ISKA_HERITAGE" Value="0"/>
+
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->

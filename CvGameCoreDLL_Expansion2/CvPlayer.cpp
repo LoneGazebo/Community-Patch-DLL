@@ -681,7 +681,7 @@ CvPlayer::CvPlayer() :
 	, m_paiBuildingClassCulture("CvPlayer::m_paiBuildingClassCulture", m_syncArchive)
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal("CvPlayer::m_aiDomainFreeExperiencePerGreatWorkGlobal", m_syncArchive)
 	, m_iGarrisonsOccupiedUnhapppinessMod("CvPlayer::m_iGarrisonsOccupiedUnhapppinessMod", m_syncArchive)
-	, m_iBestRangedUnitSpawnSettle("CvPlayer::m_iBestRangedUnitSpawnSettle", m_syncArchive)
+	, m_iXPopulationConscription("CvPlayer::m_iXPopulationConscription", m_syncArchive)
 	, m_iExtraMoves("CvPlayer::m_iExtraMoves", m_syncArchive)
 	, m_iNoUnhappinessExpansion("CvPlayer::m_iNoUnhappinessExpansion", m_syncArchive)
 	, m_iNoUnhappyIsolation("CvPlayer::m_iNoUnhappyIsolation", m_syncArchive)
@@ -1669,7 +1669,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = 0;
-	m_iBestRangedUnitSpawnSettle = 0;
+	m_iXPopulationConscription = 0;
 	m_iExtraMoves = 0;
 	m_iNoUnhappinessExpansion = 0;
 	m_iNoUnhappyIsolation = 0;
@@ -17612,7 +17612,8 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-			iTechProgress *= 3;
+
+			iNumCities *= iNumCities;
 
 			iNumCities *= (iTechProgress);
 			iNumCities /= 100;
@@ -17664,7 +17665,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-			iTechProgress *= 7;
+			iTechProgress *= 6;
 				
 			iValue *= 100;
 			iValue /= (100 + iTechProgress);
@@ -19301,7 +19302,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 #endif
 			if(iValue > 0)
 			{
-				switch(eYield)
+				switch (eYield)
 				{
 				case YIELD_GOLD:
 					GetTreasury()->ChangeGold(iValue);
@@ -19309,7 +19310,7 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 				case YIELD_CULTURE:
 					changeJONSCulture(iValue);
 #if defined(MOD_BALANCE_CORE)
-					if(getCapitalCity() != NULL)
+					if (getCapitalCity() != NULL)
 					{
 						getCapitalCity()->ChangeJONSCultureStored(iValue);
 					}
@@ -19325,21 +19326,36 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 #endif
 #if defined(MOD_BALANCE_CORE)
 				case YIELD_FOOD:
-					if(pCity != NULL)
+					if (pCity != NULL)
 					{
 						pCity->changeFood(iValue);
 					}
 					break;
 				case YIELD_PRODUCTION:
-					if(pCity != NULL)
+					if (pCity != NULL)
 					{
 						pCity->changeProduction(iValue);
 					}
 					break;
 #endif
+				case YIELD_GREAT_ADMIRAL_POINTS:
+#if defined(MOD_UNITS_XP_TIMES_100)
+					changeNavalCombatExperienceTimes100(iValue * 100);
+#else
+					changeNavalCombatExperience(iValue);
+#endif
+					break;
+
+				case YIELD_GREAT_GENERAL_POINTS:
+#if defined(MOD_UNITS_XP_TIMES_100)
+					changeCombatExperienceTimes100(iValue * 100);
+#else
+					changeCombatExperience(iValue);
+#endif
+					break;
 				case YIELD_SCIENCE:
 					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
+					if (eCurrentTech == NO_TECH)
 					{
 						changeOverflowResearch(iValue);
 					}
@@ -32719,12 +32735,16 @@ int CvPlayer::calculateMilitaryMight() const
 	const CvUnit* pLoopUnit;
 	int iLoop;
 
+	int iNumUnits = 0;
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
+		if(iPower <= 0)
+			continue;
+
 #if defined(MOD_BATTLE_ROYALE)
 		if (eDomain == NO_DOMAIN)
 		{
@@ -32736,8 +32756,12 @@ int CvPlayer::calculateMilitaryMight() const
 		}
 #else
 		rtnValue += iPower;
+		iNumUnits++;
 #endif
 	}
+
+	//military power should be based on our average unit strength, not our total strength!
+	rtnValue /= max(1, iNumUnits);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
@@ -32764,10 +32788,11 @@ int CvPlayer::calculateEconomicMight() const
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
 	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
 	iEconomicMight += calculateTotalYield(YIELD_GOLD);
+	iEconomicMight += calculateTotalYield(YIELD_CULTURE);
 
 	if(IsEmpireUnhappy())
 	{
-		iEconomicMight += GetExcessHappiness() * 10;
+		iEconomicMight += GetExcessHappiness() * 25;
 	}
 
 	//Finally, divide our power by the number of cities we own - the more we have, the more our upkeep.
@@ -35180,14 +35205,113 @@ void CvPlayer::changeGarrisonsOccupiedUnhapppinessMod(int iChange)
 	m_iGarrisonsOccupiedUnhapppinessMod += iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetBestRangedUnitSpawnSettle() const
+int CvPlayer::GetXPopulationConscription() const
 {
-	return m_iBestRangedUnitSpawnSettle;
+	return m_iXPopulationConscription;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeBestRangedUnitSpawnSettle(int iChange)
+void CvPlayer::changeXPopulationConscription(int iChange)
 {
-	m_iBestRangedUnitSpawnSettle += iChange;
+	m_iXPopulationConscription += iChange;
+}
+void CvPlayer::DoXPopulationConscription(CvCity* pCity)
+{
+	UnitTypes eBestUnit = NO_UNIT;
+	int iStrengthBest = 0;
+	// Loop through adding the available units
+	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	{
+		UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
+		if (eLoopUnit != NO_UNIT)
+		{
+			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+			if (pkUnitEntry)
+			{
+				if (!canTrain(eLoopUnit, false, true))
+				{
+					continue;
+				}
+
+				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+					continue;
+
+				if (pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+				{
+					int iChance = GC.getGame().getSmallFakeRandNum(100, pCity->plot()->GetPlotIndex() + pCity->getPopulation() + iUnitLoop);
+					if (iChance < 50)
+					{
+						continue;
+					}
+				}
+				bool bBad = false;
+				ResourceTypes eResource;
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes)iResourceLoop;
+					int iNumResource = pkUnitEntry->GetResourceQuantityRequirement(eResource);
+					if (iNumResource > 0)
+					{
+						bBad = true;
+						break;
+					}
+					if (pkUnitEntry->GetResourceType() == eResource)
+					{
+						bBad = true;
+						break;
+					}
+				}
+
+				if (bBad)
+				{
+					continue;
+				}
+				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + pCity->getPopulation()));
+				if (iCombatStrength > iStrengthBest)
+				{
+					iStrengthBest = iCombatStrength;
+					eBestUnit = eLoopUnit;
+				}
+			}
+		}
+	}
+	if (eBestUnit != NO_UNIT)
+	{
+		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+		if (pkUnitEntry)
+		{
+			UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+			int iResult = pCity->CreateUnit(eBestUnit, eUnitAI);
+
+			CvAssertMsg(iResult != -1, "Unable to create unit");
+
+			if (iResult != -1)
+			{
+				CvUnit* pUnit = getUnit(iResult);
+				pUnit->changeNoSupply(1);
+
+				if (!pUnit->jumpToNearestValidPlot())
+				{
+					pUnit->kill(false);	// Could not find a valid spot!
+				}
+				pUnit->finishMoves();
+				CvNotifications* pNotifications = GetNotifications();
+				if (pUnit && pNotifications)
+				{
+					Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+					localizedText << pCity->getNameKey() << pCity->getPopulation() << pUnit->getNameKey();
+					Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+					localizedSummary << getNameKey() << pUnit->getNameKey();
+					pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
+				}
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), pCity->getName().GetCString(), pCity->getPopulation());
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+			}
+		}
+	}
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetExtraMoves() const
@@ -43018,12 +43142,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			{
 				pLoopCity->changePopulation(pPolicy->GetFreePopulation());
 			}
+			if (pPolicy->GetFreePopulationCapital() > 0 && pLoopCity->isCapital())
+			{
+				pLoopCity->changePopulation(pPolicy->GetFreePopulationCapital());
+			}
 		}
 		changeExtraMoves(pPolicy->GetExtraMoves() * iChange);
 
-		if(pPolicy->GetBestRangedUnitSpawnSettle() > 0)
+		if(pPolicy->GetXPopulationConscription() > 0)
 		{
-			changeBestRangedUnitSpawnSettle(pPolicy->GetBestRangedUnitSpawnSettle() * iChange);
+			changeXPopulationConscription(pPolicy->GetXPopulationConscription() * iChange);
 			int iLoop;
 			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
@@ -43031,7 +43159,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				{
 					continue;
 				}
-				if(pLoopCity->getPopulation() < GetBestRangedUnitSpawnSettle())
+				if(pLoopCity->getPopulation() < GetXPopulationConscription())
 				{
 					continue;
 				}
@@ -43043,103 +43171,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				{
 					continue;
 				}
-				UnitTypes eBestUnit = NO_UNIT;
-				int iStrengthBest = 0;
-				// Loop through adding the available units
-				for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
-				{
-					UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
-					if(eLoopUnit != NO_UNIT)
-					{
-						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-						if(pkUnitEntry)
-						{
-							if(!pLoopCity->canTrain(eLoopUnit, false, true))
-							{
-								continue;
-							}
-							if(pkUnitEntry->GetRangedCombat() > 0)
-							{
-								continue;
-							}
-
-							if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
-								continue;
-
-							if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
-							{
-								int iChance = GC.getGame().getSmallFakeRandNum(100, GetEconomicMight() + iUnitLoop);
-								if(iChance < 50)
-								{
-									continue;
-								}
-							}
-							bool bBad = false;
-							ResourceTypes eResource;
-							for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-							{
-								eResource = (ResourceTypes) iResourceLoop;
-								int iNumResource = pkUnitEntry->GetResourceQuantityRequirement(eResource);
-								if (iNumResource > 0)
-								{
-									bBad = true;
-									break;
-								}
-								if(pkUnitEntry->GetResourceType() == eResource)
-								{
-									bBad = true;
-									break;
-								}
-							}
-							if(bBad)
-							{
-								continue;
-							}
-							int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getSmallFakeRandNum((pkUnitEntry->GetCombat() * 2), iUnitLoop));
-							if(iCombatStrength > iStrengthBest)
-							{
-								iStrengthBest = iCombatStrength;
-								eBestUnit = eLoopUnit;
-							}
-						}
-					}
-				}
-				if(eBestUnit != NO_UNIT)
-				{
-					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-					if(pkUnitEntry)
-					{
-						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-						int iResult = pLoopCity->CreateUnit(eBestUnit, eUnitAI);
-
-						CvAssertMsg(iResult != -1, "Unable to create unit");
-
-						if (iResult != -1)
-						{
-							CvUnit* pUnit = getUnit(iResult);
-							if (!pUnit->jumpToNearestValidPlot())
-							{
-								pUnit->kill(false);	// Could not find a valid spot!
-							}
-							pUnit->finishMoves();
-							CvNotifications* pNotifications = GetNotifications();
-							if(pUnit && pNotifications)
-							{
-								Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_FIRST");
-								localizedText << pLoopCity->getNameKey() << pUnit->getNameKey();
-								Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-								localizedSummary << pLoopCity->getNameKey() << pUnit->getNameKey();
-								pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
-							}
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Conscripted %s spawned at %s. Came from policy adoption.", pUnit->getName().GetCString(), pLoopCity->getName().GetCString());
-								GetHomelandAI()->LogHomelandMessage(strLogString);
-							}
-						}
-					}
-				}
+				DoXPopulationConscription(pLoopCity);
 			}
 		}
 	}

@@ -1995,10 +1995,6 @@ bool CvGameTrade::StepUnit (int iIndex)
 						// Unowned plot, someone has to foot the bill
 						if (pPlot->getOwner() == NO_PLAYER)
 						{
-							if (pPlot->MustPayMaintenanceHere(kTradeConnection.m_eOriginOwner))
-							{
-								GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
-							}
 							pPlot->SetPlayerResponsibleForRoute(kTradeConnection.m_eOriginOwner);
 						}
 					}

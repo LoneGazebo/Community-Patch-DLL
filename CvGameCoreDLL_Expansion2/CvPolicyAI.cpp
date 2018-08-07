@@ -254,6 +254,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					if (pkPolicyBranchInfo->GetEraPrereq() <= pPlayer->GetCurrentEra())
 					{
 						int iDivisor = pPlayer->GetCurrentEra() - max(0, pkPolicyBranchInfo->GetEraPrereq());
+						iDivisor *= 2;
 						iBranchWeight /= max(1, iDivisor);
 					}
 
@@ -361,6 +362,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
 	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
 	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+#if defined(MOD_ISKA_HERITAGE)
+	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_HERITAGE();
+#endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
 		return;
@@ -729,6 +733,13 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	{
 		eChosenBranch = eOrderBranch;
 	}
+#if defined(MOD_ISKA_HERITAGE)
+	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	if (MOD_ISKA_HERITAGE && ePlayerReligion > RELIGION_PANTHEON)
+	{
+		eChosenBranch = eHeritageBranch;
+	}
+#endif
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
 #if defined(MOD_BALANCE_CORE)
@@ -3078,15 +3089,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FAITH] += PolicyInfo->GetTradeReligionModifier();
 		}
 	}
-	if (PolicyInfo->GetBestRangedUnitSpawnSettle() != 0)
+	if (PolicyInfo->GetXPopulationConscription() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetBestRangedUnitSpawnSettle() * 10;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetXPopulationConscription() * 10;
 		}
 		else
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetBestRangedUnitSpawnSettle() * 5;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetXPopulationConscription() * 5;
 		}
 	}
 	if (PolicyInfo->GetFreePopulation() != 0)
@@ -3098,6 +3109,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		else
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetFreePopulation() * 25;
+		}
+	}
+	if (PolicyInfo->GetFreePopulationCapital() != 0)
+	{
+		if (pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetFreePopulationCapital() * 50;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetFreePopulationCapital() * 10;
 		}
 	}
 	if (PolicyInfo->GetExtraMoves() != 0)

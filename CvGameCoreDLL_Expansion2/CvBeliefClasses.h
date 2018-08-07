@@ -46,6 +46,7 @@ public:
 	int GetCityStateFriendshipModifier() const;
 	int GetLandBarbarianConversionPercent() const;
 	int GetWonderProductionModifier() const;
+	int GetUnitProductionModifier() const;
 	int GetPlayerHappiness() const;
 	int GetPlayerCultureModifier() const;
 	float GetHappinessPerFollowingCity() const;
@@ -208,6 +209,7 @@ protected:
 	int m_iCityStateFriendshipModifier;
 	int m_iLandBarbarianConversionPercent;
 	int m_iWonderProductionModifier;
+	int m_iUnitProductionModifier;
 	int m_iPlayerHappiness;
 	int m_iPlayerCultureModifier;
 
@@ -454,6 +456,7 @@ public:
 	int GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetWonderProductionModifier(EraTypes eWonderEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetUnitProductionModifier(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPlayerHappiness(bool bAtPeace, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPlayerCultureModifier(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	float GetHappinessPerFollowingCity(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

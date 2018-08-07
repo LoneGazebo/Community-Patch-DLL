@@ -647,6 +647,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetDefenseModifier() / 20);
 	}
+	if (pkBuildingInfo->CityRangedStrikeRange() > 0)
+	{
+		iDefense += 250 * pkBuildingInfo->CityRangedStrikeRange();
+	}
+	if (pkBuildingInfo->CityIndirectFire() > 0)
+	{
+		iDefense += 150;
+	}
+	if (pkBuildingInfo->CityRangedStrikeModifier() > 0)
+	{
+		iDefense += pkBuildingInfo->CityRangedStrikeModifier() * 10;
+	}
 #if defined(MOD_BALANCE_CORE)
 	if (pkBuildingInfo->GetBuildingDefenseModifier() > 0)
 	{

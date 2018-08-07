@@ -123,6 +123,9 @@ CvCity::CvCity() :
 	, m_iGameTurnLastExpanded("CvCity::m_iGameTurnLastExpanded", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iAdditionalFood("CvCity::m_iAdditionalFood", m_syncArchive)
+	, m_iCityBuildingBombardRange("CvCity::m_iCityBuildingBombardRange", m_syncArchive)
+	, m_iCityIndirectFire("CvCity::m_iCityIndirectFire", m_syncArchive)
+	, m_iCityBuildingRangeStrikeModifier("CvCity::m_iCityBuildingRangeStrikeModifier", m_syncArchive)
 #endif
 	, m_iPopulation("CvCity::m_iPopulation", m_syncArchive)
 	, m_iHighestPopulation("CvCity::m_iHighestPopulation", m_syncArchive)
@@ -1450,6 +1453,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iPopulation = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iAdditionalFood = 0;
+	m_iCityBuildingBombardRange = 0;
+	m_iCityIndirectFire = 0;
+	m_iCityBuildingRangeStrikeModifier = 0;
 #endif
 	m_iHighestPopulation = 0;
 	m_iExtraHitPoints = 0;
@@ -11842,6 +11848,21 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 		}
 	}
 
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if (eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if (pReligion)
+		{
+			iTempMod = pReligion->m_Beliefs.GetUnitProductionModifier();
+			iMultiplier += iTempMod;
+			if (toolTipSink && iTempMod)
+			{
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_UNIT", iTempMod);
+			}
+		}
+	}		
+
 	// Production bonus for having a particular building
 	iTempMod = 0;
 	int iBuildingMod = 0;
@@ -13749,6 +13770,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		GetCityBuildings()->ChangeBuildingDefenseMod(pBuildingInfo->GetBuildingDefenseModifier() * iChange);
 		changeCitySupplyModifier(pBuildingInfo->GetCitySupplyModifier() * iChange);
 		changeCitySupplyFlat(pBuildingInfo->GetCitySupplyFlat() * iChange);
+		changeCityBuildingBombardRange(pBuildingInfo->CityRangedStrikeRange() * iChange);
+		changeCityIndirectFire(pBuildingInfo->CityIndirectFire() * iChange);
+		changeCityBuildingRangeStrikeModifier(pBuildingInfo->CityRangedStrikeModifier() * iChange);
+
 		if (pBuildingInfo->AllowsProductionTradeRoutes())
 		{
 			SetProductionRoutes(pBuildingInfo->AllowsProductionTradeRoutes() * iChange);
@@ -16716,111 +16741,16 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0 && !IsRazing())
+			if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetXPopulationConscription() > 0 && !IsRazing())
 			{
 				int iDiff = foodDifference();
 
 				if(iDiff >= 0)
 				{
-					int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
+					int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetXPopulationConscription());
 					if(iRemainder == 0)
 					{
-						UnitTypes eBestUnit = NO_UNIT;
-						int iStrengthBest = 0;
-						// Loop through adding the available units
-						for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
-						{
-							UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
-							if(eLoopUnit != NO_UNIT)
-							{
-								CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-								if(pkUnitEntry)
-								{
-									if(!canTrain(eLoopUnit, false, true))
-									{
-										continue;
-									}
-									if(pkUnitEntry->GetRangedCombat() > 0)
-									{
-										continue;
-									}
-									if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
-										continue;
-									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
-									{
-										int iChance = GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex() + getPopulation() + iUnitLoop);
-										if(iChance < 50)
-										{
-											continue;
-										}
-									}
-									bool bBad = false;
-									ResourceTypes eResource;
-									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-									{
-										eResource = (ResourceTypes) iResourceLoop;
-										int iNumResource = pkUnitEntry->GetResourceQuantityRequirement(eResource);
-										if (iNumResource > 0)
-										{
-											bBad = true;
-											break;
-										}
-										if(pkUnitEntry->GetResourceType() == eResource)
-										{
-											bBad = true;
-											break;
-										}	
-									}
-
-									if(bBad)
-									{
-										continue;
-									}
-									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetCombat(), plot()->GetPlotIndex() + getPopulation()));
-									if(iCombatStrength > iStrengthBest)
-									{
-										iStrengthBest = iCombatStrength;
-										eBestUnit = eLoopUnit;
-									}
-								}
-							}
-						}
-						if(eBestUnit != NO_UNIT)
-						{
-							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-							if(pkUnitEntry)
-							{
-								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-								int iResult = CreateUnit(eBestUnit, eUnitAI);
-
-								CvAssertMsg(iResult != -1, "Unable to create unit");
-
-								if (iResult != -1)
-								{
-									CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-									if (!pUnit->jumpToNearestValidPlot())
-									{
-										pUnit->kill(false);	// Could not find a valid spot!
-									}
-									pUnit->finishMoves();
-									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-									if(pUnit && pNotifications)
-									{
-										Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
-										localizedText << getNameKey() << getPopulation() << pUnit->getNameKey();
-										Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
-										localizedSummary << getNameKey() << pUnit->getNameKey();
-										pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eBestUnit);
-									}
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("Conscripted %s spawned at %s. Population: %d", pUnit->getName().GetCString(), getName().GetCString(), getPopulation());
-										GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-								}
-							}
-						}
+						GET_PLAYER(getOwner()).DoXPopulationConscription(this);
 					}
 				}
 			}
@@ -22036,7 +21966,9 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			{
 				if (kPlayer.GetScience() > 0)
 				{
-					iYieldValue += (kPlayer.GetScience() / iYieldPerScience);
+					int iScienceValue = (kPlayer.GetScience() / iYieldPerScience);
+
+					iYieldValue += max(25, iScienceValue);
 				}
 			}
 
@@ -24300,7 +24232,7 @@ void CvCity::DoBarbIncursion()
 			return;
 
 		int iCityStrength = getStrengthValue(true);
-		iCityStrength += GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex() + getPopulation());
+		iCityStrength *= GC.getGame().getSmallFakeRandNum(100, plot()->GetPlotIndex() + getPopulation());
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -24315,7 +24247,7 @@ void CvCity::DoBarbIncursion()
 				{			
 					int iBarbStrength = pUnit->isRanged() ? (pUnit->GetBaseRangedCombatStrength() * 5) : (pUnit->GetBaseCombatStrength() * 5);
 					//this can happen multiple times per turn, be sure to include the unit id or similar
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(100, pLoopPlot->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 10;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(100, pLoopPlot->GetPlotIndex() + getPopulation() + pUnit->GetID()) * 5;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
@@ -24326,10 +24258,11 @@ void CvCity::DoBarbIncursion()
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
+								iGold /= 4;
 								if(iGold > 0)
 								{
-									changeDamage(iTheft / 8);
-									pUnit->changeDamage(iTheft / 8);
+									changeDamage(iGold);
+									pUnit->changeDamage(iGold);
 									GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGold);
 
 									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
@@ -24343,14 +24276,19 @@ void CvCity::DoBarbIncursion()
 									{
 										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
 									}
+
+									CvString strLog;
+									strLog.Format("Barbarians stole %d gold from %s", iGold, getNameKey());
+									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 								}
 							}
 							else if(iYield <= 4)
 							{
 								int iCulture = ((getJONSCulturePerTurn() * iTheft) / 100);
+								iCulture /= 2;
 								if(iCulture > 0)
 								{
-									changeDamage(iTheft / 8);
+									changeDamage(iCulture);
 									pUnit->changeDamage(iTheft / 8);
 									GET_PLAYER(getOwner()).changeJONSCulture(-iCulture);
 
@@ -24365,6 +24303,9 @@ void CvCity::DoBarbIncursion()
 									{
 										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
 									}
+									CvString strLog;
+									strLog.Format("Barbarians stole %d culture from %s", iCulture, getNameKey());
+									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 								}
 							}
 							else if(iYield <= 6)
@@ -24374,10 +24315,11 @@ void CvCity::DoBarbIncursion()
 								if(eCurrentTech != NO_TECH)
 								{
 									iScience = ((getBaseYieldRate(YIELD_SCIENCE) * iTheft) / 100);
+									iScience /= 2;
 									if(iScience > 0)
 									{
-										changeDamage(iTheft / 8);
-										pUnit->changeDamage(iTheft / 8);
+										changeDamage(iScience);
+										pUnit->changeDamage(iScience);
 										GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, getOwner());
 
 										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
@@ -24391,12 +24333,17 @@ void CvCity::DoBarbIncursion()
 										{
 											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
 										}
+
+										CvString strLog;
+										strLog.Format("Barbarians stole %d science from %s", iScience, getNameKey());
+										GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 									}
 								}
 							}
 							else if(iYield <= 8)
 							{
 								int iFood = ((getBaseYieldRate(YIELD_FOOD) * iTheft) / 100);
+								iFood /= 4;
 								if(iFood > 0)
 								{
 									if(iFood > getFood())
@@ -24408,8 +24355,8 @@ void CvCity::DoBarbIncursion()
 										changeFood(-iFood);
 									}
 
-									changeDamage(iTheft / 8);
-									pUnit->changeDamage(iTheft / 8);
+									changeDamage(iFood);
+									pUnit->changeDamage(iFood);
 									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
 									strMessage << iFood;
 									strMessage << getNameKey();
@@ -24421,14 +24368,18 @@ void CvCity::DoBarbIncursion()
 									{
 										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
 									}
+
+									CvString strLog;
+									strLog.Format("Barbarians stole %d food from %s", iFood, getNameKey());
+									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 								}
 							}
 							else
 							{
 								if((getProduction() > 0) && (getProductionTurnsLeft() >= 2) && (getProductionTurnsLeft() != INT_MAX))
 								{
-									iTheft /= 2;
 									int iProduction = ((getBaseYieldRate(YIELD_PRODUCTION) * iTheft) / 100);
+									iProduction /= 4;
 									if(iProduction > 0)
 									{
 										if(iProduction > getProduction())
@@ -24440,8 +24391,8 @@ void CvCity::DoBarbIncursion()
 											changeProduction(-iProduction);
 										}
 
-										changeDamage(iTheft / 8);
-										pUnit->changeDamage(iTheft / 8);
+										changeDamage(iProduction);
+										pUnit->changeDamage(iProduction);
 										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
 										strMessage << iProduction;
 										strMessage << getNameKey();
@@ -24453,6 +24404,10 @@ void CvCity::DoBarbIncursion()
 										{
 											pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), getOwner());
 										}
+
+										CvString strLog;
+										strLog.Format("Barbarians stole %d production from %s", iProduction, getNameKey());
+										GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
 									}
 								}
 							}
@@ -25741,14 +25696,16 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 
 		CvAssertMsg(iValue > 0, "City strength should always be greater than zero. Please show Jon this and send your last 5 autosaves.");
 
-		iValue *= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
-		iValue /= 100;
+		int iModifier = 0;
+
+		iModifier -= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 
 		if(HasGarrison())
 		{
-			iValue *= (100 + GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier());
-			iValue /= 100;
+			iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 		}
+
+		iModifier += getCityBuildingRangeStrikeModifier();
 
 		// Religion city strike mod
 		int iReligionCityStrikeMod = 0;
@@ -25766,11 +25723,13 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 				}
 				if(iReligionCityStrikeMod > 0)
 				{
-					iValue *= (100 + iReligionCityStrikeMod);
-					iValue /= 100;
+					iModifier += iReligionCityStrikeMod;
 				}
 			}
 		}
+
+		iValue *= (100 + iModifier);
+		iValue /= 100;
 
 		return iValue;
 	}
@@ -30483,6 +30442,44 @@ int CvCity::GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const
 	return m_aiNumTimesAttackedThisTurn[ePlayer];
 }
 
+int CvCity::getCityBuildingBombardRange() const
+{
+	VALIDATE_OBJECT
+	return m_iCityBuildingBombardRange;
+}
+void CvCity::changeCityBuildingBombardRange(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iCityBuildingBombardRange += iValue;
+	}
+}
+bool CvCity::getCityIndirectFire() const
+{
+	VALIDATE_OBJECT
+	return m_iCityIndirectFire > 0;
+}
+void CvCity::changeCityIndirectFire(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iCityIndirectFire += iValue;
+	}
+}
+
+int CvCity::getCityBuildingRangeStrikeModifier() const
+{
+	VALIDATE_OBJECT
+		return m_iCityBuildingRangeStrikeModifier;
+}
+void CvCity::changeCityBuildingRangeStrikeModifier(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iCityBuildingRangeStrikeModifier += iValue;
+	}
+}
+
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 //	--------------------------------------------------------------------------------
@@ -30496,6 +30493,12 @@ int CvCity::getBombardRange() const
 int CvCity::getBombardRange(bool& bIndirectFireAllowed) const
 {
 	VALIDATE_OBJECT
+
+	if (MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS)
+	{
+		bIndirectFireAllowed = getCityIndirectFire();
+		return 1 + getCityBuildingBombardRange();
+	}
 	
 	if (MOD_EVENTS_CITY_BOMBARD) {
 		int iValue = 0;
@@ -30561,13 +30564,14 @@ bool CvCity::CanRangeStrikeNow() const
 		return false;
 #endif
 
+	bool bIndirectFireAllowed; // By reference, yuck!!!	
 #if defined(MOD_EVENTS_CITY_BOMBARD)
-	bool bIndirectFireAllowed; // By reference, yuck!!!
 	int iRange = getBombardRange(bIndirectFireAllowed);
 #else
 	int iRange = GC.getCITY_ATTACK_RANGE();
-	bool bIndirectFireAllowed = GC.getCAN_CITY_USE_INDIRECT_FIRE();
+	bIndirectFireAllowed = GC.getCAN_CITY_USE_INDIRECT_FIRE();
 #endif
+
 	CvPlot* pPlot = plot();
 	int iX = getX();
 	int iY = getY();

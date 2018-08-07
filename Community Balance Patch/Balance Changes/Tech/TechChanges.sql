@@ -175,13 +175,12 @@ WHERE Type = 'ROUTE_RAILROAD';
 
 -- Bombard Changes
 UPDATE Technologies SET BombardRange=1 WHERE Type='TECH_AGRICULTURE';
-UPDATE Technologies SET BombardRange=2 WHERE Type='TECH_MATHEMATICS';
-UPDATE Technologies SET BombardIndirect=1 WHERE Type='TECH_GUNPOWDER';
-UPDATE Technologies SET BombardRange=3 WHERE Type='TECH_DYNAMITE';
+--UPDATE Technologies SET BombardRange=2 WHERE Type='TECH_MATHEMATICS';
+--UPDATE Technologies SET BombardIndirect=1 WHERE Type='TECH_GUNPOWDER';
+--UPDATE Technologies SET BombardRange=3 WHERE Type='TECH_DYNAMITE';
 
-INSERT OR REPLACE INTO Defines(Name, Value) SELECT 'MAX_CITY_ATTACK_RANGE', max(BombardRange) FROM Technologies;
-
-UPDATE CustomModOptions SET Value=1 WHERE Name='EVENTS_CITY_BOMBARD';
+--INSERT OR REPLACE INTO Defines(Name, Value) SELECT 'MAX_CITY_ATTACK_RANGE', max(BombardRange) FROM Technologies;
+--UPDATE CustomModOptions SET Value=1 WHERE Name='EVENTS_CITY_BOMBARD';
 
 -- TR Food/Production Scaling
 
