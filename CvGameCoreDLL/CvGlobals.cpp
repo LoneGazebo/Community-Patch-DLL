@@ -44,11 +44,6 @@
 #include "CvDllRandom.h"
 #include "CvDllUnit.h"
 
-
-#if defined(MOD_ISKA_HERITAGE)
-	m_iPOLICY_BRANCH_HERITAGE(12),
-#endif
-
 // must be included after all other headers
 #include "LintFree.h"
 
