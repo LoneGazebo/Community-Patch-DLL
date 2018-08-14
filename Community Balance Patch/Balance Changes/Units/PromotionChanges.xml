@@ -279,7 +279,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SCOUTING_2</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_SURVIVALISM_1</PromotionPrereqOr3>
+			<PromotionPrereqOr3>PROMOTION_SURVIVALISM_2</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr4>
 			<PromotionPrereqOr5>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr5>
 			<PromotionPrereqOr6>PROMOTION_ACCURACY_1</PromotionPrereqOr6>
@@ -287,6 +287,7 @@
 			<OrderPriority>3</OrderPriority>
 			<SameTileHealChange>5</SameTileHealChange>
 			<AdjacentTileHealChange>5</AdjacentTileHealChange>
+			<DefenseMod>-10</DefenseMod>
 			<PortraitIndex>32</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -303,6 +304,7 @@
 			<SameTileHealChange>5</SameTileHealChange>
 			<EnemyHealChange>5</EnemyHealChange>
 			<NeutralHealChange>5</NeutralHealChange>
+			<DefenseMod>-10</DefenseMod>
 			<PortraitIndex>32</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -377,7 +379,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>4</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
-			<AttackWoundedMod>25</AttackWoundedMod>
+			<AttackWoundedMod>15</AttackWoundedMod>
 			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -468,7 +470,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
-			<DefenseMod>-10</DefenseMod>
+			<DefenseMod>-15</DefenseMod>
 			<PortraitIndex>31</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -2750,7 +2752,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_CHARGE</PromotionPrereqOr1>
 			<OrderPriority>4</OrderPriority>
-			<AttackWoundedMod>25</AttackWoundedMod>
+			<AttackWoundedMod>15</AttackWoundedMod>
 			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3113,6 +3115,7 @@
 			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I</Description>
 			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OutsideFriendlyLandsModifier>10</OutsideFriendlyLandsModifier>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3125,6 +3128,8 @@
 			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionPrereqOr1>
+			<OutsideFriendlyLandsModifier>10</OutsideFriendlyLandsModifier>
+			<IgnoreZOC>true</IgnoreZOC>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>45</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3137,9 +3142,9 @@
 			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
+			<OutsideFriendlyLandsModifier>10</OutsideFriendlyLandsModifier>
 			<OrderPriority>1</OrderPriority>
-			<IgnoreZOC>true</IgnoreZOC>
-			<ExtraWithdrawal>50</ExtraWithdrawal>
+			<ExtraWithdrawal>60</ExtraWithdrawal>
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
@@ -3260,8 +3265,7 @@
 			<Help>TXT_KEY_PROMOTION_TARGETING_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_WOLFPACK_3</PromotionPrereqOr2>
+			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
 			<DefenseMod>25</DefenseMod>
 			<MaxHitPointsChange>25</MaxHitPointsChange>
 			<PortraitIndex>23</PortraitIndex>
@@ -3287,7 +3291,8 @@
 			<Description>TXT_KEY_PROMOTION_COASTAL_RAIDER_4</Description>
 			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOLFPACK_3</PromotionPrereqOr2>
 			<CityAttackPlunderModifier>100</CityAttackPlunderModifier>
 			<DamageReductionCityAssault>20</DamageReductionCityAssault>
 			<PortraitIndex>23</PortraitIndex>
@@ -3432,7 +3437,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<MaximumRangeRequired>1</MaximumRangeRequired>
-			<MovesChange>1</MovesChange>
+			<MovesChange>2</MovesChange>
 			<PortraitIndex>33</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
@@ -3451,6 +3456,35 @@
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_POWER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_MARCH</Type>
+			<Description>TXT_KEY_PROMOTION_MARCH</Description>
+			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<OrderPriority>7</OrderPriority>
+			<AlwaysHeal>true</AlwaysHeal>
+			<MaximumRangeRequired>1</MaximumRangeRequired>
+			<DefenseMod>-15</DefenseMod>
+			<PortraitIndex>31</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_SENTRY</Type>
+			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
+			<Help>TXT_KEY_PROMOTION_SENTRY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<OrderPriority>3</OrderPriority>
+			<VisibilityChange>1</VisibilityChange>
+			<PortraitIndex>43</PortraitIndex>
+			<MaximumRangeRequired>1</MaximumRangeRequired>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SIEGE_I</Type>
@@ -3829,6 +3863,7 @@
 			<Help>TXT_KEY_PROMOTION_NUCLEAR_SILO_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
+			<NukeImmune>true</NukeImmune>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>

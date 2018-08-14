@@ -8925,6 +8925,11 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		iRtnValue += pEntry->GetWonderProductionModifier() / 3;
 	}
 
+	if (m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetPlayerTraits()->IsExpansionist())
+		iRtnValue += pEntry->GetUnitProductionModifier();
+	else
+		iRtnValue += pEntry->GetUnitProductionModifier() / 2;
+
 	// River happiness
 #ifdef AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
 	if (pCity->plot()->isRiver())
@@ -9602,11 +9607,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	{
 		if (pEntry->GetFaithFromKills() > 0)
 		{
-			iWarTemp += (pEntry->GetFaithFromKills() * iNumNeighbors) / 3;
+			iWarTemp += (pEntry->GetFaithFromKills() * iNumNeighbors);
 
 			if (pEntry->GetMaxDistance() != 0)
 			{
-				iWarTemp -= pEntry->GetMaxDistance();
+				iWarTemp -= pEntry->GetMaxDistance() * 2;
 			}
 		}
 

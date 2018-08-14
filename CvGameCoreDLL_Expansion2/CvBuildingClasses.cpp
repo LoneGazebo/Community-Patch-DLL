@@ -118,6 +118,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCitySupplyModifierGlobal(0),
 	m_iCitySupplyFlat(0),
 	m_iCitySupplyFlatGlobal(0),
+	m_iCityRangedStrikeRange(0),
+	m_iCityIndirectFire(0),
+	m_iRangedStrikeModifier(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -645,6 +648,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCitySupplyModifierGlobal = kResults.GetInt("CitySupplyModifierGlobal");
 	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
 	m_iCitySupplyFlatGlobal = kResults.GetInt("CitySupplyFlatGlobal");
+	m_iCityRangedStrikeRange = kResults.GetInt("CityRangedStrikeRange");
+	m_iCityIndirectFire = kResults.GetInt("CityIndirectFire");
+	m_iRangedStrikeModifier = kResults.GetInt("RangedStrikeModifier");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -1957,6 +1963,22 @@ bool CvBuildingEntry::IsNearbyMountainRequired() const
 bool CvBuildingEntry::IsAllowsRangeStrike() const
 {
 	return m_bAllowsRangeStrike;
+}
+
+/// Does this Building allow us to Range Strike?
+int CvBuildingEntry::CityRangedStrikeRange() const
+{
+	return m_iCityRangedStrikeRange;
+}
+/// Does this Building allow us to Range Strike?
+int CvBuildingEntry::CityIndirectFire() const
+{
+	return m_iCityIndirectFire;
+}
+/// Does this Building allow us to Range Strike?
+int CvBuildingEntry::CityRangedStrikeModifier() const
+{
+	return m_iRangedStrikeModifier;
 }
 #if defined(MOD_BALANCE_CORE)
 // This is an actual Modifier where as GetDefenseModifier is just building Hit Points

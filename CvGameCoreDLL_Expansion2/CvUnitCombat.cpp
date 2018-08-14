@@ -2788,7 +2788,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 		if(kEntry.IsUnit())
 		{
 			CvUnit* pkUnit = GET_PLAYER(kEntry.GetPlayer()).getUnit(kEntry.GetUnitID());
-			if(pkUnit)
+			if(pkUnit && !pkUnit->isNukeImmune())
 			{
 				// Apply the damage
 				pkUnit->setCombatUnit(NULL);

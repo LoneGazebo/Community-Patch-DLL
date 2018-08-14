@@ -5477,7 +5477,9 @@ void CvPlayerCulture::DoPublicOpinion()
 	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
 	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
 	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
-
+#if defined(MOD_ISKA_HERITAGE)
+	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_HERITAGE();
+#endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
 	{
 		return;
@@ -5498,7 +5500,10 @@ void CvPlayerCulture::DoPublicOpinion()
 		CvString strFreedomPressureString = "";
 		CvString strAutocracyPressureString = "";
 		CvString strOrderPressureString = "";
-
+#if defined(MOD_ISKA_HERITAGE)
+		int iPressureForHeritage = 0;
+		CvString strHeritagePressureString = "";
+#endif
 		// Look at World Congress
 		iPressureForFreedom += GC.getGame().GetGameLeagues()->GetPressureForIdeology(m_pPlayer->GetID(), eFreedomBranch);
 		if (iPressureForFreedom > 0)
@@ -5536,7 +5541,23 @@ void CvPlayerCulture::DoPublicOpinion()
 			sTemp << sIcons;
 			strWorldIdeologyPressureString += sTemp.toUTF8();
 		}
-
+#if defined(MOD_ISKA_HERITAGE)
+		if (MOD_ISKA_HERITAGE)
+		{
+			iPressureForHeritage += GC.getGame().GetGameLeagues()->GetPressureForIdeology(m_pPlayer->GetID(), eHeritageBranch);
+			if (iPressureForHeritage > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_CO_OPINION_TT_FOR_HERITAGE");
+				CvString sIcons = "";
+				for (int i = 0; i < iPressureForHeritage; i++)
+				{
+					sIcons += "[ICON_RELIGION]";
+				}
+				sTemp << sIcons;
+				strWorldIdeologyPressureString += sTemp.toUTF8();
+			}
+		}
+#endif
 		// Look at each civ
 		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
@@ -5613,6 +5634,21 @@ void CvPlayerCulture::DoPublicOpinion()
 									strAutocracyPressureString += "[ICON_IDEOLOGY_AUTOCRACY]";
 								}
 							}
+#if defined(MOD_ISKA_HERITAGE)
+							else if (MOD_ISKA_HERITAGE && eOtherCivIdeology == eHeritageBranch)
+							{
+								iPressureForHeritage += iCulturalDominanceOverUs;
+								if (strHeritagePressureString.size() > 0)
+								{
+									strHeritagePressureString += ", ";
+								}
+								strHeritagePressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strHeritagePressureString += "[ICON_RELIGION]";
+								}
+							}
+#endif
 							else
 							{
 								iPressureForOrder += iCulturalDominanceOverUs;
@@ -5660,6 +5696,21 @@ void CvPlayerCulture::DoPublicOpinion()
 									strAutocracyPressureString += "[ICON_IDEOLOGY_AUTOCRACY]";
 								}
 							}
+#if defined(MOD_ISKA_HERITAGE)
+							else if (MOD_ISKA_HERITAGE && eOtherCivIdeology == eHeritageBranch)
+							{
+								iPressureForHeritage += iCulturalDominanceOverUs;
+								if (strHeritagePressureString.size() > 0)
+								{
+									strHeritagePressureString += ", ";
+								}
+								strHeritagePressureString += kPlayer.getCivilizationShortDescription();
+								for (int iI = 0; iI < iCulturalDominanceOverUs; iI++)
+								{
+									strHeritagePressureString += "[ICON_RELIGION]";
+								}
+							}
+#endif
 							else
 							{
 								iPressureForOrder += iCulturalDominanceOverUs;
@@ -5737,6 +5788,101 @@ void CvPlayerCulture::DoPublicOpinion()
 
 		// Now compute satisfaction with this branch compared to two other ones
 		int iDissatisfaction = 0;
+
+#if defined(MOD_ISKA_HERITAGE)
+		if (eCurrentIdeology == eFreedomBranch)
+		{
+			if (iPressureForFreedom >= (iPressureForAutocracy + iPressureForOrder + iPressureForHeritage))
+			{
+				m_eOpinion = PUBLIC_OPINION_CONTENT;
+			}
+			else
+			{
+				if ((iPressureForAutocracy > iPressureForOrder) && (iPressureForAutocracy >= iPressureForHeritage))
+				{
+					m_ePreferredIdeology = eAutocracyBranch;
+				}
+				else if ((iPressureForOrder >= iPressureForAutocracy) && (iPressureForOrder >= iPressureForHeritage))
+				{
+					m_ePreferredIdeology = eOrderBranch;
+				}
+				else if (MOD_ISKA_HERITAGE && (iPressureForHeritage > iPressureForAutocracy) && (iPressureForHeritage > iPressureForOrder))
+				{
+					m_ePreferredIdeology = eHeritageBranch;
+				}
+				iDissatisfaction = (iPressureForAutocracy + iPressureForOrder + iPressureForHeritage) - iPressureForFreedom;
+			}
+		}
+		else if (eCurrentIdeology == eAutocracyBranch)
+		{
+			if (iPressureForAutocracy >= (iPressureForFreedom + iPressureForOrder + iPressureForHeritage))
+			{
+				m_eOpinion = PUBLIC_OPINION_CONTENT;
+			}
+			else
+			{
+				if ((iPressureForFreedom > iPressureForOrder) && (iPressureForFreedom >= iPressureForHeritage))
+				{
+					m_ePreferredIdeology = eFreedomBranch;
+				}
+				else if ((iPressureForOrder > iPressureForFreedom) && (iPressureForOrder >= iPressureForHeritage))
+				{
+					m_ePreferredIdeology = eOrderBranch;
+				}
+				else if (MOD_ISKA_HERITAGE && (iPressureForHeritage > iPressureForFreedom) && (iPressureForHeritage > iPressureForOrder))
+				{
+					m_ePreferredIdeology = eHeritageBranch;
+				}
+				iDissatisfaction = (iPressureForFreedom + iPressureForOrder + iPressureForHeritage) - iPressureForAutocracy;
+			}
+		}
+		else if (MOD_ISKA_HERITAGE && eCurrentIdeology == eHeritageBranch)
+		{
+			if (iPressureForHeritage >= (iPressureForFreedom + iPressureForOrder + iPressureForAutocracy))
+			{
+				m_eOpinion = PUBLIC_OPINION_CONTENT;
+			}
+			else
+			{
+				if ((iPressureForFreedom > iPressureForOrder) && (iPressureForFreedom >= iPressureForAutocracy))
+				{
+					m_ePreferredIdeology = eFreedomBranch;
+				}
+				else if ((iPressureForOrder > iPressureForFreedom) && (iPressureForOrder >= iPressureForAutocracy))
+				{
+					m_ePreferredIdeology = eOrderBranch;
+				}
+				else if ((iPressureForAutocracy > iPressureForFreedom) && (iPressureForAutocracy > iPressureForOrder))
+				{
+					m_ePreferredIdeology = eAutocracyBranch;
+				}
+				iDissatisfaction = (iPressureForFreedom + iPressureForOrder + iPressureForAutocracy) - iPressureForHeritage;
+			}
+		}
+		else
+		{
+			if (iPressureForOrder >= (iPressureForFreedom + iPressureForAutocracy + iPressureForHeritage))
+			{
+				m_eOpinion = PUBLIC_OPINION_CONTENT;
+			}
+			else
+			{
+				if ((iPressureForFreedom > iPressureForAutocracy) && (iPressureForFreedom >= iPressureForHeritage))
+				{
+					m_ePreferredIdeology = eFreedomBranch;
+				}
+				else if ((iPressureForAutocracy > iPressureForFreedom) && (iPressureForAutocracy >= iPressureForHeritage))
+				{
+					m_ePreferredIdeology = eAutocracyBranch;
+				}
+				else if (MOD_ISKA_HERITAGE && (iPressureForHeritage > iPressureForFreedom) && (iPressureForHeritage >= iPressureForAutocracy))
+				{
+					m_ePreferredIdeology = eHeritageBranch;
+				}
+				iDissatisfaction = (iPressureForFreedom + iPressureForAutocracy + iPressureForHeritage) - iPressureForOrder;
+			}
+		}
+#else
 		if (eCurrentIdeology == eFreedomBranch)
 		{
 			if (iPressureForFreedom >= (iPressureForAutocracy + iPressureForOrder))
@@ -5794,6 +5940,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				iDissatisfaction = (iPressureForFreedom + iPressureForAutocracy) - iPressureForOrder;
 			}
 		}
+#endif
 #if defined(MOD_BALANCE_CORE)
 #else
 		// Compute effects of dissatisfaction
@@ -5871,6 +6018,14 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText << strOrderPressureString;
 			strOrderPressureString = locText.toUTF8();
 		}
+#if defined(MOD_ISKA_HERITAGE)
+		if (strHeritagePressureString.size() > 0)
+		{
+			Localization::String locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_FOR_HERITAGE");
+			locText << strHeritagePressureString;
+			strHeritagePressureString = locText.toUTF8();
+		}
+#endif
 
 		if (strWorldIdeologyPressureString.size() != 0)
 		{
@@ -5879,8 +6034,11 @@ void CvPlayerCulture::DoPublicOpinion()
 			m_strOpinionTooltip += strWorldIdeologyPressureString;
 			m_strOpinionTooltip += "[NEWLINE][NEWLINE]";
 		}
-
+#if defined(MOD_ISKA_HERITAGE)
+		if ((strFreedomPressureString.size() + strAutocracyPressureString.size() + strOrderPressureString.size() + strHeritagePressureString.size()) == 0)
+#else
 		if ((strFreedomPressureString.size() + strAutocracyPressureString.size() + strOrderPressureString.size()) == 0)
+#endif
 		{
 			Localization::String locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_NOT_INFLUENCED");
 			m_strOpinionTooltip += locText.toUTF8();
@@ -5889,7 +6047,11 @@ void CvPlayerCulture::DoPublicOpinion()
 		{
 			Localization::String locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_INFLUENCED_BY");
 			m_strOpinionTooltip += locText.toUTF8();
+#if defined(MOD_ISKA_HERITAGE)
+			m_strOpinionTooltip += strFreedomPressureString + strAutocracyPressureString + strOrderPressureString + strHeritagePressureString;
+#else
 			m_strOpinionTooltip += strFreedomPressureString + strAutocracyPressureString + strOrderPressureString;
+#endif
 		}
 
 		if (m_ePreferredIdeology != NO_POLICY_BRANCH_TYPE)

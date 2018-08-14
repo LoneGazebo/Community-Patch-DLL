@@ -737,6 +737,12 @@ public:
 	void ChangeGiveExtraAttacks(int iValue);
 	int getGiveDefenseMod() const;
 	void ChangeGiveDefenseMod(int iValue);
+	int getNearbyHealEnemyTerritory() const;
+	void ChangeNearbyHealEnemyTerritory(int iValue);
+	int getNearbyHealNeutralTerritory() const;
+	void ChangeNearbyHealNeutralTerritory(int iValue);
+	int getNearbyHealFriendlyTerritory() const;
+	void ChangeNearbyHealFriendlyTerritory(int iValue);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -1266,6 +1272,9 @@ public:
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveDefenseModToUnit() const;
+	int GetHealEnemyTerritoryFromNearbyUnit() const;
+	int GetHealNeutralTerritoryFromNearbyUnit() const;
+	int GetHealFriendlyTerritoryFromNearbyUnit() const;
 	int GetNearbyCityBonusCombatMod(const CvPlot * pAtPlot = NULL) const;
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 	int GetGiveOutsideFriendlyLandsModifierToUnit() const;
@@ -2068,6 +2077,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_idamageThreshold;
 	FAutoVariable<UnitTypes, CvUnit> m_econvertDamageOrFullHPUnit;
 	FAutoVariable<int, CvUnit> m_inumberOfCultureBombs;
+	FAutoVariable<int, CvUnit> m_inearbyHealEnemyTerritory;
+	FAutoVariable<int, CvUnit> m_inearbyHealNeutralTerritory;
+	FAutoVariable<int, CvUnit> m_inearbyHealFriendlyTerritory;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;

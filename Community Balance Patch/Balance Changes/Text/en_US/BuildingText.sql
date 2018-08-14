@@ -232,32 +232,32 @@ SET Text = 'Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPI
 WHERE Tag = 'TXT_KEY_BUILDING_COURTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Walls increase a city Defense Strength by 10 and Hit Points by 50, making the city more difficult to capture. Increases Military Units supplied by this City''s population by 10%. Walls are quite useful for cities located along a frontier.'
+SET Text = 'Walls increase a city Defense Strength by 10 and Hit Points by 50, making the city more difficult to capture. Increases Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. Walls are quite useful for cities located along a frontier.'
 WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILDING_WALLS_HELP', 'Military Units supplied by this City''s population increased by 10%.'
+SELECT 'TXT_KEY_BUILDING_WALLS_HELP', 'Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Military Units supplied by this City''s population increased by 10%.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength by 15 and Hit Points by 100. Increases Military Units supplied by this City''s population by 10%, and increases Production for all nearby Quarries by 1. The city must possess Walls before the Castle can be constructed.'
+SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength by 15, Ranged Strike Damage by 25%, and Hit Points by 100. Increases Military Units supplied by this City''s population by 10%, and increases Production for all nearby Quarries by 1. The city must possess Walls before the Castle can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have Walls. +1 [ICON_PRODUCTION] Production for Quarries worked by this City. Military Units supplied by this City''s population increased by 10%. Contains 1 slot for a Great Work of Art or Artifact.'
+SET Text = 'City must have Walls. +1 [ICON_PRODUCTION] Production for Quarries worked by this City. Increases the City''s [ICON_RANGE_STRENGTH] Bombard Strength by 25%. Military Units supplied by this City''s population increased by 10%. Contains 1 slot for a Great Work of Art or Artifact.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Arsenal is an Industrial-era military building that increases Defense Strength by 20 and Hit Points by 150, making the city more difficult to capture. Increases Military Units supplied by this City''s population by 10%. The city must possess a Castle before it can construct an Arsenal.'
+SET Text = 'The Arsenal is an Industrial-era military building that increases Defense Strength by 20 and Hit Points by 150, making the city more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and also allows the City to Ranged Strike indirectly, ignoring Line of Sight. Increases Military Units supplied by this City''s population by 15%. The city must possess a Castle before it can construct an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have a Castle. Military Units supplied by this City''s population increased by 5%.'
+SET Text = 'City must have a Castle. Military Units supplied by this City''s population increased by 15%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows Indirect Fire. [NEWLINE][NEWLINE]Garrisoned units receive an additional 10 Health when healing in this city. Foreign Spies cannot steal [ICON_RESEARCH] Science from this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Distress greatly. +20% [ICON_PRODUCTION] Production of Air units, +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.[NEWLINE][NEWLINE]Garrisoned units receive an additional 10 Health when healing in this city. Foreign Spies cannot steal [ICON_RESEARCH] Science from this City.[NEWLINE][NEWLINE]Military Units supplied by this City''s population increased by 10%. City must have an Arsenal.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Distress greatly. +25% [ICON_PRODUCTION] Production of Air units, +15 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. Increases the City''s [ICON_RANGE_STRENGTH] Bombard Strength by 25%. Military Units supplied by this City''s population increased by 25%, and garrisoned units receive an additional 10 Health when healing in this city. City must have an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -550,7 +550,7 @@ SET Text = 'Must be built in a Holy City. 2 free Missionaries appear, and all ne
 WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] combat strength for units fighting in friendly territory, and +10% [ICON_STRENGTH] Defense for all Cities. Increases the Military Unit Supply Cap by 1 in every city. Provides a free Castle in the city in which it is built.'
+SET Text = '+15% [ICON_STRENGTH] combat strength for units fighting in friendly territory, and +10% [ICON_STRENGTH] Defense for all Cities. Increases the Military Unit Supply Cap by 5. Provides a free Castle in the city in which it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_HIMEJI_CASTLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -629,7 +629,7 @@ SET Text = 'Requires Autocracy. +1 [ICON_HAPPINESS_1] Happiness for every 2 Poli
 WHERE Tag = 'TXT_KEY_WONDER_PRORA_RESORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of Imperialism Branch. [ICON_GOLD] Gold cost of upgrading military units reduced by 33%. Owned Spies are much more likely to disrupt Unit [ICON_PRODUCTION] Production via Advanced Actions.'
+SET Text = 'Requires completion of Imperialism Branch. [ICON_GOLD] Gold cost of upgrading military units reduced by 33%. Owned Spies are much more likely to disrupt Unit [ICON_PRODUCTION] Production via Advanced Actions. Increases the Military Unit Supply Cap by 1 in every city. Provides a free Castle in the city in which it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_PENTAGON_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

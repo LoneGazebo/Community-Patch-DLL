@@ -36,6 +36,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCityStateFriendshipModifier(0),
 	m_iLandBarbarianConversionPercent(0),
 	m_iWonderProductionModifier(0),
+	m_iUnitProductionModifier(0),
 	m_iPlayerHappiness(0),
 	m_iPlayerCultureModifier(0),
 	m_fHappinessPerFollowingCity(0),
@@ -294,6 +295,11 @@ int CvBeliefEntry::GetLandBarbarianConversionPercent() const
 int CvBeliefEntry::GetWonderProductionModifier() const
 {
 	return m_iWonderProductionModifier;
+}
+
+int CvBeliefEntry::GetUnitProductionModifier() const
+{
+	return m_iUnitProductionModifier;
 }
 
 /// Accessor:: boost in production speed for wonders prior to obsolete era
@@ -1107,6 +1113,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityStateFriendshipModifier    = kResults.GetInt("CityStateFriendshipModifier");
 	m_iLandBarbarianConversionPercent = kResults.GetInt("LandBarbarianConversionPercent");
 	m_iWonderProductionModifier       = kResults.GetInt("WonderProductionModifier");
+	m_iUnitProductionModifier		  = kResults.GetInt("UnitProductionModifier");
 	m_iPlayerHappiness			      = kResults.GetInt("PlayerHappiness");
 	m_iPlayerCultureModifier          = kResults.GetInt("PlayerCultureModifier");
 	m_fHappinessPerFollowingCity      = kResults.GetFloat("HappinessPerFollowingCity");
@@ -2608,6 +2615,23 @@ int CvReligionBeliefs::GetWonderProductionModifier(EraTypes eWonderEra, PlayerTy
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetWonderProductionModifier();
 		}
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetUnitProductionModifier(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetUnitProductionModifier();
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

@@ -1371,6 +1371,14 @@ public:
 	int getBombardRange() const;
 #endif
 
+	int getCityBuildingBombardRange() const;
+	void changeCityBuildingBombardRange(int iValue);
+	bool getCityIndirectFire() const;
+	void changeCityIndirectFire(int iValue);
+
+	int getCityBuildingRangeStrikeModifier() const;
+	void changeCityBuildingRangeStrikeModifier(int iValue);
+
 	void ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue);
 	int GetNumTimesAttackedThisTurn(PlayerTypes ePlayer) const;
 
@@ -1695,6 +1703,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iAdditionalFood;
+	FAutoVariable<int, CvCity> m_iCityBuildingBombardRange;
+	FAutoVariable<int, CvCity> m_iCityIndirectFire;
+	FAutoVariable<int, CvCity> m_iCityBuildingRangeStrikeModifier;
 #endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;

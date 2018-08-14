@@ -8418,6 +8418,12 @@ public:
 	{
 		return m_iPOLICY_BRANCH_ORDER;
 	}
+#if defined(MOD_ISKA_HERITAGE)
+	inline int getPOLICY_BRANCH_HERITAGE()
+	{
+		return m_iPOLICY_BRANCH_HERITAGE;
+	}
+#endif
 
 	inline int getMIN_DIG_SITES_PER_MAJOR_CIV()
 	{
@@ -11192,6 +11198,9 @@ protected:
 	int   m_iPOLICY_BRANCH_FREEDOM;
 	int   m_iPOLICY_BRANCH_AUTOCRACY;
 	int   m_iPOLICY_BRANCH_ORDER;
+#if defined(MOD_ISKA_HERITAGE)
+	int   m_iPOLICY_BRANCH_HERITAGE;
+#endif
 
 	// -- post defines --
 

@@ -445,6 +445,9 @@ CvUnit::CvUnit() :
 	, m_idamageThreshold("CvUnit::m_idamageThreshold", m_syncArchive)
 	, m_econvertDamageOrFullHPUnit("CvUnit::m_econvertDamageOrFullHPUnit", m_syncArchive)
 	, m_inumberOfCultureBombs("CvUnit::m_inumberOfCultureBombs", m_syncArchive)
+	, m_inearbyHealEnemyTerritory("CvUnit::m_inearbyHealEnemyTerritory", m_syncArchive)
+	, m_inearbyHealNeutralTerritory("CvUnit::m_inearbyHealNeutralTerritory", m_syncArchive)
+	, m_inearbyHealFriendlyTerritory("CvUnit::m_inearbyHealFriendlyTerritory", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -1540,6 +1543,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_idamageThreshold = 0;
 	m_econvertDamageOrFullHPUnit = NO_UNIT;
 	m_inumberOfCultureBombs = 0;
+	m_inearbyHealEnemyTerritory = 0;
+	m_inearbyHealNeutralTerritory = 0;
+	m_inearbyHealFriendlyTerritory = 0;
 #endif
 #if defined(MOD_CIV6_WORKER)
 	m_iBuilderStrength = 0;
@@ -7724,9 +7730,9 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	CvPlot* pLoopPlot;
 
 	int iExtraHeal = 0;
-	int iExtraFriendlyHeal = getExtraFriendlyHeal();
-	int iExtraNeutralHeal = getExtraNeutralHeal();
-	int iExtraEnemyHeal = getExtraEnemyHeal();
+	int iExtraFriendlyHeal = getExtraFriendlyHeal() + GetHealFriendlyTerritoryFromNearbyUnit();
+	int iExtraNeutralHeal = getExtraNeutralHeal() + GetHealNeutralTerritoryFromNearbyUnit();
+	int iExtraEnemyHeal = getExtraEnemyHeal() + GetHealEnemyTerritoryFromNearbyUnit();
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int iReligionMod = 0;
 	if(MOD_BALANCE_CORE_BELIEFS)
@@ -10422,7 +10428,7 @@ bool CvUnit::pillage()
 					if (iEra <= 0)
 						iEra = 1;
 
-					iPillageGold = 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + GC.getGame().getSmallFakeRandNum(50, *plot())) / 100)));
+					iPillageGold = 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().getSmallFakeRandNum(50, *plot()))) / 100)));
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 				else
@@ -13810,16 +13816,19 @@ bool CvUnit::build(BuildTypes eBuild)
 
 #if defined(MOD_CIV6_WORKER)
 			//if we are a builder (something with builderstrength)
-			if (MOD_CIV6_WORKER && getBuilderStrength() > 0 && ((AI_getUnitAIType() == UNITAI_WORKER_SEA) || (AI_getUnitAIType() == UNITAI_WORKER)))
+			if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 			{
-				//check the amount of work done
-				int iBuildCost = pkBuildInfo->getBuilderCost();
-				// remove this amount (and kill me if it's too high)
-				setBuilderStrength(getBuilderStrength() - iBuildCost);
-				if (getBuilderStrength() <= 0)
+				if ((AI_getUnitAIType() == UNITAI_WORKER_SEA) || (AI_getUnitAIType() == UNITAI_WORKER) || IsCombatUnit())
 				{
-					//delete unit
-					kill(true);
+					//check the amount of work done
+					int iBuildCost = pkBuildInfo->getBuilderCost();
+					// remove this amount (and kill me if it's too high)
+					setBuilderStrength(getBuilderStrength() - iBuildCost);
+					if (getBuilderStrength() <= 0 && !IsCombatUnit())
+					{
+						//delete unit if it's not a combat unit
+						kill(true);
+					}
 				}
 			}
 #endif
@@ -18219,6 +18228,36 @@ void CvUnit::ChangeGiveDefenseMod(int iValue)
 {
 	VALIDATE_OBJECT
 	m_igiveDefenseMod += iValue;
+}
+int CvUnit::getNearbyHealEnemyTerritory() const
+{
+	VALIDATE_OBJECT
+	return m_inearbyHealEnemyTerritory;
+}
+void CvUnit::ChangeNearbyHealEnemyTerritory(int iValue)
+{
+	VALIDATE_OBJECT
+	m_inearbyHealEnemyTerritory += iValue;
+}
+int CvUnit::getNearbyHealNeutralTerritory() const
+{
+	VALIDATE_OBJECT
+	return m_inearbyHealNeutralTerritory;
+}
+void CvUnit::ChangeNearbyHealNeutralTerritory(int iValue)
+{
+	VALIDATE_OBJECT
+	m_inearbyHealNeutralTerritory += iValue;
+}
+int CvUnit::getNearbyHealFriendlyTerritory() const
+{
+	VALIDATE_OBJECT
+	return m_inearbyHealFriendlyTerritory;
+}
+void CvUnit::ChangeNearbyHealFriendlyTerritory(int iValue)
+{
+	VALIDATE_OBJECT
+	m_inearbyHealFriendlyTerritory += iValue;
 }
 void CvUnit::ChangeIsGiveInvisibility(int iValue)
 {
@@ -23371,6 +23410,105 @@ int CvUnit::GetGiveDefenseModToUnit() const
 	}
 	return iMod;
 }
+int CvUnit::GetHealEnemyTerritoryFromNearbyUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iHeal = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getNearbyHealEnemyTerritory() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
+				{
+					iHeal = pUnit->getNearbyHealEnemyTerritory();
+				}
+			}
+		}
+	}
+	return iHeal;
+}
+int CvUnit::GetHealNeutralTerritoryFromNearbyUnit() const
+{
+	VALIDATE_OBJECT
+		int iRange = 0;
+	int iHeal = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getNearbyHealNeutralTerritory() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
+				{
+					iHeal = pUnit->getNearbyHealNeutralTerritory();
+				}
+			}
+		}
+	}
+	return iHeal;
+}
+int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
+{
+	VALIDATE_OBJECT
+	int iRange = 0;
+	int iHeal = 0;
+	if (plot() == NULL)
+	{
+		return 0;
+	}
+
+	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	{
+		//first quick check with a large, fixed distance
+		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+			continue;
+
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
+		if (pUnit && pUnit->getNearbyHealFriendlyTerritory() != 0 && pUnit != this)
+		{
+			iRange = pUnit->GetNearbyUnitPromotionsRange();
+			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			{
+				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
+				{
+					iHeal = pUnit->getNearbyHealFriendlyTerritory();
+				}
+			}
+		}
+	}
+	return iHeal;
+}
 int CvUnit::GetNearbyCityBonusCombatMod(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT
@@ -26784,6 +26922,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeGiveExtraAttacks(thisPromotion.GetGiveExtraAttacks() * iChange);
 		ChangeGiveDefenseMod(thisPromotion.GetGiveDefenseMod() * iChange);
 		ChangeIsGiveInvisibility((thisPromotion.IsGiveInvisibility()) ? iChange : 0);
+		ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
+		ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
+		ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
 		ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
 		ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
 		ChangeIsConvertOnFullHP((thisPromotion.IsConvertOnFullHP()) ? iChange : 0);
@@ -28272,9 +28413,12 @@ bool CvUnit::SentryAlert() const
 #endif
 {
 	VALIDATE_OBJECT
+	if (GetActivityType() == ACTIVITY_SLEEP)
+		return false;
+
 	int iRange = visibilityRange();
 #if defined(MOD_BALANCE_CORE)
-	if(getDomainType() == DOMAIN_AIR)
+	if (getDomainType() == DOMAIN_AIR)
 	{
 		iRange = GetRange();
 		if(iRange > 0)
@@ -30369,6 +30513,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraCityAttackPercent();
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
+		if (iExtra <= 0)
+			iTemp /= 2;
+
 		iValue += iTemp + iFlavorOffense * 5;
 		if(isRanged())
 		{
@@ -30514,6 +30661,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iTemp + iFlavorDefense * 4;
 	}
 
+	iTemp = pkPromotionInfo->GetOutsideFriendlyLandsModifier();
+	if (iTemp != 0)
+	{
+		if ((AI_getUnitAIType() == UNITAI_EXPLORE) ||
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+		{
+			iValue += iTemp * (5 + iFlavorRecon * 2);
+		}
+		else
+		{
+			iValue += iTemp * (iFlavorRecon * 2);
+		}		
+	}
+
 	if(pkPromotionInfo->IsRangeAttackIgnoreLOS() && isRanged())
 	{
 		iValue += 75 + iFlavorRanged * 10;
@@ -30589,7 +30750,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-	if(GC.getPromotionInfo(ePromotion)->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA)
+	if (pkPromotionInfo->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA)
 	{
 		iValue += 50 + iFlavorNaval * 2;
 	}
@@ -30762,15 +30923,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			{
 				if(AI_getUnitAIType() == UNITAI_EXPLORE)
 				{
-					iValue += 5 * (iFlavorRecon + iFlavorMobile);
+					iValue += 8 * (iFlavorRecon + iFlavorMobile);
 				}
 				else if((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
-					iValue += 3 * (iFlavorOffense + iFlavorMobile);
+					iValue += 4 * (iFlavorOffense + iFlavorMobile);
 				}
 				else
 				{
-					iValue += 3 * iFlavorMobile;
+					iValue += 2 * iFlavorMobile;
 				}
 			}
 
