@@ -2475,11 +2475,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		{
 			return MAX_INT;
 		}
-
-		iItemValue -= (iBuyerDistance * 1000);
-
-		if (iItemValue <= 0)
-			return MAX_INT;
 	}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

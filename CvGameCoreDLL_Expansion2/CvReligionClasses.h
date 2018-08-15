@@ -631,8 +631,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION);
 #endif
-	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns = NULL);
-	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns = NULL);
+	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
+	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
 	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 
 	CvPlayer* GetPlayer();

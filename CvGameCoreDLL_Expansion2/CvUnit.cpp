@@ -3084,11 +3084,6 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
-	{
-		SetActivityType(ACTIVITY_AWAKE);
-	}
-
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
@@ -5780,7 +5775,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,std::vector<int>());
+				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,vector<pair<int,int>>());
 				if(pTarget == NULL)
 				{
 					return false;
@@ -7708,7 +7703,7 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 		}
 	}
 
-	if(!IsCanDefend(pPlot))
+	if(!IsCanDefend(pPlot) && !IsCanAttack())
 	{
 		return false;
 	}
@@ -28413,9 +28408,6 @@ bool CvUnit::SentryAlert() const
 #endif
 {
 	VALIDATE_OBJECT
-	if (GetActivityType() == ACTIVITY_SLEEP)
-		return false;
-
 	int iRange = visibilityRange();
 #if defined(MOD_BALANCE_CORE)
 	if (getDomainType() == DOMAIN_AIR)
@@ -28430,7 +28422,7 @@ bool CvUnit::SentryAlert() const
 					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
 					if(NULL != pPlot)
 					{
-						if(pPlot->isRevealed(getTeam()))
+						if(pPlot->isVisible(getTeam()))
 						{
 							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
 							{

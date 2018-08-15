@@ -109,6 +109,7 @@ void CvHomelandAI::RecruitUnits()
 	int iLoop;
 
 	m_CurrentTurnUnits.clear();
+	m_automatedTargetPlots.clear();
 
 	// Loop through our units
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
@@ -165,18 +166,22 @@ void CvHomelandAI::RecruitUnits()
 /// Mark all the units that will be under tactical AI control this turn
 void CvHomelandAI::FindAutomatedUnits()
 {
-	CvUnit* pLoopUnit;
 	int iLoop;
 
 	m_CurrentTurnUnits.clear();
+	m_automatedTargetPlots.clear();
 
 	// Loop through our units
-	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if(pLoopUnit->IsAutomated() && !pLoopUnit->TurnProcessed() && pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN && pLoopUnit->canMove())
-		{
+		if(!pLoopUnit->IsAutomated() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN)
+			continue;
+
+		if (pLoopUnit->GetMissionAIPlot())
+			m_automatedTargetPlots[pLoopUnit->AI_getUnitAIType()].push_back( std::make_pair(pLoopUnit->GetID(),pLoopUnit->GetMissionAIPlot()->GetPlotIndex()) );
+	
+		if (!pLoopUnit->TurnProcessed() && pLoopUnit->canMove())
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-		}
 	}
 }
 
@@ -5907,7 +5912,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 // Get a missionary to the best city, then spread the word
 void CvHomelandAI::ExecuteMissionaryMoves()
 {
-	vector<int> vBurnedTargets;
+	vector<pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_MISSIONARY];
 
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -5922,7 +5927,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseMissionaryTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
-			vBurnedTargets.push_back(pTarget->plot()->GetPlotIndex());
+			vBurnedTargets.push_back( make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
 
 			if(iTargetTurns==0)
 			{
@@ -5973,7 +5978,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 // Get a inquisitor to the best city
 void CvHomelandAI::ExecuteInquisitorMoves()
 {
-	vector<int> vBurnedTargets;
+	vector<pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_INQUISITOR];
 
 	MoveUnitsArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -5988,7 +5993,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
-			vBurnedTargets.push_back(pTarget->plot()->GetPlotIndex());
+			vBurnedTargets.push_back( make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
 
 			if (pUnit->CanRemoveHeresy(pTarget->plot()))
 			{

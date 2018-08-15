@@ -7341,7 +7341,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
-CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns)
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -7357,11 +7357,14 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int
 		{
 			// Loop through each of their cities
 			int iLoop;
-			CvCity* pLoopCity;
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
+				if (pUnit->GetDanger(pLoopCity->plot()) > 0)
+					continue;
+
 				//we often have multiple missionaries active at the same time, don't all go to the same target
-				if (std::find(vIgnoreTargets.begin(), vIgnoreTargets.end(), pLoopCity->plot()->GetPlotIndex()) != vIgnoreTargets.end())
+				vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()) && pUnit->GetDanger(pLoopCity->plot())==0 && !pLoopCity->IsRazing())
@@ -7389,7 +7392,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -7402,16 +7405,17 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int
 	CvCity* pLoopCity;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity && pUnit->GetDanger(pLoopCity->plot())==0)
-		{
-			//we often have multiple inquisitors active at the same time, don't all go to the same target
-			if (std::find(vIgnoreTargets.begin(), vIgnoreTargets.end(), pLoopCity->plot()->GetPlotIndex()) != vIgnoreTargets.end())
-				continue;
+		if (pUnit->GetDanger(pLoopCity->plot()) > 0)
+			continue;
 
-			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
-			if (iScore>0)
-				vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
-		}
+		//we often have multiple inquisitors active at the same time, don't all go to the same target
+		vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+		if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
+			continue;
+
+		int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
+		if (iScore>0)
+			vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
 	}
 
 	//this sorts ascending
@@ -10714,7 +10718,19 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 	}
 
 	// Base score based on if we are establishing majority
-	iScore = 100;
+	iScore = max(10,100 - 2*plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()));
+
+	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+	// Better score if our own city or if this city owner isn't starting a religion
+	if(pCity->getOwner() == m_pPlayer->GetID())
+	{
+		iScore += 10;
+	}
+	else if(!kCityPlayer.GetReligions()->HasCreatedReligion())
+	{
+		iScore += 10;
+	}
+
 	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))
 	{
 		iScore *= 2;
@@ -10773,28 +10789,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 			}
 #endif
 		}
-	}
-#endif
-
-	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-	// Much better score if our own city or if this city owner isn't starting a religion
-	if(pCity->getOwner() == m_pPlayer->GetID())
-	{
-		iScore *= 5;
-	}
-	else if(!kCityPlayer.GetReligions()->HasCreatedReligion())
-	{
-		iScore *= 3;
-	}
-
-	// Then subtract distance
-	iScore -= plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY());
-
-#if !defined(MOD_BALANCE_CORE)
-	// Multiplier by how safe it is
-	if(!atWar(m_pPlayer->getTeam(), kCityPlayer.getTeam()))
-	{
-		iScore *= 2;
 	}
 #endif
 

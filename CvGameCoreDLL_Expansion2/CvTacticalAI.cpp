@@ -6068,7 +6068,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 			break;
 
 		//careful with single units walking into traps
-		if (vUnits.size() == 1)
+		if (vUnits.size() == 1 && !m_pPlayer->isBarbarian())
 		{
 			CvUnit* pUnit = vUnits[0];
 			CvPlot* pEndTurnPlot = TacticalAIHelpers::EndTurnPlot(vAssignments, pUnit->GetID());

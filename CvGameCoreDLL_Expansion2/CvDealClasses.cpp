@@ -329,6 +329,10 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 /// Is it actually possible for a player to offer up this trade item?
 bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1, bool bCheckOtherPlayerValidity, bool bFinalizing)
 {
+	//failsafe
+	if (ePlayer == NO_PLAYER || eToPlayer == NO_PLAYER)
+		return false;
+
 	// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
 	CvPlayer* pFromPlayer = &GET_PLAYER(ePlayer);
 	CvPlayer* pToPlayer = &GET_PLAYER(eToPlayer);
