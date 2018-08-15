@@ -1273,6 +1273,9 @@
 		<Row Tag="TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS">
 			<Text>[NEWLINE][ICON_BULLET]Modified by Civilizing Mission: {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT">
+			<Text>[NEWLINE][ICON_BULLET]Modified by Religion: {1_Num}%</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_WAR_WEARINESS_THEM_NONE">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] Weariness:[ENDCOLOR] They are resilient.</Text>

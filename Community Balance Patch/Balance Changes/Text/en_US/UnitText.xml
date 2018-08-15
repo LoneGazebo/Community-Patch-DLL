@@ -156,19 +156,19 @@
 			<Text>Trailblazer I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP">
-			<Text>Double Movement in Jungles and Forests.</Text>
+			<Text>Double Movement in Jungles and Forests, +10% [ICON_STRENGTH] Strength outside friendly lands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II">
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP">
-			<Text>Double Movement in Desert and Snow.</Text>
+			<Text>Double Movement in Desert, and Snow. Ignores Zone of Control, +10% [ICON_STRENGTH] Strength outside friendly lands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III">
 			<Text>Trailblazer III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
-			<Text>Ignores Zone of Control, and attempts to withdraw when faced with a melee attack.</Text>
+			<Text>Attempts to withdraw when faced with a melee attack (60% chance), +10% [ICON_STRENGTH] Strength outside friendly lands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
 			<Text>Bonus vs Gunpowder (25)</Text>
@@ -194,7 +194,7 @@
 			<Text>Charge II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain, +25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain, +15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
@@ -682,7 +682,7 @@
 			<Text>Parthian Tactics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP">
-			<Text>+1 [ICON_MOVES] Movement.</Text>
+			<Text>+2 [ICON_MOVES] Movement.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">

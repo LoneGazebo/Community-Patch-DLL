@@ -820,7 +820,7 @@ private:
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
-	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
+	bool ClearEnemiesNearArmy(CvArmyAI* pArmy);
 	void MoveWithFormation(CvUnit* pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
 	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
@@ -1204,6 +1204,10 @@ namespace TacticalAIHelpers
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 	bool FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, int iMaxBranches, int iMaxFinishedPositions, vector<STacticalAssignment>& result);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
+
+	bool IsEnemyKilled(const vector<STacticalAssignment>& moves);
+	CvPlot* EndTurnPlot(const vector<STacticalAssignment>& moves, int iUnitID);
+
 #endif
 
 }

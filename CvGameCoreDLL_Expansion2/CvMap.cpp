@@ -741,6 +741,7 @@ void CvMap::updateYield()
 {
 	for (int iI = 0; iI < numPlots(); iI++)
 	{
+		plotByIndexUnchecked(iI)->updateWaterFlags();
 		plotByIndexUnchecked(iI)->updateYield();
 	}
 }
@@ -2205,6 +2206,7 @@ void CvMap::recalculateLandmasses()
 	int iNumPlots = numPlots();
 	for(int iI = 0; iI < iNumPlots; iI++)
 	{
+		plotByIndexUnchecked(iI)->updateWaterFlags();
 		plotByIndexUnchecked(iI)->setLandmass(-1);
 	}
 

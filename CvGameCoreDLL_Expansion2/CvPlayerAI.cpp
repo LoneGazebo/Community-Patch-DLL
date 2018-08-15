@@ -2741,7 +2741,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			// can't build on some plots
 			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || !pAdjacentPlot->isValidMovePlot(GetID()) )
 				continue;
-			if(!pAdjacentPlot->canBuild(eBuild, GetID()))
+			if(eBuild != NO_BUILD && !pAdjacentPlot->canBuild(eBuild, GetID()))
 				continue;
 
 			//citadel special

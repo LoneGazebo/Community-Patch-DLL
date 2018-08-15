@@ -4793,25 +4793,25 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	if (GetBiggestCompetitor() != ePlayer)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 10;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 10;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
 	}
 	else
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 25;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= 25;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] *= 2;
 	}
 	if (GetMostValuableDoF(false) == ePlayer)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 10;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 10;
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] *= 25;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] *= 2;
 	}
 	if (GetMostValuableDefensivePact(false) == ePlayer)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 10;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 10;
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] *= 25;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] /= 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] *= 2;
 	}
 
 	////////////////////////////////////
@@ -6937,7 +6937,7 @@ void CvDiplomacyAI::DoTestDemandReady()
 				if(!IsAtWar(eDemandTarget))
 				{
 					// If we're at least 85% of the way to our objective, let loose the dogs of war!
-					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 85))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
+					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
 					{
 						SetMusteringForAttack(eDemandTarget, false);
 
@@ -7043,7 +7043,7 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 	}
 #endif
 	// If they're a bad or impossible target then that's not good at all for us
-	if(GetPlayerTargetValue(ePlayer) < TARGET_VALUE_AVERAGE)
+	if(GetPlayerTargetValue(ePlayer) <= TARGET_VALUE_AVERAGE)
 	{
 		return false;
 	}
@@ -7067,6 +7067,25 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 		return false;
 	}
 #endif
+
+	int iIdealValue = 2 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	if (Value > 0)
+	{
+		iIdealValue *= Value;
+	}
+
+	// We can use this deal pointer to form a trade offer
+	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
+
+	int iActualValue = GetPlayer()->GetDealAI()->GetPotentialDemandValue(ePlayer, pDeal);
+
+	pDeal->ClearItems();
+
+	if (iActualValue < iIdealValue)
+		return false;
+
+	bool bAlreadyPlanning = false;
 	// If we're planning a demand or at war with anyone, making another demand is unwise
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -7079,10 +7098,9 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 			continue;
 		}
 #endif
-
-		if(GetWarGoal(eLoopPlayer) == WAR_GOAL_DEMAND)
+		if (eLoopPlayer == GetDemandTargetPlayer())
 		{
-			return false;
+			bAlreadyPlanning = true;
 		}
 
 		if(IsAtWar(eLoopPlayer))
@@ -7090,6 +7108,8 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 			return false;
 		}
 	}
+	if (bAlreadyPlanning)
+		return false;
 	// Player has to be on the same area as us
 	if(GetPlayer()->getCapitalCity() != NULL)
 	{
@@ -8545,15 +8565,17 @@ void CvDiplomacyAI::MakeWar()
 									// Us
 									SetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer, COOP_WAR_STATE_ACCEPTED);
 									SetCoopWarCounter(eLoopPlayer, eThirdPlayer, 0);
-									DeclareWar(eThirdPlayer);
+									if (DeclareWar(eThirdPlayer))
+									{
 #if defined(MOD_BALANCE_CORE)
-									GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eThirdPlayer, 2);
+										GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eThirdPlayer, 2);
 #else
-									GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eThirdPlayer);
+										GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eThirdPlayer);
 #endif
 
-									int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
-									GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdPlayer).getTeam(), iLockedTurns);
+										int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
+										GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdPlayer).getTeam(), iLockedTurns);
+									}
 								}
 							}
 						}
@@ -8565,7 +8587,7 @@ void CvDiplomacyAI::MakeWar()
 }
 
 /// We've decided to declare war on someone
-void CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
+bool CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 {
 	CvAssertMsg(!GET_PLAYER(ePlayer).isMinorCiv() || GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() != GetPlayer()->GetID(), "Major is declaring war on a city-state it is allied with! Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
@@ -8573,7 +8595,7 @@ void CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
 	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-		return;
+		return false;
 
 	// Only do it if we are not already at war.
 	if(!kMyTeam.isAtWar(eTheirTeam))
@@ -8614,7 +8636,9 @@ void CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 #endif
 
 		LogWarDeclaration(ePlayer);
+		return true;
 	}
+	return false;
 }
 
 
@@ -16955,11 +16979,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
-						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-						LogWarDeclaration(ePlayer);
-						pDeal->ClearItems();
-						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
+						{
+							pDeal->ClearItems();
+							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						}
 					}
 				}
 				else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
@@ -16980,11 +17004,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
-						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-						LogWarDeclaration(ePlayer);
-						pDeal->ClearItems();
-						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
+						{
+							pDeal->ClearItems();
+							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						}
 					}
 				}
 				else
@@ -17039,11 +17063,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
-						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-						LogWarDeclaration(ePlayer);
-						pDeal->ClearItems();
-						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
+						{
+							pDeal->ClearItems();
+							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						}
 					}
 				}
 				else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
@@ -17064,11 +17088,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					}
 					if (bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 					{
-						GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
-						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-						LogWarDeclaration(ePlayer);
-						pDeal->ClearItems();
-						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
+						{
+							pDeal->ClearItems();
+							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+						}
 					}
 				}
 				else
@@ -17602,25 +17626,29 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 				if(eAcceptedState == COOP_WAR_STATE_ACCEPTED)
 				{
-					DeclareWar(eAgainstPlayer);
+					if (DeclareWar(eAgainstPlayer))
+					{
 #if defined(MOD_BALANCE_CORE)
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 2);
-					GetPlayer()->GetMilitaryAI()->RequestPureNavalAttack(eAgainstPlayer, 2);
+						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 2);
+						GetPlayer()->GetMilitaryAI()->RequestPureNavalAttack(eAgainstPlayer, 2);
 #else
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+#endif	
+
+						if (GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer))						
+						{
+#if defined(MOD_BALANCE_CORE)
+							GET_PLAYER(ePlayer).GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 2);
+							GET_PLAYER(ePlayer).GetMilitaryAI()->RequestPureNavalAttack(eAgainstPlayer, 2);
+#else
+							GET_PLAYER(ePlayer).GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
 #endif
 
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer);
-#if defined(MOD_BALANCE_CORE)
-					GET_PLAYER(ePlayer).GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 2);
-					GET_PLAYER(ePlayer).GetMilitaryAI()->RequestPureNavalAttack(eAgainstPlayer, 2);
-#else
-					GET_PLAYER(ePlayer).GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
-#endif
-
-					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
-					GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam(), iLockedTurns);
-					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam(), iLockedTurns);
+							int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
+							GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam(), iLockedTurns);
+							GET_TEAM(GET_PLAYER(ePlayer).getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam(), iLockedTurns);
+						}
+					}
 				}
 
 				LogCoopWar(ePlayer, eAgainstPlayer, eAcceptedState);
@@ -17705,11 +17733,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #if defined(MOD_BALANCE_CORE)
 			if(bValid && ((GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetPlayer()->GetID()).GetDiplomacyAI()->GetMeanness() > 6))
 			{
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
-				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-				LogWarDeclaration(ePlayer);
-				pDeal->ClearItems();
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
+				{
+					pDeal->ClearItems();
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 3);
+				}
 			}
 			else
 			{
@@ -20692,8 +20720,10 @@ void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTy
 						// AI declaration
 						if(!IsAtWar(eTargetPlayer) && GET_PLAYER(eTargetPlayer).isAlive())
 						{
-							DeclareWar(eTargetPlayer);
-							GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 1);
+							if (DeclareWar(eTargetPlayer))
+							{
+								GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eTargetPlayer, 1);
+							}
 						}
 					}
 				}
@@ -20766,7 +20796,8 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer, DiploStatementTypes& eStat
 				{
 					// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
 					pDeal->ClearItems();
-					DeclareWar(ePlayer);
+					DoCancelHaltDemandProcess();
+					//DeclareWar(ePlayer);
 				}
 			}
 		}
@@ -20948,21 +20979,15 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 				{
 					const char* strText;
 					bool bActivePlayer = GC.getGame().getActivePlayer() == ePlayer;
-					if(GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
+					if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 					{
-						// WAR! You've broken too many promises, jerk. 
-						//AI declaration
-						GET_TEAM(GetPlayer()->getTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
-						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-						LogWarDeclaration(ePlayer);
-
 						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 1);
+					}
 
-						if(bActivePlayer)
-						{
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_WARMONGER);
-							gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
-						}
+					if(bActivePlayer)
+					{
+						strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_WARMONGER);
+						gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 					}
 				}
 #endif
@@ -26222,20 +26247,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if(GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
 		{
-			bDeclareWar = true;
-
-			if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-				bDeclareWar = false;
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
-#else
-			GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam());
-#endif
-			m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-			LogWarDeclaration(eFromPlayer);
-
-			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+			bDeclareWar = m_pPlayer->GetDiplomacyAI()->DeclareWar(eFromPlayer);
+			if (bDeclareWar)
+				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
 		}
 
 		if(bActivePlayer)
@@ -26391,20 +26405,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
 			{
-				bDeclareWar = true;
-
-				if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-					bDeclareWar = false;
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
-#else
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam());
-#endif
-				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-				LogWarDeclaration(eFromPlayer);
-
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+				if (bDeclareWar)
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
 			}
 
 			if (bActivePlayer)
@@ -26484,20 +26486,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
 			{
-				bDeclareWar = true;
-
-				if (GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-					bDeclareWar = false;
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
-#else
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam());
-#endif
-				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-				LogWarDeclaration(eFromPlayer);
-
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+				if (bDeclareWar)
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
 			}
 
 			if (bActivePlayer)
@@ -26849,15 +26839,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			if(bDeclareWar)
 			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
-#else
-				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam());
-#endif
-				m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-				LogWarDeclaration(eFromPlayer);
-
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+				if (bDeclareWar)
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
 			}
 			else
 			{
@@ -26986,8 +26969,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if(eAcceptableState == COOP_WAR_STATE_ACCEPTED)
 			{
 				// AI declaration
-				DeclareWar(eAgainstPlayer);
-				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+				if(DeclareWar(eAgainstPlayer))
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
 
 				// Human declaration
 				TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
@@ -27103,8 +27086,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 
 			// AI declaration
-			DeclareWar(eAgainstPlayer);
-			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+			if(DeclareWar(eAgainstPlayer))
+				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
 
 			// Human declaration
 			TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
@@ -27145,8 +27128,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 
 			// AI declaration
-			DeclareWar(eAgainstPlayer);
-			GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+			if(DeclareWar(eAgainstPlayer))
+				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 3);
 
 			// Human declaration
 			TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();

@@ -5542,17 +5542,20 @@ void CvPlayerCulture::DoPublicOpinion()
 			strWorldIdeologyPressureString += sTemp.toUTF8();
 		}
 #if defined(MOD_ISKA_HERITAGE)
-		iPressureForHeritage += GC.getGame().GetGameLeagues()->GetPressureForIdeology(m_pPlayer->GetID(), eHeritageBranch);
-		if (iPressureForHeritage > 0)
+		if (MOD_ISKA_HERITAGE)
 		{
-			Localization::String sTemp = Localization::Lookup("TXT_KEY_CO_OPINION_TT_FOR_HERITAGE");
-			CvString sIcons = "";
-			for (int i = 0; i < iPressureForHeritage; i++)
+			iPressureForHeritage += GC.getGame().GetGameLeagues()->GetPressureForIdeology(m_pPlayer->GetID(), eHeritageBranch);
+			if (iPressureForHeritage > 0)
 			{
-				sIcons += "[ICON_RELIGION]";
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_CO_OPINION_TT_FOR_HERITAGE");
+				CvString sIcons = "";
+				for (int i = 0; i < iPressureForHeritage; i++)
+				{
+					sIcons += "[ICON_RELIGION]";
+				}
+				sTemp << sIcons;
+				strWorldIdeologyPressureString += sTemp.toUTF8();
 			}
-			sTemp << sIcons;
-			strWorldIdeologyPressureString += sTemp.toUTF8();
 		}
 #endif
 		// Look at each civ
@@ -5632,7 +5635,7 @@ void CvPlayerCulture::DoPublicOpinion()
 								}
 							}
 #if defined(MOD_ISKA_HERITAGE)
-							else if (eOtherCivIdeology == eHeritageBranch)
+							else if (MOD_ISKA_HERITAGE && eOtherCivIdeology == eHeritageBranch)
 							{
 								iPressureForHeritage += iCulturalDominanceOverUs;
 								if (strHeritagePressureString.size() > 0)
@@ -5694,7 +5697,7 @@ void CvPlayerCulture::DoPublicOpinion()
 								}
 							}
 #if defined(MOD_ISKA_HERITAGE)
-							else if (eOtherCivIdeology == eHeritageBranch)
+							else if (MOD_ISKA_HERITAGE && eOtherCivIdeology == eHeritageBranch)
 							{
 								iPressureForHeritage += iCulturalDominanceOverUs;
 								if (strHeritagePressureString.size() > 0)
@@ -5803,7 +5806,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				{
 					m_ePreferredIdeology = eOrderBranch;
 				}
-				else if ((iPressureForHeritage > iPressureForAutocracy) && (iPressureForHeritage > iPressureForOrder))
+				else if (MOD_ISKA_HERITAGE && (iPressureForHeritage > iPressureForAutocracy) && (iPressureForHeritage > iPressureForOrder))
 				{
 					m_ePreferredIdeology = eHeritageBranch;
 				}
@@ -5826,14 +5829,14 @@ void CvPlayerCulture::DoPublicOpinion()
 				{
 					m_ePreferredIdeology = eOrderBranch;
 				}
-				else if ((iPressureForHeritage > iPressureForFreedom) && (iPressureForHeritage > iPressureForOrder))
+				else if (MOD_ISKA_HERITAGE && (iPressureForHeritage > iPressureForFreedom) && (iPressureForHeritage > iPressureForOrder))
 				{
 					m_ePreferredIdeology = eHeritageBranch;
 				}
 				iDissatisfaction = (iPressureForFreedom + iPressureForOrder + iPressureForHeritage) - iPressureForAutocracy;
 			}
 		}
-		else if (eCurrentIdeology == eHeritageBranch)
+		else if (MOD_ISKA_HERITAGE && eCurrentIdeology == eHeritageBranch)
 		{
 			if (iPressureForHeritage >= (iPressureForFreedom + iPressureForOrder + iPressureForAutocracy))
 			{
@@ -5872,7 +5875,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				{
 					m_ePreferredIdeology = eAutocracyBranch;
 				}
-				else if ((iPressureForHeritage > iPressureForFreedom) && (iPressureForHeritage >= iPressureForAutocracy))
+				else if (MOD_ISKA_HERITAGE && (iPressureForHeritage > iPressureForFreedom) && (iPressureForHeritage >= iPressureForAutocracy))
 				{
 					m_ePreferredIdeology = eHeritageBranch;
 				}

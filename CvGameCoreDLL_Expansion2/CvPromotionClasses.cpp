@@ -257,6 +257,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGiveExtraAttacks(0),
 	m_iGiveDefenseMod(0),
 	m_bGiveInvisibility(false),
+	m_iNearbyHealEnemyTerritory(0),
+	m_iNearbyHealNeutralTerritory(0),
+	m_iNearbyHealFriendlyTerritory(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -513,6 +516,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGiveExtraAttacks = kResults.GetInt("GiveExtraAttacks");
 	m_iGiveDefenseMod = kResults.GetInt("GiveDefenseMod");
 	m_bGiveInvisibility = kResults.GetBool("GiveInvisibility");
+	m_iNearbyHealEnemyTerritory = kResults.GetInt("NearbyHealEnemyTerritory");
+	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
+	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -2333,6 +2339,18 @@ int CvPromotionEntry::GetGiveDefenseMod() const
 bool CvPromotionEntry::IsGiveInvisibility() const
 {
 	return m_bGiveInvisibility;
+}
+int CvPromotionEntry::GetNearbyHealEnemyTerritory() const
+{
+	return m_iNearbyHealEnemyTerritory;
+}
+int CvPromotionEntry::GetNearbyHealNeutralTerritory() const
+{
+	return m_iNearbyHealNeutralTerritory;
+}
+int CvPromotionEntry::GetNearbyHealFriendlyTerritory() const
+{
+	return m_iNearbyHealFriendlyTerritory;
 }
 #endif
 

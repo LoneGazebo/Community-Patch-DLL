@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -254,6 +254,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					if (pkPolicyBranchInfo->GetEraPrereq() <= pPlayer->GetCurrentEra())
 					{
 						int iDivisor = pPlayer->GetCurrentEra() - max(0, pkPolicyBranchInfo->GetEraPrereq());
+						iDivisor *= 2;
 						iBranchWeight /= max(1, iDivisor);
 					}
 
@@ -734,7 +735,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 #if defined(MOD_ISKA_HERITAGE)
 	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetReligionCreatedByPlayer();
-	if (ePlayerReligion > RELIGION_PANTHEON)
+	if (MOD_ISKA_HERITAGE && ePlayerReligion > RELIGION_PANTHEON)
 	{
 		eChosenBranch = eHeritageBranch;
 	}
@@ -3088,15 +3089,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FAITH] += PolicyInfo->GetTradeReligionModifier();
 		}
 	}
-	if (PolicyInfo->GetBestRangedUnitSpawnSettle() != 0)
+	if (PolicyInfo->GetXPopulationConscription() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetBestRangedUnitSpawnSettle() * 10;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetXPopulationConscription() * 10;
 		}
 		else
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetBestRangedUnitSpawnSettle() * 5;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetXPopulationConscription() * 5;
 		}
 	}
 	if (PolicyInfo->GetFreePopulation() != 0)
@@ -3108,6 +3109,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		else
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetFreePopulation() * 25;
+		}
+	}
+	if (PolicyInfo->GetFreePopulationCapital() != 0)
+	{
+		if (pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetFreePopulationCapital() * 50;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetFreePopulationCapital() * 10;
 		}
 	}
 	if (PolicyInfo->GetExtraMoves() != 0)

@@ -2001,8 +2001,9 @@ public:
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
 
-	int GetBestRangedUnitSpawnSettle() const;
-	void changeBestRangedUnitSpawnSettle(int iChange);
+	int GetXPopulationConscription() const;
+	void changeXPopulationConscription(int iChange);
+	void DoXPopulationConscription(CvCity* pCity);
 
 	int GetExtraMoves() const;
 	void changeExtraMoves(int iChange);
@@ -3185,7 +3186,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iGarrisonsOccupiedUnhapppinessMod;
-	FAutoVariable<int, CvPlayer> m_iBestRangedUnitSpawnSettle;
+	FAutoVariable<int, CvPlayer> m_iXPopulationConscription;
 	FAutoVariable<int, CvPlayer> m_iExtraMoves;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappinessExpansion;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappyIsolation;
