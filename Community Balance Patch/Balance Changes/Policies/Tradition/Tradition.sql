@@ -12,9 +12,12 @@ UPDATE Policies
 SET PlotCultureExponentModifier = '0'
 WHERE Type = 'POLICY_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
-UPDATE Policy_BuildingClassCultureChanges
-SET CultureChange = '1'
-WHERE PolicyType = 'POLICY_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+DELETE From Policy_BuildingClassCultureChanges WHERE PolicyType = 'POLICY_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('POLICY_TRADITION', 'BUILDINGCLASS_PALACE', 'YIELD_CULTURE', 1);
 
 UPDATE Policies
 SET CityGrowthMod = '5'
