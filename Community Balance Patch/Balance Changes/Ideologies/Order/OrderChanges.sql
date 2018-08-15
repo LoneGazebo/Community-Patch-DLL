@@ -137,10 +137,10 @@ WHERE Type = 'POLICY_FIVE_YEAR_PLAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- NEW
 
-INSERT INTO Policy_BuildingClassCultureChanges
-	(PolicyType, BuildingClassType, CultureChange)
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('POLICY_SOCIALIST_REALISM', 'BUILDINGCLASS_PUBLIC_SCHOOL', 3);
+	('POLICY_SOCIALIST_REALISM', 'BUILDINGCLASS_PUBLIC_SCHOOL', 'YIELD_CULTURE', 3);
 
 
 UPDATE Policies
