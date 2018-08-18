@@ -10671,7 +10671,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		if (!pEnemy)
 		{
 			OutputDebugString("expected enemy unit not present!\n");
-			result.iScore = -1;
+			result.iScore = -INT_MAX;
 			return;
 		}
 		//use the quick and dirty method ...
@@ -10755,7 +10755,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	switch (eAggLvl)
 	{
 	case AL_NONE:
-		result.iScore = -1;
+		result.iScore = -INT_MAX;
 		return;
 	case AL_LOW:
 		fAggFactor = 0.5f;
@@ -10783,7 +10783,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		result.iDamage = iDamageDealt;
 	}
 	else
-		result.iScore = -1;
+		result.iScore = -INT_MAX;
 }
 
 bool IsEnemyCitadel(CvPlot* pPlot, TeamTypes eMyTeam)
@@ -10807,7 +10807,7 @@ bool IsEnemyCitadel(CvPlot* pPlot, TeamTypes eMyTeam)
 STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition, bool bForRangedAttack)
 {
 	//default action is invalid
-	STacticalAssignment result(unit.iPlotIndex,plot.iPlotIndex,unit.iUnitID,plot.iMovesLeft,unit.isCombatUnit(),-1,STacticalAssignment::A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex,plot.iPlotIndex,unit.iUnitID,plot.iMovesLeft,unit.isCombatUnit(),-INT_MAX,STacticalAssignment::A_FINISH);
 
 	CvPlayer& kPlayer = GET_PLAYER(assumedPosition.getPlayer());
 	CvUnit* pUnit = kPlayer.getUnit(unit.iUnitID);
@@ -11119,7 +11119,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is invalid
-	STacticalAssignment result(unit.iPlotIndex,plot.iPlotIndex,unit.iUnitID,plot.iMovesLeft,unit.isCombatUnit(),-1,STacticalAssignment::A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex,plot.iPlotIndex,unit.iUnitID,plot.iMovesLeft,unit.isCombatUnit(),-INT_MAX,STacticalAssignment::A_FINISH);
 
 	CvPlayer& kPlayer = GET_PLAYER(assumedPosition.getPlayer());
 	CvUnit* pUnit = kPlayer.getUnit(unit.iUnitID);
@@ -11144,10 +11144,6 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			return result;
 	}
 
-	//don't do it if it's a death trap
-	if (currentPlot.getNumAdjacentEnemies()>3 || (assumedPosition.getUnitNumberRatio()<1 && currentPlot.getNumAdjacentEnemies()==3) )
-		return result;
-
 	//lookup score by unit strategy / plot type
 	//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
 	int iPlotTypeScores[5][5] = {
@@ -11165,7 +11161,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 		//come close but not too close
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
 		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE * 2)
-			result.iScore = -1;
+			result.iScore = -10;
 		else if (iPlotDistance < 2)
 			result.iScore /= 2;
 	}
@@ -11174,11 +11170,8 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 		//stay close around the (friendly) target
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
 		if (iPlotDistance>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
-			result.iScore = -1;
+			result.iScore = -10;
 	}
-
-	if (result.iScore<0)
-		return result;
 
 	//count all plots we could possibly attack from here
 	if (pUnit->isRanged())
@@ -11195,11 +11188,36 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 
 		//ranged units don't like to park next to enemies at all if we cannot attack
 		if (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0)
-			result.iScore = -1;
+			result.iScore -= 10; //no hard exclusion
 	}
 
-	if (result.iScore<0)
-		return result;
+	//the danger value reflects any defensive terrain bonuses
+	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
+	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies()) : 0;
+
+	//can happen with garrisons
+	if (iDanger==INT_MAX)
+	{
+		result.iScore = -10;
+	}
+	else
+	{
+		//try to be more careful with highly promoted units
+		iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 1000;
+
+		//use normalized danger for scoring
+		result.iScore -= (iDanger * 10) / (pUnit->GetCurrHitPoints() + 1);
+	}
+
+	//todo: take into account mobility at the proposed plot
+	//todo: take into account ZOC when ending the turn
+
+	//tiebreakers to follow
+	result.iScore *= 10;
+
+	//try to put our units next to each other
+	if (bEndTurn && currentPlot.getNumAdjacentFriendlies()>0)
+		result.iScore += 5;
 
 	//minor bonus for staying put
 	if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft == pUnit->maxMoves())
@@ -11209,33 +11227,8 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			result.iScore++; //fortification bonus!
 	}
 
-	//will we end the turn here?
-	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
-	if (bEndTurn && currentPlot.getNumAdjacentFriendlies()>0)
-		result.iScore++; //closed line
-
-	//the danger value reflects any defensive terrain bonuses
-	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies()) : 0;
-
-	//can happen with garrisons
-	if (iDanger==INT_MAX)
-	{
-		result.iScore = 1;
-		return result;
-	}
-
-	//try to be more careful with highly promoted units
-	iDanger += (pUnit->getExperienceTimes100()-kPlayer.GetAvgUnitExp100()) / 1000;
-
-	//normalize danger
-	result.iScore -= (iDanger*10)/(pUnit->GetCurrHitPoints()+1);
-
-	//todo: take into account mobility at the proposed plot
-	//todo: take into account ZOC when ending the turn
-
 	//often there are multiple identical units which could move into a plot
 	//in that case we want to prefer the one which has more movement points left
-	result.iScore *= 10; //only as a tiebreaker
 	if (result.eType == STacticalAssignment::A_MOVE)
 		result.iScore += result.iRemainingMoves / 30;
 
@@ -11246,7 +11239,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePlot plot, const CvTacticalPosition& assumedPosition)
 {
 	//default action
-	STacticalAssignment result(unit.iPlotIndex, plot.iPlotIndex, unit.iUnitID, plot.iMovesLeft, unit.isCombatUnit(), -1, STacticalAssignment::A_FINISH);
+	STacticalAssignment result(unit.iPlotIndex, plot.iPlotIndex, unit.iUnitID, plot.iMovesLeft, unit.isCombatUnit(), -INT_MAX, STacticalAssignment::A_FINISH);
 
 	//the plot we're checking right now
 	const CvTacticalPlot& tactPlot = assumedPosition.getTactPlot(plot.iPlotIndex);
@@ -11267,7 +11260,7 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 	case CvTacticalPlot::TP_SECONDLINE:
 	case CvTacticalPlot::TP_THIRDLINE:
 		if (tactPlot.isFriendlyCombatUnit())
-			iScore = 24; //nice. different to first line is worth more than two adjacent units
+			iScore = 24; //nice. different to first line is worth more than two adjacent units (check below)
 		else if (tactPlot.getNumAdjacentFriendlies() > 0)
 			iScore = 3; //dangerous
 		else
@@ -11542,8 +11535,13 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 			move = ScorePlotForSupportUnit(unit, *it, *this);
 			break;
 		}
+		
+		//catch impossible moves
+		if (move.iScore == -INT_MAX)
+			continue;
 
-		if (move.iScore>0)
+		 //for attacking, we want a good move. if we're defending, we don't really have a choice
+		if (move.iScore>0 || eAggression==AL_NONE )
 			possibleMoves.push_back( move );
 
 		if (gTacticalCombatDebugOutput)
