@@ -2463,56 +2463,25 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 				bool bAddUnit = false;
 				if(bCombatUnits)
 				{
-					// If under 100% health, might flee to safety
-					if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints())
-					{
-						int iDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
-						if(pUnit->isBarbarian())
-						{
-							// Barbarian combat units - only naval units flee (but they flee if have taken ANY damage)
-							if(pUnit->getDomainType() == DOMAIN_SEA)
-							{
-								bAddUnit = true;
-							}
-						}
-						else if(iDamage > 0 && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50))
-						{
-							bAddUnit = true;
-						}
-						// Everyone else flees at more than 70% damage
-						else if(MOD_AI_SMART_FLEE_FROM_DANGER && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>70) )
-						{
-							bAddUnit = true;
-						}
-						// Everyone else flees at less than or equal to 50% combat strength
-						else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
-						{
-							bAddUnit = true;
-						}
-						// Everyone flees under (heavy) enemy fire
-						else if(pUnit->isProjectedToDieNextTurn())
-						{
-							bAddUnit = true;
-						}
+					if (!pUnit->IsCombatUnit() || pUnit->IsGarrisoned() || pUnit->getArmyID() != -1)
+						continue;
 
-						//But not if we're in a city!
-						if(pUnit->IsGarrisoned())
+					if(pUnit->isBarbarian())
+					{
+						// Barbarian combat units - only naval units flee (but they flee if have taken ANY damage)
+						if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->getDamage()>0)
 						{
-							bAddUnit = false;
-						}
-						if(pUnit->getArmyID() != -1)
-						{
-							bAddUnit = false;
+							bAddUnit = true;
 						}
 					}
-					// Also flee if danger is really high in current plot (but not if we're barbarian)
-					//Not if we're operational units!
-					else if(!pUnit->isBarbarian() && pUnit->getArmyID() == -1 && !pUnit->IsRecentlyDeployedFromOperation())
+					//if danger is quite high or unit is already damaged
+					else if(iDangerLevel>pUnit->GetMaxHitPoints()/2 || ((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50)
 					{
-						if(iDangerLevel*1.5 > pUnit->GetCurrHitPoints())
-						{
-							bAddUnit = true;
-						}
+						bAddUnit = true;
+					}
+					else if(pUnit->isProjectedToDieNextTurn())
+					{
+						bAddUnit = true;
 					}
 				}
 				else
@@ -7583,7 +7552,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 				// Is able to sweep at target
 				if (pLoopUnit->canAirSweepAt(pTarget->getX(), pTarget->getY()))
 				{
-					int iAttackStrength = pLoopUnit->GetMaxAttackStrength(pLoopUnit->plot(), pTarget, pTarget->GetBestInterceptor(pLoopUnit->getOwner(),pLoopUnit,false,true));
+					int iAttackStrength = pLoopUnit->GetMaxRangedCombatStrength(pTarget->GetBestInterceptor(pLoopUnit->getOwner(),pLoopUnit,false,true),NULL,true,true,pTarget,pLoopUnit->plot());
 					// Mod to air sweep strength
 					iAttackStrength *= (100 + pLoopUnit->GetAirSweepCombatModifier());
 					iAttackStrength /= 100;
