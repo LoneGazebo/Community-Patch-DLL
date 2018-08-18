@@ -693,7 +693,7 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 
 int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iAirAction)
 {
-	if (pUnit->getDomainType() != DOMAIN_AIR)
+	if (pUnit->getDomainType() != DOMAIN_AIR || pUnit->isSuicide())
 		return 0;
 	
 	if (iAirAction == AIR_ACTION_INTERCEPT) // Max damage from a potential air sweep against our intercept

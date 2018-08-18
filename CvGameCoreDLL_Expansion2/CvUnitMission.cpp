@@ -1473,6 +1473,8 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		else if(pkQueueData->eMissionType == CvTypes::getMISSION_AIRPATROL())
 		{
 			hUnit->SetActivityType(ACTIVITY_INTERCEPT);
+			//make sure it's immediately included in the list of interceptors!
+			GET_PLAYER(hUnit->getOwner()).UpdateAreaEffectUnit(hUnit);
 			bDelete = true;
 		}
 

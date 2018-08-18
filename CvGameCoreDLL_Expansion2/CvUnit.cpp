@@ -5954,7 +5954,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 	}
 
-	if (GetDanger() > 0)
+	if (getDomainType()!=DOMAIN_AIR && GetDanger() > 0) //prevent an exploit where players disband units to deny kill yields to their enemies
 		return false;
 
 	if(!bTestVisible)
@@ -17516,7 +17516,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 	}
 	iInterceptorDamage += iInterceptorRoll;
 
-	double fStrengthRatio = (double(iInterceptorStrength) / iAttackerStrength);
+	double fStrengthRatio = (iAttackerStrength>0) ? (double(iInterceptorStrength) / iAttackerStrength) : 1e3;
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
 	if(iAttackerStrength > iInterceptorStrength)
@@ -17545,7 +17545,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 
 	iInterceptorDamage = max(1,iInterceptorDamage);
 
-	CUSTOMLOG("Interceptor damage by player/unit %i/%i is %i", getOwner(), GetID(), iInterceptorDamage);
+	//CUSTOMLOG("Interceptor damage by player/unit %i/%i is %i", getOwner(), GetID(), iInterceptorDamage);
 	return iInterceptorDamage;
 }
 
