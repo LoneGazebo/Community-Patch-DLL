@@ -17599,30 +17599,25 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		
 		int iValue = m_pTraits->GetExtraSupply();
 		const CvCity* pLoopCity;
-		int iNumCities = 0;
 		int iLoop;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			int iSupply = (iStartingSupply + pLoopCity->getCitySupplyFlat() + getCitySupplyFlatGlobal());
 			iValue += iSupply;
-			iNumCities++;
 		}
-
 
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			iTechProgress *= 3;
+			iTechProgress /= 4;
 
-			iNumCities *= iNumCities;
-
-			iNumCities *= (iTechProgress);
-			iNumCities /= 100;
-
-			iValue -= iNumCities;
+			iValue *= 100;
+			iValue /= (100 + iTechProgress);
 		}
 		if (iValue < 0)
 			return 0;
-
+		
 		return iValue;
 	}
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
@@ -32735,16 +32730,12 @@ int CvPlayer::calculateMilitaryMight() const
 	const CvUnit* pLoopUnit;
 	int iLoop;
 
-	int iNumUnits = 0;
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
-		if(iPower <= 0)
-			continue;
-
 #if defined(MOD_BATTLE_ROYALE)
 		if (eDomain == NO_DOMAIN)
 		{
@@ -32756,12 +32747,8 @@ int CvPlayer::calculateMilitaryMight() const
 		}
 #else
 		rtnValue += iPower;
-		iNumUnits++;
 #endif
 	}
-
-	//military power should be based on our average unit strength, not our total strength!
-	rtnValue /= max(1, iNumUnits);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
@@ -35227,7 +35214,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
 			if (pkUnitEntry)
 			{
-				if (!canTrain(eLoopUnit, false, true))
+				if (!pCity->canTrain(eLoopUnit, false, true))
 				{
 					continue;
 				}
@@ -35287,6 +35274,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 			if (iResult != -1)
 			{
 				CvUnit* pUnit = getUnit(iResult);
+				changeNumUnitsSupplyFree(1);
 				pUnit->changeNoSupply(1);
 
 				if (!pUnit->jumpToNearestValidPlot())
@@ -37667,7 +37655,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 		{
 			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
 
-			iTotalNumResource *= 100 + std::min(50, iQuantityMod);
+			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
 			iTotalNumResource /= 100;
 		}
 	}
@@ -48061,9 +48049,6 @@ void CvPlayer::ChangeNumMayaBoosts(int iChange)
 /// Accessor: Get extra times to spread religion for missionaries from this city
 int CvPlayer::GetMissionaryExtraStrength() const
 {
-	if (m_iMissionaryExtraStrength >= 50)
-		return 50;
-
 	return m_iMissionaryExtraStrength;
 }
 

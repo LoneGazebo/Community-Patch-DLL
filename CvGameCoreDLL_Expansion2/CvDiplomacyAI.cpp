@@ -7078,6 +7078,10 @@ bool CvDiplomacyAI::IsPlayerDemandAttractive(PlayerTypes ePlayer)
 	// We can use this deal pointer to form a trade offer
 	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
 
+	pDeal->SetRequestingPlayer(NO_PLAYER);
+	pDeal->SetFromPlayer(GetPlayer()->GetID());
+	pDeal->SetToPlayer(ePlayer);
+
 	int iActualValue = GetPlayer()->GetDealAI()->GetPotentialDemandValue(ePlayer, pDeal);
 
 	pDeal->ClearItems();

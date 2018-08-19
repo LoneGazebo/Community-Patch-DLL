@@ -2253,6 +2253,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	//there are two conditions where we might want to end the turn before proceeding
 	// - next nodes is temporarily blocked because of stacking
 	// - one or more tiles which cannot be entered permanently are ahead
+	// - we would suffer attrition
 
 	bool bBlockAhead = 
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
@@ -2263,7 +2264,18 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	bool bTempPlotAhead =
 		!next->m_kCostCacheData.bCanEnterTerrainPermanent;
 
-	if (bBlockAhead || bTempPlotAhead)
+	bool bAttrition = false;
+	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+	{
+		CvPlot* pCurrentPlot = GC.getMap().plotUnchecked(current->m_iX, current->m_iY);
+		CvPlot* pNextPlot = GC.getMap().plotUnchecked(next->m_iX, next->m_iY);
+		bool bAttritionCurrent = (pCurrentPlot->isOwned() && !pCurrentPlot->IsFriendlyTerritory(pUnitDataCache->m_ePlayerID));
+		bool bAttritionNext = (pNextPlot->isOwned() && !pNextPlot->IsFriendlyTerritory(pUnitDataCache->m_ePlayerID));
+
+		bAttrition = (!bAttritionCurrent && bAttritionNext);
+	}
+
+	if (bBlockAhead || bTempPlotAhead || bAttrition)
 	{
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
 		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );

@@ -379,7 +379,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>4</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
-			<AttackWoundedMod>15</AttackWoundedMod>
+			<AttackWoundedMod>20</AttackWoundedMod>
 			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2752,7 +2752,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_CHARGE</PromotionPrereqOr1>
 			<OrderPriority>4</OrderPriority>
-			<AttackWoundedMod>15</AttackWoundedMod>
+			<AttackWoundedMod>20</AttackWoundedMod>
 			<OpenAttack>10</OpenAttack>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>

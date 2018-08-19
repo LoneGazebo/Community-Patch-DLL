@@ -2203,6 +2203,25 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	if (pCity->IsRazing())
 		iItemValue /= 2;
 
+#if defined(MOD_BALANCE_CORE)
+	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
+	{
+		if (!bOurs && (pCity->IsRazing() || pCity->IsResistance()))
+		{
+			return INT_MAX;
+		}
+		//I traded for this city once before? Don't trade again.
+		if(bFromMe && pCity->IsTraded(GetPlayer()->GetID()))
+		{
+			return INT_MAX;
+		}
+	}
+	if (bFromMe && pCity->GetCityReligions()->IsHolyCityAnyReligion() && !bSurrender)
+	{
+		return INT_MAX;
+	}
+#endif
+	
 	//economic value is important
 	int iEconomicValue = pCity->getEconomicValue(buyingPlayer.GetID());
 
@@ -2258,40 +2277,19 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				}
 			}
 		}
-		//Top half of our cities? Do not sell!
-		if (iBetterThanTotal > (sellingPlayer.getNumCities() / 2))
+		//only sell if it's in the bottom half
+		if (iBetterThanTotal < (sellingPlayer.getNumCities() / 2))
 		{
 			bGood = true;
 		}
 	}
-		
-	
+
 	iItemValue += (iEconomicValue / 2);
 
-	//first some amount for the territory
+	//first some amount for the territory (outside of the first ring)
 	int iInternalBorderCount = 0;
 	int iCityTiles = 0;
-#if defined(MOD_BALANCE_CORE)
-	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
-	{
-		if (!bOurs && (pCity->IsRazing() || pCity->IsResistance()))
-		{
-			return INT_MAX;
-		}
-		//I traded for this city once before? Don't trade again.
-		if(bFromMe && pCity->IsTraded(GetPlayer()->GetID()))
-		{
-			return INT_MAX;
-		}
-	}
-	if (bFromMe && pCity->GetCityReligions()->IsHolyCityAnyReligion() && !bSurrender)
-	{
-		return INT_MAX;
-	}
-#endif
-
-
-	for(int iI = 1; iI < MAX_CITY_PLOTS; iI++)
+	for(int iI = RING1_PLOTS; iI < MAX_CITY_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 		if (!pLoopPlot)
@@ -2314,6 +2312,14 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 
 	//re-use the gold value as a general unit and penalize unhappy citizens
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot * 3;
+
+	//consider strategic (defensive) value
+	CityAttackApproaches landApproach = buyingPlayer.GetMilitaryAI()->EvaluateMilitaryApproaches(pCity,true,false);
+	CityAttackApproaches seaApproach = buyingPlayer.GetMilitaryAI()->EvaluateMilitaryApproaches(pCity,false,true);
+	if (landApproach > ATTACK_APPROACH_NEUTRAL)
+		iItemValue += goldPerPlot * 8;
+	if (seaApproach > ATTACK_APPROACH_NEUTRAL)
+		iItemValue += goldPerPlot * 8;
 
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{
@@ -2469,11 +2475,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		{
 			return MAX_INT;
 		}
-
-		iItemValue -= (iBuyerDistance * 1000);
-
-		if (iItemValue <= 0)
-			return MAX_INT;
 	}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

@@ -261,6 +261,12 @@ VALUES
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 5),
 	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 5);
 
+INSERT INTO Building_GreatWorkYieldChangesLocal
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SEOWON', 'YIELD_SCIENCE', 1),
+	('BUILDING_SEOWON', 'YIELD_PRODUCTION', 1);
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES

@@ -390,7 +390,7 @@
 			<Text>Bletchley Park</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
-			<Text>Requires completion of Rationalism Branch. Receive a free Research Lab in the city. Provides two additional spies, levels up all your existing spies, and reduces enemy spy effectiveness in all Cities by 15%. Your Spies will be immune to the Failure Advanced Action, and will be much more likely to steal [ICON_RESEARCH] Science and disrupt World Wonder [ICON_PRODUCTION] Production via Advanced Actions.</Text>
+			<Text>Requires completion of Rationalism Branch. Receive a free Research Lab in the city, and all Scientist Specialists gain +2 [ICON_RESEARCH] Science. Provides two additional spies, levels up all your existing spies, and reduces enemy spy effectiveness in all Cities by 15%. Your Spies will be immune to the Failure Advanced Action, and will be much more likely to steal [ICON_RESEARCH] Science and disrupt World Wonder [ICON_PRODUCTION] Production via Advanced Actions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
 			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Power, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
@@ -440,14 +440,14 @@
 			<Text>Church</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a Great Work of Music slot in the City. Also makes missionaries more effective.</Text>
+			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a Great Work of Music slot in the City. Also makes missionaries more effective and begins We Love the King Day in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_TEXT">
 			<Text>A church building, often simply called a church, is a building used for religious activities, particularly worship services. The term in its architectural sense is most often used by Christians to refer to their religious buildings but can be used by other religions. In traditional Christian architecture, the church is often arranged in the shape of a Christian cross. When viewed from plan view the longest part of a cross is represented by the aisle and the junction of the cross is located at the altar area.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 40%, and increases the city's resistance to conversion by 10%. Boosts starting Religious Strength of all Missionaries by 5% (up to 50% in total).</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. 15 turns of 'We Love the King Day' in the City when constructed. All [ICON_GREAT_WORK] Great Works in the city generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 40%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 
 
@@ -485,10 +485,10 @@
 			<Text>Order</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, additional City Hit Points and [ICON_STRENGTH] Strength, +10 XP for Military units, and the Morale promotion for your land units.</Text>
+			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, additional City Hit Points and [ICON_STRENGTH] Strength, +15 XP for all Military units, and the Morale promotion for your land Military units. Also grants +2 [ICON_PEACE] Faith when you kill an enemy Unit, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>+15 XP and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for land Military units produced in this city. Grants additional City Hit Points and [ICON_STRENGTH] Strength. Reduces [ICON_HAPPINESS_3] Distress. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
+			<Text>+2 [ICON_PEACE] Faith when you kill an enemy Unit, scaling with Era. +15 XP for all Military units produced in the City, and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for land Military units produced in this city. Grants additional City Hit Points and [ICON_STRENGTH] Strength. Reduces [ICON_HAPPINESS_3] Distress. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
@@ -496,7 +496,7 @@
 
 		<!-- Cathedral/Mosque/Pagoda-->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Poverty. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold. Gain +10 [ICON_GOLD] Gold in the City when its borders expand, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
 			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 10%. +20% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.</Text>
@@ -692,10 +692,10 @@
 			<Text>Seowon were the most common educational institution of Korea during the mid- to late Joseon Dynasty. They were private institutions, and combined the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. +15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages.Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.</Text>
+			<Text>+1 [ICON_RESEARCH] Science from Jungle tiles worked by the City. +1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production from [ICON_GREAT_WORK] Great Works in the City. +15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages.Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Library.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
-			<Text>Unique Korean replacement for the University. Generates more Science than the University, and also generates Faith. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>
+			<Text>Unique Korean replacement for the University. Generates more Science and Production than the University, generates Faith, and is available earlier. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT">
 			<Text>Ger</Text>

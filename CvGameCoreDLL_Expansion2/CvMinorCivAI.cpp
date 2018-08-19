@@ -386,42 +386,18 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetInfluence(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_JFD_LOYALTY, NULL, NO_TERRAIN, this);
 		GET_PLAYER(m_eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluence(), /*bFromQuest*/ true);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", GetInfluence());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetAdmiralPoints() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetAdmiralPoints(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_GREAT_ADMIRAL_POINTS, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", GetAdmiralPoints());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetGeneralPoints() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetGeneralPoints(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_GREAT_GENERAL_POINTS, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GetGeneralPoints());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetCulture() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetCulture(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_CULTURE, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GetCulture());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetExperience() > 0)
 	{
@@ -442,43 +418,19 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	if (GetFaith() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetFaith(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_FAITH, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GetFaith());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetFood() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetFood(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_FOOD, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GetFood());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetGoldenAgePoints() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetGoldenAgePoints(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_GOLDEN_AGE_POINTS, NULL, NO_TERRAIN, this);
 		kPlayer.ChangeGoldenAgeProgressMeter(GetGoldenAgePoints());
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GetGoldenAgePoints());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetGold() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetGold(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GetGold());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetGP() > 0)
 	{
@@ -496,19 +448,12 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 			}
 		}
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetGP(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_JFD_HEALTH, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGP());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetGPGlobal() > 0)
 	{
-		CvCity* pLoopCity;
 		int iLoop;
 		// Find the closest City to us
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
 			if (pLoopCity != NULL)
 			{
@@ -528,52 +473,22 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 			}
 		}
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetGPGlobal(), false, NO_PLAYER, NULL, false, NULL, false, true, false, YIELD_JFD_HEALTH, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGPGlobal());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetHappiness() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetHappiness(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_CULTURE_LOCAL, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_HAPPINESS_1]", GetHappiness());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetTourism() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetTourism(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_TOURISM, NULL, NO_TERRAIN, this);
-		if (m_eAssignedPlayer == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", GetTourism());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetProduction() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetProduction(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_PRODUCTION, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GetProduction());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 	if (GetScience() > 0)
 	{
 		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetScience(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, false, YIELD_SCIENCE, NULL, NO_TERRAIN, this);
-		if (kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = { 0 };
-			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GetScience());
-			SHOW_PLOT_POPUP(kPlayer.getCapitalCity()->plot(), kPlayer.GetID(), text);
-		}
 	}
 
 }

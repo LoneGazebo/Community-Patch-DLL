@@ -21968,7 +21968,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				{
 					int iScienceValue = (kPlayer.GetScience() / iYieldPerScience);
 
-					iYieldValue += max(25, iScienceValue);
+					iYieldValue += min(25, iScienceValue);
 				}
 			}
 
@@ -24159,7 +24159,10 @@ void CvCity::TestBastion()
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 			if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
 			{
-				if (plot()->IsHomeFrontForPlayer(eLoopPlayer) && (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE))
+				if (!plot()->IsHomeFrontForPlayer(eLoopPlayer))
+					continue;
+
+				if (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE)
 				{
 					SetBastion(true);
 					return;

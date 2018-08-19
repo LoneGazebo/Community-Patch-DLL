@@ -7341,7 +7341,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
-CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns)
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -7357,11 +7357,14 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int
 		{
 			// Loop through each of their cities
 			int iLoop;
-			CvCity* pLoopCity;
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
+				if (pUnit->GetDanger(pLoopCity->plot()) > 0)
+					continue;
+
 				//we often have multiple missionaries active at the same time, don't all go to the same target
-				if (std::find(vIgnoreTargets.begin(), vIgnoreTargets.end(), pLoopCity->plot()->GetPlotIndex()) != vIgnoreTargets.end())
+				vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
 				if(pUnit->CanSpreadReligion(pLoopCity->plot()) && pUnit->GetDanger(pLoopCity->plot())==0 && !pLoopCity->IsRazing())
@@ -7389,7 +7392,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<int
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreTargets, int* piTurns)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -7402,16 +7405,17 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<int
 	CvCity* pLoopCity;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity && pUnit->GetDanger(pLoopCity->plot())==0)
-		{
-			//we often have multiple inquisitors active at the same time, don't all go to the same target
-			if (std::find(vIgnoreTargets.begin(), vIgnoreTargets.end(), pLoopCity->plot()->GetPlotIndex()) != vIgnoreTargets.end())
-				continue;
+		if (pUnit->GetDanger(pLoopCity->plot()) > 0)
+			continue;
 
-			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
-			if (iScore>0)
-				vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
-		}
+		//we often have multiple inquisitors active at the same time, don't all go to the same target
+		vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+		if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
+			continue;
+
+		int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
+		if (iScore>0)
+			vTargets.push_back(SPlotWithScore(pLoopCity->plot(),iScore));
 	}
 
 	//this sorts ascending
@@ -7522,7 +7526,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 				{
 #if defined(MOD_BALANCE_CORE)
 					//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
-					if (!m_pPlayer->GetPlayerTraits()->IsUniqueBeliefsOnly() && m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pLoopCity->getOwner() != m_pPlayer->GetID())
+					if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pLoopCity->getOwner() != m_pPlayer->GetID())
 					{
 						CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 						const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
@@ -7960,6 +7964,23 @@ bool CvReligionAI::DoFaithPurchases()
 	}
 	iMaxMissionaries += iBonusValue;
 
+	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)i;
+		if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isAlive())
+			continue;
+
+		if (!pReligions->HasAddedReformationBelief(ePlayer))
+			continue;
+
+		//we want fewer missionaries if reformations are poppping up (this is a good way to judge if we have a chance to spread or not)
+		//we want even fewer if we're reformed.
+		iMaxMissionaries -= m_pPlayer->GetID() == ePlayer ? 3 : 1;
+	}
+
+	//minimum 1 (prevents overflow issues if we're on a big map with tons of religions).
+	iMaxMissionaries = max(1, iMaxMissionaries);
+
 	if (MOD_BALANCE_CORE_QUEST_CHANGES)
 	{
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -7974,7 +7995,7 @@ bool CvReligionAI::DoFaithPurchases()
 
 					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_CONTEST_FAITH))
 					{
-						iMaxMissionaries += 5;
+						iMaxMissionaries += 1;
 					}
 				}
 			}
@@ -7988,28 +8009,21 @@ bool CvReligionAI::DoFaithPurchases()
 	// If our civ benefits from sharing religion, even if we are not the founder, we will always be spreading if we can no longer found (Pius IX)
 	else if (kPlayer.GetPlayerTraits()->GetSharedReligionTourismModifier() > 0 && kPlayer.GetPlayerTraits()->GetExtraMissionaryStrength() > 0 && GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() == 0)
 	{
-		if (iNumMissionaries >= iMaxMissionaries)
-		{
-			bTooManyMissionaries = true;
-		}
+		bTooManyMissionaries = iNumMissionaries >= iMaxMissionaries;
 	}
 	//Let's not spread a non-founder religion outside of our owned cities. That makes us a pawn!
 	else if(eReligion != kPlayer.GetReligions()->GetReligionCreatedByPlayer())
 	{
 		iMaxMissionaries = 1;
-		if(AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/))
+		if (AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/))
 		{
 			iMaxMissionaries = 0;
 			bTooManyMissionaries = true;
 		}
-		else if(iNumMissionaries >= iMaxMissionaries)
-		{
-			bTooManyMissionaries = true;
-		}
 	}
-	else if(iNumMissionaries >= iMaxMissionaries)
+	else
 	{
-		bTooManyMissionaries = true;
+		bTooManyMissionaries = iNumMissionaries >= iMaxMissionaries;
 	}
 
 	//Let's see about our religious flavor...
@@ -8055,9 +8069,13 @@ bool CvReligionAI::DoFaithPurchases()
 		// If in Industrial, see if we want to save for buying a great person, but only if we've already got a Reformation belief and our cities are in good shape.
 		if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(m_pPlayer) && GetDesiredFaithGreatPerson() != NO_UNIT)
 		{
+			//reduce our max missionaries here if we're at this point, fyi.
+			iMaxMissionaries--;
+			bTooManyMissionaries = iNumMissionaries >= iMaxMissionaries;
+
 			if(pMyReligion != NULL)
 			{
-				if(m_pPlayer->IsReformation() && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
+				if(m_pPlayer->IsReformation() || AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/))
 				{
 					UnitTypes eGPType = GetDesiredFaithGreatPerson();
 					if(eGPType != NO_UNIT)
@@ -8218,7 +8236,7 @@ bool CvReligionAI::DoFaithPurchases()
 	bool bStillTooManyMissionaries = (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) > iMaxMissionaries);
 	if((eReligion != NO_RELIGION) && (pMyReligion != NULL) && (pCapital != NULL) && !bStillTooManyMissionaries && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/) && !m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 	{
-		if (!m_pPlayer->GetPlayerTraits()->IsUniqueBeliefsOnly() && m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread())
+		if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread())
 		{
 			if(pMyReligion->m_Beliefs.GetUniqueCiv(m_pPlayer->GetID()) == m_pPlayer->getCivilizationType())
 			{
@@ -8229,7 +8247,7 @@ bool CvReligionAI::DoFaithPurchases()
 		// FIRST PRIORITY
 		//Let's start with the highest-flavor stuff and work our way down...
 		//Are we super religious? Target all cities, and always get Missionaries.
-		if (iFlavorReligion >= 8 && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
+		if (iFlavorReligion >= 10 && HaveNearbyConversionTarget(eReligion, true /*bCanIncludeReligionStarter*/))
 		{
 			if(BuyMissionary(eReligion))
 			{
@@ -8258,7 +8276,7 @@ bool CvReligionAI::DoFaithPurchases()
 		}
 		//SECOND PRIORITY
 		// Have civs nearby to target who didn't start a religion?
-		if((iFlavorReligion >= 5) && HaveNearbyConversionTarget(eReligion, false /*bCanIncludeReligionStarter*/))
+		if((iFlavorReligion >= 7) && HaveNearbyConversionTarget(eReligion, false /*bCanIncludeReligionStarter*/))
 		{
 			if(BuyMissionary(eReligion))
 			{
@@ -9565,7 +9583,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	
 	//Trait-specific things to consider.
 	bool bNoMissionary = m_pPlayer->GetPlayerTraits()->NoTrain(eMissionary);
-	bool bNoNaturalSpread = m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && !m_pPlayer->GetPlayerTraits()->IsUniqueBeliefsOnly();
+	bool bNoNaturalSpread = m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread();
 	bool bForeignSpreadImmune = m_pPlayer->GetPlayerTraits()->IsForeignReligionSpreadImmune();
 
 	int iNumEnhancedReligions = pGameReligions->GetNumReligionsEnhanced();
@@ -10670,7 +10688,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
-	if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && !m_pPlayer->GetPlayerTraits()->IsUniqueBeliefsOnly() && pCity->getOwner() != m_pPlayer->GetID())
+	if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pCity->getOwner() != m_pPlayer->GetID())
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
@@ -10714,7 +10732,19 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 	}
 
 	// Base score based on if we are establishing majority
-	iScore = 100;
+	iScore = max(10,100 - 2*plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()));
+
+	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+	// Better score if our own city or if this city owner isn't starting a religion
+	if(pCity->getOwner() == m_pPlayer->GetID())
+	{
+		iScore += 10;
+	}
+	else if(!kCityPlayer.GetReligions()->HasCreatedReligion())
+	{
+		iScore += 10;
+	}
+
 	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))
 	{
 		iScore *= 2;
@@ -10773,28 +10803,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 			}
 #endif
 		}
-	}
-#endif
-
-	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-	// Much better score if our own city or if this city owner isn't starting a religion
-	if(pCity->getOwner() == m_pPlayer->GetID())
-	{
-		iScore *= 5;
-	}
-	else if(!kCityPlayer.GetReligions()->HasCreatedReligion())
-	{
-		iScore *= 3;
-	}
-
-	// Then subtract distance
-	iScore -= plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY());
-
-#if !defined(MOD_BALANCE_CORE)
-	// Multiplier by how safe it is
-	if(!atWar(m_pPlayer->getTeam(), kCityPlayer.getTeam()))
-	{
-		iScore *= 2;
 	}
 #endif
 

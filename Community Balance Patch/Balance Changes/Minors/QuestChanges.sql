@@ -72,7 +72,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_KILL_CITY_
 
 -- Find Player
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
-UPDATE SmallAwards SET Science = '75' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
+UPDATE SmallAwards SET Science = '50' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
 
 -- Find NW
@@ -87,7 +87,7 @@ UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_GIVE_GOLD'
 
 -- PtP
 UPDATE SmallAwards SET Influence = '30' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
-UPDATE SmallAwards SET CapitalGPPoints = '75' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
+UPDATE SmallAwards SET CapitalGPPoints = '20' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
 UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
 
 -- Culture Contest

@@ -3084,11 +3084,6 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
-	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
-	{
-		SetActivityType(ACTIVITY_AWAKE);
-	}
-
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
@@ -5780,7 +5775,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,std::vector<int>());
+				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,vector<pair<int,int>>());
 				if(pTarget == NULL)
 				{
 					return false;
@@ -5959,7 +5954,7 @@ bool CvUnit::canScrap(bool bTestVisible) const
 		return false;
 	}
 
-	if (GetDanger() > 0)
+	if (getDomainType()!=DOMAIN_AIR && GetDanger() > 0) //prevent an exploit where players disband units to deny kill yields to their enemies
 		return false;
 
 	if(!bTestVisible)
@@ -7708,7 +7703,7 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 		}
 	}
 
-	if(!IsCanDefend(pPlot))
+	if(!IsCanDefend(pPlot) && !IsCanAttack())
 	{
 		return false;
 	}
@@ -17521,7 +17516,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 	}
 	iInterceptorDamage += iInterceptorRoll;
 
-	double fStrengthRatio = (double(iInterceptorStrength) / iAttackerStrength);
+	double fStrengthRatio = (iAttackerStrength>0) ? (double(iInterceptorStrength) / iAttackerStrength) : 1e3;
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
 	if(iAttackerStrength > iInterceptorStrength)
@@ -17550,7 +17545,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 
 	iInterceptorDamage = max(1,iInterceptorDamage);
 
-	CUSTOMLOG("Interceptor damage by player/unit %i/%i is %i", getOwner(), GetID(), iInterceptorDamage);
+	//CUSTOMLOG("Interceptor damage by player/unit %i/%i is %i", getOwner(), GetID(), iInterceptorDamage);
 	return iInterceptorDamage;
 }
 
@@ -28430,7 +28425,7 @@ bool CvUnit::SentryAlert() const
 					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
 					if(NULL != pPlot)
 					{
-						if(pPlot->isRevealed(getTeam()))
+						if(pPlot->isVisible(getTeam()))
 						{
 							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
 							{

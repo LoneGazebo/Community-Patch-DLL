@@ -698,12 +698,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//{
 	//	iDefense *= 15;
 	//}
-	int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
-	int iDefenseMod = 0;
-	if (m_pCity->IsBastion()) iDefenseMod += 10;
-	if (iCrime > 0) iDefenseMod += iUnhappyDefense / 2;
-	if (iUnhappyDefense > 0) { iDefenseMod += iUnhappyDefense*2; if (!m_pCity->IsBastion()) iDefenseMod += iUnhappyDefense; }
-	if (iDefenseMod > 0) iDefense *= iDefenseMod;
+	int iDefenseMod = 100;
+	if (m_pCity->IsBastion()) 
+		iDefenseMod += 50;
+	else
+		iDefenseMod -= 50;
+
+	if (m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling() || m_pCity->IsPuppet())
+		iDefenseMod += 25;
+
+	iDefense *= iDefenseMod;
+	iDefense /= 100;
 
 	iBonus += iDefense;
 
