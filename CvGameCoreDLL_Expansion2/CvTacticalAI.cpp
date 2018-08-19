@@ -10991,9 +10991,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			for (size_t i = 0; i<vDamageRatios.size(); i++)
 			{
 				if (i < iAttacksHereThisTurn)
-					iDamageScore += vDamageRatios[i];
+					//add a small discount, the attack is still hypothetical
+					iDamageScore += (vDamageRatios[i] * 3) / 4;
 				else if (i < iAttacksHereThisTurn+pUnit->getNumAttacks())
-					//if we can't attack now, we don't like it as much
+					//if we can't attack this turn, we don't like it as much
 					iDamageScore += vDamageRatios[i] / 4;
 			}
 
@@ -11791,7 +11792,10 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 //did we capture the primary target plot?
 bool CvTacticalPosition::isComplete() const
 { 
-	return getTactPlot(pTargetPlot->GetPlotIndex()).getType() != CvTacticalPlot::TP_ENEMY;
+	if (eAggression > AL_NONE)
+		return getTactPlot(pTargetPlot->GetPlotIndex()).getType() != CvTacticalPlot::TP_ENEMY;
+	else
+		return availableUnits.empty();
 }
 
 //check that we're not just shuffling around units
@@ -11880,7 +11884,7 @@ void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
 }
 
 CvTacticalPosition::CvTacticalPosition(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget) : 
-	ePlayer(player), dummyPlot(NULL,NO_PLAYER), pTargetPlot(pTarget), eAggression(eAggLvl), iTotalScore(0), parentPosition(NULL), iID(g_siTacticalPositionCount++)
+	ePlayer(player), dummyPlot(NULL,NO_PLAYER), pTargetPlot(pTarget), eAggression(eAggLvl), fUnitNumberRatio(1), iTotalScore(0), iScoreOverParent(0), parentPosition(NULL), iID(g_siTacticalPositionCount++)
 {
 }
 
@@ -12385,14 +12389,32 @@ const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 	return dummyPlot;
 }
 
+struct PrPositionIsBetterHeap
+{
+	//sort by score of the last round of assignments - avoid bias for "deeper" positions
+	bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const 
+	{ 
+		return lhs->getHeapScore() < rhs->getHeapScore(); //intended!
+	}
+};
+
+struct PrPositionIsBetter
+{
+	//sort by cumulative score. only makes sense for "completed" positions
+	bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
+	{ 
+		return lhs->getScore() > rhs->getScore();
+	}
+};
+
 //try to position our units around a target so that we are optimally prepared for counterattacks. target may be friendly or hostile.
 bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, vector<STacticalAssignment>& result)
 {
 	/*
 	abstract:
-
-	if target is friendly, we try to stay within N plots around it with melee units covering ranged units.
-	if target is hostile, we try to come close but no closer than N plots with melee units covering ranged units.
+		agression level is zero here, so we do not plan any attacks. only movement.
+		if target is friendly, we try to stay within N plots around it with melee units covering ranged units.
+		if target is hostile, we try to come close but no closer than N plots with melee units covering ranged units.
 	*/
 
 	result.clear();
@@ -12434,9 +12456,42 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 	//find out which plot is frontline, second line etc
 	initialPosition->updateTacticalPlotTypes();
 
-	//---
+	vector<CvTacticalPosition*> openPositionsHeap;
+	vector<CvTacticalPosition*> closedPositions;
 
-	//---
+	//don't need to call make_heap for a single element
+	openPositionsHeap.push_back(initialPosition);
+
+	while (!openPositionsHeap.empty() && openPositionsHeap.size()<4000 && closedPositions.size()<4000)
+	{
+		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
+		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
+
+		//here the magic happens
+		if (current->makeNextAssignments(3,3))
+		{
+			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
+			{
+				if ((*it)->isComplete())
+					closedPositions.push_back(*it);
+				else
+				{
+					openPositionsHeap.push_back(*it);
+					push_heap(openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap());
+				}
+			}
+		}
+	}
+
+	if (!closedPositions.empty())
+	{
+		//need the predicate, else we sort the pointers by address!
+		sort(closedPositions.begin(), closedPositions.end(), PrPositionIsBetter());
+		result = closedPositions.front()->getAssignments();
+
+		if (gTacticalCombatDebugOutput)
+			closedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+	}
 
 	delete initialPosition;
 	return !result.empty();
@@ -12523,23 +12578,6 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//don't need to call make_heap for a single element
 	openPositionsHeap.push_back(initialPosition);
-	struct PrPositionIsBetterHeap
-	{
-		//sort by score of the last round of assignments - avoid bias for "deeper" positions
-		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const 
-		{ 
-			return lhs->getHeapScore() < rhs->getHeapScore(); //intended!
-		}
-	};
-
-	struct PrPositionIsBetter
-	{
-		//sort by cumulative score. only makes sense for "completed" positions
-		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
-		{ 
-			return lhs->getScore() > rhs->getScore();
-		}
-	};
 
 	int iMaxChoicesPerUnit = 8;
 	while (!openPositionsHeap.empty() && int(completedPositions.size()+finishedPositions.size())<iMaxFinishedPositions)
@@ -12547,25 +12585,28 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
-		//done?
-		if (current->isComplete())
-		{
-			completedPositions.push_back(current);
-		}
 		//here the magic happens
-		else if (current->makeNextAssignments(iMaxBranches,iMaxChoicesPerUnit))
+		if (current->makeNextAssignments(iMaxBranches,iMaxChoicesPerUnit))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
-				openPositionsHeap.push_back(*it);
-				push_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
+				if ((*it)->isComplete())
+					completedPositions.push_back(*it);
+				else
+				{
+					openPositionsHeap.push_back(*it);
+					push_heap(openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap());
+				}
 			}
 		}
 		//if we cannot add further moves, throw away positions without offensive moves
-		else if (current->isOffensive())
-			finishedPositions.push_back(current);
 		else
-			discardedPositions++;
+		{
+			if (current->isOffensive())
+				finishedPositions.push_back(current);
+			else
+				discardedPositions++;
+		}
 
 		if (openPositionsHeap.size()>5000 || discardedPositions>5000)
 		{
