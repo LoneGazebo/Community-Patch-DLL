@@ -3770,7 +3770,15 @@ void CvTacticalAI::ReviewUnassignedUnits()
 		if (pUnit && !pUnit->TurnProcessed())
 		{
 			pUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
+			//there shouldn't be any danger but just in case
+			CvPlot* pSafePlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
+			if (pSafePlot)
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pSafePlot->getX(),pSafePlot->getY());
+
+			if (pUnit->canMove())
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+
 			pUnit->SetTurnProcessed(true);
 		}
 	}
@@ -5738,7 +5746,16 @@ void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 	if(pUnit && pUnit->canMoveInto(*pTargetPlot, CvUnit::MOVEFLAG_DESTINATION ))
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-		pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+		//now that the neighbor plots are revealed, maybe it's better to retreat?
+		CvPlot* pSafePlot = NULL;
+		if (pUnit->GetDanger() > pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT())
+			pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,false,false);
+
+		if (pSafePlot)
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
+		else
+			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 		if (!pUnit->canMove())
 			UnitProcessed(pUnit->GetID());
@@ -11247,31 +11264,25 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 	if (!tactPlot.isValid())
 		return result;
 
-	//todo: take into account sight / mobility from plot
-
 	int iScore = 0;
 	switch (tactPlot.getType())
 	{
 	case CvTacticalPlot::TP_ENEMY:
-		iScore = -1; //don't ever go there, wouldn't work anyway
+		return result; //don't ever go there, wouldn't work anyway
 		break;
 	case CvTacticalPlot::TP_FRONTLINE:
-		iScore = tactPlot.isFriendlyCombatUnit() ? 2 : -1; //dangerous, only in emergencies
+		if (tactPlot.isFriendlyCombatUnit())
+			iScore = 2; //dangerous, only in emergencies
 		break;
 	case CvTacticalPlot::TP_SECONDLINE:
 	case CvTacticalPlot::TP_THIRDLINE:
 		if (tactPlot.isFriendlyCombatUnit())
 			iScore = 24; //nice. different to first line is worth more than two adjacent units (check below)
-		else if (tactPlot.getNumAdjacentFriendlies() > 0)
-			iScore = 3; //dangerous
-		else
-			iScore = -1; //nobody around? don't go there
 		break;
 	case CvTacticalPlot::TP_FARAWAY:
+	default:
 		iScore = 1;	//possible but not really useful
 		break;
-	default:
-		iScore = 10;
 	}
 
 	if (plot.iPlotIndex != unit.iPlotIndex)
@@ -11280,28 +11291,29 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 		result.iRemainingMoves = plot.iMovesLeft;
 	}
 
-	//points for supported units
+	//points for supported units (count only the first ring ...)
 	//todo: make sure they intend to stay there. movement phase and attack phase?
-	if (iScore>0)
+	iScore += 10*tactPlot.getNumAdjacentFriendlies();
+
+	//avoid overlap. this works only because we eliminated our own aura before calling this function!
+	if (tactPlot.hasSupportBonus())
+		iScore/=2;
+
+	//if we intend to stay there, there must be a defender which intends to stay
+	if (plot.iMovesLeft == 0 || plot.iPlotIndex == unit.iPlotIndex)
 	{
-		iScore += 10*tactPlot.getNumAdjacentFriendlies();
+		CvUnit* pUnit = GET_PLAYER(assumedPosition.getPlayer()).getUnit(unit.iUnitID);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(plot.iPlotIndex);
 
-		//avoid overlap. this works only because we eliminated our own aura before calling this function!
-		if (tactPlot.hasSupportBonus())
-			iScore/=2;
+		int iDanger = pUnit->GetDanger(pPlot,assumedPosition.getKilledEnemies());
+		if (iDanger == INT_MAX)
+			iScore -= 200;
 
-		//if we intend to stay there, there must be a defender which intends to stay
-		if (plot.iMovesLeft == 0 || plot.iPlotIndex == unit.iPlotIndex)
+		if (!pPlot->isFriendlyCity(*pUnit,true)) //check only applies outside of cities
 		{
-			CvUnit* pUnit = GET_PLAYER(assumedPosition.getPlayer()).getUnit(unit.iUnitID);
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(plot.iPlotIndex);
-			
-			if (!pPlot->isFriendlyCity(*pUnit,true)) //check only applies outside of cities
-			{
-				STacticalAssignment defenderAssignment = assumedPosition.findBlockingUnitAtPlot(tactPlot.getPlotIndex());
-				if (defenderAssignment.iUnitID == 0 || defenderAssignment.iRemainingMoves > 0)
-					iScore = 0;
-			}
+			STacticalAssignment defenderAssignment = assumedPosition.findBlockingUnitAtPlot(tactPlot.getPlotIndex());
+			if (defenderAssignment.iUnitID == 0 || defenderAssignment.iRemainingMoves > 0)
+				iScore -= 100;
 		}
 	}
 
@@ -11744,10 +11756,14 @@ bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& mov
 	if (move.eType != STacticalAssignment::A_MOVE)
 		return false;
 
-	//find out if there was a unit there initially and if it's still there
+	//find out if there is a combat unit there
 	const CvTacticalPlot& tactPlot = getTactPlot(move.iToPlotIndex);
-	if (tactPlot.isValid())
-		return tactPlot.isFriendlyCombatUnit();
+	if (tactPlot.isValid() && tactPlot.isFriendlyCombatUnit())
+	{
+		vector<SUnitStats>::const_iterator itUnit = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(move.iUnitID));
+		if (itUnit != availableUnits.end() && itUnit->eStrategy != SUnitStats::MS_SUPPORT) //if it's a combat unit moving in, there's a conflict
+			return true;
+	}
 
 	return false; //no info, assume it's ok
 }
