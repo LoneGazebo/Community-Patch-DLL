@@ -9900,7 +9900,6 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, Reacha
 		return false;
 
 	int iRange = min(5,max(1,pUnit->GetRange()));
-
 	for (ReachablePlots::iterator base=basePlots.begin(); base!=basePlots.end(); ++base)
 	{
 		CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked( base->iPlotIndex );
@@ -9980,9 +9979,10 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowDisen
 		iDamageDealt = GetSimulatedDamageFromAttackOnUnit(vEnemies[i], pUnit, vEnemies[i]->plot(), pUnit->plot(), iDamageReceived);
 		if (iDamageDealt == vEnemies[i]->GetCurrHitPoints())
 		{
-			iDamageDealt += 20; //bonus for a kill!
 			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
 				iDamageReceived = max(0, iDamageReceived - pUnit->getHPHealedIfDefeatEnemy());
+			if (iDamageReceived < pUnit->GetCurrHitPoints())
+				iDamageDealt += 30; //bonus for a kill!
 		}
 
 		int iScore = (1000 * iDamageDealt) / (iDamageReceived + 10);
@@ -10988,17 +10988,18 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			}
 		}
 
+		//how often can we attack?
+		size_t iAttacksHereThisTurn = (size_t)NumAttacksForUnit(plot.iMovesLeft, iMaxAttacks);
+		if (result.eType == STacticalAssignment::A_FINISH)
+			iAttacksHereThisTurn = 0;
+
 		int iDamageScore = 0;
 		if (!vDamageRatios.empty())
 		{
 			//the best target comes last
 			std::sort(vDamageRatios.begin(), vDamageRatios.end());
 
-			//how often can we attack?
-			size_t iAttacksHereThisTurn = (size_t)NumAttacksForUnit(plot.iMovesLeft, iMaxAttacks);
-			if (result.eType == STacticalAssignment::A_FINISH)
-				iAttacksHereThisTurn = 0;
-
+			//if we have attacks to spare, pretend we'll hit the same target again
 			while (vDamageRatios.size()<iAttacksHereThisTurn)
 				vDamageRatios.push_back( vDamageRatios.back() );
 
@@ -11018,22 +11019,13 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			//ranged specialties (don't check range because it's about skirmishers as well)
 			if (pUnit->isRanged())
 			{
-				if (iAttacksHereThisTurn>0)
-				{
-					//try to stay away from enemies if we can attack from afar
-					if (currentPlot.getNumAdjacentEnemies()>0 && iMaxRange>1)
-						iDamageScore /= 4;
+				//try to stay away from enemies if we can attack from afar
+				if (currentPlot.getNumAdjacentEnemies()>0 && iMaxRange>1)
+					iDamageScore /= 4;
 
-					//ranged units are vulnerable without melee
-					if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
-						iDamageScore /= 4;
-				}
-				else if (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0)
-				{
-					//ranged units don't like to park next to enemies at all if we cannot attack
-					result.iScore = -1;
-					return result;
-				}
+				//ranged units are vulnerable without melee
+				if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
+					iDamageScore /= 4;
 			}
 			else //melee
 			{
@@ -11099,6 +11091,17 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		else 
 			//we move to the new plot
 			iDanger = pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies());
+
+		if (pUnit->isRanged())
+		{
+			//ranged units don't like to park next to enemies at all if we cannot attack
+			//however, if we're on a coastal plot, it's possible first line is actually harmless, so check danger too
+			if (iDanger>0 && (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0))
+			{
+				result.iScore = -1;
+				return result;
+			}
+		}
 	}
 
 	//can happen with garrisons
