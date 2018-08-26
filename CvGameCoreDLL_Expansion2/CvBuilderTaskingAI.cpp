@@ -531,7 +531,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			// mark nodes and reset values
 			pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
 			pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-			pPlot->SetBuilderAIScratchPadValue(1000);
+			pPlot->SetBuilderAIScratchPadValue(10);
 			pPlot->SetBuilderAIScratchPadRoute(eRoute);
 
 			// add nodes that are not in territory to extra list
@@ -593,7 +593,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		// mark nodes and reset values
 		pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
 		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-		pPlot->SetBuilderAIScratchPadValue(1000);
+		pPlot->SetBuilderAIScratchPadValue(100);
 		pPlot->SetBuilderAIScratchPadRoute(eRoute);
 
 		// add nodes that are not in territory to extra list
@@ -670,7 +670,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		// mark nodes and reset values
 		pPlot->SetBuilderAIScratchPadTurn(iGameTurn);
 		pPlot->SetBuilderAIScratchPadPlayer(m_pPlayer->GetID());
-		pPlot->SetBuilderAIScratchPadValue(1000);
+		pPlot->SetBuilderAIScratchPadValue(10);
 		pPlot->SetBuilderAIScratchPadRoute(eRoute);
 	}
 }
@@ -1536,9 +1536,9 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			}
 		}
 
-		if(GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_LEAVE_FORESTS))
+		if(GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_LEAVE_FORESTS) && GET_PLAYER(pUnit->getOwner()).isHuman())
 		{
-			if(eFeature != NO_FEATURE)
+			if(eFeature != NO_FEATURE && eResource == NO_RESOURCE)
 			{
 				if(pkBuild->isFeatureRemove(eFeature))
 				{
@@ -2374,8 +2374,8 @@ int CvBuilderTaskingAI::FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot)
 #endif
 
 #if 1
-	// Always return the raw distance
-	return iPlotDistance / pUnit->baseMoves();
+	// for performance, use the plot distance + 1
+	return (iPlotDistance+1) / pUnit->baseMoves();
 #else
 	if(iPlotDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
 	{

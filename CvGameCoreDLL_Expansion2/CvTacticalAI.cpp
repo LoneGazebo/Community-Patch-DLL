@@ -11096,7 +11096,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		{
 			//ranged units don't like to park next to enemies at all if we cannot attack
 			//however, if we're on a coastal plot, it's possible first line is actually harmless, so check danger too
-			if (iDanger>0 && (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0))
+			if (iDanger>pUnit->GetCurrHitPoints()/2 && (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0))
 			{
 				result.iScore = -1;
 				return result;
@@ -11116,7 +11116,8 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		iDanger += 10;
 
 	//try to be more careful with highly promoted units
-	iDanger += (pUnit->getExperienceTimes100()-kPlayer.GetAvgUnitExp100()) / 1000;
+	if (iDanger>0)
+		iDanger += (pUnit->getExperienceTimes100()-kPlayer.GetAvgUnitExp100()) / 1000;
 
 	//penalty for high danger plots
 	//todo: take into account self damage from previous attacks
@@ -11169,9 +11170,9 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	//TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE
 	int iPlotTypeScores[5][5] = {
 		{ -1,-1,-1,-1,-1 }, //none (should not occur)
-		{  1,-1, 8, 4, 2 }, //firstline
-		{  1,-1, 1, 8, 4 }, //secondline
-		{  1,-1, 1, 4, 8 }, //thirdline
+		{  1,-1, 8, 6, 4 }, //firstline
+		{  1,-1, 1, 8, 8 }, //secondline
+		{  1,-1, 1, 8, 8 }, //thirdline
 		{  1,-1, 1, 4, 4 }, //support (should not occur)
 	};
 	result.iScore = iPlotTypeScores[unit.eStrategy][currentPlot.getType()];
@@ -11194,8 +11195,12 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			result.iScore = -10;
 	}
 
+	//the danger value reflects any defensive terrain bonuses
+	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
+	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies()) : 0;
+
 	//count all plots we could possibly attack from here
-	if (pUnit->isRanged())
+	if (pUnit->isRanged() && bEndTurn)
 	{
 		if (pUnit->isNativeDomain(pCurrentPlot)) //if we could attack from here
 		{
@@ -11212,16 +11217,12 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 			result.iScore -= 10; //no hard exclusion
 	}
 
-	//the danger value reflects any defensive terrain bonuses
-	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
-	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot, assumedPosition.getKilledEnemies()) : 0;
-
 	//can happen with garrisons
 	if (iDanger==INT_MAX)
 	{
 		result.iScore = -10;
 	}
-	else
+	else if (iDanger>0)
 	{
 		//try to be more careful with highly promoted units
 		iDanger += (pUnit->getExperienceTimes100() - kPlayer.GetAvgUnitExp100()) / 1000;
@@ -12256,8 +12257,14 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 			else if (pUnit->GetRange()==2)
 				eStrategy = SUnitStats::MS_SECONDLINE;
 			else
-				//this is also for melee
-				eStrategy = SUnitStats::MS_FIRSTLINE;
+			{
+				//the unit AI type is unreliable, so it's a but tricky to handle melee vs skirmishers
+				if (pUnit->isRanged())
+					//if we don't intend to attack, treat skirmishers as second line units
+					eStrategy = (eAggression > AL_NONE) ? SUnitStats::MS_FIRSTLINE : SUnitStats::MS_SECONDLINE;
+				else
+					eStrategy = SUnitStats::MS_FIRSTLINE;
+			}
 			break;
 
 		//explorers are an edge case, the visibility can be useful, so include them
