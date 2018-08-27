@@ -178,6 +178,7 @@
 			<PortraitIndex>3</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
+			<WLTKDTurns>15</WLTKDTurns>
 		
 	</Row>
 		<!--Mandir-->
