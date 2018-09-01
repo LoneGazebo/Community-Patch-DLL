@@ -1472,7 +1472,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
 			if (eExistingImprovement != NO_IMPROVEMENT)
 			{
-				if (pPlot->HasSpecialImprovement() || GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION))
+				if (pPlot->HasSpecialImprovement() || (GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && GET_PLAYER(pUnit->getOwner()).isHuman()))
 				{
 					if(m_bLogging){
 						CvString strTemp;

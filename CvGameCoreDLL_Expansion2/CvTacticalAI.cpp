@@ -6522,7 +6522,7 @@ void CvTacticalAI::ExecuteHeals()
 
 		//ranged attack before fleeing
 		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>1 && pUnit->canRangeStrike())
-			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
+			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,pUnit->getMoves()>2);
 
 		//find a suitable spot for healing
 		if (pUnit->getDomainType() == DOMAIN_LAND)

@@ -1625,7 +1625,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		}
 #else
 		// Spread religion if there is any city that needs it
-		if (GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/))
+		if (GetReligionAI()->ChooseProphetConversionCity())
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -1642,15 +1642,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	{
 		//always enhance
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		// Spread religion if there is a city that needs it CRITICALLY
-		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
-		}
-		else
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		}
 	}
 
 	// CASE 3: No religion for me yet

@@ -4941,7 +4941,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 		case GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION:
 			{
 				int iTargetTurns;
-				CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseProphetConversionCity(false, pUnit, &iTargetTurns);
+				CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseProphetConversionCity(pUnit, &iTargetTurns);
 				if(pTarget)
 				{
 					if(iTargetTurns==0)
