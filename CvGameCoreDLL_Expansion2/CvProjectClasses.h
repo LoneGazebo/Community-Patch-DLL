@@ -45,6 +45,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	PolicyTypes GetFreePolicy() const;
 	BuildingClassTypes  GetFreeBuilding() const;
+	int GetNumRequiredTier3Tenets() const;
 	bool InfluenceAllRequired() const;
 	bool IdeologyRequired() const;
 #endif
@@ -77,6 +78,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eFreeBuilding;
 	PolicyTypes m_eFreePolicy;
+	int m_iNumRequiredTier3Tenets;
 	bool m_bInfluenceAllRequired;
 	bool m_bIdeologyRequired;
 #endif

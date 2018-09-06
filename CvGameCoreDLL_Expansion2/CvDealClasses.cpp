@@ -4051,12 +4051,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #if defined(MOD_BALANCE_CORE)
 					if(MOD_BALANCE_CORE)
 					{
-						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
+						if (GET_PLAYER(eAcceptedToPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedFromPlayer) >= 25 && !bDone)
 						{
 							GET_PLAYER(eAcceptedToPlayer).DoWarVictoryBonuses();
 							bDone = true;
 						}
-						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
+						else if (GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetWarScore(eAcceptedToPlayer) >= 25 && !bDone)
 						{
 							GET_PLAYER(eAcceptedFromPlayer).DoWarVictoryBonuses();
 							bDone = true;

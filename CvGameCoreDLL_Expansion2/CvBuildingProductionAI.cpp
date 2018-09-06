@@ -302,7 +302,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 			if (iNumCivsAlreadyBuilding > 0)
 			{
-				iValue -= (200 * iNumCivsAlreadyBuilding);
+				iValue -= (150 * iNumCivsAlreadyBuilding);
 			}
 
 			// Adjust weight for this wonder down based on number of other players currently working on it
@@ -322,6 +322,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iValue -= (iNumOthersConstructing * 50);
 			}
+
+			if (iValue <= 0)
+				return 0;
 		}
 	}
 	else
@@ -1008,8 +1011,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			case YIELD_FAITH:
 				if (bSmall && kPlayer.GetReligions()->HasCreatedPantheon())
 				{
-					iYieldValue /= 2;
-					iYieldTrait /= 2;
+					iYieldValue /= 3;
+					iYieldTrait /= 3;
 				}
 				if (iReligion > 0)
 				{

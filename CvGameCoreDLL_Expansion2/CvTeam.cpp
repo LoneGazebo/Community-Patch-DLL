@@ -1357,8 +1357,12 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	if(isAtWar(eTeam))
+	if (GetID() != BARBARIAN_TEAM && eTeam != BARBARIAN_TEAM && !canDeclareWar(eTeam, eOriginatingPlayer))
 	{
+		if (eOriginatingPlayer != NO_PLAYER)
+		{
+			GET_PLAYER(eOriginatingPlayer).GetHomelandAI()->LogHomelandMessage("Tried to declare war, but was blocked by rules! Whoops.");
+		}
 		return;
 	}
 

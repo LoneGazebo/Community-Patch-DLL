@@ -1561,8 +1561,6 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 10;
-
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	CvAssert(pkResourceInfo != NULL);
 	if (pkResourceInfo == NULL)
@@ -1572,19 +1570,12 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	int iResult = 0;
-	int iFlavors = 0;
-
-	int iHappinessFromResource = pkResourceInfo->getHappiness();
-	//Let's modify this value to make it more clearly pertain to current happiness for luxuries.
-	iHappinessFromResource = GetPlayer()->GetBaseLuxuryHappiness();
-	if (iHappinessFromResource < 1)
-	{
-		iHappinessFromResource = 1;
-	}
-	iItemValue += (iHappinessFromResource * iNumTurns);	// Ex: 1 Silk for 2 Happiness * 30 turns * 2 = 120
+	int iHappinessFromResource = max(1,GetPlayer()->GetBaseLuxuryHappiness());
+	int iItemValue = 10 + (iHappinessFromResource * iNumTurns);
 
 	//Let's look at flavors for resources
+	int iFlavorResult = 0;
+	int iFlavors = 0;
 	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
 		int iResourceFlavor = pkResourceInfo->getFlavorValue((FlavorTypes)i);
@@ -1592,48 +1583,31 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 			//Has to be above average to affect price. Will usually result in a x2-x3 modifier
-			iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 6);
+			iFlavorResult += ((iResourceFlavor + iPersonalityFlavorValue) / 6);
 			iFlavors++;
 		}
 	}
-	if ((iResult > 0) && (iFlavors > 0))
+	if ((iFlavorResult > 0) && (iFlavors > 0))
 	{
 		//Get the average mulitplier from the number of Flavors being considered.
-		iResult = (iResult / iFlavors);
-		if (iResult > 0)
-		{
-			iItemValue *= iResult;
-		}
+		iItemValue *= (iFlavorResult / iFlavors);
 	}
 			
 	if (bFromMe)
 	{
-		int iGPT = iCurrentNetGoldOfReceivingPlayer;
-		//Every 10 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		iGPT /= 10;
-		if ((iGPT > 0) && (iGPT > iItemValue))
-		{
-			iGPT = iItemValue;
-		}
+		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/3.));
 		if (iGPT > 0)
-		{
-			iItemValue += iGPT;
-		}
+			iItemValue += min(iGPT,iItemValue);
 	}
 	else
 	{
-		int iGPT = iCurrentNetGoldOfReceivingPlayer;
-		//Every 15 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		iGPT /= 15;
-		if ((iGPT > 0) && (iGPT > iItemValue))
-		{
-			iGPT = iItemValue;
-		}
+		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
 		if (iGPT > 0)
-		{
-			iItemValue += iGPT;
-		}
+			iItemValue += min(iGPT,iItemValue);
 	}
+
 	if (bFromMe)
 	{
 		if (GetPlayer()->IsEmpireUnhappy() && GetPlayer()->getNumResourceAvailable(eResource) == 1)
@@ -1646,9 +1620,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 		if (GetPlayer()->getNumResourceAvailable(eResource) == 1)
 		{
-			int iFactor = 3;
-			if (GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention())
-				iFactor -= 1;
+			int iFactor = GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() ? 2 : 3;
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetCurrentReligion(), GetPlayer()->GetID());
 			if (pReligion)
 			{
@@ -1853,7 +1825,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	int iResult = 0;
+	int iFlavorResult = 0;
 	int iFlavors = 0;
 
 	//Let's look at flavors for resources
@@ -1864,49 +1836,29 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		{
 			int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 			//Has to be above average to affect price. Will usually result in a x2-x3 modifier
-			iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 5);
+			iFlavorResult += ((iResourceFlavor + iPersonalityFlavorValue) / 5);
 			iFlavors++;
 		}
 	}
-	if ((iResult > 0) && (iFlavors > 0))
-	{
-		//Get the average mulitplier from the number of Flavors being considered.
-		iResult = (iResult / iFlavors);
-		if (iResult > 0)
-		{
-			iItemValue *= iResult;
-		}
-	}
+	//Get the average mulitplier from the number of Flavors being considered.
+	if ((iFlavorResult > 0) && (iFlavors > 0))
+		iItemValue *= (iFlavorResult / iFlavors);
 
 	if (bFromMe)
 	{
-		int iGPT = iCurrentNetGoldOfReceivingPlayer;
-		//Every 20 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		iGPT /= 20;
-		if ((iGPT > 0) && (iGPT > iItemValue))
-		{
-			iGPT = iItemValue;
-		}
+		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
 		if (iGPT > 0)
-		{
-			iItemValue += iGPT;
-		}
+			iItemValue += min(iGPT,iItemValue);
 	}
 	else
 	{
-		int iGPT = iCurrentNetGoldOfReceivingPlayer;
-		//Every 30 gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		iGPT /= 30;
-		if ((iGPT > 0) && (iGPT > iItemValue))
-		{
-			iGPT = iItemValue;
-		}
+		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
+		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/5.));
 		if (iGPT > 0)
-		{
-			iItemValue += iGPT;
-		}
+			iItemValue += min(iGPT,iItemValue);
 	}
-		
+	
 	if (bFromMe)
 	{
 		if (!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))

@@ -16713,24 +16713,32 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Offer to an AI player
 		else
 		{
-			CvAIOperation* pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetShowOfForceOperation(GetPlayer()->GetID());
-			if(!pOperation)
-			{
-				pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetSneakAttackOperation(GetPlayer()->GetID());
-			}
-				
-			if((pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 75) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMusteringForAttack(GetPlayer()->GetID()))
-			{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).declareWar(GetPlayer()->getTeam(), false, ePlayer);
-#else
-				GET_TEAM(GET_PLAYER(ePlayer).getTeam()).declareWar(GetPlayer()->getTeam());
-#endif
-			}
-			else
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam()))
 			{
 				SetPlayerMadeMilitaryPromise(ePlayer, true);
 				SetPlayerMilitaryPromiseCounter(ePlayer, 0);
+			}
+			else
+			{
+				CvAIOperation* pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetShowOfForceOperation(GetPlayer()->GetID());
+				if (!pOperation)
+				{
+					pOperation = GET_PLAYER(ePlayer).GetMilitaryAI()->GetSneakAttackOperation(GetPlayer()->GetID());
+				}
+
+				if ((pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 75) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMusteringForAttack(GetPlayer()->GetID()))
+				{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).declareWar(GetPlayer()->getTeam(), false, ePlayer);
+#else
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).declareWar(GetPlayer()->getTeam());
+#endif
+				}
+				else
+				{
+					SetPlayerMadeMilitaryPromise(ePlayer, true);
+					SetPlayerMilitaryPromiseCounter(ePlayer, 0);
+				}
 			}
 		}
 #endif

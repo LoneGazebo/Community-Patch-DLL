@@ -7120,7 +7120,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			}
 		}
 	}
-	m_pCity->SetBaseTourismBeforeModifiers(iBase);
+	m_pCity->SetBaseTourismBeforeModifiers(max(0, iBase));
 	return;
 }
 void CvCityCulture::CalculateBaseTourism()
@@ -7209,7 +7209,7 @@ void CvCityCulture::CalculateBaseTourism()
 		iBase *= (100 + iModifier);
 		iBase /= 100;
 	}
-	m_pCity->SetBaseTourism(iBase);
+	m_pCity->SetBaseTourism(max(0, iBase));
 }
 #endif
 /// Compute raw tourism from this city

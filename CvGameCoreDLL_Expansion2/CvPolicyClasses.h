@@ -97,6 +97,7 @@ public:
 	int GetHappinessPerXPopulationGlobal() const;
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
+	bool IsNoXPLossUnitPurchase() const;
 	bool IsCorporationOfficesAsFranchises() const;
 	bool IsCorporationFreeFranchiseAbovePopular() const;
 	bool IsCorporationRandomForeignFranchise() const;
@@ -516,6 +517,7 @@ private:
 	int m_iHappinessPerXPopulationGlobal;
 	EraTypes m_ePolicyEraUnlock;
 	int m_iIdeologyPoint;
+	bool m_bNoXPLossUnitPurchase;
 #endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;

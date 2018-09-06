@@ -404,7 +404,7 @@
 			<SpecialistCount>1</SpecialistCount>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<NeverCapture>true</NeverCapture>
+			<NeverCapture>false</NeverCapture>
 			<PortraitIndex>49</PortraitIndex>
 		</Row>
 		<Row>

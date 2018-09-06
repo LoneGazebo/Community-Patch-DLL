@@ -48,7 +48,7 @@ SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. T
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom slightly. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom slightly. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_HELP';
 
 UPDATE Language_en_US
@@ -56,7 +56,7 @@ SET Text = 'The Arena reduces Boredom in a city, grants additional Culture, and 
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General (+3 [ICON_GREAT_ADMIRAL] Great Admiral points if Naval) points and +3 [ICON_GOLDEN_AGE] Golden Age points. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold. Reduces [ICON_HAPPINESS_3] Boredom slightly. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SET Text = 'Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General (+3 [ICON_GREAT_ADMIRAL] Great Admiral points if Naval) points and +3 [ICON_GOLDEN_AGE] Golden Age points. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold. Reduces [ICON_HAPPINESS_3] Boredom slightly. Barracks, Forge, and Armory in City: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP';
 
 UPDATE Language_en_US

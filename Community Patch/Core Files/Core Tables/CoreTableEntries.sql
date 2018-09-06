@@ -604,10 +604,16 @@ ALTER TABLE Beliefs ADD COLUMN 'CityScalerLimiter' INTEGER DEFAULT 0;
 ALTER TABLE Beliefs ADD COLUMN 'FollowerScalerLimiter' INTEGER DEFAULT 0;
 
 -- Ignore Policy Requirements (number) for wonders up to a set era
-ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirementsUpToEra' BOOLEAN DEFAULT 0;
+ALTER TABLE Beliefs ADD COLUMN 'IgnorePolicyRequirements' BOOLEAN DEFAULT 0;
 
 -- Increase yields from friendship/alliance for CS sharing your religion by x%
 ALTER TABLE Beliefs ADD COLUMN 'CSYieldBonusFromSharedReligion' INTEGER DEFAULT 0;
+
+-- Increase happiness from owned foreign spies active in other cities
+ALTER TABLE Beliefs ADD COLUMN 'HappinessFromForeignSpies' INTEGER DEFAULT 0;
+
+-- Decrease inquisitor cost. What it says on the tin ya git.
+ALTER TABLE Beliefs ADD COLUMN 'InquisitorCostModifier' INTEGER DEFAULT 0;
 
 
 -- New Buildings
@@ -623,6 +629,9 @@ ALTER TABLE Buildings ADD COLUMN 'NationalFollowerPopRequired' INTEGER DEFAULT 0
 
 -- Global Religious Followers Needed for a Building
 ALTER TABLE Buildings ADD COLUMN 'GlobalFollowerPopRequired' INTEGER DEFAULT 0;
+
+-- Reduces the value above by x value (a % reduction)
+ALTER TABLE Buildings ADD COLUMN 'ReformationFollowerReduction' INTEGER DEFAULT 0;
 
 -- Gives all current and future missionaries an extra x spread(s)
 ALTER TABLE Buildings ADD COLUMN 'ExtraMissionarySpreadsGlobal' INTEGER DEFAULT 0;
@@ -728,6 +737,9 @@ ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
 
 -- Allows you to set whether or not partisans spawn from razing cities (via policy)
 ALTER TABLE Policies ADD COLUMN 'NoPartisans' BOOLEAN DEFAULT 0;
+
+-- Allows you to set whether or not units gain full XP when purchased
+ALTER TABLE Policies ADD COLUMN 'NoXPLossUnitPurchase' BOOLEAN DEFAULT 0;
 
 -- Allows you to set a % of warscore that is added to a tourism bonus against a civ
 ALTER TABLE Policies ADD COLUMN 'PositiveWarScoreTourismMod' INTEGER DEFAULT 0;
@@ -1043,6 +1055,9 @@ ALTER TABLE Projects ADD COLUMN 'FreePolicyIfFirst' TEXT DEFAULT NULL;
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IdeologyRequired' BOOLEAN DEFAULT 0;
 
+-- require x tier 3 tenets prior to construction
+ALTER TABLE Projects ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'NumRequiredTier3Tenets' INTEGER DEFAULT 0;
 
 -- Advanced Action Spy Stuff (for CBP)
 

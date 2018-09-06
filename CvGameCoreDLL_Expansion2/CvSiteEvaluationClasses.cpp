@@ -590,7 +590,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		return 0;
 	if (nFoodPlots < 4)
 		return 0;
-	if (nHammerPlots < 4)
+	if (nHammerPlots < 3)
 		return 0;
 
 	//civ-specific bonuses

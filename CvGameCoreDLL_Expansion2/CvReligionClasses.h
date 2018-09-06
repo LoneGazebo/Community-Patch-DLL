@@ -633,7 +633,7 @@ public:
 #endif
 	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
-	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, CvUnit* pUnit = NULL, int* piTurns = NULL) const;
+	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 
 	CvPlayer* GetPlayer();
 	ReligionTypes GetReligionToSpread() const;

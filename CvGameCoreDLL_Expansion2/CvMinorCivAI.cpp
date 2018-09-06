@@ -999,6 +999,10 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			}
 			iBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iBonus /= 100;
+
+			iBonus *= (100 + pMinor->getCapitalCity()->getPopulation() * 3);
+			iBonus /= 100;
+
 			SetFood(iBonus);
 		}
 		if(pkSmallAwardInfo->GetGAP() > 0)
@@ -1996,7 +2000,7 @@ bool CvMinorCivQuest::IsComplete()
 			}
 		}
 	}
-	else if(m_eType == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
+	else if (m_eType == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
 	{
 		// Player team circumnavigated the world?
 		if(GC.getGame().GetTeamThatCircumnavigated() == GET_PLAYER(m_eAssignedPlayer).getTeam())
@@ -10189,6 +10193,19 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 				continue;
 			}
 		}
+		else
+		{
+			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ADMIRAL)
+			{
+				if (GET_PLAYER(ePlayer).getNavalCombatExperienceTimes100() <= 0)
+					continue;
+			}
+			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_GENERAL)
+			{
+				if (GET_PLAYER(ePlayer).getCombatExperienceTimes100() <= 0)
+					continue;
+			}
+		}
 #endif
 
 		// Must be a Great Person that can be spawned in the current game
@@ -15603,7 +15620,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	int iScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	const int iFailScore = -50000;
+	const int iFailScore = -500000;
 #else
 	const int iFailScore = -300;
 #endif

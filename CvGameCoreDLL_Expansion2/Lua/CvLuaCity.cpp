@@ -4846,13 +4846,31 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 	const int iIndex = lua_tointeger(L, 2);
 	int iResult = pkCity->GetSpecialistRateModifier(toValue<SpecialistTypes>(L, 2));
 
-	int iNumPuppets = GET_PLAYER(pkCity->getOwner()).GetNumPuppetCities();
-	if(iNumPuppets > 0)
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
+
+	if (eGreatPerson != NO_GREATPERSON)
 	{
-		GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
-		if(eGreatPerson != NO_GREATPERSON)
+
+		int iNumPuppets = GET_PLAYER(pkCity->getOwner()).GetNumPuppetCities();
+		if (iNumPuppets > 0)
 		{
-			iResult += (iNumPuppets * GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
+
+			iResult += (iNumPuppets * GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
+		}
+
+		ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
+			if (pReligion)
+			{
+				iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pkCity->getOwner(), pkCity);
+				BeliefTypes eSecondaryPantheon = pkCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+				}
+			}
 		}
 	}
 

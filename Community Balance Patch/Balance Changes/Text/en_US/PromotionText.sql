@@ -378,7 +378,7 @@
 	
 	-- Golden Age Points from Kills
 	UPDATE Language_en_US
-	SET Text = 'Earn 100 [ICON_GOLDEN_AGE] points toward a Golden Age for each enemy killed.'
+	SET Text = 'Earn [ICON_GOLDEN_AGE] Golden Age Points for each enemy killed.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GOLDEN_AGE_POINTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	-- Naval Leadership
