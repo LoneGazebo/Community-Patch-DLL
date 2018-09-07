@@ -495,11 +495,6 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 		return true;
 	}
 
-	if (pUnit->getDomainType() == DOMAIN_AIR)
-	{
-		return true;
-	}
-
 	//invisible but revealed camp. count the unit there anyways (for AI)
 	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !GET_PLAYER(m_ePlayer).isHuman());
 
@@ -915,6 +910,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		//there should be only very few of these, if any
 		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) != unitsToIgnore.end())
 			continue;
+
+		//todo: if the attacker is an air unit and we have interceptors around, reduce the expected damage
+		//but interceptions are hard to keep track of and bad for performance ...
 
 		int iAttackerDamage = 0; //ignore this
 		if (pAttacker->plot() != m_pPlot)

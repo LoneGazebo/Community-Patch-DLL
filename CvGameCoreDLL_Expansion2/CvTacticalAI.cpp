@@ -7027,9 +7027,15 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
-			bResult = pUnit->at(pTarget->getX(), pTarget->getY());
 
-			if (!bResult) //typically happens with MOVEFLAG_AI_ABORT_IN_DANGER
+			if (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2)
+				bResult = (plotDistance(*pUnit->plot(),*pTarget)<3);
+			else if  (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1)
+				bResult = (plotDistance(*pUnit->plot(),*pTarget)<2);
+			else
+				bResult = pUnit->at(pTarget->getX(), pTarget->getY());
+
+			if (!bResult) //typically because of MOVEFLAG_ABORT_IN_DANGER
 			{
 				pTarget = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				if (pTarget)
@@ -7109,33 +7115,29 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if (pUnit)
+		if (pUnit && pUnit->canMove())
 		{
 			TacticalAIHelpers::PerformOpportunityAttack(pUnit,true);
+			if (!pUnit->canMove())
+				continue;
+
+			//not too far away
+			if (pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 3)>2)
+				continue;
 
 			//safety check
-			if (pUnit->GetDanger() > pUnit->GetCurrHitPoints())
+			if (pUnit->GetDanger(pTarget) > pUnit->GetCurrHitPoints())
 				continue;
-
-			//don't get killed on the way
-			if (!pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, INT_MAX, NULL, true))
-				continue;
-
 			if (pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot()) > pUnit->GetCurrHitPoints())
 				continue;
 
-			if (pUnit->canMove())
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
-
-			if (pUnit->canMove())
-				TacticalAIHelpers::PerformOpportunityAttack(pUnit,true);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+			TacticalAIHelpers::PerformOpportunityAttack(pUnit);
 
 			if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
-			UnitProcessed(m_CurrentMoveUnits[0].GetID());
-			pUnit->SetTacticalAIPlot(NULL);
-
+			UnitProcessed(pUnit->GetID());
 			return;
 		}
 	}
@@ -11265,7 +11267,9 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 
 	//the plot we're checking right now
 	const CvTacticalPlot& tactPlot = assumedPosition.getTactPlot(plot.iPlotIndex);
-	if (!tactPlot.isValid())
+
+	//only go where there is a defender!
+	if (!tactPlot.isValid() || !tactPlot.isFriendlyCombatUnit())
 		return result;
 
 	int iScore = 0;
@@ -11275,13 +11279,11 @@ STacticalAssignment ScorePlotForSupportUnit(const SUnitStats unit, const SMovePl
 		return result; //don't ever go there, wouldn't work anyway
 		break;
 	case CvTacticalPlot::TP_FRONTLINE:
-		if (tactPlot.isFriendlyCombatUnit())
-			iScore = 2; //dangerous, only in emergencies
+		iScore = 2; //dangerous, only in emergencies
 		break;
 	case CvTacticalPlot::TP_SECONDLINE:
 	case CvTacticalPlot::TP_THIRDLINE:
-		if (tactPlot.isFriendlyCombatUnit())
-			iScore = 24; //nice. different to first line is worth more than two adjacent units (check below)
+		iScore = 24; //nice. different to first line is worth more than two adjacent units (check below)
 		break;
 	case CvTacticalPlot::TP_FARAWAY:
 	default:

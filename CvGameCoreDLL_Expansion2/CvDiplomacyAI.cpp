@@ -7960,7 +7960,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE)
 	if (!GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95)
+		if (m_pPlayer->GetDiplomacyAI()->GetWarScore(ePlayer) <= -95 + GC.getGame().getSmallFakeRandNum(3,m_pPlayer->GetEconomicMight()))
 			return true;
 	}
 
@@ -8208,7 +8208,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		iWantPeace += (iTheirDanger * -1);
 
 		//Lack of progress in war increases desire for peace.
-		iWantPeace += max( 0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 10 ); 
+		iWantPeace += max( 0, GetPlayerNumTurnsSinceCityCapture(ePlayer) - 12 ); 
 
 		//Num of turns since they captured a city?
 		if ( GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) < 3)
