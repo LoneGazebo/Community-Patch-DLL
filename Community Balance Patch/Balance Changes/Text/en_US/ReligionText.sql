@@ -480,7 +480,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 -- Interfaith Dialog (Now Hero Worship)
 UPDATE Language_en_US
-SET Text = 'Unlocks Great Altar National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City. Bonus scales with City population and Era.'
+SET Text = 'Unlocks Great Altar National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City. Bonus scales with City population and Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -489,12 +489,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE_SHORT' AND EXISTS (SELECT * FROM
 
 -- Ceremonial Burial
 UPDATE Language_en_US
-SET Text = 'Unlocks Mausoleum National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle, +5 [ICON_PEACE] Faith from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). When a Great Person is expended, gain 8 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your Religion (max 20 Cities).'
+SET Text = 'Unlocks Mausoleum National Wonder ([COLOR_MAGENTA]+5 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle, +5 [ICON_PEACE] Faith from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When a Great Person is expended, gain 8 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your Religion (max 20 Cities).'
 WHERE Tag = 'TXT_KEY_BELIEF_CEREMONIAL_BURIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Church Property (Now Holy Law)
 UPDATE Language_en_US
-SET Text = 'Unlocks Divine Court National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +5 [ICON_GOLD] Gold from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). When you unlock a Policy, gain 5 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your Religion (max 200 Followers).'
+SET Text = 'Unlocks Divine Court National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +5 [ICON_GOLD] Gold from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you unlock a Policy, gain 5 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your Religion (max 200 Followers).'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -503,7 +503,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Tithe (Now Way of the Pilgrim)
 UPDATE Language_en_US
-SET Text = 'Unlocks Reliquary National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, 4 [ICON_GREAT_WORK] Art/Artfiact slots; +5 [ICON_TOURISM] Tourism from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). Receive 15 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture when you spread your Religion to foreign cities, scaling with the number of Followers of other Religions.'
+SET Text = 'Unlocks Reliquary National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, 4 [ICON_GREAT_WORK] Art/Artfiact slots; +5 [ICON_TOURISM] Tourism from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). Receive 15 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture when you spread your Religion to foreign cities, scaling with the number of Followers of other Religions.'
 WHERE Tag = 'TXT_KEY_BELIEF_TITHE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -512,7 +512,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TITHE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Initiation Rites (Now Way of Transcendence)
 UPDATE Language_en_US
-SET Text = 'Unlocks Sacred Garden National Wonder ([COLOR_MAGENTA]+3 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture; +5 [ICON_FOOD] Food from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). When you enter a new Era, Holy City gains 20 of every Yield for each City following your Religion (max 20 Cities), scaling with Era.'
+SET Text = 'Unlocks Sacred Garden National Wonder ([COLOR_MAGENTA]+3 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture; +5 [ICON_FOOD] Food from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you enter a new Era, Holy City gains 20 of every Yield for each City following your Religion (max 20 Cities), scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -521,7 +521,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Papal Primacy (Now Council of Elders)
 UPDATE Language_en_US
-SET Text = 'Unlocks Holy Council National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +5 [ICON_RESEARCH] Science from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). When a city adopts your Religion for the first time, gain 30 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in your Holy City, scaling gradually based on the number of cities following your Religion (bonus caps at 20 Cities).'
+SET Text = 'Unlocks Holy Council National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +5 [ICON_RESEARCH] Science from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When a city adopts your Religion for the first time, gain 30 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in your Holy City, scaling gradually based on the number of cities following your Religion (bonus caps at 20 Cities).'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -530,7 +530,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Pilgrimage (Now Apostolic Tradition)
 UPDATE Language_en_US
-SET Text = 'Unlocks Apostolic Palace National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). When you increase the number of Followers in a City by spreading Religion, receive 25 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_FOOD] Food in the Holy City, scaling with the number of new Followers of your Religion.'
+SET Text = 'Unlocks Apostolic Palace National Wonder ([COLOR_MAGENTA]+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). When you increase the number of Followers in a City by spreading Religion, receive 25 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_FOOD] Food in the Holy City, scaling with the number of new Followers of your Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -539,7 +539,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- World Church (Now Theocratic Rule)
 UPDATE Language_en_US
-SET Text = 'Unlocks Grand Ossuary National Wonder ([COLOR_MAGENTA]+10 [ICON_PEACE] Faith; +5 [ICON_CULTURE] Culture from Holy Sites; unlocks Reformation Belief[EDNCOLOR]). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold output of a city by 15%.'
+SET Text = 'Unlocks Grand Ossuary National Wonder ([COLOR_MAGENTA]+10 [ICON_PEACE] Faith; +5 [ICON_CULTURE] Culture from Holy Sites; unlocks Reformation Belief[ENDCOLOR]). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold output of a city by 15%.'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

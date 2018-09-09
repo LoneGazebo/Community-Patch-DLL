@@ -30422,12 +30422,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetGoodyHutYieldBonus();
-	if (iTemp != 0)
+	if (iTemp != 0 && GC.getGame().isOption(GAMEOPTION_NO_GOODY_HUTS))
 	{
 		iExtra = movesLeft();
 		iTemp += (iExtra * 10);
 
-		iValue += iTemp + iFlavorRecon * 7;
+		iValue += iTemp + iFlavorRecon * 4;
 	}
 
 	iTemp = pkPromotionInfo->GetDamageReductionCityAssault();

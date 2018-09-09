@@ -11204,6 +11204,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdatePlots();
 			UpdateDangerPlots(false);
 			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate(); // Invalidating so that it will be updated even if already (possible erroneously) updated in UpdatdCityThreatCriteria with stale data.
+			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
