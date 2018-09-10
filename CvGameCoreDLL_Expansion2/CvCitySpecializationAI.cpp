@@ -360,23 +360,15 @@ void CvCitySpecializationAI::DoTurn()
 		return;
 	}
 
-	int iNumCitiesUnderSiege = 0;
 	CvCity* pLoopCity = NULL;
 	for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity->isInDangerOfFalling())
+		if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege())
 		{
 			SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
 			break;
 		}
-		if (pLoopCity->isUnderSiege())
-			iNumCitiesUnderSiege++;
 	}
-
-	int iSiegeTotal = iNumCitiesUnderSiege * 100 / max(1, m_pPlayer->getNumCities());
-	if (iSiegeTotal >= 25)
-		SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
-
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{

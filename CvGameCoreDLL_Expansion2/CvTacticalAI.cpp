@@ -11948,6 +11948,9 @@ bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
 
 CvTacticalPosition* CvTacticalPosition::addChild()
 {
+	if (this == NULL)
+		return NULL;
+
 	CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
 	if (newPosition)
 		childPositions.push_back(newPosition);

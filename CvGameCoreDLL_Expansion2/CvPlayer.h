@@ -581,6 +581,9 @@ public:
 	
 	void SetReformation(bool bValue);
 	bool IsReformation() const;
+
+	int GetReformationFollowerReduction() const;
+	void ChangeReformationFollowerReduction(int iValue);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -808,6 +811,10 @@ public:
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
+
+	int GetNoXPLossUnitPurchase() const;
+	void SetNoXPLossUnitPurchase(int iValue);
+	void ChangeNoXPLossUnitPurchase(int iChange);
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
@@ -3001,6 +3008,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<int, CvPlayer> m_iReferenceFoundValue;
+	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
 #endif
@@ -3023,6 +3031,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
+	FAutoVariable<int, CvPlayer> m_iNoXPLossUnitPurchase;
 	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
 	FAutoVariable<int, CvPlayer> m_iHappinessFromMinorCivs;
 	FAutoVariable<int, CvPlayer> m_iPositiveWarScoreTourismMod;

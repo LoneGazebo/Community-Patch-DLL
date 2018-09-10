@@ -86,6 +86,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappinessPerXPopulationGlobal(0),
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
+	m_bNoXPLossUnitPurchase(false),
 	m_piGoldenAgeYieldMod(NULL),
 	m_bCorporationOfficesAsFranchises(false),
 	m_bCorporationFreeFranchiseAbovePopular(false),
@@ -539,6 +540,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
 	}
 	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
+	m_bNoXPLossUnitPurchase = kResults.GetBool("NoXPLossUnitPurchase");
 	m_bCorporationOfficesAsFranchises = kResults.GetBool("CorporationOfficesAsFranchises");
 	m_bCorporationFreeFranchiseAbovePopular = kResults.GetBool("CorporationFreeFranchiseAbovePopular");
 	m_bCorporationRandomForeignFranchise = kResults.GetBool("CorporationRandomForeignFranchise");
@@ -1684,6 +1686,11 @@ EraTypes CvPolicyEntry::GetPolicyEraUnlock() const
 int CvPolicyEntry::GetIdeologyPoint() const
 {
 	return m_iIdeologyPoint;
+}
+
+bool CvPolicyEntry::IsNoXPLossUnitPurchase() const
+{
+	return m_bNoXPLossUnitPurchase;
 }
 
 /// Does this make Offices count as Franchises?

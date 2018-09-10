@@ -477,6 +477,7 @@ CvPlayer::CvPlayer() :
 	, m_iCenterOfMassX("CvPlayer::m_iCenterOfMassX", m_syncArchive)
 	, m_iCenterOfMassY("CvPlayer::m_iCenterOfMassY", m_syncArchive)
 	, m_iReferenceFoundValue("CvPlayer::m_iReferenceFoundValue", m_syncArchive)
+	, m_iReformationFollowerReduction("CvPlayer::m_iReformationFollowerReduction", m_syncArchive)
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
 	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
@@ -488,6 +489,7 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
 	, m_iIdeologyPoint("CvPlayer::m_iIdeologyPoint", m_syncArchive)
+	, m_iNoXPLossUnitPurchase("CvPlayer::m_iNoXPLossUnitPurchase", m_syncArchive)
 	, m_iXCSAlliesLowersPolicyNeedWonders("CvPlayer::m_iXCSAlliesLowersPolicyNeedWonders", m_syncArchive)
 	, m_iHappinessFromMinorCivs("CvPlayer::m_iHappinessFromMinorCivs", m_syncArchive)
 	, m_iPositiveWarScoreTourismMod("CvPlayer::m_iPositiveWarScoreTourismMod", m_syncArchive)
@@ -1368,6 +1370,7 @@ void CvPlayer::uninit()
 	m_iCenterOfMassX = 0;
 	m_iCenterOfMassY = 0;
 	m_iReferenceFoundValue = 50000;
+	m_iReformationFollowerReduction = 0;
 	m_bIsReformation = false;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -1389,6 +1392,7 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal = 0;
 	m_iIdeologyPoint = 0;
+	m_iNoXPLossUnitPurchase = 0;
 	m_iXCSAlliesLowersPolicyNeedWonders = 0;
 	m_iHappinessFromMinorCivs = 0;
 	m_iPositiveWarScoreTourismMod = 0;
@@ -11200,6 +11204,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdatePlots();
 			UpdateDangerPlots(false);
 			GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate(); // Invalidating so that it will be updated even if already (possible erroneously) updated in UpdatdCityThreatCriteria with stale data.
+			GetTacticalAI()->GetTacticalAnalysisMap()->Refresh(true);
 			UpdateMilitaryStats();
 			UpdateAreaEffectUnits();
 			UpdateAreaEffectPlots();
@@ -15312,12 +15317,34 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		return false;
 	}
 
+	if (pBuildingInfo.GetNumRequiredTier3Tenets() > 0)
+	{
+		PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
+		if (eIdeology == NO_POLICY_BRANCH_TYPE)
+			return false;
+	}
+	
+
 	///////////////////////////////////////////////////////////////////////////////////
 	// Everything above this is what is checked to see if Building shows up in the list of construction items
 	///////////////////////////////////////////////////////////////////////////////////
 
 	if(!bTestVisible)
 	{
+		if (pBuildingInfo.GetNumRequiredTier3Tenets() > 0)
+		{
+			PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
+
+			int iNumTenets = GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3);
+			if (iNumTenets < pBuildingInfo.GetNumRequiredTier3Tenets())
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_TENETS_COUNT_NEEDED", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumRequiredTier3Tenets() - iNumTenets);
+
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
+
 		// Num buildings in the empire... uhhh, how is this different from the very last check in this function? (JON: It doesn't appear to be used, but I can't say for sure :)
 		const CvCivilizationInfo& civilizationInfo = getCivilizationInfo();
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
@@ -15573,6 +15600,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 						if (pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID(), pHolyCity))
 						{
 							int iPopRequiredPercent = pkBuildingInfo->GetGlobalFollowerPopRequired();
+							iPopRequiredPercent -= GetReformationFollowerReduction();
 							if (GC.getMap().getWorldInfo().getReformationPercent() > 0)
 							{
 								iPopRequiredPercent *= GC.getMap().getWorldInfo().getReformationPercent();
@@ -15739,6 +15767,17 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		return false;
 	}
 
+	if (pProjectInfo.GetNumRequiredTier3Tenets())
+	{
+		PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
+		if (eIdeology == NO_POLICY_BRANCH_TYPE)
+			return false;
+
+		int iNumTenets = GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3);
+		if (iNumTenets < pProjectInfo.GetNumRequiredTier3Tenets())
+			return false;
+	}
+
 	if(!bTestVisible)
 	{
 		if (pProjectInfo.InfluenceAllRequired())
@@ -15746,6 +15785,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 			if (GetCulture()->GetNumCivsInfluentialOn() < GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin())
 				return false;
 		}
+
 		if (pProjectInfo.IdeologyRequired())
 		{
 			if (GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
@@ -16765,7 +16805,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
-	
+	ChangeReformationFollowerReduction(pBuildingInfo->GetReformationFollowerReduction() * iChange);
 	ChangeNumMissionarySpreads(pBuildingInfo->GetExtraMissionarySpreadsGlobal() * iChange);
 
 	if (pBuildingInfo->NullifyInfluenceModifier())
@@ -17599,30 +17639,25 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		
 		int iValue = m_pTraits->GetExtraSupply();
 		const CvCity* pLoopCity;
-		int iNumCities = 0;
 		int iLoop;
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			int iSupply = (iStartingSupply + pLoopCity->getCitySupplyFlat() + getCitySupplyFlatGlobal());
 			iValue += iSupply;
-			iNumCities++;
 		}
-
 
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+			iTechProgress *= 3;
+			iTechProgress /= 4;
 
-			iNumCities *= iNumCities;
-
-			iNumCities *= (iTechProgress);
-			iNumCities /= 100;
-
-			iValue -= iNumCities;
+			iValue *= 100;
+			iValue /= (100 + iTechProgress);
 		}
 		if (iValue < 0)
 			return 0;
-
+		
 		return iValue;
 	}
 #if defined(MOD_TRAITS_EXTRA_SUPPLY)
@@ -19096,6 +19131,16 @@ void CvPlayer::SetReformation(bool bValue)
 bool CvPlayer::IsReformation() const
 {
 	return m_bIsReformation;
+}
+
+int CvPlayer::GetReformationFollowerReduction() const
+{
+	return m_iReformationFollowerReduction;
+}
+
+void CvPlayer::ChangeReformationFollowerReduction(int iValue)
+{
+	m_iReformationFollowerReduction += iValue;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -21962,7 +22007,7 @@ int CvPlayer::GetHappinessFromReligion()
 	if(eFoundedReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
-		if(pReligion)
+		if (pReligion)
 		{
 			CvCity* pHolyCity = NULL;
 			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
@@ -21989,18 +22034,66 @@ int CvPlayer::GetHappinessFromReligion()
 				pHolyCity = getCapitalCity();
 			}
 			int iHappiness = pReligion->m_Beliefs.GetHappinessPerPantheon(GetID(), pHolyCity, true);
-			if(iHappiness > 0)
+			if (iHappiness > 0)
 			{
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
-				if(iPantheon > 0)
+				if (iPantheon > 0)
 				{
-					if(iPantheon > 8)
+					if (iPantheon > 8)
 					{
 						iPantheon = 8;
 					}
 					iHappinessFromReligion += (iPantheon * iHappiness);
 				}
 			}
+			iHappiness = pReligion->m_Beliefs.GetFullyConvertedHappiness(GetID(), pHolyCity, true);
+			if (iHappiness > 0)
+			{
+				int iLoop;
+				for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pLoopCity == NULL)
+						continue;
+
+					if (pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eFoundedReligion) > 0)
+						continue;
+
+					iHappinessFromReligion += iHappiness;
+				}
+			}
+			int iSpyHappiness = pReligion->m_Beliefs.GetHappinessFromForeignSpies(GetID(), pHolyCity, true);
+			if (iSpyHappiness > 0)
+			{
+				int numForeignSpies = 0;
+				CvPlayerEspionage* pEspionage = GetEspionage();
+				if (pEspionage)
+				{
+					for (uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
+					{
+						if (pEspionage->m_aSpyList[ui].m_eSpyState == SPY_STATE_DEAD)
+							continue;
+
+						if (pEspionage->m_aSpyList[ui].m_eSpyState == SPY_STATE_TRAVELLING)
+							continue;
+
+						CvPlot* pPlot = GC.getMap().plot(pEspionage->m_aSpyList[ui].m_iCityX, pEspionage->m_aSpyList[ui].m_iCityY);
+						if (pPlot == NULL)
+							continue;
+
+						CvCity* pSpyCity = pPlot->getPlotCity();
+
+						if (pSpyCity == NULL)
+							continue;
+
+						if (pSpyCity->getOwner() == GetID())
+							continue;
+
+						numForeignSpies++;
+					}
+				}
+				iHappinessFromReligion += numForeignSpies * iSpyHappiness;
+			}
+			
 #endif
 		}
 	}
@@ -23445,11 +23538,33 @@ void CvPlayer::SetIdeologyPoint(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
-/// Change the amount of Happiness we're getting from large empires
+
 void CvPlayer::ChangeIdeologyPoint(int iChange)
 {
 	SetIdeologyPoint(m_iIdeologyPoint + iChange);
 }
+
+
+
+/// How much Happiness are we getting from large empires?
+int CvPlayer::GetNoXPLossUnitPurchase() const
+{
+	return m_iNoXPLossUnitPurchase;
+}
+
+//	--------------------------------------------------------------------------------
+
+void CvPlayer::SetNoXPLossUnitPurchase(int iValue)
+{
+	m_iNoXPLossUnitPurchase = iValue;
+}
+
+//	
+void CvPlayer::ChangeNoXPLossUnitPurchase(int iChange)
+{
+	SetIdeologyPoint(m_iNoXPLossUnitPurchase + iChange);
+}
+
 
 /// How much Happiness are we getting from large empires?
 int CvPlayer::GetCSAlliesLowersPolicyNeedWonders() const
@@ -26532,7 +26647,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BORDERS:
 				{
-					iValue += pLoopCity->GetYieldFromBorderGrowth(eYield) + getYieldFromBorderGrowth(eYield) + GetPlayerTraits()->GetYieldFromTileEarn(eYield);
+					int iScaleValue = pLoopCity->GetYieldFromBorderGrowth(eYield) + getYieldFromBorderGrowth(eYield) + GetPlayerTraits()->GetYieldFromTileEarn(eYield);
+
+					iScaleValue *= iEra;
+
+					iValue += iScaleValue;
+
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
@@ -26545,7 +26665,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							continue;
 						if(eTerrain == ePassTerrain)
 						{
-							iValue += GetPlayerTraits()->GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield);
+							iScaleValue = GetPlayerTraits()->GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield);
+							iScaleValue *= iEra;
+							iValue += iScaleValue;
 						}
 					}
 					break;
@@ -26885,6 +27007,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+
+				case INSTANT_YIELD_TYPE_REMOVE_HERESY:
+				{
+					if (pReligion)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldFromRemoveHeresy(eYield, GetID(), pLoopCity, true);
+						iValue *= 100;
+						iValue /= max(1, iEra * 50);
+						if (iValue <= 0)
+							iValue = 0;
+					}
+
+					break;
+				}
 				
 			}
 			//Now, let's apply these yields here as total yields.
@@ -26907,7 +27043,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 
 					//Exclusion for birth yields and GP expense and policy unlocks (as we do it up above to avoid % growth and religion bonuses from being scaled).
-					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK)
+					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK && iType != INSTANT_YIELD_TYPE_BORDERS && iType != INSTANT_YIELD_TYPE_REMOVE_HERESY)
 					{
 						iValue *= iEra;
 					}
@@ -27698,6 +27834,25 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				return;
 			}
+			case INSTANT_YIELD_TYPE_REMOVE_HERESY:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REMOVE_HERESY");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+			
 		}
 		if(pCity == NULL)
 		{
@@ -30818,7 +30973,7 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 		iHandicap = GC.getGame().getHandicapInfo().getAIDifficultyBonusBase();
 	}
 
-	int iMaxThreshold = GC.getWARMONGER_THREAT_CRITICAL_THRESHOLD() * 100;
+	int iMaxThreshold = GC.getWARMONGER_THREAT_CRITICAL_THRESHOLD() * 200;
 	iMaxThreshold /= max(1, iHandicap);
 
 	int iResistance = GetDiplomacyAI()->GetOtherPlayerWarmongerAmount(ePlayer);
@@ -32735,16 +32890,12 @@ int CvPlayer::calculateMilitaryMight() const
 	const CvUnit* pLoopUnit;
 	int iLoop;
 
-	int iNumUnits = 0;
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(!pLoopUnit->IsCombatUnit())
 			continue;
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
-		if(iPower <= 0)
-			continue;
-
 #if defined(MOD_BATTLE_ROYALE)
 		if (eDomain == NO_DOMAIN)
 		{
@@ -32756,12 +32907,8 @@ int CvPlayer::calculateMilitaryMight() const
 		}
 #else
 		rtnValue += iPower;
-		iNumUnits++;
 #endif
 	}
-
-	//military power should be based on our average unit strength, not our total strength!
-	rtnValue /= max(1, iNumUnits);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
@@ -35227,7 +35374,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
 			if (pkUnitEntry)
 			{
-				if (!canTrain(eLoopUnit, false, true))
+				if (!pCity->canTrain(eLoopUnit))
 				{
 					continue;
 				}
@@ -35265,7 +35412,14 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				{
 					continue;
 				}
-				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + pCity->getPopulation()));
+				int iCombatStrength = (pkUnitEntry->GetPower() * 2 + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + pCity->getPopulation()));
+				iCombatStrength += (pkUnitEntry->GetProductionCost() / 2 + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + pCity->getPopulation()));
+
+				if (pkUnitEntry->GetRange() > 0)
+				{
+					iCombatStrength *= 75;
+					iCombatStrength /= 100;
+				}
 				if (iCombatStrength > iStrengthBest)
 				{
 					iStrengthBest = iCombatStrength;
@@ -35287,7 +35441,11 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 			if (iResult != -1)
 			{
 				CvUnit* pUnit = getUnit(iResult);
+				changeNumUnitsSupplyFree(1);
 				pUnit->changeNoSupply(1);
+				PromotionTypes ePromotionConscript = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CONSCRIPT");
+				if (ePromotionConscript != NO_PROMOTION)
+					pUnit->setHasPromotion(ePromotionConscript, true);
 
 				if (!pUnit->jumpToNearestValidPlot())
 				{
@@ -37667,7 +37825,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 		{
 			iQuantityMod *= GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eFounder);
 
-			iTotalNumResource *= 100 + std::min(50, iQuantityMod);
+			iTotalNumResource *= 100 + std::min(25, iQuantityMod);
 			iTotalNumResource /= 100;
 		}
 	}
@@ -42855,6 +43013,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeCSAlliesLowersPolicyNeedWonders(pPolicy->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
+	ChangeNoXPLossUnitPurchase(pPolicy->IsNoXPLossUnitPurchase() * iChange);
 	ChangeEventTourism(pPolicy->GetEventTourism() * iChange);
 	ChangeEventTourismCS(pPolicy->GetEventTourismCS() * iChange);
 	ChangeMonopolyModFlat(pPolicy->GetMonopolyModFlat() * iChange);
@@ -48061,9 +48220,6 @@ void CvPlayer::ChangeNumMayaBoosts(int iChange)
 /// Accessor: Get extra times to spread religion for missionaries from this city
 int CvPlayer::GetMissionaryExtraStrength() const
 {
-	if (m_iMissionaryExtraStrength >= 50)
-		return 50;
-
 	return m_iMissionaryExtraStrength;
 }
 

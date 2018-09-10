@@ -4790,7 +4790,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
-		iFlatYield += ((pkBuildingInfo->GetYieldChangePerReligion(eYield) * pCity->GetCityReligions()->GetNumReligionsWithFollowers()) / 100);
+		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers(); 
+		int tempYield = (pkBuildingInfo->GetYieldChangePerReligion(eYield) * numReligions) / 100;
+		iFlatYield += numReligions == 1 ? tempYield/2 : tempYield;
 	}
 
 	if (pkBuildingInfo->GetThemingYieldBonus(eYield) > 0)
@@ -6165,7 +6167,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += (pkBuildingInfo->GetBuildingProductionModifier() + pCity->getPopulation()) * 5;
 	}
-	if (pkBuildingInfo->IsReformation())
+	if (pkBuildingInfo->IsReformation() || pkBuildingInfo->GetReformationFollowerReduction() != 0)
 	{
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
 		if (eReligion != NO_RELIGION)

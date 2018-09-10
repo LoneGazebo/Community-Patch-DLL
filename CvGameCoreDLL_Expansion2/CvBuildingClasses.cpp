@@ -209,12 +209,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piGreatWorkYieldChangeLocal(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iNumRequiredTier3Tenets(0),
 	m_bIsNoWater(false),
 	m_bIsNoRiver(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
 	m_bBuildAnywhere(false),
 	m_iTradeReligionModifier(-1),
+	m_iReformationFollowerReduction(0),
 	m_iFreeArtifacts(0),
 	m_iResourceDiversityModifier(0),
 #endif
@@ -532,12 +534,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iNumRequiredTier3Tenets = kResults.GetInt("NumRequiredTier3Tenets");
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsNoRiver = kResults.GetBool("IsNoRiver");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
+	m_iReformationFollowerReduction = kResults.GetInt("ReformationFollowerReduction");
 	m_iFreeArtifacts = kResults.GetInt("FreeArtifacts");
 	m_iResourceDiversityModifier = kResults.GetInt("ResourceDiversityModifier");
 #endif
@@ -3558,6 +3562,11 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 }
 
 #if defined(MOD_BALANCE_CORE)
+int CvBuildingEntry::GetNumRequiredTier3Tenets() const
+{
+	return m_iNumRequiredTier3Tenets;
+}
+
 /// Does a city need to lack fresh water?
 bool CvBuildingEntry::IsNoWater() const
 {
@@ -3577,6 +3586,12 @@ bool CvBuildingEntry::IsReformation() const
 {
 	return m_bIsReformation;
 }
+/// Does this building boost religious spread via trade?
+int CvBuildingEntry::GetReformationFollowerReduction() const
+{
+	return m_iReformationFollowerReduction;
+}
+
 /// Can this building ignore most restrictions?
 bool CvBuildingEntry::IsBuildAnywhere() const
 {

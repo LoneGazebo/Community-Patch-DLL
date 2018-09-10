@@ -3238,11 +3238,24 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			{
 				pHolyCity = pHolyCityPlot->getPlotCity();
 			}
-			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
-			BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-			if (eSecondaryPantheon != NO_BELIEF)
+			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
-				iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
+				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+				}
+			}
+
+			if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_PRODUCTION || eYield == YIELD_FOOD))
+			{
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
+				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+				}
 			}
 		}
 	}

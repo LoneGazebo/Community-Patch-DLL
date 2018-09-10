@@ -11465,7 +11465,26 @@ bool CvUnit::DoRemoveHeresy()
 				gDLL->GameplayUnitActivate(pDllUnit.get());
 			}
 
+			ReligionTypes eBeforeMajority = pCity->GetCityReligions()->GetReligiousMajority();
 			pCity->GetCityReligions()->RemoveOtherReligions(GetReligionData()->GetReligion(), getOwner());
+			ReligionTypes eAfterMajority = pCity->GetCityReligions()->GetReligiousMajority();
+
+			if (eBeforeMajority != eAfterMajority)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eAfterMajority, getOwner());
+				if (pReligion)
+				{
+					CvCity* pHolyCity = NULL;
+					CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if (pHolyCityPlot)
+					{
+						pHolyCity = pHolyCityPlot->getPlotCity();
+					}
+					if (pHolyCity != NULL)
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REMOVE_HERESY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
+				}
+			}
+
 #if !defined(NO_ACHIEVEMENTS)
 			//Achievements
 			if(getOwner() == GC.getGame().getActivePlayer())
@@ -13164,7 +13183,7 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 	//No blasts while influential or better!
-	InfluenceLevelTypes eLevel = GET_PLAYER(eOwner).GetCulture()->GetInfluenceLevel(eOwner);
+	InfluenceLevelTypes eLevel = GET_PLAYER(getOwner()).GetCulture()->GetInfluenceLevel(eOwner);
 	if (eLevel >= INFLUENCE_LEVEL_INFLUENTIAL)
 	{
 		return false;
@@ -14318,6 +14337,14 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if(isEmbarked() || ((plot()->isWater() && getDomainType() != DOMAIN_SEA) && !isCargo()))
 		{
 			return false;
+		}
+
+
+		if (!pPlot->isCity() && GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
+		{
+			SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes)GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
+			if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() == eSpedcialStealth)
+				return false;
 		}
 #endif
 
@@ -30392,12 +30419,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetGoodyHutYieldBonus();
-	if (iTemp != 0)
+	if (iTemp != 0 && GC.getGame().isOption(GAMEOPTION_NO_GOODY_HUTS))
 	{
 		iExtra = movesLeft();
 		iTemp += (iExtra * 10);
 
-		iValue += iTemp + iFlavorRecon * 7;
+		iValue += iTemp + iFlavorRecon * 4;
 	}
 
 	iTemp = pkPromotionInfo->GetDamageReductionCityAssault();

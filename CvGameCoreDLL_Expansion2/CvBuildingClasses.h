@@ -189,10 +189,12 @@ public:
 	int GetCityWorkingChange() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int GetNumRequiredTier3Tenets() const;
 	bool IsNoWater() const;
 	bool IsNoRiver() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
+	int GetReformationFollowerReduction() const;
 	bool IsBuildAnywhere() const;
 	int GetTradeReligionModifier() const;
 	int GetNumFreeArtifacts() const;
@@ -754,10 +756,12 @@ private:
 	int* m_piGreatWorkYieldChangeLocal;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iNumRequiredTier3Tenets;
 	bool m_bIsNoWater;
 	bool m_bIsNoRiver;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
+	int m_iReformationFollowerReduction;
 	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
 	int m_iFreeArtifacts;

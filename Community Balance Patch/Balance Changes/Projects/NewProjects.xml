@@ -9,7 +9,7 @@
 			<Civilopedia>TXT_KEY_PROJECT_UTOPIA_PROJECT_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_UTOPIA_PROJECT_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_CULTURAL</VictoryPrereq>
-			<TechPrereq>TECH_TELECOM</TechPrereq>
+			<NumRequiredTier3Tenets>2</NumRequiredTier3Tenets>
 			<MaxGlobalInstances>-1</MaxGlobalInstances>
 			<MaxTeamInstances>1</MaxTeamInstances>
 			<Cost>6000</Cost>

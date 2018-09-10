@@ -9839,6 +9839,21 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					}
 				}
 			}
+
+			ReligionTypes eReligion = m_pPlayer->GetReligions()->GetCurrentReligion();
+			if (eReligion != NO_RELIGION)
+			{
+				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+				const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
+
+				CvCity* pHolyCity = NULL;
+				CvPlot* pPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+				if (pPlot != NULL)
+					pHolyCity = pPlot->getPlotCity();
+
+				iDiploModifier += pMyReligion->m_Beliefs.GetHappinessFromForeignSpies(m_pPlayer->GetID(), pHolyCity, true) * 25;
+			}
+
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 

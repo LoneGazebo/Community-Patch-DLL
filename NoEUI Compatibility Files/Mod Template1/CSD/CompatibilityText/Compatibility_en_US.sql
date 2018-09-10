@@ -49,11 +49,11 @@ SET Text = 'This National Wonder gives a small production boost when building di
 WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder cannot be built unless the city has a Public School. Build this national wonder to receive additional Delegates in the World Congress based on the number of Defense Pacts and Vassals you currently have. You will also receive a large boost to the Culture and Science output of the city where it is built.'
+SET Text = 'This National Wonder cannot be built unless the city has a Public School. Build this national wonder to receive additional Delegates in the World Congress based on the number of Defensive Pacts and Vassals you currently have. You will also receive a large boost to the Culture and Science output of the city where it is built.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. Receive one vote for every [COLOR_POSITIVE_TEXT]Defense Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have. [NEWLINE][NEWLINE]Must have built a Public School in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Requires Order. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. Receive one vote for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have. [NEWLINE][NEWLINE]Must have built a Public School in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP';
 
 UPDATE Language_en_US
@@ -61,7 +61,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Military 
 WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Autocracy. +15 [ICON_TOURISM] Tourism and +25% [ICON_PRODUCTION] Production in the city where it is built. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Requires Autocracy. +15 [ICON_TOURISM] Tourism and +10% [ICON_PRODUCTION] Production in the city where it is built. Receive two votes for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_HELP';
 
 UPDATE Language_en_US
@@ -69,7 +69,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Stock Exc
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
+SET Text = 'Requires Freedom. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. Receive one vote for every two [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the city. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_HELP';
 
 UPDATE Language_en_US

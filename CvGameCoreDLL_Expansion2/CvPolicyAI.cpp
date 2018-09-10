@@ -1667,6 +1667,20 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += (iPopulation * 100) / PolicyInfo->GetHappinessPerXPopulationGlobal();
 		}
 	}
+	
+	if (PolicyInfo->IsNoXPLossUnitPurchase())
+	{
+		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsExpansionist())
+		{
+			yield[YIELD_GOLD] += 50 * iNumCities;
+		}
+		else
+		{
+			yield[YIELD_GOLD] += 25 * iNumCities;
+		}
+	}
+
+	
 	if (PolicyInfo->IsCorporationOfficesAsFranchises())
 	{
 		if (pPlayerTraits->IsTourism())
@@ -1678,6 +1692,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += 15 * iNumCities;
 		}
 	}
+
 	if (PolicyInfo->IsCorporationFreeFranchiseAbovePopular())
 	{
 		if (pPlayerTraits->IsTourism())

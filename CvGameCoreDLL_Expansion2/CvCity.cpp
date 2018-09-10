@@ -9854,7 +9854,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 {
 	VALIDATE_OBJECT
 
-	bool HalveXP = (bConscript || (bGoldPurchase && MOD_BALANCE_CORE_HALF_XP_PURCHASE && !pUnit->getUnitInfo().CanMoveAfterPurchase()));
+	bool HalveXP = (bConscript || (bGoldPurchase && MOD_BALANCE_CORE_HALF_XP_PURCHASE && GET_PLAYER(getOwner()).GetNoXPLossUnitPurchase() <= 0 && !pUnit->getUnitInfo().CanMoveAfterPurchase()));
 
 	if(pUnit->canAcquirePromotionAny())
 	{
@@ -10939,12 +10939,15 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 
 	int iModifier = pkUnitInfo->GetHurryCostModifier();
 
-	bool bIsSpaceshipPart = pkUnitInfo->GetSpaceshipProject() != NO_PROJECT;
-
-	if (iModifier == -1 && (!bIsSpaceshipPart || !GET_PLAYER(getOwner()).IsEnablesSSPartPurchase()))
+	if (iModifier == -1)
 	{
 		return -1;
 	}
+
+	bool bIsSpaceshipPart = pkUnitInfo->GetSpaceshipProject() != NO_PROJECT;
+
+	if (bIsSpaceshipPart && !GET_PLAYER(getOwner()).IsEnablesSSPartPurchase())
+		return -1;
 
 	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eUnit));
 	iCost *= (100 + iModifier);
@@ -11229,7 +11232,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 
 	// Modify by any beliefs
-	if(bIncludeBeliefDiscounts && (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy()) && !pkUnitInfo->IsFoundReligion())
+	if(bIncludeBeliefDiscounts && !pkUnitInfo->IsFoundReligion())
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -11238,7 +11241,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
 			if(pReligion)
 			{
-				int iReligionCostMod = pReligion->m_Beliefs.GetMissionaryCostModifier(getOwner(), this);
+				int iReligionCostMod = pkUnitInfo->IsSpreadReligion() ? pReligion->m_Beliefs.GetMissionaryCostModifier(getOwner(), this) : pReligion->m_Beliefs.GetInquisitorCostModifier(getOwner(), this);
 
 				if(iReligionCostMod != 0)
 				{
@@ -11847,21 +11850,23 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPACE_PLAYER", iTempMod);
 		}
 	}
-
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if (eMajority != NO_RELIGION)
+	else
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-		if (pReligion)
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION && (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0))
 		{
-			iTempMod = pReligion->m_Beliefs.GetUnitProductionModifier();
-			iMultiplier += iTempMod;
-			if (toolTipSink && iTempMod)
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion)
 			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_UNIT", iTempMod);
+				iTempMod = pReligion->m_Beliefs.GetUnitProductionModifier();
+				iMultiplier += iTempMod;
+				if (toolTipSink && iTempMod)
+				{
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_UNIT", iTempMod);
+				}
 			}
 		}
-	}		
+	}
 
 	// Production bonus for having a particular building
 	iTempMod = 0;
@@ -14834,6 +14839,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						iReligionYieldChange += iFaithPerPop;
 					}
 				}
+
 				int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldPerFollower((YieldTypes)iYield, getOwner(), this);
 				if (iReligionYieldMaxFollowers > 0)
 				{
@@ -21929,6 +21935,12 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 			}
 
+			int iYieldPerXNonFollowers = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield, getOwner(), this);
+			if (iYieldPerXNonFollowers > 0)
+			{
+				iYieldValue += (GetCityReligions()->GetFollowersOtherReligions(eReligion) / iYieldPerXNonFollowers);
+			}
+
 			int iLuxYield = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
 			if (iLuxYield > 0)
 			{
@@ -21968,7 +21980,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				{
 					int iScienceValue = (kPlayer.GetScience() / iYieldPerScience);
 
-					iYieldValue += max(25, iScienceValue);
+					iYieldValue += min(25, iScienceValue);
 				}
 			}
 
@@ -22579,7 +22591,7 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 	if (iNonSpecialist != 0)
 	{
 		 int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		 iBonusTimes100 *= 100;
+		 iBonusTimes100 /= 100;
 		 iBaseYield += iBonusTimes100;
 	}
 
@@ -24159,7 +24171,10 @@ void CvCity::TestBastion()
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 			if (eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != getOwner())
 			{
-				if (plot()->IsHomeFrontForPlayer(eLoopPlayer) && (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE))
+				if (!plot()->IsHomeFrontForPlayer(eLoopPlayer))
+					continue;
+
+				if (GET_PLAYER(getOwner()).IsAtWarWith(eLoopPlayer) || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivApproach(eLoopPlayer, true) <= MAJOR_CIV_APPROACH_AFRAID || GET_PLAYER(getOwner()).GetDiplomacyAI()->GetApproachTowardsUsGuess(eLoopPlayer) < MAJOR_CIV_APPROACH_DECEPTIVE)
 				{
 					SetBastion(true);
 					return;

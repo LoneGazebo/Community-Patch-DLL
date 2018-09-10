@@ -1972,7 +1972,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 			iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 		}
 	}
-	if (GetCity()->isCapital())
+	if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 	{
 		int iNumMarried = 0;
 		// Loop through all minors and get the total number we've met.
@@ -1982,13 +1982,13 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, int iExcessF
 
 			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
 				{
 					iNumMarried++;
 				}
 			}
 		}
-		if (GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+		if (iNumMarried > 0)
 		{
 			iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 		}
@@ -3401,7 +3401,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				}
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if (GetCity()->isCapital())
+				if (GetCity()->isCapital() && GetPlayer()->IsDiplomaticMarriage())
 				{
 					int iNumMarried = 0;
 					// Loop through all minors and get the total number we've met.
@@ -3411,13 +3411,13 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 
 						if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 						{
-							if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+							if (GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
 							{
 								iNumMarried++;
 							}
 						}
 					}
-					if (GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+					if (iNumMarried > 0)
 					{
 						iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
 					}
