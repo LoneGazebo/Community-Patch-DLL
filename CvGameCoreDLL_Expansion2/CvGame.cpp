@@ -1447,7 +1447,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	CvCityManager::Reset();
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	m_iGlobalAssetCounter = 1000; //0 is invalid
+	m_iGlobalAssetCounterAllPreviousTurns = 1000; //0 is invalid
+	m_iGlobalAssetCounterCurrentTurn = 0;
 #endif
 }
 
@@ -1696,6 +1697,10 @@ void CvGame::update()
 			bool bExternalPause = ExternalPause();
 #else
 			bool bExternalPause = false;
+#endif
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+			RollOverAssetCounter();
 #endif
 
 			// If there are no active players, move on to the AI
@@ -8105,7 +8110,7 @@ void CvGame::doTurn()
 	int iI;
 
 	//create an autosave
-	if(!isNetworkMultiPlayer())
+	if(isNetworkMultiPlayer())
 		gDLL->AutoSave(false, false);
 
 	// END OF TURN
@@ -8342,7 +8347,7 @@ void CvGame::doTurn()
 	LogGameState();
 
 	//autosave after doing a turn
-	if (isNetworkMultiPlayer())
+	if (!isNetworkMultiPlayer())
 		gDLL->AutoSave(false, true);
 
 	gDLL->PublishNewGameTurn(getGameTurn());
@@ -10339,7 +10344,7 @@ unsigned long hash32(unsigned long a)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + m_iGlobalAssetCounter;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn() * m_iGlobalAssetCounterAllPreviousTurns;
 	
 	int iResult = 0;
 	if (iNum > 0)
@@ -10360,7 +10365,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getGameTurn() + m_iGlobalAssetCounter + abs(iExtraSeed);
+	unsigned long iState = getGameTurn() * m_iGlobalAssetCounterAllPreviousTurns + abs(iExtraSeed);
 
 	int iResult = 0;
 	if (iNum > 0)
@@ -10992,7 +10997,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream >> m_iGlobalAssetCounter;
+	kStream >> m_iGlobalAssetCounterAllPreviousTurns;
+	kStream >> m_iGlobalAssetCounterCurrentTurn;
 #endif
 	kStream >> m_iUnused1;
 	kStream >> m_iUnused2;
@@ -11264,7 +11270,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream << m_iGlobalAssetCounter;
+	kStream << m_iGlobalAssetCounterAllPreviousTurns;
+	kStream << m_iGlobalAssetCounterCurrentTurn;
 #endif
 	kStream << m_iUnused1;
 	kStream << m_iUnused2;

@@ -30412,16 +30412,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (pkPromotionInfo->IsGainsXPFromPillaging())
 	{
-		iExtra = movesLeft();
+		iExtra = maxMoves();
 		iTemp = (iExtra * 10);
 
 		iValue += iTemp + iFlavorOffense * 7;
 	}
 
 	iTemp = pkPromotionInfo->GetGoodyHutYieldBonus();
-	if (iTemp != 0 && GC.getGame().isOption(GAMEOPTION_NO_GOODY_HUTS))
+	if (iTemp != 0 && !GC.getGame().isOption(GAMEOPTION_NO_GOODY_HUTS))
 	{
-		iExtra = movesLeft();
+		iExtra = maxMoves();
 		iTemp += (iExtra * 10);
 
 		iValue += iTemp + iFlavorRecon * 4;

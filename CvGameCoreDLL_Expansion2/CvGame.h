@@ -693,7 +693,8 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	int GetNextGlobalID() { return ++m_iGlobalAssetCounter; }
+	int GetNextGlobalID() { ++m_iGlobalAssetCounterCurrentTurn; return m_iGlobalAssetCounterAllPreviousTurns + m_iGlobalAssetCounterCurrentTurn; }
+	void RollOverAssetCounter() { m_iGlobalAssetCounterAllPreviousTurns += m_iGlobalAssetCounterCurrentTurn; m_iGlobalAssetCounterCurrentTurn = 0; }
 #endif
 
 	void SetClosestCityMapDirty();
@@ -729,7 +730,9 @@ protected:
 	bool m_firstActivationOfPlayersAfterLoad;
 #endif
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	int m_iGlobalAssetCounter;
+	//for MP RNG we split this into two parts - everybody agrees on the previous turn but for the current turn races are possible
+	int m_iGlobalAssetCounterAllPreviousTurns;
+	int m_iGlobalAssetCounterCurrentTurn;
 #endif
 
 	int m_iEndTurnMessagesSent;

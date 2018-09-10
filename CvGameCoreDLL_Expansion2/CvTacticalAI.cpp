@@ -5983,11 +5983,15 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
 			CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
+			int iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+			if (plotDistance(*pTargetPlot,*pUnit->plot())==2)
+				iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
 			//fast units - we want to have some spare movement points to be able to retreat
 			if ( (pUnit->AI_getUnitAIType()==UNITAI_FAST_ATTACK || pUnit->AI_getUnitAIType()==UNITAI_ATTACK_SEA) && 
-				 pUnit->TurnsToReachTarget(pTargetPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING2,1)==0 )
+				 pUnit->TurnsToReachTarget(pTargetPlot,iFlag,1)==0 )
 			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+				ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlag);
 				return pTargetPlot->isVisible(m_pPlayer->getTeam());
 			}
 		}
@@ -5996,11 +6000,15 @@ bool CvTacticalAI::ExecuteSpotterMove(CvPlot* pTargetPlot)
 		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
 			CvUnit* pUnit = m_CurrentMoveUnits.getUnit(i);
+			int iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
+			if (plotDistance(*pTargetPlot,*pUnit->plot())==2)
+				iFlag = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
+
 			// tank - soak it up (unitai defense includes ranged units ... don't use it here)
 			if ((pUnit->AI_getUnitAIType() == UNITAI_ATTACK || pUnit->AI_getUnitAIType() == UNITAI_COUNTER) &&
-				pUnit->TurnsToReachTarget(pTargetPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING2, 1) < 2)
+				pUnit->TurnsToReachTarget(pTargetPlot, iFlag, 1) < 2)
 			{
-				ExecuteMoveToPlot(pUnit, pTargetPlot, true, CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+				ExecuteMoveToPlot(pUnit, pTargetPlot, true, iFlag);
 				return pTargetPlot->isVisible(m_pPlayer->getTeam());
 			}
 		}
@@ -7050,7 +7058,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 	}
 
-	if (bResult)
+	if (!bSaveMoves && bResult)
 		UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
 
 	return bResult;
