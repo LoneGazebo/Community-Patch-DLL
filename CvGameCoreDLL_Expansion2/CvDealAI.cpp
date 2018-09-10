@@ -2241,7 +2241,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		}
 	}
 
-	iItemValue += (iEconomicValue / 3); //tricky to define the correct factor
+	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
 
 	//first some amount for the territory (outside of the first ring)
 	int iInternalBorderCount = 0;

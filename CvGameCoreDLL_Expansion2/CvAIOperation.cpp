@@ -2146,7 +2146,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 
 	CvPlot* pMusterPlot = pOurCivilian->plot();
 	//don't wait for the escort in the wild (happens with settlers a lot)
-	if (IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner))
+	if ((IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner)) || pOurCivilian->GetDanger(pMusterPlot)>0)
 	{
 		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
 		if (pClosestCity)
