@@ -8090,24 +8090,38 @@ void CvGame::removeGreatPersonBornName(const CvString& szName)
 #endif
 
 
+//simple check whether we're about to run out of memory
+bool LowMemCheck()
+{
+	try
+	{
+		char* buffer = new char[1024u * 1024u * 1024u];
+		buffer[0] = '\n'; //prevent compiler optimization?
+		delete[] buffer;
+
+		return false;
+	}
+	catch (...)
+	{
+		return true;
+	}
+}
+
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
-	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
-
 #if defined(MOD_BALANCE_CORE) && defined(MOD_UNIT_KILL_STATS)
 	GC.getMap().DoKillCountDecay();
 #endif
 
-	int aiShuffle[MAX_PLAYERS];
-	int iLoopPlayer;
-	int iI;
+	if (LowMemCheck())
+		OutputDebugString("low memory!\n");
 
-	//create an autosave
+	//create an autosave when ending the turn
 	if(isNetworkMultiPlayer())
-		gDLL->AutoSave(false, false);
+		gDLL->AutoSave(false, true);
 
 	// END OF TURN
 
@@ -8126,7 +8140,7 @@ void CvGame::doTurn()
 	// Dodgy business to cleanup all the completed requests from last turn. Any still here should just be ones that were processed on other clients anyway.
 	if (MOD_ACTIVE_DIPLOMACY)
 	{
-		for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
 			CvAssertMsg((kPlayer.isLocalPlayer() && !kPlayer.GetDiplomacyRequests()->HasPendingRequests()) || !kPlayer.isLocalPlayer(), "Clearing requests, expected local player to be empty.");
@@ -8143,7 +8157,7 @@ void CvGame::doTurn()
 
 	m_kGameDeals.DoTurn();
 
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
@@ -8171,7 +8185,7 @@ void CvGame::doTurn()
 		if (pkResource && pkResource->isMonopoly())
 		{
 			UpdateGreatestPlayerResourceMonopoly(eResource);
-			for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
 				if (GET_PLAYER((PlayerTypes)iI).isAlive())
 				{
@@ -8220,8 +8234,10 @@ void CvGame::doTurn()
 	// old turn ends here, new turn starts
 	//-------------------------------------------------------------
 
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
 	incrementGameTurn();
 	incrementElapsedGameTurns();
+	gDLL->PublishNewGameTurn(getGameTurn());
 
 	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
 	{// update turn mode for dynamic turn mode.
@@ -8237,15 +8253,16 @@ void CvGame::doTurn()
 	{// In multi-player with simultaneous turns, we activate all of the AI players
 	 // at the same time.  The human players who are playing simultaneous turns will be activated in updateMoves after all
 	 // the AI players are processed.
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		int aiShuffle[MAX_PLAYERS];
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			aiShuffle[iI] = iI;
 
 		//use the pre-game RNG here
 		shuffleArray(aiShuffle, MAX_PLAYERS, getMapRand());
 
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			iLoopPlayer = aiShuffle[iI];
+			int iLoopPlayer = aiShuffle[iI];
 			CvPlayer& player = GET_PLAYER((PlayerTypes)iLoopPlayer);
 			// activate AI here, when they are done, activate human players in
 			// updateMoves
@@ -8258,7 +8275,7 @@ void CvGame::doTurn()
 
 	if(isSimultaneousTeamTurns())
 	{//We're doing simultaneous team turns, activate the first team in sequence.
-		for(iI = 0; iI < MAX_TEAMS; iI++)
+		for(int iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
 			if(kTeam.isAlive() && !kTeam.isSimultaneousTurns()) 
@@ -8271,7 +8288,7 @@ void CvGame::doTurn()
 	else if(!isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 	{// player sequential turns.
 		// Sequential turns.  Activate the first player we find from the start, human or AI, who wants a sequential turn.
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
 			if(GET_PLAYER((PlayerTypes)iI).isAlive() 
 				&& !GET_PLAYER((PlayerTypes)iI).isSimultaneousTurns()) //we don't want to be a person who's doing a simultaneous turn for dynamic turn mode.
@@ -8344,11 +8361,9 @@ void CvGame::doTurn()
 
 	LogGameState();
 
-	//autosave after doing a turn
+	//autosave when starting the turn
 	if (!isNetworkMultiPlayer())
-		gDLL->AutoSave(false, true);
-
-	gDLL->PublishNewGameTurn(getGameTurn());
+		gDLL->AutoSave(false, false);
 }
 
 //	--------------------------------------------------------------------------------

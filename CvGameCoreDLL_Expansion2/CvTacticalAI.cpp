@@ -7332,7 +7332,8 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		}
 	}
 
-	PositionUnitsAroundTarget(pTargetPlot);
+	if (!m_CurrentTurnUnits.empty())
+		PositionUnitsAroundTarget(pTargetPlot);
 }
 
 /// Move units out of current dominance zone
@@ -7382,7 +7383,6 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			if (bMoveMade)
 			{
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
-
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
@@ -7855,8 +7855,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 
 	// Now sort them in the order we'd like them to attack
 	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
-	if (m_CurrentMoveUnits.size()>0)
-		OutputDebugString( CvString::format("player %d recruited %d units for possible attack on %d:%d (zone id %d)\n",m_pPlayer->GetID(),m_CurrentMoveUnits.size(),pTarget->getX(),pTarget->getY(),m_iCurrentZoneID ).c_str() );
+	//if (m_CurrentMoveUnits.size()>0)
+	//	OutputDebugString( CvString::format("player %d recruited %d units for possible attack on %d:%d (zone id %d)\n",m_pPlayer->GetID(),m_CurrentMoveUnits.size(),pTarget->getX(),pTarget->getY(),m_iCurrentZoneID ).c_str() );
 	return rtnValue;
 }
 
@@ -11956,14 +11956,18 @@ bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
 
 CvTacticalPosition* CvTacticalPosition::addChild()
 {
-	if (this == NULL)
+	try
+	{
+		CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
+		if (newPosition)
+			childPositions.push_back(newPosition);
+		return newPosition;
+	}
+	catch (...)
+	{
+		//out of memory
 		return NULL;
-
-	CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
-	if (newPosition)
-		childPositions.push_back(newPosition);
-	
-	return newPosition;
+	}
 }
 
 void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const
@@ -12681,9 +12685,9 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	if (gTacticalCombatDebugOutput) //if needed we can set the instruction pointer here
 		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
 
-	stringstream buffer;
-	for(size_t i=0; i<result.size(); i++)
-		buffer << result[i] << "\n";
+	//stringstream buffer;
+	//for(size_t i=0; i<result.size(); i++)
+	//	buffer << result[i] << "\n";
 	//OutputDebugString( buffer.str().c_str() );
 
 	//this deletes the whole tree with all child positions
