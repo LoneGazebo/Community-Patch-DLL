@@ -8096,10 +8096,13 @@ bool LowMemCheck()
 	try
 	{
 		char* buffer = new char[1024u * 1024u * 1024u];
-		buffer[0] = '\n'; //prevent compiler optimization?
-		delete[] buffer;
-
-		return false;
+		if (buffer)
+		{
+			delete[] buffer;
+			return false;
+		}
+		else
+			return true;
 	}
 	catch (...)
 	{
