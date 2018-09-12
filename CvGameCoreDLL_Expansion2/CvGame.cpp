@@ -1699,10 +1699,6 @@ void CvGame::update()
 			bool bExternalPause = false;
 #endif
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-			RollOverAssetCounter();
-#endif
-
 			// If there are no active players, move on to the AI
 			if ( !bExternalPause && getNumGameTurnActive()==0 )
 			{
@@ -8126,8 +8122,6 @@ void CvGame::doTurn()
 
 	gDLL->DoTurn();
 
-	CvBarbarians::BeginTurn();
-
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	// Dodgy business to cleanup all the completed requests from last turn. Any still here should just be ones that were processed on other clients anyway.
 	if (MOD_ACTIVE_DIPLOMACY)
@@ -8160,10 +8154,6 @@ void CvGame::doTurn()
 	GC.getMap().doTurn();
 
 	GC.GetEngineUserInterface()->doTurn();
-
-	CvBarbarians::DoCamps();
-
-	CvBarbarians::DoUnits();
 
 	GetGameReligions()->DoTurn();
 	GetGameTrade()->DoTurn();
@@ -8221,6 +8211,14 @@ void CvGame::doTurn()
 			ReviveActivePlayer();
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	RollOverAssetCounter();
+#endif
+
+	//-------------------------------------------------------------
+	// old turn ends here, new turn starts
+	//-------------------------------------------------------------
 
 	incrementGameTurn();
 	incrementElapsedGameTurns();

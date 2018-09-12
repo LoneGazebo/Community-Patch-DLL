@@ -39,6 +39,7 @@
 #include "CvDistanceMap.h"
 #include "CvBarbarians.h"
 #endif
+#include "CvGoodyHuts.h"
 #include "CvCityConnections.h"
 #include "CvNotifications.h"
 #include "CvDiplomacyRequests.h"
@@ -11178,6 +11179,9 @@ void CvPlayer::doTurn()
 		}
 	}
 #endif
+
+	AI_doTurnPost();
+
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -11428,8 +11432,6 @@ void CvPlayer::doTurnPostDiplomacy()
 	GatherPerTurnReplayStats(iGameTurn);
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
-
-	AI_doTurnPost();
 }
 
 //	--------------------------------------------------------------------------------

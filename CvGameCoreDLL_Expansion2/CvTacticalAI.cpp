@@ -12677,14 +12677,14 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//debugging
 	timer.EndPerfTest();
-	OutputDebugString(CvString::format("--> tested %d possible positions for %d units in %.2fms\n", initialPosition->countChildren(), ourUnits.size(), timer.GetDeltaInSeconds()*1000).c_str());
+	//OutputDebugString(CvString::format("--> tested %d possible positions for %d units in %.2fms\n", initialPosition->countChildren(), ourUnits.size(), timer.GetDeltaInSeconds()*1000).c_str());
 	if (gTacticalCombatDebugOutput) //if needed we can set the instruction pointer here
 		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
 
 	stringstream buffer;
 	for(size_t i=0; i<result.size(); i++)
 		buffer << result[i] << "\n";
-	OutputDebugString( buffer.str().c_str() );
+	//OutputDebugString( buffer.str().c_str() );
 
 	//this deletes the whole tree with all child positions
 	delete initialPosition;
@@ -12692,7 +12692,7 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	//if we had to bail because of memory issues
 	if (result.empty() && vUnits.size()>4 && openPositionsHeap.size()>5000)
 	{
-		OutputDebugString("retry with fewer units ...\n");
+		//OutputDebugString("retry with fewer units ...\n");
 		vector<CvUnit*> vUnits2( vUnits.begin(), vUnits.begin()+vUnits.size()/2 );
 		return FindBestOffensiveAssignment(vUnits2, pTarget, eAggLvl, iMaxBranches, iMaxFinishedPositions, result);
 	}

@@ -30,6 +30,7 @@
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
+#include "CvBarbarians.h"
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
@@ -147,6 +148,9 @@ void CvPlayerAI::AI_doTurnPost()
 
 	if(isBarbarian())
 	{
+		CvBarbarians::BeginTurn();
+		CvBarbarians::DoCamps();
+		CvBarbarians::DoUnits();
 		return;
 	}
 
