@@ -11721,7 +11721,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			vector<STacticalAssignment> blockingUnitChoices = choicePerUnit[ iUnitID ];
 			for (vector<STacticalAssignment>::iterator itMove2 = blockingUnitChoices.begin(); itMove2 != blockingUnitChoices.end(); ++itMove2)
 			{
-				if (!isMoveBlockedByOtherUnit(*itMove2) && itMove2->eType==STacticalAssignment::A_MOVE)
+				if (itMove2->eType==STacticalAssignment::A_MOVE && !isMoveBlockedByOtherUnit(*itMove2))
 				{
 					//add the move to make space, then add the original move
 					movesToAdd.push_back(*itMove2);
@@ -11733,9 +11733,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				}
 			}
 
-			//oops we're blocked with no valid move
+			//oops we're blocked with no valid move - but be careful here - do not allow multiple blocks in a row
 			if (movesToAdd.empty())
-				movesToAdd.push_back( STacticalAssignment(itMove->iFromPlotIndex,itMove->iFromPlotIndex,itMove->iUnitID,0,itMove->bIsCombatUnit,0,STacticalAssignment::A_BLOCKED) );
+				if (assignedMoves.empty() || assignedMoves.back().eType != STacticalAssignment::A_BLOCKED)
+					movesToAdd.push_back(STacticalAssignment(itMove->iFromPlotIndex, itMove->iFromPlotIndex, itMove->iUnitID, 0, itMove->bIsCombatUnit, 0, STacticalAssignment::A_BLOCKED));
 		}
 		else
 			movesToAdd.push_back(*itMove);
@@ -11956,18 +11957,10 @@ bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
 
 CvTacticalPosition* CvTacticalPosition::addChild()
 {
-	try
-	{
-		CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
-		if (newPosition)
-			childPositions.push_back(newPosition);
-		return newPosition;
-	}
-	catch (...)
-	{
-		//out of memory
-		return NULL;
-	}
+	CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
+	if (newPosition)
+		childPositions.push_back(newPosition);
+	return newPosition;
 }
 
 void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const
@@ -12466,6 +12459,7 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//set up the initial position
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
+	g_siTacticalPositionCount = 0;
 	CvTacticalPosition* initialPosition = new CvTacticalPosition(ePlayer,AL_NONE,pTarget);
 
 	//add all our units
@@ -12505,13 +12499,14 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 	//don't need to call make_heap for a single element
 	openPositionsHeap.push_back(initialPosition);
 
-	while (!openPositionsHeap.empty() && openPositionsHeap.size()<4000 && closedPositions.size()<4000)
+	int iDiscardedPositions = 0;
+	while (!openPositionsHeap.empty() && openPositionsHeap.size()<4000 && closedPositions.size()<4000 && iDiscardedPositions<4000)
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
 		//here the magic happens
-		if (current->makeNextAssignments(3,3))
+		if (current->makeNextAssignments(3, 5))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -12524,6 +12519,8 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 				}
 			}
 		}
+		else
+			iDiscardedPositions++;
 	}
 
 	if (!closedPositions.empty())
@@ -12805,7 +12802,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		if (!bPrecondition || !bPostcondition)
 		{
 			stringstream out;
-			out << "could not execute " << vAssignments[i] << (!bPrecondition?"":" (unexpected result)") << "\n";
+			out << "could not execute " << assignmentTypeNames[ vAssignments[i].eType ] << (!bPrecondition?"":" (unexpected result)") << "\n";
 			OutputDebugString(out.str().c_str());
 			return false;
 		}
@@ -12881,5 +12878,6 @@ const char* assignmentTypeNames[] =
 	"ENDTURN",
 	"BLOCKED",
 	"PILLAGE",
-	"CAPTURE"
+	"CAPTURE",
+	"FORCEDMOVE"
 };

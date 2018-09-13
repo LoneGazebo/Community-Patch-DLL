@@ -8089,27 +8089,6 @@ void CvGame::removeGreatPersonBornName(const CvString& szName)
 }
 #endif
 
-
-//simple check whether we're about to run out of memory
-bool LowMemCheck()
-{
-	try
-	{
-		char* buffer = new char[1024u * 1024u * 1024u];
-		if (buffer)
-		{
-			delete[] buffer;
-			return false;
-		}
-		else
-			return true;
-	}
-	catch (...)
-	{
-		return true;
-	}
-}
-
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------
@@ -8118,9 +8097,6 @@ void CvGame::doTurn()
 #if defined(MOD_BALANCE_CORE) && defined(MOD_UNIT_KILL_STATS)
 	GC.getMap().DoKillCountDecay();
 #endif
-
-	if (LowMemCheck())
-		OutputDebugString("low memory!\n");
 
 	//create an autosave when ending the turn
 	if(isNetworkMultiPlayer())
