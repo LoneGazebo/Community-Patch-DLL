@@ -11791,6 +11791,7 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 		{
 			if (assignedMoves[i].eType == STacticalAssignment::A_MOVE ||
 				assignedMoves[i].eType == STacticalAssignment::A_MOVE_FORCED ||
+				assignedMoves[i].eType == STacticalAssignment::A_CAPTURE ||
 				assignedMoves[i].eType == STacticalAssignment::A_MELEEKILL)
 			{
 				return STacticalAssignment();
@@ -11804,6 +11805,7 @@ STacticalAssignment CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) c
 				assignedMoves[i].eType == STacticalAssignment::A_FINISH ||
 				assignedMoves[i].eType == STacticalAssignment::A_MOVE ||
 				assignedMoves[i].eType == STacticalAssignment::A_MOVE_FORCED ||
+				assignedMoves[i].eType == STacticalAssignment::A_CAPTURE ||
 				assignedMoves[i].eType == STacticalAssignment::A_MELEEKILL)
 			{
 				return assignedMoves[i];
@@ -12461,7 +12463,7 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 	for(size_t i=0; i<vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
-		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath()) 
+		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID())==ourUnits.end()) 
 			if (initialPosition->addAvailableUnit(pUnit))
 				ourUnits.insert(pUnit->GetID());
 	}
@@ -12526,6 +12528,15 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 		if (gTacticalCombatDebugOutput)
 			closedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
+	else if (!openPositionsHeap.empty())
+	{
+		//sort again with different predicate
+		sort(openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetter());
+		result = openPositionsHeap.front()->getAssignments();
+
+		if (gTacticalCombatDebugOutput)
+			openPositionsHeap.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+	}
 
 	delete initialPosition;
 	return !result.empty();
@@ -12566,13 +12577,13 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 	g_siTacticalPositionCount = 0;
 	CvTacticalPosition* initialPosition = new CvTacticalPosition(ePlayer,eAggLvl,pTarget);
 
-	//add all our units
+	//add all our units and make sure there are no duplicates!
 	set<int> ourUnits;
 	for(size_t i=0; i<vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
 		//ignore embarked units, too difficult to get it right
-		if (pUnit && !pUnit->isEmbarked() && pUnit->canMove() && !pUnit->isDelayedDeath()) 
+		if (pUnit && !pUnit->isEmbarked() && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID())==ourUnits.end()) 
 			if (initialPosition->addAvailableUnit(pUnit))
 				ourUnits.insert(pUnit->GetID());
 	}
@@ -12642,11 +12653,9 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 				discardedPositions++;
 		}
 
+		//don't use up too much memory
 		if (openPositionsHeap.size()>5000 || discardedPositions>5000)
-		{
-			OutputDebugString( "warning: terminating because of endless recursion!\n" );
 			break;
-		}
 	}
 
 	//normally the score for a completed position should be higher than for a finished one
@@ -12669,6 +12678,17 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 		if (gTacticalCombatDebugOutput)
 			finishedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
 	}
+	else if (!openPositionsHeap.empty())
+	{
+		//last chance - take the best open position
+		//sort again with different predicate
+		sort(openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetter());
+		if (openPositionsHeap.front()->isOffensive())
+			result = openPositionsHeap.front()->getAssignments();
+
+		if (gTacticalCombatDebugOutput)
+			openPositionsHeap.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
+	}
 
 	//debugging
 	timer.EndPerfTest();
@@ -12683,15 +12703,6 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//this deletes the whole tree with all child positions
 	delete initialPosition;
-
-	//if we had to bail because of memory issues
-	if (result.empty() && vUnits.size()>4 && openPositionsHeap.size()>5000)
-	{
-		//OutputDebugString("retry with fewer units ...\n");
-		vector<CvUnit*> vUnits2( vUnits.begin(), vUnits.begin()+vUnits.size()/2 );
-		return FindBestOffensiveAssignment(vUnits2, pTarget, eAggLvl, iMaxBranches, iMaxFinishedPositions, result);
-	}
-
 	return !result.empty();
 }
 

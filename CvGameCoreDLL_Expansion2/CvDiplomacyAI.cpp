@@ -7701,7 +7701,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 				{
 					// What we're willing to give up.  The higher the number the more we're willing to part with
 
-					int iWarScore = GetWarScore(eLoopPlayer,false,true);
+					int iWarScore = GetWarScore(eLoopPlayer,false);
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 					if (MOD_BALANCE_CORE_HAPPINESS && (GetPlayer()->GetCulture()->GetWarWeariness() > 0))

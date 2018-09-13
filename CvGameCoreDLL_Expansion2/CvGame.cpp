@@ -10336,7 +10336,7 @@ unsigned long hash32(unsigned long a)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn() * m_iGlobalAssetCounterAllPreviousTurns;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*3;
 	
 	int iResult = 0;
 	if (iNum > 0)
@@ -10344,7 +10344,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsXor.csv", FILogFile::kDontTimeStamp);
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls1.csv", FILogFile::kDontTimeStamp);
 	//if (pLog)
 	//{
 	//	char szOut[1024] = { 0 };
@@ -10357,7 +10357,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getGameTurn() * m_iGlobalAssetCounterAllPreviousTurns + abs(iExtraSeed);
+	unsigned long iState = getGameTurn() + abs(iExtraSeed);
 
 	int iResult = 0;
 	if (iNum > 0)
@@ -10365,7 +10365,7 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsHash.csv", FILogFile::kDontTimeStamp);
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
 	//if (pLog)
 	//{
 	//	char szOut[1024] = { 0 };

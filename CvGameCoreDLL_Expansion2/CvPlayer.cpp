@@ -33834,7 +33834,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			infoStream << getName();
 			kGame.changeNumGameTurnActive(1, infoStream.str());
 			infoStream << std::endl;
-			if (isMajorCiv() || isBarbarian()) OutputDebugString(infoStream.str().c_str());
+			//if (isMajorCiv() || isBarbarian()) OutputDebugString(infoStream.str().c_str());
 
 			DLLUI->PublishPlayerTurnStatus(DLLUIClass::TURN_START, GetID());
 
@@ -33974,7 +33974,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				infoStream << getName();
 				kGame.changeNumGameTurnActive(-1, infoStream.str());
 				infoStream << std::endl;
-				if (isMajorCiv() || isBarbarian()) OutputDebugString(infoStream.str().c_str());
+				//if (isMajorCiv() || isBarbarian()) OutputDebugString(infoStream.str().c_str());
 			}
 
 #if defined(MOD_EVENTS_RED_TURN)
