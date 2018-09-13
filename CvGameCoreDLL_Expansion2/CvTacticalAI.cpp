@@ -7789,7 +7789,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 			else if (pLoopUnit->canMove() && pLoopUnit->getDomainType()!=DOMAIN_AIR)
 			{
 				//note that we also take units which can reach an attack plot but can only attack next turn. that's ok.
-				ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit, pLoopUnit->plot(),
+				ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit, pLoopUnit->plot(),
 					CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK, bImmediateStrike ? 2 : 0);
 
 				//start from the outside
@@ -9862,7 +9862,7 @@ bool CvTacticalAI::IsUnitHealing(int iUnitID) const
 	return m_HealingUnits.find(iUnitID) != m_HealingUnits.end();
 }
 
-ReachablePlots TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const PlotIndexContainer& plotsToIgnoreForZOC)
+ReachablePlots TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft, int iStartMoves, const PlotIndexContainer& plotsToIgnoreForZOC)
 {
 	if (!pStartPlot)
 		return ReachablePlots();
@@ -10673,9 +10673,6 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(assumedPlot.getPlotIndex());
 	CvPlot* pTestPlot = GC.getMap().plotByIndexUnchecked(tactPlot.getPlotIndex());
 
-	bool bFlankModifierOffensive = false;
-	bool bFlankModifierDefensive = false;
-
 	if (tactPlot.isEnemyCity()) //a plot can be both a city and a unit - in that case we would attack the city
 	{
 		CvCity* pEnemy = pTestPlot->getPlotCity();
@@ -10705,9 +10702,20 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
 		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
+	
+		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10%
+		if (pUnit->GetFlankAttackModifier() > 0 && tactPlot.getNumAdjacentFriendlies()>1 ) //we need a second friendly. the first one is us!
+		{
+			iDamageDealt += iDamageDealt/10;
+			iDamageReceived -= iDamageReceived/10;
+		}
 
-		bFlankModifierDefensive = pEnemy->GetFlankAttackModifier() > 0;
-		bFlankModifierOffensive = pUnit->GetFlankAttackModifier() > 0;
+		//adjacency bonus for enemy. we ignored this during damage estimation (the bQuickAndDirty flag)
+		if (tactPlot.getNumAdjacentEnemies()>0 )
+		{
+			iDamageDealt -= iDamageDealt/10;
+			iDamageReceived += iDamageReceived/10;
+		}
 
 		//repeat attacks may give extra bonus
 		if (iPrevDamage > 0)
@@ -10723,20 +10731,6 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	{
 		iDamageDealt += iDamageDealt/10;
 		iDamageReceived -= iDamageReceived/10;
-	}
-	
-	//problem is flanking affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10%
-	if (bFlankModifierOffensive && tactPlot.getNumAdjacentFriendlies()>1 ) //we need a second friendly. the first one is us!
-	{
-		iDamageDealt += iDamageDealt/10;
-		iDamageReceived -= iDamageReceived/10;
-	}
-
-	//flanking bonus for enemy. if both apply we simply assume they cancel each other
-	if (bFlankModifierDefensive && tactPlot.getNumAdjacentEnemies()>0 )
-	{
-		iDamageDealt -= iDamageDealt/10;
-		iDamageReceived += iDamageReceived/10;
 	}
 
 	//bonus for a kill
@@ -11723,12 +11717,12 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			{
 				if (itMove2->eType==STacticalAssignment::A_MOVE && !isMoveBlockedByOtherUnit(*itMove2))
 				{
-					//add the move to make space, then add the original move
+					//add the move to make space
 					movesToAdd.push_back(*itMove2);
-					movesToAdd.push_back(*itMove);
-
 					//mark that this is a forced move so we're allowed to move back later
-					movesToAdd.front().eType = STacticalAssignment::A_MOVE_FORCED;
+					movesToAdd.back().eType = STacticalAssignment::A_MOVE_FORCED;
+					//now do the original move
+					movesToAdd.push_back(*itMove);
 					break;
 				}
 			}
@@ -11989,7 +11983,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 	int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_EMBARK;
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
 	CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
-	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReach(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots);
+	ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots);
 
 	//try to save some memory here
 	ReachablePlots reachablePlotsPruned;
@@ -12650,7 +12644,7 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 
 		if (openPositionsHeap.size()>5000 || discardedPositions>5000)
 		{
-			OutputDebugString( "warning: terminating because of endless loop!\n" );
+			OutputDebugString( "warning: terminating because of endless recursion!\n" );
 			break;
 		}
 	}

@@ -1057,16 +1057,8 @@ protected:
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
-
 	short m_iLastTurnBuildChanged;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere3;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere3;
 #endif
 
 	char* m_szScriptData;
