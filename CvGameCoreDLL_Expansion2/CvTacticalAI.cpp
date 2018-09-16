@@ -2758,8 +2758,12 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		}
 		else if (!bImmediate && FindUnitsCloseToPlot(pPlot,2,GC.getMAX_HIT_POINTS()/3,GC.getMAX_HIT_POINTS()-iMinDamage,DOMAIN_LAND,true,true))
 		{
-			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
+			//be careful when sending out single units ...
+			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
+			if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+				continue;
 
+			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 			if (pUnit && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
 				ExecuteMoveToPlot(pUnit, pPlot, false, CvUnit::MOVEFLAG_NO_EMBARK | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
@@ -6399,39 +6403,54 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 
 			//so easy
 			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,false,true);
-			if(pBestPlot != NULL)
+
+			bool bRetreated = false;
+			if (pBestPlot != NULL)
 			{
 				CvUnit* pSwapUnit = pUnit->GetPotentialUnitToSwapWith(*pBestPlot);
+
 				//melee units are there to soak damage ...
 				int iDangerLimit = pSwapUnit ? (pSwapUnit->isRanged() ? pSwapUnit->GetCurrHitPoints() : (3 * pSwapUnit->GetCurrHitPoints()) / 2) : 0;
 				if (pSwapUnit && pSwapUnit->GetDanger(pUnit->plot()) < iDangerLimit)
 				{
 					pSwapUnit->SetActivityType(ACTIVITY_AWAKE);
 					pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pBestPlot->getX(), pBestPlot->getY());
+					bRetreated = true;
 				}
 				else
 				{
-					//pillage before retreat, if we have movement points to spare
-					if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR())
-						if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+					//need to reconsider if there's a unit blocking our retreat
+					if (pSwapUnit != NULL)
+						pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+
+					if (pBestPlot != NULL)
+					{
+						//pillage before retreat, if we have movement points to spare
+						if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR())
+							if (pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
+								pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+						//try to do some damage if we have movement points to spare
+						if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike() && pUnit->canMoveAfterAttacking())
+							TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true);
+
+						// Move to the lowest danger value found
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
+						bRetreated = true;
+
+						//see if we can do damage after retreating
+						if (pUnit->canMove() && pUnit->canRangeStrike())
+							TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true);
+
+						//pillage after retreat, if we have movement points to spare
+						if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-
-					//try to do some damage if we have movement points to spare
-					if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike() && pUnit->canMoveAfterAttacking())
-						TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
-
-					// Move to the lowest danger value found
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
-
-					//see if we can do damage after retreating
-					if (pUnit->canMove() && pUnit->canRangeStrike())
-						TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
-
-					//pillage after retreat, if we have movement points to spare
-					if (pUnit->canMove() && pUnit->canPillage(pUnit->plot()) && pUnit->getDamage() > 0)
-						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+					}
 				}
+			}
 
+			if (bRetreated)
+			{
 				UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
 
 				if(GC.getLogging() && GC.getAILogging())
