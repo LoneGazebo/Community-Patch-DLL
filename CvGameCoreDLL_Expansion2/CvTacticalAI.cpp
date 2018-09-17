@@ -10717,6 +10717,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			result.iScore = -INT_MAX;
 			return;
 		}
+
 		//use the quick and dirty method ...
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
 		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot);
@@ -10732,8 +10733,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		//adjacency bonus for enemy. we ignored this during damage estimation (the bQuickAndDirty flag)
 		if (tactPlot.getNumAdjacentEnemies()>0 )
 		{
-			iDamageDealt -= iDamageDealt/10;
-			iDamageReceived += iDamageReceived/10;
+			//five percent adjustment per adjacent enemy
+			iDamageDealt -= tactPlot.getNumAdjacentEnemies()*iDamageDealt/20;
+			iDamageReceived += tactPlot.getNumAdjacentEnemies()*iDamageReceived/20;
 		}
 
 		//repeat attacks may give extra bonus
