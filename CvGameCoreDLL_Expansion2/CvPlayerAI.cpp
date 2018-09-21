@@ -148,7 +148,7 @@ void CvPlayerAI::AI_doTurnPost()
 
 	if(isBarbarian())
 	{
-		CvBarbarians::BeginTurn();
+		CvBarbarians::DoCampSpawnCounter();
 		CvBarbarians::DoCamps();
 		CvBarbarians::DoUnits();
 		return;

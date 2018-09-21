@@ -25042,10 +25042,12 @@ void CvUnit::setMadeAttack(bool bNewValue)
 	if(bNewValue)
 	{
 		m_iAttacksMade++;
+		m_bMovedThisTurn = true; //failsafe: attacking means no more fortification bonus, no matter what happens with the moves
 	}
 	else
 	{
 		m_iAttacksMade = 0;
+		//note: m_bMovedThisTurn is reset in restoreFullMoves
 	}
 }
 

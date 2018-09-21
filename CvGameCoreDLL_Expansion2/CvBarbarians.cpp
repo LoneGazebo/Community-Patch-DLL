@@ -297,7 +297,7 @@ void CvBarbarians::DoCampAttacked(CvPlot* pPlot)
 
 //	---------------------------------------------------------------------------
 /// Called every turn
-void CvBarbarians::BeginTurn()
+void CvBarbarians::DoCampSpawnCounter()
 {
 	CvGame &kGame = GC.getGame();
 	const ImprovementTypes eCamp = kGame.GetBarbarianCampImprovementType();
@@ -709,7 +709,9 @@ void CvBarbarians::DoCamps()
 
 						if (eBestUnit != NO_UNIT)
 						{
-							GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pLoopPlot->getX(), pLoopPlot->getY(), GC.getUnitInfo(eBestUnit)->GetDefaultUnitAIType());
+							CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pLoopPlot->getX(), pLoopPlot->getY(), GC.getUnitInfo(eBestUnit)->GetDefaultUnitAIType());
+							if (pUnit)
+								pUnit->finishMoves();
 #if defined(MOD_EVENTS_BARBARIANS)
 							if (MOD_EVENTS_BARBARIANS) {
 								GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansSpawnedUnit, pLoopPlot->getX(), pLoopPlot->getY(), eBestUnit);
@@ -941,7 +943,7 @@ void CvBarbarians::DoUnits()
 		{
 			if(ShouldSpawnBarbFromCamp(pLoopPlot))
 			{
-				DoSpawnBarbarianUnit(pLoopPlot, false, false);
+				DoSpawnBarbarianUnit(pLoopPlot, false, true);
 				DoCampActivationNotice(pLoopPlot);
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -1026,7 +1028,8 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			if(pkUnitDef)
 			{
 				pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), pkUnitDef->GetDefaultUnitAIType());
-				pUnit->finishMoves();
+				if (pUnit)
+					pUnit->finishMoves();
 			}
 #else
 			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
@@ -1097,14 +1100,14 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			if(eUnit != NO_UNIT)
 			{
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pSpawnPlot->getX(), pSpawnPlot->getY(), eUnitAI);
-				if (bFinishMoves)
+				if (bFinishMoves && pUnit)
 				{
 					pUnit->finishMoves();
 				}
 
 #if defined(MOD_BUGFIX_MINOR)
 				// Stop units from plundered trade routes ending up in the ocean
-				if(bIgnoreMaxBarbarians)
+				if(bIgnoreMaxBarbarians && pUnit)
 				{
 					if (!pUnit->jumpToNearestValidPlot())
 						pUnit->kill(false);	// Could not find a valid spot!

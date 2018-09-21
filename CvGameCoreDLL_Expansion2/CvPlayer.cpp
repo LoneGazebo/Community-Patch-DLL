@@ -11180,6 +11180,7 @@ void CvPlayer::doTurn()
 	}
 #endif
 
+	//note that this isn't actually the end of the turn - AI_unitUpdate is called later
 	AI_doTurnPost();
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -33863,8 +33864,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 							GetDiplomacyRequests()->BeginTurn();
 						}
 
+						//this is misleading - actual turn processing now happens in CvGame::updateMoves()
 						doTurn();
-
 						doTurnUnits();
 					}
 				}
