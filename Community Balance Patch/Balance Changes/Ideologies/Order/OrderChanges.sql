@@ -160,7 +160,7 @@ SET AllCityFreeBuilding = NULL
 WHERE Type = 'POLICY_ACADEMY_SCIENCES';
 
 UPDATE Policies
-SET AllCityFreeBuilding = 'BUILDINGCLASS_MILITARY_ACADEMY'
+SET AllCityFreeBuilding = NULL
 WHERE Type = 'POLICY_SOCIALIST_REALISM';
 
 INSERT INTO Policy_BuildingClassProductionModifiers

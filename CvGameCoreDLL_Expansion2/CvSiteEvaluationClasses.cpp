@@ -690,11 +690,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	}
 
 	// Finally, look at the city plot itself
-	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
-	{
-		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
-	}
 	if (pPlot->IsNaturalWonder())
 	{
 		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;

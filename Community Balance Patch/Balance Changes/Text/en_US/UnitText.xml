@@ -82,19 +82,19 @@
 			<Text>Air Defense I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I_HELP">
-			<Text>+5 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes. Available once you have researched Flight.</Text>
+			<Text>+10 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes. Available once you have researched Flight.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II">
 			<Text>Air Defense II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_II_HELP">
-			<Text>+5 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
+			<Text>+15 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III">
 			<Text>Air Defense III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_III_HELP">
-			<Text>+5 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
+			<Text>+20 Damage to [COLOR_POSITIVE_TEXT]Air[ENDCOLOR] Units when defending against Air Strikes.</Text>
 		</Row>
 			
 		<Row Tag="TXT_KEY_UNIT_GUERILLA">
@@ -587,6 +587,44 @@
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4_HELP">
 			<Text>+25 maximum Hit Points. +25% [ICON_STRENGTH] Combat Strength when defending.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION">
+			<Text>Dauntless</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION_HELP">
+			<Text>Damage from all sources reduced by 5. [COLOR_POSITIVE_TEXT]Heals 10 Additional HP[ENDCOLOR] per turn</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS">
+			<Text>Press Gangs</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS_HELP">
+			<Text>Can pillage without expending movement. Pillaging [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this unit.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_PIRACY">
+			<Text>Piracy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PIRACY_HELP">
+			<Text>20% chance to withdraw from Melee combat. Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated enemies as [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BREACHER">
+			<Text>Breacher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BREACHER_HELP">
+			<Text>+10% [ICON_STRENGTH] Defense per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR]. Deal 10 Damage to all enemy units [COLOR_POSITIVE_TEXT]adjacent[ENDCOLOR] to a unit killed by this unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT">
+			<Text>Encirclement</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT_HELP">
+			<Text>+10% [ICON_STRENGTH] Attack per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR], +10 Hit Points when you [COLOR_POSITIVE_TEXT]defeat an enemy[ENDCOLOR].</Text>
+		</Row>
+
+		
+
+
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
 			<Text>Broadside</Text>
 		</Row>
@@ -594,10 +632,10 @@
 			<Text>+40% Ranged [ICON_RANGE_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4">
-			<Text>Glory Hounds</Text>
+			<Text>Blockade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP">
-			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a city. Damage from Cities reduced by 20%.</Text>
+			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a City. +25% [ICON_STRENGTH] Defense against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4">
 			<Text>Pincer</Text>
@@ -611,6 +649,34 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BETTER_BOMBARDMENT_HELP">
 			<Text>+50% [ICON_RANGE_STRENGTH] Ranged Strength VS [COLOR_NEGATIVE_TEXT]Land[ENDCOLOR] Units.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_TERROR">
+			<Text>Vanguard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_TERROR_HELP">
+			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Damage from Cities reduced by 50%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SIEGE">
+			<Text>Naval Siege</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SIEGE_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Can heal [COLOR_POSITIVE_TEXT]outside[ENDCOLOR] of friendly territory.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY">
+			<Text>Navigator I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_HELP">
+			<Text>+1 [ICON_MOVES] Movement and Vision.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II">
+			<Text>Navigator I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II_HELP">
+			<Text>+1 [ICON_MOVES] Movement and Vision.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_VIKING">

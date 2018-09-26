@@ -123,7 +123,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 					int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 					int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
 					int iFlavor = (iFlavorWonder > iFlavorGP) ? iFlavorWonder : iFlavorGP;
-					if (GC.getGame().getSmallFakeRandNum(9, plot()->GetPlotIndex() + getPopulation()) <= iFlavor)
+					if (GC.getGame().getSmallFakeRandNum(9, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE)) <= iFlavor)
 						bBuildWonder = true;
 				}
 			}

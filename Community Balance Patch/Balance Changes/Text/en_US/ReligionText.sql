@@ -210,7 +210,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_JESUIT_EDUCATION' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Religious Fervor (Now The One True Faith)
 UPDATE Language_en_US
-SET Text = 'Receive 1 additional [ICON_DIPLOMAT] Delegate in the World Congress for every 2 owned [ICON_RELIGION] Holy Sites. +50% Yields from Friendly/Allied [ICON_CITY_STATE] City-States following this Religion.'
+SET Text = 'Receive 1 additional [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [ICON_RELIGION] Holy Sites or 2 [ICON_TOURISM] Landmarks you own. +50% Yields from Friendly/Allied [ICON_CITY_STATE] City-States following this Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -229,7 +229,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TO_GLORY_OF_GOD' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Underground Sect (Now Faith of the  Masses)
 UPDATE Language_en_US
-SET Text = 'May build Opera Houses, Museums and Broadcast Towers with [ICON_PEACE] Faith. These buildings produce +2 [ICON_CULTURE] Culture each. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every two Cities following this Religion.'
+SET Text = 'May build Amphitheaters, Opera Houses, Museums, Broadcast Towers, and Stadiums with [ICON_PEACE] Faith. These buildings produce +2 [ICON_CULTURE] Culture each. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every two Cities following this Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNDERGROUND_SECT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -334,7 +334,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Religious Unity
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science for every 2 followers of other Religions in owned Cities following your [ICON_RELIGION] Religion. +5 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in an owned City following this Religion, scaling with Era.'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in Holy City for every 2 followers of other Religions in owned Cities. +5 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in an owned City following this Religion, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

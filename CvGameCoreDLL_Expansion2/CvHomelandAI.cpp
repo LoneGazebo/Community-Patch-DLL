@@ -3651,6 +3651,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		}
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
+		int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
 		if (!pBestPlot && pUnit->movesLeft() > 0)
 		{
 			//check at least 5 candidates
@@ -3667,7 +3668,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			//verify that we don't move into danger ...
 			if (pBestPlot)
 			{
-				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING, INT_MAX, NULL, true))
+				if (pUnit->GeneratePath(pBestPlot, iMoveFlags, INT_MAX, NULL, true))
 				{
 					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
 					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
@@ -3692,9 +3693,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				LogHomelandMessage(strLogString);
 			}
 
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 
-				CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_NO_ATTACKING | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,
-				false, false, MISSIONAI_EXPLORE, pBestPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags,	false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			if (pUnit->canMove() && pUnit->IsGainsXPFromPillaging() && pUnit->canPillage(pUnit->plot()))
 			{
@@ -4570,7 +4569,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit)
+		if(!pUnit || !pUnit->canMove())
 		{
 			continue;
 		}
@@ -4584,165 +4583,85 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 		{
 			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit);
 			BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
-			if(pTarget)
+			if (pTarget)
 			{
-				if(pUnit->plot() == pTarget)
+				if (pUnit->plot() != pTarget)
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+
+				if (pUnit->plot() == pTarget && pUnit->canMove())
 				{
 					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
 
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
 						strLogString.Format("Great Diplomat creating Embassy at %s", pUnit->plot()->GetAdjacentCity()->getName().c_str());
 						LogHomelandMessage(strLogString);
 					}
-					UnitProcessed(pUnit->GetID());
-					continue;
-				}
-				else if( pUnit->CanReachInXTurns(pTarget,INT_MAX) )
-				{
-					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
-
-					if(pUnit->plot() == pTarget && pUnit->canMove())
-					{
-						pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Great Diplomat moving to create Embassy at %s", pUnit->plot()->GetAdjacentCity()->getName().c_str());
-							LogHomelandMessage(strLogString);
-						}
-					}
-					UnitProcessed(pUnit->GetID());
-					continue;
-				}
-				else if (pUnit->GetDanger()>0)
-				{
-					ExecuteMoveToTarget(pUnit, pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Great Diplomat moving to city-state, currently at X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-						LogHomelandMessage(strLogString);
-					}
-					UnitProcessed(pUnit->GetID());
-					continue;
 				}
 			}
+			else
+				MoveCivilianToSafety(pUnit);
 		}
 
-		//either no directive or trying to build embassy but walked into danger
-		if (pUnit->canMove())
+		//no directive
+		MoveCivilianToSafety(pUnit);
+
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			MoveCivilianToSafety(pUnit);
-			UnitProcessed(pUnit->GetID());
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Moving Great Diplomat to safety.");
-				LogHomelandMessage(strLogString);
-			}
+			CvString strLogString;
+			strLogString.Format("Moving Great Diplomat to safety.");
+			LogHomelandMessage(strLogString);
 		}
+
+		UnitProcessed(pUnit->GetID());
 	}
 }
 
 void CvHomelandAI::ExecuteMessengerMoves()
 {
-	MoveUnitsArray::iterator it;
 	vector<int> vIgnoreCities;
-
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for(MoveUnitsArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit)
-		{
+		if(!pUnit || !pUnit->canMove())
 			continue;
-		}
 		
 		//Do trade mission
 		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit,&vIgnoreCities);
 		if(pTarget)
 		{
-			if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_TRADE());
-				PlayerTypes ePlayer = pUnit->plot()->getOwner();
-				if(ePlayer != NO_PLAYER)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s", 
-							GET_PLAYER(ePlayer).getCivilizationShortDescription(), 
-							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()), 
-							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally" );
-						LogHomelandMessage(strLogString);
-					}
-				}
-				UnitProcessed(pUnit->GetID());
-				continue;
-			}
-			else if( pUnit->CanReachInXTurns(pTarget,INT_MAX) )
+			//not at target yet?
+			if( ((pUnit->plot() != pTarget) && (pUnit->plot()->getOwner() != pTarget->getOwner())) || !pUnit->canTrade(pUnit->plot()) )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 				
-				if(((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_TRADE());
-					PlayerTypes ePlayer = pUnit->plot()->getOwner();
-					if(ePlayer != NO_PLAYER)
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at %s. Total Influence : %d, Ally is %s", 
-								GET_PLAYER(ePlayer).getCivilizationShortDescription(),
-								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
-								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
-							LogHomelandMessage(strLogString);
-						}
-					}
+					CvString strLogString;
+					strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at (%d:%d)", pTarget->getX(), pTarget->getY());
+					LogHomelandMessage(strLogString);
 				}
-				UnitProcessed(pUnit->GetID());
-				continue;
 			}
-			else
-			{
-				if(pUnit->plot()->getOwner() == pTarget->getOwner() && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_TRADE());
-					PlayerTypes ePlayer = pUnit->plot()->getOwner();
-					if(ePlayer != NO_PLAYER)
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence : %d, Ally is %s",
-								GET_PLAYER(ePlayer).getCivilizationShortDescription(),
-								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
-								GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
-							LogHomelandMessage(strLogString);
-						}
-					}
-					UnitProcessed(pUnit->GetID());
-					continue;
-				}
-				else
-				{
-					ExecuteMoveToTarget(pUnit,pTarget, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
-					if(GC.getLogging() && GC.getAILogging())
+			//now try to finish our mission
+			if (((pUnit->plot() == pTarget) || (pUnit->plot()->getOwner() == pTarget->getOwner())) && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_TRADE());
+				PlayerTypes ePlayer = pUnit->plot()->getOwner();
+				if (ePlayer != NO_PLAYER)
+				{
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Diplomatic Unit moving to city-state, currently at X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
+						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s. Total Influence: %d, Ally is %s",
+							GET_PLAYER(ePlayer).getCivilizationShortDescription(),
+							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()),
+							GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly() != NO_PLAYER ? GET_PLAYER(GET_PLAYER(pTarget->getOwner()).GetMinorCivAI()->GetAlly()).getCivilizationShortDescription() : "No Ally");
 						LogHomelandMessage(strLogString);
 					}
-					UnitProcessed(pUnit->GetID());
-					continue;
 				}
+
 			}
 		}
 		//Dangerous?
@@ -4751,8 +4670,6 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			if(pUnit->isHuman())
 			{
 				pUnit->SetAutomateType(NO_AUTOMATE);
-				UnitProcessed(pUnit->GetID());
-				continue;
 			}
 			else
 			{
@@ -4763,10 +4680,10 @@ void CvHomelandAI::ExecuteMessengerMoves()
 					strLogString.Format("Moving Messenger to safety.");
 					LogHomelandMessage(strLogString);
 				}
-				UnitProcessed(pUnit->GetID());
-				continue;
 			}
 		}
+
+		UnitProcessed(pUnit->GetID());
 	}
 }
 #endif

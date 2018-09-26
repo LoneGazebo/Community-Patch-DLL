@@ -269,9 +269,11 @@ local g_cityToolTips = {
 				-- Resistance tooltip
 				if (iResistanceUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+
 					-- Resistance tooltip
 				elseif (iPuppetUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_PUPPET", iPuppetUnhappiness);
+
 				-- Occupation tooltip
 				elseif (iOccupationUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);

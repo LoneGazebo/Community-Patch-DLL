@@ -2691,7 +2691,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				if (iTechDifference > 0)
 				{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-					int iCeilTechDifference = iTechDifference * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 #else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -2744,7 +2744,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				if (iCultureDifference > 0)
 				{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-					int iCeilCultureDifference = iCultureDifference * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 #else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -2780,7 +2780,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (iTechDifference > 0)
 			{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-				int iCeilTechDifference = iTechDifference * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 #else
 				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
@@ -2796,7 +2796,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (iCultureDifference > 0)
 			{
 #if defined(MOD_TRADE_ROUTE_SCALING)
-				int iCeilCultureDifference = iCultureDifference * 100 / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 #else
 				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif

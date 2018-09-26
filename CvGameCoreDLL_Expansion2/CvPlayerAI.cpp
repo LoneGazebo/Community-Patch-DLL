@@ -30,6 +30,7 @@
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
+#include "CvBarbarians.h"
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
@@ -147,6 +148,9 @@ void CvPlayerAI::AI_doTurnPost()
 
 	if(isBarbarian())
 	{
+		CvBarbarians::DoCampSpawnCounter();
+		CvBarbarians::DoCamps();
+		CvBarbarians::DoUnits();
 		return;
 	}
 
@@ -2548,10 +2552,8 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
 			continue;
 
-#if defined(MOD_BALANCE_CORE)
 		if(pUnit->GetDanger(pLoopPlot)>0)
 			continue;
-#endif
 
 		// Make sure this is still owned by target and is revealed to us
 		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
@@ -2590,7 +2592,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	CvCity* pBestTargetCity = NULL;
 
 	// Find target civ
-#if defined(MOD_BALANCE_CORE)
 	PlayerTypes eTargetPlayer = NO_PLAYER;
 	if(pMusician->isRivalTerritory())
 	{
@@ -2598,28 +2599,28 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	}
 	else
 	{
-#endif
 		eTargetPlayer = GetCulture()->GetCivLowestInfluence(true /*bCheckOpenBorders*/);
-#if defined(MOD_BALANCE_CORE)
 	}
-#endif
+
 	if (eTargetPlayer == NO_PLAYER)
 		return NULL;
 
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
-	int iMoveFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-
+	SPathFinderUserData data(pMusician, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, 23);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusician->getX(), pMusician->getY(), data);
+		
 	// Loop through each of that player's cities
 	int iLoop;
 	for(CvCity *pLoopCity = kTargetPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kTargetPlayer.nextCity(&iLoop))
 	{
-		int iPathTurns;
-		if (pMusician->GeneratePath(pLoopCity->plot(),iMoveFlags,iBestTurnsToReach,&iPathTurns))
+		ReachablePlots::iterator it = reachablePlots.find(pLoopCity->plot()->GetPlotIndex());
+		if ( it != reachablePlots.end() )
 		{
-			if(iPathTurns < iBestTurnsToReach)
+			if( it->iTurns < iBestTurnsToReach)
 			{
-				iBestTurnsToReach = iPathTurns;
+				iBestTurnsToReach = it->iTurns;
 				pBestTargetCity = pLoopCity;
 			}
 		}
@@ -2630,7 +2631,6 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	{
 		int iBestDistance = INT_MAX;
 		CvPlot* pBestPlot = NULL;
-
 
 		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
 		{

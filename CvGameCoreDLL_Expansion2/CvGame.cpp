@@ -1447,7 +1447,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	CvCityManager::Reset();
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	m_iGlobalAssetCounter = 1000; //0 is invalid
+	m_iGlobalAssetCounterAllPreviousTurns = 1000; //0 is invalid
+	m_iGlobalAssetCounterCurrentTurn = 0;
 #endif
 }
 
@@ -5875,7 +5876,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
+		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5906,7 +5907,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
+		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -8088,25 +8089,18 @@ void CvGame::removeGreatPersonBornName(const CvString& szName)
 }
 #endif
 
-
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
-	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
-
 #if defined(MOD_BALANCE_CORE) && defined(MOD_UNIT_KILL_STATS)
 	GC.getMap().DoKillCountDecay();
 #endif
 
-	int aiShuffle[MAX_PLAYERS];
-	int iLoopPlayer;
-	int iI;
-
-	//create an autosave
-	if(!isNetworkMultiPlayer())
-		gDLL->AutoSave(false, false);
+	//create an autosave when ending the turn
+	if(isNetworkMultiPlayer())
+		gDLL->AutoSave(false, true);
 
 	// END OF TURN
 
@@ -8121,13 +8115,11 @@ void CvGame::doTurn()
 
 	gDLL->DoTurn();
 
-	CvBarbarians::BeginTurn();
-
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	// Dodgy business to cleanup all the completed requests from last turn. Any still here should just be ones that were processed on other clients anyway.
 	if (MOD_ACTIVE_DIPLOMACY)
 	{
-		for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
 			CvAssertMsg((kPlayer.isLocalPlayer() && !kPlayer.GetDiplomacyRequests()->HasPendingRequests()) || !kPlayer.isLocalPlayer(), "Clearing requests, expected local player to be empty.");
@@ -8144,7 +8136,7 @@ void CvGame::doTurn()
 
 	m_kGameDeals.DoTurn();
 
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for(int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
@@ -8155,10 +8147,6 @@ void CvGame::doTurn()
 	GC.getMap().doTurn();
 
 	GC.GetEngineUserInterface()->doTurn();
-
-	CvBarbarians::DoCamps();
-
-	CvBarbarians::DoUnits();
 
 	GetGameReligions()->DoTurn();
 	GetGameTrade()->DoTurn();
@@ -8176,7 +8164,7 @@ void CvGame::doTurn()
 		if (pkResource && pkResource->isMonopoly())
 		{
 			UpdateGreatestPlayerResourceMonopoly(eResource);
-			for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
 				if (GET_PLAYER((PlayerTypes)iI).isAlive())
 				{
@@ -8217,8 +8205,18 @@ void CvGame::doTurn()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
+	RollOverAssetCounter();
+#endif
+
+	//-------------------------------------------------------------
+	// old turn ends here, new turn starts
+	//-------------------------------------------------------------
+
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
 	incrementGameTurn();
 	incrementElapsedGameTurns();
+	gDLL->PublishNewGameTurn(getGameTurn());
 
 	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
 	{// update turn mode for dynamic turn mode.
@@ -8234,15 +8232,16 @@ void CvGame::doTurn()
 	{// In multi-player with simultaneous turns, we activate all of the AI players
 	 // at the same time.  The human players who are playing simultaneous turns will be activated in updateMoves after all
 	 // the AI players are processed.
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		int aiShuffle[MAX_PLAYERS];
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			aiShuffle[iI] = iI;
 
 		//use the pre-game RNG here
 		shuffleArray(aiShuffle, MAX_PLAYERS, getMapRand());
 
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			iLoopPlayer = aiShuffle[iI];
+			int iLoopPlayer = aiShuffle[iI];
 			CvPlayer& player = GET_PLAYER((PlayerTypes)iLoopPlayer);
 			// activate AI here, when they are done, activate human players in
 			// updateMoves
@@ -8255,7 +8254,7 @@ void CvGame::doTurn()
 
 	if(isSimultaneousTeamTurns())
 	{//We're doing simultaneous team turns, activate the first team in sequence.
-		for(iI = 0; iI < MAX_TEAMS; iI++)
+		for(int iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
 			if(kTeam.isAlive() && !kTeam.isSimultaneousTurns()) 
@@ -8268,7 +8267,7 @@ void CvGame::doTurn()
 	else if(!isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 	{// player sequential turns.
 		// Sequential turns.  Activate the first player we find from the start, human or AI, who wants a sequential turn.
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
 		{
 			if(GET_PLAYER((PlayerTypes)iI).isAlive() 
 				&& !GET_PLAYER((PlayerTypes)iI).isSimultaneousTurns()) //we don't want to be a person who's doing a simultaneous turn for dynamic turn mode.
@@ -8341,11 +8340,9 @@ void CvGame::doTurn()
 
 	LogGameState();
 
-	//autosave after doing a turn
-	if (isNetworkMultiPlayer())
-		gDLL->AutoSave(false, true);
-
-	gDLL->PublishNewGameTurn(getGameTurn());
+	//autosave when starting the turn
+	if (!isNetworkMultiPlayer())
+		gDLL->AutoSave(false, false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8470,7 +8467,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, GC.getGame().getGameTurn())) * 100;
+			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop)) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -10339,7 +10336,7 @@ unsigned long hash32(unsigned long a)
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*abs(input.getX()-input.getY()) + m_iGlobalAssetCounter;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*3;
 	
 	int iResult = 0;
 	if (iNum > 0)
@@ -10347,7 +10344,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsXor.csv", FILogFile::kDontTimeStamp);
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls1.csv", FILogFile::kDontTimeStamp);
 	//if (pLog)
 	//{
 	//	char szOut[1024] = { 0 };
@@ -10360,7 +10357,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getGameTurn() + m_iGlobalAssetCounter + abs(iExtraSeed);
+	unsigned long iState = getGameTurn() + abs(iExtraSeed);
 
 	int iResult = 0;
 	if (iNum > 0)
@@ -10368,7 +10365,7 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 	else if (iNum < 0)
 		iResult = -int(hash32(iState) % (-iNum));
 
-	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCallsHash.csv", FILogFile::kDontTimeStamp);
+	//FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
 	//if (pLog)
 	//{
 	//	char szOut[1024] = { 0 };
@@ -10992,7 +10989,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream >> m_iGlobalAssetCounter;
+	kStream >> m_iGlobalAssetCounterAllPreviousTurns;
+	kStream >> m_iGlobalAssetCounterCurrentTurn;
 #endif
 	kStream >> m_iUnused1;
 	kStream >> m_iUnused2;
@@ -11264,7 +11262,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	kStream << m_iGlobalAssetCounter;
+	kStream << m_iGlobalAssetCounterAllPreviousTurns;
+	kStream << m_iGlobalAssetCounterCurrentTurn;
 #endif
 	kStream << m_iUnused1;
 	kStream << m_iUnused2;

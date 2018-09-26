@@ -230,6 +230,13 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			-- Discussion Root Mode
 			if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
 				
+				local strLeaderName;
+				if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+					strLeaderName = pAIPlayer:GetNickName();
+				else
+					strLeaderName = pAIPlayer:GetName();
+				end
+
 				
 				--------------------
 				-- SHARE INTRIGUE --

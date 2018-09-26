@@ -1538,9 +1538,13 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
 				pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 			{
-				//make sure the path cache is current
+				//make sure the path cache is current (not for air units, their movement is actually an airstrike)
 				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
-				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX,NULL,true);
+				if (hUnit->getDomainType()!=DOMAIN_AIR && !hUnit->GeneratePath(pDestPlot, pkQueueData->iFlags, INT_MAX, NULL, true))
+				{
+					//uh? problem ... abort mission
+					bDelete = true;
+				}
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 				{

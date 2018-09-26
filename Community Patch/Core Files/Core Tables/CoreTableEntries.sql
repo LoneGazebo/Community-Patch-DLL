@@ -1265,6 +1265,9 @@ ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
 -- Define a modifier for all great work tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
+-- Define a modifier for cities to be able to intercept nukes.
+ALTER TABLE Buildings ADD 'NukeInterceptionChance' INTEGER DEFAULT 0;
+
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
 ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
 

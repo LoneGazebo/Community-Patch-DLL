@@ -23,7 +23,7 @@ public:
 #endif
 	static bool ShouldSpawnBarbFromCamp(CvPlot* pPlot);
 	static void DoCampAttacked(CvPlot* pPlot);
-	static void BeginTurn();
+	static void DoCampSpawnCounter();
 	static void DoCamps();
 	static void DoUnits();
 

@@ -1234,6 +1234,10 @@ public:
 	void ChangeBlockGold(int iNewValue);
 	void SetBlockGold(int iNewValue);
 	int GetBlockGold() const;
+
+
+	void changeNukeInterceptionChance(int iValue);
+	int getNukeInterceptionChance() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
@@ -1867,6 +1871,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
 	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
 	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
+	FAutoVariable<int, CvCity> m_iNukeInterceptionChance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEconomicValue;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;

@@ -179,6 +179,8 @@ public:
 	int GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
 	CvUnit* GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false, int* piNumPossibleInterceptors = NULL) const;
 
+	CvCity* GetNukeInterceptor(PlayerTypes eAttackingPlayer) const;
+
 	bool isFortification(TeamTypes eTeam) const;
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
@@ -1057,16 +1059,8 @@ protected:
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	bool m_bIsTradeUnitRoute;
-
 	short m_iLastTurnBuildChanged;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	int m_iPlotIndex;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightFromHere3;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere2;
-	std::vector<CvPlot*> m_vPlotsWithLineOfSightToHere3;
 #endif
 
 	char* m_szScriptData;

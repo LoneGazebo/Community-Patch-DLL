@@ -3307,6 +3307,25 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 	return pBestUnit;
 }
 
+CvCity* CvPlot::GetNukeInterceptor(PlayerTypes eAttackingPlayer) const
+{
+	if (eAttackingPlayer == NO_PLAYER)
+		return NULL;
+
+	CvCity* pCity = getOwningCity();
+	if (pCity == NULL)
+		return NULL;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(pCity->getOwner());
+	if (kPlayer.isMinorCiv() || kPlayer.isBarbarian())
+		return NULL;
+
+	if (pCity->getNukeInterceptionChance() <= 0)
+		return NULL;
+
+	return pCity;
+}
+
 
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlot::getSelectedUnit() const

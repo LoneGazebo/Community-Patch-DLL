@@ -2155,6 +2155,9 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	if (pCity->IsRazing())
 		iItemValue /= 2;
 
+	//economic value is important
+	int iEconomicValue = pCity->getEconomicValue(buyingPlayer.GetID());
+
 #if defined(MOD_BALANCE_CORE)
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{
@@ -2167,15 +2170,17 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		{
 			return INT_MAX;
 		}
+		//prevent cheesy exploit: founding cities just to sell them
+		if (GC.getGame().getGameTurn() - pCity->getGameTurnFounded() < 42 + GC.getGame().getSmallFakeRandNum(5,iEconomicValue))
+		{
+			return INT_MAX;
+		}
 	}
 	if (bFromMe && pCity->GetCityReligions()->IsHolyCityAnyReligion() && !bSurrender)
 	{
 		return INT_MAX;
 	}
 #endif
-	
-	//economic value is important
-	int iEconomicValue = pCity->getEconomicValue(buyingPlayer.GetID());
 
 	//If not as good as any of our cities, we don't want it.
 	bool bGood = false;
@@ -2236,7 +2241,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		}
 	}
 
-	iItemValue += (iEconomicValue / 2);
+	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
 
 	//first some amount for the territory (outside of the first ring)
 	int iInternalBorderCount = 0;
@@ -2491,7 +2496,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	// so here's the tricky part - convert to gold
-	iItemValue /= 3;
+	iItemValue /= 5;
 
 	//OutputDebugString(CvString::format("City value for %s from %s to %s is %d\n", pCity->getName().c_str(), sellingPlayer.getName(), buyingPlayer.getName(), iItemValue).c_str());
 
@@ -2773,6 +2778,9 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		iItemValue /= 100;
 	}
 #endif
+
+	if (iItemValue <= 25)
+		iItemValue = 25;
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)

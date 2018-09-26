@@ -626,3 +626,7 @@ UPDATE Language_en_US
 SET Text = 'Ancient writing will be placed in nearest Great Work of Writing slot. Writing provides +3 [ICON_CULTURE] Culture and +3 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_WRITTEN_ARTIFACT_RESULT';
 
+
+UPDATE Language_en_US
+SET Text = 'A Luxury resource is designated as immoral, endangered, or otherwise inappropriate for use by the general population.  As long as the ban is in place, Civilizations receive no [ICON_HAPPINESS_1] Happiness or Monopoly benefits from this Luxury resource.'
+WHERE Tag = 'TXT_KEY_RESOLUTION_BAN_LUXURY_HAPPINESS_HELP';

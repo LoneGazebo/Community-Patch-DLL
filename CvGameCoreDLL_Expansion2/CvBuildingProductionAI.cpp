@@ -642,6 +642,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetNukeModifier() * -1);
 	}
+	if (pkBuildingInfo->GetNukeInterceptionChance() > 0)
+	{
+		iDefense += (pkBuildingInfo->GetNukeInterceptionChance() * 10);
+	}
 	if (pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 	{
 		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 5;

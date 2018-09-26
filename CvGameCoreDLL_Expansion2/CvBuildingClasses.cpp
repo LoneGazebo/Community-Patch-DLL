@@ -266,6 +266,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLandTourism(0),
 	m_iSeaTourism(0),
 	m_iAlwaysHeal(0),
+	m_iNukeInterceptionChance(0),
 	m_bIsCorp(false),
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
@@ -591,6 +592,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
 	m_bIsCorp = kResults.GetBool("IsCorporation");
+	m_iNukeInterceptionChance = kResults.GetInt("NukeInterceptionChance");
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_bPlayerBorderGainlessPillage = kResults.GetBool("PlayerBorderGainlessPillage");
@@ -2427,6 +2429,10 @@ int CvBuildingEntry::GetAlwaysHeal() const
 bool CvBuildingEntry::IsCorp() const
 {
 	return m_bIsCorp;
+}
+int CvBuildingEntry::GetNukeInterceptionChance() const
+{
+	return m_iNukeInterceptionChance;
 }
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
