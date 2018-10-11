@@ -1634,41 +1634,49 @@ bool CvPlayerEspionage::CanAdvancedAction(uint uiSpyIndex, CvCity* pCity, CvAdva
 			{
 				if (pCity->GetBlockBuildingDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_WW:
 			{
 				if (pCity->GetBlockWWDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_UNIT:
 			{
 				if (pCity->GetBlockUDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_GP:
 			{
 				if (pCity->GetBlockGPDestruction() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_GOLD_THEFT:
 			{
 				if (pCity->GetBlockGold() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_SCIENCE_THEFT:
 			{
 				if (pCity->GetBlockScience() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_UNREST:
 			{
 				if (pCity->GetBlockUnrest() > 0)
 					return false;
+				break;
 			}
 			case ADVANCED_ACTION_REBELLION:
 			{
 				if (pCity->GetBlockRebellion() > 0)
 					return false;
+				break;
 			}
 		}
 	}

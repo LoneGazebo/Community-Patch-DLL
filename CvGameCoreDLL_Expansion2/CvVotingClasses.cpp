@@ -10662,6 +10662,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 	VoteConsiderationList vConsiderations;
 	int iFocusResolutionID = -1;
+	int iOurResolutionID = -1;
 
 	EnactProposalList vEnactProposals = pLeague->GetEnactProposals();
 	for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
@@ -10670,6 +10671,11 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
 		{
 			iFocusResolutionID = it->GetID();
+		}
+
+		if (it->GetProposalPlayer() == GetPlayer()->GetID())
+		{
+			iOurResolutionID = it->GetID();
 		}
 
 		FindBestVoteChoices(it, vConsiderations);
@@ -10708,6 +10714,24 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
 			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
 		}
+		else if (iOurResolutionID != -1)
+		{
+			bool bFound = false;
+			for (int i = 0; i < vConsiderations.size(); ++i)
+			{
+				if (vConsiderations.GetElement(i).iID == iOurResolutionID)
+				{
+					vConsiderations.SetWeight(i, vConsiderations.GetWeight(vConsiderations.GetElement(i).iID) * 10);
+				}
+				else
+				{
+					bFound = true;
+				}
+			}
+			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
+			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
+		}
+
 
 		// Even if we don't like anything, make sure we have something to choose from
 		if (vConsiderations.GetTotalWeight() <= 0)

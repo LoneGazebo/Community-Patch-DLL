@@ -363,15 +363,15 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Max" type="integer" default="0"/>
 	</Table>
-	<!-- Same as above, but 1 per 2 citizens -->
-	<Table name="Belief_MaxYieldPerFollowerHalved">
+	<!-- Same as above, but x * followers / 100 -->
+	<Table name="Belief_MaxYieldPerFollowerPercent">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Max" type="integer" default="0"/>
 	</Table>
 
-	<!-- Same as vanilla but halved -->
-	<Table name="Belief_MaxYieldModifierPerFollowerHalved">
+	<!-- Same as vanilla but percent (as above)-->
+	<Table name="Belief_MaxYieldModifierPerFollowerPercent">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Max" type="integer" default="0"/>

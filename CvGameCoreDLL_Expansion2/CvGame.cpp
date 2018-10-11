@@ -10741,7 +10741,9 @@ void CvGame::updateGlobalAverage()
 	SetDefenseAverage((int)vfDefenseYield[n]);
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
-	m_iGlobalTechAvg = (int)viTechMedian[nt];
+
+	if ((int)viTechMedian[nt] > m_iGlobalTechAvg)
+		m_iGlobalTechAvg = (int)viTechMedian[nt];
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)

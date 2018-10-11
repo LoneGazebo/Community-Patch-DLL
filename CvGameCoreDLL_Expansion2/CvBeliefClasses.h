@@ -118,7 +118,7 @@ public:
 	int GetFollowerScalerLimiter() const;
 	int GetPolicyReductionWonderXFollowerCities() const;
 	int GetMaxYieldPerFollower(int i) const;
-	int GetMaxYieldPerFollowerHalved(int i) const;
+	int GetMaxYieldPerFollowerPercent(int i) const;
 	bool IsIgnorePolicyRequirements() const;
 	int GetCSYieldBonus() const;
 	int GetImprovementVoteChange(ImprovementTypes eImprovement) const;
@@ -187,7 +187,7 @@ public:
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetYieldModifierNaturalWonder(int i) const;
 	int GetMaxYieldModifierPerFollower(int i) const;
-	int GetMaxYieldModifierPerFollowerHalved(int i) const;
+	int GetMaxYieldModifierPerFollowerPercent(int i) const;
 	bool IsFaithUnitPurchaseEra(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsFaithUnitPurchaseSpecific(int i) const;
@@ -314,7 +314,7 @@ protected:
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldModifierNaturalWonder;
 	int* m_piMaxYieldModifierPerFollower;
-	int* m_piMaxYieldModifierPerFollowerHalved;
+	int* m_piMaxYieldModifierPerFollowerPercent;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbFaithPurchaseUnitSpecificEnabled;
 #endif
@@ -344,7 +344,7 @@ protected:
 	int* m_piYieldFromHost;
 	int* m_piYieldFromKnownPantheons;
 	int* m_piMaxYieldPerFollower;
-	int* m_piMaxYieldPerFollowerHalved;
+	int* m_piMaxYieldPerFollowerPercent;
 	int* m_piImprovementVoteChange;
 	bool m_bIgnorePolicyRequirements;
 	int m_iCSYieldBonus;
@@ -525,7 +525,7 @@ public:
 	int GetYieldChangeWorldWonder(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldModifierNaturalWonder(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMaxYieldModifierPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetMaxYieldModifierPerFollowerPercent(int& iMaxVal, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 
 	bool IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	bool IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -565,7 +565,7 @@ public:
 	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetMaxYieldPerFollowerPercent(int& iMax, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	bool IsIgnorePolicyRequirements(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

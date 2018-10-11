@@ -295,6 +295,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iValue = 1000;
 		}
 
+		if (kPlayer.getNumCities() == 1)
+			iValue /= 5;
+
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding)
 		{
 			iValue += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());

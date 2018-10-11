@@ -112,6 +112,10 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
 	m_bIsPlague(false),
+	m_iPlaguePromotion(NO_PROMOTION),
+	m_iPlagueID(NO_PROMOTION),
+	m_iPlaguePriority(0),
+	m_iPlagueIDImmunity(-1),
 #endif
 	m_iEmbarkExtraVisibility(0),
 	m_iEmbarkDefenseModifier(0),
@@ -260,6 +264,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyHealEnemyTerritory(0),
 	m_iNearbyHealNeutralTerritory(0),
 	m_iNearbyHealFriendlyTerritory(0),
+	m_iAdjacentEnemySapMovement(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -519,6 +524,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyHealEnemyTerritory = kResults.GetInt("NearbyHealEnemyTerritory");
 	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
+
+	m_iAdjacentEnemySapMovement = kResults.GetInt("AdjacentEnemySapMovement");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -610,6 +617,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
 	m_bIsPlague = kResults.GetBool("IsPlague");
+
+	const char* szPlaguePromotion = kResults.GetText("PlaguePromotion");
+	m_iPlaguePromotion = GC.getInfoTypeForString(szPlaguePromotion, true);
+
+	m_iPlagueID = kResults.GetInt("PlagueID");
+	m_iPlaguePriority = kResults.GetInt("PlaguePriority");
+	m_iPlagueIDImmunity = kResults.GetInt("PlagueIDImmunity");
 #endif
 	m_iEmbarkExtraVisibility = kResults.GetInt("EmbarkExtraVisibility");
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
@@ -1700,6 +1714,26 @@ bool CvPromotionEntry::IsPlague() const
 {
 	return m_bIsPlague;
 }
+
+int CvPromotionEntry::GetPlaguePromotion() const
+{
+	return m_iPlaguePromotion;
+}
+
+int CvPromotionEntry::GetPlagueID() const
+{
+	return m_iPlagueID;
+}
+
+int CvPromotionEntry::GetPlaguePriority() const
+{
+	return m_iPlaguePriority;
+}
+
+int CvPromotionEntry::GetPlagueIDImmunity() const
+{
+	return m_iPlagueIDImmunity;
+}
 #endif
 
 /// Accessor: extra sight range when embarked
@@ -2351,6 +2385,11 @@ int CvPromotionEntry::GetNearbyHealNeutralTerritory() const
 int CvPromotionEntry::GetNearbyHealFriendlyTerritory() const
 {
 	return m_iNearbyHealFriendlyTerritory;
+}
+
+int CvPromotionEntry::GetAdjacentEnemySapMovement() const
+{
+	return m_iAdjacentEnemySapMovement;
 }
 #endif
 

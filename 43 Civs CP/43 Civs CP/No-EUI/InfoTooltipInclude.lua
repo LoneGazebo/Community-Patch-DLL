@@ -724,6 +724,10 @@ function GetFoodTooltip(pCity)
 	
 	strFoodToolTip = strFoodToolTip .. "[NEWLINE][NEWLINE]";
 	strFoodToolTip = strFoodToolTip .. GetYieldTooltipHelper(pCity, iYieldType, "[ICON_FOOD]");
+
+	
+	strFoodToolTip = strFoodToolTip .. pCity:getPotentialUnhappinessWithGrowth();
+		
 	
 	return strFoodToolTip;
 end
@@ -1481,7 +1485,9 @@ function GetCityHappinessTooltip(pCity)
 			strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION");
 		end
 
+		strHappinessBreakdown = strHappinessBreakdown .. pCity:getPotentialUnhappinessWithGrowth();
 	end
+
 
 	return strHappinessBreakdown;
 end

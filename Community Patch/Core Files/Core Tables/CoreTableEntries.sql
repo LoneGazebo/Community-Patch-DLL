@@ -1130,9 +1130,13 @@ ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMax' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
 
--- Plague Stuff for JFD
+-- Plague Stuff
 ALTER TABLE UnitPromotions ADD COLUMN 'PlagueChance' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlaguePromotion' TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
 ALTER TABLE UnitPromotions ADD COLUMN 'IsPlague' BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlagueID' INTEGER DEFAULT -1;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlaguePriority' INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD COLUMN 'PlagueIDImmunity' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 
@@ -1294,6 +1298,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentCityDefenseMod' INTEGER DEFAULT 0
 
 -- Traveling Citadel.
 ALTER TABLE UnitPromotions ADD COLUMN 'NearbyEnemyDamage' INTEGER DEFAULT 0;
+
+-- Reduce Enemy Movement at start of turn.
+ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentEnemySapMovement' INTEGER DEFAULT 0;
 
 -- Enemy Units gain the "EnemyWarSawPactPromotion" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyWarSawPactPromotion" promotion type for this to work (see below).
 ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;

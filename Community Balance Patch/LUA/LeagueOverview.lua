@@ -1195,21 +1195,6 @@ function VoteYesNoController.new(voteController, entry)
 		voteController:UpdateVoteState();
 	end);
 	
-	instance.VoteUpButton:RegisterCallback(Mouse.eRClick, function()
-		local votes = entry.Votes;
-		local availableVotes = voteController.VotesAvailable;
-		if(votes >= 0) then
-			entry.Votes = votes + availableVotes;
-			voteController.VotesAvailable = 0;
-		else
-			entry.Votes = 0;
-			voteController.VotesAvailable = availableVotes - votes;
-		end
-		
-		entryController:UpdateVoteInstance();
-		voteController:UpdateVoteState();
-	end);
-	
 	instance.VoteUpButton:RegisterCallback(Mouse.eMClick, function()
 		local votes = entry.Votes;
 		if(votes >= 0) then
@@ -1227,6 +1212,21 @@ function VoteYesNoController.new(voteController, entry)
 			voteController.VotesAvailable = voteController.VotesAvailable - entry.Votes;
 			entry.Votes = entry.Votes - entry.Votes;
 		end	
+		
+		entryController:UpdateVoteInstance();
+		voteController:UpdateVoteState();
+	end);
+	
+	instance.VoteUpButton:RegisterCallback(Mouse.eRClick, function()
+		local votes = entry.Votes;
+		local availableVotes = voteController.VotesAvailable;
+		if(votes >= 0) then
+			entry.Votes = votes + availableVotes;
+			voteController.VotesAvailable = 0;
+		else
+			entry.Votes = 0;
+			voteController.VotesAvailable = availableVotes - votes;
+		end
 		
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();

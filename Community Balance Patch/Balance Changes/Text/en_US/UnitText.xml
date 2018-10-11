@@ -585,7 +585,7 @@
 			<Text>Indomitable</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4_HELP">
-			<Text>+25 maximum Hit Points. +25% [ICON_STRENGTH] Combat Strength when defending.</Text>
+			<Text>Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] effect from Naval Melee units. +25% [ICON_STRENGTH] Combat Strength when defending.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION">
@@ -622,8 +622,31 @@
 			<Text>+10% [ICON_STRENGTH] Attack per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR], +10 Hit Points when you [COLOR_POSITIVE_TEXT]defeat an enemy[ENDCOLOR].</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_PROMOTION_BOARDED_I">
+			<Text>Boarded (I)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDED_I_HELP">
+			<Text>-1 [ICON_MOVES] Move for 1 Turn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II">
+			<Text>Boarded (II)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II_HELP">
+			<Text>-2 [ICON_MOVES] Moves for 1 Turn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III">
+			<Text>Boarded (III)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDED_III_HELP">
+			<Text>-3 [ICON_MOVES] Moves for 1 Turn.</Text>
+		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
+			<Text>Minelayer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MINELAYER_HELP">
+			<Text>-10% [ICON_STRENGTH] Defense against [COLOR_POSITIVE_TEXT] Ranged Attacks[ENDCOLOR]. -2 [ICON_MOVES] Moves for enemy Naval unit that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this unit (unless immune to ZOC).</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
 			<Text>Broadside</Text>

@@ -373,6 +373,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillaged, int);
 	LUAAPIEXTN(GetUnhappinessFromStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromMinority, int);
+	LUAAPIEXTN(getPotentialUnhappinessWithGrowth, int);
 #endif
 
 	static int lChangeHealRate(lua_State* L);

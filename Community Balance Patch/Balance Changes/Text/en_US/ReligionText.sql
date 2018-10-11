@@ -154,7 +154,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 --  Tears of the Gods (Now God of Creation)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Monuments. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every two Pantheons ever founded (caps at 8 Pantheons total)'
+SET Text = '+1 [ICON_PEACE] Faith from Monuments and +1 [ICON_CULTURE] in [ICON_CAPITAL] Capital. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital for every two Pantheons ever founded (caps at 8 Pantheons total)'
 WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -394,7 +394,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MONASTERIES_SHORT' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Feed the World (Now Thrift)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every follower in the City (max +10 [ICON_GOLD] Gold)'
+SET Text = '+1 [ICON_GOLD] Gold for every follower in the City (max +15 [ICON_GOLD] Gold)'
 WHERE Tag = 'TXT_KEY_BELIEF_FEED_WORLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -412,7 +412,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PEACE_GARDENS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Choral Music (Now Scholarship)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science for every two followers in the City (max +10 [ICON_RESEARCH] Science)'
+SET Text = '+1 [ICON_RESEARCH] Science for every 2 followers in the City (max +15 [ICON_RESEARCH] Science)'
 WHERE Tag = 'TXT_KEY_BELIEF_CHORAL_MUSIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -430,7 +430,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Liturgical Drama (Now Veneration)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every two followers in the City (max +8 [ICON_PEACE] Faith)'
+SET Text = '+1 [ICON_PEACE] Faith for every 3 followers in the City (max +10 [ICON_PEACE] Faith)'
 WHERE Tag = 'TXT_KEY_BELIEF_LITURGICAL_DRAMA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -439,7 +439,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_LITURGICAL_DRAMA_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Ascetism
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food for every follower in the City (max +10 [ICON_FOOD] Food)'
+SET Text = '+1 [ICON_FOOD] Food for every follower in the City (max +15 [ICON_FOOD] Food)'
 WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Center (Now Order)
@@ -457,12 +457,12 @@ SET Text = 'Diligence'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production for every two followers in the City (max +10 [ICON_PRODUCTION] Production)'
+SET Text = '+1 [ICON_PRODUCTION] Production for every 2 followers in the City (max +15 [ICON_PRODUCTION] Production)'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Divine Inspiration (Now Inspiration)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every two followers in the City (max +10 [ICON_CULTURE] Culture)'
+SET Text = '+1 [ICON_CULTURE] Culture for every 3 followers in the City (max +10 [ICON_CULTURE] Culture)'
 WHERE Tag = 'TXT_KEY_BELIEF_DIVINE_INSPIRATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

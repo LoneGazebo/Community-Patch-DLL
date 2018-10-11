@@ -107,7 +107,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iFollowerScalerLimiter(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
 	m_piMaxYieldPerFollower(NULL),
-	m_piMaxYieldPerFollowerHalved(NULL),
+	m_piMaxYieldPerFollowerPercent(NULL),
 	m_piImprovementVoteChange(NULL),
 	m_bIgnorePolicyRequirements(false),
 	m_iCSYieldBonus(0),
@@ -168,7 +168,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldModifierNaturalWonder(NULL),
 	m_piMaxYieldModifierPerFollower(NULL),
-	m_piMaxYieldModifierPerFollowerHalved(NULL),
+	m_piMaxYieldModifierPerFollowerPercent(NULL),
 	m_pbFaithPurchaseUnitEraEnabled(NULL),
 	m_pbBuildingClassEnabled(NULL)
 {
@@ -667,11 +667,11 @@ int CvBeliefEntry::GetMaxYieldPerFollower(int i) const
 	return m_piMaxYieldPerFollower ? m_piMaxYieldPerFollower[i] : -1;
 }
 /// Accessor:: Yield from Followers Halved
-int CvBeliefEntry::GetMaxYieldPerFollowerHalved(int i) const
+int CvBeliefEntry::GetMaxYieldPerFollowerPercent(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMaxYieldPerFollowerHalved ? m_piMaxYieldPerFollowerHalved[i] : -1;
+	return m_piMaxYieldPerFollowerPercent ? m_piMaxYieldPerFollowerPercent[i] : -1;
 }
 
 bool CvBeliefEntry::IsIgnorePolicyRequirements() const
@@ -1089,11 +1089,11 @@ int CvBeliefEntry::GetMaxYieldModifierPerFollower(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piMaxYieldModifierPerFollower ? m_piMaxYieldModifierPerFollower[i] : -1;
 }
-int CvBeliefEntry::GetMaxYieldModifierPerFollowerHalved(int i) const
+int CvBeliefEntry::GetMaxYieldModifierPerFollowerPercent(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piMaxYieldModifierPerFollowerHalved ? m_piMaxYieldModifierPerFollowerHalved[i] : -1;
+	return m_piMaxYieldModifierPerFollowerPercent ? m_piMaxYieldModifierPerFollowerPercent[i] : -1;
 }
 
 /// Can we buy units of this era with faith?
@@ -1244,7 +1244,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKnownPantheons, "Belief_YieldFromKnownPantheons", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
-	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerHalved, "Yields", "Belief_MaxYieldPerFollowerHalved", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerPercent, "Yields", "Belief_MaxYieldPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 
 	kUtility.PopulateArrayByValue(m_piImprovementVoteChange, "Improvements", "Belief_VotePerXImprovementOwned", "ImprovementType", "BeliefType", szBeliefType, "Amount");
 
@@ -1252,7 +1252,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCSYieldBonus = kResults.GetInt("CSYieldBonusFromSharedReligion");
 #endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
-	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollowerHalved, "Yields", "Belief_MaxYieldModifierPerFollowerHalved", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollowerPercent, "Yields", "Belief_MaxYieldModifierPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piResourceHappiness, "Resources", "Belief_ResourceHappiness", "ResourceType", "BeliefType", szBeliefType, "HappinessChange");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Belief_ResourceQuantityModifiers", "ResourceType", "BeliefType", szBeliefType, "ResourceQuantityModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Belief_BuildingClassHappiness", "BuildingClassType", "BeliefType", szBeliefType, "Happiness");
@@ -3591,17 +3591,19 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, Pla
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetMaxYieldModifierPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldModifierPerFollowerPercent(int& iMaxVal, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+	iMaxVal = 1;
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollowerHalved(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollowerPercent(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
+			iMaxVal = max(iMaxVal, pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType));
 		}
 	}
 
@@ -4185,17 +4187,19 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 	return rtnValue;
 }
 /// Get yield from beliefs from # of followers halved
-int CvReligionBeliefs::GetMaxYieldPerFollowerHalved(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetMaxYieldPerFollowerPercent(int& iMax, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+	iMax = 0;
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerHalved(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerPercent(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
+			iMax = max(iMax, pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType));
 		}
 	}
 

@@ -112,6 +112,10 @@ public:
 	void SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain);
 
 	bool AreOurBordersTouching(PlayerTypes ePlayer);
+
+	void UpdateGlobalStaticYields();
+	void SetGlobalStaticYield(YieldTypes eYield, int iValue);
+	int GetGlobalStaticYield(YieldTypes eYield) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -835,22 +839,22 @@ public:
 	int getThresholdAdditions(YieldTypes eYield = NO_YIELD) const;
 	int getUnhappyCitizenCount() const;
 
-	int getUnhappinessFromCultureYield() const;
-	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
-	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromCulture() const;
-	int getUnhappinessFromScienceYield() const;
-	int getUnhappinessFromScienceNeeded(int iMod = 0) const;
-	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromScience() const;
-	int getUnhappinessFromDefenseYield() const;
-	int getUnhappinessFromDefenseNeeded(int iMod = 0) const;
-	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromDefense() const;
-	int getUnhappinessFromGoldYield() const;
-	int getUnhappinessFromGoldNeeded(int iMod = 0) const;
-	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromGold() const;
+	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
+	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromCulture(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScienceYield(int iPopMod = 0) const;
+	int getUnhappinessFromScienceNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromScience(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefenseYield(int iPopMod = 0) const;
+	int getUnhappinessFromDefenseNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromDefense(int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGoldYield(int iPopMod = 0) const;
+	int getUnhappinessFromGoldNeeded(int iMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
+	int getUnhappinessFromGold(int iPopMod = 0, bool bForceGlobal = false) const;
 	int getUnhappinessFromConnectionRaw(int iLimit = INT_MAX) const;
 	int getUnhappinessFromConnection() const;
 	int getUnhappinessFromPillagedRaw(int iLimit = INT_MAX) const;
@@ -861,6 +865,9 @@ public:
 	int getUnhappinessFromReligion() const;
 
 	int getUnhappinessAggregated() const;
+
+	CvString getPotentialUnhappinessWithGrowth();
+	int getPotentialUnhappinessWithGrowthVal() const;
 	
 	int GetNumPillagedPlots() const;
 	void SetNumPillagedPlots(int iValue);
@@ -1809,6 +1816,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;

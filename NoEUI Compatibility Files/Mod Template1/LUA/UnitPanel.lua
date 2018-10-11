@@ -761,7 +761,8 @@ function UpdateUnitHealthBar(unit)
 	local damage = unit:GetDamage();
 	if damage == 0 then
 		Controls.HealthBar:SetHide(true);	
-	else	
+	else
+		MaxDamage = unit:GetMaxHitPoints();
 		local healthPercent = 1.0 - (damage / MaxDamage);
 		local healthTimes100 =  math.floor(100 * healthPercent + 0.5);
 		local barSize = { x = 9, y = math.floor(123 * healthPercent) };

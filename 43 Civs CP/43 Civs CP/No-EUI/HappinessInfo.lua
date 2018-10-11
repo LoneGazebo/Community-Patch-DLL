@@ -693,14 +693,14 @@ function UpdateScreen()
 			end
 		end
 
-		-- Occupation tooltip
-		if (iOccupationUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
-		end
-
 		-- Puppet tooltip
 		if (iPuppetUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
+		end
+
+		-- Occupation tooltip
+		if (iOccupationUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
 		end
 
 		-- Resistance tooltip
@@ -715,7 +715,7 @@ function UpdateScreen()
 		if (iPillagedUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
 		end
-				-- Defense tooltip
+		-- Defense tooltip
 		if (iDefenseUnhappiness > 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded, iDefenseDeficit);
 		end
@@ -754,7 +754,7 @@ function UpdateScreen()
 
 -- END CHANGE
 
-
+		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
 		
 		instance.TradeIncome:SetToolTipString(strOccupationTT);
 	end

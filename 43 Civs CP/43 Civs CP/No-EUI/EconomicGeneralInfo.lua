@@ -131,17 +131,16 @@ function UpdateDisplay()
 				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
 			end
 		end
-		
-		-- Occupation tooltip
-		if (iOccupationUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
-		end
 
 		-- Puppet tooltip
 		if (iPuppetUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
 		end
-
+		
+		-- Occupation tooltip
+		if (iOccupationUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
+		end
 		-- Resistance tooltip
 		if (iResistanceUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
@@ -190,6 +189,8 @@ function UpdateDisplay()
 		if ((iCultureYield - iCultureNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
 		end
+
+		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
 
 		instance.CityName:SetToolTipString(strOccupationTT);
 -- END  

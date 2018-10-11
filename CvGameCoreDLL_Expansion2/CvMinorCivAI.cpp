@@ -15728,6 +15728,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iLocalPowerScore = 0;
 	if (MOD_BALANCE_CORE_MINORS)
 	{
+		if (iMinorLocalPower < (iBullyLocalPower / 5))
+			iMinorLocalPower = (iBullyLocalPower / 5);
+
 		fLocalPowerRatio = (float)iBullyLocalPower * 100 / (float)iMinorLocalPower;
 
 		iLocalPowerScore += (int)fLocalPowerRatio;

@@ -3613,12 +3613,13 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("NearbyEnemyCityCombatMod");
 		AnalyzePromotion("AirInterceptRangeChange", "");
 		AnalyzePromotion("ConvertDomainUnit");
-		AnalyzePromotion("ConvertDomain");
-		AnalyzePromotion("IsConvertUnit");
+		AnalyzePromotion("ConvertDomain")
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
 		AnalyzePromotion("PlagueChance");
 		AnalyzePromotion("IsPlague");
+		AnalyzePromotion("PlaguePriority");
+		AnalyzePromotion("PlagueID");
 		AnalyzePromotion("StackedGreatGeneralXP");
 		AnalyzePromotion("GoodyHutYieldBonus");
 		--AnalyzePromotion("GainsXPFromScouting");

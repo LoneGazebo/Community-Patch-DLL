@@ -3907,9 +3907,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		// Minor
 		if(bMinor)
 		{
-			if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_FRIENDLY)
-				iItemValue = INT_MAX;
-			else if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_PROTECTIVE)
+			if (eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_PROTECTIVE || eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_IGNORE)
 				iItemValue = INT_MAX;
 		}
 		// Major
@@ -4504,10 +4502,11 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						{
 							return INT_MAX;
 						}
-						//don't ask them to embargo us!
-						if (pProposal->GetEffects()->bEmbargoPlayer && eTargetPlayer == GetPlayer()->GetID())
+						//don't ask them to embargo, decolonize, or end our vassalage us!
+						if (eTargetPlayer == GetPlayer()->GetID())
 						{
-							return INT_MAX;
+							if (pProposal->GetEffects()->bEmbargoPlayer || pProposal->GetEffects()->bDecolonization || pProposal->GetEffects()->bEndAllCurrentVassals) 
+								return INT_MAX;
 						}
 					}
 				}

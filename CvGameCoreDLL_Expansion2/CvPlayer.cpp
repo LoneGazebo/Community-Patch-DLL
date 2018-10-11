@@ -3719,6 +3719,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	std::vector<int> paiNumRealBuilding(iNumBuildingInfos, 0);
+	std::vector<int> paiNumFreeBuilding(iNumBuildingInfos, 0);
 	std::vector<int> paiBuildingOriginalOwner(iNumBuildingInfos, 0);
 	std::vector<int> paiBuildingOriginalTime(iNumBuildingInfos, 0);
 #if defined(MOD_BALANCE_CORE)
@@ -3797,6 +3798,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
 		paiNumRealBuilding[iI] = pOldCity->GetCityBuildings()->GetNumRealBuilding((BuildingTypes)iI);
+		paiNumFreeBuilding[iI] = pOldCity->GetCityBuildings()->GetNumFreeBuilding((BuildingTypes)iI);
 		paiBuildingOriginalOwner[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalOwner((BuildingTypes)iI);
 		paiBuildingOriginalTime[iI] = pOldCity->GetCityBuildings()->GetBuildingOriginalTime((BuildingTypes)iI);
 
@@ -4403,6 +4405,57 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
 			}
 
+			if (GetPlayerTraits()->IsKeepConqueredBuildings() && paiNumFreeBuilding[iI] > 0)
+			{
+				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
+				if (::isWorldWonderClass(kLoopBuildingClassInfo))
+				{
+					eBuilding = eLoopBuilding;
+				}
+#if defined(MOD_BALANCE_CORE)
+				else if (GetPlayerTraits()->IsKeepConqueredBuildings())
+				{
+					//If we keep buildings, but we have a replacement, grab the replacement instead.
+					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
+					{
+						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+					}
+					else
+					{
+						eBuilding = eLoopBuilding;
+					}
+				}
+#endif
+				else
+				{
+					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+				}
+
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
+					{
+						iNum += paiNumFreeBuilding[iI];
+
+						pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, iNum);
+
+						if (pkBuildingInfo->GetGreatWorkCount() > 0)
+						{
+							for (unsigned int jJ = 0; jJ < paGreatWorkData.size(); jJ++)
+							{
+								if (paGreatWorkData[jJ].m_eBuildingType == iI)
+								{
+									pNewCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, paGreatWorkData[jJ].m_iSlot, paGreatWorkData[jJ].m_iGreatWork);
+									paGreatWorkData[jJ].m_bTransferred = true;
+									iCaptureGreatWorks++;
+								}
+							}
+						}
+					}
+				}
+			}
+
 			else if(paiNumRealBuilding[iI] > 0)
 			{
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType();
@@ -4434,21 +4487,27 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if(pkBuildingInfo)
 					{
-						if(!pkLoopBuildingInfo->IsNeverCapture())
+						bool bKeepBuilding = true;
+						if (!GetPlayerTraits()->IsKeepConqueredBuildings() && !bGift && !bRecapture)
 						{
-							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
+							bKeepBuilding = !pkLoopBuildingInfo->IsNeverCapture();
+
+							if (bKeepBuilding)
+							{
+								bKeepBuilding = !isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true);
+							}
+							if (bKeepBuilding)
 							{
 								// here would be a good place to put additional checks (for example, influence)
-								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID() + iI) + GC.getGame().getSmallFakeRandNum(32, GetEconomicMight() + iI);
-#if defined(MOD_BALANCE_CORE)
-								if(GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift || bRecapture || (iConquestChance <= pkLoopBuildingInfo->GetConquestProbability()))
-#else
-								if(!bConquest || bRecapture || (GC.getGame().getJonRandNum(100, "Capture Probability") < pkLoopBuildingInfo->GetConquestProbability()))
-#endif
-								{
-									iNum += paiNumRealBuilding[iI];
-								}
+								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID() + iI) + GC.getGame().getSmallFakeRandNum(32, GC.getGame().GetCultureAverage() + iI);
+
+								bKeepBuilding = iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
 							}
+						}
+
+						if (bKeepBuilding)
+						{
+							iNum += paiNumRealBuilding[iI];
 						}
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -17651,8 +17710,8 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-			iTechProgress *= 3;
-			iTechProgress /= 4;
+			iTechProgress *= 5;
+			iTechProgress /= 6;
 
 			iValue *= 100;
 			iValue /= (100 + iTechProgress);
@@ -17702,7 +17761,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 		if (!bIgnoreReduction)
 		{
 			int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-			iTechProgress *= 6;
+			iTechProgress *= 7;
 				
 			iValue *= 100;
 			iValue /= (100 + iTechProgress);
@@ -19917,7 +19976,7 @@ int CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		iHandicapA = pHandicapInfo->getAIDifficultyBonusEarly();
 		iHandicapB = pHandicapInfo->getAIDifficultyBonusMid();
 		iHandicapC = pHandicapInfo->getAIDifficultyBonusLate();
-		iYieldHandicap = iHandicapBase * (iHandicapA * iEra * iEra + iHandicapB * iEra + iHandicapC) / 100;
+		iYieldHandicap = iHandicapBase * ((iHandicapC * iEra * iEra) + (iHandicapB * iEra) + iHandicapA) / 100;
 	}
 	if (iYieldHandicap > 0)
 	{	
@@ -31817,7 +31876,7 @@ int CvPlayer::GetTechDeviation() const
 
 	int iTechDeviation = iOurTech - iAvgTech;
 
-	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
+	//Using the num of techs to get a % - num of techs artificially increased to slow rate of runaways
 	int iTech = (int)((iTechDeviation * iTechDeviation * iTechDeviation) * /*.1*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER());
 
 	if (iTech > 0 && iTech > (GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER() * 100))
@@ -35390,6 +35449,9 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 					continue;
 				}
 
+				if (pkUnitEntry->GetCombat() <= 0 && pkUnitEntry->GetRangedCombat() <= 0)
+					continue;
+
 				if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 					continue;
 
@@ -35423,12 +35485,14 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 				{
 					continue;
 				}
-				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + pCity->getPopulation()));
-				iCombatStrength -= (pkUnitEntry->GetProductionCost() / 10 + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetProductionCost(), pCity->plot()->GetPlotIndex() + pCity->getPopulation()));
+				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetPower(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage()));
+
+				iCombatStrength *= pkUnitEntry->GetProductionCost();
+				iCombatStrength /= max(1, (pkUnitEntry->GetProductionCost() + GC.getGame().getSmallFakeRandNum(pkUnitEntry->GetProductionCost(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage())));
 
 				if (pkUnitEntry->GetRange() > 0)
 				{
-					iCombatStrength *= 25;
+					iCombatStrength *= 50;
 					iCombatStrength /= 100;
 				}
 

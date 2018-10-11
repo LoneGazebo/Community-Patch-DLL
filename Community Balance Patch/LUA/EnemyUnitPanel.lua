@@ -1576,6 +1576,51 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				--Controls.TheirDamage:SetHide(false);
 			--end
 
+			--------------------------
+			-- AIR INTERCEPT PREVIEW --
+			--------------------------
+			if (bInterceptPossible) then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING1");
+				controlTable.Value:SetText("");
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
+				controlTable.Value:SetText("");
+			end
+			if (iNumVisibleAAUnits > 0) then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
+				controlTable.Value:SetText("");
+			end
+			
+			-------------------------
+			-- Movement Immunity --
+			-------------------------
+			local movementRules = pTheirUnit:GetMovementRules(pMyUnit);
+			if(movementRules ~= "") then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+			movementRules = pTheirUnit:GetZOCStatus();
+			if(movementRules ~= "") then
+				controlTable = g_TheirCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+			-------------------------
+			-- PRIZE SHIPS PREVIEW --
+			-------------------------
+			if (not bRanged) then
+				local iChance;
+				iChance = pMyUnit:GetCaptureChance(pTheirUnit);
+				if (iChance > 0) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
+						controlTable.Value:SetText("");
+				end
+			end
+
 			if (pTheirUnit:IsCombatUnit()) then
 
 				-- Empire Unhappy
@@ -2047,36 +2092,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_GOLDEN_AGE" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-				end
-			end
-			
-			--------------------------
-			-- AIR INTERCEPT PREVIEW --
-			--------------------------
-			if (bInterceptPossible) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING1");
-				controlTable.Value:SetText("");
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_AIR_INTERCEPT_WARNING2");
-				controlTable.Value:SetText("");
-			end
-			if (iNumVisibleAAUnits > 0) then
-				controlTable = g_TheirCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_VISIBLE_AA_UNITS", iNumVisibleAAUnits);
-				controlTable.Value:SetText("");
-			end
-			
-			-------------------------
-			-- PRIZE SHIPS PREVIEW --
-			-------------------------
-			if (not bRanged) then
-				local iChance;
-				iChance = pMyUnit:GetCaptureChance(pTheirUnit);
-				if (iChance > 0) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText("TXT_KEY_EUPANEL_CAPTURE_CHANCE", iChance);
-						controlTable.Value:SetText("");
 				end
 			end
 		end

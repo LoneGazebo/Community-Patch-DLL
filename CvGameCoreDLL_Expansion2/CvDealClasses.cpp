@@ -1105,6 +1105,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
 				return false;
 
+			if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
+				return false;
+
 			//Can't already be offering this.
 			if (!bFinalizing && IsThirdPartyWarTrade(ePlayer, eThirdTeam))
 				return false;
@@ -3332,13 +3335,13 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 #endif
 		}
 		// Third Party War
-		else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
+		else if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 		{
 			TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
+			GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
 #else
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
+			GET_TEAM(eFromTeam).declareWar(eTargetTeam);
 #endif
 
 			int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();

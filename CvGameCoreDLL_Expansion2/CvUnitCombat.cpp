@@ -134,6 +134,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		if(kAttacker.getChangeDamageValue() != 0)
 		{
 			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
+			if (iDefenderDamageInflicted <= 0)
+				iDefenderDamageInflicted = 0;
 		}
 #endif
 
@@ -286,10 +288,14 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		if(kAttacker.getChangeDamageValue() != 0)
 		{
 			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
+			if (iDefenderDamageInflicted <= 0)
+				iDefenderDamageInflicted = 0;
 		}
 		if(pkDefender->getChangeDamageValue() != 0)
 		{
 			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
+			if (iAttackerDamageInflicted <= 0)
+				iAttackerDamageInflicted = 0;
 		}
 		//Chance to spread promotion?
 		if(kAttacker.getPlagueChance() > 0)
@@ -783,12 +789,14 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		if(pkDefender->getChangeDamageValue() != 0)
 		{
 			iDamage += pkDefender->getChangeDamageValue();
+			if (iDamage <= 0)
+				iDamage = 0;
 		}
 #endif
 #if defined(MOD_UNITS_MAX_HP)
-		if(iDamage + pkDefender->getDamage() > kAttacker.GetMaxHitPoints())
+		if (iDamage + pkDefender->getDamage() > pkDefender->GetMaxHitPoints())
 		{
-			iDamage = kAttacker.GetMaxHitPoints() - pkDefender->getDamage();
+			iDamage = pkDefender->GetMaxHitPoints() - pkDefender->getDamage();
 		}
 #else
 		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
@@ -1002,6 +1010,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 		if(pkDefender->getChangeDamageValue() != 0)
 		{
 			iDamage += pkDefender->getChangeDamageValue();
+			if (iDamage <= 0)
+				iDamage = 0;
 		}
 #endif
 #if defined(MOD_UNITS_MAX_HP)
@@ -1724,6 +1734,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		if(pkDefender->getChangeDamageValue() != 0)
 		{
 			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
+			if (iAttackerDamageInflicted <= 0)
+				iAttackerDamageInflicted = 0;
 		}
 #endif
 #if defined(MOD_UNITS_MAX_HP)
@@ -1751,6 +1763,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		if(kAttacker.getChangeDamageValue() != 0)
 		{
 			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
+			if (iDefenderDamageInflicted <= 0)
+				iDefenderDamageInflicted = 0;
 		}
 #endif
 #if defined(MOD_UNITS_MAX_HP)

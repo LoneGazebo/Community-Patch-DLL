@@ -754,7 +754,7 @@ function UpdateScreen()
 
 -- END CHANGE
 
-
+		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
 		
 		instance.TradeIncome:SetToolTipString(strOccupationTT);
 	end

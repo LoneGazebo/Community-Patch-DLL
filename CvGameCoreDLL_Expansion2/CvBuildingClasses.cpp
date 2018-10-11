@@ -4089,6 +4089,9 @@ int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 /// Is the player allowed to sell building eIndex in this city?
 bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 {
+	if (m_pCity->IsResistance())
+		return false;
+
 	// Can't sell more than one building per turn
 	if(IsSoldBuildingThisTurn())
 		return false;
