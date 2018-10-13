@@ -2056,6 +2056,8 @@ local function GetFoodTooltip( city )
 		tipText =  S( "%s%s%s[ENDCOLOR] %+g[ICON_FOOD]", tipText, foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]", Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ), foodOverflowTimes100 / 100 )
 	end
 
+    tipText = tipText .. city:getPotentialUnhappinessWithGrowth(); 
+
 	if isNoob then
 		return L"TXT_KEY_FOOD_HELP_INFO" .. "[NEWLINE][NEWLINE]" .. tipText
 	else
@@ -2560,6 +2562,8 @@ local function GetCityHappinessTooltip(city)
 	if (not OptionsManager.IsNoBasicHelp()) then
 		strHappinessBreakdown = strHappinessBreakdown .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION");
 	end
+
+	strHappinessBreakdown = strHappinessBreakdown .. city:getPotentialUnhappinessWithGrowth();
 	
 	return strHappinessBreakdown;
 end

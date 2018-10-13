@@ -811,6 +811,10 @@ public:
 
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
+
+	int GetAdjacentEnemySapMovement() const;
+	void ChangeAdjacentEnemySapMovement(int iValue);
+
 #endif
 
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
@@ -882,6 +886,7 @@ public:
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
+	int GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
 	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
@@ -1164,6 +1169,18 @@ public:
 	int getPlaguedCount() const;
 	void changePlagued(int iChange);
 	bool isPlagued() const;
+
+	int getPlagueID() const;
+	void setPlagueID(int iValue);
+
+	int getPlaguePriority() const;
+	void setPlaguePriority(int iValue);
+
+	int getPlagueIDImmunity() const;
+	void setPlagueIDImmunity(int iValue);
+
+	int getPlaguePromotion() const;
+	void setPlaguePromotion(int iValue);
 
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
@@ -1978,6 +1995,10 @@ protected:
 #if defined(MOD_BALANCE_CORE_JFD)
 	FAutoVariable<int, CvUnit> m_iPlagueChance;
 	FAutoVariable<int, CvUnit> m_iIsPlagued;
+	FAutoVariable<int, CvUnit> m_iPlagueID;
+	FAutoVariable<int, CvUnit> m_iPlaguePriority;
+	FAutoVariable<int, CvUnit> m_iPlagueIDImmunity;
+	FAutoVariable<int, CvUnit> m_iPlaguePromotion;
 	FAutoVariable<ContractTypes, CvUnit> m_eUnitContract;
 	FAutoVariable<int, CvUnit> m_iNegatorPromotion;
 #endif
@@ -2097,6 +2118,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
+	FAutoVariable<int, CvUnit> m_iAdjacentEnemySapMovement;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	FAutoVariable<int, CvUnit> m_iGGFromBarbariansCount;

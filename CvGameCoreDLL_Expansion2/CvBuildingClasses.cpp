@@ -266,6 +266,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLandTourism(0),
 	m_iSeaTourism(0),
 	m_iAlwaysHeal(0),
+	m_iNukeInterceptionChance(0),
 	m_bIsCorp(false),
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
@@ -591,6 +592,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
 	m_bIsCorp = kResults.GetBool("IsCorporation");
+	m_iNukeInterceptionChance = kResults.GetInt("NukeInterceptionChance");
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_bPlayerBorderGainlessPillage = kResults.GetBool("PlayerBorderGainlessPillage");
@@ -2428,6 +2430,10 @@ bool CvBuildingEntry::IsCorp() const
 {
 	return m_bIsCorp;
 }
+int CvBuildingEntry::GetNukeInterceptionChance() const
+{
+	return m_iNukeInterceptionChance;
+}
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 /// Is a border-wide nullification of the heal and gold benefits from pillaging
@@ -4083,6 +4089,9 @@ int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 /// Is the player allowed to sell building eIndex in this city?
 bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 {
+	if (m_pCity->IsResistance())
+		return false;
+
 	// Can't sell more than one building per turn
 	if(IsSoldBuildingThisTurn())
 		return false;

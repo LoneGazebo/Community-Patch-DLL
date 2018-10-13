@@ -193,6 +193,10 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE_JFD)
 	, m_iPlagueChance("CvUnit::m_iPlagueChance", m_syncArchive)
 	, m_iIsPlagued("CvUnit::m_iIsPlagued", m_syncArchive)
+	, m_iPlagueID("CvUnit::m_iPlagueID", m_syncArchive)
+	, m_iPlaguePriority("CvUnit::m_iPlaguePriority", m_syncArchive)
+	, m_iPlagueIDImmunity("CvUnit::m_iPlagueIDImmunity", m_syncArchive)
+	, m_iPlaguePromotion("CvUnit::m_iPlaguePromotion", m_syncArchive)
 	, m_eUnitContract("CvUnit::m_eUnitContract", m_syncArchive)
 	, m_iNegatorPromotion("CvUnit::m_iNegatorPromotion", m_syncArchive)
 #endif
@@ -386,6 +390,7 @@ CvUnit::CvUnit() :
 	, m_iGainsXPFromPillaging("CvUnit::m_iGainsXPFromPillaging", m_syncArchive)
 	, m_iGainsXPFromSpotting("CvUnit::m_iGainsXPFromSpotting", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
+	, m_iAdjacentEnemySapMovement("CvUnit::m_iAdjacentEnemySapMovement", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
 	, m_iDamageAoEFortified("CvUnit::m_iDamageAoEFortified", m_syncArchive)
 	, m_iWorkRateMod("CvUnit::m_iWorkRateMod", m_syncArchive)
@@ -1100,7 +1105,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, pPlotCity->getPopulation()) + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1131,7 +1136,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, pPlotCity->getPopulation()) + 1;
+			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).getGlobalAverage(YIELD_CULTURE)) + 1;
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1450,6 +1455,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = 0;
 	m_iIsPlagued = 0;
+	m_iPlagueID = 0;
+	m_iPlaguePriority = 0;
+	m_iPlagueIDImmunity = -1;
+	m_iPlaguePromotion = NO_PROMOTION;
 	m_eUnitContract = NO_CONTRACT;
 	m_iNegatorPromotion = -1;
 #endif
@@ -1566,6 +1575,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromSpotting = 0;
 	m_iGainsXPFromPillaging = 0;
 	m_iBarbCombatBonus = 0;
+	m_iAdjacentEnemySapMovement = 0;
 	m_iCanMoraleBreak = 0;
 	m_iDamageAoEFortified = 0;
 	m_iWorkRateMod = 0;
@@ -3107,6 +3117,46 @@ void CvUnit::doTurn()
 #endif
 				}
 			}
+		}
+	}
+
+	if (!IsIgnoreZOC())
+	{
+		int iTotalMovePenalty = 0;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if (pAdjacentPlot != NULL)
+			{
+				for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
+				{
+					CvUnit* loopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+					if (loopUnit == NULL)
+						continue;
+					if (!loopUnit->IsCombatUnit())
+						continue;
+					if (loopUnit->getDomainType() != getDomainType())
+						continue;
+					if (!loopUnit->isEnemy(getTeam(), plot()))
+						continue;
+
+					int iMovePenalty = loopUnit->GetAdjacentEnemySapMovement();
+					if (iMovePenalty <= 0)
+						continue;
+
+					iTotalMovePenalty += iMovePenalty;
+				}
+			}
+		}
+		if (iTotalMovePenalty > 0)
+		{
+			iTotalMovePenalty = min(getMoves() - 1, iTotalMovePenalty);
+			changeMoves(-iTotalMovePenalty);
+
+			CvString strLogString;
+			strLogString.Format("%s movement slowed by adjacent unit by %d moves!", getName().GetCString(), iTotalMovePenalty);
+			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
 #endif
@@ -6900,6 +6950,7 @@ int CvUnit::getNegatorPromotion()
 {
 	return m_iNegatorPromotion;
 }
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -9205,6 +9256,16 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				continue;
 			}
 
+			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION)
+			{
+				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+				{
+					return false;
+				}
+			}
+
 			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 				continue;
@@ -9213,16 +9274,6 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			{
 				PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
 				if (eTradeUnitDest == m_eOwner)
-				{
-					return false;
-				}
-			}
-
-			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
-			if (eCorporation != NO_CORPORATION)
-			{
-				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
 				{
 					return false;
 				}
@@ -9241,6 +9292,17 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			{
 				// invalid TradeUnit
 				return false;
+			}
+
+
+			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION)
+			{
+				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+				{
+					return false;
+				}
 			}
 
 			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
@@ -14340,11 +14402,32 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		}
 
 
-		if (!pPlot->isCity() && GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
+		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
 		{
 			SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes)GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
 			if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() == eSpedcialStealth)
-				return false;
+			{
+				if (!pPlot->isCity())
+					return false;
+
+				CvPlot* pPlot;
+				const IDInfo* pUnitNode;
+				const CvUnit* pLoopUnit;
+
+				pPlot = plot();
+				pUnitNode = pPlot->headUnitNode();
+
+				while (pUnitNode != NULL)
+				{
+					pLoopUnit = ::getUnit(*pUnitNode);
+					pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+					if (pLoopUnit && pLoopUnit->getTransportUnit() == this)
+					{
+						return false;
+					}
+				}
+			}
 		}
 #endif
 
@@ -15132,7 +15215,7 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	iExtraUnitCombatTypeMoves += pTraits->GetMovesChangeUnitClass((UnitClassTypes)(m_pUnitInfo->GetUnitClassType()));
 #endif
 
-	return (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves);
+	return max(1, (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves));
 }
 
 
@@ -16046,7 +16129,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		// Flanking
 		if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 		{
-			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent();
+			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent() - pOtherUnit->GetNumFriendlyUnitsAdjacent();
 			if(iNumAdjacentFriends > 0)
 			{
 				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
@@ -18663,6 +18746,21 @@ void CvUnit::ChangeBarbarianCombatBonus(int iValue)
 		m_iBarbCombatBonus += iValue;
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetAdjacentEnemySapMovement() const
+{
+	VALIDATE_OBJECT
+		return m_iAdjacentEnemySapMovement;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeAdjacentEnemySapMovement(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iAdjacentEnemySapMovement += iValue;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -19136,6 +19234,13 @@ int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 }
 
 //	--------------------------------------------------------------------------------
+/// How many friendly Units are adjacent to this guy?
+int CvUnit::GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude) const
+{
+	return plot()->GetNumFriendlyUnitsAdjacent(getTeam(), plot()->getDomain(), pUnitToExclude);
+}
+
+//	--------------------------------------------------------------------------------
 /// Is a particular enemy city next to us?
 bool CvUnit::IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const
 {
@@ -19284,7 +19389,7 @@ void CvUnit::changeDefenseModifier(int iValue)
 int CvUnit::cityAttackModifier() const
 {
 	VALIDATE_OBJECT
-	return (getExtraCityAttackPercent());
+		return (getExtraCityAttackPercent());
 }
 
 
@@ -22652,7 +22757,7 @@ int CvUnit::getPlagueChance() const
 void CvUnit::changePlagueChance(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iPlagueChance = (m_iPlagueChance + iChange);
+	m_iPlagueChance = min(100, (m_iPlagueChance + iChange));
 	CvAssert(getPlagueChance() >= 0);
 }
 //	--------------------------------------------------------------------------------
@@ -22672,7 +22777,54 @@ void CvUnit::changePlagued(int iChange)
 int CvUnit::getPlaguedCount() const
 {
 	VALIDATE_OBJECT
-	return m_iIsPlagued;
+		return m_iIsPlagued;
+}
+
+void CvUnit::setPlagueID(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iPlagueID = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getPlagueID() const
+{
+	VALIDATE_OBJECT
+	return m_iPlagueID;
+}
+
+void CvUnit::setPlaguePriority(int iValue)
+{
+	VALIDATE_OBJECT
+		m_iPlaguePriority = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getPlagueIDImmunity() const
+{
+	VALIDATE_OBJECT
+		return m_iPlagueIDImmunity;
+}
+
+void CvUnit::setPlagueIDImmunity(int iValue)
+{
+	VALIDATE_OBJECT
+		m_iPlagueIDImmunity = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getPlaguePriority() const
+{
+	VALIDATE_OBJECT
+		return m_iPlaguePriority;
+}
+
+int CvUnit::getPlaguePromotion() const
+{
+	return m_iPlaguePromotion;
+}
+void CvUnit::setPlaguePromotion(int iValue)
+{
+	m_iPlaguePromotion = iValue;
 }
 void CvUnit::setContractUnit(ContractTypes eContract)
 {
@@ -27010,6 +27162,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
+		ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
 		ChangeGainsXPFromPillaging((thisPromotion.IsGainsXPFromPillaging()) ? iChange : 0);
 		ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
@@ -27075,6 +27228,17 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_BALANCE_CORE_JFD)
 		changePlagueChance(thisPromotion.GetPlagueChance() * iChange);
 		changePlagued((thisPromotion.IsPlague()) ? iChange: 0);
+		if (thisPromotion.GetPlagueIDImmunity() != -1)
+		{
+			setPlagueIDImmunity(iChange > 0 ? thisPromotion.GetPlagueIDImmunity() : -1);
+		}
+		if (thisPromotion.GetPlaguePromotion() != NO_PROMOTION)
+		{
+			if (iChange > 0)
+				setPlaguePromotion(thisPromotion.GetPlaguePromotion());
+			else
+				setPlaguePromotion(NO_PROMOTION);
+		}
 #endif
 		changeExtraRange(thisPromotion.GetRangeChange() * iChange);
 		ChangeRangedAttackModifier(thisPromotion.GetRangedAttackModifier() * iChange);
@@ -30083,61 +30247,124 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		return;
 	}
 
-	//Next let's grab the promotion.
-	int iI;
+	PromotionTypes ePlague = (PromotionTypes)getPlaguePromotion();
 	bool bTransferred = false;
-	PromotionTypes ePlague = NO_PROMOTION;
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	if (ePlague == NO_PROMOTION)
 	{
-		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
-		if(ePromotion != NO_PROMOTION && HasPromotion(ePromotion))
+		//Next let's grab the promotion.
+		int iI;
+		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 		{
-			CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
+			const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
+			if (ePromotion != NO_PROMOTION && HasPromotion(ePromotion))
 			{
-				if(!defender.HasPromotion(ePromotion))
+				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
+				if (pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
 				{
-					defender.setHasPromotion(ePromotion, true);
-					ePlague = ePromotion;
-					bTransferred = true;
-					break;
+					if (!defender.HasPromotion(ePromotion) && (defender.getPlagueIDImmunity() == -1 || defender.getPlagueIDImmunity() != pkPlaguePromotionInfo->GetPlagueID()))
+					{
+						defender.setHasPromotion(ePromotion, true);
+						ePlague = ePromotion;
+						bTransferred = true;
+						break;
+					}
 				}
 			}
 		}
 	}
+	else if (!defender.HasPromotion(ePlague))
+	{
+		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
+		if (pkPlaguePromotionInfo == NULL)
+			return;
+
+		int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
+
+		//we're immune to this?
+		if (defender.getPlagueIDImmunity() != -1 && defender.getPlagueIDImmunity() == pkPlaguePromotionInfo->GetPlagueID())
+			return;
+
+		//we already have this plague? let's see if we've been hit with a more severe version of the same plague...
+		if (iPlagueID == defender.getPlagueID())
+		{
+			//weaker? ignore.
+			if (pkPlaguePromotionInfo->GetPlaguePriority() <= defender.getPlaguePriority())
+				return;
+
+			PromotionTypes eCurrentPlague = (PromotionTypes)defender.getPlaguePromotion();			
+
+			//remove the weaker one.
+			if (eCurrentPlague != NO_PROMOTION)
+				defender.setHasPromotion(eCurrentPlague, false);
+		}
+
+		defender.setHasPromotion(ePlague, true);
+
+		defender.setPlagueID(pkPlaguePromotionInfo->GetPlagueID());
+		defender.setPlaguePriority(pkPlaguePromotionInfo->GetPlaguePriority());
+
+		bTransferred = true;
+	}
 	if(bTransferred && ePlague != NO_PROMOTION)
 	{
+		CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePlague);
+		const char* szPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
 		if(GC.getLogging() && GC.getAILogging())
 		{
-			CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePlague);
-			const char* szPromotionDesc = (pkPromotionEntry != NULL)? pkPromotionEntry->GetDescription() : "Unknown Promotion";
-
 			CvString szMsg;
-			szMsg.Format("JFD: Plague, %s, Transferred by %s to %s in melee",
+			szMsg.Format("Promotion, %s, Transferred by %s to %s in melee",
 							szPromotionDesc, getName().GetCString(), defender.getName().GetCString());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 		
-		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if(pNotifications)
+		if (MOD_BALANCE_CORE_JFD)
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER");
-			strMessage << getUnitInfo().GetTextKey();
-			strMessage << defender.getUnitInfo().GetTextKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_S");
-			strSummary << getUnitInfo().GetTextKey();
-			pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
-		}
-		CvNotifications* pNotificationsOther = GET_PLAYER(defender.getOwner()).GetNotifications();
-		if(pNotificationsOther)
-		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM");
-			strMessage << getUnitInfo().GetTextKey();
-			strMessage << defender.getUnitInfo().GetTextKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S");
-			strSummary << defender.getUnitInfo().GetTextKey();
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER");
+				strMessage << getUnitInfo().GetTextKey();
+				strMessage << defender.getUnitInfo().GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_S");
+				strSummary << getUnitInfo().GetTextKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+			}
+			CvNotifications* pNotificationsOther = GET_PLAYER(defender.getOwner()).GetNotifications();
+			if (pNotificationsOther)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM");
+				strMessage << getUnitInfo().GetTextKey();
+				strMessage << defender.getUnitInfo().GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S");
+				strSummary << defender.getUnitInfo().GetTextKey();
 
-			pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
+				pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+			}
+		}
+		else
+		{
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if (pNotifications && iPlagueChance < 100)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PROMOTION_TRANSFER");
+				strMessage << getUnitInfo().GetTextKey();
+				strMessage << defender.getUnitInfo().GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PROMOTION_TRANSFER_S");
+				strSummary << getUnitInfo().GetTextKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+			}
+			CvNotifications* pNotificationsOther = GET_PLAYER(defender.getOwner()).GetNotifications();
+			if (pNotificationsOther)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PROMOTION_TRANSFER_THEM");
+				strMessage << getUnitInfo().GetTextKey();
+				strMessage << defender.getUnitInfo().GetTextKey();
+				strMessage << szPromotionDesc;
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_PROMOTION_TRANSFER_S_THEM_S");
+				strSummary << defender.getUnitInfo().GetTextKey();
+
+				pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int)getUnitType(), getOwner());
+			}
 		}
 	}
 }
@@ -30250,6 +30477,8 @@ void CvUnit::AI_promote()
 	eBestPromotion = NO_PROMOTION;
 	int iNumValidPromotions = 0;
 
+
+
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
@@ -30258,6 +30487,43 @@ void CvUnit::AI_promote()
 		{
 			iNumValidPromotions++;
 			iValue = AI_promotionValue(ePromotion);
+
+			//value lower-level promotions  a bit less.
+			if (GC.getPromotionInfo(ePromotion) != NULL && GC.getPromotionInfo(ePromotion)->GetPrereqOrPromotion1() == NO_PROMOTION)
+				iValue /= 2;
+
+			//for some basic forward planning, look at promotions this promotion unlocks and add those to the value.
+			for (int j = 0; j < GC.getNumPromotionInfos(); j++)
+			{
+				const PromotionTypes eNextPromotion(static_cast<PromotionTypes>(j));
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNextPromotion);
+				if (pkPromotionInfo == NULL)
+					continue;
+
+				if (pkPromotionInfo->GetPrereqOrPromotion1() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion2() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion3() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion4() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion5() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion6() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion7() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion8() == ePromotion ||
+					pkPromotionInfo->GetPrereqOrPromotion9() == ePromotion)
+				{
+					iValue += AI_promotionValue(eNextPromotion) / 2;
+				}
+
+			}
+			if (iValue <= 0)
+			{
+				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
+				const char* szPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
+
+				CvString szMsg;
+				szMsg.Format("Promotion, %s, For %s, is worthless! What?",
+					szPromotionDesc, getName().GetCString());
+				GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+			}
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -30318,15 +30584,29 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	int iExtra;
 	int iI;
 
+	bool bWarTimePromotion = plot()->getOwner() != NO_PLAYER && GET_PLAYER(plot()->getOwner()).IsAtWarWith(getOwner());
+
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
-	int iFlavorOffense = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	int iFlavorDefense = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
-	int iFlavorRanged = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
-	int iFlavorRecon = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
-	int iFlavorMobile = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
-	int iFlavorNaval = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-	int iFlavorAir = pFlavorMgr->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR"));
+	int iFlavorOffense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 10);
+	iFlavorOffense += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE") * bWarTimePromotion  ? 2 : 1);
+
+	int iFlavorDefense = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE")) / 10);
+	iFlavorDefense += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE") * bWarTimePromotion ? 1 : 2);
+	int iFlavorRanged = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED")) / 10);
+	iFlavorRanged += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RANGED"));
+	int iFlavorRecon = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON")) / 10);
+	iFlavorRecon += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON")) / 10);
+	iFlavorRecon += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON") * bWarTimePromotion ? 1 : 2);
+	iFlavorRecon += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON") * bWarTimePromotion ? 1 : 2);
+	int iFlavorMobile = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE")) / 10);
+	iFlavorMobile += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_MOBILE"));
+	int iFlavorNaval = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL")) / 10);
+	iFlavorNaval += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
+	int iFlavorAir = max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR")) / 10);
+	iFlavorAir += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_AIR"));
+	iFlavorAir += max(1, pFlavorMgr->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR")) / 10);
+	iFlavorAir += m_pUnitInfo->GetFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ANTIAIR"));
 
 	// If we are damaged, insta heal is the way to go
 	if(pkPromotionInfo->IsInstaHeal())
@@ -30342,59 +30622,22 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetCombatPercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraCombatPercent();
-		//Let's encourage getting all three tiers asap.
-		iTemp *= (100 + iExtra * 11);
-		iTemp /= 100;
-
-		iValue += iTemp + iFlavorOffense * 11;
-
-		//Raw power is better for mounted/armor units
-		const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
-		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true))
-		{
-			iValue *= 3;
-			iValue /= 2;
-		}
-		else if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
-		{
-			iValue *= 3;
-			iValue /= 2;
-		}
-		else
-		{
-			iValue *= 2;
-			iValue /= 3;
-		}
+		iExtra = iTemp + getExtraCombatPercent();
+		iValue += iExtra + iFlavorOffense;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
 	{
-		iExtra = GetRangedAttackModifier();
-		iTemp *= (100 + iExtra * 11);
-		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense * 11;
-
-		//Raw power is better for archer units than all others
-		const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
-		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
-		{
-			iValue *= 3;
-			iValue /= 2;
-		}
-		else
-		{
-			iValue *= 2;
-			iValue /= 3;
-		}
+		iExtra = iTemp + GetRangedAttackModifier();
+		iValue += iExtra + iFlavorOffense;
 	}
 
 	if (pkPromotionInfo->IsGainsXPFromSpotting())
 	{
-		iExtra = visibilityRange();
-		iTemp = (iExtra * 10);
+		iExtra = iTemp + visibilityRange();
+		iExtra = (iExtra * 5);
 
-		iValue += iTemp + iFlavorOffense * 7;
+		iValue += iExtra + iFlavorRecon;
 	}
 
 	iTemp = pkPromotionInfo->GetLandAirDefenseValue();
@@ -30408,33 +30651,44 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 		iTemp += getLandAirDefenseValue() + getUnitInfo().GetBaseLandAirDefense();
 
-		iValue += iTemp + iFlavorDefense * 4;
+		iValue += iTemp + iFlavorDefense;
 	}
 
 	if (pkPromotionInfo->IsGainsXPFromPillaging())
 	{
 		iExtra = maxMoves();
-		iTemp = (iExtra * 10);
+		iTemp = (iExtra * 5);
 
-		iValue += iTemp + iFlavorOffense * 7;
+		iValue += iTemp + iFlavorRecon;
 	}
 
 	iTemp = pkPromotionInfo->GetGoodyHutYieldBonus();
 	if (iTemp != 0 && !GC.getGame().isOption(GAMEOPTION_NO_GOODY_HUTS))
 	{
 		iExtra = maxMoves();
-		iTemp += (iExtra * 10);
+		iTemp += (iExtra * 5);
 
-		iValue += iTemp + iFlavorRecon * 4;
+		iValue += iTemp + iFlavorRecon;
 	}
 
 	iTemp = pkPromotionInfo->GetDamageReductionCityAssault();
 	if (iTemp != 0)
 	{
 		iExtra = GetDamageReductionCityAssault();
-		iTemp += (iExtra * 20);
 
-		iValue += iTemp + iFlavorOffense * 14;
+		iValue += iTemp + iExtra + iFlavorOffense;
+	}
+
+	iTemp = pkPromotionInfo->GetPlagueChance();
+	if (iTemp != 0)
+	{
+		iValue += iTemp/2 + iFlavorOffense;
+	}
+
+	iTemp = pkPromotionInfo->GetPlagueIDImmunity();
+	if (iTemp != 0)
+	{
+		iValue += iFlavorDefense;
 	}
 #endif
 
@@ -30442,182 +30696,224 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0)
 	{
 		iExtra = getExtraOpenAttackPercent();
-		iTemp *= (100 + iExtra * 2);
-		iTemp /= 100;
 		if(noDefensiveBonus())
 		{
-			iTemp *= 2;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorOffense * 2;
+		iValue += iTemp + iExtra + iFlavorMobile;
 	}
 
 	iTemp = pkPromotionInfo->GetOpenDefensePercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraOpenDefensePercent() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraOpenDefensePercent();
 		if(noDefensiveBonus())
 		{
-			iTemp *= 2;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorDefense * 2;
+		iValue += iTemp + iExtra + iFlavorMobile;
 	}
 
 	iTemp = pkPromotionInfo->GetRoughAttackPercent();
 	if(iTemp != 0)
 	{
 		iExtra = getExtraRoughAttackPercent();
-		iTemp *= (100 + iExtra * 2);
-		iTemp /= 100;
 		if(!noDefensiveBonus())
 		{
-			iTemp *= 2;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorOffense * 2;
+		iValue += iTemp + iExtra + iFlavorOffense;
 	}
 
 	iTemp = pkPromotionInfo->GetRoughDefensePercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraRoughDefensePercent() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraRoughDefensePercent();
+
 		if(!noDefensiveBonus())
 		{
-			iTemp *= 2;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorDefense * 2;
+		iValue += iTemp + iExtra + iFlavorDefense;
 	}
 
 	iTemp = pkPromotionInfo->GetOpenRangedAttackMod();
 	if(iTemp != 0 && isRanged())
 	{
 		iExtra = getExtraOpenRangedAttackMod();
-		iTemp *= (100 + iExtra * 2);
-		iTemp /= 100;
 		if(noDefensiveBonus())
 		{
-			iTemp *= 2;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorRanged * 2;
+		iValue += iTemp + iExtra + iFlavorRanged;
 	}
 
 	iTemp = pkPromotionInfo->GetRoughRangedAttackMod();
 	if(iTemp != 0 && isRanged())
 	{
-		iExtra = getExtraRoughRangedAttackMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraRoughRangedAttackMod();
 		if(!noDefensiveBonus())
 		{
-			iTemp *= 2;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorRanged * 2;
+		iValue += iTemp + iExtra + iFlavorRanged;
 	}
 
 	iTemp = pkPromotionInfo->GetVisibilityChange();
 	if((AI_getUnitAIType() == UNITAI_EXPLORE_SEA) ||
 			(AI_getUnitAIType() == UNITAI_EXPLORE))
 	{
-		iValue += iTemp * (50 + iFlavorRecon * 2);
+		iValue += iTemp + iFlavorRecon * 5;
 	}
 	else
 	{
-		iValue += iTemp * (50 + iFlavorRecon * 5);
+		iValue += iTemp + iFlavorMobile;
 	}
 
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraCityAttackPercent();
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		if (iExtra <= 0)
-			iTemp /= 2;
+		iExtra = getExtraCityAttackPercent()/2;
 
-		iValue += iTemp + iFlavorOffense * 5;
+		if (canMoveAfterAttacking() || AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+			iValue += iTemp + iExtra + iFlavorOffense;
+		else
+			iValue += iTemp + iExtra/2 + iFlavorOffense/2;
+
 		if(isRanged())
 		{
-			iValue += iFlavorRanged * 9;
+			iValue += iTemp/2 * max(1, GetRange());
+		}
+	}
+
+	iTemp = pkPromotionInfo->GetCityAttackPlunderModifier();
+	if (iTemp != 0)
+	{
+		iExtra = GetCityAttackPlunderModifier();
+		iValue += iTemp + iExtra + iFlavorOffense;
+		if (isRanged())
+		{
+			iValue += iExtra * GetRange();
+
+			if (canMoveAfterAttacking())
+				iValue += iExtra;
 		}
 	}
 
 	iTemp = pkPromotionInfo->GetCityDefensePercent();
 	if(iTemp != 0)
 	{
+		
 		iExtra = getExtraCityDefensePercent();
-		iTemp *= (100 + iExtra * 2);
-		iTemp /= 100;
-		iValue += iTemp + iFlavorDefense * 2;
-		if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-				(AI_getUnitAIType() == UNITAI_COUNTER))
+		if ((AI_getUnitAIType() == UNITAI_DEFENSE) ||
+			(AI_getUnitAIType() == UNITAI_COUNTER))
 		{
-			iValue *= 2;
+			iExtra *= 2;
 		}
+		iValue += iTemp + iExtra + iFlavorDefense;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackFortifiedMod();
-	if(iTemp != 0 && isRanged())
+	if(iTemp != 0)
 	{
-		iExtra = getExtraAttackFortifiedMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 2;
+		if (isRanged())
+		{
+			iExtra = getExtraAttackFortifiedMod();
+			iValue += iTemp + iExtra + iFlavorRanged;
+		}
+		else
+		{
+			iExtra = getExtraAttackFortifiedMod();
+			iValue += iTemp + iExtra + iFlavorOffense;
+		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	iTemp = pkPromotionInfo->GetAttackFortifiedMod();
-	if(iTemp != 0 && !isRanged())
+
+	iTemp = pkPromotionInfo->GetHillsAttackPercent();
+	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackFortifiedMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		iValue += iTemp + (iFlavorOffense * iFlavorDefense) * 2;
+		if (isRanged())
+		{
+			iExtra = getExtraHillsAttackPercent();
+			iValue += iTemp + iExtra + iFlavorRanged;
+		}
+		else
+		{
+			iExtra = getExtraHillsAttackPercent();
+			iValue += iTemp + iExtra + iFlavorOffense;
+		}
 	}
-#endif
+	iTemp = pkPromotionInfo->GetHillsDefensePercent();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraHillsDefensePercent();
+		iValue += iTemp + iFlavorDefense + iFlavorDefense;
+	}
+
+	iTemp = pkPromotionInfo->GetNearbyEnemyCombatMod();
+	if (iTemp != 0)
+	{
+		iExtra = getNearbyEnemyCombatMod();
+		iValue += iTemp + iExtra + iFlavorOffense;
+	}
+	iTemp = pkPromotionInfo->GetNearbyEnemyCombatRange();
+	if (iTemp != 0)
+	{
+		iValue += iTemp + iFlavorOffense * 5;
+	}
 
 	iTemp = pkPromotionInfo->GetEnemyHealChange();
 	if((AI_getUnitAIType() == UNITAI_PARADROP) ||
 			(AI_getUnitAIType() == UNITAI_PIRATE_SEA))
 	{
-		iValue += iTemp * (50 + iFlavorOffense * 2);
+		iValue += iTemp + getExtraEnemyHeal() + iFlavorOffense * 2;
 	}
 	else
 	{
-		iValue += iTemp * (10 + iFlavorOffense * 2);
+		iValue += iTemp + getExtraEnemyHeal() + iFlavorOffense;
 	}
 
 	iTemp = pkPromotionInfo->GetNeutralHealChange();
 	if((AI_getUnitAIType() == UNITAI_EXPLORE) ||
 			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
 	{
-		iValue += iTemp * (40 + iFlavorRecon * 2);
+		iValue += iTemp + getExtraNeutralHeal() + iFlavorRecon * 2;
 	}
 	else
 	{
-		iValue += iTemp * (10 + iFlavorRecon * 2);
+		iValue += iTemp + getExtraNeutralHeal() + iFlavorRecon;
 	}
 
 	iTemp = pkPromotionInfo->GetFriendlyHealChange();
 	if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
 			(AI_getUnitAIType() == UNITAI_COUNTER))
 	{
-		iValue += iTemp * (20 + iFlavorDefense * 2);
+		iValue += iTemp + getExtraFriendlyHeal() + iFlavorDefense * 2;
 	}
 	else
 	{
-		iValue += iTemp * (10 + iFlavorDefense * 2);
+		iValue += iTemp + getExtraFriendlyHeal() + iFlavorDefense;
+	}
+
+	iTemp = pkPromotionInfo->GetSameTileHealChange();
+	if ((AI_getUnitAIType() == UNITAI_DEFENSE) ||
+		(AI_getUnitAIType() == UNITAI_COUNTER))
+	{
+		iValue += iTemp + getSameTileHeal() + iFlavorDefense * 2;
+	}
+	else
+	{
+		iValue += iTemp + getSameTileHeal() + iFlavorDefense;
 	}
 
 	iTemp = pkPromotionInfo->GetAdjacentTileHealChange();
 	if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
 			(AI_getUnitAIType() == UNITAI_COUNTER))
 	{
-		iValue += iTemp * (40 + iFlavorDefense * 2);
+		iValue += iTemp + getSameTileHeal() + iFlavorDefense * 2;
 	}
 	else
 	{
-		iValue += iTemp * (10 + iFlavorDefense * 2);
+		iValue += iTemp + getSameTileHeal() + iFlavorDefense;
 	}
 
 	if(pkPromotionInfo->IsAmphib())
@@ -30626,7 +30922,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				(AI_getUnitAIType() == UNITAI_ATTACK))
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			iValue += 50 + iFlavorOffense * 2;
+			iValue += iFlavorMobile * 2;
 #else
 			iValue += 40 + iFlavorOffense * 2;
 #endif
@@ -30634,7 +30930,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			iValue += 30 + iFlavorOffense * 2;
+			iValue += iFlavorMobile;
 #else
 			iValue += 10 + iFlavorOffense * 2;
 #endif
@@ -30647,7 +30943,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				(AI_getUnitAIType() == UNITAI_ATTACK))
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			iValue += 50 + iFlavorOffense * 2;
+			iValue += iFlavorMobile * 2;
 #else
 			iValue += 40 + iFlavorOffense * 2;
 #endif
@@ -30655,7 +30951,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		else
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			iValue += 30 + iFlavorOffense * 2;
+			iValue += iFlavorMobile;
 #else
 			iValue += 10 + iFlavorOffense * 2;
 #endif
@@ -30665,20 +30961,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->GetRangedDefenseMod();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraRangedDefenseModifier() * 4;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraRangedDefenseModifier();
 		// likely not a ranged unit
 		if((AI_getUnitAIType() == UNITAI_DEFENSE) || (AI_getUnitAIType() == UNITAI_COUNTER) || (AI_getUnitAIType() == UNITAI_ATTACK))
 		{
-			iTemp *= 4;
+			iExtra *= 2;
 		}
 		// a slow unit
 		if (maxMoves() / GC.getMOVE_DENOMINATOR() <= 2)
 		{
-			iTemp *= 5;
+			iExtra *= 2;
 		}
-		iValue += iTemp + iFlavorDefense * 4;
+		iValue += iTemp + iExtra + iFlavorDefense;
 	}
 
 	iTemp = pkPromotionInfo->GetOutsideFriendlyLandsModifier();
@@ -30687,84 +30981,154 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if ((AI_getUnitAIType() == UNITAI_EXPLORE) ||
 			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
 		{
-			iValue += iTemp * (5 + iFlavorRecon * 2);
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorRecon * 2;
 		}
 		else
 		{
-			iValue += iTemp * (iFlavorRecon * 2);
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorRecon;
 		}		
+	}
+	iTemp = pkPromotionInfo->GetFriendlyLandsModifier();
+	if (iTemp != 0)
+	{
+		if ((AI_getUnitAIType() == UNITAI_EXPLORE) ||
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+		{
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorDefense;
+		}
+		else
+		{
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorDefense * 2;
+		}
+	}
+
+	iTemp = pkPromotionInfo->GetCapitalDefenseModifier();
+	if (iTemp != 0)
+	{
+		if ((AI_getUnitAIType() == UNITAI_EXPLORE) ||
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+		{
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorDefense;
+		}
+		else
+		{
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorDefense * 2;
+		}
+	}
+
+	iTemp = pkPromotionInfo->GetFriendlyLandsAttackModifier();
+	if (iTemp != 0)
+	{
+		if ((AI_getUnitAIType() == UNITAI_EXPLORE) ||
+			(AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+		{
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorDefense;
+		}
+		else
+		{
+			iValue += iTemp + getOutsideFriendlyLandsModifier() + iFlavorDefense * 2;
+		}
 	}
 
 	if(pkPromotionInfo->IsRangeAttackIgnoreLOS() && isRanged())
 	{
-		iValue += 75 + iFlavorRanged * 10;
+		iValue += iFlavorRanged * 50;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackWoundedMod();
 	if(iTemp != 0)
 	{
-		iExtra = getExtraAttackWoundedMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraAttackWoundedMod();
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 5;
+			iValue += iTemp + iExtra + iFlavorRanged;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 5;
+			iValue += iTemp + iExtra + iFlavorOffense;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackFullyHealedMod();
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackFullyHealedMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraAttackFullyHealedMod();
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged);
+			iValue += iTemp + iExtra + iFlavorRanged;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense);
+			iValue += iTemp + iExtra + iFlavorDefense;
 	}
 
 	iTemp = pkPromotionInfo->GetAttackAboveHealthMod();
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackAboveHealthMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraAttackAboveHealthMod();
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged);
+			iValue += iTemp + iExtra + iFlavorRanged;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense);
+			iValue += iTemp + iExtra + iFlavorDefense;
 	}
 	iTemp = pkPromotionInfo->GetAttackBelowHealthMod();
 	if (iTemp != 0)
 	{
-		iExtra = getExtraAttackBelowHealthMod() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getExtraAttackBelowHealthMod();
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 3;
+			iValue += iTemp + iExtra + iFlavorRanged;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 3;
+			iValue += iTemp + iExtra + iFlavorOffense;
 	}
 
-	
+	iTemp = pkPromotionInfo->GetMaxHitPointsChange() * 2;
+	if (iTemp != 0)
+	{
+		iExtra = getMaxHitPointsChange() * 5;
+		if (isRanged())
+			iValue += iTemp + iExtra + iFlavorDefense;
+		else
+			iValue += iTemp + iExtra + iFlavorOffense;
+	}
+
+	iTemp = pkPromotionInfo->GetMaxHitPointsModifier() * 2;
+	if (iTemp != 0)
+	{
+		iExtra = getMaxHitPointsModifier() * 5;
+
+		if (isRanged())
+			iValue += iTemp + iExtra + iFlavorDefense;
+		else
+			iValue += iTemp + iExtra + iFlavorOffense;
+	}
 
 	iTemp = pkPromotionInfo->GetSplashDamage();
 	if (iTemp != 0)
 	{
-		iExtra = getSplashDamage() * 10;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
+		iExtra = getSplashDamage() * 5;
 		if (isRanged())
-			iValue += iTemp + (iFlavorOffense * iFlavorRanged) * 10;
+			iValue += iTemp + iExtra + iFlavorRanged;
 		else
-			iValue += iTemp + (iFlavorOffense * iFlavorOffense) * 10;
+			iValue += iTemp + iExtra + iFlavorOffense;
+	}
+
+	iTemp = pkPromotionInfo->GetAdjacentMod();
+	if (iTemp != 0)
+	{
+		iExtra = GetAdjacentModifier() * 5;
+		if (isRanged())
+			iValue += iTemp + iExtra + iFlavorRanged;
+		else
+			iValue += iTemp + iExtra + iFlavorOffense;
+	}
+
+	iTemp = pkPromotionInfo->GetAttackMod();
+	if (iTemp != 0)
+	{
+		iExtra = getAttackModifier() * 5;
+		if (isRanged())
+			iValue += iTemp + iExtra + iFlavorRanged;
+		else
+			iValue += iTemp + iExtra + iFlavorOffense;
 	}
 
 	iTemp = pkPromotionInfo->GetFlankAttackModifier();
 	if(iTemp > 0)
 	{
-		iExtra = (9 * iFlavorOffense + iFlavorMobile) * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra = iFlavorMobile * maxMoves() / GC.getMOVE_DENOMINATOR();
 		iExtra *= iTemp;
 		iExtra /= 100;
 		iValue += iExtra;
@@ -30772,7 +31136,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (pkPromotionInfo->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA)
 	{
-		iValue += 50 + iFlavorNaval * 2;
+		iValue += iFlavorNaval * 5;
 	}
 
 	iTemp = pkPromotionInfo->GetMovesChange();
@@ -30787,11 +31151,17 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			(AI_getUnitAIType() == UNITAI_ATTACK) ||
 			(AI_getUnitAIType() == UNITAI_PARADROP))
 	{
-		iValue += iTemp * (50 + iFlavorMobile * 5);
+		iExtra = iFlavorMobile * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra *= iTemp;
+		iExtra /= 100;
+		iValue += iExtra;
 	}
 	else
 	{
-		iValue += iTemp * (30 + iFlavorMobile * 3);
+		iExtra = iFlavorOffense * maxMoves() / GC.getMOVE_DENOMINATOR();
+		iExtra *= iTemp;
+		iExtra /= 100;
+		iValue += iExtra;
 	}
 
 	if(pkPromotionInfo->IsAlwaysHeal())
@@ -30805,12 +31175,17 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
 				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
-			iValue += 50 + iFlavorMobile * 2;
+			iValue += iFlavorOffense * 5;
 		}
 		else
 		{
-			iValue += 30 + iFlavorMobile * 2;
+			iValue += iFlavorDefense * 5;
 		}
+	}
+
+	if (pkPromotionInfo->IsNoSupply())
+	{
+		iValue += iFlavorMobile + iFlavorNaval;
 	}
 
 	if(pkPromotionInfo->IsBlitz())
@@ -30824,11 +31199,53 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
 				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
-			iValue += 50 + (iFlavorMobile + iFlavorOffense) * 5;
+			iValue += (iFlavorMobile + iFlavorOffense) * 5;
 		}
 		else
 		{
-			iValue += 20 + (iFlavorMobile + iFlavorOffense) * 3;
+			iValue += (iFlavorMobile + iFlavorOffense) * 5;
+		}
+	}
+
+	iTemp = pkPromotionInfo->GetAdjacentEnemySapMovement();
+	if (iTemp != 0)
+	{
+		iTemp += GetAdjacentEnemySapMovement();
+		if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+			(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_COUNTER) ||
+			(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+			(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+			(AI_getUnitAIType() == UNITAI_PARADROP))
+		{
+			iValue += iTemp + (iFlavorMobile + iFlavorOffense);
+		}
+		else
+		{
+			iValue += iTemp + (iFlavorMobile + iFlavorOffense);
+		}
+	}
+
+	iTemp = pkPromotionInfo->IsIgnoreZOC();
+	if (iTemp != 0)
+	{
+		iTemp += getMoves();
+		if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ||
+			(AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_COUNTER) ||
+			(AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+			(AI_getUnitAIType() == UNITAI_PIRATE_SEA) ||
+			(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+			(AI_getUnitAIType() == UNITAI_PARADROP))
+		{
+			iValue += iTemp + (iFlavorMobile + iFlavorOffense);
+		}
+		else
+		{
+			iValue += iTemp + (iFlavorMobile + iFlavorOffense);
 		}
 	}
 
@@ -30843,66 +31260,133 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
 				(AI_getUnitAIType() == UNITAI_PARADROP))
 		{
-			iValue += 30 + (iFlavorMobile + iFlavorOffense) * 2;
+			iValue += iTemp + (iFlavorMobile + iFlavorOffense);
 		}
 		else
 		{
-			iValue += 10 + (iFlavorMobile + iFlavorOffense) * 2;
+			iValue += iTemp + (iFlavorMobile + iFlavorOffense);
 		}
 	}
 
 	iTemp = pkPromotionInfo->GetExtraAttacks();
 	if(iTemp != 0)
 	{
-		iValue += (iTemp * 500);
+		iValue += (iTemp + iFlavorOffense) * 5;
+	}
+
+
+	iTemp = pkPromotionInfo->GetHPHealedIfDefeatEnemy();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorOffense) * 5;
+	}
+	iTemp = pkPromotionInfo->GetGoldenAgeValueFromKills();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorOffense);
+	}
+
+	iTemp = pkPromotionInfo->GetGoldenAgeValueFromKills();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorOffense);
+	}
+
+	iTemp = pkPromotionInfo->GetExtraWithdrawal();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorMobile) * 2;
+	}
+
+	iTemp = pkPromotionInfo->GetReconChange();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorRecon) * 5;
+	}
+
+	iTemp = pkPromotionInfo->IsFreePillageMoves();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorOffense) * 5;
+	}
+
+	iTemp = pkPromotionInfo->IsHealOnPillage();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorOffense) * 5;
+	}
+
+	iTemp = pkPromotionInfo->GetCargoChange();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorAir) * 5;
 	}
 
 	iTemp = pkPromotionInfo->GetRangeChange();
 	if(isRanged())
 	{
-		iValue += (iTemp * 500);
+		iValue += (iTemp + iFlavorRanged) * 5;
+	}
+
+	iTemp = pkPromotionInfo->ChangeDamageValue();
+	if (iTemp != 0)
+	{
+		iValue += (iTemp + iFlavorDefense) * 5;
 	}
 
 	iTemp = pkPromotionInfo->GetInterceptionCombatModifier();
 	if(iTemp != 0 && canAirPatrol(NULL))
 	{
-		iExtra = GetInterceptionCombatModifier() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		iValue += iTemp + iFlavorAir * 2;
+		iExtra = GetInterceptionCombatModifier();
+		iValue += iTemp + iExtra + iFlavorAir;
+	}
+
+	iTemp = pkPromotionInfo->GetInterceptChanceChange();
+	if (iTemp != 0)
+	{
+		iExtra = getInterceptChance();
+		iValue += iTemp + iExtra + iFlavorAir;
+	}
+
+	iTemp = pkPromotionInfo->GetAirInterceptRangeChange();
+	if (iTemp != 0)
+	{
+		iExtra = GetExtraAirInterceptRange() * 5;
+		iValue += iTemp + iExtra + iFlavorAir;
 	}
 
 	iTemp = pkPromotionInfo->GetAirSweepCombatModifier();
 	if(iTemp != 0 && canAirSweep())
 	{
-		iExtra = GetAirSweepCombatModifier() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		iValue += iTemp + iFlavorAir * 2;
+		iExtra = GetAirSweepCombatModifier();
+		iValue += iTemp + iExtra + iFlavorAir;
+	}
+
+	iTemp = pkPromotionInfo->GetEvasionChange();
+	if (iTemp != 0)
+	{
+		iExtra = getExtraEvasion();
+		iValue += iTemp + iExtra + iFlavorAir;
 	}
 
 	iTemp = pkPromotionInfo->GetNumInterceptionChange();
 	if(iTemp != 0)
 	{
-		iValue += (iTemp * 200);
+		iValue += iTemp + iFlavorAir * 5;
 	}
 
 	iTemp = pkPromotionInfo->GetInterceptionDefenseDamageModifier();
 	if(iTemp != 0 && getDomainType() == DOMAIN_AIR)
 	{
-		iExtra = GetInterceptionDefenseDamageModifier() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		iValue += iTemp + iFlavorAir * 2;
+		iExtra = GetInterceptionDefenseDamageModifier();
+		iValue += iTemp + iExtra + iFlavorAir;
 	}
 
 	iTemp = pkPromotionInfo->GetDefenseMod();
 	if(iTemp != 0)
 	{
-		iExtra = getDefenseModifier() * 2;
-		iTemp *= (100 + iExtra);
-		iTemp /= 100;
-		iValue += iTemp + iFlavorDefense * 5;
+		iExtra = getDefenseModifier();
+		iValue += iTemp + iExtra + iFlavorDefense;
 	}
 
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
@@ -30915,43 +31399,54 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			if(iTemp != 0)
 			{
 				iExtra = getExtraTerrainAttackPercent(eTerrain);
-				iTemp *= (100 + iExtra * 2);
-				iTemp /= 100;
-				iValue += iTemp + iFlavorOffense * 2;
-				if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-						(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+				if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+					(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
-					iValue *= 2;
+					iExtra *= 2;
 				}
+				iValue += iTemp + iExtra + iFlavorOffense;
 			}
 
 			iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI);
 			if(iTemp != 0)
 			{
 				iExtra =  getExtraTerrainDefensePercent(eTerrain);
-				iTemp *= (100 + iExtra);
-				iTemp /= 100;
-				iValue += iTemp + iFlavorDefense * 2;
-				if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-						(AI_getUnitAIType() == UNITAI_COUNTER))
+				if ((AI_getUnitAIType() == UNITAI_DEFENSE) ||
+					(AI_getUnitAIType() == UNITAI_COUNTER))
 				{
-					iValue *= 2;
+					iExtra *= 2;
 				}
+
+				iValue += iTemp + iExtra + iFlavorDefense;
+				
 			}
+
+			iTemp = pkPromotionInfo->GetTerrainDoubleHeal(iI);
+			if (iTemp != 0)
+			{
+				if ((AI_getUnitAIType() == UNITAI_DEFENSE) ||
+					(AI_getUnitAIType() == UNITAI_COUNTER))
+				{
+					iTemp *= 5;
+				}
+				iValue += iTemp + iFlavorDefense * 5;
+			}
+
+			
 
 			if(pkPromotionInfo->GetTerrainDoubleMove(iI))
 			{
 				if(AI_getUnitAIType() == UNITAI_EXPLORE)
 				{
-					iValue += 8 * (iFlavorRecon + iFlavorMobile);
+					iValue += 2 * (iFlavorRecon + iFlavorMobile);
 				}
 				else if((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
-					iValue += 4 * (iFlavorOffense + iFlavorMobile);
+					iValue += (iFlavorOffense + iFlavorMobile);
 				}
 				else
 				{
-					iValue += 2 * iFlavorMobile;
+					iValue += iFlavorMobile;
 				}
 			}
 
@@ -30960,15 +31455,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			{
 				if(AI_getUnitAIType() == UNITAI_EXPLORE)
 				{
-					iValue -= 5 * (iFlavorRecon + iFlavorMobile);
+					iValue -= 4 * (iFlavorRecon + iFlavorMobile);
 				}
 				else if((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
-					iValue -= 3 * (iFlavorOffense + iFlavorMobile);
+					iValue -= 2 * (iFlavorOffense + iFlavorMobile);
 				}
 				else
 				{
-					iValue -= 3 * iFlavorMobile;
+					iValue -= 2 * iFlavorMobile;
 				}
 			}
 #endif
@@ -30985,43 +31480,53 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			if(iTemp != 0)
 			{
 				iExtra = getExtraFeatureAttackPercent(eFeature);
-				iTemp *= (100 + iExtra * 2);
-				iTemp /= 100;
-				iValue += iTemp + iFlavorOffense * 2;
-				if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-						(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
+				if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+					(AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
-					iValue *= 2;
+					iExtra *= 2;
 				}
+				iValue += iTemp + iExtra + iFlavorOffense;
+				
 			}
 
 			iTemp = pkPromotionInfo->GetFeatureDefensePercent(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraFeatureDefensePercent(eFeature);
-				iTemp *= (100 + iExtra * 2);
-				iTemp /= 100;
-				iValue += iTemp + iFlavorDefense * 2;
-				if((AI_getUnitAIType() == UNITAI_DEFENSE) ||
-						(AI_getUnitAIType() == UNITAI_COUNTER))
+				if ((AI_getUnitAIType() == UNITAI_DEFENSE) ||
+					(AI_getUnitAIType() == UNITAI_COUNTER))
 				{
-					iValue *= 2;
+					iExtra *= 2;
 				}
+				iValue += iTemp + iExtra + iFlavorDefense;
+				
+			}
+
+			iTemp = pkPromotionInfo->GetFeatureDoubleHeal(iI);
+			if (iTemp != 0)
+			{
+				if ((AI_getUnitAIType() == UNITAI_DEFENSE) ||
+					(AI_getUnitAIType() == UNITAI_COUNTER))
+				{
+					iTemp *= 5;
+				}
+				iValue += iTemp + iFlavorDefense;
+				
 			}
 
 			if(pkPromotionInfo->GetFeatureDoubleMove(iI))
 			{
 				if(AI_getUnitAIType() == UNITAI_EXPLORE)
 				{
-					iValue += 5 * (iFlavorRecon + iFlavorMobile);
+					iValue += 2 * (iFlavorRecon + iFlavorMobile);
 				}
 				else if((AI_getUnitAIType() == UNITAI_ATTACK) || (AI_getUnitAIType() == UNITAI_FAST_ATTACK))
 				{
-					iValue += 3 * (iFlavorOffense + iFlavorMobile);
+					iValue += (iFlavorOffense + iFlavorMobile);
 				}
 				else
 				{
-					iValue += 3 * iFlavorMobile;
+					iValue += iFlavorMobile;
 				}
 			}
 
@@ -31072,29 +31577,36 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if(pkUnitCombatInfo)
 		{
 			iTemp = pkPromotionInfo->GetUnitCombatModifierPercent(iI);
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatAttackModifier(iI);
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatDefenseModifier(iI);
+
+			if (iTemp <= 0)
+				continue;
+
 			int iCombatWeight = 0;
 			//Fighting their own kind
 			if((UnitCombatTypes)iI == getUnitCombatType())
 			{
 				if(iSameCombat >= iOtherCombat)
 				{
-					iCombatWeight = 70;//"axeman takes formation"
+					iCombatWeight = iFlavorOffense;//"axeman takes formation"
 				}
 				else
 				{
-					iCombatWeight = 30;
+					iCombatWeight = iFlavorDefense;
 				}
 			}
 			else
 			{
 				//fighting other kinds
-				if(unitCombatModifier(eUnitCombat) > 10)
+				if(unitCombatModifier(eUnitCombat) >= 10)
 				{
-					iCombatWeight = 70;//"spearman takes formation"
+					iCombatWeight = iFlavorDefense;//"spearman takes formation"
 				}
 				else
 				{
-					iCombatWeight = 30;
+					iCombatWeight = iFlavorOffense;
 				}
 			}
 
@@ -31117,28 +31629,42 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI);
-		if(AI_getUnitAIType() == UNITAI_COUNTER)
+		if (iTemp <= 0)
+			continue;
+
+		iTemp += getExtraDomainModifier((DomainTypes)iI);
+
+		if ((AI_getUnitAIType() == UNITAI_COUNTER) || (AI_getUnitAIType() == UNITAI_RANGED))
+		{
+			iValue += (iTemp * 3);
+		}
+		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+			(AI_getUnitAIType() == UNITAI_DEFENSE))
 		{
 			iValue += (iTemp * 2);
 		}
-		else if((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_DEFENSE))
-		{
-			iValue += iTemp;
-		}
-		else
+		else if ((AI_getUnitAIType() == UNITAI_CITY_BOMBARD))
 		{
 			iValue += (iTemp / 2);
 		}
+		else
+		{
+			iValue += iTemp;
+		}
+
+		iValue += iTemp;
+
+		if (DomainTypes(iI) == DOMAIN_SEA)
+			iValue += iFlavorNaval;
+		else if (DomainTypes(iI) == DOMAIN_AIR)
+			iValue += iFlavorAir;
+		else
+			iValue += iFlavorOffense;
 	}
 
 	if(iValue > 0)
 	{
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		iValue += GC.getGame().getSmallFakeRandNum(100, iValue);
-#else
-		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
-#endif
+		iValue += GC.getGame().getSmallFakeRandNum(iValue, *plot());
 	}
 
 	return iValue;

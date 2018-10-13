@@ -6138,7 +6138,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
 		iValue += (pkBuildingInfo->GetNumThemingBonuses());
-		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 25);
+		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 10);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)
 		{
 			if (pCity != NULL && pCity->isCapital())
@@ -6267,21 +6267,21 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
     }
 	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities * 2);
 	}
 
 	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator();
+		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetCurrentReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}

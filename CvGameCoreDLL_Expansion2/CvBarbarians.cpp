@@ -148,7 +148,10 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	{
 		iSpawnTurnAddition = 14 - kGame.getHandicapInfo().getAIDifficultyBonusBase();
 	}
-	int iNumTurnsToSpawn = iSpawnTurnAddition + kGame.getSmallFakeRandNum(10, *pPlot);
+	bool isMP = kGame.isReallyNetworkMultiPlayer();
+	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
+	int iAddVal = isMP ? 5 : iRand;
+	int iNumTurnsToSpawn = iSpawnTurnAddition + iAddVal;
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -211,8 +214,12 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 	//bumped a bit - too many barbs gets annoying.
+
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 7 + kGame.getSmallFakeRandNum(10,*pPlot);
+	bool isMP = kGame.isReallyNetworkMultiPlayer();
+	int iRand = kGame.getSmallFakeRandNum(10, *pPlot);
+	int iAddVal = isMP ? 5 : iRand;
+	int iNumTurnsToSpawn = 7 + iAddVal;
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -525,7 +532,7 @@ void CvBarbarians::DoCamps()
 			if (vAllPlots.size()>1)
 			{
 				//do one iteration of a fisher-yates shuffle
-				int iSwap = kGame.getSmallFakeRandNum( vAllPlots.size(), *pLoopPlot);
+				int iSwap = kGame.isReallyNetworkMultiPlayer() ? vAllPlots.size() / 2 : kGame.getSmallFakeRandNum(vAllPlots.size(), *pLoopPlot);
 				std::swap(vAllPlots[iSwap],vAllPlots.back());
 			}
 #endif
@@ -538,7 +545,7 @@ void CvBarbarians::DoCamps()
 				if (vCoastalPlots.size()>1)
 				{
 					//do one iteration of a fisher-yates shuffle
-					int iSwap = kGame.getSmallFakeRandNum( vCoastalPlots.size(), *pLoopPlot);
+					int iSwap = kGame.isReallyNetworkMultiPlayer() ? vCoastalPlots.size() / 2 : kGame.getSmallFakeRandNum(vCoastalPlots.size(), *pLoopPlot);
 					std::swap(vCoastalPlots[iSwap],vCoastalPlots.back());
 				}
 #endif
@@ -562,7 +569,7 @@ void CvBarbarians::DoCamps()
 			else
 			{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-				if (kGame.getSmallFakeRandNum(GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), iNumValidCampPlots) == 0)
+				if (kGame.isReallyNetworkMultiPlayer() ? GC.getGame().getGameTurn() % 2 == 0 : kGame.getSmallFakeRandNum(GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), iNumValidCampPlots) == 0)
 #else
 				if(kGame.getJonRandNum(/*2*/ GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), "Random roll to see if Barb Camp spawns this turn") > 0)
 #endif
@@ -608,7 +615,10 @@ void CvBarbarians::DoCamps()
 
 				std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vCoastalPlots : vAllPlots;
 
-				int iPlotIndex = kGame.getSmallFakeRandNum( vRelevantPlots.size(), vRelevantPlots.size() );
+				if (vRelevantPlots.size() <= 0 || vRelevantPlots.empty())
+					break;
+
+				int iPlotIndex = kGame.isReallyNetworkMultiPlayer() ? vRelevantPlots.size() / 2 : kGame.getSmallFakeRandNum(vRelevantPlots.size(), vRelevantPlots.size());
 #else
 				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 				int iPlotIndex = kGame.getJonRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
@@ -1084,7 +1094,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		if(vBalidBarbSpawnPlots.size() > 0)
 		{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-			int iIndex = kGame.getSmallFakeRandNum(vBalidBarbSpawnPlots.size(),*pPlot);
+			int iIndex = kGame.isReallyNetworkMultiPlayer() ? vBalidBarbSpawnPlots.size() / 2 : kGame.getSmallFakeRandNum(vBalidBarbSpawnPlots.size(), *pPlot);
 #else
 			int iIndex = kGame.getJonRandNum(vBalidBarbSpawnPlots.size(), "Barb Unit Location Spawn Roll");
 #endif

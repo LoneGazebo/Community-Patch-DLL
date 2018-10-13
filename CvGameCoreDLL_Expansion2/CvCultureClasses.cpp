@@ -5307,6 +5307,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 					continue;
 
 				int iWarDamage = m_pPlayer->GetDiplomacyAI()->GetWarValueLost(kPlayer.GetID());
+				iWarDamage += kPlayer.GetDiplomacyAI()->GetWarValueLost(m_pPlayer->GetID()) / 2;
 
 				int iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
 				iWarTurns -= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
@@ -8324,11 +8325,17 @@ CvString CvCityCulture::GetTourismTooltip()
 	// Religion Yield Rate Modifier
 	if (pReligion)
 	{
-		int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
-		if (iReligionYieldMaxFollowers > 0)
+		int max = 0;
+		int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerPercent(max, YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
+		if (iReligionYieldMaxFollowersPercent > 0)
 		{
-			int iFollowers = m_pCity->GetCityReligions()->GetNumFollowers(eMajority);
-			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+			int iVal = m_pCity->GetCityReligions()->GetNumFollowers(eMajority) * iReligionYieldMaxFollowersPercent;
+			iVal /= 100;
+
+			if (iVal <= 0)
+				iVal = 1;
+
+			iTempMod = min(max, iReligionYieldMaxFollowersPercent);
 			if (iTempMod != 0)
 			{
 				if (bHasCityModTooltip == false)
@@ -8342,25 +8349,25 @@ CvString CvCityCulture::GetTourismTooltip()
 				szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 			}
 		}
-
-		int iReligionYieldMaxFollowersHalved = pReligion->m_Beliefs.GetMaxYieldModifierPerFollowerHalved(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
-		if (iReligionYieldMaxFollowersHalved > 0)
+		else
 		{
-			int iFollowers = m_pCity->GetCityReligions()->GetNumFollowers(eMajority);
-			iFollowers /= 2;
-
-			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
-			if (iTempMod != 0)
+			int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldModifierPerFollower(YIELD_TOURISM, m_pCity->getOwner(), GET_PLAYER(m_pCity->getOwner()).getCity(m_pCity->GetID()));
+			if (iReligionYieldMaxFollowers > 0)
 			{
-				if (bHasCityModTooltip == false)
+				int iFollowers = m_pCity->GetCityReligions()->GetNumFollowers(eMajority);
+				iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+				if (iTempMod != 0)
 				{
-					if (szRtnValue.length() > 0)
+					if (bHasCityModTooltip == false)
 					{
-						szRtnValue += "[NEWLINE]";
+						if (szRtnValue.length() > 0)
+						{
+							szRtnValue += "[NEWLINE]";
+						}
+						bHasCityModTooltip = true;
 					}
-					bHasCityModTooltip = true;
+					szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 				}
-				szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 			}
 		}
 	}

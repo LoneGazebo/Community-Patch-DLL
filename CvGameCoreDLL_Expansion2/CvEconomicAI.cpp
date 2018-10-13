@@ -4913,6 +4913,9 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 
 		if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 		{
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsNoAlly())
+				continue;
+
 			if(GET_PLAYER(eMinor).GetMinorCivAI()->IsHasMetPlayer(ePlayer))
 			{
 				iNumCities++;
@@ -4929,6 +4932,10 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 	}
 	if(iNumCities > 0)
 	{
+		//are we allied with everyone? Well, we don't need any diplo units then!
+		if (iNumAllies == iNumCities)
+			return 0;
+
 		int iNumApConq = 0;
 		int iNumApBully = 0;
 		int iNumCloseNotAllies = 0;

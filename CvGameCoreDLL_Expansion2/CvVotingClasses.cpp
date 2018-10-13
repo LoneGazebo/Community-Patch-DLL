@@ -10662,6 +10662,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 	VoteConsiderationList vConsiderations;
 	int iFocusResolutionID = -1;
+	int iOurResolutionID = -1;
 
 	EnactProposalList vEnactProposals = pLeague->GetEnactProposals();
 	for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
@@ -10670,6 +10671,11 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
 		{
 			iFocusResolutionID = it->GetID();
+		}
+
+		if (it->GetProposalPlayer() == GetPlayer()->GetID())
+		{
+			iOurResolutionID = it->GetID();
 		}
 
 		FindBestVoteChoices(it, vConsiderations);
@@ -10708,6 +10714,24 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
 			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
 		}
+		else if (iOurResolutionID != -1)
+		{
+			bool bFound = false;
+			for (int i = 0; i < vConsiderations.size(); ++i)
+			{
+				if (vConsiderations.GetElement(i).iID == iOurResolutionID)
+				{
+					vConsiderations.SetWeight(i, vConsiderations.GetWeight(vConsiderations.GetElement(i).iID) * 10);
+				}
+				else
+				{
+					bFound = true;
+				}
+			}
+			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
+			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
+		}
+
 
 		// Even if we don't like anything, make sure we have something to choose from
 		if (vConsiderations.GetTotalWeight() <= 0)
@@ -11508,26 +11532,29 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					MajorCivOpinionTypes eOpinion = GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(e);
 					if (GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(e).getTeam()))
 					{
-						iOtherPlayerResourceFactor += -3;
+						iOtherPlayerResourceFactor += 5;
 					}
 					else if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(e) || GetPlayer()->getTeam() == GET_PLAYER(e).getTeam())
 					{
-						iOtherPlayerResourceFactor += 3;
+						iOtherPlayerResourceFactor += -10;
 					}
 					else if (eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
 					{
 						if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
 						{
-							iOtherPlayerResourceFactor += -1;
+							iOtherPlayerResourceFactor += 3;
 						}
 						else
 						{
-							iOtherPlayerResourceFactor += -2;
+							iOtherPlayerResourceFactor += 5;
 						}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasGlobalMonopoly(eTargetLuxury))
+						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 						{
-							iOtherPlayerResourceFactor += -2;
+							if (GET_PLAYER(e).HasGlobalMonopoly(eTargetLuxury))
+								iOtherPlayerResourceFactor += 15;
+							else
+								iOtherPlayerResourceFactor += 3;
 						}
 #endif
 					}
@@ -11535,68 +11562,55 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						if (eOpinion == MAJOR_CIV_OPINION_FAVORABLE)
 						{
-							iOtherPlayerResourceFactor += 1;
+							iOtherPlayerResourceFactor += -3;
 						}
 						else
 						{
-							iOtherPlayerResourceFactor += 2;
+							iOtherPlayerResourceFactor += -5;
 						}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasGlobalMonopoly(eTargetLuxury))
+						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 						{
-							iOtherPlayerResourceFactor += 2;
+							if (GET_PLAYER(e).HasGlobalMonopoly(eTargetLuxury))
+								iOtherPlayerResourceFactor += -10;
+							else
+								iOtherPlayerResourceFactor += -5;
 						}
 #endif
 					}
 				}
 			}
 		}
-		if (iOtherPlayerResourceFactor > 0)
-		{
-			// Our friends have this resource
-			iScore += -10;
-			if (iOtherPlayerResourceFactor > 3)
-			{
-				iScore += -10;
-			}
-		}
-		else if (iOtherPlayerResourceFactor < 0)
-		{
-			// Our enemies have this resource
-			iScore += 10;
-			if (iOtherPlayerResourceFactor < -3)
-			{
-				iScore += 10;
-			}
-		}
 
+		int iUsResourceFactor = 0;
+		bool bOwnedByUs = false;
 		// Do we have this resource?
-		if (GetPlayer()->getNumResourceTotal(eTargetLuxury) > 0)
+		if (GetPlayer()->getNumResourceTotal(eTargetLuxury) > 0 || GetPlayer()->getResourceInOwnedPlots(eTargetLuxury) > 0)
 		{
-			bOwnedByAnyPlayer = true;
-			iScore += -30;
-			if (GetPlayer()->getResourceInOwnedPlots(eTargetLuxury) > 0)
-			{
-				iScore += -20;
-			}
+			bOwnedByUs = true;
+			iUsResourceFactor += -10;
 			if (GetPlayer()->IsEmpireUnhappy())
 			{
-				iScore += -20;
+				iUsResourceFactor += -10;
 			}
-		}
-		else
-		{
-			if (GetPlayer()->getResourceInOwnedPlots(eTargetLuxury) > 0)
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+			if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GetPlayer()->HasGlobalMonopoly(eTargetLuxury))
 			{
-				iScore += -20;
+				iUsResourceFactor += -25;
 			}
-			else
-			{
-				iScore += 15;
-			}
+#endif
 		}
 
-		if (!bOwnedByAnyPlayer)
+		if (bOwnedByAnyPlayer && !bOwnedByUs)
+		{
+			iScore = 8 * iOtherPlayerResourceFactor;
+		}
+		else if (bOwnedByUs)
+		{
+			iScore = 10 * iUsResourceFactor;
+		}
+
+		if (!bOwnedByAnyPlayer && !bOwnedByUs)
 		{
 			// Hard set to 0 if nobody owns it.  No effect, so we don't care.
 			iScore = 0;

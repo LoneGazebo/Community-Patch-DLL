@@ -872,6 +872,12 @@ local function SetupBuildingList( city, buildings, buildingIM )
 					buildingYieldModifier = buildingYieldModifier + Game.GetPlayerPerkBuildingClassPercentYieldChange( perkID, buildingClassID, yieldID )
 				end
 			end
+			-- Vox Populi start
+			-- Yield bonuses to World Wonders
+			if city:GetNumWorldWonders() > 0 and Game.IsWorldWonderClass(buildingClassID) then 
+				buildingYieldRate = buildingYieldRate + cityOwner:GetExtraYieldWorldWonder(buildingID, yieldID)
+			end
+			-- Vox Populi end
 			-- Specialists yield
 			if specialist then
 				--CBP

@@ -75,6 +75,9 @@
 	SET RequiresFaithPurchaseEnabled = '1'
 	WHERE Type = 'UNIT_ARCHAEOLOGIST';
 
+	-- cap for archaeologists
+	UPDATE UnitClasses SET MaxPlayerInstances = '3' WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
+
 INSERT INTO Unit_ScalingFromOwnedImprovements
 	(UnitType, ImprovementType, Amount)
 VALUES

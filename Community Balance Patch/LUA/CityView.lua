@@ -985,6 +985,8 @@ function OnCityViewUpdate()
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
 		end
 
+		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
+
 		Controls.CityNameTitleBarLabel:LocalizeAndSetToolTip(strOccupationTT);
 -- END
 		

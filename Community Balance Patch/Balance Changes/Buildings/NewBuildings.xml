@@ -168,6 +168,7 @@
 			<Help>TXT_KEY_BUILDING_CHURCH_HELP</Help>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
+			<WLTKDTurns>15</WLTKDTurns>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-10</ConversionModifier>

@@ -629,7 +629,7 @@ public:
 	BeliefTypes ChooseReformationBelief();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION);
+	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION, bool bForPantheon = false);
 #endif
 	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL);

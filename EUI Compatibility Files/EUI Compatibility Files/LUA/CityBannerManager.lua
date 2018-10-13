@@ -269,9 +269,11 @@ local g_cityToolTips = {
 				-- Resistance tooltip
 				if (iResistanceUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+
 					-- Resistance tooltip
 				elseif (iPuppetUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_PUPPET", iPuppetUnhappiness);
+
 				-- Occupation tooltip
 				elseif (iOccupationUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
@@ -309,6 +311,9 @@ local g_cityToolTips = {
 				if(iCultureUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
 				end
+
+				tipText = tipText .. city:getPotentialUnhappinessWithGrowth();
+
 				tipText = tipText .. "[NEWLINE]";
 				-- COMMUNITY PATCH END
 
@@ -477,6 +482,8 @@ local g_cityToolTips = {
 					.. Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ) .. "[ENDCOLOR]"
 					.. S( " %+g[ICON_FOOD]", foodOverflowTimes100 / 100 )
 		end
+
+		tipText = tipText .. city:getPotentialUnhappinessWithGrowth();
 
 		return tipText
 	end,

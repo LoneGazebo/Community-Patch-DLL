@@ -190,6 +190,8 @@ function UpdateDisplay()
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
 		end
 
+		strOccupationTT = strOccupationTT .. pCity:getPotentialUnhappinessWithGrowth();
+
 		instance.CityName:SetToolTipString(strOccupationTT);
 -- END  
         

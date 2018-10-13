@@ -917,6 +917,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 				return false;
+
+			//vassals get out!
+			if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
+				return false;
 		
 			//Can't already be offering this.
 			if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
@@ -1083,21 +1087,31 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
-		//Can't already be offering this
-		if (!bFinalizing && IsThirdPartyWarTrade( ePlayer, eThirdTeam))
-			return false;
-
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
-			return false;
-
-		//Need embassy.
-		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 			return false;
 
 		//Not allowed in peace deals.
 		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
 			return false;
+
+		//If not at war, need embassy.
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		{
+			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+				return false;
+
+			//vassals get out!
+			if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
+				return false;
+
+			if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))
+				return false;
+
+			//Can't already be offering this.
+			if (!bFinalizing && IsThirdPartyWarTrade(ePlayer, eThirdTeam))
+				return false;
+		}
 
 		// Can't ask teammates
 		if(eToTeam == eFromTeam)
@@ -3321,13 +3335,13 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 #endif
 		}
 		// Third Party War
-		else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
+		else if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 		{
 			TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
+			GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
 #else
-					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
+			GET_TEAM(eFromTeam).declareWar(eTargetTeam);
 #endif
 
 			int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
@@ -3439,12 +3453,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		// **** Peace Treaty **** this should always be the last item processed!!!
 		else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 		{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).makePeace(eToTeam);
-#endif
-			GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE)
 			{
@@ -3459,6 +3467,13 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 					bDone = true;
 				}
 			}
+
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+			GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
+#else
+			GET_TEAM(eFromTeam).makePeace(eToTeam);
+#endif
+			GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 #endif
 		}
 		//////////////////////////////////////////////////////////////////////
@@ -4042,12 +4057,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// **** Peace Treaty **** this should always be the last item processed!!!
 				else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
-#else
-					GET_TEAM(eFromTeam).makePeace(eToTeam);
-#endif
-					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 #if defined(MOD_BALANCE_CORE)
 					if(MOD_BALANCE_CORE)
 					{
@@ -4063,6 +4072,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 						}
 					}
 #endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
+#else
+					GET_TEAM(eFromTeam).makePeace(eToTeam);
+#endif
+					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 				}
 				//////////////////////////////////////////////////////////////////////
 				// **** DO NOT PUT ANYTHING AFTER THIS LINE ****

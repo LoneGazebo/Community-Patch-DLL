@@ -1018,7 +1018,7 @@
 	<!-- Debugging -->
 	<Row Class="6" Name="CORE_DEBUGGING" Value="0"/>
 	<!-- JFD's Mods -->
-	<Row Class="6" Name="BALANCE_CORE_JFD" Value="1"/>
+	<Row Class="6" Name="BALANCE_CORE_JFD" Value="0"/>
 	<!-- Resistance Mod for Units based on # of capitals controlled. -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
 	<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->

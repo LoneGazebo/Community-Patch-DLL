@@ -5876,7 +5876,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
+		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5907,7 +5907,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
+		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -8467,7 +8467,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, GC.getGame().getGameTurn())) * 100;
+			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop)) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -10741,7 +10741,9 @@ void CvGame::updateGlobalAverage()
 	SetDefenseAverage((int)vfDefenseYield[n]);
 	SetGoldAverage((int)vfGoldYield[n]);
 	SetGlobalPopulation(iTotalPopulation);
-	m_iGlobalTechAvg = (int)viTechMedian[nt];
+
+	if ((int)viTechMedian[nt] > m_iGlobalTechAvg)
+		m_iGlobalTechAvg = (int)viTechMedian[nt];
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)

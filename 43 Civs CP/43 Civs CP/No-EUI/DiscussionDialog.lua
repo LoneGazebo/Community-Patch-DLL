@@ -315,6 +315,13 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			-- Discussion Root Mode
 			if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
 				
+				local strLeaderName;
+				if(pAIPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+					strLeaderName = pAIPlayer:GetNickName();
+				else
+					strLeaderName = pAIPlayer:GetName();
+				end
+
 				
 				
 				--------------------
@@ -877,6 +884,9 @@ function OnButton1()
 	
 	local iButtonID = 1;	-- This format is also used in DiploTrade.lua in the OnBack() function.  If functionality here changes it should be updated there as well.
         
+
+        
+    -- Fluff discussion mode
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 		OnBack(true);
     -- Fluff discussion mode 2

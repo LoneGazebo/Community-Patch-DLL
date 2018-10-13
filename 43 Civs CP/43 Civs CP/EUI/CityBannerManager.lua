@@ -311,6 +311,9 @@ local g_cityToolTips = {
 				if(iCultureUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
 				end
+
+				tipText = tipText .. city:getPotentialUnhappinessWithGrowth();
+
 				tipText = tipText .. "[NEWLINE]";
 				-- COMMUNITY PATCH END
 
@@ -479,6 +482,8 @@ local g_cityToolTips = {
 					.. Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ) .. "[ENDCOLOR]"
 					.. S( " %+g[ICON_FOOD]", foodOverflowTimes100 / 100 )
 		end
+
+		tipText = tipText .. city:getPotentialUnhappinessWithGrowth();
 
 		return tipText
 	end,

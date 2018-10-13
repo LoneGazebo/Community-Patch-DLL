@@ -295,6 +295,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iValue = 1000;
 		}
 
+		if (kPlayer.getNumCities() == 1)
+			iValue /= 5;
+
 		if (isWorldWonderClass(kBuildingClassInfo) && !bFreeBuilding)
 		{
 			iValue += (kPlayer.GetPlayerTraits()->GetWonderProductionModifier() + kPlayer.getWonderProductionModifier());
@@ -641,6 +644,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetNukeModifier() < 0)
 	{
 		iDefense += (pkBuildingInfo->GetNukeModifier() * -1);
+	}
+	if (pkBuildingInfo->GetNukeInterceptionChance() > 0)
+	{
+		iDefense += (pkBuildingInfo->GetNukeInterceptionChance() * 10);
 	}
 	if (pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 	{

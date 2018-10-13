@@ -348,6 +348,7 @@ public:
 	int GetSeaTourismEnd() const;
 	int GetAlwaysHeal() const;
 	bool IsCorp() const;
+	int GetNukeInterceptionChance() const;
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool IsPlayerBorderGainlessPillage() const;
@@ -818,6 +819,7 @@ private:
 	int m_iSeaTourism;
 	int m_iAlwaysHeal;
 	bool m_bIsCorp;
+	int m_iNukeInterceptionChance;
 #endif
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool m_bPlayerBorderGainlessPillage;

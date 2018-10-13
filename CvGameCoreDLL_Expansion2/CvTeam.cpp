@@ -1357,15 +1357,6 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	if (GetID() != BARBARIAN_TEAM && eTeam != BARBARIAN_TEAM && !canDeclareWar(eTeam, eOriginatingPlayer))
-	{
-		if (eOriginatingPlayer != NO_PLAYER)
-		{
-			GET_PLAYER(eOriginatingPlayer).GetHomelandAI()->LogHomelandMessage("Tried to declare war, but was blocked by rules! Whoops.");
-		}
-		return;
-	}
-
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	setAtWar(eTeam, true, bAggressor);
 	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
@@ -1588,52 +1579,44 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 			}
 		}
 
-		//Secondary major declarations
-		for(iI = 0; iI < MAX_TEAMS; iI++)
+		//are we an aggressor?
+		//These only trigger on the 'first' major declaration - no chain declarations.
+		if (bAggressor && !bDefensivePact)
 		{
-			if(GET_TEAM((TeamTypes)iI).isAlive())
+			//Secondary civs may declare war on us!
+			for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
-				//Defensive pacts only trigger on the 'first' major declaration - no chain declarations.
-				if(bAggressor && !bDefensivePact)
-				{
-					//Do we have a defensive pact with the target team?
-					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) && !isMinorCiv())
-					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ true);
-#else
-						GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
-#endif
-					}
-				}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				//Are we a vassal of the player DOW'd on?
-				if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+				if (!GET_TEAM((TeamTypes)iI).isAlive())
+					continue;
+				if (isMinorCiv())
+					continue;
+
+				//Defensive pacts and vassals trigger here.
+				if (GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam) || GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ true);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
 #else
 					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
 #endif
 				}
-				//Are we the master of eTeam (should never happen, actually)?
-				else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
-				{
+			}
+		}
+
+		//Secondary civs that will declare war along with us
+		for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			if (!GET_TEAM((TeamTypes)iI).isAlive())
+				continue;
+			if (isMinorCiv())
+				continue;
+				
+			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, bAggressor, eTeam, /*bDefensivePact*/ true);
 #else
-					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ false);
-#endif
-				}
-				//Are we a vassal of the player DOW'ing player?
-				else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
-				{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, eTeam, /*bDefensivePact*/ false);
-#else
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
-#endif
-				}
+				GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
 			}
 		}

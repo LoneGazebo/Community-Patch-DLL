@@ -318,6 +318,8 @@ protected:
 	LUAAPIEXTN(IgnoreFeatureDamage, bool);
 	LUAAPIEXTN(ExtraTerrainDamage, bool);
 	LUAAPIEXTN(ExtraFeatureDamage, bool);
+	LUAAPIEXTN(GetMovementRules, int);
+	LUAAPIEXTN(GetZOCStatus, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	LUAAPIEXTN(GetNearbyImprovementCombatBonus, int);
