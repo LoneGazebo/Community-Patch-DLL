@@ -1392,17 +1392,17 @@ SET FirstSelectionSound = 'AS2D_BIRTH_HORSEMAN', SelectionSound = 'AS2D_SELECT_H
 WHERE UnitType = 'UNIT_BARBARIAN_HORSEMAN';
 
 UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_SELECT_WARRIER', SelectionSound = 'AS2D_BIRTH_WARRIER'
+SET FirstSelectionSound = 'AS2D_BIRTH_WARRIER', SelectionSound = 'AS2D_SELECT_WARRIER'
 WHERE UnitType = 'UNIT_BARBARIAN_WARRIOR';
 
 UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_SELECT_CANNON', SelectionSound = 'AS2D_BIRTH_CANNON'
+SET FirstSelectionSound = 'AS2D_BIRTH_CANNON', SelectionSound = 'AS2D_SELECT_CANNON'
 WHERE UnitType = 'UNIT_GATLINGGUN';
 
 UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_SELECT_FRIGATE', SelectionSound = 'AS2D_BIRTH_FRIGATE'
+SET FirstSelectionSound = 'AS2D_BIRTH_FRIGATE', SelectionSound = 'AS2D_SELECT_FRIGATE'
 WHERE UnitType = 'UNIT_PRIVATEER';
 
 UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_SELECT_MUSKETMAN', SelectionSound = 'AS2D_BIRTH_MUSKETMAN'
+SET FirstSelectionSound = 'AS2D_BIRTH_MUSKETMAN', SelectionSound = 'AS2D_SELECT_MUSKETMAN'
 WHERE UnitType = 'UNIT_SWEDISH_CAROLEAN';
