@@ -44,7 +44,7 @@
 			<Text>Imperial Seal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NOBILITY">
-			<Text>Noble</Text>
+			<Text>Nobility</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET">
 			<Text>Treasure Fleet</Text>
