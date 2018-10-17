@@ -864,18 +864,22 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
-	kToNodeCacheData.bContainsEnemyCity = false;
+	kToNodeCacheData.bIsEnemyCity = false;
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
 		CvCity* pCity = pPlot->getPlotCity();
 		if (pCity  && pUnit->getOwner() != pCity->getOwner())
 		{
 			if (kUnitTeam.isAtWar(pCity->getTeam()))
-				kToNodeCacheData.bContainsEnemyCity = true;
+				kToNodeCacheData.bIsEnemyCity = true;
 			else
 				kToNodeCacheData.bContainsOtherFriendlyTeamCity = true;
 		}
 	}
+
+	kToNodeCacheData.bIsVisibleEnemyUnit = false;
+	kToNodeCacheData.bIsVisibleEnemyCombatUnit = false;
+	kToNodeCacheData.bIsVisibleNeutralCombatUnit = false;
 
 	bool bPlotOccupancyOverride = false;
 	if (kToNodeCacheData.bPlotVisibleToTeam)
@@ -888,25 +892,22 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 
 		if (!bPlotOccupancyOverride)
 		{
-			kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
-			kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
+			kToNodeCacheData.bIsVisibleEnemyUnit = pPlot->isVisibleEnemyUnit(pUnit);
+			kToNodeCacheData.bIsVisibleEnemyCombatUnit = pPlot->isVisibleEnemyDefender(pUnit);
 		}
-	}
-	else
-	{
-		kToNodeCacheData.bContainsVisibleEnemy = false;
-		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
+
+		kToNodeCacheData.bIsVisibleNeutralCombatUnit = pPlot->isNeutralUnit(pUnit->getOwner(), true, false);
 	}
 
 	//ignore this unit when counting!
 	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
 	//for civilians we don't actually need to subtract one here, but it doesn't hurt
 	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
-	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
+	kToNodeCacheData.bUnitStackingLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 
 	//small hack to prevent civilians from stacking although they could
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL) && pPlot->isNeutralUnit(pUnit->getOwner(),true,true))
-		kToNodeCacheData.bFriendlyUnitLimitReached = true;
+		kToNodeCacheData.bUnitStackingLimitReached = true;
 
 	//do not use DestinationReached() here, approximate destination won't do
 	bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
@@ -923,13 +924,13 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 			if (pUnit->isRanged())
 			{
 				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
+				if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 			else
 			{
 				//melee units attack enemy cities and units 
-				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity || bPlotOccupancyOverride)
+				if (kToNodeCacheData.bIsVisibleEnemyUnit || kToNodeCacheData.bIsEnemyCity || bPlotOccupancyOverride)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 		}
@@ -1247,7 +1248,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//calculate move cost
 	int iMovementCost = 0;
-	if(node->m_kCostCacheData.bContainsVisibleEnemyDefender || node->m_kCostCacheData.bContainsEnemyCity)
+	if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit || node->m_kCostCacheData.bIsEnemyCity)
 		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
 		iMovementCost = iStartMoves;
 	else
@@ -1286,7 +1287,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		if (kToNodeCacheData.bIsRevealedToTeam && !kToNodeCacheData.bCanEnterTerrainPermanent)
 			return -1; //forbidden
 		// check stacking (if visible)
-		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached && iTurns==0)
+		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bUnitStackingLimitReached && iTurns==0)
 			return -1; //forbidden
 		// can't stay in other players' cities
 		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
@@ -1322,7 +1323,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
 	{
 		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
-		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && pUnitDataCache->isAIControl())
+		if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && pUnitDataCache->isAIControl())
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false, false)))));
 
@@ -1363,7 +1364,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		return FALSE;
 #endif
 
-	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
+	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || kToNodeCacheData.bIsVisibleEnemyCombatUnit;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
 	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the _parent_ plot
@@ -1387,7 +1388,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			}
 
 			// check stacking (if visible)
-			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
+			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bUnitStackingLimitReached)
 				return FALSE;
 		}
 	}
@@ -1418,7 +1419,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
 
 		//don't allow moves through enemy cities (but allow them as attack targets for melee)
-		if (kToNodeCacheData.bContainsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
+		if (kToNodeCacheData.bIsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
 			return FALSE;
 
 		if(pCacheData->CanEverEmbark())
@@ -2223,11 +2224,11 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 		return false;
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && !temp->m_kCostCacheData.bCanEnterTerrainPermanent)
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && temp->m_kCostCacheData.bFriendlyUnitLimitReached)
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && temp->m_kCostCacheData.bUnitStackingLimitReached)
 		return false;
 	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
 		return false;
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && (temp->m_kCostCacheData.bContainsEnemyCity || temp->m_kCostCacheData.bContainsVisibleEnemyDefender))
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) && (temp->m_kCostCacheData.bIsEnemyCity || temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit))
 		return false;
 
 	return true;
@@ -2256,10 +2257,11 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	// - we would suffer attrition
 
 	bool bBlockAhead = 
+		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && //obvious
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
 		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
-		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) &&
-		next->m_kCostCacheData.bFriendlyUnitLimitReached;
+		!next->m_kCostCacheData.bIsVisibleNeutralCombatUnit && //don't let ourselves be blocked by other players' units
+		next->m_kCostCacheData.bUnitStackingLimitReached; //finally
 
 	bool bTempPlotAhead =
 		!next->m_kCostCacheData.bCanEnterTerrainPermanent;

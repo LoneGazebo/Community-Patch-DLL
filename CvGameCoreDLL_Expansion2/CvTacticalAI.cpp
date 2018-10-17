@@ -10783,7 +10783,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 			if (pTestPlot->isEnemyUnit(pUnit->getOwner(),false,false))
 				iExtraDamage += 20; //even more points for a double kill
 			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
-				iDamageReceived = max(0, iDamageReceived - pUnit->getHPHealedIfDefeatEnemy());
+				iDamageReceived = max( iDamageReceived-pUnit->getHPHealedIfDefeatEnemy(), -pUnit->getDamage() ); //may turn negative, but can't heal more than current damage
 
 			result.eType = pUnit->isRanged() ? STacticalAssignment::A_RANGEKILL : STacticalAssignment::A_MELEEKILL;
 		}
@@ -11072,18 +11072,25 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 			result.iScore++;
 
 		//does it make sense to pillage here?
-		if (result.eType == STacticalAssignment::A_FINISH && unit.iMovesLeft > 0 && pUnit->canPillage(pCurrentPlot) && pUnit->getDamage()>10)
+		if (result.eType == STacticalAssignment::A_FINISH && pUnit->canPillage(pCurrentPlot) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
 		{
-			//can only pillage once per turn
-			if (!assumedPosition.unitHasAssignmentOfType(unit.iUnitID, STacticalAssignment::A_PILLAGE))
+			//if it's a citadel we want to move there even if we cannot pillage right away and don't need the healing
+			if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
 			{
-				if (pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT())
-					result.iScore += 10;
-				else if (IsEnemyCitadel(pCurrentPlot, kPlayer.getTeam()))
+				result.iScore += 50;
+				if (unit.iMovesLeft > 0) //if we can do it right away ...
+				{
 					result.iScore += 50;
-				else if (pUnit->IsGainsXPFromPillaging())
-					result.iScore += 25;
-
+					result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
+					result.eType = STacticalAssignment::A_PILLAGE;
+				}
+			}
+			//if it's an improvement we pillage to heal if we have moves to spare
+			else if (pCurrentPlot->getImprovementType() != NO_IMPROVEMENT && unit.iMovesLeft > 0 && pUnit->getDamage() >= GC.getPILLAGE_HEAL_AMOUNT())
+			{
+				result.iScore += 20;
+				if (pUnit->IsGainsXPFromPillaging())
+					result.iScore += 10;
 				result.iRemainingMoves -= min(result.iRemainingMoves, GC.getMOVE_DENOMINATOR());
 				result.eType = STacticalAssignment::A_PILLAGE;
 			}
