@@ -10064,11 +10064,11 @@ void CvDiplomacyAI::DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer)
 		iEconomicStrength = 0;
 
 		// Look at player's Economic Strength
-		if(GetPlayer()->getCurrentTotalPop() > 0)
+		if(GetPlayer()->getTotalPopulation() > 0)
 		{
 			iOtherPlayerEconomy = GET_PLAYER(ePlayer).GetEconomicMight();
 			// Example: If another player has double the Economic strength of us, the Ratio will be 200
-			iEconomicRatio = iOtherPlayerEconomy* /*100*/ GC.getECONOMIC_STRENGTH_RATIO_MULTIPLIER() / GetPlayer()->getCurrentTotalPop();
+			iEconomicRatio = iOtherPlayerEconomy* /*100*/ GC.getECONOMIC_STRENGTH_RATIO_MULTIPLIER() / GetPlayer()->getTotalPopulation();
 		}
 		else
 		{

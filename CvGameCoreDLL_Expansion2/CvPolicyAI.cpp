@@ -1136,7 +1136,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		iNumCities = 1;
 	}
 
-	int iPopulation = pPlayer->getAveragePopulation();
+	int iPopulation = (int)(pPlayer->getAveragePopulation()+0.5f);
 	int iNumWonders = pPlayer->GetNumWonders();
 	
 

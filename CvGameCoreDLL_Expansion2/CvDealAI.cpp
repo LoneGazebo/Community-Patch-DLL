@@ -1570,8 +1570,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	int iHappinessFromResource = max(1,GetPlayer()->GetBaseLuxuryHappiness());
-	int iItemValue = 10 + (iHappinessFromResource * iNumTurns);
+	int iItemValue = 10 + (GetPlayer()->GetHappinessFromLuxury(eResource) * iNumTurns);
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;
@@ -1637,8 +1636,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
-		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources();
-		int iOurHappiness = GetPlayer()->GetHappinessFromResources();
+		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources() + GET_PLAYER(eOtherPlayer).GetHappinessFromResourceVariety();
+		int iOurHappiness = GetPlayer()->GetHappinessFromResources() + GetPlayer()->GetHappinessFromResourceVariety();
 		//He's happier than us?
 		if (iOtherHappiness >= iOurHappiness)
 		{
@@ -1739,8 +1738,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
-		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources();
-		int iOurHappiness = GetPlayer()->GetHappinessFromResources();
+		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources() + GET_PLAYER(eOtherPlayer).GetHappinessFromResourceVariety();
+		int iOurHappiness = GetPlayer()->GetHappinessFromResources() + GetPlayer()->GetHappinessFromResourceVariety();
 		//He's happier than us?
 		if (iOtherHappiness >= iOurHappiness)
 		{

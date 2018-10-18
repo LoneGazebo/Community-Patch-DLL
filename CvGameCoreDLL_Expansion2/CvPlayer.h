@@ -477,7 +477,7 @@ public:
 	void setStartingPlot(CvPlot* pNewValue);
 
 	int getTotalPopulation() const;
-	int getAveragePopulation() const;
+	float getAveragePopulation() const;
 	void changeTotalPopulation(int iChange);
 	long getRealPopulation() const;
 
@@ -742,15 +742,10 @@ public:
 	int getGlobalAverage(YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	int getPopNeededForLux() const;
-	void setPopNeededForLux();
-	void CheckPopLuxUpgradeThreshold();
+	int GetPlayerLuxuryHappinessScaler1000() const;
 	int GetBonusHappinessFromLuxuries() const;
-	int GetBaseLuxuryHappiness() const;
-	void SetBaseLuxuryHappiness(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int getCurrentTotalPop() const;
 	int GetUnhappinessFromWarWeariness() const;
 #endif
 
@@ -3011,10 +3006,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReformationFollowerReduction;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 	FAutoVariable<std::vector<int>, CvPlayer> m_viInstantYieldsTotal;
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
-	FAutoVariable<int, CvPlayer> m_iPopNeededForLuxUpgrade;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;

@@ -906,16 +906,9 @@ function HappinessTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", iHappinessFromMonopoly);
 		end
-		if (iHappinessFromBonusResources > 0) then
+		if(iHappinessFromBonusResources > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
-		end
-		-- Happiness/Population calculation.
-		local iPopulation = pPlayer:GetCurrentTotalPop();
-		local iPopNeeded = pPlayer:GetPopNeededForLux();
-		local iGetLuxuryBonus = pPlayer:GetBaseLuxuryHappiness();
-		if(iGetLuxuryBonus > 0) then
-			strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iGetLuxuryBonus);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_LUXURY_BONUS", iHappinessFromBonusResources, g_activePlayer:GetAveragePopulation100()/100);
 		end
 -- END
 -- C4DF

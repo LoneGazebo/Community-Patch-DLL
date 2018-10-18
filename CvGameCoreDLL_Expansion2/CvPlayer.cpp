@@ -483,10 +483,6 @@ CvPlayer::CvPlayer() :
 	, m_iSupplyFreeUnits("CvPlayer::m_iFreeUnits", m_syncArchive)
 	, m_viInstantYieldsTotal("CvPlayer::m_viInstantYieldsTotal", m_syncArchive)
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	, m_iBaseLuxuryHappiness("CvPlayer::m_iBaseLuxuryHappiness", m_syncArchive)
-	, m_iPopNeededForLuxUpgrade("CvPlayer::m_iPopNeededForLuxUpgrade", m_syncArchive)
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
 	, m_iIdeologyPoint("CvPlayer::m_iIdeologyPoint", m_syncArchive)
@@ -1192,8 +1188,6 @@ void CvPlayer::init(PlayerTypes eID)
 		setAdvancedActionWonder(2);
 		setAdvancedActionBuilding(12);
 	}
-	SetBaseLuxuryHappiness(1);
-	setPopNeededForLux();
 	GET_TEAM(getTeam()).DoUpdateBestRoute();
 #endif
 
@@ -1373,10 +1367,6 @@ void CvPlayer::uninit()
 	m_iReferenceFoundValue = 50000;
 	m_iReformationFollowerReduction = 0;
 	m_bIsReformation = false;
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	m_iBaseLuxuryHappiness = 0;
-	m_iPopNeededForLuxUpgrade = 0;
 #endif
 	m_iUprisingCounter = 0;
 	m_iExtraHappinessPerLuxury = 0;
@@ -6063,7 +6053,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
-	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getCurrentTotalPop() < pkEventInfo->getMinimumNationalPopulation())
+	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getTotalPopulation() < pkEventInfo->getMinimumNationalPopulation())
 		return false;
 
 	if(pkEventInfo->getMinimumNumberCities() > 0 && getNumCities() < pkEventInfo->getMinimumNumberCities())
@@ -6564,7 +6554,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
-	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getCurrentTotalPop() < pkEventInfo->getMinimumNationalPopulation())
+	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getTotalPopulation() < pkEventInfo->getMinimumNationalPopulation())
 		return false;
 
 	if(pkEventInfo->getMinimumNumberCities() > 0 && getNumCities() < pkEventInfo->getMinimumNumberCities())
@@ -7781,7 +7771,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getCurrentTotalPop() < pkEventInfo->getMinimumNationalPopulation())
+	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getTotalPopulation() < pkEventInfo->getMinimumNationalPopulation())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_POP_NATIONAL");
 		localizedDurationText << pkEventInfo->getMinimumNationalPopulation();
@@ -11051,7 +11041,6 @@ void CvPlayer::doTurn()
 
 		RefreshCSAlliesFriends();
 		UpdateHappinessFromMinorCivs();
-		CheckPopLuxUpgradeThreshold();
 #endif
 		DoUpdateCramped();
 
@@ -15592,7 +15581,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 			int iPopRequired = GetScalingNationalPopulationRequrired(eBuilding);
 			if(iPopRequired > 0)
 			{
-				int iCurrentPop = getCurrentTotalPop();
+				int iCurrentPop = getTotalPopulation();
 				if(iCurrentPop < iPopRequired)
 				{
 					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_NATIONAL_POP", pkBuildingInfo->GetTextKey(), "", iPopRequired - iCurrentPop);
@@ -18304,14 +18293,14 @@ int CvPlayer::getTotalPopulation() const
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getAveragePopulation() const
+float CvPlayer::getAveragePopulation() const
 {
 	if(getNumCities() == 0)
 	{
 		return 0;
 	}
 
-	return ((getTotalPopulation() / getNumCities()) + 1);
+	return getTotalPopulation() / (float)getNumCities();
 }
 
 
@@ -20501,28 +20490,27 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Gamespeed Bonus level
 	if(MOD_BALANCE_CORE)
 	{
-		int iGameSpeedHappiness = GC.getGame().getGameSpeedInfo().GetStartingHappiness();
-		m_iHappiness += iGameSpeedHappiness;
+		m_iHappiness += GC.getGame().getGameSpeedInfo().GetStartingHappiness();
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	// Gamespeed Bonus level
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
-		int iMonpolyHappiness = GetHappinessFromResourceMonopolies();
-		m_iHappiness += iMonpolyHappiness;
+		m_iHappiness += GetHappinessFromResourceMonopolies();
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	if(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	{
-		int iExtraResourceHappiness = GetBonusHappinessFromLuxuries();
-		m_iHappiness += iExtraResourceHappiness;
+		m_iHappiness += GetBonusHappinessFromLuxuries();
 	}
 #endif
 	// Increase from Luxury Resources
-	int iNumHappinessFromResources = GetHappinessFromResources();
-	m_iHappiness += iNumHappinessFromResources;
+	m_iHappiness += GetHappinessFromResources();
+
+	// Happiness bonus for multiple Resource types
+	m_iHappiness += GetHappinessFromResourceVariety();
 
 	// Increase from Local City Happiness
 	m_iHappiness += GetHappinessFromCities();
@@ -21791,7 +21779,7 @@ int CvPlayer::GetHappinessFromPolicies() const
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if(MOD_BALANCE_CORE_POLICIES && m_iHappinessPerXPopulationGlobal > 0)
 	{
-		int iTotalPop = getCurrentTotalPop();
+		int iTotalPop = getTotalPopulation();
 		if(iTotalPop > 0)
 		{
 			int iExtraHappinessGlobal = (iTotalPop / m_iHappinessPerXPopulationGlobal);
@@ -21996,15 +21984,12 @@ int CvPlayer::GetHappinessFromResources() const
 {
 	int iTotalHappiness = 0;
 
-	int iBaseHappiness;
-
 	// Check all connected Resources
-	ResourceTypes eResource;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
-		iBaseHappiness = GetHappinessFromLuxury(eResource);
+		int iBaseHappiness = GetHappinessFromLuxury(eResource);
 		if(iBaseHappiness)
 		{
 			// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
@@ -22018,9 +22003,6 @@ int CvPlayer::GetHappinessFromResources() const
 			iTotalHappiness += GetExtraHappinessPerLuxury();
 		}
 	}
-
-	// Happiness bonus for multiple Resource types
-	iTotalHappiness += GetHappinessFromResourceVariety();
 
 	return iTotalHappiness;
 }
@@ -22319,118 +22301,39 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 	return iYield;
 }
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 //	--------------------------------------------------------------------------------
-int CvPlayer::getPopNeededForLux() const
+int CvPlayer::GetPlayerLuxuryHappinessScaler1000() const
 {
-	if (getNumCities() == 0)
-		return -1;
-
-	return m_iPopNeededForLuxUpgrade;
+	//todo: add traits and policy effects here
+	return GC.getBALANCE_HAPPINESS_LUXURY_SCALER();
 }
 
-void CvPlayer::setPopNeededForLux()
-{
-	int iBaseValue = GC.getBALANCE_HAPPINESS_LUXURY_BASE() * GetBaseLuxuryHappiness();
-	iBaseValue *= 100 + getCurrentTotalPop() * GC.getBALANCE_HAPPINESS_LUXURY_SCALER();
-	iBaseValue /= 100;
-
-	m_iPopNeededForLuxUpgrade = iBaseValue;
-}
-void CvPlayer::CheckPopLuxUpgradeThreshold()
-{
-	if (getNumCities() == 0)
-		return;
-
-	if (getCurrentTotalPop() >= getPopNeededForLux())
-	{
-		SetBaseLuxuryHappiness(GetBaseLuxuryHappiness() + 1);
-		setPopNeededForLux();
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if (MOD_BALANCE_CORE_HAPPINESS)
-		{
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString playerName;
-				FILogFile* pLog;
-				CvString strBaseString;
-				CvString strOutBuf;
-				CvString strFileName = "PlayerHappinessStats.csv";
-				playerName = getCivilizationShortDescription();
-				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
-				strOutBuf.Format("Bonus Happiness from Luxuries Increased by 1. Now: %d. Need %d Pop for next threshold.", GetBaseLuxuryHappiness(), getPopNeededForLux());
-				strBaseString += strOutBuf;
-				pLog->Msg(strBaseString);
-			}
-
-			CvNotifications* pNotification = GetNotifications();
-			if (pNotification)
-			{
-				CvString strMessage;
-				CvString strSummary;
-				strMessage = GetLocalizedText("TXT_KEY_LUXURY_BONUS_HAPPINESS", getPopNeededForLux(), GetBaseLuxuryHappiness());
-				strSummary = GetLocalizedText("TXT_KEY_LUXURY_BONUS_HAPPINESS_S");
-				pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
-			}
-		}
-#endif
-	}
-}
-//	--------------------------------------------------------------------------------
 int CvPlayer::GetBonusHappinessFromLuxuries() const
 {
-	if (getPopNeededForLux() <= 0)
-		return 0;
-
 	int iNumHappinessResources = 0;
-	ResourceTypes eResource;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
-
-		if(eResource != NO_RESOURCE && (GetHappinessFromLuxury(eResource) > 0))
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		if(eResource != NO_RESOURCE && GetHappinessFromLuxury(eResource) > 0)
 		{
 			iNumHappinessResources++;
 		}
 	}
-	int iHappiness = iNumHappinessResources * GetBaseLuxuryHappiness();
-	int iNumCityPenalty = 100 + (getNumCities() * GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR());
 
-	iHappiness *= 100;
-	iHappiness /= max(1, iNumCityPenalty);
+	int iBaseLuxuryHappiness = GetHappinessFromResources();
 
-	return iHappiness;
-}
-int CvPlayer::GetBaseLuxuryHappiness() const
-{
-	return m_iBaseLuxuryHappiness;
-}
+	//scaler is in 1/1000th
+	int iHappiness = int(0.5f + iNumHappinessResources * getAveragePopulation() *  GetPlayerLuxuryHappinessScaler1000() / 1000.f );
 
-void CvPlayer::SetBaseLuxuryHappiness(int iValue)
-{
-	if (m_iBaseLuxuryHappiness != iValue)
-		m_iBaseLuxuryHappiness = iValue;
+	//subtract the base value (one per lux)
+	return max(0,iHappiness-iBaseLuxuryHappiness);
 }
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-int CvPlayer::getCurrentTotalPop() const
-{
-	//Needed for LUA.
-	int iLoop;
-	int iTotalPop = 0;
-	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		if (pLoopCity == NULL)
-			continue;
-
-		iTotalPop += pLoopCity->getPopulation();
-	}
-	return iTotalPop;
-}
 int CvPlayer::GetUnhappinessFromWarWeariness() const
 {
 	int iWarWeariness = GetCulture()->GetWarWeariness();
@@ -22441,7 +22344,7 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 	iTechProgress /= 2;
 
-	int iPop = (getCurrentTotalPop() / 2);
+	int iPop = (getTotalPopulation() / 2);
 
 	iWarWeariness *= (iTechProgress + iPop);
 	iWarWeariness /= 100;
@@ -22492,7 +22395,6 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 
 	return false;
 }
-
 
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness are Units producing?

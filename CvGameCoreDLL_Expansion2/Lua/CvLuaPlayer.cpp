@@ -208,7 +208,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetStartingPlot);
 	Method(SetStartingPlot);
 	Method(GetTotalPopulation);
-	Method(GetAveragePopulation);
+	Method(GetAveragePopulation100);
 	Method(GetRealPopulation);
 
 	Method(GetNewCityExtraPopulation);
@@ -793,10 +793,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	Method(GetBonusHappinessFromLuxuries);
-	Method(GetPopNeededForLux);
-	Method(GetCurrentTotalPop);
 	Method(GetScalingNationalPopulationRequrired);
-	Method(GetBaseLuxuryHappiness);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	Method(CalculateUnhappinessTooltip);
@@ -2711,9 +2708,11 @@ int CvLuaPlayer::lGetTotalPopulation(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getAveragePopulation();
-int CvLuaPlayer::lGetAveragePopulation(lua_State* L)
+int CvLuaPlayer::lGetAveragePopulation100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getAveragePopulation);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, (int)(pkPlayer->getAveragePopulation()*100));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //long getRealPopulation();
@@ -8946,9 +8945,10 @@ int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
 	return 1;
 }
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 //------------------------------------------------------------------------------
-//int getPopNeededForLux();
+//int getBonusHappinessFromLuxuries();
 int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -8957,26 +8957,7 @@ int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int getPopNeededForLux();
-int CvLuaPlayer::lGetPopNeededForLux(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getPopNeededForLux();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getCurrentTotalPop();
-int CvLuaPlayer::lGetCurrentTotalPop(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->getCurrentTotalPop();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 //------------------------------------------------------------------------------
 //int GetScalingNationalPopulationRequrired();
 int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
@@ -8988,17 +8969,8 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int GetBaseLuxuryHappiness();
-int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetBonusHappinessFromLuxuries();
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 //------------------------------------------------------------------------------
 //int CalculateUnhappinessTooltip(YieldTypes eYield);
