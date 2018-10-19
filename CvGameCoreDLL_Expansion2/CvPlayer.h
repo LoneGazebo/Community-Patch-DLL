@@ -742,7 +742,8 @@ public:
 	int getGlobalAverage(YieldTypes eYield) const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	int GetPlayerLuxuryHappinessScaler1000() const;
+	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
+	int GetPlayerHappinessLuxuryCountFactor1000() const;
 	int GetBonusHappinessFromLuxuries() const;
 #endif
 #if defined(MOD_BALANCE_CORE)

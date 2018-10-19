@@ -1049,7 +1049,7 @@
 
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_LUXURY_BONUS">
-			<Text>{1_Num} Bonus [ICON_HAPPINESS_1] from luxuries because your average city size is {2_Num} [ICON_CITIZEN].</Text>
+			<Text>{1_Num} bonus [ICON_HAPPINESS_1] from luxuries because average city size is {2_Num} [ICON_CITIZEN].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">

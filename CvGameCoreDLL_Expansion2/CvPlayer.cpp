@@ -22304,31 +22304,34 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetPlayerLuxuryHappinessScaler1000() const
+int CvPlayer::GetPlayerHappinessLuxuryPopulationFactor1000() const
 {
 	//todo: add traits and policy effects here
-	return GC.getBALANCE_HAPPINESS_LUXURY_SCALER();
+	return GC.getBALANCE_HAPPINESS_LUXURY_POP_SCALER();
+}
+
+int CvPlayer::GetPlayerHappinessLuxuryCountFactor1000() const
+{
+	//todo: add traits and policy effects here
+	return GC.getBALANCE_HAPPINESS_LUXURY_COUNT_SCALER();
 }
 
 int CvPlayer::GetBonusHappinessFromLuxuries() const
 {
-	int iNumHappinessResources = 0;
+	int iTotalResourceWeight = 0;
+	int iCurrentWeight = 1000;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 		if(eResource != NO_RESOURCE && GetHappinessFromLuxury(eResource) > 0)
 		{
-			iNumHappinessResources++;
+			iTotalResourceWeight += iCurrentWeight;
+			iCurrentWeight = (iCurrentWeight*GetPlayerHappinessLuxuryCountFactor1000()) / 1000; //reduce the weight for each additional luxury
 		}
 	}
 
-	int iBaseLuxuryHappiness = GetHappinessFromResources();
-
 	//scaler is in 1/1000th
-	int iHappiness = int(0.5f + iNumHappinessResources * getAveragePopulation() *  GetPlayerLuxuryHappinessScaler1000() / 1000.f );
-
-	//subtract the base value (one per lux)
-	return max(0,iHappiness-iBaseLuxuryHappiness);
+	return int(0.5f + iTotalResourceWeight / 1000.f * getAveragePopulation() * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000.f );
 }
 #endif
 
