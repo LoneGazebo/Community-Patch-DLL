@@ -745,6 +745,7 @@ public:
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
 	int GetPlayerHappinessLuxuryCountFactor1000() const;
 	int GetBonusHappinessFromLuxuries() const;
+	int GetBonusHappinessFromLuxuriesGradient() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetUnhappinessFromWarWeariness() const;

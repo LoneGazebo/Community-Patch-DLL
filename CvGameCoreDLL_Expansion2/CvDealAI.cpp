@@ -1570,7 +1570,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	int iItemValue = 10 + (GetPlayer()->GetHappinessFromLuxury(eResource) * iNumTurns);
+	//how much happiness from one additional luxury?
+	int iItemValue = 10 + (GetPlayer()->GetHappinessFromLuxury(eResource)+GetPlayer()->GetBonusHappinessFromLuxuriesGradient()) * iNumTurns;
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;

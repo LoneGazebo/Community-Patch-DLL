@@ -22333,6 +22333,22 @@ int CvPlayer::GetBonusHappinessFromLuxuries() const
 	//scaler is in 1/1000th
 	return int(0.5f + iTotalResourceWeight / 1000.f * getAveragePopulation() * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000.f );
 }
+
+int CvPlayer::GetBonusHappinessFromLuxuriesGradient() const
+{
+	int iCurrentWeight = 1000;
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		if(eResource != NO_RESOURCE && GetHappinessFromLuxury(eResource) > 0)
+		{
+			iCurrentWeight = (iCurrentWeight*GetPlayerHappinessLuxuryCountFactor1000()) / 1000; //reduce the weight for each additional luxury
+		}
+	}
+
+	//scaler is in 1/1000th
+	return int(0.5f + iCurrentWeight / 1000.f * getAveragePopulation() * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000.f );
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE)

@@ -5650,7 +5650,18 @@ bool CvUnit::jumpToNearestValidPlot()
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
+	//will fail for barbarians ...
 	CvCity* pNearestCity = GC.getMap().findCity(getX(), getY(), getOwner());
+	if (!pNearestCity)
+		pNearestCity = GET_PLAYER(getOwner()).getCapitalCity();
+	
+	ReachablePlots reachablePlots;
+	if (pNearestCity)
+	{
+		SPathFinderUserData data(this, 0, 42);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pNearestCity->plot(), data);
+	}
 
 	int iBestValue = INT_MAX;
 	CvPlot* pBestPlot = NULL;
@@ -5668,6 +5679,10 @@ bool CvUnit::jumpToNearestValidPlot()
 			//need to check for invisible units as well ...
 			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			{
+				//if we cannot reach this plot, we would maroon our unit there - so skip it
+				if (!reachablePlots.empty() && reachablePlots.find(pLoopPlot->GetPlotIndex()) == reachablePlots.end())
+					continue;
+
 				int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
 
 				if(pNearestCity != NULL)
@@ -16129,7 +16144,8 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		// Flanking
 		if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 		{
-			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent() - pOtherUnit->GetNumFriendlyUnitsAdjacent();
+			//our units are the enemy's enemies ...
+			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent();
 			if(iNumAdjacentFriends > 0)
 			{
 				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
