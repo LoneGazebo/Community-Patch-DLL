@@ -15782,7 +15782,7 @@ const bool SStrengthModifierInput::operator==(const SStrengthModifierInput& rhs)
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
 int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, 
-				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty) const
+				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty, bool bAttacking) const
 {
 	VALIDATE_OBJECT
 
@@ -16148,7 +16148,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += iTempModifier;
 #if defined(MOD_BALANCE_CORE)
 			CvUnitEntry* pUnitInfo = GC.getUnitInfo(pOtherUnit->getUnitType());
-			if(pUnitInfo != NULL && pUnitInfo->IsMounted())
+			if(pUnitInfo != NULL && pUnitInfo->IsMounted() && (!pUnitInfo->GetRangedCombat() || bAttacking))
 			{
 				iTempModifier = unitCombatModifier((UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
 				iModifier += iTempModifier;
@@ -16238,7 +16238,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
+	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty,true);
 
 	// Generic Attack bonus
 	int iTempModifier = getAttackModifier();
@@ -16470,7 +16470,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		return 0;
 
 	int iTempModifier;
-	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pInPlot, bQuickAndDirty);
+	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pInPlot, bQuickAndDirty,false);
 
 	// Generic Defense Bonus
 	iTempModifier = getDefenseModifier();
