@@ -16133,7 +16133,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			if(iNumAdjacentFriends > 0)
 			{
 				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
-				iModifier += iTempModifier * ((100 + GetFlankAttackModifier()) / 100);
+				iModifier += iTempModifier*10 * ((1000+GetFlankAttackModifier()*10)/10)/1000;
 			}
 		}
 
