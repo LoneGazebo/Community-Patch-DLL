@@ -1960,11 +1960,7 @@ void CvUnit::uninitInfos()
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply)
-#else
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
-#endif
 {
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode;
@@ -2202,11 +2198,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	pUnit->kill(true, NO_PLAYER, bSupply);
-#else
-	pUnit->kill(true, NO_PLAYER, true);
-#endif
+	pUnit->kill(true, NO_PLAYER);
 }
 
 //	----------------------------------------------------------------------------
@@ -2214,8 +2206,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 //	Parameters:
 //		bDelay			- If true, the unit will be partially cleaned up, but its final removal will happen at the end of the frame.
 //		ePlayer			- Optional player ID who is doing the killing.
-//      bSupply         - true (default) - grants resources and increases Supply Cap is eligible; false - doesn't grant respurces, doesn't increase Supply Cap
-void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply)
+void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 {
 	//nothing to do
 	if (bDelay && isDelayedDeath())
@@ -2500,45 +2491,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/, bool bSupply
 						
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
 						SHOW_PLOT_POPUP(plot(),getOwner(), text);
-					}
-				}
-			}
-		}
-		if (bSupply)
-		{
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				int Gained = getUnitInfo().GetResourceQuantityExpended((ResourceTypes)iResourceLoop);
-				if (Gained != 0)
-				{
-					GET_PLAYER(getOwner()).changeNumResourceTotal((ResourceTypes)iResourceLoop, Gained);
-				}
-			}
-		}
-		if (bSupply)
-		{
-			int iSupply = getUnitInfo().GetSupplyCapBoost() + GetMilitaryCapChange();
-			if (iSupply > 0)
-			{
-				if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
-				{
-					GET_PLAYER(getOwner()).getCapitalCity()->changeCitySupplyFlat(iSupply);
-					if (getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = { 0 };
-
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
-						SHOW_PLOT_POPUP(plot(),getOwner(), text);
-
-						CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
-						if (pNotification)
-						{
-							CvString strMessage;
-							CvString strSummary;
-							strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), iSupply);
-							strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
-							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, getX(), getY(), getOwner());
-						}
 					}
 				}
 			}
@@ -20320,7 +20272,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						//! Be sure the unit your initializing has as its unitinfo (GetDomainType() == IsConvertDomain(pNewPlot->getDomain())
 						eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDomainUnitType(), getX(), getY(), eAIType, NO_DIRECTION, true, true, 0, 0, NO_CONTRACT, false);
-						kill(true, NO_PLAYER, false);
+						kill(true, NO_PLAYER);
 						pNewUnit->finishMoves();
 					}
 				}

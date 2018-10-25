@@ -19386,7 +19386,7 @@ void CvCity::ChangeMaxAirUnits(int iChange)
 int CvCity::getCitySupplyModifier() const
 {
 	VALIDATE_OBJECT
-		return m_iCitySupplyModifier;
+	return m_iCitySupplyModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19399,14 +19399,14 @@ void CvCity::changeCitySupplyModifier(int iChange)
 int CvCity::getCitySupplyFlat() const
 {
 	VALIDATE_OBJECT
-		return m_iCitySupplyFlat;
+	return m_iCitySupplyFlat;
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::changeCitySupplyFlat(int iChange)
 {
 	VALIDATE_OBJECT
-		m_iCitySupplyFlat += iChange;
+	m_iCitySupplyFlat += iChange;
 }
 
 void CvCity::SetProductionRoutes(bool bValue)
@@ -25959,7 +25959,12 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 #if defined(MOD_BALANCE_CORE)
 		if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 		{
-			if(pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
+			ImprovementTypes eImprovement = pTargetPlot->getImprovementType();
+			CvImprovementEntry* pInfo = (eImprovement == NO_IMPROVEMENT) ? NULL : GC.getImprovementInfo(eImprovement);
+			bool bIsGPTI = (pInfo && pInfo->IsCreatedByGreatPerson());
+
+			//can't buy cities or great person improvements
+			if(pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity() || bIsGPTI)
 			{
 				return false;
 			}

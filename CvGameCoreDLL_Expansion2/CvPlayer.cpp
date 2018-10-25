@@ -28349,6 +28349,43 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 #endif
 	}
 
+	if (pGreatPersonUnit)
+	{
+		//admiral grants a resource
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			int Gained = pGreatPersonUnit->getUnitInfo().GetResourceQuantityExpended((ResourceTypes)iResourceLoop);
+			if (Gained != 0)
+				changeNumResourceTotal((ResourceTypes)iResourceLoop, Gained);
+		}
+
+		//general grants supply points
+		int iSupply = pGreatPersonUnit->getUnitInfo().GetSupplyCapBoost() + pGreatPersonUnit->GetMilitaryCapChange();
+		if (iSupply > 0 && getCapitalCity() != NULL)
+		{
+			getCapitalCity()->changeCitySupplyFlat(iSupply);
+			m_iNumUnitsSuppliedCached = -1; //force recalculation
+
+			if (GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = { 0 };
+
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
+				SHOW_PLOT_POPUP( pGreatPersonUnit->plot(), GetID(), text);
+
+				CvNotifications* pNotification = GetNotifications();
+				if (pNotification)
+				{
+					CvString strMessage;
+					CvString strSummary;
+					strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", getNameKey(), iSupply);
+					strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
+					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, pGreatPersonUnit->getX(), pGreatPersonUnit->getY(), GetID());
+				}
+			}
+		}
+	}
+
 #if defined(MOD_API_UNIFIED_YIELDS)
 #else
 	// Faith gained
@@ -28443,6 +28480,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 		}
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES) || defined(MOD_DIPLOMACY_CITYSTATES)
 	//Influence Gained with all CS per expend
 	int iExpendInfluence = GetInfluenceGPExpend() + GetGPExpendInfluence(); 
@@ -28467,6 +28505,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPersonUnit->getUnitClassType());
 	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
 #endif
+
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
 	if (MOD_EVENTS_GREAT_PEOPLE) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_GreatPersonExpended, GetID(), pGreatPersonUnit->GetID(), eGreatPersonUnit, pGreatPersonUnit->getX(), pGreatPersonUnit->getY());

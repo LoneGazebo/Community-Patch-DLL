@@ -28,7 +28,7 @@
 //for easier debugging
 int gCurrentUnitToTrack = 0;
 bool gTacticalCombatDebugOutput = false;
-int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 3;
+int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
 #endif
 
 bool IsEnemyCitadel(CvPlot* pPlot, TeamTypes eMyTeam);
@@ -10873,8 +10873,8 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 	if (!assumedUnitPlot.isValid()) //create a temporary so that ScoreAttack works
 		assumedUnitPlot = CvTacticalPlot(pAssumedUnitPlot,assumedPosition.getPlayer());
 
-	//this is only for melee attacks - ranged units can't move into enemy plots - ranged attacks are handled separately
-	if (currentPlot.isEnemy())
+	//this is only for melee attacks - ranged attacks are handled separately
+	if (currentPlot.isEnemy() && !pUnit->isRanged())
 	{
 		//don't attack cities if the real target is something else
 		if (currentPlot.isEnemyCity() && assumedPosition.getTarget()!=pCurrentPlot)
@@ -11214,7 +11214,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	{
 		//come close but not too close
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
-		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE * 2)
+		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			result.iScore = -10;
 		else if (iPlotDistance < 2)
 			result.iScore /= 2;
@@ -12616,10 +12616,10 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 				ourUnits.insert(pUnit->GetID());
 	}
 
-	//create the tactical plots around the target (up to distance 5)
+	//create the tactical plots around the target
 	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
 	//some units may have their initial plots outside of this range but that's ok
-	for (int i=0; i<RING5_PLOTS; i++)
+	for (int i=0; i<RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE+1]; i++) //one more than max distance so that we can set the plot types at the border correctly
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget,i);
 
