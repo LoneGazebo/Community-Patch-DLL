@@ -1491,6 +1491,7 @@ public:
 	const UnitTypes getUnitType() const;
 	CvUnitEntry& getUnitInfo() const;
 	UnitClassTypes getUnitClassType() const;
+	bool isUnitAI(UnitAITypes eType) const;
 
 	const UnitTypes getLeaderUnitType() const;
 	void setLeaderUnitType(UnitTypes leaderUnitType);

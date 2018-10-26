@@ -6280,9 +6280,9 @@ void CvTacticalAI::ExecuteRepositionMoves()
 			{
 				//defensive only - don't send lonesome units into danger
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_CITY_TO_DEFEND);
-				if (pBestPlot != NULL)
+				if (pBestPlot != NULL && !pUnit->isUnitAI(UNITAI_CITY_BOMBARD))
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
-				if (pBestPlot != NULL)
+				if (pBestPlot != NULL && !pUnit->isUnitAI(UNITAI_CITY_BOMBARD))
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 
 				if(pBestPlot)
@@ -10237,8 +10237,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
 			iDanger+=20;
 
-		//heal rate is higher here
-		if (bIsInTerritory)
+		//heal rate is higher here and danger lower
+		if (bIsInTerritory && !pPlot->IsAdjacentOwnedByOtherTeam(pUnit->getTeam()))
 			iDanger -= 5;
 
 		//use city distance as tiebreaker

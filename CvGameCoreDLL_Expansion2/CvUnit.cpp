@@ -25468,6 +25468,10 @@ CvUnitEntry& CvUnit::getUnitInfo() const
 	return *m_pUnitInfo;
 }
 
+bool CvUnit::isUnitAI(UnitAITypes eType) const
+{
+	return (UnitAITypes)m_pUnitInfo->GetDefaultUnitAIType() == eType;
+}
 
 //	--------------------------------------------------------------------------------
 UnitClassTypes CvUnit::getUnitClassType() const
