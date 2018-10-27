@@ -4832,6 +4832,10 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 					bSafeForDeployment = false;
 			}
 
+			//careful with ranged units --- surprise attacks may happen (especially from humans)
+			if (!pCell->IsInteriorPlot())
+				bSafeForDeployment = false;
+
 			//todo: maybe avoid "slow" plot? but ending the turn there is usually good.
 			//need to know a unit's previous position before making the call ...
 			iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false,false) * 2;
@@ -11017,6 +11021,12 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		size_t iAttacksHereThisTurn = (size_t)NumAttacksForUnit(plot.iMovesLeft, iMaxAttacks);
 		if (result.eType == STacticalAssignment::A_FINISH)
 			iAttacksHereThisTurn = 0;
+
+		if (gTacticalCombatDebugOutput)
+		{
+			OutputDebugString(CvString::format("pos %d: %s %d has %d attack targets at plot %d\n",
+				assumedPosition.getID(), pUnit->getName().c_str(), unit.iUnitID, vDamageRatios.size(), plot.iPlotIndex).c_str());
+		}
 
 		int iDamageScore = 0;
 		if (!vDamageRatios.empty())

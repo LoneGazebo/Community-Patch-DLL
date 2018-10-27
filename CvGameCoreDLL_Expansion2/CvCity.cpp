@@ -25816,15 +25816,11 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 	// Strike strikes are weaker
 	if(bForRangeStrike)
 	{
-		int iValue = m_iStrengthValue;
-
-		iValue -= m_pCityBuildings->GetBuildingDefense();
+		int iValue = m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
 
 		CvAssertMsg(iValue > 0, "City strength should always be greater than zero. Please show Jon this and send your last 5 autosaves.");
 
-		int iModifier = 0;
-
-		iModifier -= /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
+		int iModifier = /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 
 		if(HasGarrison())
 		{

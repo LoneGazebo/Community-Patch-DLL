@@ -1137,6 +1137,7 @@ public:
 	CvTacticalPosition(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
+	int getID() const { return iID; }
 	bool isComplete() const;
 	bool isOffensive() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);

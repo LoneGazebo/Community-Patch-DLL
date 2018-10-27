@@ -29496,22 +29496,24 @@ const char* aTrTypes[] = {
 const char* CvUnit::GetMissionInfo()
 {
 	m_strMissionInfoString.clear();
+	getUnitAIString( m_strMissionInfoString, getUnitInfo().GetDefaultUnitAIType() );
+	m_strMissionInfoString += " // ";
 
 	if (IsCombatUnit())
 	{
 		if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-			m_strMissionInfoString = "no move assigned";
+			m_strMissionInfoString += "no move assigned";
 		else
 		{
 			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
 			{
 				CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
 				if (pkMoveInfo)
-					m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
+					m_strMissionInfoString += (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
 			}
 
 			if (m_eTacticalMove==NO_TACTICAL_MOVE)
-				m_strMissionInfoString = homelandMoveNames[m_eHomelandMove];
+				m_strMissionInfoString += homelandMoveNames[m_eHomelandMove];
 		}
 
 		m_strMissionInfoString += " : ";
@@ -29549,6 +29551,14 @@ const char* CvUnit::GetMissionInfo()
 		m_strMissionInfoString += " // ";
 		m_strMissionInfoString += strTemp1;
 		strTemp1.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		m_strMissionInfoString += strTemp1;
+	}
+
+	if (GetHeadMissionData())
+	{
+		CvString strTemp1;
+		strTemp1.Format(" // Mission %d -> %d,%d", GetHeadMissionData()->eMissionType, 
+			GetHeadMissionData()->iData1, GetHeadMissionData()->iData2);
 		m_strMissionInfoString += strTemp1;
 	}
 
