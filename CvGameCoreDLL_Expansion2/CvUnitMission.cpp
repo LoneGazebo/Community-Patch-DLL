@@ -659,7 +659,6 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						else if (iThisETA == CvUnit::MOVE_RESULT_NEXT_TURN)
 						{
 							bAction = true;
-							bDone = true;
 						}
 						else //cannot move or no need to move
 						{

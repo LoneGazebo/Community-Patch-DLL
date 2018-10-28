@@ -4334,11 +4334,18 @@ bool CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			continue;
 		}
 
-		//do not attack enemy cities / garrisons here
-		vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot());
-		for (size_t i=0; i<vAttackers.size(); i++)
-			if ( !vAttackers[i]->plot()->isCity() )
-				allEnemyPlots.insert( vAttackers[i]->plot() );
+		//check for enemy units, also around the immediate neighbor plots to be sure
+		//but ignore enemy cities / garrisons here
+		for (int i = 0; i < RING1_PLOTS; i++)
+		{
+			CvPlot* pTestPlot = iterateRingPlots(pUnit->plot(), i);
+			if (!pTestPlot)
+				continue;
+			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot);
+			for (size_t i = 0; i < vAttackers.size(); i++)
+				if (!vAttackers[i]->plot()->isCity())
+					allEnemyPlots.insert(vAttackers[i]->plot());
+		}
 
 		vUnits.push_back(pUnit);
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -7066,7 +7073,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSaveM
 			else
 				bResult = pUnit->at(pTarget->getX(), pTarget->getY());
 
-			if (!bResult) //typically because of MOVEFLAG_ABORT_IN_DANGER
+			if (!bResult && pUnit->canMove()) //typically because of MOVEFLAG_ABORT_IN_DANGER
 			{
 				pTarget = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				if (pTarget)
@@ -12004,11 +12011,13 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(assignment.iUnitID);
 	CvPlot* pNewPlot = GC.getMap().plotByIndexUnchecked(assignment.iToPlotIndex);
 
-	for (int i=0; i<RING5_PLOTS; i++)
+	for (int i=1; i<RING3_PLOTS; i++)
 	{
-		CvPlot* pTestPlot = iterateRingPlots(pTargetPlot,i); //iterate around the target plot, not the unit plot
+		CvPlot* pTestPlot = iterateRingPlots(pNewPlot,i); //iterate around the new plot, not the old plot
 		if (!pTestPlot)
 			continue;
+
+		//todo: check for distance to target? TACTICAL_COMBAT_MAX_TARGET_DISTANCE
 
 		if (pTestPlot->getVisibilityCount(pUnit->getTeam())==0)
 		{
@@ -12172,6 +12181,7 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		break;
 	}
 
+	bool bRestartRequired = false;
 	vector<int> newlyVisiblePlots;
 	if (bVisibilityChange)
 	{
@@ -12186,6 +12196,10 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			{
 				addTacticalPlot(pPlot);
 				updateTacticalPlotTypes(pPlot->GetPlotIndex());
+
+				//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
+				if (pPlot->isEnemyUnit(ePlayer, true, false))
+					bRestartRequired = true;
 			}
 		}
 	}
@@ -12244,6 +12258,10 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 			availableUnits.erase(itUnit);
 		}
 	}
+
+	//todo: should we stop the simulation? how to include this in position scoring?
+	if (bRestartRequired)
+		assignedMoves.push_back(STacticalAssignment( iUnitEndTurnPlot, iUnitEndTurnPlot, newAssignment.iUnitID, 0, newAssignment.bIsCombatUnit, 0, STacticalAssignment::A_RESTART));
 
 	return true;
 }
@@ -12749,10 +12767,6 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 	//take the assigned moves one by one and try to execute them faithfully. 
 	//may fail if a melee kill unexpectedly happens or does not happen
 
-	//todo: possible optimizations
-	// - check if a unit is damaged, and don't move it so that it can heal if it's not actively attacking
-	// - cancel execution if new enemy units are revealed during movement
-
 	for (size_t i = 0; i < vAssignments.size(); i++)
 	{
 		CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(vAssignments[i].iUnitID);
@@ -12840,6 +12854,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			bPrecondition = true;
 			bPostcondition = true;
 			break;
+		case STacticalAssignment::A_RESTART:
+			return false; //the previous move revealed a new enemy (which cause a danger update). restart the combat simulation with the remaining units.
+			break;
 		}
 
 		if (!bPrecondition || !bPostcondition)
@@ -12922,5 +12939,6 @@ const char* assignmentTypeNames[] =
 	"BLOCKED",
 	"PILLAGE",
 	"CAPTURE",
-	"FORCEDMOVE"
+	"FORCEDMOVE",
+	"RESTART"
 };

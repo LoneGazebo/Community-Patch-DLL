@@ -11658,11 +11658,6 @@ void CvPlayer::RespositionInvalidUnits()
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
-
 		if(pLoopUnit->isDelayedDeath())
 		{
 			continue;
