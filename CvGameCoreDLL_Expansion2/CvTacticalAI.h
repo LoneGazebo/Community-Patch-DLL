@@ -1045,6 +1045,7 @@ public:
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
 	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
 	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
+	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
@@ -1068,12 +1069,14 @@ protected:
 	int nSupportUnitsAdjacent; //for general bonus
 
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
-	bool bValid;
-	bool bBlockedByEnemyCity;
-	bool bBlockedByEnemyCombatUnit;
-	bool bEnemyCivilianPresent;
-	bool bBlockedByFriendlyCombatUnit;
-	bool bSupportUnitPresent;
+	bool bValid:1;
+	bool bBlockedByEnemyCity:1;
+	bool bBlockedByEnemyCombatUnit:1;
+	bool bEnemyCivilianPresent:1;
+	bool bBlockedByFriendlyCombatUnit:1;
+	bool bSupportUnitPresent:1;
+	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
+
 	eTactPlotType eType;
 	int iDamageDealt;
 };

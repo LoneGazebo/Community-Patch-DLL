@@ -7351,7 +7351,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 				if ( iDistance <= iTacticalRadius + pUnit->IsRecentlyDeployedFromOperation() ? 2 : 0 )
 				{
 					//don't run away if there's work to do (will eventually be handled by ExecuteAttackWithUnits)
-					if (pUnit->plot()->GetNumEnemyUnitsAdjacent(pUnit->getTeam(),pUnit->getDomainType()) > 1)
+					if (TacticalAIHelpers::GetFirstTargetInRange(pUnit, false, false) != NULL)
 						continue;
 
 					CvTacticalUnit unit;
@@ -7362,7 +7362,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		}
 	}
 
-	if (!m_CurrentTurnUnits.empty())
+	if (m_CurrentMoveUnits.size()>0)
 		PositionUnitsAroundTarget(pTargetPlot);
 }
 
@@ -10956,6 +10956,10 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		if (iPlotDistance>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			return result;
 
+		//careful with siege units, unseen enemies might be hiding behind the edge
+		if (pUnit->isUnitAI(UNITAI_CITY_BOMBARD) && plot.iMovesLeft == 0 && currentPlot.isEdgePlot())
+			return result;
+
 		//don't do it if it's a death trap
 		if (currentPlot.getNumAdjacentEnemies()>3 || (assumedPosition.getUnitNumberRatio()<1 && currentPlot.getNumAdjacentEnemies()==3) )
 			return result;
@@ -11232,7 +11236,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 		//come close but not too close
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
 		if (iPlotDistance > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
-			result.iScore = -10;
+			result.iScore = -5;
 		else if (iPlotDistance < 2)
 			result.iScore /= 2;
 	}
@@ -11241,7 +11245,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 		//stay close around the (friendly) target
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
 		if (iPlotDistance>TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
-			result.iScore = -10;
+			result.iScore = -5;
 	}
 
 	//the danger value reflects any defensive terrain bonuses
@@ -11251,6 +11255,10 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 	//count all plots we could possibly attack from here
 	if (pUnit->isRanged() && bEndTurn)
 	{
+		//careful with siege units, unseen enemies might be hiding behind the edge
+		if (pUnit->isUnitAI(UNITAI_CITY_BOMBARD) && plot.iMovesLeft == 0 && currentPlot.isEdgePlot())
+			result.iScore -=2;
+
 		if (pUnit->isNativeDomain(pCurrentPlot)) //if we could attack from here
 		{
 			//ignore the first ring
@@ -11263,7 +11271,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensive(const SUnitStats unit, SMove
 
 		//ranged units don't like to park next to enemies at all if we cannot attack
 		if (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0)
-			result.iScore -= 10; //no hard exclusion
+			result.iScore -= 5; //no hard exclusion
 	}
 
 	//can happen with garrisons
@@ -11382,6 +11390,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer)
 	bBlockedByFriendlyCombatUnit = false;
 	bSupportUnitPresent = false;
 	bValid = false;
+	bEdgeOfTheKnownWorld = false;
 	iDamageDealt = 0;
 	eType = TP_FARAWAY;
 	pPlot = NULL;
@@ -11398,10 +11407,12 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer)
 	//initial values are "real", will be updated later on
 	if (plot && ePlayer!=NO_PLAYER)
 	{
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
 		bValid=true;
 		pPlot=plot;
-		nEnemyCombatUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),pPlot->getDomain());
-		nFriendlyCombatUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),pPlot->getDomain());
+		nEnemyCombatUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(eTeam,pPlot->getDomain());
+		nFriendlyCombatUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(eTeam,pPlot->getDomain());
 		nFriendlyFirstlineUnitsAdjacent = 0; //don't know this yet
 
 		//embarked units don't count as combat unit ...
@@ -11419,8 +11430,14 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer)
 		for (int i = 0; i < 6; i++)
 		{
 			CvPlot* pNeighbor = aNeighbors[i];
-			if (pNeighbor && (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL,ePlayer)+pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL,ePlayer))>0)
+			if (!pNeighbor)
+				continue;
+			
+			if (pPlot->getNumUnitsOfAIType(UNITAI_GENERAL, ePlayer) + pPlot->getNumUnitsOfAIType(UNITAI_ADMIRAL, ePlayer) > 0)
 				nSupportUnitsAdjacent++;
+
+			if (!pPlot->isVisible(eTeam) && !pPlot->isImpassable())
+				bEdgeOfTheKnownWorld = true;
 		}
 
 		//plot type is set later
@@ -11518,8 +11535,15 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 					nFriendlyFirstlineUnitsAdjacent++;
 			}
 			//if the tactical plot is invalid, it's out of range or invisible. don't ignore enemy cities there.
-			else if (pNeighbor->isCity() && GET_PLAYER(currentPosition.getPlayer()).IsAtWarWith(pNeighbor->getOwner()))
-				bEnemyCityAdjacent = true;
+			else
+			{
+				if (pNeighbor->isCity() && GET_PLAYER(currentPosition.getPlayer()).IsAtWarWith(pNeighbor->getOwner()))
+					bEnemyCityAdjacent = true;
+
+				//assume the plot is invisible if we don't have a tact plot for it and it's not blocked by owned unitsadd (can't use the official visiblity check here)
+				if (!currentPosition.haveTacticalPlot(pNeighbor) && !pNeighbor->isImpassable() && pNeighbor->getBestDefender(currentPosition.getPlayer())==NULL)
+					bEdgeOfTheKnownWorld = true;
+			}
 		}
 	}
 
@@ -11606,8 +11630,10 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 		if (move.iScore == -INT_MAX)
 			continue;
 
-		 //for attacking, we want a good move. if we're defending, we don't really have a choice
-		if (move.iScore>0 || eAggression==AL_NONE )
+		 //for attacking, we want a good move. if we're defending, we don't have much choice ...
+		if (move.iScore>0)
+			possibleMoves.push_back( move );
+		else if (eAggression==AL_NONE && move.iScore>-100)
 			possibleMoves.push_back( move );
 
 		if (gTacticalCombatDebugOutput)
@@ -12434,13 +12460,13 @@ void CvTacticalPosition::dumpPlotStatus(const char* fname) const
 	ofstream out(fname);
 	if (out)
 	{
-		out << "#x,y,isEnemy,isFriendly,nAdjEnemy,nAdjFriendly,nAdjFirstline,hasSupport,type\n"; 
+		out << "#x,y,isEnemy,isFriendly,nAdjEnemy,nAdjFriendly,nAdjFirstline,isEdge,hasSupport,type\n"; 
 		for (vector<CvTacticalPlot>::const_iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 		{
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked( it->getPlotIndex() );
 			out << pPlot->getX() << "," << pPlot->getY() << "," << (it->isEnemy() ? 1 : 0) << "," << (it->isFriendlyCombatUnit() ? 1 : 0) << "," 
 				<< it->getNumAdjacentEnemies() << "," << it->getNumAdjacentFriendlies() << "," << it->getNumAdjacentFirstlineFriendlies() << "," 
-				<< it->hasSupportBonus() << "," << it->getType() << "\n";
+				<< it->isEdgePlot() << ","<< it->hasSupportBonus() << "," << it->getType() << "\n";
 		}
 	}
 	out.close();
@@ -12516,21 +12542,39 @@ bool TacticalAIHelpers::FindBestDefensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//add all our units
 	set<int> ourUnits;
-	for(size_t i=0; i<vUnits.size(); i++)
+	set<CvPlot*> relevantPlots;
+	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
-		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID())==ourUnits.end()) 
+		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID()) == ourUnits.end())
+		{
 			if (initialPosition->addAvailableUnit(pUnit))
+			{
 				ourUnits.insert(pUnit->GetID());
+
+				for (int j = 0; j < RING2_PLOTS; j++)
+				{
+					CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
+					if (pPlot)
+						relevantPlots.insert(pPlot);
+				}
+			}
+		}
 	}
 
 	//create the tactical plots around the target (up to distance 5)
 	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
 	//some units may have their initial plots outside of this range but that's ok
-	for (int i=0; i<RING5_PLOTS; i++)
+	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
 	{
-		CvPlot* pPlot = iterateRingPlots(pTarget,i);
+		CvPlot* pPlot = iterateRingPlots(pTarget, i);
+		if (pPlot)
+			relevantPlots.insert(pPlot);
+	}
 
+	for (set<CvPlot*>::iterator it=relevantPlots.begin(); it!=relevantPlots.end(); ++it)
+	{
+		CvPlot* pPlot = *it;
 		//we use the official visibility here, updates are possible later
 		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ) && !pPlot->isNeutralUnit(ePlayer,true,true))
 		{
@@ -12635,21 +12679,40 @@ bool TacticalAIHelpers::FindBestOffensiveAssignment(const vector<CvUnit*>& vUnit
 
 	//add all our units and make sure there are no duplicates!
 	set<int> ourUnits;
+	set<CvPlot*> relevantPlots;
 	for(size_t i=0; i<vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
 		//ignore embarked units, too difficult to get it right
 		if (pUnit && !pUnit->isEmbarked() && pUnit->canMove() && !pUnit->isDelayedDeath() && ourUnits.find(pUnit->GetID())==ourUnits.end()) 
+		{
 			if (initialPosition->addAvailableUnit(pUnit))
+			{
 				ourUnits.insert(pUnit->GetID());
+
+				for (int j = 0; j < RING2_PLOTS; j++)
+				{
+					CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
+					if (pPlot)
+						relevantPlots.insert(pPlot);
+				}
+			}
+		}
 	}
 
-	//create the tactical plots around the target
+	//create the tactical plots around the target (up to distance 5)
 	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
 	//some units may have their initial plots outside of this range but that's ok
-	for (int i=0; i<RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE+1]; i++) //one more than max distance so that we can set the plot types at the border correctly
+	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
 	{
-		CvPlot* pPlot = iterateRingPlots(pTarget,i);
+		CvPlot* pPlot = iterateRingPlots(pTarget, i);
+		if (pPlot)
+			relevantPlots.insert(pPlot);
+	}
+
+	for (set<CvPlot*>::iterator it=relevantPlots.begin(); it!=relevantPlots.end(); ++it)
+	{
+		CvPlot* pPlot = *it;
 
 		//for the inital setup we use the official visibility. skip plots with neutral combat units!
 		//note: revealed but non-visible cities cannot be attack targets for simplicity. should be an edge case.
