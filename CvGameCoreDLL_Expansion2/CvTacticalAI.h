@@ -1063,10 +1063,10 @@ public:
 
 protected:
 	const CvPlot* pPlot;
-	int nEnemyCombatUnitsAdjacent; //for figuring out the frontline
-	int nFriendlyCombatUnitsAdjacent; //for flanking
-	int nFriendlyFirstlineUnitsAdjacent; //ranged units need cover
-	int nSupportUnitsAdjacent; //for general bonus
+	unsigned char nEnemyCombatUnitsAdjacent; //for figuring out the frontline
+	unsigned char nFriendlyCombatUnitsAdjacent; //for flanking
+	unsigned char nFriendlyFirstlineUnitsAdjacent; //ranged units need cover
+	unsigned char nSupportUnitsAdjacent; //for general bonus
 
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
 	bool bValid:1;

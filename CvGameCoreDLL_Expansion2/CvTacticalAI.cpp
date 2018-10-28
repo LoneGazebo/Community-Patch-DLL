@@ -2760,7 +2760,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 		{
 			//be careful when sending out single units ...
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
-			if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			if (!pZone || pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 				continue;
 
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
@@ -5764,8 +5764,11 @@ void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 
 		//now that the neighbor plots are revealed, maybe it's better to retreat?
 		CvPlot* pSafePlot = NULL;
-		if (pUnit->GetDanger() > pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT())
-			pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true,false,false);
+		if (!IsEnemyCitadel(pTargetPlot,m_pPlayer->getTeam()) && pUnit->getMoves() <= GC.getMOVE_DENOMINATOR())
+		{
+			if (pUnit->GetDanger() > pUnit->GetCurrHitPoints() + GC.getPILLAGE_HEAL_AMOUNT())
+				pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true, false, false);
+		}
 
 		if (pSafePlot)
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
@@ -6054,11 +6057,8 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	//todos:
 	//
 	// - embarked units are ignored. too much hassle
-	// - defensive variant (simulate possible enemy moves?)
 	// - find out most dangerous enemy unit (cf IdentifyPriorityTargets)
 	// - consider possible kills in unit position score (ie ranged unit doesn't need to move if it can kill the attacker)
-	// - consider enemy units which would be revealed during combat for following danger calculations 
-	// - track tile visibility changes to avoid parking ranged units next to invisible tiles
 
 	vector<STacticalAssignment> vAssignments;
 	vector<CvUnit*> vUnits;
@@ -11149,7 +11149,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensive(const SUnitStats unit, SMove
 		{
 			//ranged units don't like to park next to enemies at all if we cannot attack
 			//however, if we're on a coastal plot, it's possible first line is actually harmless, so check danger too
-			if (iDanger>pUnit->GetCurrHitPoints()/2 && (currentPlot.getNumAdjacentEnemies() > 0 || currentPlot.getNumAdjacentFirstlineFriendlies() == 0))
+			if (iDanger>pUnit->GetCurrHitPoints()/2 && currentPlot.getNumAdjacentFirstlineFriendlies() == 0 && currentPlot.getNumAdjacentFriendlies()<3)
 			{
 				result.iScore = -1;
 				return result;
