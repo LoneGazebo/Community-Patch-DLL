@@ -25810,12 +25810,13 @@ void CvCity::updateStrengthValue()
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getStrengthValue(bool bForRangeStrike) const
+int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const
 {
 	VALIDATE_OBJECT
-	// Strike strikes are weaker
+	// Attacks are weaker
 	if(bForRangeStrike)
 	{
+		//always ignore building defense here
 		int iValue = m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
 
 		CvAssertMsg(iValue > 0, "City strength should always be greater than zero. Please show Jon this and send your last 5 autosaves.");
@@ -25856,7 +25857,10 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 		return iValue;
 	}
 
-	return m_iStrengthValue;
+	if (bIgnoreBuildings)
+		return m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
+	else
+		return m_iStrengthValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -31101,11 +31105,8 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand) const
+int CvCity::GetAirStrikeDefenseDamage(const CvUnit* /*pAttacker*/, bool bIncludeRand) const
 {
-#if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
-	pAttacker; //unused
-
 	//base value
 	int iBaseValue = 15;
 
@@ -31116,61 +31117,6 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
 	else
 		return iBaseValue;
-
-#else
-	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, false);
-	int iDefenderStrength = getStrengthValue(false);
-
-	// The roll will vary damage between 2 and 3 (out of 10) for two units of identical strength
-
-	int iDefenderDamageRatio = GetMaxHitPoints() - getDamage();
-	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GetMaxHitPoints();
-
-	int iDefenderRoll = 0;
-	if(bIncludeRand)
-	{
-		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
-		iDefenderRoll *= iDefenderDamageRatio;
-		iDefenderRoll /= GetMaxHitPoints();
-	}
-	else
-	{
-		iDefenderRoll = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE();
-		iDefenderRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
-		iDefenderRoll *= iDefenderDamageRatio;
-		iDefenderRoll /= GetMaxHitPoints();
-		iDefenderRoll /= 2;	// The divide by 2 is to provide the average damage
-	}
-	iDefenderDamage += iDefenderRoll;
-
-	double fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
-
-	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
-	if (iAttackerStrength > iDefenderStrength)
-	{
-		fStrengthRatio = (double(iAttackerStrength) / iDefenderStrength);
-	}
-
-	fStrengthRatio = (fStrengthRatio + 3) / 4;
-	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
-
-	if (iAttackerStrength > iDefenderStrength)
-	{
-		fStrengthRatio = 1 / fStrengthRatio;
-	}
-
-	iDefenderDamage = int(iDefenderDamage * fStrengthRatio);
-
-	// Bring it back out of hundreds
-	iDefenderDamage /= 100;
-
-	// Always do at least 1 damage
-	int iMinDamage = /*1*/ GC.getMIN_CITY_STRIKE_DAMAGE();
-	if(iDefenderDamage < iMinDamage)
-		iDefenderDamage = iMinDamage;
-	return iDefenderDamage;
-#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -5333,7 +5333,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 					if ( plot != plots.end() )
 					{
 						int iAttackerStrength = pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL, true, true);
-						int iDefenderStrength = pLoopCity->getStrengthValue();
+						int iDefenderStrength = pLoopCity->getStrengthValue(false,pEnemyUnit->ignoreBuildingDefense());
 
 						int iDefenderFireSupportCombatDamage = 0;
 						CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pLoopCity->getOwner(), pLoopCity->getX(), pLoopCity->getY(), pEnemyUnit->getX(), pEnemyUnit->getY());
@@ -8282,7 +8282,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 						iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttacker->plot(), pTargetPlot, NULL, true, true);
 					}
 
-					int iDefenderStrength = pCity->getStrengthValue();
+					int iDefenderStrength = pCity->getStrengthValue(false,pAttacker->ignoreBuildingDefense());
 					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pCity->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), pAttacker->getX(), pAttacker->getY());
 					int iDefenderFireSupportCombatDamage = 0;
 					if(pFireSupportUnit != NULL)

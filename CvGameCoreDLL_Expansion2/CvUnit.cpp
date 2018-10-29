@@ -15874,7 +15874,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += iGetGiveCombatModifier;
 		}
 		// Adjacent Friendly military Unit?
-		if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+		if (!bIgnoreUnitAdjacencyBoni && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 		{
 			iModifier += GetAdjacentModifier();
 			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
@@ -16097,11 +16097,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 		{
 			//our units are the enemy's enemies ...
-			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent();
+			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent(this);
 			if(iNumAdjacentFriends > 0)
 			{
 				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
-				iModifier += iTempModifier * ((100 + GetFlankAttackModifier()) / 100);
+				iModifier += (iTempModifier * (100 + GetFlankAttackModifier())) / 100;
 			}
 		}
 
@@ -16114,14 +16114,6 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		{
 			iTempModifier = unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
 			iModifier += iTempModifier;
-#if defined(MOD_BALANCE_CORE)
-			CvUnitEntry* pUnitInfo = GC.getUnitInfo(pOtherUnit->getUnitType());
-			if(pUnitInfo != NULL && pUnitInfo->IsMounted())
-			{
-				iTempModifier = unitCombatModifier((UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
-				iModifier += iTempModifier;
-			}
-#endif
 		}
 
 		// Domain Modifier
@@ -16500,11 +16492,13 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(pInPlot != NULL)
 	{
 		// No TERRAIN bonuses for this Unit?
-		iTempModifier = pInPlot->defenseModifier(getTeam(), (pAttacker != NULL) ? pAttacker->ignoreBuildingDefense() : false, false);
+		iTempModifier = pInPlot->defenseModifier(getTeam(), false, false);
 
-		// If we receive normal defensive bonuses OR iTempModifier is actually a PENALTY, then add in the mod
-		if(!noDefensiveBonus() || iTempModifier < 0)
-			iModifier += iTempModifier;
+		if (noDefensiveBonus() && iModifier>0)
+			//only forts & citadels have an effect
+			iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);
+
+		iModifier += iTempModifier;
 
 		// Fortification
 		iTempModifier = fortifyModifier();
@@ -17064,12 +17058,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	else
 	{
 		// No TERRAIN bonuses for this Unit?
-		iTempModifier = pMyPlot->defenseModifier(getTeam(), pOtherUnit ? pOtherUnit->ignoreBuildingDefense() : false, false);
+		iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
-		// If we receive normal defensive bonuses OR iTempModifier is actually a PENALTY, then add in the mod
-		if(!noDefensiveBonus() || iTempModifier < 0)
-			iModifier += iTempModifier;
+		if (noDefensiveBonus() && iModifier>0)
+			//only forts & citadels have an effect
+			iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);
 
+		iModifier += iTempModifier;
 		iModifier += getDefenseModifier();
 	}
 
@@ -17118,120 +17113,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
 						const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
-#if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
 	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
-#else
-	VALIDATE_OBJECT
-
-	if (pFromPlot == NULL)
-		pFromPlot = plot();
-	if (pTargetPlot == NULL)
-	{
-		if (pDefender != NULL)
-		{
-			pTargetPlot = pDefender->plot();
-		}
-		else if (pCity != NULL)
-		{
-			pTargetPlot = pCity->plot();
-		}
-	}
-
-	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, /*bAttacking*/ true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot);
-	int iDefenderStrength = 1;
-
-	// City is Defender
-	if (pCity != NULL)
-	{
-		iDefenderStrength = pCity->getStrengthValue();
-	}
-	// Unit is Defender
-	else if (pDefender != NULL)
-	{
-		// Use Ranged combat value for defender, UNLESS it's a boat
-
-		if (pDefender->getDomainType() == DOMAIN_SEA || (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, /*bForRangedAttack*/ false, pTargetPlot, pFromPlot)) <= 0)
-		{
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
-		}
-	}
-
-	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
-
-	// Note, 0 is valid - means we don't do anything
-#if defined(MOD_UNITS_MAX_HP)
-	int iAttackerDamageRatio = GetMaxHitPoints() - getDamage() - iAssumeExtraDamage;
-#else
-	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - getDamage() - iAssumeExtraDamage;
-#endif
-	if(iAttackerDamageRatio < 0)
-		iAttackerDamageRatio = 0;
-
-	int iAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
-	iAttackerDamage *= iAttackerDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-	iAttackerDamage /= GetMaxHitPoints();
-#else
-	iAttackerDamage /= GC.getMAX_HIT_POINTS();
-#endif
-
-	int iAttackerRoll = 0;
-	if(bIncludeRand)
-	{
-		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
-		iAttackerRoll *= iAttackerDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-		iAttackerRoll /= GetMaxHitPoints();
-#else
-		iAttackerRoll /= GC.getMAX_HIT_POINTS();
-#endif
-	}
-	else
-	{
-		iAttackerRoll = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
-		iAttackerRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
-		iAttackerRoll *= iAttackerDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-		iAttackerRoll /= GetMaxHitPoints();
-#else
-		iAttackerRoll /= GC.getMAX_HIT_POINTS();
-#endif
-		iAttackerRoll /= 2;	// The divide by 2 is to provide the average damage
-	}
-	iAttackerDamage += iAttackerRoll;
-
-	double fStrengthRatio = (iDefenderStrength > 0)?(double(iAttackerStrength) / iDefenderStrength):double(iAttackerStrength);
-
-	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
-	if(iDefenderStrength > iAttackerStrength)
-	{
-		fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
-	}
-
-	fStrengthRatio = (fStrengthRatio + 3) / 4;
-	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	//avoid overflow later
-	fStrengthRatio = MIN(1e3,(fStrengthRatio + 1) / 2);
-
-	if(iDefenderStrength > iAttackerStrength)
-	{
-		fStrengthRatio = 1 / fStrengthRatio;
-	}
-
-	double fAttackerDamage = (double)iAttackerDamage * fStrengthRatio;
-	// Protect against it overflowing an int
-	if(fAttackerDamage > INT_MAX)
-		iAttackerDamage = INT_MAX;
-	else
-		iAttackerDamage = int(fAttackerDamage);
-
-	// Bring it back out of hundreds
-	iAttackerDamage /= 100;
-
-	iAttackerDamage = max(1,iAttackerDamage);
-
-	return iAttackerDamage;
-#endif
 }
 
 
@@ -17276,7 +17158,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	// City is Defender - unless it's a missile
 	if (pCity != NULL && AI_getUnitAIType() != UNITAI_MISSILE_AIR)
 	{
-		iDefenderStrength = pCity->getStrengthValue();
+		iDefenderStrength = pCity->getStrengthValue(false,ignoreBuildingDefense());
 	}
 	// Unit is Defender
 	else if (pDefender != NULL)
@@ -17408,7 +17290,6 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
-#if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
 	pAttacker;  pTargetPlot; pFromPlot; //unused
 
 	//base value
@@ -17437,83 +17318,6 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		else
 			return 10;
 	}	
-#else
-	if (!pAttacker)
-		return 0;
-	if (pFromPlot == NULL && pAttacker)
-		pFromPlot = pAttacker->plot();
-	if (pTargetPlot == NULL)
-		pTargetPlot = plot();
-
-	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, /*bForRangedAttack*/ false, pTargetPlot, pFromPlot);
-	int iDefenderStrength = 0;
-
-	// Use Ranged combat value for defender, UNLESS it's a boat
-	if (getDomainType() == DOMAIN_SEA || (iDefenderStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot)) <= 0)
-		iDefenderStrength = GetMaxDefenseStrength(pTargetPlot, pAttacker);
-
-	if(iDefenderStrength == 0)
-		return 0;
-
-#if defined(MOD_UNITS_MAX_HP)
-	int iDefenderDamageRatio = GetMaxHitPoints() - getDamage();
-	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GetMaxHitPoints();
-#else
-	int iDefenderDamageRatio = GC.getMAX_HIT_POINTS() - getDamage();
-	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GC.getMAX_HIT_POINTS();
-#endif
-
-	int iDefenderRoll = 0;
-	if(bIncludeRand)
-	{
-		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
-		iDefenderRoll *= iDefenderDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-		iDefenderRoll /= GetMaxHitPoints();
-#else
-		iDefenderRoll /= GC.getMAX_HIT_POINTS();
-#endif
-	}
-	else
-	{
-		iDefenderRoll = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE();
-		iDefenderRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
-		iDefenderRoll *= iDefenderDamageRatio;
-#if defined(MOD_UNITS_MAX_HP)
-		iDefenderRoll /= GetMaxHitPoints();
-#else
-		iDefenderRoll /= GC.getMAX_HIT_POINTS();
-#endif
-		iDefenderRoll /= 2;	// The divide by 2 is to provide the average damage
-	}
-	iDefenderDamage += iDefenderRoll;
-
-	double fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
-
-	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
-	if(iAttackerStrength > iDefenderStrength)
-	{
-		fStrengthRatio = (double(iAttackerStrength) / iDefenderStrength);
-	}
-
-	fStrengthRatio = (fStrengthRatio + 3) / 4;
-	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
-
-	if(iAttackerStrength > iDefenderStrength)
-	{
-		fStrengthRatio = 1 / fStrengthRatio;
-	}
-
-	iDefenderDamage = int(iDefenderDamage * fStrengthRatio);
-
-	// Bring it back out of hundreds
-	iDefenderDamage /= 100;
-
-	iDefenderDamage = max(1,iDefenderDamage);
-
-	return iDefenderDamage;
-#endif
 }
 
 //	--------------------------------------------------------------------------------

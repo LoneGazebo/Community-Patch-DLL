@@ -1410,12 +1410,10 @@ void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
 		if (IsTradeRouteIndexEmpty(ui))
-		{
-			continue;
-		}
-		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsRecalledUnit(ui))
 			continue;
 
+		if (IsRecalledUnit(ui))
+			continue;
 
 		TeamTypes eOriginTeam = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam();
 		TeamTypes eDestTeam = GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam();
@@ -1449,8 +1447,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 		// walk through each player on the team
 		for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 		{
-			PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
-			if (GET_PLAYER(ePlayer).getTeam() != eTRTeam)
+			PlayerTypes eTRPlayer = (PlayerTypes)uiPlayer;
+			if (GET_PLAYER(eTRPlayer).getTeam() != eTRTeam)
 			{
 				continue;
 			}
@@ -1464,7 +1462,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				}
 
 				// if it's not my trade route
-				if (m_aTradeConnections[uiTradeRoute].m_eOriginOwner != ePlayer)
+				if (m_aTradeConnections[uiTradeRoute].m_eOriginOwner != eTRPlayer)
 				{
 					continue;
 				}
@@ -1475,7 +1473,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 					continue;
 				}
 
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				//venice recalls their trade units
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;

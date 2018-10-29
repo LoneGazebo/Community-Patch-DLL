@@ -85,9 +85,6 @@
 
 #define MOD_CORE_RESILIENT_PANTHEONS
 
-///	air units take a flat amount of damage in each air strike (plus interceptions)
-#define MOD_CORE_AIRCOMBAT_SIMPLIFIED
-
 #define MOD_BALANCE_CORE_OBSERVER_CHANGES
 	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
