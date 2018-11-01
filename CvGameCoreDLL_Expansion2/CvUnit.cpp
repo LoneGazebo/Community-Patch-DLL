@@ -4282,9 +4282,6 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const
 {
 	VALIDATE_OBJECT
-	int iOurDefense;
-	int iTheirDefense;
-
 	if(pDefender == NULL)
 	{
 		return true;
@@ -4330,7 +4327,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		}
 	}
 
-	iOurDefense = GetMaxDefenseStrength(plot(), pAttacker, pAttacker->plot(), false, true);
+	int iOurDefense = GetMaxDefenseStrength(plot(), pAttacker, pAttacker ? pAttacker->plot() : NULL, false, true);
 	if(::isWorldUnitClass(getUnitClassType()))
 	{
 		iOurDefense /= 2;
@@ -4367,7 +4364,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	iOurDefense /= (getCargo() + 1);
 
-	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker, pAttacker->plot(), false, true);
+	int iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker, pAttacker ? pAttacker->plot() : NULL, false, true);
 	if(::isWorldUnitClass(pDefender->getUnitClassType()))
 	{
 		iTheirDefense /= 2;
@@ -17430,7 +17427,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 // (This code is basically the same as GetInterceptionDamage() except it uses the attacker's defensive strength)
 int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
-	int iAttackerStrength = pAttacker->GetMaxDefenseStrength(plot(), this, pAttacker->plot());
+	int iAttackerStrength = pAttacker->GetMaxDefenseStrength(plot(), this, pAttacker ? pAttacker->plot() : NULL);
 	int iInterceptorStrength = 0;
 
 	switch (getDomainType())

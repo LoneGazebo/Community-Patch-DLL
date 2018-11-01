@@ -8237,7 +8237,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 					}
 
 					//this is wrong, the attacker plot will change in most situations!
-					int iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, pAttacker, pAttacker->plot(), false, true);
+					int iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, pAttacker, pAttacker ? pAttacker->plot() : NULL, false, true);
 					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pDefender->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), pAttacker->getX(), pAttacker->getY());
 					int iDefenderFireSupportCombatDamage = 0;
 					if(pFireSupportUnit)
