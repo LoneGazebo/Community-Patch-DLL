@@ -606,7 +606,7 @@ public:
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
-	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, 
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot, 
 									bool bFromRangedAttack = false, bool bQuickAndDirty = false) const;
 
 	int GetEmbarkedUnitDefense() const;

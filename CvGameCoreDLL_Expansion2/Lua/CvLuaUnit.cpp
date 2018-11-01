@@ -2702,9 +2702,10 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pInPlot = CvLuaPlot::GetInstance(L, 2, false);
 	CvUnit* pkAttacker = GetInstance(L, 3, false);
+	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 3, false);
 	bool bFromRangedAttack = luaL_optbool(L, 4, false);
 
-	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, bFromRangedAttack);
+	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5282,7 +5283,8 @@ int CvLuaUnit::lGetNearbyImprovementModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	const int bResult = pkUnit->GetNearbyImprovementModifier(pkUnit->plot());
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2, false);
+	const int bResult = pkUnit->GetNearbyImprovementModifier(pkPlot);
 #else
 	const int bResult = pkUnit->GetNearbyImprovementModifier();
 #endif

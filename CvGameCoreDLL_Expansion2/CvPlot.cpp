@@ -3378,9 +3378,25 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 	return iCount;
 }
 
-#if defined(MOD_BALANCE_CORE)
+int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const
+{
+	if (!pUnit || !pOtherUnit)
+		return 0;
 
-bool CvPlot::isFortification(TeamTypes eTeam) const
+	const CvPlot* pOtherPlot = pOtherUnitPlot ? pOtherUnitPlot : pOtherUnit->plot();
+
+	//our units are the enemy's enemies ...
+	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent( pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit);
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit);
+
+	if(iNumUnitsAdjacentToHere > iNumUnitsAdjacentToOther)
+		return /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * (iNumUnitsAdjacentToHere - iNumUnitsAdjacentToOther);
+
+	return 0;
+}
+
+
+bool CvPlot::isRevealedFortification(TeamTypes eTeam) const
 {
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
@@ -3431,74 +3447,6 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 
 	return iModifier;
 }
-
-#else
-
-//	--------------------------------------------------------------------------------
-int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
-{
-	CvCity* pCity;
-	ImprovementTypes eImprovement;
-	int iModifier;
-
-	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
-
-	// Can only get Defensive Bonus from ONE thing - they don't stack
-
-	// Hill (and mountain)
-	if(isHills() || isMountain())
-	{
-		iModifier = /*25*/ GC.getHILLS_EXTRA_DEFENSE();
-	}
-	// Feature
-	else if(getFeatureType() != NO_FEATURE)
-	{
-		iModifier = GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
-	}
-	// Terrain
-	else
-	{
-		iModifier = GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
-
-		// Flat land gives defensive PENALTY
-		if(!isWater())
-		{
-			iModifier += /*-25*/ GC.getFLAT_LAND_EXTRA_DEFENSE();
-		}
-	}
-
-	if(bHelp)
-	{
-		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
-	}
-	else
-	{
-		eImprovement = getImprovementType();
-	}
-
-	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
-	{
-		if(eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam())))
-		{
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
-			if (pkImprovement)
-				iModifier += pkImprovement->GetDefenseModifier();
-		}
-	}
-
-	if(!bHelp)
-	{
-		pCity = getPlotCity();
-
-		if(pCity != NULL)
-		{
-		}
-	}
-
-	return iModifier;
-}
-
-#endif //defined MOD_BALANCE_CORE_MILITARY
 
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const

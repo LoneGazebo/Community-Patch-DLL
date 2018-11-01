@@ -8236,7 +8236,8 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 						iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttacker->plot(), pTargetPlot, pDefender, true, true);
 					}
 
-					int iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, pAttacker, false, true);
+					//this is wrong, the attacker plot will change in most situations!
+					int iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, pAttacker, pAttacker->plot(), false, true);
 					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pDefender->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), pAttacker->getX(), pAttacker->getY());
 					int iDefenderFireSupportCombatDamage = 0;
 					if(pFireSupportUnit)
@@ -10534,12 +10535,12 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 		iDamage += pAttacker->getCombatDamage(
 			pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
-			pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, false, bQuickAndDirty), //do not override defender flanking/general bonus
+			pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty), //do not override defender flanking/general bonus
 			pAttacker->getDamage(), false, false, false);
 
 		iAttackerDamage = pDefender->getCombatDamage(
 			pDefender->GetMaxAttackStrength(pDefenderPlot, pAttackerPlot, pAttacker, false, bQuickAndDirty), //do not override defender flanking/general bonus
-			pAttacker->GetMaxDefenseStrength(pAttackerPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
+			pAttacker->GetMaxDefenseStrength(pAttackerPlot, pDefender, pDefenderPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
 			pDefender->getDamage() + iExtraDefenderDamage, false, false, false);
 	}
 

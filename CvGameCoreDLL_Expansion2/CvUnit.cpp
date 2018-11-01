@@ -4330,7 +4330,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		}
 	}
 
-	iOurDefense = GetMaxDefenseStrength(plot(), pAttacker, false, true);
+	iOurDefense = GetMaxDefenseStrength(plot(), pAttacker, pAttacker->plot(), false, true);
 	if(::isWorldUnitClass(getUnitClassType()))
 	{
 		iOurDefense /= 2;
@@ -4367,7 +4367,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 	iOurDefense /= (getCargo() + 1);
 
-	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker, false, true);
+	iTheirDefense = pDefender->GetMaxDefenseStrength(plot(), pAttacker, pAttacker->plot(), false, true);
 	if(::isWorldUnitClass(pDefender->getUnitClassType()))
 	{
 		iTheirDefense /= 2;
@@ -16093,18 +16093,6 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		CvAssertMsg(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
 
-		// Flanking
-		if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
-		{
-			//our units are the enemy's enemies ...
-			int iNumAdjacentFriends = pOtherUnit->GetNumEnemyUnitsAdjacent(this);
-			if(iNumAdjacentFriends > 0)
-			{
-				iTempModifier = /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * iNumAdjacentFriends;
-				iModifier += (iTempModifier * (100 + GetFlankAttackModifier())) / 100;
-			}
-		}
-
 		// Generic Unit Class Modifier
 		iTempModifier = getUnitClassModifier(pOtherUnit->getUnitClassType());
 		iModifier += iTempModifier;
@@ -16366,6 +16354,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 					iModifier += iTempModifier;
 				}
 			}
+
+			// Flanking
+			if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
+			{
+				iTempModifier = pFromPlot->GetEffectiveFlankingBonus(this, pDefender, pToPlot);
+				iModifier += (iTempModifier * (100 + GetFlankAttackModifier())) / 100;
+			}
 		}
 	}
 
@@ -16417,7 +16412,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when defending?
-int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack, bool bQuickAndDirty) const
+int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot, bool bFromRangedAttack, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT
 
@@ -16430,7 +16425,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		return 0;
 
 	int iTempModifier;
-	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pInPlot, bQuickAndDirty);
+	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pFromPlot, bQuickAndDirty);
 
 	// Generic Defense Bonus
 	iTempModifier = getDefenseModifier();
@@ -16549,6 +16544,15 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 			{
 				iTempModifier = terrainDefenseModifier(TERRAIN_HILL);
 				iModifier += iTempModifier;
+			}
+		}
+
+		if (pFromPlot)
+		{
+			// Flanking
+			if(!bFromRangedAttack && !bQuickAndDirty)
+			{
+				iModifier += pInPlot->GetEffectiveFlankingBonus(this, pAttacker, pFromPlot);
 			}
 		}
 	}
@@ -17184,7 +17188,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		}
 		else
 			//this considers embarkation implicitly
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true, bQuickAndDirty);
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, pFromPlot, /*bFromRangedAttack*/ true, bQuickAndDirty);
 	}
 	else
 	{
@@ -17333,22 +17337,13 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 	int iInterceptorStrength = 0;
 	switch (getDomainType())
 	{
-		case DOMAIN_SEA:
-			iInterceptorStrength = GetMaxDefenseStrength(plot(), pAttacker);
-			break;
-
 		case DOMAIN_AIR:
 			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
 			break;
 
+		case DOMAIN_SEA:
 		case DOMAIN_LAND:
-			iInterceptorStrength = GetMaxAttackStrength(NULL, NULL, pAttacker);
-			break;
-
 		case DOMAIN_IMMOBILE:
-			iInterceptorStrength = GetMaxAttackStrength(NULL, NULL, pAttacker);
-			break;
-
 		case DOMAIN_HOVER:
 			iInterceptorStrength = GetMaxAttackStrength(NULL, NULL, pAttacker);
 			break;
@@ -17435,24 +17430,19 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 // (This code is basically the same as GetInterceptionDamage() except it uses the attacker's defensive strength)
 int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
-	int iAttackerStrength = pAttacker->GetMaxDefenseStrength(plot(), this);
+	int iAttackerStrength = pAttacker->GetMaxDefenseStrength(plot(), this, pAttacker->plot());
 	int iInterceptorStrength = 0;
 
 	switch (getDomainType())
 	{
-		case DOMAIN_SEA:
-			iInterceptorStrength = GetMaxDefenseStrength(plot(), pAttacker);
-			break;
-
 		case DOMAIN_AIR:
 			iInterceptorStrength = GetMaxRangedCombatStrength(pAttacker, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
 			break;
 
+		case DOMAIN_SEA:
 		case DOMAIN_LAND:
-			iInterceptorStrength = GetMaxAttackStrength(NULL, NULL, pAttacker);
-			break;
-
 		case DOMAIN_IMMOBILE:
+		case DOMAIN_HOVER:
 			iInterceptorStrength = GetMaxAttackStrength(NULL, NULL, pAttacker);
 			break;
 
@@ -23880,9 +23870,8 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 int CvUnit::GetNearbyImprovementModifier(const CvPlot* pAtPlot) const
 {
 	if(pAtPlot == NULL)
-	{
-		return 0;
-	}
+		pAtPlot = plot();
+
 	return std::max(GetNearbyImprovementModifierFromTraits(pAtPlot), GetNearbyImprovementModifierFromPromotions(pAtPlot));
 }
 

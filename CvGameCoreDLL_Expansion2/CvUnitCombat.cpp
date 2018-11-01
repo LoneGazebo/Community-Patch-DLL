@@ -245,7 +245,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
 #endif
 
-		int iDefenderStrength = pkDefender->GetMaxDefenseStrength(&plot, &kAttacker);
+		int iDefenderStrength = pkDefender->GetMaxDefenseStrength(&plot, &kAttacker, kAttacker.plot());
 		int iAttackerStrength = 0;
 		if(kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
 		{

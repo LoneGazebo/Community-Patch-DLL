@@ -818,7 +818,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 				
 				if (iTheirStrength == 0 or pTheirUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pTheirUnit:IsRangedSupportFire()) then
-					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, true);
+					iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, true);
 				end
 				
 				if (pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
@@ -836,7 +836,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- Normal Melee Combat
 			else
 				
-				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit);
+				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot);
 				
 				local pFireSupportUnit = pMyUnit:GetFireSupportUnit(pTheirUnit:GetOwner(), pToPlot:GetX(), pToPlot:GetY());
 				if (pFireSupportUnit ~= nil) then
@@ -1072,9 +1072,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Flanking bonus
 			if (not bRanged) then
-				local iNumAdjacentFriends = pTheirUnit:GetNumEnemyUnitsAdjacent(pMyUnit);
-				if (iNumAdjacentFriends > 0) then
-					iModifier = iNumAdjacentFriends * GameDefines["BONUS_PER_ADJACENT_FRIEND"];
+				iModifier = 99; --pFromPlot::GetEffectiveFlankingBonus(pMyUnit,pTheirUnit,pToPlot);
+				if (iModifier ~= 0) then
 						
 					local iFlankModifier = pMyUnit:FlankAttackModifier();
 					if (iFlankModifier ~= 0) then
@@ -1785,9 +1784,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Flanking bonus
 				if (not bRanged) then
-					iNumAdjacentFriends = pMyUnit:GetNumEnemyUnitsAdjacent(pTheirUnit);
-					if (iNumAdjacentFriends > 0) then
-						iModifier = iNumAdjacentFriends * GameDefines["BONUS_PER_ADJACENT_FRIEND"];
+					iModifier = 99; --pToPlot::GetEffectiveFlankingBonus(pTheirUnit,pMyUnit,pFromPlot);
+					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_FLANKING_BONUS" );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );

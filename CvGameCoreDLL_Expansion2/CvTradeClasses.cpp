@@ -374,9 +374,11 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 				if (m_aTradeConnections[i].m_eOriginOwner != pOriginCity->getOwner())
 					continue;
 
+				//only one TR per player and city. unless venice is involved.
 				if (m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY)
 				{
-					return false;
+					if (!GET_PLAYER(m_aTradeConnections[i].m_eOriginOwner).GetPlayerTraits()->IsNoAnnexing() && !GET_PLAYER(m_aTradeConnections[i].m_eDestOwner).GetPlayerTraits()->IsNoAnnexing() )
+						return false;
 				}
 			}
 		}

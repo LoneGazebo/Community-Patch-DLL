@@ -30984,7 +30984,7 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 	}
 	else
 	{
-		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true, bQuickAndDirty);
+		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, NULL, /*bFromRangedAttack*/ true, bQuickAndDirty);
 	}
 
 	return iDefenderStrength;

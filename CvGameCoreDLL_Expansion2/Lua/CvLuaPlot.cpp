@@ -753,6 +753,23 @@ int CvLuaPlot::lMovementCost(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+//int CvPlot::GetEffectiveFlankingBonus(CvUnit* pUnit, CvUnit* pOtherUnit, CvPlot* pOtherUnitPlot) const
+int CvLuaPlot::lGetEffectiveFlankingBonus(lua_State* L)
+{
+	CvPlot* pkPlot =  GetInstance(L);
+	CvUnit* pkUnit = CvLuaUnit::GetInstance(L,2);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 3);
+	CvPlot* pkOtherPlot =  GetInstance(L, 4);
+
+	int iResult = pkPlot->GetEffectiveFlankingBonus(pkUnit, pkOtherUnit, pkOtherPlot);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+
+	//return BasicLuaMethod<int,const CvUnit*,const CvUnit*,const CvPlot*>(L, &CvPlot::GetEffectiveFlankingBonus);
+}
+
+//------------------------------------------------------------------------------
 //int getExtraMovePathCost();
 int CvLuaPlot::lGetExtraMovePathCost(lua_State* L)
 {

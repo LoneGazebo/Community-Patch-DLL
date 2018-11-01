@@ -833,7 +833,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->getOwningCity() != NULL && 
 				pLoopPlot->getOwningCity()->IsBastion())
 			{
-				if (pLoopPlot->isFortification(m_pPlayer->getTeam()))
+				if (pLoopPlot->isRevealedFortification(m_pPlayer->getTeam()))
 				{
 					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(),false,false);
 
