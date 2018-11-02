@@ -16486,7 +16486,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 		// No TERRAIN bonuses for this Unit?
 		iTempModifier = pInPlot->defenseModifier(getTeam(), false, false);
 
-		if (noDefensiveBonus() && iModifier>0)
+		if (noDefensiveBonus() && iTempModifier>0)
 			//only forts & citadels have an effect
 			iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);
 
@@ -17061,7 +17061,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// No TERRAIN bonuses for this Unit?
 		iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
-		if (noDefensiveBonus() && iModifier>0)
+		if (noDefensiveBonus() && iTempModifier>0)
 			//only forts & citadels have an effect
 			iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);
 
@@ -31795,10 +31795,17 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 	//make sure that iTargetTurns is valid
 	iTargetTurns = max(1,iTargetTurns);
 
+	//performance optimization
 	if (iTargetTurns!=INT_MAX)
 	{
 		//see how far we could move in optimal circumstances
 		int	iDistance = plotDistance(getX(), getY(), pTarget->getX(), pTarget->getY());
+
+		//sometimes we don't need to go all the way
+		if (iFlags & CvUnit::MOVEFLAG_APPROX_TARGET_RING2)
+			iDistance -= 2;
+		else if (iFlags & CvUnit::MOVEFLAG_APPROX_TARGET_RING1)
+			iDistance -= 1;
 
 		//default range
 		int iMoves = baseMoves() + getExtraMoves();

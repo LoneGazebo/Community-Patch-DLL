@@ -1072,7 +1072,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Flanking bonus
 			if (not bRanged) then
-				iModifier = 99; --pFromPlot::GetEffectiveFlankingBonus(pMyUnit,pTheirUnit,pToPlot);
+				iModifier = pFromPlot:GetEffectiveFlankingBonus(pMyUnit,pTheirUnit,pToPlot);
 				if (iModifier ~= 0) then
 						
 					local iFlankModifier = pMyUnit:FlankAttackModifier();
@@ -1699,15 +1699,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 				-- Plot Defense
 				iModifier = pToPlot:DefenseModifier(pTheirUnit:GetTeam(), false, false);
-				if (iModifier < 0 or not pTheirUnit:NoDefensiveBonus()) then
 
-					if (iModifier ~= 0) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-	--					strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_TILE_MOD", iModifier));
-					end
+				-- special treatment for mobile units
+				if (pTheirUnit:NoDefensiveBonus() and iModifier>0) then
+					-- only improvements (forts) count
+					iModifier = iModifier - pToPlot:DefenseModifier(pTheirUnit:GetTeam(), true, false);
 				end
+
+				if (iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end	
 
 				-- FortifyModifier
 				iModifier = pTheirUnit:FortifyModifier();
@@ -1784,7 +1787,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				
 				-- Flanking bonus
 				if (not bRanged) then
-					iModifier = 99; --pToPlot::GetEffectiveFlankingBonus(pTheirUnit,pMyUnit,pFromPlot);
+					iModifier = pToPlot:GetEffectiveFlankingBonus(pTheirUnit,pMyUnit,pFromPlot);
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_FLANKING_BONUS" );

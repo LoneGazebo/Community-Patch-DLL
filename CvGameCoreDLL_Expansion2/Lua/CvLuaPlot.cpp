@@ -370,6 +370,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsWithinDistanceOfResource);
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
+	Method(GetEffectiveFlankingBonus);
 #endif
 }
 //------------------------------------------------------------------------------
