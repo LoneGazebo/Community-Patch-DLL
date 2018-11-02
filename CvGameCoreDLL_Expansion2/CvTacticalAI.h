@@ -1029,9 +1029,9 @@ extern int g_siTacticalPositionCount;
 class CvTacticalPlot
 {
 public:
-	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE };
+	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
 
-	CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer);
+	CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<int>& allOurUnits);
 
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
 	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
@@ -1049,7 +1049,7 @@ public:
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
-	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer); //set initial state depending on current plot status
+	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<int>& allOurUnits); //set initial state depending on current plot status
 	//update fictional state
 	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
 	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
@@ -1060,6 +1060,7 @@ public:
 	void setValid(bool bState) { bValid=bState; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, bool bCombat, int iChange);
+	bool isRelevant() const { return eType != TP_BLOCKED_FRIENDLY && eType != TP_BLOCKED_NEUTRAL; }
 
 protected:
 	const CvPlot* pPlot;
@@ -1146,7 +1147,7 @@ public:
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
-	void addTacticalPlot(const CvPlot* pPlot);
+	void addTacticalPlot(const CvPlot* pPlot, const set<int>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 	float getUnitNumberRatio() const;
@@ -1164,6 +1165,7 @@ public:
 	int getHeapScore() const { return iScoreOverParent; }
 	void setParent(CvTacticalPosition* pParent) { parentPosition = pParent; }
 	const CvTacticalPosition* getParent() const { return parentPosition; }
+	const CvTacticalPosition* getRoot() const { const CvTacticalPosition* current = this; while (parentPosition) current = parentPosition; return current; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
