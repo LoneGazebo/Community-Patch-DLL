@@ -25717,7 +25717,7 @@ void CvCity::updateStrengthValue()
 	fTechMod *= iTechMultiplier;
 
 	fTechMod *= 100;	// Bring it back into hundreds
-	iStrengthValue += (int)(fTechMod + 0.005);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
+	iStrengthValue += (int)(fTechMod + 0.005f);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
 
 #if defined(MOD_BALANCE_CORE)
 	if (getProductionProcess() != NO_PROCESS)
@@ -25810,7 +25810,7 @@ void CvCity::updateStrengthValue()
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const
+int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const //result is times 100
 {
 	VALIDATE_OBJECT
 	// Attacks are weaker
@@ -25819,7 +25819,17 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings) const
 		//always ignore building defense here
 		int iValue = m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
 
-		CvAssertMsg(iValue > 0, "City strength should always be greater than zero. Please show Jon this and send your last 5 autosaves.");
+		//this is kind of stupid but the cached value includes the bonus from the defense process
+		//we need to subtract it again otherwise humans can exploit it
+		if (getProductionProcess() != NO_PROCESS)
+		{
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			{
+				iValue -= getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
+			}
+		}
+
 
 		int iModifier = /*40*/ GC.getCITY_RANGED_ATTACK_STRENGTH_MULTIPLIER();
 
@@ -28270,6 +28280,20 @@ bool CvCity::CanPlaceUnitHere(UnitTypes eUnitType) const
 // Is this city allowed to purchase something right now?
 bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
 {
+	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
+	int iLoop;
+	for(const CvCity* pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iLoop))
+	{
+		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+		for (size_t i=0; i<vBuildings.size(); i++)
+			vTotalBuildingCount[ vBuildings[i] ]++;
+	}
+
+	return IsCanPurchase(vTotalBuildingCount, bTestPurchaseCost, bTestTrainable, eUnitType, eBuildingType, eProjectType, ePurchaseYield);
+}
+
+bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
+{
 	CvAssertMsg(eUnitType >= 0 || eBuildingType >= 0 || eProjectType >= 0, "No valid passed in");
 	CvAssertMsg(!(eUnitType >= 0 && eBuildingType >= 0) && !(eUnitType >= 0 && eProjectType >= 0) && !(eBuildingType >= 0 && eProjectType >= 0), "Only one being passed");
 
@@ -28361,7 +28385,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 		else if(eBuildingType != NO_BUILDING)
 		{
 #if defined(MOD_API_EXTENSIONS)
-			if(!canConstruct(eBuildingType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+			if(!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 #else
 			if(!canConstruct(eBuildingType, false, !bTestTrainable))
 #endif

@@ -1373,6 +1373,15 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	// Loop through adding the available buildings
 	if (!bUnitOnly)
 	{
+		std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
+		int iLoop;
+		for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t i=0; i<vBuildings.size(); i++)
+				vTotalBuildingCount[ vBuildings[i] ]++;
+		}
+
 		for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
 			const BuildingTypes eLoopBuilding = static_cast<BuildingTypes>(iBldgLoop);
@@ -1383,7 +1392,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 				continue;
 
 			// Make sure this building can be built now
-			if (m_pCity->IsCanPurchase(true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
+			if (m_pCity->IsCanPurchase(vTotalBuildingCount, true, true, NO_UNIT, eLoopBuilding, NO_PROJECT, ePurchaseYield))
 			{
 				buildable.m_eBuildableType = CITY_BUILDABLE_BUILDING;
 				buildable.m_iIndex = iBldgLoop;
