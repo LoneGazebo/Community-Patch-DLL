@@ -16355,8 +16355,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			// Flanking
 			if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 			{
-				iTempModifier = pFromPlot->GetEffectiveFlankingBonus(this, pDefender, pToPlot);
-				iModifier += (iTempModifier * (100 + GetFlankAttackModifier())) / 100;
+				iModifier += pFromPlot->GetEffectiveFlankingBonus(this, pDefender, pToPlot);
 			}
 		}
 	}
@@ -16544,13 +16543,10 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 			}
 		}
 
-		if (pFromPlot)
+		// Flanking
+		if (pFromPlot && !bFromRangedAttack && !bQuickAndDirty)
 		{
-			// Flanking
-			if(!bFromRangedAttack && !bQuickAndDirty)
-			{
-				iModifier += pInPlot->GetEffectiveFlankingBonus(this, pAttacker, pFromPlot);
-			}
+			iModifier += pInPlot->GetEffectiveFlankingBonus(this, pAttacker, pFromPlot);
 		}
 	}
 

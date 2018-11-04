@@ -10735,19 +10735,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		iExtraDamage = pUnit->GetRangeCombatSplashDamage(pTestPlot);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 	
-		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10%
-		if (pUnit->GetFlankAttackModifier() > 0 && tactPlot.getNumAdjacentFriendlies()>1 ) //we need a second friendly. the first one is us!
+		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10% per adjacent unit
+		if (!pUnit->isRanged()) //only for melee
 		{
-			iDamageDealt += iDamageDealt/10;
-			iDamageReceived -= iDamageReceived/10;
-		}
-
-		//adjacency bonus for enemy. we ignored this during damage estimation (the bQuickAndDirty flag)
-		if (tactPlot.getNumAdjacentEnemies()>0 )
-		{
-			//five percent adjustment per adjacent enemy
-			iDamageDealt -= tactPlot.getNumAdjacentEnemies()*iDamageDealt/20;
-			iDamageReceived += tactPlot.getNumAdjacentEnemies()*iDamageReceived/20;
+			//it works both ways!
+			int iDelta = tactPlot.getNumAdjacentFriendlies() - assumedPlot.getNumAdjacentEnemies();
+			iDamageDealt += (iDelta*iDamageDealt)/10;
+			iDamageReceived -= (iDelta*iDamageReceived)/10;
 		}
 
 		//repeat attacks may give extra bonus

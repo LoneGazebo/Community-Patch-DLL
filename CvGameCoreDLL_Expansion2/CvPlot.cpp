@@ -3390,7 +3390,7 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit);
 
 	if(iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
-		return /*15*/ GC.getBONUS_PER_ADJACENT_FRIEND() * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
+		return /*15*/ (GC.getBONUS_PER_ADJACENT_FRIEND() + pUnit->GetFlankAttackModifier()) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
 
 	return 0;
 }
