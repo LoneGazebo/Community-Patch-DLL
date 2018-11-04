@@ -29023,8 +29023,12 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
 			m_uiLastPathLength = m_kLastPath.size();
 
-			//have we used up all plots for this turn?
-			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>0)
+			//have we used up all plots or at least for this turn?
+			if (m_kLastPath.empty())
+			{
+				return MOVE_RESULT_NO_TARGET;
+			}
+			else if (m_kLastPath.front().m_iTurns > 0)
 			{
 				//we will need to recalculate next turn anyway, but deleting the path would abort the mission
 				for (size_t i=0; i<m_kLastPath.size(); i++)
