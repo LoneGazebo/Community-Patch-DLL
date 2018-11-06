@@ -329,11 +329,7 @@ private:
 	void ExecuteFirstTurnSettlerMoves();
 	void ExecuteExplorerMoves();
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	void ExecuteWorkerMoves(bool bSecondary = false);
-#else
 	void ExecuteWorkerMoves();
-#endif
 	void ExecuteMovesToSafestPlot();
 	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bFinishMoves = false);
 
@@ -382,11 +378,7 @@ private:
 	CvPlot* FindUnassignedTarget(CvUnit *pUnit);
 #endif
 	void UnitProcessed(int iID);
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool ExecuteWorkerMove(CvUnit* pUnit, bool bSecondary = false);
-#else
 	bool ExecuteWorkerMove(CvUnit* pUnit);
-#endif
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;

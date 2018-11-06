@@ -508,8 +508,6 @@
 #define MOD_UNITS_MAX_HP                            gCustomMods.isUNITS_MAX_HP()
 // Enables the XP times 100 API (v77)
 #define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
-// Restricts worker suggestions to local tiles
-#define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
 

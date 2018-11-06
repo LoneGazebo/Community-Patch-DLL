@@ -74,15 +74,9 @@ public:
 	void Update(void);
 	void UpdateRoutePlots(void);
 
-	int CheckAlternativeWorkers(const std::vector<CvUnit*>& otherWorkers, const CvPlot* pTarget) const;
-
-#if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
-	bool EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDirectives, UINT uaDirectives, bool bKeepOnlyBest = false, bool bOnlyEvaluateWorkersPlot = false, bool bLimit = false);
-	int FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, bool bLimit = false) const; // returns -1 if no path can be found, otherwise it returns the # of turns to get there
-#else
+	CvUnit* FindBestWorker(const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
+	int FindTurnsAway(CvUnit* pUnit, const CvPlot* pPlot, const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const; // returns -1 if no path can be found, otherwise it returns the # of turns to get there
 	bool EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDirectives, UINT uaDirectives, bool bKeepOnlyBest = false, bool bOnlyEvaluateWorkersPlot = false);
-	int FindTurnsAway(CvUnit* pUnit, CvPlot* pPlot);  // returns -1 if no path can be found, otherwise it returns the # of turns to get there
-#endif
 
 	void AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway);
 	void AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMoveTurnsAway);
@@ -101,23 +95,15 @@ public:
 	CvCity* getOwningCity(CvPlot* pPlot);
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
 
-#if defined(MOD_BALANCE_CORE)
-	int ScorePlot(ImprovementTypes eImprovement, BuildTypes eBuild);
-#else
-	int ScorePlot();
-#endif
+	int ScoreCurrentPlot(ImprovementTypes eImprovement, BuildTypes eBuild);
 
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
-	//static YieldTypes GetDeficientYield (CvCity* pCity, bool bIgnoreHappiness = false); // this is different from the CityStrategy one because it checks unhappiness before declaring a food emergency
 	BuildTypes GetRepairBuild(void);
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
 
 	static void LogInfo(CvString str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(CvString strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
-
-	static CvWeightedVector<BuilderDirective, 100, true> m_aDirectives;
-	static FStaticVector<int, SAFE_ESTIMATE_NUM_EXTRA_PLOTS, true, c_eCiv5GameplayDLL, 0> m_aiNonTerritoryPlots; // plots that we need to evaluate that are outside of our territory
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -135,24 +121,23 @@ protected:
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
 
 	CvPlayer* m_pPlayer;
-	BuildTypes m_eRepairBuild;
-	PlotIndexContainer m_aiPlots;
 	bool m_bLogging;
 	int m_iNumCities;
+	CvWeightedVector<BuilderDirective, 100, true> m_aDirectives;
 
-	CvPlot* m_pTargetPlot;
+	CvPlot* m_pCurrentPlot;
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];
 
+	//caching
+	BuildTypes m_eRepairBuild;
 	FeatureTypes m_eFalloutFeature;
 	BuildTypes m_eFalloutRemove;
-
+	//some player dependent flags for unique improvements
 	bool m_bKeepMarshes;
 	bool m_bKeepJungle;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bEvaluateAdjacent;
 	bool m_bNoPermanentsAdjacentCity;
-#endif
 };
 
 #endif //CIV5_BUILDER_TASKING_AI_H

@@ -4191,7 +4191,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	//scale factor is hard to guess ...
 	int iGdpEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100();
-	int iTradeDelta = (20 * (iCurrentTradeValueIn - iCurrentTradeValueOut)) / max(iGdpEstimate,1);
+	int iTradeDelta = (30 * (iCurrentTradeValueIn - iCurrentTradeValueOut)) / max(iGdpEstimate,1);
 
 	if(iTradeDelta > 0)
 	{
@@ -5735,7 +5735,11 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	}
 
 	// Are we getting money from trade with them
-	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) / 100;
+	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) +
+							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
+							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
+	iCurrentTradeValue /= 200;
+
 	if(iCurrentTradeValue > 0)
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * (iCurrentTradeValue / 2);
@@ -5743,7 +5747,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * (iCurrentTradeValue / 2));
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * (iCurrentTradeValue / 2));
 	}
-	else
+	else //not a trade partner
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] -= viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 5;
 		viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_IGNORE] * 2;

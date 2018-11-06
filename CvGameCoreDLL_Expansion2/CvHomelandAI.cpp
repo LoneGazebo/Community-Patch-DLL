@@ -1767,11 +1767,7 @@ void CvHomelandAI::PlotWorkerMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
-#if defined(MOD_AI_SECONDARY_WORKERS)
-		ExecuteWorkerMoves(bSecondary);
-#else
 		ExecuteWorkerMoves();
-#endif
 	}
 }
 
@@ -3671,11 +3667,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 }
 
 /// Moves units to explore the map
-#if defined(MOD_AI_SECONDARY_WORKERS)
-void CvHomelandAI::ExecuteWorkerMoves(bool bSecondary)
-#else
 void CvHomelandAI::ExecuteWorkerMoves()
-#endif
 {
 	CvString strLogString;
 
@@ -3726,23 +3718,17 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				}
 			}
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-			bool bActionPerformed = ExecuteWorkerMove(pUnit, bSecondary);
-#else
 			bool bActionPerformed = ExecuteWorkerMove(pUnit);
-#endif
 			if(bActionPerformed)
 			{
 				continue;
 			}
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
 			// Only move primary workers (actual civilian workers/workboats) or embarked secondary workers (combat units) to safety
-			if (bSecondary && !pUnit->isEmbarked())
+			if (pUnit->IsCombatUnit() && !pUnit->isEmbarked())
 			{
 				continue;
 			}
-#endif
 
 			// if there's nothing else to do, move to the safest spot nearby
 			if (pUnit->GetDanger()>0)
@@ -6368,22 +6354,13 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				continue;
 			}
 
-			//Flat value.
-			int iValue = pLoopCity->getPopulation();
-
-			if(pLoopPlot->getArea() != pUnit->getArea())
-			{
-				iValue /= 2;
-			}
-
-			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType()) * 10;
-			iValue -= iNumFriendlies;
-
-			//Add back in our value if this is our plot.
+			//Try to spread out (workers typically)
+			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType());
 			if(pLoopPlot == pUnit->plot())
-			{
-				iValue += 10;
-			}
+				iNumFriendlies--;
+
+			//Flat value.
+			int iValue = 10 - iNumFriendlies;
 			
 			aBestPlotList.push_back(pLoopPlot, iValue);
 		}
@@ -7444,24 +7421,13 @@ void CvHomelandAI::UnitProcessed(int iID)
 		pUnit->SetTurnProcessed(true);
 }
 
-#if defined(MOD_AI_SECONDARY_WORKERS)
-bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, bool bSecondary)
-#else
 bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
-#endif
 {
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	// if (bSecondary) CUSTOMLOG("ExecuteWorkerMove(secondary) for %s at (%i, %i)", pUnit->getName().c_str(), pUnit->plot()->getX(), pUnit->plot()->getY());
-#endif
 	const UINT ciDirectiveSize = 1;
 	BuilderDirective aDirective[ ciDirectiveSize ];
 
 	// evaluator
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize, false, false, bSecondary || pUnit->isHuman());
-#else
-	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize);
-#endif
+	bool bHasDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, aDirective, ciDirectiveSize, false, false);
 	if(bHasDirective)
 	{
 		switch(aDirective[0].m_eDirective)
@@ -7477,16 +7443,10 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 			MissionTypes eMission = NO_MISSION;
 			if(pUnit->getX() == aDirective[0].m_sX && pUnit->getY() == aDirective[0].m_sY)
 			{
-#if defined(MOD_AI_SECONDARY_WORKERS)
-				// if (bSecondary) CUSTOMLOG("  ... build %i", ((int) aDirective[0].m_eDirective));
-#endif
 				eMission = CvTypes::getMISSION_BUILD();
 			}
 			else
 			{
-#if defined(MOD_AI_SECONDARY_WORKERS)
-				// if (bSecondary) CUSTOMLOG("  ... move to (%i, %i)", ((int) aDirective[0].m_sX), ((int) aDirective[0].m_sY));
-#endif
 				eMission = CvTypes::getMISSION_MOVE_TO();
 			}
 
