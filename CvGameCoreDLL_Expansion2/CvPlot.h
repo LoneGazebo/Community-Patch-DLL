@@ -1065,7 +1065,7 @@ protected:
 #endif
 
 	char* m_szScriptData;
-	short* m_paiBuildProgress;
+	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
 	unsigned char m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
