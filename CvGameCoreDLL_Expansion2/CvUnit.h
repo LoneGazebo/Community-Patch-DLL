@@ -173,11 +173,11 @@ public:
 	void uninitInfos();  // used to uninit arrays that may be reset due to mod changes
 
 #if defined(MOD_BALANCE_CORE)
-	void convert(CvUnit* pUnit, bool bIsUpgrade, bool bSupply = true);
+	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #else
 	void convert(CvUnit* pUnit, bool bIsUpgrade);
 #endif
-	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER, bool bSupply = true);
+	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
@@ -606,7 +606,7 @@ public:
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
-	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, 
+	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot, 
 									bool bFromRangedAttack = false, bool bQuickAndDirty = false) const;
 
 	int GetEmbarkedUnitDefense() const;
@@ -809,6 +809,9 @@ public:
 
 	bool IsGainsYieldFromScouting() const;
 
+	int GetCaptureDefeatedEnemyChance() const;
+	void ChangeCaptureDefeatedEnemyChance(int iValue);
+	
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
 
@@ -1182,6 +1185,8 @@ public:
 	int getPlaguePromotion() const;
 	void setPlaguePromotion(int iValue);
 
+	bool CanPlague(CvUnit* pOtherUnit) const;
+
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
 	ContractTypes getContract() const;
@@ -1491,6 +1496,7 @@ public:
 	const UnitTypes getUnitType() const;
 	CvUnitEntry& getUnitInfo() const;
 	UnitClassTypes getUnitClassType() const;
+	bool isUnitAI(UnitAITypes eType) const;
 
 	const UnitTypes getLeaderUnitType() const;
 	void setLeaderUnitType(UnitTypes leaderUnitType);
@@ -2117,6 +2123,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
+	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyChance;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
 	FAutoVariable<int, CvUnit> m_iAdjacentEnemySapMovement;
 #endif

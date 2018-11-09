@@ -49,7 +49,7 @@
 			<Text>Lugh, the Skilled One</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON">
-			<Text>+2 [ICON_CULTURE] Culture in every City, +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every improved Resource. +5 [ICON_GOLDEN_AGE] Golden Age Points from Ceilidh Hall</Text>
+			<Text>+2 [ICON_CULTURE] Culture in every City, +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every Resource connected with a normal Improvement. +5 [ICON_GOLDEN_AGE] Golden Age Points from Ceilidh Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
 			<Text>Rhiannon, Goddess of Sovereignty</Text>

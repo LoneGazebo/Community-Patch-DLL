@@ -431,29 +431,37 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 			// Initial odds of giving in to ANY demand are based on the player's boldness (which is also tied to the player's likelihood of going for world conquest)
 			int iOddsOfGivingIn = (10 - pDiploAI->GetBoldness()) * 10;
 
+			//much harder if vassalage on the table.
+			if (pDeal->IsVassalageTrade(eFromPlayer) || pDeal->IsVassalageTrade(eMyPlayer))
+				iOddsOfGivingIn -= 100;
+
+			//no third party war, that's weird.
+			if (pDeal->ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR, eFromPlayer) || pDeal->ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR, eMyPlayer))
+				iOddsOfGivingIn -= 1000;
+
 			// Unforgivable: AI will never give in
 			if (pDiploAI->GetMajorCivOpinion(eFromPlayer) == MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
 				bHostile = true;
-				iOddsOfGivingIn -= 25;
+				iOddsOfGivingIn -= 50;
 			}
 			// Hostile: AI will never give in
 			if (eApproach == MAJOR_CIV_APPROACH_HOSTILE)
 			{
 				bHostile = true;
-				iOddsOfGivingIn -= 25;
+				iOddsOfGivingIn -= 50;
 			}
 			// They are very far away and have no units near us (from what we can tell): AI will never give in
 			if (eProximity <= PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
 			{
 				bWeak = true;
-				iOddsOfGivingIn -= 25;
+				iOddsOfGivingIn -= 50;
 			}
 			// Our military is stronger: AI will never give in
 			if (eMilitaryStrength < STRENGTH_AVERAGE && eEconomicStrength < STRENGTH_AVERAGE)
 			{
 				bWeak = true;
-				iOddsOfGivingIn -= 25;
+				iOddsOfGivingIn -= 50;
 			}
 
 			iValueWillingToGiveUp = 0;
@@ -606,7 +614,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 			int iRand = GC.getGame().getSmallFakeRandNum(100, iValueWillingToGiveUp);
 
 			// Are they going to say no matter what?
-			if (iRand > iOddsOfGivingIn)
+			if (iRand > iOddsOfGivingIn || iOddsOfGivingIn <= 0)
 			{
 				if (bHostile)
 					eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
@@ -1570,8 +1578,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
 
-	int iHappinessFromResource = max(1,GetPlayer()->GetBaseLuxuryHappiness());
-	int iItemValue = 10 + (iHappinessFromResource * iNumTurns);
+	//how much happiness from one additional luxury?
+	int iItemValue = 10 + (GetPlayer()->GetHappinessFromLuxury(eResource)+GetPlayer()->GetBonusHappinessFromLuxuriesGradient()) * iNumTurns;
 
 	//Let's look at flavors for resources
 	int iFlavorResult = 0;
@@ -1637,8 +1645,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
-		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources();
-		int iOurHappiness = GetPlayer()->GetHappinessFromResources();
+		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources() + GET_PLAYER(eOtherPlayer).GetHappinessFromResourceVariety();
+		int iOurHappiness = GetPlayer()->GetHappinessFromResources() + GetPlayer()->GetHappinessFromResourceVariety();
 		//He's happier than us?
 		if (iOtherHappiness >= iOurHappiness)
 		{
@@ -1739,8 +1747,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
-		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources();
-		int iOurHappiness = GetPlayer()->GetHappinessFromResources();
+		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetHappinessFromResources() + GET_PLAYER(eOtherPlayer).GetHappinessFromResourceVariety();
+		int iOurHappiness = GetPlayer()->GetHappinessFromResources() + GetPlayer()->GetHappinessFromResourceVariety();
 		//He's happier than us?
 		if (iOtherHappiness >= iOurHappiness)
 		{

@@ -980,7 +980,7 @@ private:
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 struct STacticalAssignment
 {
-	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED };
+	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART };
 
 	eAssignmentType eType;
 	int iUnitID;
@@ -1029,9 +1029,9 @@ extern int g_siTacticalPositionCount;
 class CvTacticalPlot
 {
 public:
-	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE };
+	enum eTactPlotType { TP_FARAWAY, TP_ENEMY, TP_FRONTLINE, TP_SECONDLINE, TP_THIRDLINE, TP_BLOCKED_FRIENDLY, TP_BLOCKED_NEUTRAL };
 
-	CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer);
+	CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<int>& allOurUnits);
 
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
 	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
@@ -1045,10 +1045,11 @@ public:
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
 	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
 	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
+	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 
-	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer); //set initial state depending on current plot status
+	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer, const set<int>& allOurUnits); //set initial state depending on current plot status
 	//update fictional state
 	void friendlyUnitMovingIn(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
 	void friendlyUnitMovingOut(CvTacticalPosition& currentPosition, bool bFriendlyUnitIsCombat);
@@ -1059,21 +1060,24 @@ public:
 	void setValid(bool bState) { bValid=bState; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, bool bCombat, int iChange);
+	bool isRelevant() const { return eType != TP_BLOCKED_FRIENDLY && eType != TP_BLOCKED_NEUTRAL; }
 
 protected:
 	const CvPlot* pPlot;
-	int nEnemyCombatUnitsAdjacent; //for figuring out the frontline
-	int nFriendlyCombatUnitsAdjacent; //for flanking
-	int nFriendlyFirstlineUnitsAdjacent; //ranged units need cover
-	int nSupportUnitsAdjacent; //for general bonus
+	unsigned char nEnemyCombatUnitsAdjacent; //for figuring out the frontline
+	unsigned char nFriendlyCombatUnitsAdjacent; //for flanking
+	unsigned char nFriendlyFirstlineUnitsAdjacent; //ranged units need cover
+	unsigned char nSupportUnitsAdjacent; //for general bonus
 
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
-	bool bValid;
-	bool bBlockedByEnemyCity;
-	bool bBlockedByEnemyCombatUnit;
-	bool bEnemyCivilianPresent;
-	bool bBlockedByFriendlyCombatUnit;
-	bool bSupportUnitPresent;
+	bool bValid:1;
+	bool bBlockedByEnemyCity:1;
+	bool bBlockedByEnemyCombatUnit:1;
+	bool bEnemyCivilianPresent:1;
+	bool bBlockedByFriendlyCombatUnit:1;
+	bool bSupportUnitPresent:1;
+	bool bEdgeOfTheKnownWorld:1; //neighboring plot is invisible
+
 	eTactPlotType eType;
 	int iDamageDealt;
 };
@@ -1137,12 +1141,13 @@ public:
 	CvTacticalPosition(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
+	int getID() const { return iID; }
 	bool isComplete() const;
 	bool isOffensive() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
-	void addTacticalPlot(const CvPlot* pPlot);
+	void addTacticalPlot(const CvPlot* pPlot, const set<int>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 	float getUnitNumberRatio() const;
@@ -1160,6 +1165,7 @@ public:
 	int getHeapScore() const { return iScoreOverParent; }
 	void setParent(CvTacticalPosition* pParent) { parentPosition = pParent; }
 	const CvTacticalPosition* getParent() const { return parentPosition; }
+	const CvTacticalPosition* getRoot() const { const CvTacticalPosition* current = this; while (parentPosition) current = parentPosition; return current; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }

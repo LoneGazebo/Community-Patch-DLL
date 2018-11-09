@@ -426,15 +426,15 @@ local function UpdateTopPanelNow()
 			local excessHappiness = g_activePlayer:GetExcessHappiness()
 			local turnsRemaining = ""
 
-			local population = g_activePlayer:GetCurrentTotalPop()
+			local population = g_activePlayer:GetTotalPopulation()
 			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
 
 			if g_activePlayer:IsEmpireSuperUnhappy() then
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i) ", -excessHappiness, unhappypop, population)
+				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
 			elseif g_activePlayer:IsEmpireUnhappy() then
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i) ", -excessHappiness, unhappypop, population)
+				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
 			else
-				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i) ", excessHappiness, unhappypop, population)
+				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", excessHappiness, unhappypop, population)
 			end
 			Controls.HappinessString:SetText(happinessText)
 
@@ -1238,6 +1238,7 @@ if civ5_mode then
 			local naturalWonderHappiness = g_activePlayer:GetHappinessFromNaturalWonders()
 			local extraHappinessPerCity = g_activePlayer:GetExtraHappinessPerCity() * g_activePlayer:GetNumCities()
 			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
+
 			local totalHappiness = g_activePlayer:GetHappiness()
 			local happinessFromVassals = g_activePlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly - happinessfromLuxuryBonus - happinessfromEvents	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
@@ -1261,8 +1262,6 @@ if civ5_mode then
 			end
 
 			-- Individual Resource Info
-
-			local baseHappinessFromResources = 0
 			local numHappinessResources = 0
 			local availableResources = ""
 			local missingResources = ""
@@ -1272,15 +1271,13 @@ if civ5_mode then
 
 				local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
 				if numResourceAvailable > 0 then
-					local resourceHappiness = gk_mode and g_activePlayer:GetHappinessFromLuxury( resourceID ) or resource.Happiness	-- GetHappinessFromLuxury includes extra happiness
-					if resourceHappiness > 0 then
+					if g_activePlayer:GetHappinessFromLuxury( resourceID ) > 0 then
 						availableResources = availableResources
 							.. " [COLOR_POSITIVE_TEXT]"
 							.. numResourceAvailable
 							.. "[ENDCOLOR]"
 							.. resource.IconString
 						numHappinessResources = numHappinessResources + 1
-						baseHappinessFromResources = baseHappinessFromResources + resourceHappiness
 					end
 				elseif numResourceAvailable == 0 then
 					missingResources = missingResources .. resource.IconString
@@ -1298,7 +1295,6 @@ if civ5_mode then
 			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
 			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
 --CBP
-		--local unhappinessFromPop = g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - unhappinessFromPupetCities
 			local unhappinessFromPop = (g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromPupetCities)
 			if(unhappinessFromPop < 0)then
 				unhappinessFromPop = 0
@@ -1313,7 +1309,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_min(policiesHappiness,0) )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_min(policiesHappiness,0) ) --can be positive or negative
 			
 -- COMMUNITY PATCH CHANGES BELOW
 			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
@@ -1343,7 +1339,7 @@ if civ5_mode then
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
 			tips:insert( L("TXT_KEY_TP_HAPPINESS_SOURCES", totalHappiness ) )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicapHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_max(policiesHappiness,0) )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_max(policiesHappiness,0) ) --can be positive or negative
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_BUILDINGS", buildingHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITIES", cityHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_GARRISONED_UNITS", garrisonedUnitsHappiness )
@@ -1354,39 +1350,26 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorCivHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leagueHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
--- CBP
-			-- Happiness from Monopolies
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", happinessFromMonopoly )
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", happinessfromLuxuryBonus )
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EVENT", happinessfromEvents )
--- END
-			-- Happiness from Luxury Variety
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
-
-			-- Extra Happiness from each Luxury
-			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
-
-			-- Misc Happiness from Resources
-			local miscHappiness = resourcesHappiness - baseHappinessFromResources - happinessFromExtraResources - happinessFromMonopoly -  happinessfromLuxuryBonus - happinessfromEvents - (extraLuxuryHappiness * numHappinessResources)
-			if(miscHappiness > 0) then
-				tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
-			end
 
 			if #availableResources > 0 then
 				tips:insert( "[ICON_BULLET]" .. L( "TXT_KEY_TP_HAPPINESS_FROM_RESOURCES", resourcesHappiness ) )
 				tips:insert( "  " .. availableResources )
 			end
-			tips:insert( "[ENDCOLOR]" )
--- COMMUNITY PATCH CHANGE
-			-- Happiness/Population calculation.
-			local iPopulation = g_activePlayer:GetCurrentTotalPop();
-			local iPopNeeded = g_activePlayer:GetPopNeededForLux();
-			local iGetLuxuryBonus = g_activePlayer:GetBaseLuxuryHappiness();
-			if(iGetLuxuryBonus > 0) then
-				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iGetLuxuryBonus))
-				tips:insert("[NEWLINE][NEWLINE]")
+			
+			tips:insert( "[COLOR:150:255:150:255]" )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_LUXURY_BONUS", happinessfromLuxuryBonus, g_activePlayer:GetAveragePopulation100()/100)
+
+			-- Misc Happiness
+			local miscHappiness = totalHappiness - handicapHappiness - math_max(policiesHappiness,0) - buildingHappiness - cityHappiness - garrisonedUnitsHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - minorCivHappiness - leagueHappiness - happinessFromVassals - happinessFromMonopoly - resourcesHappiness - happinessFromExtraResources - (extraLuxuryHappiness * numHappinessResources) - happinessfromLuxuryBonus
+			if(miscHappiness > 0) then
+				tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
 			end
--- END
+
+			tips:insert( "[ENDCOLOR]" )
+
 			----------------------------
 			-- Local Resources in Cities
 			----------------------------

@@ -565,7 +565,3 @@ INSERT INTO Unit_Builds
 	(UnitType, BuildType)
 VALUES
 	('UNIT_WORKER', 'BUILD_ENCAMPMENT_SHOSHONE');
-	
-UPDATE UnitGameplay2DScripts
-SET FirstSelectionSound = 'AS2D_SELECT_WARRIER', SelectionSound = 'AS2D_BIRTH_WARRIER'
-WHERE UnitType = 'UNIT_BARBARIAN_WARRIOR';

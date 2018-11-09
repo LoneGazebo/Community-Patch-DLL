@@ -41,7 +41,7 @@ enum eTacticalAnalysisFlags
     TACTICAL_FLAG_OWN_TERRITORY				 = 0x00002000, // Territory owned by the active player
     TACTICAL_FLAG_FRIENDLY_TERRITORY		 = 0x00004000, // Territory owned by allies
     TACTICAL_FLAG_ENEMY_TERRITORY			 = 0x00008000, // Territory owned by enemies
-    TACTICAL_FLAG_UNCLAIMED_TERRITORY	     = 0x00010000, // Territory that is unclaimed
+    TACTICAL_FLAG_INTERIOR_PLOT			     = 0x00010000, // Our territory not adjacent to borders
     TACTICAL_FLAG_ENEMY_COMBAT_UNIT          = 0x00020000, // Enemy combat unit here?
     TACTICAL_FLAG_NEUTRAL_COMBAT_UNIT		 = 0x00040000, // Neutral combat unit here?
 
@@ -177,13 +177,13 @@ public:
 	{
 		SetBit(TACTICAL_FLAG_ENEMY_TERRITORY, bNewValue);
 	};
-	bool IsUnclaimedTerritory()
+	bool IsInteriorPlot()
 	{
-		return GetBit(TACTICAL_FLAG_UNCLAIMED_TERRITORY);
+		return GetBit(TACTICAL_FLAG_INTERIOR_PLOT);
 	};
-	void SetUnclaimedTerritory(bool bNewValue)
+	void SetInteriorPlot(bool bNewValue)
 	{
-		SetBit(TACTICAL_FLAG_UNCLAIMED_TERRITORY, bNewValue);
+		SetBit(TACTICAL_FLAG_INTERIOR_PLOT, bNewValue);
 	};
 
 	bool IsSafeForDeployment()

@@ -85,9 +85,6 @@
 
 #define MOD_CORE_RESILIENT_PANTHEONS
 
-///	air units take a flat amount of damage in each air strike (plus interceptions)
-#define MOD_CORE_AIRCOMBAT_SIMPLIFIED
-
 #define MOD_BALANCE_CORE_OBSERVER_CHANGES
 	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
@@ -511,8 +508,6 @@
 #define MOD_UNITS_MAX_HP                            gCustomMods.isUNITS_MAX_HP()
 // Enables the XP times 100 API (v77)
 #define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
-// Restricts worker suggestions to local tiles
-#define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
 
@@ -1283,6 +1278,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
+#define GAMEEVENT_ConquerorValidBuilding	"ConquerorValidBuilding", "iiii"
 // City and Player Events
 #define GAMEEVENT_EventActivated			"EventActivated", "ii"
 #define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"
