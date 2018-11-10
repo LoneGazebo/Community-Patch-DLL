@@ -334,7 +334,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Religious Unity
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production in Holy City for every 2 followers of other Religions in owned Cities. +5 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in an owned City following this Religion, scaling with Era.'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in Holy City for every 2 followers of other Religions in owned Cities. +5 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in an owned City following this Religion, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
