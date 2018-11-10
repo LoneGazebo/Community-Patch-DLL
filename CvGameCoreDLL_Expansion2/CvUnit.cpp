@@ -6420,8 +6420,6 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 		{
 			return true;
 		}
-		if (pPlot->isCity())
-			return false;
 		break;
 	case DOMAIN_AIR:
 		if(!pPlot->isFriendlyCity(*this, true))
@@ -6434,17 +6432,6 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 		break;
 	default:
 		break;
-	}
-
-	if(isTerrainImpassable(pPlot->getTerrainType()))
-	{
-		bool bCanPass = false;
-		bCanPass = m_Promotions.GetAllowTerrainPassable(pPlot->getTerrainType());
-
-		if(!bCanPass)
-		{
-			return true;
-		}
 	}
 
 	return false;

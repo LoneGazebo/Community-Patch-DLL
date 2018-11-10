@@ -1090,12 +1090,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			if (not bRanged) then
 				iModifier = pFromPlot:GetEffectiveFlankingBonus(pMyUnit,pTheirUnit,pToPlot);
 				if (iModifier ~= 0) then
-						
-					local iFlankModifier = pMyUnit:FlankAttackModifier();
-					if (iFlankModifier ~= 0) then
-						iModifier = iModifier * (100 + iFlankModifier) / 100;
-					end
-
 					controlTable = g_MyCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FLANKING_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );

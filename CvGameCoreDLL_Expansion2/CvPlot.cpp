@@ -3795,8 +3795,8 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 
 bool CvPlot::IsChokePoint() const
 {
-	//only passable land plots can be chokepoints
-	if(isWater() || isImpassable(BARBARIAN_TEAM))
+	//only passable hill plots can be chokepoints
+	if(!isHills() || isImpassable(BARBARIAN_TEAM))
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
