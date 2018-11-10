@@ -1095,14 +1095,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
 			return false;
 
+		//vassals get out!
+		if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
+			return false;
+
 		//If not at war, need embassy.
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
-				return false;
-
-			//vassals get out!
-			if (GET_TEAM(eToTeam).IsVassalOfSomeone() || GET_TEAM(eThirdTeam).IsVassalOfSomeone() || GET_TEAM(eFromTeam).IsVassalOfSomeone())
 				return false;
 
 			if (!GET_TEAM(eFromTeam).canDeclareWar(eThirdTeam))

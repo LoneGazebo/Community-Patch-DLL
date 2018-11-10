@@ -965,6 +965,22 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- BONUSES MY UNIT GETS
 			----------------------------------------------------------------------------
 
+			-------------------------
+			-- Movement Immunity --
+			-------------------------
+			local movementRules = pMyUnit:GetMovementRules(pTheirUnit);
+			if(movementRules ~= "") then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+			movementRules = pMyUnit:GetZOCStatus();
+			if(movementRules ~= "") then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(movementRules);
+				controlTable.Value:SetText("");
+			end
+
 			local iModifier;
 			
 			if (not bRanged) then

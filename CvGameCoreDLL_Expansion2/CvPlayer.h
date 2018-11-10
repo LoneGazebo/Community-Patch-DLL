@@ -119,6 +119,7 @@ public:
 	void acquireCity(CvCity* pCity, bool bConquest, bool bGift);
 #endif
 #endif
+	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bCapture);
 	void killCities();
 	CvString getNewCityName() const;
 	CvString GetBorrowedCityName(CivilizationTypes eCivToBorrowFrom) const;

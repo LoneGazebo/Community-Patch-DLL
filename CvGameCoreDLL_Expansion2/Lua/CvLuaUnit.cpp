@@ -3276,6 +3276,12 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 		return 1;
 	}
 
+	if (!pkUnit->CanPlague(pkOtherUnit))
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
+
 	PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
 	if (ePlague == NO_PROMOTION)
 	{

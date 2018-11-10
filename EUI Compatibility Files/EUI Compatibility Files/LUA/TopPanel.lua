@@ -430,11 +430,11 @@ local function UpdateTopPanelNow()
 			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
 
 			if g_activePlayer:IsEmpireSuperUnhappy() then
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i) ", -excessHappiness, unhappypop, population)
+				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
 			elseif g_activePlayer:IsEmpireUnhappy() then
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i) ", -excessHappiness, unhappypop, population)
+				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[[ICON_CITIZEN]%i) ", -excessHappiness, unhappypop, population)
 			else
-				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i) ", excessHappiness, unhappypop, population)
+				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i) ", excessHappiness, unhappypop, population)
 			end
 			Controls.HappinessString:SetText(happinessText)
 

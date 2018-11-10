@@ -81,6 +81,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iNearbyImprovementBonusRange(0),
 	m_iCultureBuildingYieldChange(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iWarWearinessModifier(0),
+	m_iEnemyWarWearinessModifier(0),
 	m_iCombatBonusVsHigherPop(0),
 	m_bBuyOwnedTiles(false),
 	m_bReconquista(false),
@@ -194,6 +196,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_eFreeBuildingOnConquest(NO_BUILDING),
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex(false),
+	m_iBullyYieldMultiplierAnnex(0),
 #endif
 	m_bFightWellDamaged(false),
 	m_bWoodlandMovementBonus(false),
@@ -656,6 +659,15 @@ int CvTraitEntry::GetCultureBuildingYieldChange() const
 
 #if defined(MOD_BALANCE_CORE)
 /// Accessor: combat bonus vs. civ with more citizens
+int CvTraitEntry::GetWarWearinessModifier() const
+{
+	return m_iWarWearinessModifier;
+}
+int CvTraitEntry::GetEnemyWarWearinessModifier() const
+{
+	return m_iEnemyWarWearinessModifier;
+}
+
 int CvTraitEntry::GetCombatBonusVsHigherPop() const
 {
 	return m_iCombatBonusVsHigherPop;
@@ -1127,6 +1139,10 @@ BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 bool CvTraitEntry::IsBullyAnnex() const
 {
 	return m_bBullyAnnex;
+}
+int CvTraitEntry::GetBullyYieldMultiplierAnnex() const
+{
+	return m_iBullyYieldMultiplierAnnex;
 }
 #endif
 /// Accessor:: does this civ get combat bonuses when damaged?
@@ -2135,6 +2151,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iNearbyImprovementBonusRange			= kResults.GetInt("NearbyImprovementBonusRange");
 	m_iCultureBuildingYieldChange			= kResults.GetInt("CultureBuildingYieldChange");
 #if defined(MOD_BALANCE_CORE)
+	m_iWarWearinessModifier					= kResults.GetInt("WarWearinessModifier");
+	m_iEnemyWarWearinessModifier			= kResults.GetInt("EnemyWarWearinessModifier");
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 	m_bReconquista							= kResults.GetBool("Reconquista");
@@ -2349,6 +2367,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = kResults.GetBool("BullyAnnex");
+	m_iBullyYieldMultiplierAnnex = kResults.GetInt("BullyYieldMultiplierAnnex");
 #endif
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bWoodlandMovementBonus = kResults.GetBool("MoveFriendlyWoodsAsRoad");
@@ -3317,6 +3336,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetNavalUnitMaintenanceModifier() != 0 ||
 		GetProductionBonusModifierConquest() != 0 ||
 		GetGoldenAgeFromVictory() != 0 ||
+		GetWarWearinessModifier() != 0 ||
+		GetEnemyWarWearinessModifier() != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))) != 0)
 	{
@@ -3361,6 +3382,7 @@ void CvPlayerTraits::SetIsWarmonger()
 		IsKeepConqueredBuildings() ||
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
+		GetBullyYieldMultiplierAnnex() != 0 ||
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
 		IsEmbarkedToLandFlatCost())
@@ -3725,6 +3747,8 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			m_iEnemyWarSawPactPromotion = trait->GetEnemyWarSawPactPromotion();
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
+			m_iWarWearinessModifier += trait->GetWarWearinessModifier();
+			m_iEnemyWarWearinessModifier += trait->GetEnemyWarWearinessModifier();
 			if(trait->IsBuyOwnedTiles())
 			{
 				m_bBuyOwnedTiles = true;
@@ -3920,6 +3944,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bBullyAnnex = true;
 			}
+			m_iBullyYieldMultiplierAnnex += trait->GetBullyYieldMultiplierAnnex();
 #endif
 			if(trait->IsFightWellDamaged())
 			{
@@ -4506,6 +4531,8 @@ void CvPlayerTraits::Reset()
 	m_iNearbyImprovementBonusRange = 0;
 	m_iCultureBuildingYieldChange = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iWarWearinessModifier = 0;
+	m_iEnemyWarWearinessModifier = 0;
 	m_iCombatBonusVsHigherPop = 0;
 	m_bBuyOwnedTiles = false;
 	m_bReconquista = false;
@@ -4609,6 +4636,7 @@ void CvPlayerTraits::Reset()
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = false;
+	m_iBullyYieldMultiplierAnnex = 0;
 #endif
 	m_bFightWellDamaged = false;
 	m_bWoodlandMovementBonus = false;
@@ -6557,6 +6585,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_iCultureBuildingYieldChange;
 
 #if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(66, kStream, m_iWarWearinessModifier, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iEnemyWarWearinessModifier, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iCombatBonusVsHigherPop, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bReconquista, false);
@@ -6753,6 +6783,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	MOD_SERIALIZE_READ(55, kStream, m_bBullyAnnex, false);
+	kStream >> m_iBullyYieldMultiplierAnnex;
 #endif
 	kStream >> m_bFightWellDamaged;
 	kStream >> m_bWoodlandMovementBonus;
@@ -7162,6 +7193,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iNearbyImprovementBonusRange;
 	kStream << m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_iWarWearinessModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iEnemyWarWearinessModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iCombatBonusVsHigherPop);
 	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
 	MOD_SERIALIZE_WRITE(kStream, m_bReconquista);
@@ -7265,6 +7298,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	MOD_SERIALIZE_WRITE(kStream, m_bBullyAnnex);
+	kStream << m_iBullyYieldMultiplierAnnex;
 #endif
 	kStream << m_bFightWellDamaged;
 	kStream << m_bWoodlandMovementBonus;

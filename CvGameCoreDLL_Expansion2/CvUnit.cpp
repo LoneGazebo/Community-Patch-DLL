@@ -389,6 +389,7 @@ CvUnit::CvUnit() :
 	, m_iGainsXPFromScouting("CvUnit::m_iGainsXPFromScouting", m_syncArchive)
 	, m_iGainsXPFromPillaging("CvUnit::m_iGainsXPFromPillaging", m_syncArchive)
 	, m_iGainsXPFromSpotting("CvUnit::m_iGainsXPFromSpotting", m_syncArchive)
+	, m_iCaptureDefeatedEnemyChance("CvUnit::m_iCaptureDefeatedEnemyChance", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iAdjacentEnemySapMovement("CvUnit::m_iAdjacentEnemySapMovement", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
@@ -1574,6 +1575,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
 	m_iGainsXPFromPillaging = 0;
+	m_iCaptureDefeatedEnemyChance = 0;
 	m_iBarbCombatBonus = 0;
 	m_iAdjacentEnemySapMovement = 0;
 	m_iCanMoraleBreak = 0;
@@ -6408,6 +6410,9 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 		return false;
 	}
 
+	if (pPlot == NULL)
+		return false;
+
 	switch(getDomainType())
 	{
 	case DOMAIN_LAND:
@@ -6415,12 +6420,17 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 		{
 			return true;
 		}
+		if (pPlot->isCity())
+			return false;
 		break;
 	case DOMAIN_AIR:
 		if(!pPlot->isFriendlyCity(*this, true))
 		{
 			return true;
 		}
+		break;
+	case DOMAIN_SEA:
+		return false;
 		break;
 	default:
 		break;
@@ -6768,7 +6778,7 @@ void CvUnit::ChangeCityAttackOnlyCount(int iChange)
 bool CvUnit::IsCaptureDefeatedEnemy() const
 {
 	VALIDATE_OBJECT
-	return m_iCaptureDefeatedEnemyCount > 0;
+	return m_iCaptureDefeatedEnemyCount > 0 || m_iCaptureDefeatedEnemyChance > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6786,7 +6796,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 {
 	int iRtnValue = 0;
 
-	if (m_iCaptureDefeatedEnemyCount > 0 && AreUnitsOfSameType(*pEnemy))
+	if ((m_iCaptureDefeatedEnemyCount > 0 || m_iCaptureDefeatedEnemyChance > 0) && AreUnitsOfSameType(*pEnemy))
 	{
 		// Look at ratio of intrinsic combat strengths
 		CvUnitEntry *pkEnemyInfo = GC.getUnitInfo(pEnemy->getUnitType());
@@ -6797,6 +6807,11 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 			if(pEnemy->GetCannotBeCaptured())
 			{
 				return 0;
+			}
+
+			if (m_iCaptureDefeatedEnemyChance > 0)
+			{
+				return m_iCaptureDefeatedEnemyChance;
 			}
 #endif
 
@@ -13256,7 +13271,7 @@ bool CvUnit::blastTourism()
 	{
 		PlayerTypes eOwner = pPlot->getOwner();
 
-		int iCap = 3;
+		int iCap = GC.getBALANCE_CORE_MUSICIAN_BLAST_HAPPINESS();
 
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
@@ -18485,6 +18500,15 @@ void CvUnit::changeGGFromBarbariansCount(int iValue)
 	}
 }
 #endif
+int CvUnit::GetCaptureDefeatedEnemyChance() const
+{
+	return m_iCaptureDefeatedEnemyChance;
+}
+void CvUnit::ChangeCaptureDefeatedEnemyChance(int iValue)
+{
+	m_iCaptureDefeatedEnemyChance += iValue;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetBarbarianCombatBonus() const
 {
@@ -22581,6 +22605,21 @@ void CvUnit::setPlaguePromotion(int iValue)
 {
 	m_iPlaguePromotion = iValue;
 }
+
+bool CvUnit::CanPlague(CvUnit* pOtherUnit) const
+{
+	if (pOtherUnit == NULL)
+		return false;
+
+	if (getPlagueChance() <= 0)
+		return false;
+
+	if (getDomainType() != pOtherUnit->getDomainType())
+		return false;
+
+	return true;
+}
+
 void CvUnit::setContractUnit(ContractTypes eContract)
 {
 	if(eContract != m_eUnitContract)
@@ -26911,7 +26950,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeEmbarkDeepWaterCount((thisPromotion.IsEmbarkedDeepWater()) ? iChange: 0);
 #endif
 		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackSupport()) ? iChange: 0);
-		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
+		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
 		changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() *  iChange);
@@ -26919,6 +26958,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
 		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
+		ChangeCaptureDefeatedEnemyChance((thisPromotion.GetCaptureDefeatedEnemyChance()) * iChange);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
@@ -30005,7 +30045,7 @@ CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllow
 void CvUnit::DoPlagueTransfer(CvUnit& defender)
 {
 	//We got here without being able to plague someone? Abort!
-	if(getPlagueChance() <= 0)
+	if (!CanPlague(&defender))
 	{
 		return;
 	}
@@ -30067,10 +30107,14 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 			//remove the weaker one.
 			if (eCurrentPlague != NO_PROMOTION)
+			{
 				defender.setHasPromotion(eCurrentPlague, false);
+				defender.restoreFullMoves();
+			}
 		}
 
 		defender.setHasPromotion(ePlague, true);
+		defender.restoreFullMoves();
 
 		defender.setPlagueID(pkPlaguePromotionInfo->GetPlagueID());
 		defender.setPlaguePriority(pkPlaguePromotionInfo->GetPlaguePriority());
@@ -30461,6 +30505,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iValue += iFlavorDefense;
+	}
+
+	iTemp = pkPromotionInfo->GetCaptureDefeatedEnemyChance();
+	if (iTemp != 0)
+	{
+		iValue += iFlavorOffense + iTemp;
 	}
 #endif
 

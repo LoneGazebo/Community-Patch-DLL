@@ -87,7 +87,7 @@ SET HappinessToCulture = '50'
 WHERE Type = 'POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET UnculturedHappinessMod = '-15'
+SET UnculturedHappinessMod = '-10'
 WHERE Type = 'POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Reformation (Now Monasticism)

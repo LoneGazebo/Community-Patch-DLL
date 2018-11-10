@@ -3605,18 +3605,60 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 		{
-			if(GetPlayerTraits()->IsBullyAnnex())
+			if(GetPlayerTraits()->IsBullyAnnex() && !bGift)
 			{
 				if(pOldCity->GetPlayer()->isMinorCiv() && !pOldCity->isEverOwned(GetID()))
 				{
-					int iGoldenAge = pOldCity->getPopulation() * 20;
-					ChangeGoldenAgeProgressMeter(iGoldenAge);
-					if(GetID() == GC.getGame().getActivePlayer())
+					//int iGoldenAge = pOldCity->getPopulation() * 20;
+					//ChangeGoldenAgeProgressMeter(iGoldenAge);
+					//do we get a lump some of yields from this?
+					if (GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 					{
-						char text[256] = {0};
+						MinorCivTraitTypes eTrait = pOldCity->GetPlayer()->GetMinorCivAI()->GetTrait();
 
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAge);
-						SHOW_PLOT_POPUP(pOldCity->plot(), NO_PLAYER, text);
+						switch (eTrait)
+						{
+						case(MINOR_CIV_TRAIT_CULTURED) :
+						{
+							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE);
+							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+							iYield /= 100;
+							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_CULTURE);
+							break;
+						}
+						case(MINOR_CIV_TRAIT_MARITIME) :
+						{
+							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD);
+							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+							iYield /= 100;
+							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FOOD);
+							break;
+						}
+						case(MINOR_CIV_TRAIT_MERCANTILE) :
+						{
+							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_GOLD);
+							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+							iYield /= 100;
+							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD);
+							break;
+						}
+						case(MINOR_CIV_TRAIT_MILITARISTIC) :
+						{
+							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE);
+							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+							iYield /= 100;
+							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_SCIENCE);
+							break;
+						}
+						case(MINOR_CIV_TRAIT_RELIGIOUS) :
+						{
+							int iYield = pOldCity->GetPlayer()->GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH);
+							iYield *= GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+							iYield /= 100;
+							doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FAITH);
+							break;
+						}
+						}
 					}
 				}
 			}
@@ -4423,6 +4465,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 				if (eBuilding != NO_BUILDING)
 				{
+					if (!IsValidBuildingForPlayer(pNewCity, eBuilding, bGift, bRecapture))
+						continue;
+
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if (pkBuildingInfo)
 					{
@@ -4474,31 +4519,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 				if(eBuilding != NO_BUILDING)
 				{
+					if (!IsValidBuildingForPlayer(pNewCity, eBuilding, bGift, bRecapture))
+						continue;
+
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 					if(pkBuildingInfo)
 					{
-						bool bKeepBuilding = true;
-						if (!GetPlayerTraits()->IsKeepConqueredBuildings() && !bGift && !bRecapture)
-						{
-							bKeepBuilding = !pkLoopBuildingInfo->IsNeverCapture();
-
-							if (bKeepBuilding)
-							{
-								bKeepBuilding = !isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true);
-							}
-							if (bKeepBuilding)
-							{
-								// here would be a good place to put additional checks (for example, influence)
-								int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pNewCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkBuildingInfo->GetID() + iI) + GC.getGame().getSmallFakeRandNum(32, GC.getGame().GetCultureAverage() + iI);
-
-								bKeepBuilding = iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
-							}
-						}
-
-						if (bKeepBuilding)
-						{
-							iNum += paiNumRealBuilding[iI];
-						}
+						iNum += paiNumRealBuilding[iI];
 
 #if !defined(NO_ACHIEVEMENTS)
 						// Check for Tomb Raider Achievement
@@ -4996,7 +5023,55 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #pragma warning ( pop ) // restore warning level suppressed for pNewCity null check
 #endif// _MSC_VER
 }
+bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bGift, bool bRecapture)
+{
+	CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (!pkLoopBuildingInfo)
+		return false;
 
+	if (pkLoopBuildingInfo->IsDummy())
+		return false;
+
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_ConquerorValidBuilding, pCity->getOwner(), pCity->GetID(), GetID(), eBuilding) == GAMEEVENTRETURN_FALSE) {
+		return false;
+	}
+
+	const CvBuildingClassInfo& pkClassInfo = pkLoopBuildingInfo->GetBuildingClassInfo();
+
+	bool bIsNationalWonder = ::isNationalWonderClass(pkClassInfo);
+	bool bCivUnique = pkClassInfo.getDefaultBuildingIndex() != eBuilding;
+	bool bProductionMaxed = isProductionMaxedBuildingClass((BuildingClassTypes)pkLoopBuildingInfo->GetBuildingClassType(), true);
+
+	if (GetPlayerTraits()->IsKeepConqueredBuildings())
+	{
+		if (!bCivUnique)
+		{
+			if (bIsNationalWonder || bProductionMaxed)
+				return false;
+		}
+		else
+		{
+			if (bIsNationalWonder && getNumBuildings(eBuilding) > 0)
+				return false;
+			else if (bProductionMaxed)
+				return false;
+		}
+	}
+	else
+	{
+		if (pkLoopBuildingInfo->IsNeverCapture() || bProductionMaxed || bIsNationalWonder)
+			return false;
+
+		if (bGift || bRecapture)
+			return true;
+
+		int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkLoopBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GC.getGame().GetCultureAverage());
+
+		return iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
+	}
+
+	return true;
+}
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::killCities()
@@ -26680,7 +26755,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BULLY:
 				{
-					iValue += GetYieldFromMinorDemand(eYield);
+					if (eYield != ePassYield)
+					continue;
+
+					if (iPassYield == 0)
+						iValue += GetYieldFromMinorDemand(eYield);
+					else
+						iValue += iPassYield;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_SPREAD:
@@ -31105,7 +31186,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		}
 
 		//choose one
-		int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleSpecialists.size(), getGlobalAverage(YIELD_CULTURE) + GC.getGame().getNumCities());
+		int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleSpecialists.size(), getGlobalAverage(YIELD_CULTURE) + GC.getGame().getNumCities() + m_iNumHistoricEvent);
 		SpecialistTypes eBestSpecialist = vPossibleSpecialists.empty() ? NO_SPECIALIST : vPossibleSpecialists[iChoice];
 		if(eBestSpecialist != NO_SPECIALIST)
 		{
@@ -48793,7 +48874,7 @@ void CvPlayer::DoVassalLevy()
 			int iTotal = GET_TEAM(getTeam()).GetNumVassals() * 2;
 			for (int iK = 0; iK < iTotal; iK++)
 			{
-				int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), *pMasterCity->plot());
+				int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), GC.getGame().GetCultureAverage() + iK);
 				CvUnit* pNewUnit = initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
 				bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 				if (bJumpSuccess)

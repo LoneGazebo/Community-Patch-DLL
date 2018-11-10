@@ -332,6 +332,11 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'GWAM_THRESHOLD_DECREASE', '0';
 
+-- Tourism Blast Happiness
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_CORE_MUSICIAN_BLAST_HAPPINESS', '3';
+
 -- Building Investments Base Rate
 INSERT INTO Defines (
 Name, Value)

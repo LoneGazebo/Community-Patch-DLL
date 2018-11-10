@@ -3233,6 +3233,10 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 		if(pReligion)
 		{
+			int iEra = m_pPlayer->GetCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
+
 			CvCity* pHolyCity = NULL;
 			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 			if (pHolyCityPlot)
@@ -3241,21 +3245,21 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			}
 			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
-				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
 				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
 				}
 			}
 
 			if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_PRODUCTION || eYield == YIELD_FOOD))
 			{
-				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
 				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
 				}
 			}
 		}

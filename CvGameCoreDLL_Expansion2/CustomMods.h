@@ -1278,6 +1278,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
+#define GAMEEVENT_ConquerorValidBuilding	"ConquerorValidBuilding", "iiii"
 // City and Player Events
 #define GAMEEVENT_EventActivated			"EventActivated", "ii"
 #define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"

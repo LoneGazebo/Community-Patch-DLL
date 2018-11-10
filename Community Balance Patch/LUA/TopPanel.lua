@@ -105,13 +105,13 @@ function UpdateData()
 
 				-- Empire Really Unhappy
 				if (pPlayer:IsEmpireSuperUnhappy()) then
-					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i)", -iHappiness, unhappypop, population);
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
 				-- Empire Unhappy
 				elseif (pPlayer:IsEmpireUnhappy()) then
-					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i)", -iHappiness, unhappypop, population);
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
 				-- Empire is Happiness
 				else
-					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i)", iHappiness, unhappypop, population);
+					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", iHappiness, unhappypop, population);
 				end
 			end
 			

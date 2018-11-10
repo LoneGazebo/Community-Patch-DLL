@@ -107,6 +107,8 @@ public:
 	int GetNearbyImprovementBonusRange() const;
 	int GetCultureBuildingYieldChange() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetWarWearinessModifier() const;
+	int GetEnemyWarWearinessModifier() const;
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
 	bool IsReconquista() const;
@@ -225,6 +227,7 @@ public:
 	BuildingTypes GetFreeBuildingOnConquest() const;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool IsBullyAnnex() const;
+	int GetBullyYieldMultiplierAnnex() const;
 #endif
 	bool IsFightWellDamaged() const;
 	bool IsWoodlandMovementBonus() const;
@@ -458,6 +461,8 @@ protected:
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	int m_iWarWearinessModifier;
+	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
 	bool m_bReconquista;
@@ -571,6 +576,7 @@ protected:
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
+	int m_iBullyYieldMultiplierAnnex;
 #endif
 	bool m_bFightWellDamaged;
 	bool m_bWoodlandMovementBonus;
@@ -1010,6 +1016,14 @@ public:
 		return m_iCultureBuildingYieldChange;
 	};
 #if defined(MOD_BALANCE_CORE)
+	int GetWarWearinessModifier() const
+	{
+		return m_iWarWearinessModifier;
+	};
+	int GetEnemyWarWearinessModifier() const
+	{
+		return m_iEnemyWarWearinessModifier;
+	};
 	int GetCombatBonusVsHigherPop() const
 	{
 		return m_iCombatBonusVsHigherPop;
@@ -1386,6 +1400,10 @@ public:
 	{
 		return m_bBullyAnnex;
 	};
+	int GetBullyYieldMultiplierAnnex() const
+	{
+		return m_iBullyYieldMultiplierAnnex;
+	}
 #endif
 
 	bool IsFightWellDamaged() const
@@ -1954,6 +1972,8 @@ private:
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
+	int m_iWarWearinessModifier;
+	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
 	bool m_bReconquista;
@@ -2112,6 +2132,7 @@ private:
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
+	int m_iBullyYieldMultiplierAnnex;
 	std::vector<bool> m_abTerrainClaimBoost;
 #endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];

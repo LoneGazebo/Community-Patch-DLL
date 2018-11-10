@@ -302,7 +302,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			kAttacker.DoPlagueTransfer(*pkDefender);
 		}
-		if(kAttacker.getPlagueChance() > 0)
+		if (pkDefender->getPlagueChance() > 0)
 		{
 			pkDefender->DoPlagueTransfer(kAttacker);
 		}
@@ -424,7 +424,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		else if (iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
 #endif
 		{
-			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(100, plot);
+			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(50, plot) + GC.getGame().getSmallFakeRandNum(50, pkDefender->GetID());
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -2724,7 +2724,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 			if(!kAttacker.isEnemy((TeamTypes)iI))
 			{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_TEAM(kAttacker.getTeam()).declareWar(((TeamTypes)iI), false, kAttacker.getOwner());
+				GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar((TeamTypes)iI);
 #else
 				GET_TEAM(kAttacker.getTeam()).declareWar(((TeamTypes)iI));
 #endif
@@ -4568,9 +4568,9 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldPlundered /= 100;
 
-			if(iGoldPlundered > pkDefender->getPopulation() * 500)
+			if(iGoldPlundered > pkDefender->getStrengthValue() * 10)
 			{
-				 iGoldPlundered = (pkDefender->getPopulation() * 500);
+				iGoldPlundered = (pkDefender->getStrengthValue() * 10);
 			}
 #endif
 			GET_PLAYER(pkAttacker->getOwner()).GetTreasury()->ChangeGold(iGoldPlundered);

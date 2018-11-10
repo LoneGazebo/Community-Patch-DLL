@@ -8629,7 +8629,7 @@ bool CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 	CvTeam& kMyTeam = GET_TEAM(GetTeam());
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
-	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
+	if (!GET_TEAM(GetTeam()).canDeclareWar(eTheirTeam, GetPlayer()->GetID()))
 		return false;
 
 	// Only do it if we are not already at war.
@@ -8696,7 +8696,7 @@ bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 		CvTeam& kMyTeam = GET_TEAM(GetTeam());
 		TeamTypes eTheirTeam = eTeam;
 
-		if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
+		if (!kMyTeam.canDeclareWar(eTheirTeam, GetPlayer()->GetID()))
 			return false;
 
 		// Only do it if we are not already at war.
@@ -9202,14 +9202,31 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 	//If this is a prewar calc, use power estimates (should give us a better idea of how a war might go).
 	if(bUsePeacetimeCalculation)
 	{
+		int iWarScoreModifier = 0;
+		switch (GetPlayer()->GetProximityToPlayer(ePlayer))
+		{
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iWarScoreModifier += 30;
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+			iWarScoreModifier += 10;
+			break;
+		case PLAYER_PROXIMITY_FAR:
+			iWarScoreModifier += -10;
+			break;
+		case PLAYER_PROXIMITY_DISTANT:
+			iWarScoreModifier += -30;
+			break;
+		}
+
 		// Their Military Strength compared to us
 		switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
 			case STRENGTH_PATHETIC:
-				iWarScore += 50;
+				iWarScore += 40;
 				break;
 			case STRENGTH_WEAK:
-				iWarScore += 25;
+				iWarScore += 20;
 				break;
 			case STRENGTH_POOR:
 				iWarScore += 10;
@@ -9221,10 +9238,10 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 				iWarScore += -10;
 				break;
 			case STRENGTH_POWERFUL:
-				iWarScore += -25;
+				iWarScore += -20;
 				break;
 			case STRENGTH_IMMENSE:
-				iWarScore += -50;
+				iWarScore += -40;
 				break;
 		}
 
@@ -9232,25 +9249,25 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		switch(GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
 			case STRENGTH_PATHETIC:
-				iWarScore += 50;
+				iWarScore += 20;
 				break;
 			case STRENGTH_WEAK:
-				iWarScore += 25;
+				iWarScore += 10;
 				break;
 			case STRENGTH_POOR:
-				iWarScore += 10;
+				iWarScore += 5;
 				break;
 			case STRENGTH_AVERAGE:
 				iWarScore += 0;
 				break;
 			case STRENGTH_STRONG:
-				iWarScore += -10;
+				iWarScore += -5;
 				break;
 			case STRENGTH_POWERFUL:
-				iWarScore += -25;
+				iWarScore += -10;
 				break;
 			case STRENGTH_IMMENSE:
-				iWarScore += -50;
+				iWarScore += -20;
 				break;
 		}
 
@@ -9258,42 +9275,51 @@ int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 		switch(GetMajorCivOpinion(ePlayer))
 		{
 			case MAJOR_CIV_OPINION_ALLY:
-				iWarScore += -50;
+				iWarScore += -20;
 				break;
 			case MAJOR_CIV_OPINION_FRIEND:
-				iWarScore += -25;
+				iWarScore += -10;
 				break;
 			case MAJOR_CIV_OPINION_FAVORABLE:
-				iWarScore += -10;
+				iWarScore += -5;
 				break;
 			case MAJOR_CIV_OPINION_NEUTRAL:
 				iWarScore += 0;
 				break;
 			case MAJOR_CIV_OPINION_COMPETITOR:
-				iWarScore += 10;
-				break;
-			case MAJOR_CIV_OPINION_ENEMY:
-				iWarScore += 25;
-				break;
-			case MAJOR_CIV_OPINION_UNFORGIVABLE:
-				iWarScore += 50;
-				break;
-		}
-		switch(GetPlayer()->GetProximityToPlayer(ePlayer))
-		{
-			case PLAYER_PROXIMITY_NEIGHBORS:
-				iWarScore += 25;
-				break;
-			case PLAYER_PROXIMITY_CLOSE:
 				iWarScore += 5;
 				break;
-			case PLAYER_PROXIMITY_FAR:
-				iWarScore += -5;
+			case MAJOR_CIV_OPINION_ENEMY:
+				iWarScore += 10;
 				break;
-			case PLAYER_PROXIMITY_DISTANT:
-				iWarScore += -25;
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+				iWarScore += 20;
 				break;
 		}
+
+		// What is our war projection of them?
+		switch (GetWarmongerThreat(ePlayer))
+		{
+		case THREAT_NONE:
+			iWarScore += -20;
+			break;
+		case THREAT_MINOR:
+			iWarScore += -10;
+			break;
+		case THREAT_MAJOR:
+			iWarScore += 10;
+			break;
+		case THREAT_SEVERE:
+			iWarScore += 15;
+			break;
+		case THREAT_CRITICAL:
+			iWarScore += 20;
+			break;
+		}
+
+		iWarScore *= (100 + iWarScoreModifier);
+		iWarScore /= 100;
+
 		return iWarScore;
 	}
 	else
@@ -27189,7 +27215,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Human declaration
 			TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam());
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(eAgainstTeam);
 #else
 			GET_TEAM(eFromTeam).declareWar(eAgainstTeam);
 #endif
@@ -27228,19 +27254,18 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (DeclareWar(eAgainstPlayer))
 			{
 				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 3);
-
-				// Human declaration
-				TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
+			}
+			// Human declaration
+			TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(GetTeam());
+			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer);
 #else
-				GET_TEAM(eFromTeam).declareWar(eAgainstTeam);
+			GET_TEAM(eFromTeam).declareWar(eAgainstTeam);
 #endif
 
-				int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
-				GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
-				GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
-			}
+			int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
+			GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
+			GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
 		}
 		// Human says no
 		if(iArg1 == 2)

@@ -4784,10 +4784,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += pkBuildingInfo->GetYieldChange(eYield);
 	}
-	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
-	{
-		iFlatYield += pkBuildingInfo->GetScienceFromYield(eYield);
-	}
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
@@ -4824,10 +4820,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetScienceFromYield(eYield) > 0)
 	{
-		if (iYieldRate > pkBuildingInfo->GetScienceFromYield(eYield))
-		{
-			iFlatYield += (iYieldRate * pkBuildingInfo->GetScienceFromYield(eYield) / 100);
-		}
+		iFlatYield += iYieldRate / pkBuildingInfo->GetScienceFromYield(eYield);
 	}
 	if (pkBuildingInfo->GetGreatWorkYieldChange(eYield) > 0)
 	{

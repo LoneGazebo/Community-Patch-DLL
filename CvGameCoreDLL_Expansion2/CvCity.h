@@ -116,6 +116,9 @@ public:
 	void UpdateGlobalStaticYields();
 	void SetGlobalStaticYield(YieldTypes eYield, int iValue);
 	int GetGlobalStaticYield(YieldTypes eYield) const;
+
+	void SetStaticNeedAdditives(YieldTypes eYield, int iValue);
+	int GetStaticNeedAdditives(YieldTypes eYield) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -834,7 +837,7 @@ public:
 	int GetBuildingClassHappinessFromReligion() const;
 	void UpdateBuildingClassHappinessFromReligion();
 	int getHappinessDelta() const;
-	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0) const;
+	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
 	int getThresholdSubtractions(YieldTypes eYield) const;
 	int getThresholdAdditions(YieldTypes eYield = NO_YIELD) const;
 	int getUnhappyCitizenCount() const;
@@ -1818,6 +1821,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticGlobalYield;
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticNeedAdditives;
 	FAutoVariable<std::vector<int>, CvCity> m_aiLongestPotentialTradeRoute;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesAttackedThisTurn;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;

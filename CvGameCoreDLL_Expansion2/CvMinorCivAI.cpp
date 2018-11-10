@@ -15728,8 +15728,8 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iLocalPowerScore = 0;
 	if (MOD_BALANCE_CORE_MINORS)
 	{
-		if (iMinorLocalPower < (iBullyLocalPower / 5))
-			iMinorLocalPower = (iBullyLocalPower / 5);
+		if (iMinorLocalPower < (iBullyLocalPower / 4))
+			iMinorLocalPower = (iBullyLocalPower / 4);
 
 		fLocalPowerRatio = (float)iBullyLocalPower * 100 / (float)iMinorLocalPower;
 
@@ -15871,6 +15871,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// -300 ~ -0
 	// **************************
+	/*
 	if (GET_PLAYER(eBullyPlayer).GetPlayerTraits()->IsBullyAnnex() && GC.getGame().GetLastTurnCSAnnexed() > 0)
 	{
 		int iTurnLimit = 50;
@@ -15890,7 +15891,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			}
 		}
 	}
-
+	*/
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
 
 	if(iLastBullyTurn >= 0)
@@ -16653,14 +16654,58 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
 						}
 					}
-					int iGoldenAge = GetPlayer()->getCapitalCity()->getPopulation() * 20;
-					GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iGoldenAge);
-					if(eBully == GC.getGame().getActivePlayer())
+					//do we get a lump some of yields from this?
+					if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 					{
-						char text[256] = {0};
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAge);
-						SHOW_PLOT_POPUP( GetPlayer()->getCapitalCity()->plot(), GetPlayer()->GetID(), text );
+						MinorCivTraitTypes eTrait = GetTrait();
+
+						switch (eTrait)
+						{
+							case(MINOR_CIV_TRAIT_CULTURED):
+							{
+								int iYield = GetYieldTheftAmount(eBully, YIELD_CULTURE);
+								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+								iYield /= 100;
+								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_CULTURE);
+								break;
+							}
+							case(MINOR_CIV_TRAIT_MARITIME) :
+							{
+								int iYield = GetYieldTheftAmount(eBully, YIELD_FOOD);
+								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+								iYield /= 100;
+								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_FOOD);
+								break;
+							}
+							case(MINOR_CIV_TRAIT_MERCANTILE) :
+							{
+								int iYield = GetYieldTheftAmount(eBully, YIELD_GOLD);
+								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+								iYield /= 100;
+								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_GOLD);
+								break;
+							}
+							case(MINOR_CIV_TRAIT_MILITARISTIC) :
+							{
+								int iYield = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
+								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+								iYield /= 100;
+								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_SCIENCE);
+								break;
+							}
+							case(MINOR_CIV_TRAIT_RELIGIOUS) :
+							{
+								int iYield = GetYieldTheftAmount(eBully, YIELD_FAITH);
+								iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+								iYield /= 100;
+								GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, pCapital, false, true, false, YIELD_FAITH);
+								break;
+							}
+						}
 					}
+					//int iGoldenAge = GetPlayer()->getCapitalCity()->getPopulation() * 20;
+					//GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iGoldenAge);
+					
 					if(GC.getLogging() && GC.getAILogging())
 					{			
 						// Logging
@@ -16671,7 +16716,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 					GC.getGame().SetLastTurnCSAnnexed(GC.getGame().getGameTurn());
 
-					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, false, false);
+					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, true, false);
 					return;
 				}
 			}

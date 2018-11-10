@@ -344,6 +344,7 @@ CvCity::CvCity() :
 	, m_aiNumTimesAttackedThisTurn("CvCity::m_aiNumTimesAttackedThisTurn", m_syncArchive)
 	, m_aiLongestPotentialTradeRoute("CvCity::m_aiLongestPotentialTradeRoute", m_syncArchive)
 	, m_aiStaticGlobalYield("CvCity::m_aiStaticGlobalYield", m_syncArchive)
+	, m_aiStaticNeedAdditives("CvCity::m_aiStaticNeedAdditives", m_syncArchive)
 	, m_aiYieldFromKnownPantheons("CvCity::m_aiYieldFromKnownPantheons", m_syncArchive)
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
@@ -1618,6 +1619,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiStaticGlobalYield.resize(NUM_YIELD_TYPES);
+	m_aiStaticNeedAdditives.resize(NUM_YIELD_TYPES);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
@@ -1695,6 +1697,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_aiStaticGlobalYield.setAt(iI, 0);
+		m_aiStaticNeedAdditives.setAt(iI, 0);
 		m_aiSeaPlotYield.setAt(iI, 0);
 		m_aiRiverPlotYield.setAt(iI, 0);
 		m_aiLakePlotYield.setAt(iI, 0);
@@ -3538,17 +3541,36 @@ void CvCity::UpdateGlobalStaticYields()
 	SetGlobalStaticYield(YIELD_CULTURE, GC.getGame().GetCultureAverage());
 	SetGlobalStaticYield(YIELD_SCIENCE, GC.getGame().GetScienceAverage());
 	SetGlobalStaticYield(YIELD_PRODUCTION, GC.getGame().GetDefenseAverage());
+
+	SetStaticNeedAdditives(YIELD_GOLD, getThresholdAdditions(YIELD_GOLD));
+	SetStaticNeedAdditives(YIELD_CULTURE, getThresholdAdditions(YIELD_CULTURE));
+	SetStaticNeedAdditives(YIELD_SCIENCE, getThresholdAdditions(YIELD_SCIENCE));
+	SetStaticNeedAdditives(YIELD_PRODUCTION, getThresholdAdditions(YIELD_PRODUCTION));
 }
 void CvCity::SetGlobalStaticYield(YieldTypes eYield, int iValue)
 {
 	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	m_aiStaticGlobalYield.setAt(eYield, iValue);
 }
 int CvCity::GetGlobalStaticYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
 		return m_aiStaticGlobalYield[eYield];
+}
+
+void CvCity::SetStaticNeedAdditives(YieldTypes eYield, int iValue)
+{
+	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	m_aiStaticNeedAdditives.setAt(eYield, iValue);
+}
+int CvCity::GetStaticNeedAdditives(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+		return m_aiStaticNeedAdditives[eYield];
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -9440,7 +9462,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE));
+		iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE) + GetID());
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -14866,11 +14888,11 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 					}
 				}
 
-				int iMax = 0;
-				int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldPerFollowerPercent(iMax, (YieldTypes)iYield, getOwner(), this);
+				int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldPerFollower((YieldTypes)iYield, getOwner(), this);
+				int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldPerFollowerPercent((YieldTypes)iYield, getOwner(), this);
 				if (iReligionYieldMaxFollowersPercent > 0)
 				{
-					int iVal = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion) * iReligionYieldMaxFollowersPercent;
+					int iVal = iFollowers * iReligionYieldMaxFollowersPercent;
 					if (iVal > 0)
 					{
 						iVal /= 100;
@@ -14878,17 +14900,14 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						if (iVal <= 0)
 							iVal = 1;
 
-						int iTempMod = min(iVal, iMax);
+						int iTempMod = min(iVal, iReligionYieldMaxFollowers);
 						iReligionYieldChange += iTempMod;
 					}
 				}
 				else
 				{
-					int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldPerFollower((YieldTypes)iYield, getOwner(), this);
 					if (iReligionYieldMaxFollowers > 0)
 					{
-						int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
-
 						int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
 						iReligionYieldChange += iTempMod;
 					}
@@ -20480,16 +20499,24 @@ int CvCity::getThresholdAdditions(YieldTypes eYield) const
 
 	return iModifier;
 }
-int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod) const
+int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod, bool bForceGlobal) const
 {
-	int iModifier = getThresholdAdditions(eYield);
-	iModifier += getThresholdSubtractions(eYield);
-	iModifier += iMod;
+	int iPositiveModifier = !bForceGlobal ? GetStaticNeedAdditives(eYield) : getThresholdAdditions(eYield);
+
+	int iNegativeModifier = getThresholdSubtractions(eYield);
+	iNegativeModifier += iMod;
+	//iNegativeModifier *= -1;
 
 	int iPop = getPopulation();
 	int iThresholdMod = iPop;
-	iThresholdMod *= (iModifier + 100);
-	iThresholdMod /= (100 + iPop + (iPop/2));
+
+	iThresholdMod *= 100 + iPositiveModifier;
+	iThresholdMod /= 100 + (iPop + (iPop / 2));
+
+	iThresholdMod += iNegativeModifier;
+
+	//iThresholdMod *= 100 + (iPop + (iPop / 2));
+	//iThresholdMod /= 100 + iNegativeModifier;
 
 	return iThresholdMod;
 }
@@ -20658,7 +20685,7 @@ int CvCity::getUnhappinessFromCultureNeeded(int iMod, bool bForceGlobal) const
 {
 	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_CULTURE) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
 
-	int iModifier = getHappinessThresholdMod(YIELD_CULTURE, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_CULTURE, iMod, bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20744,7 +20771,7 @@ int CvCity::getUnhappinessFromScienceNeeded(int iMod, bool bForceGlobal) const
 {
 	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_SCIENCE) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
-	int iModifier = getHappinessThresholdMod(YIELD_SCIENCE, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_SCIENCE, iMod, !bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20829,7 +20856,7 @@ int CvCity::getUnhappinessFromDefenseNeeded(int iMod, bool bForceGlobal) const
 
 		
 	
-	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod, !bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -20906,7 +20933,7 @@ int CvCity::getUnhappinessFromGoldNeeded(int iMod, bool bForceGlobal) const
 {
 	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_GOLD) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
-	int iModifier = getHappinessThresholdMod(YIELD_GOLD, iMod);
+	int iModifier = getHappinessThresholdMod(YIELD_GOLD, iMod, !bForceGlobal);
 
 	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
@@ -28489,7 +28516,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
 					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-					const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
 					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 					{
 						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -28502,9 +28528,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 						// Requires Building
 						if(thisUnitInfo->GetBuildingClassPurchaseRequireds(eBuildingClass))
 						{
-							const BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-
-							if(GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
+							if (GetCityBuildings()->GetNumBuildingClass(eBuildingClass) == 0)
 							{
 								return false;
 							}

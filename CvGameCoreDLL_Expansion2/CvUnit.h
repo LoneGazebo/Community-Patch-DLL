@@ -809,6 +809,9 @@ public:
 
 	bool IsGainsYieldFromScouting() const;
 
+	int GetCaptureDefeatedEnemyChance() const;
+	void ChangeCaptureDefeatedEnemyChance(int iValue);
+	
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
 
@@ -1181,6 +1184,8 @@ public:
 
 	int getPlaguePromotion() const;
 	void setPlaguePromotion(int iValue);
+
+	bool CanPlague(CvUnit* pOtherUnit) const;
 
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
@@ -2118,6 +2123,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromPillaging;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromSpotting;
+	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyChance;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
 	FAutoVariable<int, CvUnit> m_iAdjacentEnemySapMovement;
 #endif
