@@ -105,13 +105,13 @@ function UpdateData()
 
 				-- Empire Really Unhappy
 				if (pPlayer:IsEmpireSuperUnhappy()) then
-					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i)", -iHappiness, unhappypop, population);
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_4] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
 				-- Empire Unhappy
 				elseif (pPlayer:IsEmpireUnhappy()) then
-					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i)", -iHappiness, unhappypop, population);
+					strHappiness = string.format("[COLOR:255:60:60:255]%i[/COLOR] [ICON_HAPPINESS_3] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", -iHappiness, unhappypop, population);
 				-- Empire is Happiness
 				else
-					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] [ICON_CITIZEN]: ([ICON_HAPPINESS_3]%i/[ICON_HAPPINESS_1]%i)", iHappiness, unhappypop, population);
+					strHappiness = string.format("[COLOR:60:255:60:255]%i[/COLOR] [ICON_HAPPINESS_1] ([ICON_HAPPINESS_3]%i/[ICON_CITIZEN]%i)", iHappiness, unhappypop, population);
 				end
 			end
 			
@@ -906,16 +906,9 @@ function HappinessTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", iHappinessFromMonopoly);
 		end
-		if (iHappinessFromBonusResources > 0) then
+		if(iHappinessFromBonusResources > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
-		end
-		-- Happiness/Population calculation.
-		local iPopulation = pPlayer:GetCurrentTotalPop();
-		local iPopNeeded = pPlayer:GetPopNeededForLux();
-		local iGetLuxuryBonus = pPlayer:GetBaseLuxuryHappiness();
-		if(iGetLuxuryBonus > 0) then
-			strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iGetLuxuryBonus);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_LUXURY_BONUS", iHappinessFromBonusResources, g_activePlayer:GetAveragePopulation100()/100);
 		end
 -- END
 -- C4DF

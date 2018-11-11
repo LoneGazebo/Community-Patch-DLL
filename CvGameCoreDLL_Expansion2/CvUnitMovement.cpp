@@ -228,19 +228,16 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			iRegularCost /= 2;
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if (pToPlot->isMountain() && pUnit->isMountainsDoubleMove())
 		{
 			iRegularCost /= 2;
 		}
-#endif
-		else if ((eToFeature == NO_FEATURE) ? pUnit->isTerrainDoubleMove(eToTerrain) : pUnit->isFeatureDoubleMove(eToFeature))
+		else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
 		{
 			iRegularCost /= 2;
 		}
-
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-		else if ((pToPlot->getFeatureType() == NO_FEATURE) ? pUnit->isTerrainHalfMove(pToPlot->getTerrainType()) : pUnit->isFeatureHalfMove(pToPlot->getFeatureType()))
+		else if (pUnit->isTerrainHalfMove(eToTerrain) || pUnit->isFeatureHalfMove(eToFeature))
 		{
 			iRegularCost *= 2;
 		}

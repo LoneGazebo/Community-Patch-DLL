@@ -187,7 +187,7 @@
 			<Text>Coercion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
-			<Text>Defeated land units may join your side. +100% to Flank Attack Bonus.</Text>
+			<Text>Defeated land units may join your side.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPT">
@@ -274,7 +274,7 @@
 			<Text>Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
-			<Text>Flank attack bonus increased by 200%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
+			<Text>Flank attack bonus increased by 150%. Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Defense x 10. Is able to use enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
 			<Text>Withering Fire</Text>
@@ -658,7 +658,7 @@
 			<Text>Blockade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP">
-			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a City. +25% [ICON_STRENGTH] Defense against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
+			<Text>Steal [ICON_GOLD] Gold equal to 100% of the damage inflicted on a City, capping at City's [ICON_STRENGTH] Defense x 10. +25% [ICON_STRENGTH] Defense against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4">
 			<Text>Pincer</Text>

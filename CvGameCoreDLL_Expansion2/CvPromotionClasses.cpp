@@ -126,6 +126,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
 	m_iGoodyHutYieldBonus(0),
 	m_bGainsXPFromScouting(false),
@@ -370,6 +371,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	//Basic Properties
 #if defined(MOD_BALANCE_CORE)
+	m_iCaptureDefeatedEnemyChance = kResults.GetInt("CaptureDefeatedEnemyChance");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
@@ -1807,7 +1809,10 @@ bool CvPromotionEntry::IsGainsXPFromSpotting() const
 	return m_bGainsXPFromSpotting;
 }
 
-
+int CvPromotionEntry::GetCaptureDefeatedEnemyChance() const
+{
+	return m_iCaptureDefeatedEnemyChance;
+}
 /// Accessor: Can this Promotion grant bonuses v. barbarians?
 int CvPromotionEntry::GetBarbarianCombatBonus() const
 {

@@ -3738,18 +3738,7 @@ int CvLuaCity::lgetHappinessThresholdMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	int iResult = pkCity->getHappinessThresholdMod(eYield);
-
-	int iPuppetMod = 0;
-	if (pkCity->IsPuppet())
-		iPuppetMod = GET_PLAYER(pkCity->getOwner()).GetPuppetUnhappinessMod();
-
-	int iCapitalMod = 0;
-	if (pkCity->isCapital())
-		iCapitalMod = GET_PLAYER(pkCity->getOwner()).GetCapitalUnhappinessModCBP();
-
-	iResult += iCapitalMod;
-	iResult += (iPuppetMod * -1);
+	int iResult = pkCity->getHappinessThresholdMod(eYield, 0);
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3769,7 +3758,7 @@ int CvLuaCity::lgetThresholdAdditions(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkCity->getThresholdAdditions(eYield));
+	lua_pushinteger(L, pkCity->GetStaticNeedAdditives(eYield));
 	return 1;
 }
 //int getUnhappinessFromCultureYield();
@@ -5068,7 +5057,8 @@ int CvLuaCity::lGetStrengthValue(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	bool bForRangeStrike = luaL_optbool(L, 2, false);
-	const int iResult = pkCity->getStrengthValue(bForRangeStrike);
+	bool bIgnoreBuildingDefense = luaL_optbool(L, 3, false);
+	const int iResult = pkCity->getStrengthValue(bForRangeStrike,bIgnoreBuildingDefense);
 
 	lua_pushinteger(L, iResult);
 	return 1;

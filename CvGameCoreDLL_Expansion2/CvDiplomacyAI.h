@@ -89,6 +89,7 @@ public:
 	void update();
 
 	CvPlayer* GetPlayer();
+	const CvPlayer* GetPlayer() const;
 	TeamTypes GetTeam();
 
 	void DoInitializePersonality();

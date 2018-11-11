@@ -374,9 +374,11 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 				if (m_aTradeConnections[i].m_eOriginOwner != pOriginCity->getOwner())
 					continue;
 
+				//only one TR per player and city. unless venice is involved.
 				if (m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY)
 				{
-					return false;
+					if (!GET_PLAYER(m_aTradeConnections[i].m_eOriginOwner).GetPlayerTraits()->IsNoAnnexing() && !GET_PLAYER(m_aTradeConnections[i].m_eDestOwner).GetPlayerTraits()->IsNoAnnexing() )
+						return false;
 				}
 			}
 		}
@@ -1410,12 +1412,10 @@ void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
 		if (IsTradeRouteIndexEmpty(ui))
-		{
-			continue;
-		}
-		if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsRecalledUnit(ui))
 			continue;
 
+		if (IsRecalledUnit(ui))
+			continue;
 
 		TeamTypes eOriginTeam = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam();
 		TeamTypes eDestTeam = GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam();
@@ -1449,8 +1449,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 		// walk through each player on the team
 		for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
 		{
-			PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
-			if (GET_PLAYER(ePlayer).getTeam() != eTRTeam)
+			PlayerTypes eTRPlayer = (PlayerTypes)uiPlayer;
+			if (GET_PLAYER(eTRPlayer).getTeam() != eTRTeam)
 			{
 				continue;
 			}
@@ -1464,7 +1464,7 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 				}
 
 				// if it's not my trade route
-				if (m_aTradeConnections[uiTradeRoute].m_eOriginOwner != ePlayer)
+				if (m_aTradeConnections[uiTradeRoute].m_eOriginOwner != eTRPlayer)
 				{
 					continue;
 				}
@@ -1475,7 +1475,8 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 					continue;
 				}
 
-				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+				//venice recalls their trade units
+				if (MOD_BALANCE_CORE_DIPLOMACY_ADVANCED || GET_PLAYER(eTRPlayer).GetPlayerTraits()->IsNoAnnexing() )
 				{
 					RecallUnit(uiTradeRoute, true);
 					continue;
@@ -3232,6 +3233,10 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 		if(pReligion)
 		{
+			int iEra = m_pPlayer->GetCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
+
 			CvCity* pHolyCity = NULL;
 			CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 			if (pHolyCityPlot)
@@ -3240,21 +3245,21 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			}
 			if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE || eYield == YIELD_SCIENCE))
 			{
-				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
 				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
 				}
 			}
 
 			if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL && (eYield == YIELD_PRODUCTION || eYield == YIELD_FOOD))
 			{
-				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100;
+				iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID(), pHolyCity) * 100 * iEra;
 				BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
-					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+					iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * iEra;
 				}
 			}
 		}

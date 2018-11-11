@@ -4351,8 +4351,9 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 							if (iPotentialVotes > 0)
 							{
 								int numImprovements = GET_PLAYER(ePlayer).getImprovementCount((ImprovementTypes)jJ);
-								iReligionVotes = numImprovements / iPotentialVotes;
-								iVotes += iReligionVotes;
+								int iTempVotes = numImprovements / iPotentialVotes;
+								iReligionVotes += iTempVotes;
+								iVotes += iTempVotes;
 							}
 						}
 					}

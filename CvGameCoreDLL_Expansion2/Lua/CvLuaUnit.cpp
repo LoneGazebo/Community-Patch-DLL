@@ -682,12 +682,8 @@ int CvLuaUnit::lConvert(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkUnitToConvert = GetInstance(L, 2);
 	bool bIsUpgrade = lua_toboolean(L, 3);
-#if defined(MOD_BALANCE_CORE)
-	bool bSupply = luaL_optbool(L, 4, true);
-	pkUnit->convert(pkUnitToConvert, bIsUpgrade, bSupply);
-#else
 	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
-#endif
+
 #if defined(MOD_BUGFIX_MINOR)
 	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
 #endif
@@ -2706,9 +2702,10 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pInPlot = CvLuaPlot::GetInstance(L, 2, false);
 	CvUnit* pkAttacker = GetInstance(L, 3, false);
+	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 3, false);
 	bool bFromRangedAttack = luaL_optbool(L, 4, false);
 
-	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, bFromRangedAttack);
+	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3274,6 +3271,12 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
 
 	if (pkUnit == NULL || pkOtherUnit == NULL || pkOtherUnit->getPlagueChance() <= 0)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
+
+	if (!pkUnit->CanPlague(pkOtherUnit))
 	{
 		lua_pushstring(L, "");
 		return 1;
@@ -5286,7 +5289,8 @@ int CvLuaUnit::lGetNearbyImprovementModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	const int bResult = pkUnit->GetNearbyImprovementModifier(pkUnit->plot());
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2, false);
+	const int bResult = pkUnit->GetNearbyImprovementModifier(pkPlot);
 #else
 	const int bResult = pkUnit->GetNearbyImprovementModifier();
 #endif

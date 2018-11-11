@@ -1227,6 +1227,15 @@ ALTER TABLE Units ADD SpecialUnitCargoLoad TEXT DEFAULT NULL REFERENCES SpecialU
 -- Does this Civ get a GG/GA Rate Modifier bonus from denunciations and wars?
 ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT 0;
 
+-- War Weariness Modifier
+ALTER TABLE Traits ADD COLUMN 'WarWearinessModifier' INTEGER DEFAULT 0;
+
+-- War Weariness Modifier
+ALTER TABLE Traits ADD COLUMN 'EnemyWarWearinessModifier' INTEGER DEFAULT 0;
+
+-- Bully Annex % Modifier for Yields for Mongolia UA
+ALTER TABLE Traits ADD COLUMN 'BullyYieldMultiplierAnnex' INTEGER DEFAULT 0;
+
 -- Does this civ get a free Unit.Type on Conquest? Must be able to train it first....
 ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Type);
 
