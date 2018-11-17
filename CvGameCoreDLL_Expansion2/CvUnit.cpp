@@ -17697,8 +17697,8 @@ bool CvUnit::immuneToFirstStrikes() const
 //	--------------------------------------------------------------------------------
 bool CvUnit::ignoreBuildingDefense() const
 {
-	VALIDATE_OBJECT
-	return m_pUnitInfo->IsIgnoreBuildingDefense();
+	//return m_pUnitInfo->IsIgnoreBuildingDefense();
+	return false; //always return false - this is too powerful
 }
 
 

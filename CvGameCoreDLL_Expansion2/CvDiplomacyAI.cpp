@@ -3539,17 +3539,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	MajorCivApproachTypes eApproach;
 	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
-	FStaticVector< int, 128, true, c_eCiv5GameplayDLL > viApproachWeights;
+	vector<int> viApproachWeights(NUM_MAJOR_CIV_APPROACHES, 0);
 
-	int iApproachLoop;
-
-	viApproachWeights.clear();
-
-	for (iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
-	{
-		viApproachWeights.push_back(0);
-	}
-#if defined(MOD_BALANCE_CORE)
 	////////////////////////////////////
 	// CURRENT APPROACH BIASES
 	////////////////////////////////////
@@ -3560,8 +3551,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	if (eOldApproach == NO_MAJOR_CIV_APPROACH)
 		eOldApproach = MAJOR_CIV_APPROACH_NEUTRAL;
 
-	FStaticVector< int, 128, true, c_eCiv5GameplayDLL > viApproachWeightsPersonality;
-	for (iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+	vector<int> viApproachWeightsPersonality;
+	for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 	{
 		viApproachWeightsPersonality.push_back(GetPersonalityMajorCivApproachBias((MajorCivApproachTypes)iApproachLoop));
 	}
@@ -3865,9 +3856,10 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	case DISPUTE_LEVEL_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE];
+		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_AFRAID];
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 4;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 4;
 		break;
 	case DISPUTE_LEVEL_WEAK:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] / 2;
@@ -4382,6 +4374,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	case AGGRESSIVE_POSTURE_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 		viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_NEUTRAL] * 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
 		break;
 	case AGGRESSIVE_POSTURE_LOW:
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
@@ -4645,36 +4638,6 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		bool bTargetLand = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
 		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
 		bool bTargetSea = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
-		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
-		{
-			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, ePlayer);
-			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
-			{
-				if(target.m_bAttackBySea)
-				{
-					bTargetSea = true;		
-				}
-				if (!target.m_bNoLandPath)
-				{
-					bTargetLand = true;
-				}
-			}
-			else
-			{
-				CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer);
-				if (target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
-				{
-					if (target.m_bAttackBySea)
-					{
-						bTargetSea = true;
-					}
-					if (!target.m_bNoLandPath)
-					{
-						bTargetLand = true;
-					}
-				}
-			}
-		}
 		//No target? Abort!
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{
@@ -4925,17 +4888,15 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	bool bAllZero = true;
 
 	//Save off the scratch value for logging!
-	FStaticVector< int, 128, true, c_eCiv5GameplayDLL > viApproachWeightsScratch;
-	viApproachWeightsScratch.clear();
+	vector<int> viApproachWeightsScratch;
 
 	//Let's make this a gradual process no rapid jumping from value to value!
-	for(iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+	for(int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 	{
 		int iLastTurnValue = GetPlayer()->GetApproachScratchValue(ePlayer, (MajorCivApproachTypes)iApproachLoop);
 		viApproachWeightsScratch.push_back(iLastTurnValue);
 
-		int iApproachValue = viApproachWeights[(MajorCivApproachTypes)iApproachLoop];
-
+		int iApproachValue = viApproachWeights[iApproachLoop];
 		if(iApproachValue > 0)
 		{
 			bAllZero = false;
@@ -4951,10 +4912,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 
 	// This vector is what we'll use to sort
 	CvWeightedVector< MajorCivApproachTypes, 128 > vApproachWeightsForSorting;
-	vApproachWeightsForSorting.clear();
 
 	// Transfer values from our normal int vector (which we need for logging) to the Weighted Vector we can sort
-	for(iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
+	for(int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 	{
 		vApproachWeightsForSorting.push_back((MajorCivApproachTypes) iApproachLoop, viApproachWeights[iApproachLoop]);
 	}
@@ -5008,15 +4968,15 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Don't want to log if we're just seeing what the highest weight is and don't care about what Approach we like
 	if(bLog)
 	{
-		LogMajorCivApproachUpdate(ePlayer, viApproachWeights.begin(), eApproach, eOldApproach, eWarFace);
-		LogApproachValueDeltas(ePlayer, viApproachWeights.begin(), viApproachWeightsScratch.begin());
+		LogMajorCivApproachUpdate(ePlayer, &viApproachWeights[0], eApproach, eOldApproach, eWarFace);
+		LogApproachValueDeltas(ePlayer, &viApproachWeights[0], &viApproachWeightsScratch[0]);
 	}
 	//All at zero? Return neutral.
 	if(bAllZero)
 	{
 		return MAJOR_CIV_APPROACH_NEUTRAL;
 	}
-#endif
+
 	return eApproach;
 }
 
@@ -5196,7 +5156,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	{
 		viApproachWeights.push_back(0);
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Bias for our current Approach.  This should prevent it from jumping around from turn-to-turn as much
 	// We use the scratch pad here since the normal array has been cleared so that we have knowledge of who we've already assigned an Approach for this turn; this should be the only place the scratch pad is used
 	CvAssertMsg(m_paeApproachScratchPad[ePlayer] >= NO_MINOR_CIV_APPROACH && m_paeApproachScratchPad[ePlayer] < NUM_MINOR_CIV_APPROACHES, "m_paeApproachScratchPad[iScratchPadID] is out of bounds for minor civ approaches. Show Jon!");
@@ -5883,655 +5843,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	{
 		LogMinorCivApproachUpdate(ePlayer, viApproachWeights.begin(), eApproach, eOldApproach);
 	}
-#else
 
-	////////////////////////////////////
-	// NEUTRAL DEFAULT WEIGHT
-	////////////////////////////////////
-
-	viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += /*1*/ GC.getMINOR_APPROACH_IGNORE_DEFAULT();
-
-	////////////////////////////////////
-	// CURRENT SITUATION BIASES
-	////////////////////////////////////
-
-	// Bias for our current Approach.  This should prevent it from jumping around from turn-to-turn as much
-	// We use the scratch pad here since the normal array has been cleared so that we have knowledge of who we've already assigned an Approach for this turn; this should be the only place the scratch pad is used
-	CvAssertMsg(m_paeApproachScratchPad[ePlayer] >= NO_MINOR_CIV_APPROACH && m_paeApproachScratchPad[ePlayer] < NUM_MINOR_CIV_APPROACHES, "m_paeApproachScratchPad[iScratchPadID] is out of bounds for minor civ approaches. Show Jon!");
-	if(m_paeApproachScratchPad[ePlayer] < NO_MINOR_CIV_APPROACH || m_paeApproachScratchPad[ePlayer] >= NUM_MINOR_CIV_APPROACHES)
-	{
-		return NO_MINOR_CIV_APPROACH;
-	}
-
-	MinorCivApproachTypes eOldApproach = (MinorCivApproachTypes) m_paeApproachScratchPad[ePlayer];
-	viApproachWeights[eOldApproach] += /*2*/ GC.getMINOR_APPROACH_BIAS_FOR_CURRENT();
-
-	// If we're planning a war then give it a bias so that we don't get away from it too easily
-	if(eOldApproach == MINOR_CIV_APPROACH_CONQUEST)
-	{
-		// Add some bias to Ignore to help us get out in case things get sticky
-		viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += /*3*/ GC.getMINOR_APPROACH_IGNORE_CURRENTLY_WAR();
-
-		// Don't give this bias if war is going poorly
-		WarStateTypes eWarState = GetWarState(ePlayer);
-		if(eWarState > WAR_STATE_STALEMATE)
-		{
-			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*4*/ GC.getAPPROACH_WAR_CURRENTLY_WAR();
-		}
-	}
-	// If we're Protective then knock Conquest down & pump Protective up
-	else if(eOldApproach == MINOR_CIV_APPROACH_PROTECTIVE)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-10*/ GC.getMINOR_APPROACH_WAR_CURRENTLY_PROTECTIVE();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*10*/ GC.getMINOR_APPROACH_PROTECTIVE_CURRENTLY_PROTECTIVE();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -10; //antonjs: todo: constant/XML
-	}
-
-	// If we're ALREADY at war with this player then we're much less likely to be Protective
-	if(IsAtWar(ePlayer))
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*-15*/ GC.getMINOR_APPROACH_PROTECTIVE_CURRENTLY_WAR();
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*-6*/ GC.getMINOR_APPROACH_FRIENDLY_CURRENTLY_WAR();
-	}
-
-	////////////////////////////////////
-	// RESOURCES
-	////////////////////////////////////
-
-	int iNumWeLack = GET_PLAYER(ePlayer).GetMinorCivAI()->GetNumResourcesMajorLacks(GetPlayer()->GetID());
-	if(iNumWeLack > 0)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (iNumWeLack* /*1*/ GC.getMINOR_APPROACH_FRIENDLY_RESOURCES());
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (iNumWeLack* /*1*/ GC.getMINOR_APPROACH_PROTECTIVE_RESOURCES());
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (iNumWeLack/***/ /*1*/ /*GC.getMINOR_APPROACH_PROTECTIVE_RESOURCES()*/); // we could just take them after all
-	}
-
-	////////////////////////////////////
-	// FRIENDS WITH MINOR
-	////////////////////////////////////
-
-	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-100*/ GC.getMINOR_APPROACH_WAR_FRIENDS();
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*4*/ GC.getMINOR_APPROACH_FRIENDLY_FRIENDS();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*2*/ GC.getMINOR_APPROACH_PROTECTIVE_FRIENDS(); //antonjs: todo: increase
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= 10; //antonjs: todo: constant/XML
-	}
-
-	////////////////////////////////////
-	// PLEDGE TO PROTECT - have we pledged to protect this minor?
-	////////////////////////////////////
-	//antonjs: consider: disable this weight after a certain amount of turns, to have this player "reevaluate" its PtP
-	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += 2; //antonjs: todo: constant/XML
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -1; //antonjs: todo: constant/XML
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += -2; //antonjs: todo: constant/XML
-	}
-
-	////////////////////////////////////
-	// PERSONALITY
-	////////////////////////////////////
-
-	for(iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
-	{
-		viApproachWeights[iApproachLoop] += GetPersonalityMinorCivApproachBias((MinorCivApproachTypes) iApproachLoop);
-	}
-
-	bool bIsGoodWarTarget = false;
-	bool bCheckIfGoodWarTarget = false;
-
-	////////////////////////////////////
-	// CONQUEST GRAND STRATEGY
-	////////////////////////////////////
-
-	if(IsGoingForWorldConquest())
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*10*/ GC.getMINOR_APPROACH_WAR_CONQUEST_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*-15*/ GC.getMINOR_APPROACH_PROTECTIVE_CONQUEST_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*-5*/ GC.getMINOR_APPROACH_FRIENDLY_CONQUEST_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 8; //antonjs: todo: constant/XML
-
-		// if we're neighbors, make it even more likely we'll go to war
-		if(GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-		{
-			bIsGoodWarTarget = true;
-		}
-	}
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	{
-		if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
-		{
-			viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 10;
-		}
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(GetPlayer()->GetYieldFromMinorDemand(eYield) > 0)
-			{
-				viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 5;
-			}
-		}
-	}
-#endif
-
-	////////////////////////////////////
-	// DIPLO GRAND STRATEGY
-	////////////////////////////////////
-
-	else if(IsGoingForDiploVictory())
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-20*/ GC.getMINOR_APPROACH_WAR_DIPLO_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += /*-15*/ GC.getMINOR_APPROACH_IGNORE_DIPLO_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -15; //antonjs: todo: constant/XML
-
-		// Neighbors and Close: +5 to Protective
-		if(GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
-			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*5*/ GC.getMINOR_APPROACH_PROTECTIVE_DIPLO_GRAND_STRATEGY_NEIGHBORS();
-	}
-
-	////////////////////////////////////
-	// CULTURE GRAND STRATEGY
-	////////////////////////////////////
-
-	else if(IsGoingForCultureVictory())
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-20*/ GC.getMINOR_APPROACH_WAR_CULTURE_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += /*-15*/ GC.getMINOR_APPROACH_IGNORE_CULTURE_GRAND_STRATEGY();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -10; //antonjs: todo: constant/XML
-
-		// Minor is cultural
-		if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED) 
-		{
-			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*5*/ GC.getMINOR_APPROACH_PROTECTIVE_CULTURE_GRAND_STRATEGY_CST();
-		}
-		else
-		{
-			bCheckIfGoodWarTarget = true;
-		}
-	}
-
-	////////////////////////////////////
-	// SCIENCE GRAND STRATEGY
-	////////////////////////////////////
-	else
-	{
-		bCheckIfGoodWarTarget = true;
-	}
-
-	// See if this minor is on same continent as a major power we want to attack
-	if (bCheckIfGoodWarTarget)
-	{
-		CvCity *pkMinorCapital = GET_PLAYER(ePlayer).getCapitalCity();
-		if (pkMinorCapital)		// This should always be valid
-		{
-			int iMinorAreaID = pkMinorCapital->getArea();
-
-			if (m_pPlayer->getCapitalCity())		// This should always be valid too.
-			{
-				int iMyAreaID = m_pPlayer->getCapitalCity()->getArea();
-				int iPlayerLoop;
-				CvTeam& kMyTeam = GET_TEAM(GetTeam());
-				for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					CvPlayer &kLoopPlayer = GET_PLAYER(eLoopPlayer);
-
-					// Make sure it is another valid player and not already at war with them
-					if (m_pPlayer->GetID() != eLoopPlayer)
-					{
-						if(IsPlayerValid(eLoopPlayer))
-						{
-							if (!kMyTeam.isAtWar(kLoopPlayer.getTeam()))
-							{
-								// Do we want to attack them?
-								if (GetMajorCivApproach(eLoopPlayer, false) == MAJOR_CIV_APPROACH_WAR)
-								{
-									CvCity* pkLoopPlayerCity = kLoopPlayer.getCapitalCity();
-									if (pkLoopPlayerCity)	// It's possible this is not valid
-									{
-										int iLoopPlayerAreaID = pkLoopPlayerCity->getArea();
-										// All of us neighbors on same landmass?
-										if (iLoopPlayerAreaID == iMinorAreaID &&
-											iMyAreaID == iLoopPlayerAreaID)
-										{
-											if (kLoopPlayer.GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS &&
-												m_pPlayer->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS)
-											{
-												bIsGoodWarTarget = true;
-												break;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (bIsGoodWarTarget)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*10*/ GC.getMINOR_APPROACH_WAR_CONQUEST_GRAND_STRATEGY_NEIGHBORS();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 8; //antonjs: todo: constant/XML
-	}
-
-	////////////////////////////////////
-	// TRAITS THAT EFFECT MINORS - These are heavy handed, but that is intentional
-	////////////////////////////////////
-	int iBonusTraitMod = 0;
-	iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetCityStateFriendshipModifier() > 0) ? 100 : 0;
-	iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetCityStateBonusModifier() > 0) ? 100 : 0;
-	iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetCityStateCombatModifier() > 0) ? -100 : 0;
-#if defined(MOD_BALANCE_CORE)
-	iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetAllianceCSStrength() > 0) ? 100 : 0;
-	iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetAllianceCSDefense() > 0) ? 100 : 0;
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes) iI;
-		if(eYield != NO_YIELD)
-		{
-			iBonusTraitMod += (m_pPlayer->GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0) ? 100 : 0;
-		}
-	}
-#endif
-	if (iBonusTraitMod)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= iBonusTraitMod;
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= iBonusTraitMod / 5;
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += iBonusTraitMod / 5;
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += iBonusTraitMod;
-	}
-	if (iBonusTraitMod >= 0 && m_pPlayer->getNumCities() <= 1)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= 200;
-	}
-
-	////////////////////////////////////
-	// RELIGION
-	////////////////////////////////////
-	//antonjs: todo: befriend/protect religious minors if we have a religion strategy
-
-	////////////////////////////////////
-	// HAPPINESS
-	////////////////////////////////////
-	//antonjs: todo: befriend/protect mercantile minors if we are in need of happiness
-
-	////////////////////////////////////
-	// MILITARY THREAT
-	////////////////////////////////////
-
-	//switch (GetMilitaryThreat(ePlayer))
-	//{
-	//case THREAT_CRITICAL:
-	//	//viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += /*0*/ GC.getAPPROACH_DECEPTIVE_MILITARY_THREAT_CRITICAL();
-	//	//break;
-	//case THREAT_SEVERE:
-	//case THREAT_MAJOR:
-	//case THREAT_MINOR:
-	//case THREAT_NONE:
-	//	break;
-	//}
-
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
-
-	////////////////////////////////////
-	// AT WAR RIGHT NOW
-	////////////////////////////////////
-
-	for(iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		// Don't look at the guy we're already thinking about or anyone on his team
-		if(ePlayer != eLoopPlayer && GET_PLAYER(ePlayer).getTeam() != GET_PLAYER(eLoopPlayer).getTeam())
-		{
-			if(IsPlayerValid(eLoopPlayer))
-			{
-				if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					if(GetStateAllWars() == STATE_ALL_WARS_NEUTRAL)
-						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-9*/ GC.getAPPROACH_WAR_AT_WAR_WITH_PLAYER_WARS_NEUTRAL();
-					else if(GetStateAllWars() == STATE_ALL_WARS_WINNING)
-						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-3*/ GC.getAPPROACH_WAR_AT_WAR_WITH_PLAYER_WARS_WINNING();
-					else
-						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-12*/ GC.getAPPROACH_WAR_AT_WAR_WITH_PLAYER_WARS_LOSING();
-				}
-			}
-		}
-	}
-
-	////////////////////////////////////
-	// APPROACHES TOWARDS OTHER PLAYERS
-	////////////////////////////////////
-
-	// Look at Approaches we've already adopted for players we feel more strongly about
-	if(bLookAtOtherPlayers)
-	{
-		bool bMinorCiv;
-
-		// Major Civs
-		for(iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			// Don't look at the guy we're already thinking about
-			if(eLoopPlayer != ePlayer)
-			{
-				if(IsPlayerValid(eLoopPlayer))
-				{
-					bMinorCiv = GET_PLAYER(eLoopPlayer).isMinorCiv();
-
-					// Planning war with this player? (Can't ONLY use the War Approach because this could have been cleared before, but we have to also check it because it could have just been set for someone else earlier this turn)
-					if(GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE ||
-					        (!bMinorCiv && GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR))	// Major Civs only
-					{
-						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-20*/ GC.getMINOR_APPROACH_WAR_PLANNING_WAR_WITH_ANOTHER_PLAYER();
-					}
-
-					// Approaches already assigned to other higher-priority Minors
-					if(bMinorCiv)
-					{
-						switch(GetMinorCivApproach(eLoopPlayer))
-						{
-						case MINOR_CIV_APPROACH_CONQUEST:
-							viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-20*/ GC.getMINOR_APPROACH_WAR_PLANNING_WAR_WITH_ANOTHER_PLAYER();
-							break;
-						case MINOR_CIV_APPROACH_PROTECTIVE:
-							// If we're already protecting other Minors then we've already been stretched thin
-							viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*-2*/ GC.getMINOR_APPROACH_PROTECTIVE_WITH_ANOTHER_PLAYER();
-							break;
-						case MINOR_CIV_APPROACH_BULLY:
-							// If we're already bullying another player, we don't want to piss off too many
-							viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -2; //antonjs: todo: constant/XML
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	////////////////////////////////////
-	// PROXIMITY
-	////////////////////////////////////
-
-	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
-	{
-	case PLAYER_PROXIMITY_NEIGHBORS:
-		viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += /*-2*/ GC.getMINOR_APPROACH_IGNORE_PROXIMITY_NEIGHBORS();
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*-1*/ GC.getMINOR_APPROACH_FRIENDLY_PROXIMITY_NEIGHBORS();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*1*/ GC.getMINOR_APPROACH_PROTECTIVE_PROXIMITY_NEIGHBORS();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*1*/ GC.getMINOR_APPROACH_CONQUEST_PROXIMITY_NEIGHBORS();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 1; //antonjs: todo: constant/XML
-		break;
-	case PLAYER_PROXIMITY_CLOSE:
-		viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += /*-1*/ GC.getMINOR_APPROACH_IGNORE_PROXIMITY_CLOSE();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*1*/ GC.getMINOR_APPROACH_PROTECTIVE_PROXIMITY_CLOSE();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-2*/ GC.getMINOR_APPROACH_CONQUEST_PROXIMITY_CLOSE();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 1; //antonjs: todo: constant/XML
-		break;
-	case PLAYER_PROXIMITY_FAR:
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*2*/ GC.getMINOR_APPROACH_FRIENDLY_PROXIMITY_FAR();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-4*/ GC.getMINOR_APPROACH_CONQUEST_PROXIMITY_FAR();
-		break;
-	case PLAYER_PROXIMITY_DISTANT:
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*2*/ GC.getMINOR_APPROACH_FRIENDLY_PROXIMITY_DISTANT();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-10*/ GC.getMINOR_APPROACH_CONQUEST_PROXIMITY_DISTANT();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -2; //antonjs: todo: constant/XML
-		break;
-	}
-
-	////////////////////////////////////
-	// MINOR PERSONALITY
-	////////////////////////////////////
-
-	switch(GET_PLAYER(ePlayer).GetMinorCivAI()->GetPersonality())
-	{
-	case MINOR_CIV_PERSONALITY_FRIENDLY:
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getMINOR_APPROACH_FRIENDLY_PERSONALITY_FRIENDLY();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*0*/ GC.getMINOR_APPROACH_PROTECTIVE_PERSONALITY_PROTECTIVE();
-		break;
-	case MINOR_CIV_PERSONALITY_NEUTRAL:
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getMINOR_APPROACH_FRIENDLY_PERSONALITY_NEUTRAL();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*0*/ GC.getMINOR_APPROACH_PROTECTIVE_PERSONALITY_NEUTRAL();
-		break;
-	case MINOR_CIV_PERSONALITY_HOSTILE:
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*-1*/ GC.getMINOR_APPROACH_FRIENDLY_PERSONALITY_HOSTILE();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*-2*/ GC.getMINOR_APPROACH_PROTECTIVE_PERSONALITY_HOSTILE();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*1*/ GC.getMINOR_APPROACH_CONQUEST_PERSONALITY_HOSTILE();
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 1; //antonjs: todo: constant/XML
-		break;
-	case MINOR_CIV_PERSONALITY_IRRATIONAL:
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getMINOR_APPROACH_FRIENDLY_PERSONALITY_IRRATIONAL();
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += /*0*/ GC.getMINOR_APPROACH_PROTECTIVE_PERSONALITY_IRRATIONAL();
-		break;
-	}
-
-	////////////////////////////////////
-	// MINOR TRAIT
-	////////////////////////////////////
-
-	// Since Militaristic CS are harder to successfully bully
-	if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += -2; //antonjs: todo: XML
-	}
-
-	////////////////////////////////////
-	// TRIBUTE HISTORY - have we bullied this player before?  If so, we are more likely to keep bullying
-	////////////////////////////////////
-	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsEverBulliedByMajor(GetPlayer()->GetID()))
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 2; //antonjs: todo: constant/XML
-	}
-
-	////////////////////////////////////
-	// QUESTS - are there any active quests that might sway our decision?
-	////////////////////////////////////
-	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_PLEDGE_TO_PROTECT))
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += 3; //antonjs: todo: constant/XML
-	}
-
-	// Are we getting money from trade with them
-	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) / 100;
-	if(iCurrentTradeValue > 0)
-	{
-		// todo: constant/XML
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += 3;
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= 3;
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += 5;
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= 5;
-
-		// sanity check
-		int iGPT = GetPlayer()->calculateGoldRate();
-		int iDeltaGPT = iGPT - iCurrentTradeValue;
-		if (iGPT >= 0 && (iDeltaGPT < 0))
-		{
-			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += iDeltaGPT;
-		}
-	}
-
-	////////////////////////////////////
-	// TARGET VALUE - can we conquer these guys?
-	////////////////////////////////////
-
-	int iPTV = GetPlayerTargetValue(ePlayer);
-	if (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0)
-	{
-		iPTV++;
-		iPTV = iPTV > TARGET_VALUE_SOFT ? TARGET_VALUE_SOFT : iPTV;
-	}
-	switch(iPTV)
-	{
-	case TARGET_VALUE_IMPOSSIBLE:
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] *= /*10*/ GC.getMINOR_APPROACH_WAR_TARGET_IMPOSSIBLE();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 100;
-		break;
-	case TARGET_VALUE_BAD:
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] *= /*20*/ GC.getMINOR_APPROACH_WAR_TARGET_BAD();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 100;
-		break;
-	case TARGET_VALUE_AVERAGE:
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] *= /*40*/ GC.getMINOR_APPROACH_WAR_TARGET_AVERAGE();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 100;
-		break;
-	case TARGET_VALUE_FAVORABLE:
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] *= /*110*/ GC.getMINOR_APPROACH_WAR_TARGET_FAVORABLE();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 100;
-		break;
-	case TARGET_VALUE_SOFT:
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] *= /*130*/ GC.getMINOR_APPROACH_WAR_TARGET_SOFT();
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 100;
-		break;
-	default:
-		break;
-	}
-
-	//////////////////////////////////////
-	//// WAR PROJECTION - how do we think a war against ePlayer will go?
-	//////////////////////////////////////
-
-	//switch (GetWarProjection(ePlayer))
-	//{
-	//case WAR_PROJECTION_DESTRUCTION:
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*25*/ GC.getMINOR_APPROACH_WAR_PROJECTION_DESTRUCTION_PERCENT();
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-	//	break;
-	//case WAR_PROJECTION_DEFEAT:
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*40*/ GC.getMINOR_APPROACH_WAR_PROJECTION_DEFEAT_PERCENT();
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-	//	break;
-	//case WAR_PROJECTION_STALEMATE:
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*60*/ GC.getMINOR_APPROACH_WAR_PROJECTION_STALEMATE_PERCENT();
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-	//	break;
-	//case WAR_PROJECTION_UNKNOWN:
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*70*/ GC.getMINOR_APPROACH_WAR_PROJECTION_UNKNOWN_PERCENT();
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-	//	break;
-	//case WAR_PROJECTION_GOOD:
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*100*/ GC.getMINOR_APPROACH_WAR_PROJECTION_GOOD_PERCENT();
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-	//	break;
-	//case WAR_PROJECTION_VERY_GOOD:
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= /*110*/ GC.getMINOR_APPROACH_WAR_PROJECTION_VERY_GOOD_PERCENT();
-	//	viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-	//	break;
-	//}
-
-	////////////////////////////////////
-	// PEACE TREATY - have we made peace with this player before?  If so, reduce war weight
-	////////////////////////////////////
-
-	int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(eTeam);
-	if(iPeaceTreatyTurn > -1)
-	{
-		int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-		if(iTurnsSincePeace < /*25*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER())
-		{
-			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] *= /*65*/ GC.getAPPROACH_WAR_HAS_MADE_PEACE_BEFORE_PERCENT();
-			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] /= 100;
-		}
-	}
-
-	////////////////////////////////////
-	// DEBUGGING
-	////////////////////////////////////
-	if(BULLY_DEBUGGING)
-	{
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += 50;
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += 0;
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += 0;
-	}
-
-	////////////////////////////////////
-	// RANDOM FACTOR
-	////////////////////////////////////
-
-	int iRandAmount;
-	for(iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
-	{
-		// Increase weights to hundreds to give us more fidelity
-		viApproachWeights[iApproachLoop] *= 100;
-
-		iRandAmount = viApproachWeights[iApproachLoop] * /*15*/ GC.getAPPROACH_RANDOM_PERCENT();
-
-		// If the amount is negative, only bad things can happen.  Plus, it's not likely we're going to pick this anyways
-		if(iRandAmount > 0)
-		{
-			iRandAmount /= 100;
-			viApproachWeights[iApproachLoop] += GC.getGame().getJonRandNumVA(iRandAmount, "Randomizing Diplo AI Minor Civ Approach Weight (%d; %d)", (int)GetPlayer()->GetID(), (int)ePlayer);
-		}
-	}
-
-	////////////////////////////////////
-	// CAN WE PLEDGE TO PROTECT?
-	////////////////////////////////////
-	if(!GET_PLAYER(ePlayer).GetMinorCivAI()->CanMajorProtect(GetPlayer()->GetID()))
-	{
-		// Disfavor protective if we can't actually pledge protection!
-		if (viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] > 0)
-			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] = 0;
-	}
-
-	////////////////////////////////////
-	// CAN WE DECLARE WAR?
-	////////////////////////////////////
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if(!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
-#else
-	if(!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam()))
-#endif
-	{
-		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-		{
-			// Disfavor conquest if we can't even do war with them!
-			if (viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] > 0)
-				viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
-		}
-	}
-	
-	////////////////////////////////////
-	// ALLIES WITH MINOR?
-	////////////////////////////////////
-	if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == GetPlayer()->GetID())
-	{
-		// Disfavor conquest and bullying if they are our ally
-
-		if (viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] > 0)
-			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] = 0;
-
-		if (viApproachWeights[MINOR_CIV_APPROACH_BULLY] > 0)
-			viApproachWeights[MINOR_CIV_APPROACH_BULLY] = 0;
-	}
-
-	// This vector is what we'll use to sort
-	CvWeightedVector< MinorCivApproachTypes, 128 > vApproachWeightsForSorting;
-	vApproachWeightsForSorting.clear();
-
-	// Transfer values from our normal int vector (which we need for logging) to the Weighted Vector we can sort
-	for(iApproachLoop = 0; iApproachLoop < NUM_MINOR_CIV_APPROACHES; iApproachLoop++)
-	{
-		vApproachWeightsForSorting.push_back((MinorCivApproachTypes) iApproachLoop, viApproachWeights[iApproachLoop]);
-	}
-
-	vApproachWeightsForSorting.SortItems();
-
-	eApproach = vApproachWeightsForSorting.GetElement(0);
-	iHighestWeight = vApproachWeightsForSorting.GetWeight(0);
-
-	// Don't want to log if we're just seeing what the highest weight is and don't care about what Approach we like
-	if(bLog)
-	{
-		LogMinorCivApproachUpdate(ePlayer, viApproachWeights.begin(), eApproach, eOldApproach);
-	}
-#endif
 	return eApproach;
 }
 
