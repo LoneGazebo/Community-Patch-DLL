@@ -2445,6 +2445,7 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* p
 	if (pResult == NULL && iTargetArea != -1)
 		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe, this);
 
+	LogSettleTarget("BestWithCurrent", pResult);
 	return pResult;
 }
 
@@ -2458,7 +2459,24 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int
 	if (pResult == NULL && iAreaID != -1 )
 		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bOnlySafeTargets, bIsSafe);
 
+	LogSettleTarget("BestNew", pResult);
 	return pResult;
+}
+
+void CvAIOperationCivilianFoundCity::LogSettleTarget(const char* hint, CvPlot* pTarget) const
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		FILogFile* pLog = LOGFILEMGR.GetLog("SettleLog.csv", FILogFile::kDontTimeStamp);
+		CvString strMsg;
+		if (pTarget)
+			strMsg.Format("%03d, %s, op %d, %s, target %d:%d, score %d, ", GC.getGame().getElapsedGameTurns(), GET_PLAYER(m_eOwner).getName(),
+				m_iID, hint, pTarget->getX(), pTarget->getY(), GET_PLAYER(m_eOwner).getPlotFoundValue(pTarget->getX(), pTarget->getY()));
+		else
+			strMsg.Format("%03d, %s, op %d, %s, no target, ", GC.getGame().getElapsedGameTurns(), GET_PLAYER(m_eOwner).getName(), m_iID, hint);
+
+		pLog->Msg(strMsg.c_str());
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

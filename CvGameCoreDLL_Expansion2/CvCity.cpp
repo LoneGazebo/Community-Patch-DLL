@@ -15433,10 +15433,9 @@ void CvCity::CheckForOperationUnits()
 	VALIDATE_OBJECT
 	UnitTypes eBestUnit;
 	UnitAITypes eUnitAI;
-	if((IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing()) || IsRazing() || this == NULL)
-	{
+	if((IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing()) || IsRazing())
 		return;
-	}
+
 	if (GET_PLAYER(getOwner()).isMinorCiv() || isBarbarian())
 		return;
 
